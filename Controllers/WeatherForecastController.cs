@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-
 namespace MyDockerWebAPI.Controllers;
 
 [ApiController]

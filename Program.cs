@@ -1,3 +1,4 @@
+using MyDockerWebAPI;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,5 +22,9 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+var startup = new Startup();
+//startup.ConfigureServices(builder.Services);
+startup.Configure(app);
 
 app.Run();
