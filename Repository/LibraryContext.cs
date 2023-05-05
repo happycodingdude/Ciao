@@ -4,14 +4,16 @@ namespace MyDockerWebAPI.Repository
 {
     public class LibraryContext : DbContext
     {
-        static readonly string connectionString = "server=localhost;port=3306;database=TestDatabase;user=root;password=123456;";
-        public DbSet<Book> Book { get; set; }
+        public LibraryContext(DbContextOptions<LibraryContext> option) : base(option)
+        {
+        }
 
-        public DbSet<Publisher> Publisher { get; set; }
+        public DbSet<Book>? Book { get; set; }
+
+        public DbSet<Publisher>? Publisher { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySQL(connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,13 +22,13 @@ namespace MyDockerWebAPI.Repository
 
             modelBuilder.Entity<Publisher>(entity =>
             {
-                entity.HasKey(e => e.ID);
+                entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<Book>(entity =>
             {
-                entity.HasKey(e => e.ISBN);
+                entity.HasKey(e => e.Id);
                 entity.Property(e => e.Title).IsRequired();
                 entity.HasOne(d => d.Publisher)
                 .WithMany(p => p.Books);
