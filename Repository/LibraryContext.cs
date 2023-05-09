@@ -10,29 +10,36 @@ namespace MyDockerWebAPI.Repository
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            Console.WriteLine("OnConfiguring calling");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // base.OnModelCreating(modelBuilder);
+            Console.WriteLine("OnModelCreating calling");
 
-            // modelBuilder.Entity<Publisher>(entity =>
-            // {
-            //     entity.HasKey(e => e.Id);
-            //     entity.Property(e => e.Name).IsRequired();
-            // });
+            //modelBuilder.Entity<Publisher>().HasKey(q => q.Id);
+            //modelBuilder.Entity<Category>().HasKey(q => q.Id);
+            modelBuilder.Entity<Book>(entity =>
+            {
+                //entity.HasKey(q => q.Id);
+                entity.HasOne(q => q.Publisher).WithMany(q => q.Books).HasForeignKey(q => q.PublisherId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(q => q.Category).WithMany(q => q.Books).HasForeignKey(q => q.CategoryId).OnDelete(DeleteBehavior.Cascade);
+                //entity.Property(q => q.create_time).HasDefaultValueSql("now()");
+            });
+            modelBuilder.Entity<Book>().Property(q => q.create_time).HasDefaultValueSql("getdate()");
 
-            // modelBuilder.Entity<Book>(entity =>
-            // {
-            //     entity.HasKey(e => e.Id);
-            //     entity.Property(e => e.Title).IsRequired();
-            //     entity.HasOne(d => d.Publisher)
-            //     .WithMany(p => p.Books);
-            // });
+            if (!DataGenerator.Books.Any())
+                DataGenerator.InitBogusData();
+            var publishers = DataGenerator.Publishers;
+            var categories = DataGenerator.Categories;
+            var books = DataGenerator.Books;
+            modelBuilder.Entity<Publisher>().HasData(publishers);
+            modelBuilder.Entity<Category>().HasData(categories);
+            modelBuilder.Entity<Book>().HasData(books);
         }
 
-        public DbSet<BookMigration>? Books { get; set; }
-
-        public DbSet<PublisherMigration>? Publishers { get; set; }
+        public DbSet<Book>? Books { get; set; }
+        public DbSet<Publisher>? Publishers { get; set; }
+        public DbSet<Category>? Categories { get; set; }
     }
 }
