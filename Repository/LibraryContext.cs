@@ -24,9 +24,11 @@ namespace MyDockerWebAPI.Repository
                 //entity.HasKey(q => q.Id);
                 entity.HasOne(q => q.Publisher).WithMany(q => q.Books).HasForeignKey(q => q.PublisherId).OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(q => q.Category).WithMany(q => q.Books).HasForeignKey(q => q.CategoryId).OnDelete(DeleteBehavior.Cascade);
-                //entity.Property(q => q.create_time).HasDefaultValueSql("now()");
+                entity.Property(q => q.create_time).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP()");
+                entity.Property(q => q.modify_time).ValueGeneratedOnUpdate().HasDefaultValueSql("CURRENT_TIMESTAMP()");
             });
-            modelBuilder.Entity<Book>().Property(q => q.create_time).HasDefaultValueSql("getdate()");
+            // modelBuilder.Entity<Book>().Property(q => q.create_time).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP()");
+            // modelBuilder.Entity<Book>().Property(q => q.modify_time).ValueGeneratedOnUpdate().HasDefaultValueSql("CURRENT_TIMESTAMP()");
 
             if (!DataGenerator.Books.Any())
                 DataGenerator.InitBogusData();
