@@ -7,7 +7,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSetting
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var startup = new StartupMigration();
+var startup = new Startup();
 startup.ConfigureServices(builder);
 
 var app = builder.Build();

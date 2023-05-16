@@ -8,6 +8,7 @@ namespace MyDockerWebAPI.Controllers;
 [Route("[controller]")]
 public class LibraryController : ControllerBase
 {
+    // private readonly LibraryContext _context = LibraryContext.GetInstance();
     private readonly LibraryContext _context;
     private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
     {
@@ -44,7 +45,7 @@ public class LibraryController : ControllerBase
             var data = await _context.Books.AsNoTracking()
                 .Include(q => q.Publisher)
                 .Include(q => q.Category)
-                .FirstOrDefaultAsync(q => q.Id.Equals(id));
+                .SingleOrDefaultAsync(q => q.Id.Equals(id));
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -73,13 +74,10 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var current = _context.Books
-                .Include(q => q.Publisher)
-                .Include(q => q.Category)
-                .FirstOrDefault(q => q.Id.Equals(model.Id));
+            var current = await _context.Books.SingleOrDefaultAsync(q => q.Id.Equals(model.Id));
             if (current != null)
             {
-                _context.Entry<Book>(current).CurrentValues.SetValues(model);
+                _context.Entry(current).CurrentValues.SetValues(model);
                 await _context.SaveChangesAsync();
             }
             return new JsonResult(current, jsonSetting);
@@ -95,7 +93,7 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var current = _context.Books.FirstOrDefault(q => q.Id.Equals(id));
+            var current = await _context.Books.SingleOrDefaultAsync(q => q.Id.Equals(id));
             if (current != null)
             {
                 _context.Books.Remove(current);

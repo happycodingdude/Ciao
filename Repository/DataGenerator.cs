@@ -33,9 +33,7 @@ namespace MyDockerWebAPI.Repository
             int id = 1;
             return new Faker<Publisher>()
                  .RuleFor(r => r.Id, _ => id++)
-                 .RuleFor(r => r.Name, (_, r) => "Publisher " + r.Id)
-                 .RuleFor(r => r.create_time, _ => DateTime.Now)
-                 .RuleFor(r => r.modify_time, _ => DateTime.Now);
+                 .RuleFor(r => r.Name, (_, r) => "Publisher " + r.Id);
         }
 
         private static Faker<Category> GetCategoryGenerator()
@@ -43,9 +41,7 @@ namespace MyDockerWebAPI.Repository
             int id = 1;
             return new Faker<Category>()
                   .RuleFor(r => r.Id, _ => id++)
-                  .RuleFor(r => r.Name, (_, r) => "Category " + r.Id)
-                  .RuleFor(r => r.create_time, _ => DateTime.Now)
-                  .RuleFor(r => r.modify_time, _ => DateTime.Now);
+                  .RuleFor(r => r.Name, (_, r) => "Category " + r.Id);
         }
 
         private static Faker<Book> GetBookGenerator(int publisherId, int categoryId)
@@ -61,9 +57,7 @@ namespace MyDockerWebAPI.Repository
                 .RuleFor(r => r.Language, (_, r) => "Language " + r.Id)
                 .RuleFor(r => r.Pages, _ => page += 100)
                 .RuleFor(r => r.PublisherId, publisherId)
-                .RuleFor(r => r.CategoryId, categoryId)
-                .RuleFor(r => r.create_time, _ => DateTime.Now)
-                .RuleFor(r => r.modify_time, _ => DateTime.Now);
+                .RuleFor(r => r.CategoryId, categoryId);
         }
     }
 }
