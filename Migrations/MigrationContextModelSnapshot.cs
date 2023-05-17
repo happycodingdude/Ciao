@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyDockerWebAPI.Repository;
 
@@ -10,19 +9,17 @@ using MyDockerWebAPI.Repository;
 
 namespace MyDockerWebAPI.Migrations
 {
-    [DbContext(typeof(LibraryContext))]
-    [Migration("20230516095710_Init")]
-    partial class Init
+    [DbContext(typeof(MigrationContext))]
+    partial class MigrationContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("MyDockerWebAPI.Repository.Book", b =>
+            modelBuilder.Entity("MyDockerWebAPI.Model.Book", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,8 +31,16 @@ namespace MyDockerWebAPI.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
                     b.Property<string>("Language")
                         .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Pages")
                         .HasColumnType("int");
@@ -46,23 +51,13 @@ namespace MyDockerWebAPI.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("create_time")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-
-                    b.Property<DateTime?>("modify_time")
-                        .HasColumnType("datetime(6)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("PublisherId");
 
-                    b.ToTable("Book");
-
-                    b.HasAnnotation("MySql:CreateTrigger", "\r\n                        CREATE TRIGGER [dbo].[Book_UPDATE] ON [dbo].[Book]\r\n                        AFTER UPDATE\r\n                        AS\r\n                        BEGIN\r\n                            SET NOCOUNT ON;\r\n\r\n                            IF ((SELECT TRIGGER_NESTLEVEL()) > 1) RETURN;\r\n\r\n                            DECLARE @Id INT\r\n\r\n                            SELECT @Id = INSERTED.Id\r\n                            FROM INSERTED\r\n\r\n                            UPDATE dbo.Book\r\n                            SET modify_time = CURRENT_TIMESTAMP()\r\n                            WHERE Id = @Id\r\n                        END");
+                    b.ToTable("Book", (string)null);
 
                     b.HasData(
                         new
@@ -97,26 +92,26 @@ namespace MyDockerWebAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MyDockerWebAPI.Repository.Category", b =>
+            modelBuilder.Entity("MyDockerWebAPI.Model.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("create_time")
+                    b.Property<DateTime?>("CreateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<DateTime?>("modify_time")
+                    b.Property<DateTime?>("ModifyTime")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.ToTable("Category", (string)null);
 
                     b.HasData(
                         new
@@ -126,26 +121,26 @@ namespace MyDockerWebAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MyDockerWebAPI.Repository.Publisher", b =>
+            modelBuilder.Entity("MyDockerWebAPI.Model.Publisher", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("create_time")
+                    b.Property<DateTime?>("CreateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<DateTime?>("modify_time")
+                    b.Property<DateTime?>("ModifyTime")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Publisher");
+                    b.ToTable("Publisher", (string)null);
 
                     b.HasData(
                         new
@@ -155,15 +150,15 @@ namespace MyDockerWebAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MyDockerWebAPI.Repository.Book", b =>
+            modelBuilder.Entity("MyDockerWebAPI.Model.Book", b =>
                 {
-                    b.HasOne("MyDockerWebAPI.Repository.Category", "Category")
+                    b.HasOne("MyDockerWebAPI.Model.Category", "Category")
                         .WithMany("Books")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyDockerWebAPI.Repository.Publisher", "Publisher")
+                    b.HasOne("MyDockerWebAPI.Model.Publisher", "Publisher")
                         .WithMany("Books")
                         .HasForeignKey("PublisherId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -174,12 +169,12 @@ namespace MyDockerWebAPI.Migrations
                     b.Navigation("Publisher");
                 });
 
-            modelBuilder.Entity("MyDockerWebAPI.Repository.Category", b =>
+            modelBuilder.Entity("MyDockerWebAPI.Model.Category", b =>
                 {
                     b.Navigation("Books");
                 });
 
-            modelBuilder.Entity("MyDockerWebAPI.Repository.Publisher", b =>
+            modelBuilder.Entity("MyDockerWebAPI.Model.Publisher", b =>
                 {
                     b.Navigation("Books");
                 });

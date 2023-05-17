@@ -1,8 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace MyDockerWebAPI.Repository
+namespace MyDockerWebAPI.Model
 {
-    [Table("Book")]
     public class Book : BaseModel
     {
         public string? Title { get; set; }
@@ -15,14 +12,12 @@ namespace MyDockerWebAPI.Repository
         public Category? Category { get; set; }
     }
 
-    [Table("Publisher")]
     public class Publisher : BaseModel
     {
         public string? Name { get; set; }
         public ICollection<Book>? Books { get; set; }
     }
 
-    [Table("Category")]
     public class Category : BaseModel
     {
         public string? Name { get; set; }

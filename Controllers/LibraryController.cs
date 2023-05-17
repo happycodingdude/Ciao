@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyDockerWebAPI.Model;
 using MyDockerWebAPI.Repository;
 using Newtonsoft.Json;
 
@@ -8,16 +9,17 @@ namespace MyDockerWebAPI.Controllers;
 [Route("[controller]")]
 public class LibraryController : ControllerBase
 {
-    // private readonly LibraryContext _context = LibraryContext.GetInstance();
-    private readonly LibraryContext _context;
-    private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
+    private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
     {
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
     };
+    private readonly LibraryContext _context;
+    private readonly IConfiguration _configuration;
 
-    public LibraryController(LibraryContext context)
+    public LibraryController(LibraryContext context, IConfiguration configuration)
     {
         _context = context;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -77,6 +79,7 @@ public class LibraryController : ControllerBase
             var current = await _context.Books.SingleOrDefaultAsync(q => q.Id.Equals(model.Id));
             if (current != null)
             {
+                model.BeforeUpdate(current);
                 _context.Entry(current).CurrentValues.SetValues(model);
                 await _context.SaveChangesAsync();
             }

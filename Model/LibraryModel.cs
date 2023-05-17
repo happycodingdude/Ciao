@@ -1,4 +1,4 @@
-namespace MyDockerWebAPI.Repository1
+namespace MyDockerWebAPI.Model1
 {
     public class Book
     {

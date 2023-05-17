@@ -1,4 +1,5 @@
 using Bogus;
+using MyDockerWebAPI.Model;
 
 namespace MyDockerWebAPI.Repository
 {
@@ -7,25 +8,30 @@ namespace MyDockerWebAPI.Repository
         public static readonly List<Publisher> Publishers = new();
         public static readonly List<Category> Categories = new();
         public static readonly List<Book> Books = new();
+        private static bool IsGenerated = false;
         private const int NumberOfPublisher = 1;
         private const int NumberOfCategory = 1;
         private const int NumberOfBook = 3;
 
         public static void InitBogusData()
         {
-            var publisherGenerator = GetPublisherGenerator();
-            var generatedPublishers = publisherGenerator.Generate(NumberOfPublisher);
-            Publishers.AddRange(generatedPublishers);
+            if (!IsGenerated)
+            {
+                Console.WriteLine("Data generating");
+                IsGenerated = true;
 
-            var categoryGenerator = GetCategoryGenerator();
-            var generatedCategorys = categoryGenerator.Generate(NumberOfCategory);
-            Categories.AddRange(generatedCategorys);
+                var publisherGenerator = GetPublisherGenerator();
+                var publishers = publisherGenerator.Generate(NumberOfPublisher);
+                Publishers.AddRange(publishers);
 
-            var bookGenerator = GetBookGenerator(generatedPublishers.FirstOrDefault().Id, generatedCategorys.FirstOrDefault().Id);
-            var generatedBooks = bookGenerator.Generate(NumberOfBook);
-            Console.WriteLine("InitBogusData Count " + generatedBooks.Count.ToString());
-            Console.WriteLine("InitBogusData generatedBooks " + generatedBooks.FirstOrDefault().Id.ToString());
-            Books.AddRange(generatedBooks);
+                var categoryGenerator = GetCategoryGenerator();
+                var categories = categoryGenerator.Generate(NumberOfCategory);
+                Categories.AddRange(categories);
+
+                var bookGenerator = GetBookGenerator(publishers.FirstOrDefault().Id, categories.FirstOrDefault().Id);
+                var books = bookGenerator.Generate(NumberOfBook);
+                Books.AddRange(books);
+            }
         }
 
         private static Faker<Publisher> GetPublisherGenerator()
@@ -46,8 +52,6 @@ namespace MyDockerWebAPI.Repository
 
         private static Faker<Book> GetBookGenerator(int publisherId, int categoryId)
         {
-            Console.WriteLine("GetBookGenerator publisherId " + publisherId.ToString());
-            Console.WriteLine("GetBookGenerator categoryId " + categoryId.ToString());
             int id = 1;
             int page = 100;
             return new Faker<Book>()
