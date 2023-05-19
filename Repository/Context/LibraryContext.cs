@@ -23,10 +23,12 @@ namespace MyDockerWebAPI.Repository
             modelBuilder.ApplyConfiguration(new BookEntityConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryEntityConfiguration());
             modelBuilder.ApplyConfiguration(new PublisherEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
         }
 
         public DbSet<Book>? Books { get; set; }
         public DbSet<Publisher>? Publishers { get; set; }
         public DbSet<Category>? Categories { get; set; }
+        public DbSet<User>? Users { get; set; }
     }
 }

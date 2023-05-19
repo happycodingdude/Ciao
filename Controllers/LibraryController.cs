@@ -1,24 +1,26 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using mydockercoreapi.Common;
+using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
-using MyDockerWebAPI.Repository;
 using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
 [Route("[controller]")]
+[Authorize(Roles = UserRole.Admin)]
 public class LibraryController : ControllerBase
 {
     private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
     {
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
     };
-    private readonly LibraryContext _context;
+    private readonly ILibraryService _service;
     private readonly IConfiguration _configuration;
 
-    public LibraryController(LibraryContext context, IConfiguration configuration)
+    public LibraryController(ILibraryService service, IConfiguration configuration)
     {
-        _context = context;
+        _service = service;
         _configuration = configuration;
     }
 
@@ -27,10 +29,7 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var data = await _context.Books.AsNoTracking()
-                .Include(q => q.Publisher)
-                .Include(q => q.Category)
-                .ToListAsync();
+            var data = await _service.GetAll(new string[] { nameof(Category), nameof(Publisher) });
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -44,10 +43,7 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var data = await _context.Books.AsNoTracking()
-                .Include(q => q.Publisher)
-                .Include(q => q.Category)
-                .SingleOrDefaultAsync(q => q.Id.Equals(id));
+            var data = await _service.GetById(id, new string[] { nameof(Category), nameof(Publisher) });
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -61,9 +57,8 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            _context.Books.Add(model);
-            await _context.SaveChangesAsync();
-            return new JsonResult(model, jsonSetting);
+            var data = await _service.Add(model);
+            return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
         {
@@ -76,14 +71,10 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var current = await _context.Books.SingleOrDefaultAsync(q => q.Id.Equals(model.Id));
-            if (current != null)
-            {
-                model.BeforeUpdate(current);
-                _context.Entry(current).CurrentValues.SetValues(model);
-                await _context.SaveChangesAsync();
-            }
-            return new JsonResult(current, jsonSetting);
+            var current = await _service.GetById(model.Id);
+            model.BeforeUpdate(current);
+            var data = await _service.Update(model);
+            return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
         {
@@ -96,12 +87,7 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var current = await _context.Books.SingleOrDefaultAsync(q => q.Id.Equals(id));
-            if (current != null)
-            {
-                _context.Books.Remove(current);
-                await _context.SaveChangesAsync();
-            }
+            await _service.Delete(id);
             return Ok();
         }
         catch (Exception ex)

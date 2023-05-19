@@ -29,6 +29,7 @@ namespace MyDockerWebAPI.Repository
             modelBuilder.Entity<Publisher>().HasData(DataGenerator.Publishers);
             modelBuilder.Entity<Category>().HasData(DataGenerator.Categories);
             modelBuilder.Entity<Book>().HasData(DataGenerator.Books);
+            modelBuilder.Entity<User>().HasData(DataGenerator.Users);
         }
     }
 }
