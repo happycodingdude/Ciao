@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MyDockerWebAPI.Model;
 
@@ -6,9 +5,9 @@ namespace MyDockerWebAPI.Repository
 {
     public class BaseRepository<T> : IRepository<T> where T : class
     {
-        private readonly LibraryContext _context;
+        private readonly CoreContext _context;
 
-        public BaseRepository(LibraryContext context)
+        public BaseRepository(CoreContext context)
         {
             _context = context;
         }
@@ -21,39 +20,39 @@ namespace MyDockerWebAPI.Repository
                 foreach (var include in includes)
                     query = query.Include(include);
 
-            if (conditions != null)
-            {
-                var parameter = Expression.Parameter(typeof(T));
-                foreach (var condition in conditions)
-                {
-                    var filter =
-                                    Expression.Lambda<Func<T, bool>>(
-                                        Expression.Equal(
-                                            Expression.Property(parameter, condition.field_name),
-                                            Expression.Constant(condition.field_value, condition.field_type)
-                                        ),
-                                        parameter
-                                    );
-                }
-                var conditionTenant =
-                    Expression.Lambda<Func<TEntity, bool>>(
-                        Expression.Equal(
-                            Expression.Property(parameter, "tenant_id"),
-                            Expression.Constant(_tenantId, typeof(Guid?))
-                        ),
-                        parameter
-                    );
+            // if (conditions != null)
+            // {
+            //     var parameter = Expression.Parameter(typeof(T));
+            //     foreach (var condition in conditions)
+            //     {
+            //         var filter =
+            //                         Expression.Lambda<Func<T, bool>>(
+            //                             Expression.Equal(
+            //                                 Expression.Property(parameter, condition.field_name),
+            //                                 Expression.Constant(condition.field_value, condition.field_type)
+            //                             ),
+            //                             parameter
+            //                         );
+            //     }
+            //     var conditionTenant =
+            //         Expression.Lambda<Func<TEntity, bool>>(
+            //             Expression.Equal(
+            //                 Expression.Property(parameter, "tenant_id"),
+            //                 Expression.Constant(_tenantId, typeof(Guid?))
+            //             ),
+            //             parameter
+            //         );
 
-                var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
-                    Expression.AndAlso(
-                        conditionId.Body,
-                        Expression.Invoke(conditionTenant, conditionId.Parameters)
-                        ),
-                        conditionId.Parameters
-                    );
-                //var query = _baseSet.Where(conditionTenant).Where(conditionId);
-                var query = _baseSet.Where(combinedExpression);
-            }
+            //     var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
+            //         Expression.AndAlso(
+            //             conditionId.Body,
+            //             Expression.Invoke(conditionTenant, conditionId.Parameters)
+            //             ),
+            //             conditionId.Parameters
+            //         );
+            //     //var query = _baseSet.Where(conditionTenant).Where(conditionId);
+            //     var query = _baseSet.Where(combinedExpression);
+            // }
 
             return await query.ToListAsync();
         }

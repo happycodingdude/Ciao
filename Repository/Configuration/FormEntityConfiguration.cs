@@ -4,11 +4,11 @@ using MyDockerWebAPI.Model;
 
 namespace MyDockerWebAPI.Repository
 {
-    public class PublisherEntityConfiguration : IEntityTypeConfiguration<Publisher>
+    public class FormEntityConfiguration : IEntityTypeConfiguration<Form>
     {
-        public void Configure(EntityTypeBuilder<Publisher> builder)
+        public void Configure(EntityTypeBuilder<Form> builder)
         {
-            builder.ToTable("Publisher");
+            builder.ToTable("Form");
             builder.HasKey(q => q.Id);
             builder.Property(q => q.CreateTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         }

@@ -6,7 +6,7 @@ namespace MyDockerWebAPI.Implement
 {
     public class UserService : BaseRepository<User>, IUserService
     {
-        public UserService(LibraryContext context) : base(context)
+        public UserService(CoreContext context) : base(context)
         {
 
         }

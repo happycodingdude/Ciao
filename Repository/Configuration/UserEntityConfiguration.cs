@@ -11,6 +11,8 @@ namespace MyDockerWebAPI.Repository
             builder.ToTable("User");
             builder.HasKey(q => q.Id);
             builder.Property(q => q.CreateTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            builder.Property(q => q.Username).IsRequired().HasMaxLength(50);
+            builder.Property(q => q.Password).IsRequired().HasMaxLength(250);
         }
     }
 }

@@ -13,10 +13,10 @@ public class UserController : ControllerBase
     {
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
     };
-    private readonly ILibraryService _service;
+    private readonly IUserService _service;
     private readonly IConfiguration _configuration;
 
-    public UserController(ILibraryService service, IConfiguration configuration)
+    public UserController(IUserService service, IConfiguration configuration)
     {
         _service = service;
         _configuration = configuration;

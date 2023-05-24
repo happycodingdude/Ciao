@@ -3,9 +3,9 @@ using MyDockerWebAPI.Model;
 
 namespace MyDockerWebAPI.Repository
 {
-    public class MigrationContext : LibraryContext
+    public class MigrationContext : CoreContext
     {
-        public MigrationContext(DbContextOptions<LibraryContext> option) : base(option)
+        public MigrationContext(DbContextOptions<CoreContext> option) : base(option)
         {
         }
 
@@ -26,10 +26,10 @@ namespace MyDockerWebAPI.Repository
         private void Seed(ModelBuilder modelBuilder)
         {
             DataGenerator.InitBogusData();
-            modelBuilder.Entity<Publisher>().HasData(DataGenerator.Publishers);
-            modelBuilder.Entity<Category>().HasData(DataGenerator.Categories);
-            modelBuilder.Entity<Book>().HasData(DataGenerator.Books);
             modelBuilder.Entity<User>().HasData(DataGenerator.Users);
+            modelBuilder.Entity<Participant>().HasData(DataGenerator.Participants);
+            modelBuilder.Entity<Location>().HasData(DataGenerator.Locations);
+            modelBuilder.Entity<Form>().HasData(DataGenerator.Forms);
         }
     }
 }

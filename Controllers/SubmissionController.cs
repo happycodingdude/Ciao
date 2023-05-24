@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using mydockercoreapi.Common;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
 using Newtonsoft.Json;
@@ -8,17 +7,17 @@ using Newtonsoft.Json;
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
 [Route("[controller]")]
-[Authorize(Roles = UserRole.Admin)]
-public class LibraryController : ControllerBase
+[Authorize("username = test1")]
+public class SubmissionController : ControllerBase
 {
     private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
     {
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
     };
-    private readonly ILibraryService _service;
+    private readonly ISubmissionService _service;
     private readonly IConfiguration _configuration;
 
-    public LibraryController(ILibraryService service, IConfiguration configuration)
+    public SubmissionController(ISubmissionService service, IConfiguration configuration)
     {
         _service = service;
         _configuration = configuration;
@@ -29,7 +28,7 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var data = await _service.GetAll(new string[] { nameof(Category), nameof(Publisher) });
+            var data = await _service.GetAll(new string[] { nameof(Form), nameof(Participant), nameof(Location) });
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -43,7 +42,7 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            var data = await _service.GetById(id, new string[] { nameof(Category), nameof(Publisher) });
+            var data = await _service.GetById(id, new string[] { nameof(Form), nameof(Participant), nameof(Location) });
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -53,7 +52,7 @@ public class LibraryController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(Book model)
+    public async Task<IActionResult> Add(Submission model)
     {
         try
         {
@@ -67,7 +66,7 @@ public class LibraryController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(Book model)
+    public async Task<IActionResult> Edit(Submission model)
     {
         try
         {

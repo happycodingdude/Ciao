@@ -4,9 +4,9 @@ using MyDockerWebAPI.Repository;
 
 namespace MyDockerWebAPI.Implement
 {
-    public class LibraryService : BaseRepository<Book>, ILibraryService
+    public class SubmissionService : BaseRepository<Submission>, ISubmissionService
     {
-        public LibraryService(LibraryContext context) : base(context)
+        public SubmissionService(CoreContext context) : base(context)
         {
 
         }

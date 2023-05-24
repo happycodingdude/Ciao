@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MyDockerWebAPI.Repository;
-using MyDockerWebAPI.Interface;
-using MyDockerWebAPI.Implement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MyDockerWebAPI.Interface;
+using MyDockerWebAPI.Implement;
 
 namespace MyDockerWebAPI
 {
@@ -19,7 +19,7 @@ namespace MyDockerWebAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContextPool<LibraryContext>(option =>
+            builder.Services.AddDbContextPool<CoreContext>(option =>
             {
                 option.UseMySQL(builder.Configuration.GetConnectionString("MyDbContext"));
             });
@@ -37,7 +37,8 @@ namespace MyDockerWebAPI
                         ClockSkew = TimeSpan.Zero
                     };
                 });
-            builder.Services.AddScoped<ILibraryService, LibraryService>();
+            builder.Services.AddScoped<ISubmissionService, SubmissionService>();
+            builder.Services.AddScoped<IUserService, UserService>();
         }
 
         public void Configure(WebApplication app)

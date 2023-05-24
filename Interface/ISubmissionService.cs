@@ -3,7 +3,7 @@ using MyDockerWebAPI.Repository;
 
 namespace MyDockerWebAPI.Interface
 {
-    public interface ILibraryService : IRepository<Book>
+    public interface ISubmissionService : IRepository<Submission>
     {
 
     }
