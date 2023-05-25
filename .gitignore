@@ -1,43 +1,69 @@
-*.swp
-*.*~
-project.lock.json
-.DS_Store
-*.pyc
-nupkg/
+/coreapi/*.swp
+/coreapi/*.*~
+/coreapi/project.lock.json
+/coreapi/.DS_Store
+/coreapi/*.pyc
+/coreapi/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-.idea/
+/coreapi/.idea/
 
 # Visual Studio
-.vs/
+/coreapi/.vs/
 
 # Fleet
-.fleet/
+/coreapi/.fleet/
 
 # Code Rush
-.cr/
+/coreapi/.cr/
 
 # User-specific files
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+/coreapi/*.suo
+/coreapi/*.user
+/coreapi/*.userosscache
+/coreapi/*.sln.docstates
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-build/
-bld/
-[Bb]in/
-[Oo]bj/
-[Oo]ut/
-msbuild.log
-msbuild.err
-msbuild.wrn
+/coreapi/[Dd]ebug/
+/coreapi/[Dd]ebugPublic/
+/coreapi/[Rr]elease/
+/coreapi/[Rr]eleases/
+/coreapi/x64/
+/coreapi/x86/
+/coreapi/build/
+/coreapi/bld/
+/coreapi/[Bb]in/
+/coreapi/[Oo]bj/
+/coreapi/[Oo]ut/
+/coreapi/msbuild.log
+/coreapi/msbuild.err
+/coreapi/msbuild.wrn
+
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/client/node_modules
+/client/.pnp
+/client.pnp.js
+
+# testing
+/client/coverage
+
+# production
+/client/build
+
+# misc
+/client/.DS_Store
+/client/.env.local
+/client/.env.development.local
+/client/.env.test.local
+/client/.env.production.local
+
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
