@@ -1,6 +1,8 @@
+import SubmitButton from './Button.jsx';
+
 const App = () => {
   return (
-    <div>Hello world</div>
+    <SubmitButton />
   )
 }
 export default App;
