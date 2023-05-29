@@ -1,8 +1,9 @@
-import SubmitButton from './Button.jsx';
+
+import LoginForm from './Form.jsx';
 
 const App = () => {
   return (
-    <SubmitButton />
+    <LoginForm />
   )
 }
 export default App;
