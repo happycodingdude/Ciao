@@ -1,4 +1,4 @@
-const proxyMiddleware = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const { env } = require('process');
 
 const target = env.ASPNETCORE_URL;
@@ -7,9 +7,18 @@ const context = [
 ];
 
 module.exports = (app) => {
-    const appProxy = proxyMiddleware(context, {
+    const appProxy = createProxyMiddleware(context, {
         target: target,
         secure: false
     })
     app.use(appProxy);
 };
+// module.exports = function (app) {
+//     app.use(
+//         '/user/login',
+//         createProxyMiddleware({
+//             target: 'http://localhost:5000',
+//             changeOrigin: true,
+//         })
+//     );
+// };
