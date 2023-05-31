@@ -37,26 +37,12 @@ namespace MyDockerWebAPI
                         ClockSkew = TimeSpan.Zero
                     };
                 });
-            // Define a policy that requires the "username" claim and its value to match a certain pattern
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("UsernamePolicy", policy =>
-                {
-                    policy.RequireClaim("username");
-                    policy.RequireAssertion(context =>
-                    {
-                        var usernameClaim = context.User.Claims.FirstOrDefault(c => c.Type == "username");
-                        if (usernameClaim == null)
-                        {
-                            return false;
-                        }
-
-                        return usernameClaim.Value == "test";
-                    });
-                });
-            });
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ISubmissionService, SubmissionService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IFormService, FormService>();
+            builder.Services.AddScoped<ILocationService, LocationService>();
+            builder.Services.AddScoped<IParticipantService, ParticipantService>();
         }
 
         public void Configure(WebApplication app)

@@ -56,7 +56,7 @@ namespace MyDockerWebAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: true),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     ModifyTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
                 constraints: table =>
@@ -136,8 +136,8 @@ namespace MyDockerWebAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "Participant",
-                columns: new[] { "Id", "CreateTime", "ModifyTime", "Name" },
-                values: new object[] { 1, null, null, "Participant 1" });
+                columns: new[] { "Id", "ModifyTime", "Name" },
+                values: new object[] { 1, null, "Participant 1" });
 
             migrationBuilder.InsertData(
                 table: "User",

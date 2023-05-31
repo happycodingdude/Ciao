@@ -1,9 +1,21 @@
 
-import LoginForm from './Form.jsx';
+import * as React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import FormPage from './FormPage.jsx';
+import HomePage from './HomePage.jsx';
+import LocationPage from './LocationPage.jsx';
+import LoginPage from './LoginPage.jsx';
+import ParticipantPage from './ParticipantPage.jsx';
 
 const App = () => {
   return (
-    <LoginForm />
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/form" element={<FormPage />} />
+      <Route path="/participant" element={<ParticipantPage />} />
+      <Route path="/location" element={<LocationPage />} />
+    </Routes>
   )
 }
 export default App;

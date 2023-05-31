@@ -93,7 +93,9 @@ namespace MyDockerWebAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime(6)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
                     b.Property<DateTime?>("ModifyTime")
                         .HasColumnType("datetime(6)");

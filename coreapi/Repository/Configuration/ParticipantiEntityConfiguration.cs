@@ -10,6 +10,7 @@ namespace MyDockerWebAPI.Repository
         {
             builder.ToTable("Participant");
             builder.HasKey(q => q.Id);
+            builder.Property(q => q.CreateTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         }
     }
 }

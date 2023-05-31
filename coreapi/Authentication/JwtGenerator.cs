@@ -18,7 +18,7 @@ namespace MyDockerWebAPI.Authentication
                     //new Claim(ClaimTypes.Role, "admin"),
                     new Claim("username", username)
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -26,6 +26,29 @@ namespace MyDockerWebAPI.Authentication
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
             return jwtToken;
+        }
+
+        public static bool CheckTokenExpired(string secretKey, string jwtToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+            };
+
+            SecurityToken validatedToken;
+            try
+            {
+                tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

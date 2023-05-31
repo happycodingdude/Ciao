@@ -8,9 +8,17 @@ namespace MyDockerWebAPI.Implement
 {
     public class UserService : BaseRepository<User>, IUserService
     {
-        public UserService(CoreContext context, IConfiguration configuration) : base(context, configuration)
-        {
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
+        public UserService(CoreContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration) : base(context, configuration)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public bool CheckToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            return JwtGenerator.CheckTokenExpired(_configuration["Jwt:Key"], token);
         }
 
         public async Task<LoginResponse> Login(LoginRequest model)

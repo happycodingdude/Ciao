@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class UserController : ControllerBase
 {
     private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
@@ -32,6 +32,21 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(ex);
+        }
+    }
+
+    [HttpPost("authenticate")]
+    [MyAuthorizeAttribute("Authorization")]
+    public Task<IActionResult> CheckToken()
+    {
+        try
+        {
+            var response = _service.CheckToken();
+            return Task.FromResult<IActionResult>(new JsonResult(response, jsonSetting));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult<IActionResult>(BadRequest(ex));
         }
     }
 }
