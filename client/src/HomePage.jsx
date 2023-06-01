@@ -10,8 +10,20 @@ const HomePage = () => {
   const { token } = location.state || '';
 
   useEffect(() => {
-    console.log(token);
-    if (token === undefined) navigate('/');
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    };
+    fetch('api/user/authenticate', requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .catch(err => console.log(err));
   });
 
   return (
@@ -22,6 +34,7 @@ const HomePage = () => {
         <li><Link to="/form" state={{ token: token }}>Form</Link></li>
         <li><Link to="/participant" state={{ token: token }}>Participant</Link></li>
         <li><Link to="/location" state={{ token: token }}>Location</Link></li>
+        <li><Link to="/submission" state={{ token: token }}>Submit</Link></li>
       </ul>
     </>
   )

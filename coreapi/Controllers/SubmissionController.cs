@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyDockerWebAPI.Authentication;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
 using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
-[Route("[controller]")]
-[Authorize("UsernamePolicy")]
+[Route("api/[controller]")]
+[MyAuthorize("Authorization")]
 public class SubmissionController : ControllerBase
 {
     private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
@@ -56,6 +56,7 @@ public class SubmissionController : ControllerBase
     {
         try
         {
+            model.Status = SubmissionStatus.Draft;
             var data = await _service.Add(model);
             return new JsonResult(data, jsonSetting);
         }

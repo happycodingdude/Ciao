@@ -6,6 +6,7 @@ import HomePage from './HomePage.jsx';
 import LocationPage from './LocationPage.jsx';
 import LoginPage from './LoginPage.jsx';
 import ParticipantPage from './ParticipantPage.jsx';
+import SubmissionPage from './SubmissionPage.jsx';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <Route path="/form" element={<FormPage />} />
       <Route path="/participant" element={<ParticipantPage />} />
       <Route path="/location" element={<LocationPage />} />
+      <Route path="/submission" element={<SubmissionPage />} />
     </Routes>
   )
 }

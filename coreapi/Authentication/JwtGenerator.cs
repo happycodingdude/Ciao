@@ -18,7 +18,7 @@ namespace MyDockerWebAPI.Authentication
                     //new Claim(ClaimTypes.Role, "admin"),
                     new Claim("username", username)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

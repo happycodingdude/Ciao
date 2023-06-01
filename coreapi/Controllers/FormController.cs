@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
@@ -7,7 +6,7 @@ using Newtonsoft.Json;
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize("UsernamePolicy")]
+[MyAuthorize("Authorization")]
 public class FormController : ControllerBase
 {
     private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings

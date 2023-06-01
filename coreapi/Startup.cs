@@ -14,6 +14,8 @@ namespace MyDockerWebAPI
 
         public void ConfigureServices(WebApplicationBuilder builder)
         {
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession();
             // Add services to the container.
             builder.Services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -47,6 +49,7 @@ namespace MyDockerWebAPI
 
         public void Configure(WebApplication app)
         {
+            app.UseSession();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

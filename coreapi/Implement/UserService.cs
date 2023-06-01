@@ -15,12 +15,6 @@ namespace MyDockerWebAPI.Implement
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public bool CheckToken()
-        {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            return JwtGenerator.CheckTokenExpired(_configuration["Jwt:Key"], token);
-        }
-
         public async Task<LoginResponse> Login(LoginRequest model)
         {
             // Check user
@@ -47,6 +41,12 @@ namespace MyDockerWebAPI.Implement
                 Token = JwtGenerator.GenerateToken(_configuration["Jwt:Key"], model.Username, model.Password)
             };
             return response;
+        }
+
+        public bool CheckToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            return JwtGenerator.CheckTokenExpired(_configuration["Jwt:Key"], token);
         }
     }
 }

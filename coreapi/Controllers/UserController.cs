@@ -35,18 +35,10 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("authenticate")]
+    [HttpGet("authenticate")]
     [MyAuthorizeAttribute("Authorization")]
-    public Task<IActionResult> CheckToken()
+    public IActionResult CheckToken()
     {
-        try
-        {
-            var response = _service.CheckToken();
-            return Task.FromResult<IActionResult>(new JsonResult(response, jsonSetting));
-        }
-        catch (Exception ex)
-        {
-            return Task.FromResult<IActionResult>(BadRequest(ex));
-        }
+        return Ok();
     }
 }

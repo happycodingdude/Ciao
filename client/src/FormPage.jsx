@@ -32,7 +32,7 @@ const FormPage = () => {
   }, []);
 
   return (
-    <div className='container'>
+    <>
       <Link to="/home" state={{ token: token }}>Home</Link>
       <table className='table table-striped'>
         <thead>
@@ -52,7 +52,7 @@ const FormPage = () => {
           }
         </tbody>
       </table>
-    </div>
+    </>
   )
 }
 
