@@ -163,6 +163,30 @@ namespace MyDockerWebAPI.Migrations
                     b.HasIndex("ParticipantId");
 
                     b.ToTable("Submission", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            FormId = 1,
+                            FromTime = new DateTime(2023, 6, 4, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            LocationId = 1,
+                            Note = "Note 1",
+                            ParticipantId = 1,
+                            Status = "draft",
+                            ToTime = new DateTime(2023, 6, 4, 19, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            FormId = 1,
+                            FromTime = new DateTime(2023, 6, 4, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            LocationId = 1,
+                            Note = "Note 2",
+                            ParticipantId = 1,
+                            Status = "draft",
+                            ToTime = new DateTime(2023, 6, 4, 19, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("MyDockerWebAPI.Model.User", b =>

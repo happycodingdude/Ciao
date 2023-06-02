@@ -4,6 +4,8 @@ using MySql.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace MyDockerWebAPI.Migrations
 {
     /// <inheritdoc />
@@ -143,6 +145,15 @@ namespace MyDockerWebAPI.Migrations
                 table: "User",
                 columns: new[] { "Id", "ModifyTime", "Name", "Password", "RetryTime", "Username" },
                 values: new object[] { 1, null, "User 1", "dGVzdA==", null, "test" });
+
+            migrationBuilder.InsertData(
+                table: "Submission",
+                columns: new[] { "Id", "FormId", "FromTime", "LocationId", "ModifyTime", "Note", "ParticipantId", "Status", "ToTime" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2023, 6, 4, 18, 0, 0, 0, DateTimeKind.Unspecified), 1, null, "Note 1", 1, "draft", new DateTime(2023, 6, 4, 19, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 1, new DateTime(2023, 6, 4, 18, 0, 0, 0, DateTimeKind.Unspecified), 1, null, "Note 2", 1, "draft", new DateTime(2023, 6, 4, 19, 0, 0, 0, DateTimeKind.Unspecified) }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Submission_FormId",

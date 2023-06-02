@@ -30,6 +30,7 @@ namespace MyDockerWebAPI.Repository
             modelBuilder.Entity<Participant>().HasData(DataGenerator.Participants);
             modelBuilder.Entity<Location>().HasData(DataGenerator.Locations);
             modelBuilder.Entity<Form>().HasData(DataGenerator.Forms);
+            modelBuilder.Entity<Submission>().HasData(DataGenerator.Submissions);
         }
     }
 }
