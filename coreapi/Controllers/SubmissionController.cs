@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyDockerWebAPI.Common;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
+using MyDockerWebAPI.RestApi;
 using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
@@ -89,6 +90,35 @@ public class SubmissionController : ControllerBase
         {
             await _service.Delete(id);
             return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+
+    [HttpPost("{id}/submit")]
+    public async Task<IActionResult> Submit(int id)
+    {
+        try
+        {
+            var current = await _service.GetById(id, new string[] { nameof(Form), nameof(Participant), nameof(Location) });
+            current.Status = SubmissionStatus.Confirm;
+            current.BeforeUpdate(current);
+            var data = await _service.Update(current);
+
+            var message = string.Join(" - ",
+                new string[] {
+                    current.Form.Name,
+                    current.Participant.Name,
+                    current.Location.Name,
+                    current.FromTime.ToString(),
+                    current.ToTime.ToString()
+                }
+            );
+            _ = TelegramFunction.SendMessage(message);
+
+            return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
         {

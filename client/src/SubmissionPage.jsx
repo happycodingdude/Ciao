@@ -166,7 +166,7 @@ const SubmissionPage = () => {
   }, [currentPage, submissions]);
 
   return (
-    <>
+    <div className='container'>
       <Link to="/home" state={{ token: token }}>Home</Link>
       <div className='row'>
         <div className='col-md-12'>
@@ -306,7 +306,7 @@ const SubmissionPage = () => {
           }
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
