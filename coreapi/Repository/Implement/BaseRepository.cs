@@ -4,7 +4,7 @@ using MyDockerWebAPI.Model;
 
 namespace MyDockerWebAPI.Repository
 {
-    public class BaseRepository<T> : IRepository<T> where T : class
+    public class BaseRepository<T> : IRepository<T> where T : BaseModel
     {
         protected readonly IConfiguration _configuration;
         private readonly CoreContext _context;
@@ -20,9 +20,12 @@ namespace MyDockerWebAPI.Repository
         {
             IQueryable<T> query = _context.Set<T>().AsNoTracking();
 
+            // Join
             if (includes != null)
                 foreach (var include in includes)
                     query = query.Include(include);
+
+            // Where
             if (conditions != null)
             {
                 Expression<Func<T, bool>>? combinedExpression = null;
@@ -52,7 +55,7 @@ namespace MyDockerWebAPI.Repository
                 query = query.Where(combinedExpression);
             }
 
-            return await query.ToListAsync();
+            return await query.OrderByDescending(q => q.CreateTime).ToListAsync();
         }
 
         public virtual async Task<T> GetById(int id, string[]? includes = null, bool isCollection = false)

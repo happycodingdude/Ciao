@@ -1,3 +1,5 @@
+import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, SyncOutlined } from '@ant-design/icons';
+import { Tag } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
@@ -145,7 +147,7 @@ const SubmissionPage = () => {
   };
 
   // Paging variables
-  const itemsPerPage = 3;
+  const itemsPerPage = 4;
 
   // State paging
   const [pagingSubmissions, setPagingSubmissions] = useState([]);
@@ -156,6 +158,8 @@ const SubmissionPage = () => {
     if (pageNumber >= 1 && pageNumber <= pageNumbers[pageNumbers.length - 1])
       setCurrentPage(pageNumber);
   };
+
+  // Controll pagination
   useEffect(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -164,6 +168,34 @@ const SubmissionPage = () => {
     const pageCount = Math.ceil(submissions.length / itemsPerPage);
     setPageNumbers([...Array(pageCount).keys()].map((n) => n + 1));
   }, [currentPage, submissions]);
+
+  // Submit form
+  const handleSubmitForm = (id) => {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    };
+    fetch(`api/submission/${id}/submit`, requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        const updatedSubmissions = submissions.map((item) => {
+          if (item.Id === id)
+            // Update the value for the specific item
+            return data;
+          return item;
+        });
+        // Update the state with the new table data
+        setSubmissions(updatedSubmissions);
+      })
+      .catch(err => console.log(err));
+  }
 
   return (
     <div className='container'>
@@ -181,7 +213,7 @@ const SubmissionPage = () => {
                 <th>ToTime</th>
                 <th>Status</th>
                 <th>Note</th>
-                <th colSpan={2}>Action</th>
+                <th colSpan={3}>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -194,11 +226,47 @@ const SubmissionPage = () => {
                     <td>{item.Location.Name}</td>
                     <td>{moment(item.FromTime).format('DD/MM/YYYY HH:mm:ss')}</td>
                     <td>{moment(item.ToTime).format('DD/MM/YYYY HH:mm:ss')}</td>
-                    <td>{item.Status}</td>
+                    {/* <td>{item.Status}</td> */}
+                    <td>
+                      {
+                        item.Status === 'draft'
+                          ? (<Tag icon={<ExclamationCircleOutlined />} color="default">{item.Status}</Tag>)
+                          : item.Status === 'confirm'
+                            ? (<Tag icon={<SyncOutlined spin />} color="processing">{item.Status}</Tag>)
+                            : item.Status === 'approve'
+                              ? (<Tag icon={<CheckCircleOutlined />} color="success">{item.Status}</Tag>)
+                              : item.Status === 'reject'
+                                ? (<Tag icon={<CloseCircleOutlined />} color="error">{item.Status}</Tag>)
+                                : ''
+                      }
+                    </td>
                     <td>{item.Note}</td>
-                    <td colSpan={2}>
-                      <button className='btn btn-primary' onClick={() => handleOpenEditForm(item.Id)}>Edit</button>
-                      <button className='btn btn-danger' onClick={() => handleDelete(item.Id)}>Delete</button>
+                    <td colSpan={3}>
+                      {
+                        item.Status === 'draft'
+                          ? (<Button variant='success' onClick={() => handleSubmitForm(item.Id)}>Submit</Button>)
+                          : ''
+                      }
+                      {
+                        item.Status === 'draft'
+                          ? (<Button variant='primary' onClick={() => handleOpenEditForm(item.Id)}>Edit</Button>)
+                          : ''
+                      }
+                      {
+                        item.Status === 'draft' || item.Status === 'confirm'
+                          ? (<Button variant='danger' onClick={() => handleDelete(item.Id)}>Delete</Button>)
+                          : ''
+                      }
+                      {/* {
+                        item.Status === 'approve'
+                          ? (<CheckCircleTwoTone twoToneColor="#52c41a" />)
+                          : ''
+                      }
+                      {
+                        item.Status === 'reject'
+                          ? (<CloseCircleTwoTone twoToneColor="#f5222d" />)
+                          : ''
+                      } */}
                     </td>
                   </tr>
                 ))

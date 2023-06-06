@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Implement;
+using MyDockerWebAPI.RestApi;
 
 namespace MyDockerWebAPI
 {
@@ -45,6 +46,12 @@ namespace MyDockerWebAPI
             builder.Services.AddScoped<IFormService, FormService>();
             builder.Services.AddScoped<ILocationService, LocationService>();
             builder.Services.AddScoped<IParticipantService, ParticipantService>();
+            builder.Services.AddScoped<TelegramFunction>();
+
+            // Start Telegram engine
+            var serviceProvider = builder.Services.BuildServiceProvider();
+            var telegramFunction = serviceProvider.GetService<TelegramFunction>();
+            _ = telegramFunction.StartAsync();
         }
 
         public void Configure(WebApplication app)

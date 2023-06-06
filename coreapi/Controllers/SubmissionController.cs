@@ -17,11 +17,13 @@ public class SubmissionController : ControllerBase
     };
     private readonly ISubmissionService _service;
     private readonly IConfiguration _configuration;
+    private readonly IServiceProvider _serviceProvider;
 
-    public SubmissionController(ISubmissionService service, IConfiguration configuration)
+    public SubmissionController(ISubmissionService service, IConfiguration configuration, IServiceProvider serviceProvider)
     {
         _service = service;
         _configuration = configuration;
+        _serviceProvider = serviceProvider;
     }
 
     [HttpGet]
@@ -116,7 +118,9 @@ public class SubmissionController : ControllerBase
                     current.ToTime.ToString()
                 }
             );
-            _ = TelegramFunction.SendMessage(message);
+
+            var telegramFunction = _serviceProvider.GetService<TelegramFunction>();
+            _ = telegramFunction.SendButtonMessage(message, id);
 
             return new JsonResult(data, jsonSetting);
         }
