@@ -11,7 +11,7 @@ using MyDockerWebAPI.Repository;
 namespace MyDockerWebAPI.Migrations
 {
     [DbContext(typeof(MigrationContext))]
-    [Migration("20230602033746_Init")]
+    [Migration("20230607020616_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -172,23 +172,23 @@ namespace MyDockerWebAPI.Migrations
                         {
                             Id = 1,
                             FormId = 1,
-                            FromTime = new DateTime(2023, 6, 4, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            FromTime = new DateTime(2023, 6, 9, 18, 0, 0, 0, DateTimeKind.Local),
                             LocationId = 1,
                             Note = "Note 1",
                             ParticipantId = 1,
                             Status = "draft",
-                            ToTime = new DateTime(2023, 6, 4, 19, 0, 0, 0, DateTimeKind.Unspecified)
+                            ToTime = new DateTime(2023, 6, 9, 19, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 2,
                             FormId = 1,
-                            FromTime = new DateTime(2023, 6, 4, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            FromTime = new DateTime(2023, 6, 9, 18, 0, 0, 0, DateTimeKind.Local),
                             LocationId = 1,
                             Note = "Note 2",
                             ParticipantId = 1,
                             Status = "draft",
-                            ToTime = new DateTime(2023, 6, 4, 19, 0, 0, 0, DateTimeKind.Unspecified)
+                            ToTime = new DateTime(2023, 6, 9, 19, 0, 0, 0, DateTimeKind.Local)
                         });
                 });
 

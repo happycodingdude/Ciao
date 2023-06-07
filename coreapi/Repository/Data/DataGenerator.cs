@@ -91,8 +91,8 @@ namespace MyDockerWebAPI.Repository
                   .RuleFor(r => r.FormId, _ => 1)
                   .RuleFor(r => r.ParticipantId, _ => 1)
                   .RuleFor(r => r.LocationId, _ => 1)
-                  .RuleFor(r => r.FromTime, _ => new DateTime(2023, 6, 4, 18, 00, 00))
-                  .RuleFor(r => r.ToTime, _ => new DateTime(2023, 6, 4, 19, 00, 00))
+                  .RuleFor(r => r.FromTime, _ => DateTime.Now.AddDays(2).Date.Add(new TimeSpan(18, 0, 0)))
+                  .RuleFor(r => r.ToTime, _ => DateTime.Now.AddDays(2).Date.Add(new TimeSpan(19, 0, 0)))
                   .RuleFor(r => r.Status, _ => SubmissionStatus.Draft)
                   .RuleFor(r => r.Note, (_, r) => "Note " + r.Id);
         }

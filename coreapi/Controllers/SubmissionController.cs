@@ -60,7 +60,8 @@ public class SubmissionController : ControllerBase
         try
         {
             model.Status = SubmissionStatus.Draft;
-            var data = await _service.Add(model);
+            await _service.Add(model);
+            var data = await _service.GetById(model.Id, new string[] { nameof(Form), nameof(Participant), nameof(Location) });
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)

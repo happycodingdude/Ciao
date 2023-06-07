@@ -1,8 +1,9 @@
 import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, SyncOutlined } from '@ant-design/icons';
-import { Tag } from 'antd';
+import { Button, Tag } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
+import Select from 'react-select';
+// import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Pagination from 'react-bootstrap/Pagination';
@@ -44,42 +45,89 @@ const SubmissionPage = () => {
       .catch(err => console.log(err));
   }, []);
 
-  // Delete submission
-  const handleDelete = (id) => {
-    if (window.confirm('Delete this item?') == true) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        }
-      };
-      fetch(`api/submission/${id}`, requestOptions)
-        .then(res => {
-          if (res.ok) {
-            const remainSubmissions = submissions.filter((item) => item.Id !== id);
-            console.log(remainSubmissions);
-            setSubmissions(remainSubmissions);
-          }
-          else if (res.status === 401) navigate('/');
-          else throw new Error(res.status);
-        })
-        .catch(err => console.log(err));
-    }
-  }
-
   // Control show/hide modal
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  // State add or edit
+  const [action, setAction] = useState([]);
+  const emptyObject = {
+    FormId: '',
+    ParticipantId: '',
+    LocationId: '',
+    FromTime: '',
+    ToTime: '',
+    Status: '',
+    Note: ''
+  }
+  const [saveObject, setSaveObject] = useState(emptyObject);
+
+  // State item to edit
+  const [editId, setEditId] = useState([]);
+  useEffect(() => {
+    if (editId.length !== 0) {
+      const requestOptions = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      };
+      fetch(`api/submission/${editId}`, requestOptions)
+        .then(res => {
+          if (res.ok) return res.json();
+          else if (res.status === 401) navigate('/');
+          else throw new Error(res.status);
+        })
+        .then(data => {
+          setSaveObject(data);
+          setSelectedForm(forms.find((item) => item.value === data.FormId));
+        })
+        .catch(err => console.log(err));
+    }
+  }, [editId]);
+
   // Open modal
-  const handleOpenEditForm = (id) => {
+  const handleOpenForm = (id) => {
+    if (id === undefined) {
+      setSaveObject([]);
+      setAction('add');
+    } else {
+      setEditId(id);
+      setAction('edit');
+    }
     handleShow();
-    setEditId(id);
   }
 
-  // Edit submission
+  // Add or edit submission
+  const handleAddOrEdit = () => {
+    if (action === 'add') handleAdd();
+    else handleEdit(editId);
+  }
+
+  const handleAdd = () => {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(saveObject)
+    };
+    fetch(`api/submission`, requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        handleClose();
+        setSubmissions([...submissions, data]);
+      })
+      .catch(err => console.log(err));
+  }
+
   const handleEdit = (id) => {
     const requestOptions = {
       method: 'PUT',
@@ -87,7 +135,7 @@ const SubmissionPage = () => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify(editObject)
+      body: JSON.stringify(saveObject)
     };
     fetch(`api/submission`, requestOptions)
       .then(res => {
@@ -109,41 +157,35 @@ const SubmissionPage = () => {
       .catch(err => console.log(err));
   }
 
-  // State item to edit
-  const [editId, setEditId] = useState([]);
-  const [editObject, setEditObject] = useState([]);
-  useEffect(() => {
-    if (editId.length !== 0) {
+  // Delete submission
+  const handleDelete = (id) => {
+    if (window.confirm('Delete this item?') == true) {
       const requestOptions = {
-        method: 'GET',
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         }
       };
-      fetch(`api/submission/${editId}`, requestOptions)
+      fetch(`api/submission/${id}`, requestOptions)
         .then(res => {
-          if (res.ok) return res.json();
+          if (res.ok) setSubmissions(submissions.filter((item) => item.Id !== id));
           else if (res.status === 401) navigate('/');
           else throw new Error(res.status);
         })
-        .then(data => {
-          setEditObject(data);
-        })
         .catch(err => console.log(err));
     }
-  }, [editId]);
+  }
 
   // Control change input value
   const handleInputChange = (event) => {
-    console.log(event);
     const { name, value } = event.target;
-    setEditObject(prevUser => ({ ...prevUser, [name]: value }));
+    setSaveObject(currentObject => ({ ...currentObject, [name]: value }));
   };
 
   // Control change datetime picker
   const handlePickerChange = (name, date) => {
-    setEditObject(prevUser => ({ ...prevUser, [name]: date.format() }));
+    setSaveObject(currentObject => ({ ...currentObject, [name]: date.format() }));
   };
 
   // Paging variables
@@ -163,6 +205,7 @@ const SubmissionPage = () => {
   useEffect(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
+    console.log(submissions);
     setPagingSubmissions(submissions.slice(startIndex, endIndex));
 
     const pageCount = Math.ceil(submissions.length / itemsPerPage);
@@ -197,9 +240,114 @@ const SubmissionPage = () => {
       .catch(err => console.log(err));
   }
 
+  // State forms, participants and locations  
+  const [forms, setForm] = useState([]);
+  const [selectedForm, setSelectedForm] = useState([]);
+  const [participants, setParticipant] = useState([]);
+  const [locations, setLocation] = useState([]);
+
+  const getForms = () => {
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    };
+    fetch('api/form', requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        let select = [];
+        data.map((item) => {
+          select.push({
+            value: item.Id,
+            label: item.Name
+          });
+        })
+        setForm(select);
+      })
+      .catch(err => console.log(err));
+  }
+
+  const getParticipants = () => {
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    };
+    fetch('api/participant', requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        let select = [];
+        data.map((item) => {
+          select.push({
+            value: item.Id,
+            label: item.Name
+          });
+        })
+        setParticipant(select);
+      })
+      .catch(err => console.log(err));
+  }
+
+  const getLocations = () => {
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    };
+    fetch('api/location', requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        let select = [];
+        data.map((item) => {
+          select.push({
+            value: item.Id,
+            label: item.Name
+          });
+        })
+        setLocation(select);
+      })
+      .catch(err => console.log(err));
+  }
+
+  useEffect(() => {
+    getForms();
+    getParticipants();
+    getLocations();
+  }, [])
+
+  const Checkbox = ({ children, ...props }) => (
+    <label style={{ marginRight: '1em' }}>
+      <input type="checkbox" {...props} />
+      {children}
+    </label>
+  );
+
+  const handleSelectChange = (name, option) => {
+    setSaveObject(currentObject => ({ ...currentObject, [name]: option.value }));
+  }
+
   return (
     <div className='container'>
       <Link to="/home" state={{ token: token }}>Home</Link>
+      <Button type='primary' onClick={() => handleOpenForm()}>Add</Button>
       <div className='row'>
         <div className='col-md-12'>
           <table className='table table-striped'>
@@ -244,17 +392,17 @@ const SubmissionPage = () => {
                     <td colSpan={3}>
                       {
                         item.Status === 'draft'
-                          ? (<Button variant='success' onClick={() => handleSubmitForm(item.Id)}>Submit</Button>)
+                          ? (<Button onClick={() => handleSubmitForm(item.Id)}>Submit</Button>)
                           : ''
                       }
                       {
                         item.Status === 'draft'
-                          ? (<Button variant='primary' onClick={() => handleOpenEditForm(item.Id)}>Edit</Button>)
+                          ? (<Button type='primary' onClick={() => handleOpenForm(item.Id)}>Edit</Button>)
                           : ''
                       }
                       {
                         item.Status === 'draft' || item.Status === 'confirm'
-                          ? (<Button variant='danger' onClick={() => handleDelete(item.Id)}>Delete</Button>)
+                          ? (<Button type='primary' danger onClick={() => handleDelete(item.Id)}>Delete</Button>)
                           : ''
                       }
                       {/* {
@@ -324,22 +472,47 @@ const SubmissionPage = () => {
           {
             <Modal show={show} onHide={handleClose}>
               <Modal.Header closeButton>
-                <Modal.Title>Edit submission {editId}</Modal.Title>
+                <Modal.Title>{action === 'add' ? 'Create' : `Edit ${editId}`}</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 <Form>
                   <Form.Group className="mb-3" controlId="formSubmission">
                     <Form.Label>Form name</Form.Label>
-                    <Form.Control type="text" disabled value={editObject.Form?.Name} />
+                    <Select
+                      className="basic-single"
+                      classNamePrefix="select"
+                      value={forms.find((item) => item.value === saveObject.FormId)}
+                      name="color"
+                      options={forms}
+                      onChange={(option) => { handleSelectChange('FormId', option) }}
+                    />
+
                     <Form.Label>Participants</Form.Label>
-                    <Form.Control type="text" disabled value={editObject.Participant?.Name} />
+                    <Select
+                      className="basic-single"
+                      classNamePrefix="select"
+                      value={participants.find((item) => item.value === saveObject.ParticipantId)}
+                      name="color"
+                      options={participants}
+                      onChange={(option) => { handleSelectChange('ParticipantId', option) }}
+                    />
+
                     <Form.Label>Location</Form.Label>
-                    <Form.Control type="text" disabled value={editObject.Location?.Name + ' (' + editObject.Location?.Address + ')'} />
+                    <Select
+                      className="basic-single"
+                      classNamePrefix="select"
+                      value={locations.find((item) => item.value === saveObject.LocationId)}
+                      name="color"
+                      options={locations}
+                      onChange={(option) => { handleSelectChange('LocationId', option) }}
+                    />
+
                     <Form.Label>Budget</Form.Label>
-                    <Form.Control type="text" disabled value={editObject.Form?.Budget} />
+                    <Form.Control type="text" disabled={action === 'edit'} value={saveObject.Form?.Budget} />
+
                     <Form.Label>From</Form.Label>
                     <DateTime
-                      value={moment(editObject.FromTime)}
+                      value={action === 'add' ? '' : moment(saveObject.FromTime)}
                       dateFormat="DD/MM/YYYY"
                       timeFormat="HH:mm"
                       timeConstraints={{
@@ -347,9 +520,10 @@ const SubmissionPage = () => {
                       }}
                       onChange={(date) => handlePickerChange('FromTime', date)}
                     />
+
                     <Form.Label>To</Form.Label>
                     <DateTime
-                      value={moment(editObject.ToTime)}
+                      value={action === 'add' ? '' : moment(saveObject.ToTime)}
                       dateFormat="DD/MM/YYYY"
                       timeFormat="HH:mm"
                       timeConstraints={{
@@ -357,16 +531,17 @@ const SubmissionPage = () => {
                       }}
                       onChange={(date) => handlePickerChange('ToTime', date)}
                     />
+
                     <Form.Label>Note</Form.Label>
-                    <Form.Control type="text" name='Note' value={editObject.Note} onChange={handleInputChange} />
+                    <Form.Control type="text" name='Note' value={saveObject.Note} onChange={handleInputChange} />
                   </Form.Group>
                 </Form>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+                <Button type='text' onClick={handleClose}>
                   Close
                 </Button>
-                <Button variant="primary" onClick={() => { handleEdit(editId) }}>
+                <Button type='primary' onClick={() => { handleAddOrEdit() }}>
                   Save Changes
                 </Button>
               </Modal.Footer>
