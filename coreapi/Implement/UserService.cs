@@ -18,21 +18,19 @@ namespace MyDockerWebAPI.Implement
         public async Task<LoginResponse> Login(LoginRequest model)
         {
             // Check user
-            var conditions = new List<PagingParam>();
-            conditions.Add(new PagingParam
+            var param = new PagingParam();
+            param.Searchs.Add(new Search
             {
-                field_name = nameof(User.Username),
-                field_type = typeof(User).GetProperty(nameof(User.Username)).PropertyType,
-                field_value = model.Username
+                FieldName = nameof(User.Username),
+                FieldValue = model.Username
             });
-            conditions.Add(new PagingParam
+            param.Searchs.Add(new Search
             {
-                field_name = nameof(User.Password),
-                field_type = typeof(User).GetProperty(nameof(User.Password)).PropertyType,
-                field_value = Hash.Encrypt(model.Password)
+                FieldName = nameof(User.Password),
+                FieldValue = Hash.Encrypt(model.Password)
             });
 
-            var user = await GetAll(conditions: conditions);
+            var user = await GetAll(param);
             if (!user.Any())
                 throw new Exception("user not found");
 

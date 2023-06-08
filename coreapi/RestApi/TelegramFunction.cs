@@ -159,6 +159,7 @@ namespace MyDockerWebAPI.RestApi
                 var result = await botClient.SendTextMessageAsync(
                     chatId: USER,
                     text: text,
+                    parseMode: ParseMode.Html,
                     replyMarkup: inlineKeyboardMarkup);
                 return result.MessageId.ToString();
             }

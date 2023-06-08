@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MyDockerWebAPI.Model;
+using MyDockerWebAPI.Common;
 
 namespace MyDockerWebAPI.Repository
 {
@@ -16,27 +17,27 @@ namespace MyDockerWebAPI.Repository
             _configuration = configuration;
         }
 
-        public virtual async Task<List<T>> GetAll(string[]? includes = null, List<PagingParam>? conditions = null)
+        public virtual async Task<List<T>> GetAll(PagingParam? param = null)
         {
             IQueryable<T> query = _context.Set<T>().AsNoTracking();
 
             // Join
-            if (includes != null)
-                foreach (var include in includes)
-                    query = query.Include(include);
+            if (param?.Includes.Any() == true)
+                foreach (var include in param.Includes)
+                    query = query.Include(include.TableName);
 
             // Where
-            if (conditions != null)
+            if (param?.Searchs.Any() == true)
             {
                 Expression<Func<T, bool>>? combinedExpression = null;
                 var parameter = Expression.Parameter(typeof(T));
-                foreach (var condition in conditions)
+                foreach (var search in param.Searchs)
                 {
                     var expression =
                     Expression.Lambda<Func<T, bool>>(
                         Expression.Equal(
-                            Expression.Property(parameter, condition.field_name),
-                            Expression.Constant(condition.field_value, condition.field_type)
+                            Expression.Property(parameter, search.FieldName),
+                            Expression.Constant(search.FieldValue, typeof(T).GetProperty(search.FieldName).PropertyType)
                         ),
                         parameter
                     );
@@ -55,19 +56,23 @@ namespace MyDockerWebAPI.Repository
                 query = query.Where(combinedExpression);
             }
 
-            return await query.OrderByDescending(q => q.CreateTime).ToListAsync();
+            if (param?.Sorts.Any() == true)
+                foreach (var sort in param.Sorts)
+                    query = query.OrderBy(sort.FieldName, sort.SortType.ToLower().Equals("asc"));
+
+            return await query.ToListAsync();
         }
 
-        public virtual async Task<T> GetById(int id, string[]? includes = null, bool isCollection = false)
+        public virtual async Task<T> GetById(int id, PagingParam? param = null)
         {
             var current = await _context.Set<T>().FindAsync(id);
 
-            if (includes != null)
-                foreach (var include in includes)
-                    if (isCollection)
-                        _context.Entry(current).Collection(include).Load();
+            if (param?.Includes.Any() == true)
+                foreach (var include in param.Includes)
+                    if (include.IsCollection)
+                        _context.Entry(current).Collection(include.TableName).Load();
                     else
-                        _context.Entry(current).Reference(include).Load();
+                        _context.Entry(current).Reference(include.TableName).Load();
 
             _context.Entry(current).State = EntityState.Detached;
             return current;

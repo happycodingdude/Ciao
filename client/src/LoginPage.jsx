@@ -24,42 +24,41 @@ const useInstance = () => {
 }
 
 const LoginPage = () => {
-
-  const navigate = useNavigate();
   const { username, password, handleUsernameChange, handlePasswordChange } = useInstance();
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        Username: username,
-        Password: password
-      })
-    };
-    fetch('api/user/login', requestOptions)
-      .then(res => {
-        if (res.ok) return res.json();
-        else throw new Error(res.status);
-      })
-      .then(data => {
-        console.log(data.Token);
-        navigate('/home', {
-          state: {
-            token: data.Token
-          }
-        });
-      })
-      .catch(err => console.log(err));
-  };
+  // const handleSubmit = (event) => {
+  //   const requestOptions = {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({
+  //       Username: username,
+  //       Password: password
+  //     })
+  //   };
+  //   fetch('api/user/login', requestOptions)
+  //     .then(res => {
+  //       if (res.ok) return res.json();
+  //       else throw new Error(res.status);
+  //     })
+  //     .then(data => {
+  //       console.log(data.Token);
+  //       navigate('/home', {
+  //         state: {
+  //           token: data.Token
+  //         }
+  //       });
+  //     })
+  //     .catch(err => console.log(err));
+  // };
 
   return (
     <div className='box'>
-      <input type='text' value={username} onChange={handleUsernameChange} />
+      {/* <input type='text' value={username} onChange={handleUsernameChange} />
       <input type='text' value={password} onChange={handlePasswordChange} />
-      <button className='submit-button' onClick={handleSubmit}>Login</button>
+      <button className='submit-button' onClick={handleSubmit}>Login</button> */}
     </div>
   )
 }

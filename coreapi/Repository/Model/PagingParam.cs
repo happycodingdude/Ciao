@@ -2,8 +2,26 @@ namespace MyDockerWebAPI.Model
 {
     public class PagingParam
     {
-        public string? field_name { get; set; }
-        public Type? field_type { get; set; }
-        public string? field_value { get; set; }
+        public List<Search>? Searchs { get; set; } = new List<Search>();
+        public List<Include>? Includes { get; set; } = new List<Include>();
+        public List<Sort>? Sorts { get; set; } = new List<Sort>();
+    }
+
+    public class Search
+    {
+        public string? FieldName { get; set; }
+        public string? FieldValue { get; set; }
+    }
+
+    public class Include
+    {
+        public string? TableName { get; set; }
+        public bool IsCollection { get; set; }
+    }
+
+    public class Sort
+    {
+        public string? FieldName { get; set; }
+        public string? SortType { get; set; }
     }
 }

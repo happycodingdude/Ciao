@@ -26,12 +26,12 @@ public class SubmissionController : ControllerBase
         _serviceProvider = serviceProvider;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    [HttpPost("search")]
+    public async Task<IActionResult> Get(PagingParam? param)
     {
         try
         {
-            var data = await _service.GetAll(new string[] { nameof(Form), nameof(Participant), nameof(Location) });
+            var data = await _service.GetAll(param);
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -41,11 +41,11 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> Get(int id, PagingParam param)
     {
         try
         {
-            var data = await _service.GetById(id, new string[] { nameof(Form), nameof(Participant), nameof(Location) });
+            var data = await _service.GetById(id, param);
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -61,7 +61,8 @@ public class SubmissionController : ControllerBase
         {
             model.Status = SubmissionStatus.Draft;
             await _service.Add(model);
-            var data = await _service.GetById(model.Id, new string[] { nameof(Form), nameof(Participant), nameof(Location) });
+            var param = new PagingParam();
+            var data = await _service.GetById(model.Id, param);
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -105,18 +106,18 @@ public class SubmissionController : ControllerBase
     {
         try
         {
-            var current = await _service.GetById(id, new string[] { nameof(Form), nameof(Participant), nameof(Location) });
+            var current = await _service.GetById(id);
             current.Status = SubmissionStatus.Confirm;
             current.BeforeUpdate(current);
             var data = await _service.Update(current);
 
-            var message = string.Join(" - ",
+            var message = string.Join("\n",
                 new string[] {
                     current.Form.Name,
                     current.Participant.Name,
                     current.Location.Name,
-                    current.FromTime.ToString(),
-                    current.ToTime.ToString()
+                    current.FromTime.Value.ToString("d/M/yyyy HH:mm"),
+                    current.ToTime.Value.ToString("d/M/yyyy HH:mm")
                 }
             );
 

@@ -13,6 +13,8 @@ import "react-datetime/css/react-datetime.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import './Button.css';
 import './FlexBox.css';
+//import { addInclude, addSort, build, param, reset } from './PagingParam.jsx';
+import usePagingParam from './PagingParam.jsx';
 
 const SubmissionPage = () => {
   const navigate = useNavigate();
@@ -20,29 +22,40 @@ const SubmissionPage = () => {
   const location = useLocation();
   const { token } = location.state || '';
 
+  // Init variables for search
+  const { addInclude, addSort, build, param } = usePagingParam();
+
   // State list submission
   const [submissions, setSubmissions] = useState([]);
 
   // Get all data first render
   useEffect(() => {
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
-    };
-    fetch('api/submission', requestOptions)
-      .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
-        else throw new Error(res.status);
-      })
-      .then(data => {
-        setSubmissions(data);
-        setCurrentPage(1);
-      })
-      .catch(err => console.log(err));
+    addInclude({ Name: 'Form' });
+    setTimeout(() => {
+      build();
+    }, 2000);
+
+    // const requestOptions = {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': 'Bearer ' + token
+    //   },
+    //   body: JSON.stringify(param)
+    // };
+    // fetch('api/submission/search', requestOptions)
+    //   .then(res => {
+    //     if (res.ok) {
+    //       return res.json();
+    //     }
+    //     else if (res.status === 401) navigate('/');
+    //     else throw new Error(res.status);
+    //   })
+    //   .then(data => {
+    //     setSubmissions(data);
+    //     setCurrentPage(1);
+    //   })
+    //   .catch(err => console.log(err));
   }, []);
 
   // Control show/hide modal
@@ -123,7 +136,7 @@ const SubmissionPage = () => {
       })
       .then(data => {
         handleClose();
-        setSubmissions([...submissions, data]);
+        setSubmissions([...submissions.slice(0, 0), data, ...submissions.slice(0)]);
       })
       .catch(err => console.log(err));
   }
@@ -205,7 +218,6 @@ const SubmissionPage = () => {
   useEffect(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    console.log(submissions);
     setPagingSubmissions(submissions.slice(startIndex, endIndex));
 
     const pageCount = Math.ceil(submissions.length / itemsPerPage);
@@ -517,6 +529,9 @@ const SubmissionPage = () => {
                       timeFormat="HH:mm"
                       timeConstraints={{
                         minutes: { step: 10 }
+                      }}
+                      isValidDate={(current) => {
+                        return current.startOf('day').isSameOrAfter(moment().startOf('day'));
                       }}
                       onChange={(date) => handlePickerChange('FromTime', date)}
                     />
