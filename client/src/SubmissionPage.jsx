@@ -23,7 +23,7 @@ const SubmissionPage = () => {
   const { token } = location.state || '';
 
   // Init variables for search
-  const { addInclude, addSort, build, param } = usePagingParam();
+  const { addSearch, addInclude, addSort, build, param } = usePagingParam();
 
   // State list submission
   const [submissions, setSubmissions] = useState([]);
@@ -31,31 +31,33 @@ const SubmissionPage = () => {
   // Get all data first render
   useEffect(() => {
     addInclude({ Name: 'Form' });
-    setTimeout(() => {
-      build();
-    }, 2000);
+    addInclude({ Name: 'Participant' });
+    addInclude({ Name: 'Location' });
+    addSort({ FieldName: 'CreateTime', SortType: 'desc' });
+    build();
+    console.log(param.current);
 
-    // const requestOptions = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'Bearer ' + token
-    //   },
-    //   body: JSON.stringify(param)
-    // };
-    // fetch('api/submission/search', requestOptions)
-    //   .then(res => {
-    //     if (res.ok) {
-    //       return res.json();
-    //     }
-    //     else if (res.status === 401) navigate('/');
-    //     else throw new Error(res.status);
-    //   })
-    //   .then(data => {
-    //     setSubmissions(data);
-    //     setCurrentPage(1);
-    //   })
-    //   .catch(err => console.log(err));
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(param)
+    };
+    fetch('api/submission/search', requestOptions)
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        setSubmissions(data);
+        setCurrentPage(1);
+      })
+      .catch(err => console.log(err));
   }, []);
 
   // Control show/hide modal
