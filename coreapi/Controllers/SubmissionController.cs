@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using MyDockerWebAPI.Common;
 using MyDockerWebAPI.Interface;
@@ -18,12 +19,14 @@ public class SubmissionController : ControllerBase
     private readonly ISubmissionService _service;
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IMapper _mapper;
 
-    public SubmissionController(ISubmissionService service, IConfiguration configuration, IServiceProvider serviceProvider)
+    public SubmissionController(ISubmissionService service, IConfiguration configuration, IServiceProvider serviceProvider, IMapper mapper)
     {
         _service = service;
         _configuration = configuration;
         _serviceProvider = serviceProvider;
+        _mapper = mapper;
     }
 
     [HttpPost("search")]
@@ -40,8 +43,8 @@ public class SubmissionController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id, PagingParam param)
+    [HttpPost("{id}")]
+    public async Task<IActionResult> Get(int id, PagingParam? param)
     {
         try
         {
@@ -55,14 +58,31 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(Submission model)
+    public async Task<IActionResult> Add(SubmissionToAdd model)
     {
         try
         {
             model.Status = SubmissionStatus.Draft;
-            await _service.Add(model);
-            var param = new PagingParam();
-            var data = await _service.GetById(model.Id, param);
+            var entity = _mapper.Map<Submission>(model);
+            await _service.Add(entity);
+            var param = new PagingParam
+            {
+                Includes = new List<Include>
+                {
+                    new Include{TableName = nameof(Form)},
+                    new Include{TableName = nameof(Participant)},
+                    new Include{TableName = nameof(Location)}
+                },
+                Sorts = new List<Sort>
+                {
+                    new Sort
+                    {
+                        FieldName = nameof(Submission.CreateTime),
+                        SortType = "desc"
+                    }
+                }
+            };
+            var data = await _service.GetById(entity.Id, param);
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -72,13 +92,32 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(Submission model)
+    public async Task<IActionResult> Edit(SubmissionToAdd model)
     {
         try
         {
             var current = await _service.GetById(model.Id);
             model.BeforeUpdate(current);
-            var data = await _service.Update(model);
+            var entity = _mapper.Map<Submission>(model);
+            await _service.Update(entity);
+            var param = new PagingParam
+            {
+                Includes = new List<Include>
+                {
+                    new Include{TableName = nameof(Form)},
+                    new Include{TableName = nameof(Participant)},
+                    new Include{TableName = nameof(Location)}
+                },
+                Sorts = new List<Sort>
+                {
+                    new Sort
+                    {
+                        FieldName = nameof(Submission.CreateTime),
+                        SortType = "desc"
+                    }
+                }
+            };
+            var data = await _service.GetById(model.Id, param);
             return new JsonResult(data, jsonSetting);
         }
         catch (Exception ex)
@@ -106,7 +145,16 @@ public class SubmissionController : ControllerBase
     {
         try
         {
-            var current = await _service.GetById(id);
+            var param = new PagingParam
+            {
+                Includes = new List<Include>
+                {
+                    new Include{TableName = nameof(Form)},
+                    new Include{TableName = nameof(Participant)},
+                    new Include{TableName = nameof(Location)}
+                }
+            };
+            var current = await _service.GetById(id, param);
             current.Status = SubmissionStatus.Confirm;
             current.BeforeUpdate(current);
             var data = await _service.Update(current);

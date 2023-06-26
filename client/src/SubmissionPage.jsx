@@ -23,19 +23,18 @@ const SubmissionPage = () => {
   const { token } = location.state || '';
 
   // Init variables for search
-  const { addSearch, addInclude, addSort, build, param } = usePagingParam();
+  const { addSearch, addInclude, addSort, build, reset, param } = usePagingParam();
 
   // State list submission
   const [submissions, setSubmissions] = useState([]);
 
   // Get all data first render
   useEffect(() => {
-    addInclude({ Name: 'Form' });
-    addInclude({ Name: 'Participant' });
-    addInclude({ Name: 'Location' });
+    addInclude({ TableName: 'Form' });
+    addInclude({ TableName: 'Participant' });
+    addInclude({ TableName: 'Location' });
     addSort({ FieldName: 'CreateTime', SortType: 'desc' });
     build();
-    console.log(param.current);
 
     const requestOptions = {
       method: 'POST',
@@ -43,17 +42,16 @@ const SubmissionPage = () => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify(param)
+      body: JSON.stringify(param.current)
     };
     fetch('api/submission/search', requestOptions)
       .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
+        if (res.ok) return res.json();
         else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
       .then(data => {
+        reset();
         setSubmissions(data);
         setCurrentPage(1);
       })
@@ -74,7 +72,10 @@ const SubmissionPage = () => {
     FromTime: '',
     ToTime: '',
     Status: '',
-    Note: ''
+    Note: '',
+    Form: {},
+    Participant: {},
+    Location: {}
   }
   const [saveObject, setSaveObject] = useState(emptyObject);
 
@@ -82,12 +83,15 @@ const SubmissionPage = () => {
   const [editId, setEditId] = useState([]);
   useEffect(() => {
     if (editId.length !== 0) {
+      addInclude({ TableName: 'Form' });
+      build();
       const requestOptions = {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
-        }
+        },
+        body: JSON.stringify(param.current)
       };
       fetch(`api/submission/${editId}`, requestOptions)
         .then(res => {
@@ -96,8 +100,8 @@ const SubmissionPage = () => {
           else throw new Error(res.status);
         })
         .then(data => {
+          reset();
           setSaveObject(data);
-          setSelectedForm(forms.find((item) => item.value === data.FormId));
         })
         .catch(err => console.log(err));
     }
@@ -122,6 +126,7 @@ const SubmissionPage = () => {
   }
 
   const handleAdd = () => {
+    console.log(saveObject);
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -256,9 +261,11 @@ const SubmissionPage = () => {
 
   // State forms, participants and locations  
   const [forms, setForm] = useState([]);
-  const [selectedForm, setSelectedForm] = useState([]);
+  const [dataForms, setDataForms] = useState([]);
   const [participants, setParticipant] = useState([]);
+  const [dataParticipants, setDataParticipants] = useState([]);
   const [locations, setLocation] = useState([]);
+  const [dataLocations, setDataLocations] = useState([]);
 
   const getForms = () => {
     const requestOptions = {
@@ -275,6 +282,7 @@ const SubmissionPage = () => {
         else throw new Error(res.status);
       })
       .then(data => {
+        setDataForms(data);
         let select = [];
         data.map((item) => {
           select.push({
@@ -302,6 +310,7 @@ const SubmissionPage = () => {
         else throw new Error(res.status);
       })
       .then(data => {
+        setDataParticipants(data);
         let select = [];
         data.map((item) => {
           select.push({
@@ -329,6 +338,7 @@ const SubmissionPage = () => {
         else throw new Error(res.status);
       })
       .then(data => {
+        setDataLocations(data);
         let select = [];
         data.map((item) => {
           select.push({
@@ -356,6 +366,11 @@ const SubmissionPage = () => {
 
   const handleSelectChange = (name, option) => {
     setSaveObject(currentObject => ({ ...currentObject, [name]: option.value }));
+
+    if (name === "FormId") {
+      let budget = dataForms.find((item) => item.Id === option.value).Budget;
+      setSaveObject(currentObject => ({ ...currentObject, "Form": { "Budget": budget } }));
+    }
   }
 
   return (
@@ -522,7 +537,7 @@ const SubmissionPage = () => {
                     />
 
                     <Form.Label>Budget</Form.Label>
-                    <Form.Control type="text" disabled={action === 'edit'} value={saveObject.Form?.Budget} />
+                    <Form.Control type="text" disabled value={saveObject.Form?.Budget} />
 
                     <Form.Label>From</Form.Label>
                     <DateTime
@@ -545,6 +560,9 @@ const SubmissionPage = () => {
                       timeFormat="HH:mm"
                       timeConstraints={{
                         minutes: { step: 10 }
+                      }}
+                      isValidDate={(current) => {
+                        return current.startOf('day').isSameOrAfter(moment().startOf('day'));
                       }}
                       onChange={(date) => handlePickerChange('ToTime', date)}
                     />

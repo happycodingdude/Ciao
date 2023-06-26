@@ -40,10 +40,17 @@ const usePagingParam = () => {
 
   const build = () => {
     param.current = {
-      Searchs: searchs,
-      Includes: includes,
-      Sorts: sorts
+      Searchs: searchs.current,
+      Includes: includes.current,
+      Sorts: sorts.current
     }
+  }
+
+  const reset = () => {
+    searchs.current = [];
+    includes.current = [];
+    sorts.current = [];
+    param.current = {};
   }
 
   return {
@@ -51,6 +58,7 @@ const usePagingParam = () => {
     addInclude,
     addSort,
     build,
+    reset,
     param
   };
 }
