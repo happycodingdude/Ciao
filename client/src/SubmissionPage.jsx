@@ -2,27 +2,21 @@ import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, Sy
 import { Button, Tag } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
 // import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import Pagination from 'react-bootstrap/Pagination';
 import "react-datepicker/dist/react-datepicker.css";
-import DateTime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import './Button.css';
+import CustomModal from './CustomModal';
+import CustomPagination from './CustomPagination.jsx';
 import './FlexBox.css';
-//import { addInclude, addSort, build, param, reset } from './PagingParam.jsx';
+import usePagingView from './Paging.jsx';
 import usePagingParam from './PagingParam.jsx';
 
-const SubmissionPage = () => {
+const SubmissionPage = ({ data, token }) => {
   const navigate = useNavigate();
 
-  const location = useLocation();
-  const { token } = location.state || '';
-
-  // Init variables for search
+  // Init variables for api request
   const { addSearch, addInclude, addSort, build, reset, param } = usePagingParam();
 
   // State list submission
@@ -30,54 +24,14 @@ const SubmissionPage = () => {
 
   // Get all data first render
   useEffect(() => {
-    addInclude({ TableName: 'Form' });
-    addInclude({ TableName: 'Participant' });
-    addInclude({ TableName: 'Location' });
-    addSort({ FieldName: 'CreateTime', SortType: 'desc' });
-    build();
+    setSubmissions(data);
+    setCurrentPage(1);
+  }, [data]);
 
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(param.current)
-    };
-    fetch('api/submission/search', requestOptions)
-      .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
-        else throw new Error(res.status);
-      })
-      .then(data => {
-        reset();
-        setSubmissions(data);
-        setCurrentPage(1);
-      })
-      .catch(err => console.log(err));
-  }, []);
-
-  // Control show/hide modal
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
-  // State add or edit
+  // State action (add or edit) and object to save
   const [action, setAction] = useState([]);
-  const emptyObject = {
-    FormId: '',
-    ParticipantId: '',
-    LocationId: '',
-    FromTime: '',
-    ToTime: '',
-    Status: '',
-    Note: '',
-    Form: {},
-    Participant: {},
-    Location: {}
-  }
-  const [saveObject, setSaveObject] = useState(emptyObject);
+  const [saveObject, setSaveObject] = useState({});
+  const [formModal, setFormModal] = useState({});
 
   // State item to edit
   const [editId, setEditId] = useState([]);
@@ -102,29 +56,41 @@ const SubmissionPage = () => {
         .then(data => {
           reset();
           setSaveObject(data);
+          setFormModal({
+            action: 'edit',
+            editedId: editId,
+            saveObject: data,
+          });
+          handleShow();
         })
         .catch(err => console.log(err));
     }
   }, [editId]);
 
+  // Control show/hide modal
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   // Open modal
   const handleOpenForm = (id) => {
     if (id === undefined) {
-      setSaveObject([]);
       setAction('add');
+      setSaveObject([]);
     } else {
-      setEditId(id);
       setAction('edit');
+      setEditId(id);
     }
-    handleShow();
   }
 
   // Add or edit submission
   const handleAddOrEdit = () => {
-    if (action === 'add') handleAdd();
-    else handleEdit(editId);
+    if (action === 'add')
+      handleAdd();
+    else
+      handleEdit(editId);
   }
-
+  // Add submission
   const handleAdd = () => {
     console.log(saveObject);
     const requestOptions = {
@@ -147,7 +113,7 @@ const SubmissionPage = () => {
       })
       .catch(err => console.log(err));
   }
-
+  // Edit submission
   const handleEdit = (id) => {
     const requestOptions = {
       method: 'PUT',
@@ -197,38 +163,33 @@ const SubmissionPage = () => {
     }
   }
 
-  // Control change input value
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setSaveObject(currentObject => ({ ...currentObject, [name]: value }));
-  };
+  // // Control change input value
+  // const handleInputChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setSaveObject(currentObject => ({ ...currentObject, [name]: value }));
+  // };
+  // // Control change datetime picker
+  // const handlePickerChange = (name, date) => {
+  //   setSaveObject(currentObject => ({ ...currentObject, [name]: date.format() }));
+  // };
+  // // Control change select
+  // const handleSelectChange = (name, option) => {
+  //   setSaveObject(currentObject => ({ ...currentObject, [name]: option.value }));
 
-  // Control change datetime picker
-  const handlePickerChange = (name, date) => {
-    setSaveObject(currentObject => ({ ...currentObject, [name]: date.format() }));
-  };
-
-  // Paging variables
-  const itemsPerPage = 4;
+  //   if (name === "FormId") {
+  //     let budget = dataForms.find((item) => item.Id === option.value).Budget;
+  //     setSaveObject(currentObject => ({ ...currentObject, "Form": { "Budget": budget } }));
+  //   }
+  // }
 
   // State paging
   const [pagingSubmissions, setPagingSubmissions] = useState([]);
-  const [pageNumbers, setPageNumbers] = useState([]);
-
   const [currentPage, setCurrentPage] = useState(0);
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= pageNumbers[pageNumbers.length - 1])
-      setCurrentPage(pageNumber);
-  };
-
   // Controll pagination
+  const { pagingView, paging } = usePagingView();
   useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setPagingSubmissions(submissions.slice(startIndex, endIndex));
-
-    const pageCount = Math.ceil(submissions.length / itemsPerPage);
-    setPageNumbers([...Array(pageCount).keys()].map((n) => n + 1));
+    paging(submissions, currentPage);
+    setPagingSubmissions(pagingView.current);
   }, [currentPage, submissions]);
 
   // Submit form
@@ -266,7 +227,7 @@ const SubmissionPage = () => {
   const [dataParticipants, setDataParticipants] = useState([]);
   const [locations, setLocation] = useState([]);
   const [dataLocations, setDataLocations] = useState([]);
-
+  // Get forms
   const getForms = () => {
     const requestOptions = {
       method: 'GET',
@@ -294,7 +255,7 @@ const SubmissionPage = () => {
       })
       .catch(err => console.log(err));
   }
-
+  // Get participants
   const getParticipants = () => {
     const requestOptions = {
       method: 'GET',
@@ -322,7 +283,7 @@ const SubmissionPage = () => {
       })
       .catch(err => console.log(err));
   }
-
+  // Get locations
   const getLocations = () => {
     const requestOptions = {
       method: 'GET',
@@ -350,7 +311,7 @@ const SubmissionPage = () => {
       })
       .catch(err => console.log(err));
   }
-
+  // Default call when render
   useEffect(() => {
     getForms();
     getParticipants();
@@ -363,15 +324,6 @@ const SubmissionPage = () => {
       {children}
     </label>
   );
-
-  const handleSelectChange = (name, option) => {
-    setSaveObject(currentObject => ({ ...currentObject, [name]: option.value }));
-
-    if (name === "FormId") {
-      let budget = dataForms.find((item) => item.Id === option.value).Budget;
-      setSaveObject(currentObject => ({ ...currentObject, "Form": { "Budget": budget } }));
-    }
-  }
 
   return (
     <div className='container'>
@@ -403,7 +355,6 @@ const SubmissionPage = () => {
                     <td>{item.Location.Name}</td>
                     <td>{moment(item.FromTime).format('DD/MM/YYYY HH:mm:ss')}</td>
                     <td>{moment(item.ToTime).format('DD/MM/YYYY HH:mm:ss')}</td>
-                    {/* <td>{item.Status}</td> */}
                     <td>
                       {
                         item.Status === 'draft'
@@ -434,71 +385,15 @@ const SubmissionPage = () => {
                           ? (<Button type='primary' danger onClick={() => handleDelete(item.Id)}>Delete</Button>)
                           : ''
                       }
-                      {/* {
-                        item.Status === 'approve'
-                          ? (<CheckCircleTwoTone twoToneColor="#52c41a" />)
-                          : ''
-                      }
-                      {
-                        item.Status === 'reject'
-                          ? (<CloseCircleTwoTone twoToneColor="#f5222d" />)
-                          : ''
-                      } */}
                     </td>
                   </tr>
                 ))
               }
             </tbody>
           </table>
-          <div className="pagination">
-            <Pagination>
-              {
-                currentPage > 1
-                  ? (
-                    <>
-                      <Pagination.First onClick={() => handlePageChange(1)} />
-                      <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} />
-                      <Pagination.Item onClick={() => handlePageChange(1)}>{1}</Pagination.Item>
-                      <Pagination.Ellipsis />
-                    </>
-                  )
-                  : (
-                    ''
-                  )
-              }
-              {
-                pageNumbers.map((pageNumber) => {
-                  if (currentPage == pageNumber == 1
-                    || currentPage == pageNumber == pageNumbers[pageNumbers.length - 1]
-                    || (pageNumber > 1 && pageNumber < pageNumbers[pageNumbers.length - 1])) {
-                    return (
-                      <Pagination.Item
-                        key={pageNumber}
-                        active={pageNumber === currentPage}
-                        onClick={() => handlePageChange(pageNumber)}>
-                        {pageNumber}
-                      </Pagination.Item>
-                    );
-                  }
-                })
-              }
-              {
-                currentPage < pageNumbers[pageNumbers.length - 1]
-                  ? (
-                    <>
-                      <Pagination.Ellipsis />
-                      <Pagination.Item onClick={() => handlePageChange(pageNumbers[pageNumbers.length - 1])}>{pageNumbers[pageNumbers.length - 1]}</Pagination.Item>
-                      <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} />
-                      <Pagination.Last onClick={() => handlePageChange(pageNumbers[pageNumbers.length - 1])} />
-                    </>
-                  )
-                  : (
-                    ''
-                  )
-              }
-            </Pagination>
-          </div>
-          {
+          <CustomPagination data={submissions} triggerView={setCurrentPage} />
+          <CustomModal show={show} formModal={formModal} />
+          {/* {
             <Modal show={show} onHide={handleClose}>
               <Modal.Header closeButton>
                 <Modal.Title>{action === 'add' ? 'Create' : `Edit ${editId}`}</Modal.Title>
@@ -581,7 +476,7 @@ const SubmissionPage = () => {
                 </Button>
               </Modal.Footer>
             </Modal>
-          }
+          } */}
         </div>
       </div>
     </div>
