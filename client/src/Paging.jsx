@@ -6,7 +6,7 @@ import './Button.css';
 import './FlexBox.css';
 
 const usePagingView = () => {
-  const itemsPerPage = 3;
+  const itemsPerPage = 5;
   const pagingView = useRef([]);
   const pageNumber = useRef([]);
 

@@ -7,7 +7,7 @@ import './Button.css';
 import './FlexBox.css';
 import usePagingView from './Paging.jsx';
 
-const CustomPagination = ({ data, triggerView }) => {
+const PaginationBar = ({ data, triggerView }) => {
   // State paginate
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,4 +77,4 @@ const CustomPagination = ({ data, triggerView }) => {
   )
 }
 
-export default CustomPagination;
+export default PaginationBar;

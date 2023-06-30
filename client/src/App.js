@@ -11,10 +11,10 @@ const App = () => {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/home" element={<HomePage />} />
-      <Route path="/form" element={<BaseComponent apiEndpoint='api/form' httpVerb='GET' />} />
-      <Route path="/participant" element={<BaseComponent apiEndpoint='api/participant' httpVerb='GET' />} />
-      <Route path="/location" element={<BaseComponent apiEndpoint='api/location' httpVerb='GET' />} />
-      <Route path="/submission" element={<BaseComponent apiEndpoint='api/submission/search' httpVerb='POST' />} />
+      <Route path="/form" element={<BaseComponent page='form' />} />
+      <Route path="/participant" element={<BaseComponent page='participant' />} />
+      <Route path="/location" element={<BaseComponent page='location' />} />
+      <Route path="/submission" element={<BaseComponent page='submission' />} />
     </Routes>
   )
 }

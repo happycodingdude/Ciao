@@ -1,19 +1,23 @@
-import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, SyncOutlined } from '@ant-design/icons';
-import { Button, Tag } from 'antd';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { Button } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-// import Button from 'react-bootstrap/Button';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
 import { Link, useNavigate } from "react-router-dom";
 import './Button.css';
 import CustomModal from './CustomModal';
-import CustomPagination from './CustomPagination.jsx';
 import './FlexBox.css';
+import PaginationBar from './PaginationBar.jsx';
 import usePagingView from './Paging.jsx';
 import usePagingParam from './PagingParam.jsx';
 
-const SubmissionPage = ({ data, token }) => {
+const SubmissionPage = ({ token }) => {
   const navigate = useNavigate();
 
   // Init variables for api request
@@ -24,19 +28,43 @@ const SubmissionPage = ({ data, token }) => {
 
   // Get all data first render
   useEffect(() => {
-    setSubmissions(data);
-    setCurrentPage(1);
-  }, [data]);
+    addInclude({ TableName: 'Form' });
+    addInclude({ TableName: 'Participant' });
+    addInclude({ TableName: 'Location' });
+    addSort({ FieldName: 'CreateTime', SortType: 'desc' });
+    build();
 
-  // State action (add or edit) and object to save
-  const [action, setAction] = useState([]);
+    let requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(param.current)
+    };
+
+    fetch('api/submission/search', requestOptions)
+      .then(res => {
+        if (res.ok) return res.json();
+        else if (res.status === 401) navigate('/');
+        else throw new Error(res.status);
+      })
+      .then(data => {
+        reset();
+        setSubmissions(data);
+        setCurrentPage(1);
+      })
+      .catch(err => console.log(err));
+  }, []);
+
+  // State object to save, data to open modal
   const [saveObject, setSaveObject] = useState({});
-  const [formModal, setFormModal] = useState({});
+  const [formParam, setFormParam] = useState({});
 
   // State item to edit
-  const [editId, setEditId] = useState([]);
+  const [editId, setEditId] = useState(0);
   useEffect(() => {
-    if (editId.length !== 0) {
+    if (editId !== 0) {
       addInclude({ TableName: 'Form' });
       build();
       const requestOptions = {
@@ -56,16 +84,67 @@ const SubmissionPage = ({ data, token }) => {
         .then(data => {
           reset();
           setSaveObject(data);
-          setFormModal({
-            action: 'edit',
-            editedId: editId,
-            saveObject: data,
-          });
-          handleShow();
+          handleShowModal(data);
         })
         .catch(err => console.log(err));
     }
   }, [editId]);
+
+  // Prepare param and show modal
+  const handleShowModal = (data) => {
+    let formParam = {
+      formAction: data === undefined ? 'add' : 'edit',
+      formId: editId,
+      formData: [
+        {
+          ItemName: 'Form',
+          ItemField: 'FormId',
+          ItemValue: data === undefined ? '' : selectForms.find((item) => item.value === data.FormId),
+          ItemType: 'select',
+          ItemOptions: selectForms,
+          ItemNameToChange: 'Budget',
+          ItemValueToChange: forms
+        },
+        {
+          ItemName: 'Participant',
+          ItemField: 'ParticipantId',
+          ItemValue: data === undefined ? '' : selectParticipants.find((item) => item.value === data.ParticipantId),
+          ItemType: 'select',
+          ItemOptions: selectParticipants
+        },
+        {
+          ItemName: 'Location',
+          ItemField: 'LocationId',
+          ItemValue: data === undefined ? '' : selectLocations.find((item) => item.value === data.LocationId),
+          ItemType: 'select',
+          ItemOptions: selectLocations
+        },
+        {
+          ItemName: 'Budget',
+          ItemValue: data === undefined ? '' : data['Form']['Budget'],
+          ItemType: 'input',
+          ItemDisable: true
+        },
+        {
+          ItemName: 'FromTime',
+          ItemValue: data === undefined ? '' : data['FromTime'],
+          ItemType: 'picker'
+        },
+        {
+          ItemName: 'ToTime',
+          ItemValue: data === undefined ? '' : data['ToTime'],
+          ItemType: 'picker'
+        },
+        {
+          ItemName: 'Note',
+          ItemValue: data === undefined ? '' : data['Note'],
+          ItemType: 'input'
+        }
+      ],
+    }
+    setFormParam(formParam);
+    handleShow();
+  }
 
   // Control show/hide modal
   const [show, setShow] = useState(false);
@@ -75,22 +154,27 @@ const SubmissionPage = ({ data, token }) => {
   // Open modal
   const handleOpenForm = (id) => {
     if (id === undefined) {
-      setAction('add');
-      setSaveObject([]);
+      setSaveObject({});
+      handleShowModal();
     } else {
-      setAction('edit');
-      setEditId(id);
+      setEditId(prev => {
+        if (id !== prev) {
+          return id;
+        }
+        handleShowModal(saveObject);
+        return prev;
+      });
     }
   }
 
-  // Add or edit submission
-  const handleAddOrEdit = () => {
+  // Add or edit
+  const handleSaveChanges = (action) => {
     if (action === 'add')
       handleAdd();
     else
       handleEdit(editId);
   }
-  // Add submission
+  // Add
   const handleAdd = () => {
     console.log(saveObject);
     const requestOptions = {
@@ -113,7 +197,7 @@ const SubmissionPage = ({ data, token }) => {
       })
       .catch(err => console.log(err));
   }
-  // Edit submission
+  // Edit
   const handleEdit = (id) => {
     const requestOptions = {
       method: 'PUT',
@@ -131,19 +215,18 @@ const SubmissionPage = ({ data, token }) => {
       })
       .then(data => {
         handleClose();
-        const updatedSubmissions = submissions.map((item) => {
+        const updated = submissions.map((item) => {
           if (item.Id === id)
             // Update the value for the specific item
             return data;
           return item;
         });
         // Update the state with the new table data
-        setSubmissions(updatedSubmissions);
+        setSubmissions(updated);
       })
       .catch(err => console.log(err));
   }
-
-  // Delete submission
+  // Delete
   const handleDelete = (id) => {
     if (window.confirm('Delete this item?') == true) {
       const requestOptions = {
@@ -163,33 +246,14 @@ const SubmissionPage = ({ data, token }) => {
     }
   }
 
-  // // Control change input value
-  // const handleInputChange = (event) => {
-  //   const { name, value } = event.target;
-  //   setSaveObject(currentObject => ({ ...currentObject, [name]: value }));
-  // };
-  // // Control change datetime picker
-  // const handlePickerChange = (name, date) => {
-  //   setSaveObject(currentObject => ({ ...currentObject, [name]: date.format() }));
-  // };
-  // // Control change select
-  // const handleSelectChange = (name, option) => {
-  //   setSaveObject(currentObject => ({ ...currentObject, [name]: option.value }));
-
-  //   if (name === "FormId") {
-  //     let budget = dataForms.find((item) => item.Id === option.value).Budget;
-  //     setSaveObject(currentObject => ({ ...currentObject, "Form": { "Budget": budget } }));
-  //   }
-  // }
-
   // State paging
-  const [pagingSubmissions, setPagingSubmissions] = useState([]);
+  const [pagingData, setPagingData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   // Controll pagination
   const { pagingView, paging } = usePagingView();
   useEffect(() => {
     paging(submissions, currentPage);
-    setPagingSubmissions(pagingView.current);
+    setPagingData(pagingView.current);
   }, [currentPage, submissions]);
 
   // Submit form
@@ -222,11 +286,11 @@ const SubmissionPage = ({ data, token }) => {
 
   // State forms, participants and locations  
   const [forms, setForm] = useState([]);
-  const [dataForms, setDataForms] = useState([]);
+  const [selectForms, setSelectForm] = useState([]);
   const [participants, setParticipant] = useState([]);
-  const [dataParticipants, setDataParticipants] = useState([]);
+  const [selectParticipants, setSelectParticipant] = useState([]);
   const [locations, setLocation] = useState([]);
-  const [dataLocations, setDataLocations] = useState([]);
+  const [selectLocations, setSelectLocation] = useState([]);
   // Get forms
   const getForms = () => {
     const requestOptions = {
@@ -243,7 +307,6 @@ const SubmissionPage = ({ data, token }) => {
         else throw new Error(res.status);
       })
       .then(data => {
-        setDataForms(data);
         let select = [];
         data.map((item) => {
           select.push({
@@ -251,7 +314,16 @@ const SubmissionPage = ({ data, token }) => {
             label: item.Name
           });
         })
-        setForm(select);
+        setSelectForm(select);
+
+        let arr = [];
+        data.map((item) => {
+          arr.push({
+            key: item.Id,
+            value: item.Budget
+          });
+        })
+        setForm(arr);
       })
       .catch(err => console.log(err));
   }
@@ -271,7 +343,6 @@ const SubmissionPage = ({ data, token }) => {
         else throw new Error(res.status);
       })
       .then(data => {
-        setDataParticipants(data);
         let select = [];
         data.map((item) => {
           select.push({
@@ -279,7 +350,16 @@ const SubmissionPage = ({ data, token }) => {
             label: item.Name
           });
         })
-        setParticipant(select);
+        setSelectParticipant(select);
+
+        let arr = [];
+        data.map((item) => {
+          arr.push({
+            key: item.Id,
+            value: item.Budget
+          });
+        })
+        setParticipant(arr);
       })
       .catch(err => console.log(err));
   }
@@ -299,7 +379,6 @@ const SubmissionPage = ({ data, token }) => {
         else throw new Error(res.status);
       })
       .then(data => {
-        setDataLocations(data);
         let select = [];
         data.map((item) => {
           select.push({
@@ -307,7 +386,16 @@ const SubmissionPage = ({ data, token }) => {
             label: item.Name
           });
         })
-        setLocation(select);
+        setSelectLocation(select);
+
+        let arr = [];
+        data.map((item) => {
+          arr.push({
+            key: item.Id,
+            value: item.Budget
+          });
+        })
+        setLocation(arr);
       })
       .catch(err => console.log(err));
   }
@@ -318,13 +406,6 @@ const SubmissionPage = ({ data, token }) => {
     getLocations();
   }, [])
 
-  const Checkbox = ({ children, ...props }) => (
-    <label style={{ marginRight: '1em' }}>
-      <input type="checkbox" {...props} />
-      {children}
-    </label>
-  );
-
   return (
     <div className='container'>
       <Link to="/home" state={{ token: token }}>Home</Link>
@@ -334,7 +415,6 @@ const SubmissionPage = ({ data, token }) => {
           <table className='table table-striped'>
             <thead>
               <tr>
-                <th>Id</th>
                 <th>Form name</th>
                 <th>Participants</th>
                 <th>Location</th>
@@ -347,9 +427,8 @@ const SubmissionPage = ({ data, token }) => {
             </thead>
             <tbody>
               {
-                pagingSubmissions.map((item) => (
+                pagingData.map((item) => (
                   <tr key={item.Id}>
-                    <td>{item.Id}</td>
                     <td>{item.Form.Name}</td>
                     <td>{item.Participant.Name}</td>
                     <td>{item.Location.Name}</td>
@@ -358,13 +437,25 @@ const SubmissionPage = ({ data, token }) => {
                     <td>
                       {
                         item.Status === 'draft'
-                          ? (<Tag icon={<ExclamationCircleOutlined />} color="default">{item.Status}</Tag>)
+                          ? (<Stack direction="row" alignItems="center" gap={1}>
+                            <InfoOutlinedIcon fontSize='small' color='info' />
+                            <Typography variant="body1">{item.Status}</Typography>
+                          </Stack>)
                           : item.Status === 'confirm'
-                            ? (<Tag icon={<SyncOutlined spin />} color="processing">{item.Status}</Tag>)
+                            ? (<Stack direction="row" alignItems="center" gap={1}>
+                              <CircularProgress size='1em' color='primary' />
+                              <Typography variant="body1" >{item.Status}</Typography>
+                            </Stack>)
                             : item.Status === 'approve'
-                              ? (<Tag icon={<CheckCircleOutlined />} color="success">{item.Status}</Tag>)
+                              ? (<Stack direction="row" alignItems="center" gap={1}>
+                                <CheckCircleOutlinedIcon fontSize='small' color='success' />
+                                <Typography variant="body1" >{item.Status}</Typography>
+                              </Stack>)
                               : item.Status === 'reject'
-                                ? (<Tag icon={<CloseCircleOutlined />} color="error">{item.Status}</Tag>)
+                                ? (<Stack direction="row" alignItems="center" gap={1}>
+                                  <CancelOutlinedIcon fontSize='small' color='error' />
+                                  <Typography variant="body1" >{item.Status}</Typography>
+                                </Stack>)
                                 : ''
                       }
                     </td>
@@ -391,92 +482,17 @@ const SubmissionPage = ({ data, token }) => {
               }
             </tbody>
           </table>
-          <CustomPagination data={submissions} triggerView={setCurrentPage} />
-          <CustomModal show={show} formModal={formModal} />
-          {/* {
-            <Modal show={show} onHide={handleClose}>
-              <Modal.Header closeButton>
-                <Modal.Title>{action === 'add' ? 'Create' : `Edit ${editId}`}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form>
-                  <Form.Group className="mb-3" controlId="formSubmission">
-                    <Form.Label>Form name</Form.Label>
-                    <Select
-                      className="basic-single"
-                      classNamePrefix="select"
-                      value={forms.find((item) => item.value === saveObject.FormId)}
-                      name="color"
-                      options={forms}
-                      onChange={(option) => { handleSelectChange('FormId', option) }}
-                    />
-
-                    <Form.Label>Participants</Form.Label>
-                    <Select
-                      className="basic-single"
-                      classNamePrefix="select"
-                      value={participants.find((item) => item.value === saveObject.ParticipantId)}
-                      name="color"
-                      options={participants}
-                      onChange={(option) => { handleSelectChange('ParticipantId', option) }}
-                    />
-
-                    <Form.Label>Location</Form.Label>
-                    <Select
-                      className="basic-single"
-                      classNamePrefix="select"
-                      value={locations.find((item) => item.value === saveObject.LocationId)}
-                      name="color"
-                      options={locations}
-                      onChange={(option) => { handleSelectChange('LocationId', option) }}
-                    />
-
-                    <Form.Label>Budget</Form.Label>
-                    <Form.Control type="text" disabled value={saveObject.Form?.Budget} />
-
-                    <Form.Label>From</Form.Label>
-                    <DateTime
-                      value={action === 'add' ? '' : moment(saveObject.FromTime)}
-                      dateFormat="DD/MM/YYYY"
-                      timeFormat="HH:mm"
-                      timeConstraints={{
-                        minutes: { step: 10 }
-                      }}
-                      isValidDate={(current) => {
-                        return current.startOf('day').isSameOrAfter(moment().startOf('day'));
-                      }}
-                      onChange={(date) => handlePickerChange('FromTime', date)}
-                    />
-
-                    <Form.Label>To</Form.Label>
-                    <DateTime
-                      value={action === 'add' ? '' : moment(saveObject.ToTime)}
-                      dateFormat="DD/MM/YYYY"
-                      timeFormat="HH:mm"
-                      timeConstraints={{
-                        minutes: { step: 10 }
-                      }}
-                      isValidDate={(current) => {
-                        return current.startOf('day').isSameOrAfter(moment().startOf('day'));
-                      }}
-                      onChange={(date) => handlePickerChange('ToTime', date)}
-                    />
-
-                    <Form.Label>Note</Form.Label>
-                    <Form.Control type="text" name='Note' value={saveObject.Note} onChange={handleInputChange} />
-                  </Form.Group>
-                </Form>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button type='text' onClick={handleClose}>
-                  Close
-                </Button>
-                <Button type='primary' onClick={() => { handleAddOrEdit() }}>
-                  Save Changes
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          } */}
+          <PaginationBar
+            data={submissions}
+            triggerView={setCurrentPage}
+          />
+          <CustomModal
+            show={show}
+            formParam={formParam}
+            handleClose={handleClose}
+            setSaveObject={setSaveObject}
+            handleSaveChanges={handleSaveChanges}
+          />
         </div>
       </div>
     </div>

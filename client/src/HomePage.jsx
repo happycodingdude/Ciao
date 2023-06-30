@@ -34,7 +34,7 @@ const HomePage = () => {
         <li><Link to="/form" state={{ token: token }}>Form</Link></li>
         <li><Link to="/participant" state={{ token: token }}>Participant</Link></li>
         <li><Link to="/location" state={{ token: token }}>Location</Link></li>
-        <li><Link to="/submission" state={{ token: token }}>Submit</Link></li>
+        <li><Link to="/submission" state={{ token: token }}>Submission</Link></li>
       </ul>
     </>
   )
