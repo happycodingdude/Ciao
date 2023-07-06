@@ -71,6 +71,8 @@ namespace MyDockerWebAPI
             app.Lifetime.ApplicationStarted.Register(OnStarted);
             app.Lifetime.ApplicationStopping.Register(OnStopping);
             _app = app;
+
+            DatabaseMigration.Migrate(app);
         }
 
         private void OnStarted()

@@ -33,3 +33,4 @@ ENV ASPNETCORE_URLS=http://+:5000
 
 # Set the entry point for the container
 ENTRYPOINT ["dotnet", "MyDockerWebAPI.dll"]
+

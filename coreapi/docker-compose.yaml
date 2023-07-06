@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  # core-api:
+  #   build:
+  #     dockerfile: Dockerfile
+  #     context: .
+  #   depends_on:
+  #     - mysql
+  #   ports:
+  #     - "4000:5000"
+  mysql:
+    image: mysql
+    volumes:
+      - db:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: "CoreDatabase"
+    ports:
+      - "3306:3306"
+volumes:
+  db:
