@@ -26,6 +26,9 @@ namespace MyDockerWebAPI
             builder.Services.AddDbContextPool<CoreContext>(option =>
             {
                 option.UseMySQL(builder.Configuration.GetConnectionString("MyDbContext"));
+            }).AddDbContext<MigrationContext>(option =>
+            {
+                option.UseMySQL(builder.Configuration.GetConnectionString("MyDbContext"));
             });
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

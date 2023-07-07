@@ -8,7 +8,7 @@ namespace MyDockerWebAPI.Repository
         {
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                var context = scope.ServiceProvider.GetService<CoreContext>();
+                var context = scope.ServiceProvider.GetService<MigrationContext>();
                 context.Database.Migrate();
             }
         }
