@@ -1,9 +1,8 @@
 using MyDockerWebAPI;
-using MyDockerWebAPI.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-KeyGenerator.GenerateRandom();
+//KeyGenerator.GenerateRandom();
 
 var startup = new Startup();
 startup.ConfigureServices(builder);

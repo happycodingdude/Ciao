@@ -1,25 +1,54 @@
 version: '3'
 
 services:
-  # api:
-  #   build:
-  #     dockerfile: Dockerfile
-  #     context: .
-  #   depends_on:
-  #     - mysql
-  #   ports:
-  #     - "4000:5000"
-  mysql:
+  api:
+    image: api
+    container_name: api
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - db
+    ports:
+      - "4000:5000"
+    # command:
+    #   [
+    #     "./wait-for-it.sh",
+    #     "-t",
+    #     "60",
+    #     "192.168.6.159:3306",
+    #     "--",
+    #     "dotnet",
+    #     "MyDockerWebAPI.dll"
+    #   ]
+    # command:
+    #   [
+    #     "dockerize",
+    #     "-wait",
+    #     "tcp://db:3306",
+    #     "-timeout",
+    #     "60s",
+    #     "dotnet",
+    #     "MyDockerWebAPI.dll"
+    #   ]
+  db:
     image: mysql
+    container_name: mysql
     volumes:
-      - db:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-vol:/var/lib/mysql
+      - ./db-vol/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "123456"
       MYSQL_DATABASE: "CoreDatabase"
+      MYSQL_ROOT_PASSWORD: "123456"
       TZ: "Asia/Bangkok"
     ports:
       - "3306:3306"
+    hostname: 192.168.6.159
+    healthcheck:
+      test: "mysqladmin ping -h localhost -u root -p 123456"
+      interval: 10s
+      retries: 10
+      timeout: 5s
 volumes:
-  db:
+  db-vol:
