@@ -1,36 +1,17 @@
-version: '3'
+version: '3.8'
 
 services:
-  api:
-    image: api
-    container_name: api
-    build:
-      dockerfile: Dockerfile
-      context: .
+  setting-api:
+    image: trintdk/setting-api
+    container_name: setting-api
+    # build:
+    #   dockerfile: Dockerfile
+    #   context: .
     depends_on:
       - db
     ports:
       - "4000:5000"
-    # command:
-    #   [
-    #     "./wait-for-it.sh",
-    #     "-t",
-    #     "60",
-    #     "192.168.6.159:3306",
-    #     "--",
-    #     "dotnet",
-    #     "MyDockerWebAPI.dll"
-    #   ]
-    # command:
-    #   [
-    #     "dockerize",
-    #     "-wait",
-    #     "tcp://db:3306",
-    #     "-timeout",
-    #     "60s",
-    #     "dotnet",
-    #     "MyDockerWebAPI.dll"
-    #   ]
+    restart: always
   db:
     image: mysql
     container_name: mysql
@@ -45,10 +26,5 @@ services:
     ports:
       - "3306:3306"
     hostname: 192.168.6.159
-    healthcheck:
-      test: "mysqladmin ping -h localhost -u root -p 123456"
-      interval: 10s
-      retries: 10
-      timeout: 5s
 volumes:
   db-vol:
