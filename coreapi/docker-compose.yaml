@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   setting-api:
@@ -25,6 +25,6 @@ services:
       TZ: "Asia/Bangkok"
     ports:
       - "3306:3306"
-    hostname: 192.168.6.159
+    hostname: 192.168.6.11
 volumes:
   db-vol:
