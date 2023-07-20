@@ -57,10 +57,8 @@ const SubmissionPage = ({ token }) => {
       .catch(err => console.log(err));
   }, []);
 
-  // State object to save, data to open modal
+  // State object to save
   const [saveObject, setSaveObject] = useState({});
-  const [formParam, setFormParam] = useState({});
-
   // State item to edit
   const [editId, setEditId] = useState(0);
   useEffect(() => {
@@ -90,6 +88,8 @@ const SubmissionPage = ({ token }) => {
     }
   }, [editId]);
 
+  // State form data to open modal
+  const [formParam, setFormParam] = useState({});
   // Prepare param and show modal
   const handleShowModal = (data) => {
     let formParam = {
@@ -257,7 +257,7 @@ const SubmissionPage = ({ token }) => {
   }, [currentPage, submissions]);
 
   // Submit form
-  const handleSubmitForm = (id) => {
+  const handleSubmitRequest = (id) => {
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -287,9 +287,7 @@ const SubmissionPage = ({ token }) => {
   // State forms, participants and locations  
   const [forms, setForm] = useState([]);
   const [selectForms, setSelectForm] = useState([]);
-  const [participants, setParticipant] = useState([]);
   const [selectParticipants, setSelectParticipant] = useState([]);
-  const [locations, setLocation] = useState([]);
   const [selectLocations, setSelectLocation] = useState([]);
   // Get forms
   const getForms = () => {
@@ -351,15 +349,6 @@ const SubmissionPage = ({ token }) => {
           });
         })
         setSelectParticipant(select);
-
-        let arr = [];
-        data.map((item) => {
-          arr.push({
-            key: item.Id,
-            value: item.Budget
-          });
-        })
-        setParticipant(arr);
       })
       .catch(err => console.log(err));
   }
@@ -387,15 +376,6 @@ const SubmissionPage = ({ token }) => {
           });
         })
         setSelectLocation(select);
-
-        let arr = [];
-        data.map((item) => {
-          arr.push({
-            key: item.Id,
-            value: item.Budget
-          });
-        })
-        setLocation(arr);
       })
       .catch(err => console.log(err));
   }
@@ -463,7 +443,7 @@ const SubmissionPage = ({ token }) => {
                     <td colSpan={3}>
                       {
                         item.Status === 'draft'
-                          ? (<Button onClick={() => handleSubmitForm(item.Id)}>Submit</Button>)
+                          ? (<Button onClick={() => handleSubmitRequest(item.Id)}>Submit</Button>)
                           : ''
                       }
                       {

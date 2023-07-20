@@ -151,8 +151,8 @@ namespace MyDockerWebAPI.Migrations
                 columns: new[] { "Id", "FormId", "FromTime", "LocationId", "ModifyTime", "Note", "ParticipantId", "Status", "ToTime" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2023, 7, 9, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 1", 1, "draft", new DateTime(2023, 7, 9, 19, 0, 0, 0, DateTimeKind.Local) },
-                    { 2, 1, new DateTime(2023, 7, 9, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 2", 1, "draft", new DateTime(2023, 7, 9, 19, 0, 0, 0, DateTimeKind.Local) }
+                    { 1, 1, new DateTime(2023, 7, 27, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 1", 1, "draft", new DateTime(2023, 7, 27, 19, 0, 0, 0, DateTimeKind.Local) },
+                    { 2, 1, new DateTime(2023, 7, 27, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 2", 1, "draft", new DateTime(2023, 7, 27, 19, 0, 0, 0, DateTimeKind.Local) }
                 });
 
             migrationBuilder.CreateIndex(
