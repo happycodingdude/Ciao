@@ -1,4 +1,5 @@
 import { Button } from 'antd';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import './Button.css';
@@ -10,33 +11,61 @@ import usePagingView from './Paging.jsx';
 const FormPage = ({ token }) => {
   const navigate = useNavigate();
 
+  // State list form
   const [forms, setForms] = useState([]);
 
+  // Get all data first render
   useEffect(() => {
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch('api/form', requestOptions)
+    axios.get('api/form', { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
+        if (res.status === 200) {
+          setForms(res.data);
+          setCurrentPage(1);
+        }
         else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
-      .then(data => {
-        setForms(data);
-        setCurrentPage(1);
-      })
       .catch(err => console.log(err));
+
+    return () => {
+      cancelToken.cancel();
+    }
   }, []);
 
-  // State object to save, data to open modal
+  // State object to save
   const [saveObject, setSaveObject] = useState({});
-  const [formParam, setFormParam] = useState({});
+  // State item to edit
+  const [editId, setEditId] = useState(0);
+  useEffect(() => {
+    if (editId !== 0) {
+      const requestOptions = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+      };
+      fetch(`api/form/${editId}`, requestOptions)
+        .then(res => {
+          if (res.ok) return res.json();
+          else if (res.status === 401) navigate('/');
+          else throw new Error(res.status);
+        })
+        .then(data => {
+          setSaveObject(data);
+          handleShowModal(data);
+        })
+        .catch(err => console.log(err));
+    }
+  }, [editId]);
 
+  // State form data to open modal
+  const [formParam, setFormParam] = useState({});
   // Prepare param and show modal
   const handleShowModal = (data) => {
     let formParam = {
@@ -58,6 +87,12 @@ const FormPage = ({ token }) => {
     setFormParam(formParam);
     handleShow();
   }
+
+  // Control show/hide modal
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   // Open modal
   const handleOpenForm = (id) => {
     if (id === undefined) {
@@ -73,11 +108,6 @@ const FormPage = ({ token }) => {
       });
     }
   }
-
-  // Control show/hide modal
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
 
   // Add or edit
   const handleSaveChanges = (action) => {
@@ -157,31 +187,6 @@ const FormPage = ({ token }) => {
         .catch(err => console.log(err));
     }
   }
-
-  // State item to edit
-  const [editId, setEditId] = useState(0);
-  useEffect(() => {
-    if (editId !== 0) {
-      const requestOptions = {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-      };
-      fetch(`api/form/${editId}`, requestOptions)
-        .then(res => {
-          if (res.ok) return res.json();
-          else if (res.status === 401) navigate('/');
-          else throw new Error(res.status);
-        })
-        .then(data => {
-          setSaveObject(data);
-          handleShowModal(data);
-        })
-        .catch(err => console.log(err));
-    }
-  }, [editId]);
 
   // State paging
   const [pagingData, setPagingData] = useState([]);
