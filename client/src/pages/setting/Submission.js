@@ -10,14 +10,14 @@ import React, { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
 import { Link, useNavigate } from "react-router-dom";
-import './Button.css';
-import CustomModal from './CustomModal';
-import './FlexBox.css';
-import PaginationBar from './PaginationBar.jsx';
-import usePagingView from './Paging.jsx';
-import usePagingParam from './PagingParam.jsx';
+import '../../assets/Button.css';
+import '../../assets/FlexBox.css';
+import CustomModal from '../../components/CustomModal.js';
+import NavBar from '../../components/NavBar.js';
+import usePagingParam from '../../hooks/usePagingParam.js';
+import usePagingView from '../../hooks/usePagingView.js';
 
-const SubmissionPage = ({ token }) => {
+const Submission = ({ token }) => {
   const navigate = useNavigate();
 
   // Init variables for api request
@@ -462,7 +462,7 @@ const SubmissionPage = ({ token }) => {
               }
             </tbody>
           </table>
-          <PaginationBar
+          <NavBar
             data={submissions}
             triggerView={setCurrentPage}
           />
@@ -479,4 +479,4 @@ const SubmissionPage = ({ token }) => {
   )
 }
 
-export default SubmissionPage;
+export default Submission;

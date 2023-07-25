@@ -2,8 +2,6 @@ import { useRef } from 'react';
 
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
-import './Button.css';
-import './FlexBox.css';
 
 const usePagingView = () => {
   const itemsPerPage = 5;

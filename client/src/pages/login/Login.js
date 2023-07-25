@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Button.css';
-import './FlexBox.css';
+import '../../assets/Button.css';
+import '../../assets/FlexBox.css';
 
 const useInstance = () => {
   const [username, setUsername] = useState('');
@@ -23,7 +23,7 @@ const useInstance = () => {
   };
 }
 
-const LoginPage = () => {
+const Login = () => {
   const { username, password, handleUsernameChange, handlePasswordChange } = useInstance();
   const navigate = useNavigate();
 
@@ -63,4 +63,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage;
+export default Login;

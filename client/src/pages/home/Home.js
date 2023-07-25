@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import './Button.css';
-import './FlexBox.css';
+import '../../assets/Button.css';
+import '../../assets/FlexBox.css';
 
-const HomePage = () => {
+const Home = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -40,4 +40,4 @@ const HomePage = () => {
   )
 }
 
-export default HomePage;
+export default Home;

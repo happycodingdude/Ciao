@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import './Button.css';
-import './FlexBox.css';
+import '../../assets/Button.css';
+import '../../assets/FlexBox.css';
 
-const ParticipantPage = () => {
+const Location = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
   const { token } = location.state || '';
 
-  const [participants, setParticipants] = useState([]);
+  const [locations, setLocations] = useState([]);
 
   useEffect(() => {
     const requestOptions = {
@@ -19,14 +19,14 @@ const ParticipantPage = () => {
         'Authorization': 'Bearer ' + token
       }
     };
-    fetch('api/participant', requestOptions)
+    fetch('api/location', requestOptions)
       .then(res => {
         if (res.ok) return res.json();
         else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
       .then(data => {
-        setParticipants(data);
+        setLocations(data);
       })
       .catch(err => console.log(err));
   }, []);
@@ -38,13 +38,15 @@ const ParticipantPage = () => {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Address</th>
           </tr>
         </thead>
         <tbody>
           {
-            participants.map((item) => (
+            locations.map((item) => (
               <tr key={item.Id}>
                 <td>{item.Name}</td>
+                <td>{item.Address}</td>
               </tr>
             ))
           }
@@ -54,4 +56,4 @@ const ParticipantPage = () => {
   )
 }
 
-export default ParticipantPage;
+export default Location;

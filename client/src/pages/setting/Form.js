@@ -2,13 +2,13 @@ import { Button } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import './Button.css';
-import CustomModal from './CustomModal';
-import './FlexBox.css';
-import PaginationBar from './PaginationBar.jsx';
-import usePagingView from './Paging.jsx';
+import '../../assets/Button.css';
+import '../../assets/FlexBox.css';
+import CustomModal from '../../components/CustomModal.js';
+import NavBar from '../../components/NavBar.js';
+import usePagingView from '../../hooks/usePagingView.js';
 
-const FormPage = ({ token }) => {
+const Form = ({ token }) => {
   const navigate = useNavigate();
 
   // State list form
@@ -231,7 +231,7 @@ const FormPage = ({ token }) => {
               }
             </tbody>
           </table>
-          <PaginationBar
+          <NavBar
             data={forms}
             triggerView={setCurrentPage}
           />
@@ -248,4 +248,4 @@ const FormPage = ({ token }) => {
   )
 }
 
-export default FormPage;
+export default Form;

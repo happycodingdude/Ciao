@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
-import './Button.css';
-import './FlexBox.css';
-import usePagingView from './Paging.jsx';
+import '../assets/Button.css';
+import '../assets/FlexBox.css';
+import usePagingView from '../hooks/usePagingView.js';
 
-const PaginationBar = ({ data, triggerView }) => {
+const NavBar = ({ data, triggerView }) => {
   // State paginate
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,4 +77,4 @@ const PaginationBar = ({ data, triggerView }) => {
   )
 }
 
-export default PaginationBar;
+export default NavBar;

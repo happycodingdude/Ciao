@@ -1,20 +1,20 @@
 
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import HomePage from './HomePage.jsx';
-import LoginPage from './LoginPage.jsx';
+import Home from './pages/home/Home.js';
+import Login from './pages/login/Login.js';
 //import SubmissionPage from './SubmissionPage.jsx';
-import BaseComponent from './BaseComponent.jsx';
+import Base from './pages/Base.js';
 
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/form" element={<BaseComponent page='form' />} />
-      <Route path="/participant" element={<BaseComponent page='participant' />} />
-      <Route path="/location" element={<BaseComponent page='location' />} />
-      <Route path="/submission" element={<BaseComponent page='submission' />} />
+      <Route path="/" element={<Login />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/form" element={<Base page='form' />} />
+      <Route path="/participant" element={<Base page='participant' />} />
+      <Route path="/location" element={<Base page='location' />} />
+      <Route path="/submission" element={<Base page='submission' />} />
     </Routes>
   )
 }

@@ -8,8 +8,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import DateTime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import Select from 'react-select';
-import './Button.css';
-import './FlexBox.css';
+import '../assets/Button.css';
+import '../assets/FlexBox.css';
 
 const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveChanges }) => {
   console.log(formParam);
