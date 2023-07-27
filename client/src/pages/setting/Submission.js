@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Button } from 'antd';
+import axios from 'axios';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
@@ -34,27 +35,30 @@ const Submission = ({ token }) => {
     addSort({ FieldName: 'CreateTime', SortType: 'desc' });
     build();
 
-    let requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(param.current)
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
+    const body = JSON.stringify(param.current);
 
-    fetch('api/submission/search', requestOptions)
+    axios.post('api/submission/search',
+      body,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
+        if (res.status === 200) {
+          reset();
+          setSubmissions(res.data.data);
+          setCurrentPage(1);
+        }
         else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
-      .then(data => {
-        reset();
-        setSubmissions(data);
-        setCurrentPage(1);
-      })
       .catch(err => console.log(err));
+
+    return () => {
+      cancelToken.cancel();
+    }
   }, []);
 
   // State object to save
@@ -176,26 +180,28 @@ const Submission = ({ token }) => {
   }
   // Add
   const handleAdd = () => {
-    console.log(saveObject);
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(saveObject)
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch(`api/submission`, requestOptions)
+    const body = JSON.stringify(saveObject);
+    axios.post(`api/submission`,
+      body,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
+        if (res.status === 200) {
+          handleClose();
+          setSubmissions([...submissions.slice(0, 0), res.data.data, ...submissions.slice(0)]);
+        }
         else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
-      .then(data => {
-        handleClose();
-        setSubmissions([...submissions.slice(0, 0), data, ...submissions.slice(0)]);
-      })
       .catch(err => console.log(err));
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Edit
   const handleEdit = (id) => {
@@ -409,9 +415,9 @@ const Submission = ({ token }) => {
               {
                 pagingData.map((item) => (
                   <tr key={item.Id}>
-                    <td>{item.Form.Name}</td>
-                    <td>{item.Participant.Name}</td>
-                    <td>{item.Location.Name}</td>
+                    <td>{item.Form?.Name}</td>
+                    <td>{item.Participant?.Name}</td>
+                    <td>{item.Location?.Name}</td>
                     <td>{moment(item.FromTime).format('DD/MM/YYYY HH:mm:ss')}</td>
                     <td>{moment(item.ToTime).format('DD/MM/YYYY HH:mm:ss')}</td>
                     <td>

@@ -9,5 +9,6 @@ namespace MyDockerWebAPI.Model
     public class LoginResponse
     {
         public string? Token { get; set; }
+        public int? RemainRetry { get; set; }
     }
 }

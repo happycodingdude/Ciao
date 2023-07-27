@@ -54,7 +54,8 @@ namespace MyDockerWebAPI.Repository
                  .RuleFor(r => r.Id, _ => id++)
                  .RuleFor(r => r.Name, (_, r) => "User " + r.Id)
                  .RuleFor(r => r.Username, (_, r) => "test")
-                 .RuleFor(r => r.Password, (_, r) => Hash.Encrypt("test"));
+                 .RuleFor(r => r.Password, (_, r) => Hash.Encrypt("test"))
+                 .RuleFor(r => r.RetryTime, (_, r) => 0);
         }
 
         private static Faker<Participant> GetParticipantGenerator()

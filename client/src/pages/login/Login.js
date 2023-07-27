@@ -1,57 +1,45 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/Button.css';
 import '../../assets/FlexBox.css';
-
-const useInstance = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
-  };
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-
-  return {
-    username,
-    password,
-    handleUsernameChange,
-    handlePasswordChange
-  };
-}
+import useLogin from '../../hooks/useLogin.js';
 
 const Login = () => {
-  const { username, password, handleUsernameChange, handlePasswordChange } = useInstance();
+  const { username, password, handleUsernameChange, handlePasswordChange } = useLogin();
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        Username: username,
-        Password: password
-      })
+  const [retry, setRetry] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
+
+  const handleSubmit = () => {
+    const headers = {
+      'Content-Type': 'application/json'
     };
-    fetch('api/user/login', requestOptions)
+    const body = JSON.stringify({
+      Username: username,
+      Password: password
+    });
+    axios.post('api/user/login',
+      body,
+      { headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
+        if (res.status === 200) {
+          navigate('/home', {
+            state: {
+              token: res.data.data.Token
+            }
+          });
+        }
         else throw new Error(res.status);
       })
-      .then(data => {
-        console.log(data.Token);
-        navigate('/home', {
-          state: {
-            token: data.Token
-          }
-        });
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response.data.error === 'WrongPassword') {
+          setRetry(err.response.data.data.RemainRetry);
+          setShowWarning(true);
+        }
+      });
   };
 
   return (
@@ -59,6 +47,7 @@ const Login = () => {
       <input type='text' value={username} onChange={handleUsernameChange} />
       <input type='text' value={password} onChange={handlePasswordChange} />
       <button className='submit-button' onClick={handleSubmit}>Login</button>
+      <div style={{ visibility: showWarning ? 'visible' : 'hidden' }}>Retry times remain: {retry}</div>
     </div>
   )
 }

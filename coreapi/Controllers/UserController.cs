@@ -1,17 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
-using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    };
     private readonly IUserService _service;
     private readonly IConfiguration _configuration;
 
@@ -22,16 +17,16 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LoginAsync(LoginRequest model)
+    public async Task<ActionResult> LoginAsync(LoginRequest model)
     {
         try
         {
-            var response = await _service.Login(model);
-            return new JsonResult(response, jsonSetting);
+            var response = await _service.LoginAsync(model);
+            return new ResponseModel<LoginResponse>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<LoginResponse>().BadRequest(ex);
         }
     }
 

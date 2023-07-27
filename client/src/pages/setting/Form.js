@@ -21,16 +21,19 @@ const Form = ({ token }) => {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + token
     };
-    axios.get('api/form', { cancelToken: cancelToken.token, headers: headers })
+    axios.get('api/form',
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
         if (res.status === 200) {
           setForms(res.data);
           setCurrentPage(1);
         }
-        else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
 
     return () => {
       cancelToken.cancel();

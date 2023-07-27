@@ -56,10 +56,12 @@ namespace MyDockerWebAPI.Repository
                 query = query.Where(combinedExpression);
             }
 
+            // Sort
             if (param?.Sorts.Any() == true)
                 foreach (var sort in param.Sorts)
                     query = query.OrderBy(sort.FieldName, sort.SortType.ToLower().Equals("asc"));
 
+            // Execute
             return await query.ToListAsync();
         }
 

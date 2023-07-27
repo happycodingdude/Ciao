@@ -8,6 +8,7 @@ namespace MyDockerWebAPI.Implement
 {
     public class UserService : BaseRepository<User>, IUserService
     {
+        private const int MaxRetryTime = 5;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserService(CoreContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration) : base(context, configuration)
@@ -15,24 +16,38 @@ namespace MyDockerWebAPI.Implement
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<LoginResponse> Login(LoginRequest model)
+        public async Task<LoginResponse> LoginAsync(LoginRequest model)
         {
-            // Check user
+            // Check username
             var param = new PagingParam();
             param.Searchs.Add(new Search
             {
                 FieldName = nameof(User.Username),
                 FieldValue = model.Username
             });
-            param.Searchs.Add(new Search
-            {
-                FieldName = nameof(User.Password),
-                FieldValue = Hash.Encrypt(model.Password)
-            });
+            var users = await GetAll(param);
+            if (!users.Any())
+                throw new Exception(ErrorCode.NotFound);
 
-            var user = await GetAll(param);
-            if (!user.Any())
-                throw new Exception("user not found");
+            // Check password
+            // If password invalid, update retry time till max value
+            var user = users.First();
+            if (!user.Password.Equals(Hash.Encrypt(model.Password)))
+            {
+                user.RetryTime += 1;
+                await Update(user);
+
+                var exception = new Exception(ErrorCode.WrongPassword);
+                exception.Data["Data"] = new LoginResponse
+                {
+                    RemainRetry = MaxRetryTime - user.RetryTime
+                };
+                throw exception;
+            }
+
+            // If all valid, reset retry time
+            user.RetryTime = 0;
+            await Update(user);
 
             var response = new LoginResponse
             {

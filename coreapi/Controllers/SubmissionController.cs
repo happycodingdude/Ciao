@@ -4,7 +4,6 @@ using MyDockerWebAPI.Common;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
 using MyDockerWebAPI.RestApi;
-using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
@@ -12,10 +11,6 @@ namespace MyDockerWebAPI.Controllers;
 [MyAuthorize("Authorization")]
 public class SubmissionController : ControllerBase
 {
-    private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    };
     private readonly ISubmissionService _service;
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
@@ -30,16 +25,16 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpPost("search")]
-    public async Task<IActionResult> Get(PagingParam? param)
+    public async Task<ActionResult> Get(PagingParam? param)
     {
         try
         {
-            var data = await _service.GetAll(param);
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetAll(param);
+            return new ResponseModel<List<Submission>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<List<Submission>>().BadRequest(ex);
         }
     }
 
@@ -48,12 +43,12 @@ public class SubmissionController : ControllerBase
     {
         try
         {
-            var data = await _service.GetById(id, param);
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetById(id, param);
+            return new ResponseModel<Submission>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Submission>().BadRequest(ex);
         }
     }
 
@@ -72,22 +67,14 @@ public class SubmissionController : ControllerBase
                     new Include{TableName = nameof(Form)},
                     new Include{TableName = nameof(Participant)},
                     new Include{TableName = nameof(Location)}
-                },
-                Sorts = new List<Sort>
-                {
-                    new Sort
-                    {
-                        FieldName = nameof(Submission.CreateTime),
-                        SortType = "desc"
-                    }
                 }
             };
-            var data = await _service.GetById(entity.Id, param);
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetById(entity.Id, param);
+            return new ResponseModel<Submission>(entity).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Submission>().BadRequest(ex);
         }
     }
 
@@ -107,22 +94,14 @@ public class SubmissionController : ControllerBase
                     new Include{TableName = nameof(Form)},
                     new Include{TableName = nameof(Participant)},
                     new Include{TableName = nameof(Location)}
-                },
-                Sorts = new List<Sort>
-                {
-                    new Sort
-                    {
-                        FieldName = nameof(Submission.CreateTime),
-                        SortType = "desc"
-                    }
                 }
             };
-            var data = await _service.GetById(model.Id, param);
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetById(model.Id, param);
+            return new ResponseModel<Submission>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Submission>().BadRequest(ex);
         }
     }
 
@@ -131,12 +110,12 @@ public class SubmissionController : ControllerBase
     {
         try
         {
-            await _service.Delete(id);
-            return Ok();
+            var response = await _service.Delete(id);
+            return new ResponseModel<object>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<object>().BadRequest(ex);
         }
     }
 
@@ -145,6 +124,7 @@ public class SubmissionController : ControllerBase
     {
         try
         {
+            var response = new Submission();
             var param = new PagingParam
             {
                 Includes = new List<Include>
@@ -155,28 +135,34 @@ public class SubmissionController : ControllerBase
                 }
             };
             var current = await _service.GetById(id, param);
-            current.Status = SubmissionStatus.Confirm;
-            current.BeforeUpdate(current);
-            var data = await _service.Update(current);
 
-            var message = string.Join("\n",
-                new string[] {
+            var taskUpdate = Task.Run(async () =>
+            {
+                current.Status = SubmissionStatus.Confirm;
+                current.BeforeUpdate(current);
+                response = await _service.Update(current);
+            });
+            var taskSendMessage = Task.Run(async () =>
+            {
+                var message = string.Join("\n",
+                    new string[] {
                     current.Form.Name,
                     current.Participant.Name,
                     current.Location.Name,
                     current.FromTime.Value.ToString("d/M/yyyy HH:mm"),
                     current.ToTime.Value.ToString("d/M/yyyy HH:mm")
-                }
-            );
+                    }
+                );
+                var telegramFunction = _serviceProvider.GetService<TelegramFunction>();
+                await telegramFunction.SendButtonMessage(message, id);
+            });
+            await Task.WhenAll(taskUpdate, taskSendMessage);
 
-            var telegramFunction = _serviceProvider.GetService<TelegramFunction>();
-            _ = telegramFunction.SendButtonMessage(message, id);
-
-            return new JsonResult(data, jsonSetting);
+            return new ResponseModel<Submission>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Submission>().BadRequest(ex);
         }
     }
 }

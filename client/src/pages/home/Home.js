@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import axios from 'axios';
+import React, { useLayoutEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/Button.css';
 import '../../assets/FlexBox.css';
@@ -9,21 +10,25 @@ const Home = () => {
   const location = useLocation();
   const { token } = location.state || '';
 
-  useEffect(() => {
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+  useLayoutEffect(() => {
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer 123' + token
     };
-    fetch('api/user/authenticate', requestOptions)
+    axios.get('api/user/authenticate',
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
-        else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   });
 
   return (
