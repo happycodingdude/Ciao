@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
-using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
@@ -9,10 +8,6 @@ namespace MyDockerWebAPI.Controllers;
 [MyAuthorize("Authorization")]
 public class LocationController : ControllerBase
 {
-    private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    };
     private readonly ILocationService _service;
     private readonly IConfiguration _configuration;
 
@@ -27,12 +22,12 @@ public class LocationController : ControllerBase
     {
         try
         {
-            var data = await _service.GetAll();
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetAll();
+            return new ResponseModel<List<Location>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<List<Location>>().BadRequest(ex);
         }
     }
 
@@ -41,12 +36,12 @@ public class LocationController : ControllerBase
     {
         try
         {
-            var data = await _service.GetById(id);
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetById(id);
+            return new ResponseModel<Location>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Location>().BadRequest(ex);
         }
     }
 
@@ -56,11 +51,11 @@ public class LocationController : ControllerBase
         try
         {
             var data = await _service.Add(model);
-            return new JsonResult(data, jsonSetting);
+            return new ResponseModel<Location>(data).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Location>().BadRequest(ex);
         }
     }
 
@@ -72,11 +67,11 @@ public class LocationController : ControllerBase
             var current = await _service.GetById(model.Id);
             model.BeforeUpdate(current);
             var data = await _service.Update(model);
-            return new JsonResult(data, jsonSetting);
+            return new ResponseModel<Location>(data).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Location>().BadRequest(ex);
         }
     }
 
@@ -85,12 +80,12 @@ public class LocationController : ControllerBase
     {
         try
         {
-            await _service.Delete(id);
-            return Ok();
+            var response = await _service.Delete(id);
+            return new ResponseModel<object>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<object>().BadRequest(ex);
         }
     }
 }

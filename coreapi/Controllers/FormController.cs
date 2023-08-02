@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyDockerWebAPI.Interface;
 using MyDockerWebAPI.Model;
-using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.Controllers;
 [ApiController]
@@ -9,10 +8,6 @@ namespace MyDockerWebAPI.Controllers;
 [MyAuthorize("Authorization")]
 public class FormController : ControllerBase
 {
-    private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    };
     private readonly IFormService _service;
     private readonly IConfiguration _configuration;
 
@@ -27,12 +22,12 @@ public class FormController : ControllerBase
     {
         try
         {
-            var data = await _service.GetAll();
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetAll();
+            return new ResponseModel<List<Form>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<List<Form>>().BadRequest(ex);
         }
     }
 
@@ -41,12 +36,12 @@ public class FormController : ControllerBase
     {
         try
         {
-            var data = await _service.GetById(id);
-            return new JsonResult(data, jsonSetting);
+            var response = await _service.GetById(id);
+            return new ResponseModel<Form>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Form>().BadRequest(ex);
         }
     }
 
@@ -56,11 +51,11 @@ public class FormController : ControllerBase
         try
         {
             var data = await _service.Add(model);
-            return new JsonResult(data, jsonSetting);
+            return new ResponseModel<Form>(data).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Form>().BadRequest(ex);
         }
     }
 
@@ -72,11 +67,11 @@ public class FormController : ControllerBase
             var current = await _service.GetById(model.Id);
             model.BeforeUpdate(current);
             var data = await _service.Update(model);
-            return new JsonResult(data, jsonSetting);
+            return new ResponseModel<Form>(data).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<Form>().BadRequest(ex);
         }
     }
 
@@ -85,12 +80,12 @@ public class FormController : ControllerBase
     {
         try
         {
-            await _service.Delete(id);
-            return Ok();
+            var response = await _service.Delete(id);
+            return new ResponseModel<object>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<object>().BadRequest(ex);
         }
     }
 }

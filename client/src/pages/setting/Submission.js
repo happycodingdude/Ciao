@@ -51,10 +51,12 @@ const Submission = ({ token }) => {
           setSubmissions(res.data.data);
           setCurrentPage(1);
         }
-        else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
 
     return () => {
       cancelToken.cancel();
@@ -69,26 +71,33 @@ const Submission = ({ token }) => {
     if (editId !== 0) {
       addInclude({ TableName: 'Form' });
       build();
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(param.current)
+
+      const cancelToken = axios.CancelToken.source();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       };
-      fetch(`api/submission/${editId}`, requestOptions)
+      const body = JSON.stringify(param.current);
+
+      axios.post(`api/submission/${editId}`,
+        body,
+        { cancelToken: cancelToken.token, headers: headers })
         .then(res => {
-          if (res.ok) return res.json();
-          else if (res.status === 401) navigate('/');
+          if (res.status === 200) {
+            reset();
+            setSaveObject(res.data.data);
+            handleShowModal(res.data.data);
+          }
           else throw new Error(res.status);
         })
-        .then(data => {
-          reset();
-          setSaveObject(data);
-          handleShowModal(data);
-        })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.log(err);
+          if (err.response?.status === 401) navigate('/');
+        });
+
+      return () => {
+        cancelToken.cancel();
+      }
     }
   }, [editId]);
 
@@ -186,6 +195,7 @@ const Submission = ({ token }) => {
       'Authorization': 'Bearer ' + token
     };
     const body = JSON.stringify(saveObject);
+
     axios.post(`api/submission`,
       body,
       { cancelToken: cancelToken.token, headers: headers })
@@ -194,10 +204,12 @@ const Submission = ({ token }) => {
           handleClose();
           setSubmissions([...submissions.slice(0, 0), res.data.data, ...submissions.slice(0)]);
         }
-        else if (res.status === 401) navigate('/');
         else throw new Error(res.status);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
 
     return () => {
       cancelToken.cancel();
@@ -205,50 +217,64 @@ const Submission = ({ token }) => {
   }
   // Edit
   const handleEdit = (id) => {
-    const requestOptions = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(saveObject)
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch(`api/submission`, requestOptions)
+    const body = JSON.stringify(saveObject);
+
+    axios.put('api/submission',
+      body,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
+        if (res.status === 200) {
+          handleClose();
+          const updated = submissions.map((item) => {
+            if (item.Id === id)
+              // Update the value for the specific item
+              return res.data.data;
+            return item;
+          });
+          // Update the state with the new table data
+          setSubmissions(updated);
+        }
         else throw new Error(res.status);
       })
-      .then(data => {
-        handleClose();
-        const updated = submissions.map((item) => {
-          if (item.Id === id)
-            // Update the value for the specific item
-            return data;
-          return item;
-        });
-        // Update the state with the new table data
-        setSubmissions(updated);
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Delete
   const handleDelete = (id) => {
     if (window.confirm('Delete this item?') == true) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        }
+      const cancelToken = axios.CancelToken.source();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       };
-      fetch(`api/submission/${id}`, requestOptions)
+
+      axios.delete(`api/submission/${id}`,
+        { cancelToken: cancelToken.token, headers: headers })
         .then(res => {
-          if (res.ok) setSubmissions(submissions.filter((item) => item.Id !== id));
-          else if (res.status === 401) navigate('/');
+          if (res.status === 200) {
+            setSubmissions(submissions.filter((item) => item.Id !== id));
+          }
           else throw new Error(res.status);
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.log(err);
+          if (err.response?.status === 401) navigate('/');
+        });
+
+      return () => {
+        cancelToken.cancel();
+      }
     }
   }
 
@@ -264,30 +290,36 @@ const Submission = ({ token }) => {
 
   // Submit form
   const handleSubmitRequest = (id) => {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch(`api/submission/${id}/submit`, requestOptions)
+
+    axios.post(`api/submission/${id}/submit`,
+      {},
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
+        if (res.status === 200) {
+          const updatedSubmissions = submissions.map((item) => {
+            if (item.Id === id)
+              // Update the value for the specific item
+              return res.data.data;
+            return item;
+          });
+          // Update the state with the new table data
+          setSubmissions(updatedSubmissions);
+        }
         else throw new Error(res.status);
       })
-      .then(data => {
-        const updatedSubmissions = submissions.map((item) => {
-          if (item.Id === id)
-            // Update the value for the specific item
-            return data;
-          return item;
-        });
-        // Update the state with the new table data
-        setSubmissions(updatedSubmissions);
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
 
   // State forms, participants and locations  
@@ -297,93 +329,105 @@ const Submission = ({ token }) => {
   const [selectLocations, setSelectLocation] = useState([]);
   // Get forms
   const getForms = () => {
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch('api/form', requestOptions)
+    axios.get(`api/form`,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
+        if (res.status === 200) {
+          let select = [];
+          res.data.data.map((item) => {
+            select.push({
+              value: item.Id,
+              label: item.Name
+            });
+          })
+          setSelectForm(select);
+
+          let arr = [];
+          res.data.data.map((item) => {
+            arr.push({
+              key: item.Id,
+              value: item.Budget
+            });
+          })
+          setForm(arr);
+        }
         else throw new Error(res.status);
       })
-      .then(data => {
-        let select = [];
-        data.map((item) => {
-          select.push({
-            value: item.Id,
-            label: item.Name
-          });
-        })
-        setSelectForm(select);
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
 
-        let arr = [];
-        data.map((item) => {
-          arr.push({
-            key: item.Id,
-            value: item.Budget
-          });
-        })
-        setForm(arr);
-      })
-      .catch(err => console.log(err));
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Get participants
   const getParticipants = () => {
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch('api/participant', requestOptions)
+    axios.get(`api/participant`,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
+        if (res.status === 200) {
+          let select = [];
+          res.data.data.map((item) => {
+            select.push({
+              value: item.Id,
+              label: item.Name
+            });
+          })
+          setSelectParticipant(select);
+        }
         else throw new Error(res.status);
       })
-      .then(data => {
-        let select = [];
-        data.map((item) => {
-          select.push({
-            value: item.Id,
-            label: item.Name
-          });
-        })
-        setSelectParticipant(select);
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Get locations
   const getLocations = () => {
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch('api/location', requestOptions)
+    axios.get(`api/location`,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
+        if (res.status === 200) {
+          let select = [];
+          res.data.data.map((item) => {
+            select.push({
+              value: item.Id,
+              label: item.Name
+            });
+          })
+          setSelectLocation(select);
+        }
         else throw new Error(res.status);
       })
-      .then(data => {
-        let select = [];
-        data.map((item) => {
-          select.push({
-            value: item.Id,
-            label: item.Name
-          });
-        })
-        setSelectLocation(select);
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Default call when render
   useEffect(() => {

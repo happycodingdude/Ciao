@@ -14,7 +14,7 @@ const Home = () => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer 123' + token
+      'Authorization': 'Bearer ' + token
     };
     axios.get('api/user/authenticate',
       { cancelToken: cancelToken.token, headers: headers })

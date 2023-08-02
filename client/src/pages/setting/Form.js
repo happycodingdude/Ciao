@@ -25,7 +25,7 @@ const Form = ({ token }) => {
       { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
         if (res.status === 200) {
-          setForms(res.data);
+          setForms(res.data.data);
           setCurrentPage(1);
         }
         else throw new Error(res.status);
@@ -46,24 +46,27 @@ const Form = ({ token }) => {
   const [editId, setEditId] = useState(0);
   useEffect(() => {
     if (editId !== 0) {
-      const requestOptions = {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
+      const cancelToken = axios.CancelToken.source();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       };
-      fetch(`api/form/${editId}`, requestOptions)
+      axios.get(`api/form/${editId}`,
+        { cancelToken: cancelToken.token, headers: headers })
         .then(res => {
-          if (res.ok) return res.json();
-          else if (res.status === 401) navigate('/');
-          else throw new Error(res.status);
+          if (res.status === 200) {
+            setSaveObject(res.data.data);
+            handleShowModal(res.data.data);
+          }
         })
-        .then(data => {
-          setSaveObject(data);
-          handleShowModal(data);
-        })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.log(err);
+          if (err.response?.status === 401) navigate('/');
+        });
+
+      return () => {
+        cancelToken.cancel();
+      }
     }
   }, [editId]);
 
@@ -121,73 +124,86 @@ const Form = ({ token }) => {
   }
   // Add
   const handleAdd = () => {
-    console.log(saveObject);
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(saveObject)
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch(`api/form`, requestOptions)
+    const body = JSON.stringify(saveObject);
+    axios.post(`api/form`,
+      body,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
-        else throw new Error(res.status);
+        if (res.status === 200) {
+          handleClose();
+          setForms([...forms.slice(0, 0), res.data.data, ...forms.slice(0)]);
+        }
       })
-      .then(data => {
-        handleClose();
-        setForms([...forms.slice(0, 0), data, ...forms.slice(0)]);
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Edit
   const handleEdit = (id) => {
-    const requestOptions = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(saveObject)
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     };
-    fetch(`api/form`, requestOptions)
+    const body = JSON.stringify(saveObject);
+    axios.put(`api/form`,
+      body,
+      { cancelToken: cancelToken.token, headers: headers })
       .then(res => {
-        if (res.ok) return res.json();
-        else if (res.status === 401) navigate('/');
-        else throw new Error(res.status);
+        if (res.status === 200) {
+          handleClose();
+          const updated = forms.map((item) => {
+            if (item.Id === id)
+              // Update the value for the specific item
+              return res.data.data;
+            return item;
+          });
+          // Update the state with the new table data
+          setForms(updated);
+        }
       })
-      .then(data => {
-        handleClose();
-        const updated = forms.map((item) => {
-          if (item.Id === id)
-            // Update the value for the specific item
-            return data;
-          return item;
-        });
-        // Update the state with the new table data
-        setForms(updated);
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
+    }
   }
   // Delete
   const handleDelete = (id) => {
     if (window.confirm('Delete this item?') == true) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        }
+      const cancelToken = axios.CancelToken.source();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       };
-      fetch(`api/form/${id}`, requestOptions)
+      axios.delete(`api/form/${id}`,
+        { cancelToken: cancelToken.token, headers: headers })
         .then(res => {
-          if (res.ok) setForms(forms.filter((item) => item.Id !== id));
-          else if (res.status === 401) navigate('/');
-          else throw new Error(res.status);
+          if (res.status === 200) {
+            setForms(forms.filter((item) => item.Id !== id));
+          }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.log(err);
+          if (err.response?.status === 401) navigate('/');
+        });
+
+      return () => {
+        cancelToken.cancel();
+      }
     }
   }
 
