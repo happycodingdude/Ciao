@@ -23,7 +23,7 @@ namespace MyDockerWebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     Budget = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     ModifyTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
@@ -40,8 +40,8 @@ namespace MyDockerWebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
-                    Address = table.Column<string>(type: "longtext", nullable: false),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    Address = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     ModifyTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -57,7 +57,7 @@ namespace MyDockerWebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     ModifyTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -73,7 +73,7 @@ namespace MyDockerWebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     Username = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     Password = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false),
                     RetryTime = table.Column<int>(type: "int", nullable: true),
@@ -93,12 +93,13 @@ namespace MyDockerWebAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     FormId = table.Column<int>(type: "int", nullable: false),
-                    ParticipantId = table.Column<int>(type: "int", nullable: false),
                     LocationId = table.Column<int>(type: "int", nullable: false),
+                    Participants = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     FromTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ToTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Status = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     Note = table.Column<string>(type: "longtext", nullable: true),
+                    ParticipantId = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     ModifyTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -121,8 +122,7 @@ namespace MyDockerWebAPI.Migrations
                         name: "FK_Submission_Participant_ParticipantId",
                         column: x => x.ParticipantId,
                         principalTable: "Participant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -148,11 +148,11 @@ namespace MyDockerWebAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "Submission",
-                columns: new[] { "Id", "FormId", "FromTime", "LocationId", "ModifyTime", "Note", "ParticipantId", "Status", "ToTime" },
+                columns: new[] { "Id", "FormId", "FromTime", "LocationId", "ModifyTime", "Note", "ParticipantId", "Participants", "Status", "ToTime" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2023, 8, 3, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 1", 1, "draft", new DateTime(2023, 8, 3, 19, 0, 0, 0, DateTimeKind.Local) },
-                    { 2, 1, new DateTime(2023, 8, 3, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 2", 1, "draft", new DateTime(2023, 8, 3, 19, 0, 0, 0, DateTimeKind.Local) }
+                    { 1, 1, new DateTime(2023, 8, 23, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 1", null, "1,2", "draft", new DateTime(2023, 8, 23, 20, 0, 0, 0, DateTimeKind.Local) },
+                    { 2, 1, new DateTime(2023, 8, 23, 18, 0, 0, 0, DateTimeKind.Local), 1, null, "Note 2", null, "1,2", "draft", new DateTime(2023, 8, 23, 20, 0, 0, 0, DateTimeKind.Local) }
                 });
 
             migrationBuilder.CreateIndex(

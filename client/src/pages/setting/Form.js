@@ -45,28 +45,29 @@ const Form = ({ token }) => {
   // State item to edit
   const [editId, setEditId] = useState(0);
   useEffect(() => {
-    if (editId !== 0) {
-      const cancelToken = axios.CancelToken.source();
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      };
-      axios.get(`api/form/${editId}`,
-        { cancelToken: cancelToken.token, headers: headers })
-        .then(res => {
-          if (res.status === 200) {
-            setSaveObject(res.data.data);
-            handleShowModal(res.data.data);
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          if (err.response?.status === 401) navigate('/');
-        });
+    if (editId === 0) return;
 
-      return () => {
-        cancelToken.cancel();
-      }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    };
+    axios.get(`api/form/${editId}`,
+      { cancelToken: cancelToken.token, headers: headers })
+      .then(res => {
+        if (res.status === 200) {
+          setSaveObject(res.data.data);
+          handleShowModal(res.data.data);
+        }
+        else throw new Error(res.status);
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
+
+    return () => {
+      cancelToken.cancel();
     }
   }, [editId]);
 
@@ -104,6 +105,7 @@ const Form = ({ token }) => {
     if (id === undefined) {
       setSaveObject({});
       handleShowModal();
+      setEditId(0);
     } else {
       setEditId(prev => {
         if (id !== prev) {

@@ -33,11 +33,15 @@ namespace MyDockerWebAPI.Repository
                 var parameter = Expression.Parameter(typeof(T));
                 foreach (var search in param.Searchs)
                 {
+                    var property = typeof(T).GetProperty(search.FieldName);
+                    var propertyType = property.PropertyType;
+                    var fieldValue = Convert.ChangeType(search.FieldValue, propertyType);
+
                     var expression =
                     Expression.Lambda<Func<T, bool>>(
                         Expression.Equal(
-                            Expression.Property(parameter, search.FieldName),
-                            Expression.Constant(search.FieldValue, typeof(T).GetProperty(search.FieldName).PropertyType)
+                            Expression.Property(parameter, property),
+                            Expression.Constant(fieldValue, propertyType)
                         ),
                         parameter
                     );
@@ -49,7 +53,11 @@ namespace MyDockerWebAPI.Repository
                     else
                     {
                         var conditionBody = new ExpressionReplacer(parameter, combinedExpression.Parameters[0]).Visit(expression.Body);
-                        var combinedBody = Expression.AndAlso(combinedExpression.Body, conditionBody);
+                        BinaryExpression combinedBody;
+                        if (search.Operator.Equals("and"))
+                            combinedBody = Expression.AndAlso(combinedExpression.Body, conditionBody);
+                        else
+                            combinedBody = Expression.OrElse(combinedExpression.Body, conditionBody);
                         combinedExpression = Expression.Lambda<Func<T, bool>>(combinedBody, parameter);
                     }
                 }

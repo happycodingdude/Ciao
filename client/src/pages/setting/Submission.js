@@ -30,7 +30,6 @@ const Submission = ({ token }) => {
   // Get all data first render
   useEffect(() => {
     addInclude({ TableName: 'Form' });
-    addInclude({ TableName: 'Participant' });
     addInclude({ TableName: 'Location' });
     addSort({ FieldName: 'CreateTime', SortType: 'desc' });
     build();
@@ -68,36 +67,35 @@ const Submission = ({ token }) => {
   // State item to edit
   const [editId, setEditId] = useState(0);
   useEffect(() => {
-    if (editId !== 0) {
-      addInclude({ TableName: 'Form' });
-      build();
+    if (editId === 0) return;
 
-      const cancelToken = axios.CancelToken.source();
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      };
-      const body = JSON.stringify(param.current);
+    addInclude({ TableName: 'Form' });
+    build();
 
-      axios.post(`api/submission/${editId}`,
-        body,
-        { cancelToken: cancelToken.token, headers: headers })
-        .then(res => {
-          if (res.status === 200) {
-            reset();
-            setSaveObject(res.data.data);
-            handleShowModal(res.data.data);
-          }
-          else throw new Error(res.status);
-        })
-        .catch(err => {
-          console.log(err);
-          if (err.response?.status === 401) navigate('/');
-        });
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    };
+    const body = JSON.stringify(param.current);
+    axios.post(`api/submission/${editId}`,
+      body,
+      { cancelToken: cancelToken.token, headers: headers })
+      .then(res => {
+        if (res.status === 200) {
+          reset();
+          setSaveObject(res.data.data);
+          handleShowModal(res.data.data);
+        }
+        else throw new Error(res.status);
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response?.status === 401) navigate('/');
+      });
 
-      return () => {
-        cancelToken.cancel();
-      }
+    return () => {
+      cancelToken.cancel();
     }
   }, [editId]);
 
@@ -120,9 +118,9 @@ const Submission = ({ token }) => {
         },
         {
           ItemName: 'Participant',
-          ItemField: 'ParticipantId',
-          ItemValue: data === undefined ? '' : selectParticipants.find((item) => item.value === data.ParticipantId),
-          ItemType: 'select',
+          ItemField: 'ParticipantIds',
+          ItemValue: data === undefined ? '' : selectParticipants.filter((item) => data.Participants.includes(item.value)),
+          ItemType: 'multiple',
           ItemOptions: selectParticipants
         },
         {
@@ -169,6 +167,7 @@ const Submission = ({ token }) => {
     if (id === undefined) {
       setSaveObject({});
       handleShowModal();
+      setEditId(0);
     } else {
       setEditId(prev => {
         if (id !== prev) {
@@ -446,8 +445,8 @@ const Submission = ({ token }) => {
             <thead>
               <tr>
                 <th>Form name</th>
-                <th>Participants</th>
                 <th>Location</th>
+                <th>Participants</th>
                 <th>FromTime</th>
                 <th>ToTime</th>
                 <th>Status</th>
@@ -460,8 +459,8 @@ const Submission = ({ token }) => {
                 pagingData.map((item) => (
                   <tr key={item.Id}>
                     <td>{item.Form?.Name}</td>
-                    <td>{item.Participant?.Name}</td>
                     <td>{item.Location?.Name}</td>
+                    <td>{item.Participants}</td>
                     <td>{moment(item.FromTime).format('DD/MM/YYYY HH:mm:ss')}</td>
                     <td>{moment(item.ToTime).format('DD/MM/YYYY HH:mm:ss')}</td>
                     <td>

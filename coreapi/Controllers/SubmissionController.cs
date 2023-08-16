@@ -60,17 +60,18 @@ public class SubmissionController : ControllerBase
             model.Status = SubmissionStatus.Draft;
             var entity = _mapper.Map<Submission>(model);
             await _service.Add(entity);
+
             var param = new PagingParam
             {
                 Includes = new List<Include>
                 {
                     new Include{TableName = nameof(Form)},
-                    new Include{TableName = nameof(Participant)},
                     new Include{TableName = nameof(Location)}
                 }
             };
+
             var response = await _service.GetById(entity.Id, param);
-            return new ResponseModel<Submission>(entity).Ok();
+            return new ResponseModel<Submission>(response).Ok();
         }
         catch (Exception ex)
         {
@@ -84,6 +85,7 @@ public class SubmissionController : ControllerBase
         try
         {
             var current = await _service.GetById(model.Id);
+            model.Status = current.Status;
             model.BeforeUpdate(current);
             var entity = _mapper.Map<Submission>(model);
             await _service.Update(entity);
@@ -92,7 +94,6 @@ public class SubmissionController : ControllerBase
                 Includes = new List<Include>
                 {
                     new Include{TableName = nameof(Form)},
-                    new Include{TableName = nameof(Participant)},
                     new Include{TableName = nameof(Location)}
                 }
             };
@@ -147,7 +148,7 @@ public class SubmissionController : ControllerBase
                 var message = string.Join("\n",
                     new string[] {
                     current.Form.Name,
-                    current.Participant.Name,
+                    current.Participants,
                     current.Location.Name,
                     current.FromTime.Value.ToString("d/M/yyyy HH:mm"),
                     current.ToTime.Value.ToString("d/M/yyyy HH:mm")

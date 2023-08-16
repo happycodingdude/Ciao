@@ -90,10 +90,10 @@ namespace MyDockerWebAPI.Repository
             return new Faker<Submission>()
                   .RuleFor(r => r.Id, _ => id++)
                   .RuleFor(r => r.FormId, _ => 1)
-                  .RuleFor(r => r.ParticipantId, _ => 1)
+                  .RuleFor(r => r.Participants, _ => "1,2")
                   .RuleFor(r => r.LocationId, _ => 1)
                   .RuleFor(r => r.FromTime, _ => DateTime.Now.AddDays(7).Date.Add(new TimeSpan(18, 0, 0)))
-                  .RuleFor(r => r.ToTime, _ => DateTime.Now.AddDays(7).Date.Add(new TimeSpan(19, 0, 0)))
+                  .RuleFor(r => r.ToTime, _ => DateTime.Now.AddDays(7).Date.Add(new TimeSpan(20, 0, 0)))
                   .RuleFor(r => r.Status, _ => SubmissionStatus.Draft)
                   .RuleFor(r => r.Note, (_, r) => "Note " + r.Id);
         }

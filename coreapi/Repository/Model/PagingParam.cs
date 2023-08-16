@@ -11,6 +11,7 @@ namespace MyDockerWebAPI.Model
     {
         public string? FieldName { get; set; }
         public string? FieldValue { get; set; }
+        public string? Operator { get; set; }
     }
 
     public class Include

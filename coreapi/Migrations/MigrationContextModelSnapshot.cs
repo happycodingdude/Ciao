@@ -37,7 +37,8 @@ namespace MyDockerWebAPI.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
 
@@ -60,7 +61,8 @@ namespace MyDockerWebAPI.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<DateTime?>("CreateTime")
                         .ValueGeneratedOnAdd()
@@ -71,7 +73,8 @@ namespace MyDockerWebAPI.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
 
@@ -101,7 +104,8 @@ namespace MyDockerWebAPI.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
 
@@ -142,8 +146,12 @@ namespace MyDockerWebAPI.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("ParticipantId")
+                    b.Property<int?>("ParticipantId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Participants")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -169,23 +177,23 @@ namespace MyDockerWebAPI.Migrations
                         {
                             Id = 1,
                             FormId = 1,
-                            FromTime = new DateTime(2023, 8, 3, 18, 0, 0, 0, DateTimeKind.Local),
+                            FromTime = new DateTime(2023, 8, 23, 18, 0, 0, 0, DateTimeKind.Local),
                             LocationId = 1,
                             Note = "Note 1",
-                            ParticipantId = 1,
+                            Participants = "1,2",
                             Status = "draft",
-                            ToTime = new DateTime(2023, 8, 3, 19, 0, 0, 0, DateTimeKind.Local)
+                            ToTime = new DateTime(2023, 8, 23, 20, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 2,
                             FormId = 1,
-                            FromTime = new DateTime(2023, 8, 3, 18, 0, 0, 0, DateTimeKind.Local),
+                            FromTime = new DateTime(2023, 8, 23, 18, 0, 0, 0, DateTimeKind.Local),
                             LocationId = 1,
                             Note = "Note 2",
-                            ParticipantId = 1,
+                            Participants = "1,2",
                             Status = "draft",
-                            ToTime = new DateTime(2023, 8, 3, 19, 0, 0, 0, DateTimeKind.Local)
+                            ToTime = new DateTime(2023, 8, 23, 20, 0, 0, 0, DateTimeKind.Local)
                         });
                 });
 
@@ -204,7 +212,8 @@ namespace MyDockerWebAPI.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -248,17 +257,13 @@ namespace MyDockerWebAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyDockerWebAPI.Model.Participant", "Participant")
+                    b.HasOne("MyDockerWebAPI.Model.Participant", null)
                         .WithMany("Submissions")
-                        .HasForeignKey("ParticipantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ParticipantId");
 
                     b.Navigation("Form");
 
                     b.Navigation("Location");
-
-                    b.Navigation("Participant");
                 });
 
             modelBuilder.Entity("MyDockerWebAPI.Model.Form", b =>
