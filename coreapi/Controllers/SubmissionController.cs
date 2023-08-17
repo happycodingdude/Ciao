@@ -131,7 +131,7 @@ public class SubmissionController : ControllerBase
                 Includes = new List<Include>
                 {
                     new Include{TableName = nameof(Form)},
-                    new Include{TableName = nameof(Participant)},
+                    // new Include{TableName = nameof(Participant)},
                     new Include{TableName = nameof(Location)}
                 }
             };
@@ -148,8 +148,8 @@ public class SubmissionController : ControllerBase
                 var message = string.Join("\n",
                     new string[] {
                     current.Form.Name,
-                    current.Participants,
                     current.Location.Name,
+                    current.Participants,
                     current.FromTime.Value.ToString("d/M/yyyy HH:mm"),
                     current.ToTime.Value.ToString("d/M/yyyy HH:mm")
                     }

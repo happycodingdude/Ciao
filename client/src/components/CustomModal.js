@@ -53,29 +53,16 @@ const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveCh
     }
   }
   // Control change multi select
-  const [selectedOptions, setSelectedOptions] = useState(formParam. );
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  useEffect(() => {
+    if (formParam?.formData?.some(item => item.ItemType === 'multiple')) {
+      console.log('Set selectedOptions');
+      setSelectedOptions(formParam?.formData?.find(item => item.ItemType === 'multiple').ItemValue);
+    }
+  }, [formParam]);
   const handleMultiSelectChange = (name, option) => {
     setSelectedOptions(option);
-    // const isSelected = selectedOptions.some(item => option.some(opt => opt.value === item.value));
-
-    // if (isSelected) {
-    //   setSelectedOptions(selectedOptions.filter(item => item.value !== option.value));
-    // } else {
-    //   setSelectedOptions([...selectedOptions, {
-    //     value: option[0].value,
-    //     label: option[0].label
-    //   }]);
-    // }
-    setSaveObject(currentObject => ({ ...currentObject, [name]: selectedOptions.join(',') }));
-    // var chosenItem = formParam.formData.find(item => {
-    //   if (item.ItemField === name) {
-    //     item.ItemValue = {
-    //       value: option.value,
-    //       label: option.label
-    //     };
-    //     return item;
-    //   }
-    // });
+    setSaveObject(currentObject => ({ ...currentObject, [name]: option.map(item => item.value) }));
   }
 
   const saveChanges = () => {

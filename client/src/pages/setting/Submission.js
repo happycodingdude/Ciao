@@ -117,18 +117,18 @@ const Submission = ({ token }) => {
           ItemValueToChange: forms
         },
         {
-          ItemName: 'Participant',
-          ItemField: 'ParticipantIds',
-          ItemValue: data === undefined ? '' : selectParticipants.filter((item) => data.Participants.includes(item.value)),
-          ItemType: 'multiple',
-          ItemOptions: selectParticipants
-        },
-        {
           ItemName: 'Location',
           ItemField: 'LocationId',
           ItemValue: data === undefined ? '' : selectLocations.find((item) => item.value === data.LocationId),
           ItemType: 'select',
           ItemOptions: selectLocations
+        },
+        {
+          ItemName: 'Participant',
+          ItemField: 'ParticipantIds',
+          ItemValue: data === undefined ? '' : selectParticipants.filter((item) => data.Participants?.includes(item.value)),
+          ItemType: 'multiple',
+          ItemOptions: selectParticipants
         },
         {
           ItemName: 'Budget',
@@ -188,6 +188,7 @@ const Submission = ({ token }) => {
   }
   // Add
   const handleAdd = () => {
+    console.log(saveObject);
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
