@@ -88,6 +88,11 @@ const Location = ({ token }) => {
           ItemName: 'Address',
           ItemValue: data === undefined ? '' : data['Address'],
           ItemType: 'input'
+        },
+        {
+          ItemName: 'Images',
+          ItemValue: "https://lab.connect247.vn/konglab/resource/files/1229b2ab-93c2-427a-88f3-b737fafaca93/webchat/bfd6a0eafa7d4f399278b128c3e70b4d1808202394413.jpg",
+          ItemType: 'image'
         }
       ],
     }

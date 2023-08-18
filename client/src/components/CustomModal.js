@@ -3,6 +3,7 @@ import { Button } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image';
 import Modal from 'react-bootstrap/Modal';
 import "react-datepicker/dist/react-datepicker.css";
 import DateTime from 'react-datetime';
@@ -10,6 +11,7 @@ import "react-datetime/css/react-datetime.css";
 import Select from 'react-select';
 import '../assets/Button.css';
 import '../assets/FlexBox.css';
+import '../assets/Form.css';
 
 const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveChanges }) => {
   console.log(formParam);
@@ -62,7 +64,7 @@ const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveCh
   }, [formParam]);
   const handleMultiSelectChange = (name, option) => {
     setSelectedOptions(option);
-    setSaveObject(currentObject => ({ ...currentObject, [name]: option.map(item => item.value) }));
+    setSaveObject(currentObject => ({ ...currentObject, [name]: option.map(item => item.value).join(',') }));
   }
 
   const saveChanges = () => {
@@ -143,11 +145,18 @@ const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveCh
                           />
                         </>
                       )
+                    case 'image':
+                      return (
+                        <div className='image-form'>
+                          <Form.Label>{item.ItemName}</Form.Label>
+                          <Image src={item.ItemValue} rounded />
+                        </div>
+                      )
                   }
                 })
                 : ''
             }
-          </Form.Group>
+          </Form.Group >
         </Form>
       </Modal.Body>
       <Modal.Footer>

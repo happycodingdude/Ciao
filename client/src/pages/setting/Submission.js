@@ -125,7 +125,7 @@ const Submission = ({ token }) => {
         },
         {
           ItemName: 'Participant',
-          ItemField: 'ParticipantIds',
+          ItemField: 'Participants',
           ItemValue: data === undefined ? '' : selectParticipants.filter((item) => data.Participants?.includes(item.value)),
           ItemType: 'multiple',
           ItemOptions: selectParticipants

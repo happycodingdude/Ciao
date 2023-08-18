@@ -131,7 +131,6 @@ public class SubmissionController : ControllerBase
                 Includes = new List<Include>
                 {
                     new Include{TableName = nameof(Form)},
-                    // new Include{TableName = nameof(Participant)},
                     new Include{TableName = nameof(Location)}
                 }
             };

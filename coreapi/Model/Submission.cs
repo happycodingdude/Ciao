@@ -19,10 +19,10 @@ namespace MyDockerWebAPI.Model
         public int FormId { get; set; }
         public int LocationId { get; set; }
         public string? Participants { get; set; }
-        public int[] ParticipantIds
-        {
-            set { Participants = string.Join(',', value); }
-        }
+        // public int[] ParticipantIds
+        // {
+        //     set { Participants = string.Join(',', value); }
+        // }
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
         public string? Status { get; set; }

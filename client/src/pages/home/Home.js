@@ -1,14 +1,11 @@
 import axios from 'axios';
 import React, { useLayoutEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../../assets/Button.css';
 import '../../assets/FlexBox.css';
 
-const Home = () => {
+const Home = ({ token }) => {
   const navigate = useNavigate();
-
-  const location = useLocation();
-  const { token } = location.state || '';
 
   useLayoutEffect(() => {
     const cancelToken = axios.CancelToken.source();
@@ -33,7 +30,7 @@ const Home = () => {
 
   return (
     <>
-      <h1>Home page</h1>
+      <h1>Home</h1>
       <ul>
         <li><Link to="/">Logout</Link></li>
         <li><Link to="/form" state={{ token: token }}>Form</Link></li>
