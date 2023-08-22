@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../assets/Button.css';
+// import '../../assets/Button.css';
 import '../../assets/FlexBox.css';
+import '../../assets/Login.css';
 import useLogin from '../../hooks/useLogin.js';
 
 const Login = () => {
@@ -43,11 +44,11 @@ const Login = () => {
   };
 
   return (
-    <div className='box'>
+    <div className='login'>
       <input type='text' value={username} onChange={handleUsernameChange} />
       <input type='text' value={password} onChange={handlePasswordChange} />
       <button className='submit-button' onClick={handleSubmit}>Login</button>
-      <div style={{ visibility: showWarning ? 'visible' : 'hidden' }}>Retry times remain: {retry}</div>
+      {/* <div style={{ visibility: showWarning ? 'visible' : 'hidden' }}>Retry times remain: {retry}</div> */}
     </div>
   )
 }

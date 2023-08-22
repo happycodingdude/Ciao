@@ -1,4 +1,6 @@
 
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import { Button } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +14,7 @@ import Select from 'react-select';
 import '../assets/Button.css';
 import '../assets/FlexBox.css';
 import '../assets/Form.css';
+import '../assets/Slider.css';
 
 const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveChanges }) => {
   console.log(formParam);
@@ -76,8 +79,19 @@ const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveCh
     setLoading(false);
   }, [show])
 
+  const [currentCarousel, setCurrentCarousel] = useState(0);
+  const length = formParam?.formData?.find(item => item.ItemType === 'carousel').ItemValue.length;
+
+  const nextSlide = () => {
+    setCurrentCarousel(currentCarousel === length - 1 ? 0 : currentCarousel + 1);
+  };
+
+  const prevSlide = () => {
+    setCurrentCarousel(currentCarousel === 0 ? length - 1 : currentCarousel - 1);
+  };
+
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={handleClose} dialogClassName='modal-form'>
       <Modal.Header closeButton>
         <Modal.Title>{formParam.formAction === 'add' ? 'Create' : `Edit ${formParam.formId}`}</Modal.Title>
       </Modal.Header>
@@ -149,8 +163,28 @@ const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveCh
                       return (
                         <div className='image-form'>
                           <Form.Label>{item.ItemName}</Form.Label>
-                          <Image src={item.ItemValue} rounded />
+                          <Image src={item.ItemValue} rounded alt='image-item' />
                         </div>
+                      )
+                    case 'carousel':
+                      return (
+                        <section className='slider'>
+                          <Form.Label>{item.ItemName}</Form.Label>
+                          <ArrowCircleLeftIcon className='left-arrow' onClick={prevSlide} />
+                          <ArrowCircleRightIcon className='right-arrow' onClick={nextSlide} />
+                          {
+                            item.ItemValue.map((slide, index) => {
+                              return (
+                                <div
+                                  className={index === currentCarousel ? 'slide active' : 'slide'}
+                                  key={index}
+                                >
+                                  {index === currentCarousel && (<Image src={slide.image} rounded alt='carousel-item' />)}
+                                </div>
+                              )
+                            })
+                          }
+                        </section>
                       )
                   }
                 })

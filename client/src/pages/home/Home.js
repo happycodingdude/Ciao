@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../assets/Button.css';
 import '../../assets/FlexBox.css';
@@ -7,7 +7,7 @@ import '../../assets/FlexBox.css';
 const Home = ({ token }) => {
   const navigate = useNavigate();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',

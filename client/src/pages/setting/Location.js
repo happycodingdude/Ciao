@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import '../../assets/Button.css';
 import '../../assets/FlexBox.css';
+import { SliderData } from '../../assets/SliderData.js';
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';
 import usePagingView from '../../hooks/usePagingView.js';
@@ -91,8 +92,9 @@ const Location = ({ token }) => {
         },
         {
           ItemName: 'Images',
-          ItemValue: "https://lab.connect247.vn/konglab/resource/files/1229b2ab-93c2-427a-88f3-b737fafaca93/webchat/bfd6a0eafa7d4f399278b128c3e70b4d1808202394413.jpg",
-          ItemType: 'image'
+          ItemValue: SliderData,
+          // ItemValueLength: SliderData.length,
+          ItemType: 'carousel'
         }
       ],
     }
