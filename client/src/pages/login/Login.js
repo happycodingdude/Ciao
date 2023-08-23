@@ -1,8 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import '../../assets/Button.css';
-import '../../assets/FlexBox.css';
 import '../../assets/Login.css';
 import useLogin from '../../hooks/useLogin.js';
 
@@ -44,12 +42,41 @@ const Login = () => {
   };
 
   return (
-    <div className='login'>
-      <input type='text' value={username} onChange={handleUsernameChange} />
-      <input type='text' value={password} onChange={handlePasswordChange} />
-      <button className='submit-button' onClick={handleSubmit}>Login</button>
-      {/* <div style={{ visibility: showWarning ? 'visible' : 'hidden' }}>Retry times remain: {retry}</div> */}
-    </div>
+    <section className='login-wrapper'>
+      <div className='login'>
+        <span className='title'><h1><strong>Login</strong></h1></span>
+        <div className='user-input'>
+          <p>Username</p>
+          <input type='text' value={username} onChange={handleUsernameChange} placeholder='&#61447;   Type your username' />
+          <p>Password</p>
+          <input type='text' value={password} onChange={handlePasswordChange} placeholder='&#61475;   Type your password' />
+        </div>
+        <a href='#' className='forgot-password'>Forgot password?</a>
+        {/* <button className='submit-button' onClick={handleSubmit}>LOGIN</button> */}
+        <button className='submit-button'>LOGIN</button>
+
+        <div className='other-login'>
+          <p>Or login with</p>
+          <div className='icon'>
+            <a href='#' className='facebook'>
+              <i className='fa fa-facebook'></i>
+            </a>
+            <a href='#' className='twitter'>
+              <i className=' fa fa-twitter'></i>
+            </a>
+            <a href='#' className='google'>
+              <i className=' fa fa-google'></i>
+            </a>
+          </div>
+          {/* <div style={{ visibility: showWarning ? 'visible' : 'hidden' }}>Retry times remain: {retry}</div> */}
+        </div>
+
+        <div className='signup'>
+          <p>Don't have an account?</p>
+          <a href='#' className='signup-button'>Sign Up</a>
+        </div>
+      </div>
+    </section>
   )
 }
 

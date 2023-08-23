@@ -11,8 +11,6 @@ import React, { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
 import { Link, useNavigate } from "react-router-dom";
-import '../../assets/Button.css';
-import '../../assets/FlexBox.css';
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';
 import usePagingParam from '../../hooks/usePagingParam.js';

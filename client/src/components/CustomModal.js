@@ -11,8 +11,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import DateTime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import Select from 'react-select';
-import '../assets/Button.css';
-import '../assets/FlexBox.css';
 import '../assets/Form.css';
 import '../assets/Slider.css';
 

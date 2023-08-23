@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
-import '../assets/Button.css';
-import '../assets/FlexBox.css';
 import usePagingView from '../hooks/usePagingView.js';
 
 const NavBar = ({ data, triggerView }) => {

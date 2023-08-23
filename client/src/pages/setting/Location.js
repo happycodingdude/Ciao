@@ -2,8 +2,6 @@ import { Button } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import '../../assets/Button.css';
-import '../../assets/FlexBox.css';
 import { SliderData } from '../../assets/SliderData.js';
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';

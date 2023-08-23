@@ -2,8 +2,6 @@ import React from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-datetime/css/react-datetime.css";
 import { useLocation } from "react-router-dom";
-import '../assets/Button.css';
-import '../assets/FlexBox.css';
 import Home from './home/Home.js';
 import Login from './login/Login.js';
 import Form from './setting/Form.js';

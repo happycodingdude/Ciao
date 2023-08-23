@@ -1,17 +1,116 @@
-.login {
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+@import "//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css";
+@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
+
+/* Wrapper */
+
+.login-wrapper {
+    padding: 50px 0;
+    height: 100%;
+    margin: 0 auto;
+    width: 400px;
+    height: 100%;
 }
 
-.submit-button {
-    margin: 10px 10px;
+.login-wrapper a {
+    text-decoration: none;
+}
+
+/* Login section */
+
+.login {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 10px;
+    padding: 40px;
+    background-color: white;
+    position: relative;
+}
+
+.login .title {
+    text-align: center;
+}
+
+
+.login .user-input p,
+.login .user-input input {
+    margin: 5px 0;
+}
+
+.login .user-input input {
+    font-family: FontAwesome;
+    border: none;
+    border-bottom: 2px outset;
+    width: 100%;
+}
+
+
+.login .forgot-password {
+    text-align: end;
+    margin: 5px 0 20px 0;
+    color: black;
+}
+
+
+.login .submit-button {
     color: white;
-    background-color: #4CAF50;
-    font-size: 20px;
-    padding: 10px 20px;
+    background-color: #cc81db;
+    padding: 7px 0;
     border-radius: 50px;
-    border: 2px;
+    border: none;
+    cursor: pointer;
+}
+
+
+.login .other-login {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.login .other-login .icon {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.login .other-login .icon a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.login .other-login .icon .facebook {
+    background: rgb(6, 14, 124);
+}
+
+.login .other-login .icon .twitter {
+    background: rgb(31, 118, 199);
+}
+
+.login .other-login .icon .google {
+    background: rgb(172, 13, 13);
+}
+
+
+.login .signup {
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: 20px;
+}
+
+.login .signup p {
+    margin-bottom: 0;
+}
+
+.login .signup .signup-button {
+    color: rgb(0, 141, 7);
     cursor: pointer;
 }

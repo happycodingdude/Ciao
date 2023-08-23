@@ -12,7 +12,16 @@ code {
     monospace;
 }
 
-#root {
-  max-width: 500px;
+html,
+body,
+body #root {
+  width: 100%;
+  height: 100%;
+  background-color: rgb(125, 172, 243);
+}
+
+main {
   margin: 0 auto;
+  height: 100%;
+  width: 90%;
 }
