@@ -1,14 +1,14 @@
 version: '3'
 
 services:
-  setting-api:
-    image: trintdk/setting-api
-    container_name: setting-api
-    depends_on:
-      - db
-    ports:
-      - "4000:5000"
-    restart: always
+  # setting-api:
+  #   image: trintdk/setting-api
+  #   container_name: setting-api
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - "4000:5000"
+  #   restart: always
   db:
     image: mysql
     container_name: mysql
@@ -22,12 +22,12 @@ services:
       TZ: "Asia/Bangkok"
     ports:
       - "3306:3306"
-    hostname: 192.168.6.11
-  client:
-    image: trintdk/client
-    container_name: client
-    ports:
-      - "5001:5000"
-    restart: always
+    hostname: localhost
+  # client:
+  #   image: trintdk/client
+  #   container_name: client
+  #   ports:
+  #     - "5001:5000"
+  #   restart: always
 volumes:
   db-vol:

@@ -24,7 +24,12 @@ const Login = () => {
       { headers: headers })
       .then(res => {
         if (res.status === 200) {
-          navigate('/home', {
+          // navigate('/', {
+          //   state: {
+          //     token: res.data.data.Token
+          //   }
+          // });
+          navigate(-1, {
             state: {
               token: res.data.data.Token
             }
@@ -34,10 +39,10 @@ const Login = () => {
       })
       .catch(err => {
         console.log(err);
-        if (err.response.data.error === 'WrongPassword') {
-          setRetry(err.response.data.data.RemainRetry);
-          setShowWarning(true);
-        }
+        // if (err.response.data.error === 'WrongPassword') {
+        //   setRetry(err.response.data.data.RemainRetry);
+        //   setShowWarning(true);
+        // }
       });
   };
 
@@ -52,8 +57,7 @@ const Login = () => {
           <input type='text' value={password} onChange={handlePasswordChange} placeholder='&#61475;   Type your password' />
         </div>
         <a href='#' className='forgot-password'>Forgot password?</a>
-        {/* <button className='submit-button' onClick={handleSubmit}>LOGIN</button> */}
-        <button className='submit-button'>LOGIN</button>
+        <button className='submit-button' onClick={handleSubmit}>LOGIN</button>
 
         <div className='other-login'>
           <p>Or login with</p>

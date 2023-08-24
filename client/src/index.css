@@ -15,13 +15,60 @@ code {
 html,
 body,
 body #root {
+  font-size: 20px;
   width: 100%;
   height: 100%;
-  background-color: rgb(125, 172, 243);
+  display: flex;
 }
+
+/* Header */
+
+header {
+  width: 20%;
+  height: 100%;
+  background-color: rgb(7, 36, 79);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header a {
+  text-decoration: none;
+  color: white;
+}
+
+header nav ul {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+header nav ul li {
+  position: relative;
+}
+
+header nav ul li a.active:before {
+  position: absolute;
+  content: '';
+  width: 30%;
+  height: 1px;
+  border: 1px solid red;
+  bottom: 0;
+}
+
+/* Main */
 
 main {
   margin: 0 auto;
+  width: 100%;
   height: 100%;
-  width: 90%;
+  background-image: url('./img/sunset.webp');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
 }
