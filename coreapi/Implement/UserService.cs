@@ -51,15 +51,15 @@ namespace MyDockerWebAPI.Implement
 
             var response = new LoginResponse
             {
-                Token = JwtGenerator.GenerateToken(_configuration["Jwt:Key"], model.Username, model.Password)
+                Token = JwtToken.GenerateToken(_configuration["Jwt:Key"], model.Username, model.Password)
             };
             return response;
         }
 
-        public bool CheckToken()
+        public object ValidateToken()
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            return JwtGenerator.CheckTokenExpired(_configuration["Jwt:Key"], token);
+            return JwtToken.ExtractToken(token);
         }
     }
 }

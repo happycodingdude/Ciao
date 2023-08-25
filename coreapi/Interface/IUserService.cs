@@ -6,6 +6,6 @@ namespace MyDockerWebAPI.Interface
     public interface IUserService : IRepository<User>
     {
         Task<LoginResponse> LoginAsync(LoginRequest model);
-        bool CheckToken();
+        object ValidateToken();
     }
 }

@@ -1,33 +1,44 @@
-import axios from 'axios';
-import React, { useEffect } from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import React, { useContext, useMemo } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import AuthContext from '../../context/AuthContext';
 import '../../index.css';
-import Base from '../Base.js';
+import Login from '../login/Login.js';
+import Form from '../setting/Form.js';
+import Location from '../setting/Location.js';
+import Participant from '../setting/Participant.js';
+import Submission from '../setting/Submission.js';
 
-const Home = ({ token }) => {
+const Home = () => {
+  const { auth } = useContext(AuthContext);
+  console.log(auth);
+  const token = useMemo(() => {
+    return auth.token;
+  });
   console.log(token);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    };
-    axios.get('api/user/authenticate',
-      { cancelToken: cancelToken.token, headers: headers })
-      .then(res => {
-        if (res.status !== 200) throw new Error(res.status);
-      })
-      .catch(err => {
-        console.log(err);
-        if (err.response?.status === 401) console.log('Unauthen');
-      });
+  // console.log(token);
+  // const navigate = useNavigate();
 
-    return () => {
-      cancelToken.cancel();
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   const cancelToken = axios.CancelToken.source();
+  //   const headers = {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': 'Bearer ' + token
+  //   };
+  //   axios.get('api/user/authenticate',
+  //     { cancelToken: cancelToken.token, headers: headers })
+  //     .then(res => {
+  //       if (res.status !== 200) throw new Error(res.status);
+  //     })
+  //     .catch(err => {
+  //       console.log(err);
+  //       if (err.response?.status === 401) console.log('Unauthen');
+  //     });
+
+  //   return () => {
+  //     cancelToken.cancel();
+  //   }
+  // }, [token]);
 
   return (
     <>
@@ -47,11 +58,13 @@ const Home = ({ token }) => {
       </header>
       <main>
         <Routes>
-          <Route path="/login" element={<Base page='login' />} />
-          <Route path="/form" element={<Base page='form' />} />
-          <Route path="/participant" element={<Base page='participant' />} />
-          <Route path="/location" element={<Base page='location' />} />
-          <Route path="/submission" element={<Base page='submission' />} />
+          {/* <Route path="/home" element={<Home />} /> */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/form" element={<Form />} />
+          <Route path="/participant" element={<Participant />} />
+          <Route path="/location" element={<Location />} />
+          <Route path="/submission" element={<Submission />} />
+          {/* </Route> */}
         </Routes>
       </main>
     </>

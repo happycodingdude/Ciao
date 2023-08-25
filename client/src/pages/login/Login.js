@@ -1,12 +1,18 @@
 import axios from 'axios';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/Login.css';
+import AuthContext from '../../context/AuthContext';
 import useLogin from '../../hooks/useLogin.js';
 
 const Login = () => {
-  const { username, password, handleUsernameChange, handlePasswordChange } = useLogin();
+  const { login } = useContext(AuthContext);
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+
+  const { username, password, handleUsernameChange, handlePasswordChange } = useLogin();
 
   const [retry, setRetry] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
@@ -24,16 +30,8 @@ const Login = () => {
       { headers: headers })
       .then(res => {
         if (res.status === 200) {
-          // navigate('/', {
-          //   state: {
-          //     token: res.data.data.Token
-          //   }
-          // });
-          navigate(-1, {
-            state: {
-              token: res.data.data.Token
-            }
-          });
+          login(res.data.data.Token);
+          navigate(from, { replace: true });
         }
         else throw new Error(res.status);
       })

@@ -1,12 +1,18 @@
 
 import * as React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import Base from './pages/Base.js';
+import { useContext } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import AuthContext from './context/AuthContext.js';
+import Login from './pages/login/Login.js';
+import Form from './pages/setting/Form.js';
+import Location from './pages/setting/Location.js';
+import Participant from './pages/setting/Participant.js';
+import Submission from './pages/setting/Submission.js';
 
-const App = ({ token }) => {
-  const location = useLocation();
-  // const { token } = location.state || '';
+const App = () => {
+  const { token, user } = useContext(AuthContext);
   console.log(token);
+  console.log(user.current);
 
   return (
     <>
@@ -26,11 +32,11 @@ const App = ({ token }) => {
       </header>
       <main>
         <Routes>
-          <Route path="/login" element={<Base page='login' />} />
-          <Route path="/form" element={<Base page='form' />} />
-          <Route path="/participant" element={<Base page='participant' />} />
-          <Route path="/location" element={<Base page='location' />} />
-          <Route path="/submission" element={<Base page='submission' />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/form" element={<Form />} />
+          <Route path="/participant" element={<Participant />} />
+          <Route path="/location" element={<Location />} />
+          <Route path="/submission" element={<Submission />} />
         </Routes>
       </main>
     </>

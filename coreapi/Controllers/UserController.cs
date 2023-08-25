@@ -34,6 +34,14 @@ public class UserController : ControllerBase
     [MyAuthorizeAttribute("Authorization")]
     public IActionResult CheckToken()
     {
-        return Ok();
+        try
+        {
+            var response = _service.ValidateToken();
+            return new ResponseModel<object>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<object>().BadRequest(ex);
+        }
     }
 }

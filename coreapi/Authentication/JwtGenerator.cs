@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MyDockerWebAPI.Authentication
 {
-    public class JwtGenerator
+    public class JwtToken
     {
         public static string GenerateToken(string secretKey, string username, string password)
         {
@@ -28,27 +28,15 @@ namespace MyDockerWebAPI.Authentication
             return jwtToken;
         }
 
-        public static bool CheckTokenExpired(string secretKey, string jwtToken)
+        public static object? ExtractToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-            };
+            // Read and validate the JWT token
+            var token = tokenHandler.ReadJwtToken(jwtToken);
 
-            SecurityToken validatedToken;
-            try
-            {
-                tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            var username = token.Claims.FirstOrDefault(q => q.Type.Equals("username")).Value;
+
+            return new { Username = username };
         }
     }
 }

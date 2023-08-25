@@ -13,7 +13,7 @@ public class MyAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
 
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        if (!context.HttpContext.Request.Headers.TryGetValue(_tokenHeaderName, out var token))
+        if (!context.HttpContext.Request.Headers.TryGetValue(_tokenHeaderName, out var bearer))
         {
             HandleUnauthorizedRequest(context);
             return;
@@ -21,6 +21,8 @@ public class MyAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
 
         try
         {
+            // Extract token from bearer
+            var token = bearer.ToString().Split(' ')[1];
             context.HttpContext.Session.SetString("Token", token);
             // Validate token here
             if (!IsValidToken(token))
