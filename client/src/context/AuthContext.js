@@ -1,11 +1,12 @@
 import axios from 'axios';
-import React, { createContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
+    console.log('AuthProvider rendering')
     const [token, setToken] = useState(() => localStorage.getItem('token'));
-    const user = useRef({});
+    const [user, setUser] = useState(() => localStorage.getItem('user'));
 
     useEffect(() => {
         if (token) {
@@ -21,13 +22,13 @@ export const AuthProvider = ({ children }) => {
                 .then(res => {
                     if (res.status === 200) {
                         localStorage.setItem('user', res.data.data.Username);
-                        user.current = res.data.data.Username;
+                        setUser(res.data.data.Username);
                     }
                     else throw new Error(res.status);
                 })
                 .catch(err => {
                     console.log(err);
-                    // if (err.response?.status === 401) console.log('Unauthen');
+                    if (err.response?.status === 401) console.log('Unauthen');
                 });
 
             return () => {
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }) => {
         else {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            setUser(null);
         }
     }, [token]);
 

@@ -19,18 +19,23 @@ body #root {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
+  background-image: url('./img/sunset.webp');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
 }
 
 /* Header */
 
 header {
-  width: 20%;
-  height: 100%;
-  background-color: rgb(7, 36, 79);
+  width: 100%;
+  /* height: 100%; */
+  /* background-color: rgb(7, 36, 79); */
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: space-between;
+  margin: 10px 0;
 }
 
 header a {
@@ -41,10 +46,10 @@ header a {
 header nav ul {
   list-style-type: none;
   display: flex;
-  flex-direction: column;
   align-items: center;
   padding: 0;
   margin: 0;
+  gap: 10px;
 }
 
 header nav ul li {
@@ -54,10 +59,16 @@ header nav ul li {
 header nav ul li a.active:before {
   position: absolute;
   content: '';
-  width: 30%;
+  width: 50%;
   height: 1px;
   border: 1px solid red;
   bottom: 0;
+}
+
+header .user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Main */
@@ -66,9 +77,4 @@ main {
   margin: 0 auto;
   width: 100%;
   height: 100%;
-  background-image: url('./img/sunset.webp');
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center;
-  overflow: hidden;
 }

@@ -1,16 +1,20 @@
 import axios from 'axios';
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/Login.css';
-import AuthContext from '../../context/AuthContext';
+import useAuth from '../../hooks/useAuth';
 import useLogin from '../../hooks/useLogin.js';
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
-
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  const auth = useAuth();
+
+  const inputRef = useRef(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const { username, password, handleUsernameChange, handlePasswordChange } = useLogin();
 
@@ -30,7 +34,7 @@ const Login = () => {
       { headers: headers })
       .then(res => {
         if (res.status === 200) {
-          login(res.data.data.Token);
+          auth.login(res.data.data.Token);
           navigate(from, { replace: true });
         }
         else throw new Error(res.status);
@@ -48,14 +52,18 @@ const Login = () => {
     <section className='login-wrapper'>
       <div className='login'>
         <span className='title'><h1><strong>Login</strong></h1></span>
+
         <div className='user-input'>
           <p>Username</p>
-          <input type='text' value={username} onChange={handleUsernameChange} placeholder='&#61447;   Type your username' />
+          <input ref={inputRef} type='text' value={username} onChange={handleUsernameChange} placeholder='&#61447;   Type your username' />
           <p>Password</p>
           <input type='text' value={password} onChange={handlePasswordChange} placeholder='&#61475;   Type your password' />
         </div>
+
         <a href='#' className='forgot-password'>Forgot password?</a>
+
         <button className='submit-button' onClick={handleSubmit}>LOGIN</button>
+        <span className='error-message'>Retry times remain: {retry}</span>
 
         <div className='other-login'>
           <p>Or login with</p>
@@ -70,7 +78,6 @@ const Login = () => {
               <i className=' fa fa-google'></i>
             </a>
           </div>
-          {/* <div style={{ visibility: showWarning ? 'visible' : 'hidden' }}>Retry times remain: {retry}</div> */}
         </div>
 
         <div className='signup'>

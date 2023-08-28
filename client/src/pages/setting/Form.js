@@ -1,12 +1,14 @@
 import { Button } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';
+import useAuth from '../../hooks/useAuth.js';
 import usePagingView from '../../hooks/usePagingView.js';
 
-const Form = ({ token }) => {
+const Form = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
 
   // State list form
@@ -17,7 +19,7 @@ const Form = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     axios.get('api/form',
       { cancelToken: cancelToken.token, headers: headers })
@@ -48,7 +50,7 @@ const Form = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     axios.get(`api/form/${editId}`,
       { cancelToken: cancelToken.token, headers: headers })
@@ -127,7 +129,7 @@ const Form = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     const body = JSON.stringify(saveObject);
     axios.post(`api/form`,
@@ -153,7 +155,7 @@ const Form = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     const body = JSON.stringify(saveObject);
     axios.put(`api/form`,
@@ -187,7 +189,7 @@ const Form = ({ token }) => {
       const cancelToken = axios.CancelToken.source();
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        'Authorization': 'Bearer ' + auth.token
       };
       axios.delete(`api/form/${id}`,
         { cancelToken: cancelToken.token, headers: headers })
@@ -219,7 +221,6 @@ const Form = ({ token }) => {
 
   return (
     <div className='container'>
-      <Link to="/home" state={{ token: token }}>Home</Link>
       <Button type='primary' onClick={() => handleOpenForm()}>Add</Button>
       <div className='row'>
         <div className='col-md-12'>
