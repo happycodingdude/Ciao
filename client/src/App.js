@@ -29,7 +29,7 @@ const App = () => {
     <>
       <header>
         <a href='#'><img src='' alt='Logo here'></img></a>
-        <nav>
+        <nav className='main-menu'>
           <ul>
             <li><a href='/' className='active'>Home</a></li>
             <li><a href='/form'>Form</a></li>
@@ -41,11 +41,19 @@ const App = () => {
         {
           isLogin
             ? (
-              <span className='user-info'>
-                <a href='#' className='fa fa-user'>  {auth.user}</a>
-                <a href='#' onClick={handleLogout}>Logout</a>
-              </span>)
-            : <a href='/login'>Login</a>
+              <div className='user-info'>
+                <a href='#' className='fa fa-user profile-icon'>  {auth.user}</a>
+                <nav>
+                  <ul className='profile-menu'>
+                    <li><a href='#'>Profile</a></li>
+                    <li><a href='#'>Change password</a></li>
+                    <li><a href='#' onClick={handleLogout}>Logout</a></li>
+                  </ul>
+                </nav>
+              </div>
+            )
+            // {<a href='#' onClick={handleLogout}>Logout</a>}
+            : <a href='/login' className='cta-login'>Login</a>
         }
       </header>
       <main>

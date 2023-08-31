@@ -28,7 +28,12 @@ export const AuthProvider = ({ children }) => {
                 })
                 .catch(err => {
                     console.log(err);
-                    if (err.response?.status === 401) console.log('Unauthen');
+                    if (err.response?.status === 401) {
+                        console.log('Unauthen');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        setUser(null);
+                    }
                 });
 
             return () => {

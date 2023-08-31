@@ -16,10 +16,10 @@ const Login = () => {
     inputRef.current?.focus();
   }, []);
 
-  const { username, password, handleUsernameChange, handlePasswordChange } = useLogin();
-
+  const errorMessageRef = useRef(null);
   const [retry, setRetry] = useState(0);
-  const [showWarning, setShowWarning] = useState(false);
+
+  const { username, password, handleUsernameChange, handlePasswordChange } = useLogin();
 
   const handleSubmit = () => {
     const headers = {
@@ -34,6 +34,7 @@ const Login = () => {
       { headers: headers })
       .then(res => {
         if (res.status === 200) {
+          errorMessageRef.current.classList.remove('active');
           auth.login(res.data.data.Token);
           navigate(from, { replace: true });
         }
@@ -41,10 +42,10 @@ const Login = () => {
       })
       .catch(err => {
         console.log(err);
-        // if (err.response.data.error === 'WrongPassword') {
-        //   setRetry(err.response.data.data.RemainRetry);
-        //   setShowWarning(true);
-        // }
+        if (err.response.data.error === 'WrongPassword') {
+          setRetry(err.response.data.data.RemainRetry);
+          errorMessageRef.current.classList.add('active');
+        }
       });
   };
 
@@ -62,27 +63,29 @@ const Login = () => {
 
         <a href='#' className='forgot-password'>Forgot password?</a>
 
-        <button className='submit-button' onClick={handleSubmit}>LOGIN</button>
-        <span className='error-message'>Retry times remain: {retry}</span>
+        <button className='cta-submit' onClick={handleSubmit}>LOGIN</button>
+        <span ref={errorMessageRef} className='error-message'>Retry times remain: {retry}</span>
 
-        <div className='other-login'>
-          <p>Or login with</p>
-          <div className='icon'>
-            <a href='#' className='facebook'>
-              <i className='fa fa-facebook'></i>
-            </a>
-            <a href='#' className='twitter'>
-              <i className=' fa fa-twitter'></i>
-            </a>
-            <a href='#' className='google'>
-              <i className=' fa fa-google'></i>
-            </a>
+        <div className='other'>
+          <div className='other-login'>
+            <p>Or login with</p>
+            <div className='icon'>
+              <a href='#' className='facebook'>
+                <i className='fa fa-facebook'></i>
+              </a>
+              <a href='#' className='twitter'>
+                <i className=' fa fa-twitter'></i>
+              </a>
+              <a href='#' className='google'>
+                <i className=' fa fa-google'></i>
+              </a>
+            </div>
           </div>
-        </div>
 
-        <div className='signup'>
-          <p>Don't have an account?</p>
-          <a href='#' className='signup-button'>Sign Up</a>
+          <div className='signup'>
+            <p>Don't have an account?</p>
+            <a href='#' className='cta-signup'>Sign Up</a>
+          </div>
         </div>
       </div>
     </section>
