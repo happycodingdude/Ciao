@@ -1,13 +1,15 @@
 import { Button } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SliderData } from '../../assets/SliderData.js';
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';
+import useAuth from '../../hooks/useAuth.js';
 import usePagingView from '../../hooks/usePagingView.js';
 
-const Location = ({ token }) => {
+const Location = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
 
   // State list location
@@ -18,7 +20,7 @@ const Location = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     axios.get('api/location',
       { cancelToken: cancelToken.token, headers: headers })
@@ -49,7 +51,7 @@ const Location = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     axios.get(`api/location/${editId}`,
       { cancelToken: cancelToken.token, headers: headers })
@@ -134,7 +136,7 @@ const Location = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     const body = JSON.stringify(saveObject);
     axios.post(`api/location`,
@@ -160,7 +162,7 @@ const Location = ({ token }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + auth.token
     };
     const body = JSON.stringify(saveObject);
     axios.put(`api/location`,
@@ -194,7 +196,7 @@ const Location = ({ token }) => {
       const cancelToken = axios.CancelToken.source();
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        'Authorization': 'Bearer ' + auth.token
       };
       axios.delete(`api/location/${id}`,
         { cancelToken: cancelToken.token, headers: headers })
@@ -226,7 +228,6 @@ const Location = ({ token }) => {
 
   return (
     <div className='container'>
-      <Link to="/home" state={{ token: token }}>Home</Link>
       <Button type='primary' onClick={() => handleOpenForm()}>Add</Button>
       <div className='row'>
         <div className='col-md-12'>

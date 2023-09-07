@@ -4,6 +4,7 @@ import { useLayoutEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import useAuth from './hooks/useAuth.js';
 import RequireAuth from './pages/RequireAuth.js';
+import Home from './pages/home/Home.js';
 import Login from './pages/login/Login.js';
 import Form from './pages/setting/Form.js';
 import Location from './pages/setting/Location.js';
@@ -52,11 +53,11 @@ const App = () => {
                 </nav>
               </div>
             )
-            // {<a href='#' onClick={handleLogout}>Logout</a>}
             : <a href='/login' className='cta-login'>Login</a>
         }
       </header>
       <main>
+        <Home />
         <Routes>
           <Route path="/login" element={<Login />} />
 
