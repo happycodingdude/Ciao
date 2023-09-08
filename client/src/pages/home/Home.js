@@ -4,7 +4,23 @@ import { GridData } from '../../assets/GridData.js';
 import '../../index.css';
 
 const Home = () => {
-  console.log(GridData);
+
+  let loadingSpin = document.querySelector('.loading'),
+    loadingPercent = document.querySelector('.loading-percent');
+
+  let start = 0, end = 100, speed = 100;
+
+  let loadingProcess = setInterval(() => {
+    start++;
+
+    document.querySelector('.loading-percent').textContent = `${start}%`;
+    document.querySelector('.loading').style.background = `conic-gradient(greenyellow ${start * 3.6}deg, black 0)`;
+
+    if (start === end)
+      clearInterval(loadingProcess);
+
+  }, speed);
+
   return (
     <div className='grid-container'>
       {
@@ -20,7 +36,7 @@ const Home = () => {
                 <div className='skill-2'></div>
                 <div className='skill-3'></div>
               </div>
-              <div className='loading'></div>
+              <div className='loading'><span className='loading-percent'>0%</span></div>
               <div className='player-name'>pname</div>
             </div>
           </div>

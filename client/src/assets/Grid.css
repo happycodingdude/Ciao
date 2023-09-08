@@ -9,7 +9,8 @@
 }
 
 .grid-item {
-    background-image: var(--item-image);
+    /* background-image: var(--item-image); */
+    background-color: rgba(255, 166, 0, 0.208);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -41,7 +42,7 @@
 
 .champ-avatar {
     grid-area: 2 / 1 / 4 / 2;
-    border: 2px solid black;
+    border: 1px solid black;
     border-radius: 50%;
     width: 70px;
     height: 70px;
@@ -57,7 +58,7 @@
 .skill-2,
 .skill-3,
 .loading {
-    border: 2px solid black;
+    border: 1px solid black;
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -67,6 +68,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* border: 3px solid black; */
+    background: conic-gradient(greenyellow 10deg, black 0);
+    position: relative;
+}
+
+.loading::before {
+    content: '';
+    width: 22px;
+    height: 22px;
+    background-color: orange;
+    border-radius: 50%;
+}
+
+.loading-percent {
+    position: absolute;
+    font-size: 5px;
 }
 
 .player-name {
