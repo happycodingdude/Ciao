@@ -1,9 +1,12 @@
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(5, auto);
-    grid-template-rows: repeat(2, auto);
-    gap: 20px;
-    padding: 10px;
+    /* grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr); */
+    grid-template-columns: minmax();
+    grid-template-rows: repeat(2, 1fr);
+    column-gap: 20px;
+    row-gap: 40px;
+    padding: 40px;
     width: 100%;
     height: 100%;
 }
@@ -42,16 +45,25 @@
 
 .champ-avatar {
     grid-area: 2 / 1 / 4 / 2;
-    border: 1px solid black;
+    border: 1px solid rgba(255, 166, 0, 0.208);
     border-radius: 50%;
     width: 70px;
     height: 70px;
     align-self: end;
+    transform: rotate(0);
+    transition:
+        transform .5s linear,
+        box-shadow .3s linear;
+}
+
+.champ-avatar:hover {
+    transform: rotate(360deg);
+    box-shadow: 0 -5px 10px wheat;
 }
 
 .champ-skill {
     display: flex;
-    gap: 10px;
+    gap: 3px;
 }
 
 .skill-1,
@@ -65,25 +77,27 @@
 }
 
 .loading {
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* border: 3px solid black; */
-    background: conic-gradient(greenyellow 10deg, black 0);
+    background: conic-gradient(black, rgb(47, 255, 161));
     position: relative;
 }
 
 .loading::before {
     content: '';
-    width: 22px;
-    height: 22px;
-    background-color: orange;
+    width: 25px;
+    height: 25px;
+    background-color: black;
     border-radius: 50%;
 }
 
 .loading-percent {
     position: absolute;
-    font-size: 5px;
+    font-size: 7px;
+    color: white;
+    font-weight: bold;
 }
 
 .player-name {

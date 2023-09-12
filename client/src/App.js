@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useLayoutEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import useAuth from './hooks/useAuth.js';
+import Background from './pages/Background.js';
 import RequireAuth from './pages/RequireAuth.js';
 import Home from './pages/home/Home.js';
 import Login from './pages/login/Login.js';
@@ -28,6 +29,7 @@ const App = () => {
 
   return (
     <>
+      <Background />
       <header>
         <a href='#'><img src='' alt='Logo here'></img></a>
         <nav className='main-menu'>

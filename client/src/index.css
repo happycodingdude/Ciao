@@ -20,10 +20,11 @@ body #root {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-image: url('./img/sunset.webp');
+  background: rgb(3, 3, 57);
+  /* background-image: url('./img/sunset.webp');
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: center; */
   overflow: hidden;
 }
 

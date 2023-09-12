@@ -1,30 +1,33 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import '../../assets/Grid.css';
 import { GridData } from '../../assets/GridData.js';
 import '../../index.css';
 
 const Home = () => {
-
-  let loadingSpin = document.querySelector('.loading'),
-    loadingPercent = document.querySelector('.loading-percent');
+  const loadingRef = useRef([]);
+  const loadingPercentRef = useRef([]);
 
   let start = 0, end = 100, speed = 100;
 
-  let loadingProcess = setInterval(() => {
-    start++;
+  // let loadingProcess = setInterval(() => {
+  //   start++;
 
-    document.querySelector('.loading-percent').textContent = `${start}%`;
-    document.querySelector('.loading').style.background = `conic-gradient(greenyellow ${start * 3.6}deg, black 0)`;
+  //   loadingRef.current.forEach(ref => {
+  //     ref.style.background = `conic-gradient(from ${start * 3.6}deg, black, rgb(47, 255, 161))`;
+  //   })
+  //   loadingPercentRef.current.forEach(ref => {
+  //     ref.textContent = `${start}%`;
+  //   })
 
-    if (start === end)
-      clearInterval(loadingProcess);
+  //   if (start === end)
+  //     clearInterval(loadingProcess);
 
-  }, speed);
+  // }, speed);
 
   return (
     <div className='grid-container'>
       {
-        GridData.map((item) => (
+        GridData.map((item, i) => (
           <div
             className='grid-item'
             style={{ '--item-image': `url(${item.image})` }}>
@@ -36,7 +39,9 @@ const Home = () => {
                 <div className='skill-2'></div>
                 <div className='skill-3'></div>
               </div>
-              <div className='loading'><span className='loading-percent'>0%</span></div>
+              <div className='loading' ref={element => { loadingRef.current[i] = element }} >
+                <span className='loading-percent' ref={element => { loadingPercentRef.current[i] = element }} >0%</span>
+              </div>
               <div className='player-name'>pname</div>
             </div>
           </div>
