@@ -1,7 +1,7 @@
 .animated-background {
+    height: 0;
     display: flex;
     justify-content: space-between;
-    /* gap: 3px; */
 }
 
 .animated-background span {
@@ -10,7 +10,7 @@
     border-radius: 50%;
     background: rgb(42, 219, 210);
     box-shadow: 0 0 4px 5px rgb(11, 83, 79);
-    animation: flow linear infinite;
+    animation: bubble linear infinite;
     animation-duration: calc(100s / var(--i));
 }
 
@@ -19,9 +19,9 @@
     box-shadow: 0 0 4px 5px rgb(171, 29, 29);
 }
 
-@keyframes flow {
+@keyframes bubble {
     0% {
-        transform: translateY(100vh) scale(0);
+        transform: translateY(99vh) scale(0);
     }
 
     100% {
