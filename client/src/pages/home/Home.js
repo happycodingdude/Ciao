@@ -4,25 +4,26 @@ import { GridData } from '../../assets/GridData.js';
 import '../../index.css';
 
 const Home = () => {
+  console.log('Home rendering');
   const loadingRef = useRef([]);
   const loadingPercentRef = useRef([]);
 
-  let start = 0, end = 100, speed = 100;
+  let start = 0, end = 100, speed = 50;
 
-  // let loadingProcess = setInterval(() => {
-  //   start++;
+  let loadingProcess = setInterval(() => {
+    start++;
 
-  //   loadingRef.current.forEach(ref => {
-  //     ref.style.background = `conic-gradient(from ${start * 3.6}deg, black, rgb(47, 255, 161))`;
-  //   })
-  //   loadingPercentRef.current.forEach(ref => {
-  //     ref.textContent = `${start}%`;
-  //   })
+    loadingRef.current.forEach(ref => {
+      ref.style.background = `conic-gradient(from ${start * 3.6}deg, black, rgb(47, 255, 161))`;
+    })
+    loadingPercentRef.current.forEach(ref => {
+      ref.textContent = `${start}%`;
+    })
 
-  //   if (start === end)
-  //     clearInterval(loadingProcess);
+    if (start === end)
+      clearInterval(loadingProcess);
 
-  // }, speed);
+  }, speed);
 
   return (
     <div className='grid-container'>
@@ -51,4 +52,4 @@ const Home = () => {
   )
 }
 
-export default Home;
+export default React.memo(Home);

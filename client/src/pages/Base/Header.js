@@ -1,7 +1,10 @@
 import React, { useLayoutEffect, useState } from 'react';
+import '../../../src/assets/Header.css';
 import useAuth from '../../hooks/useAuth.js';
 
-const Header = () => {
+const Header = ({ scroll, scrollToTop }) => {
+    // console.log('Header rendering');
+
     const auth = useAuth();
 
     const [isLogin, setIsLogin] = useState(false);
@@ -15,8 +18,9 @@ const Header = () => {
         auth.logout();
         setIsLogin(false);
     }
+
     return (
-        <header>
+        <header className={scroll}>
             <a href='#'><img src='' alt='Logo here'></img></a>
             <nav className='main-menu'>
                 <ul>
@@ -41,8 +45,12 @@ const Header = () => {
                             </nav>
                         </div>
                     )
-                    : <a href='/login' className='cta-login'>Login</a>
+                    : <a href='/login' className={`cta-login ${scroll}`}>Login</a>
             }
+            <a href='#'
+                className={`fa fa-arrow-up scroll-to-top ${scroll}`}
+                onClick={scrollToTop}
+            ></a>
         </header>
     )
 }

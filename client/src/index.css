@@ -14,128 +14,21 @@ code {
 
 html,
 body,
-#root {
+#root,
+.wrapper {
   font-size: 20px;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: rgb(3, 3, 57);
   position: relative;
-  /* background-image: url('./img/sunset.webp');
-  background-size: 100% 100%;
+  /* background: rgb(3, 3, 57); */
+  background-image: url('./img/sunset.webp');
+  /* background-size: 100% 100%; */
+  background-size: var(--width);
   background-repeat: no-repeat;
-  background-position: center; */
-  /* overflow-y: hidden; */
-}
-
-/* Header */
-
-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  background-color: rgba(255, 127, 80, 0.578);
-  padding: 10px 0;
-}
-
-/* header.scroll {
-  background-color: rgb(3, 3, 57);
-  transition: background-color 1s linear;
-} */
-
-header a {
-  text-decoration: none;
-  color: white;
-}
-
-header nav ul {
-  list-style-type: none;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  gap: 10px;
-}
-
-header nav ul li {
-  position: relative;
-}
-
-header .main-menu ul li a.active:before {
-  position: absolute;
-  content: '';
-  width: 50%;
-  height: 1px;
-  border: 1px solid red;
-  bottom: 0;
-}
-
-header .main-menu ul li a:before {
-  position: absolute;
-  content: '';
-  width: 0;
-  height: 1px;
-  border: 0 solid rgb(247, 119, 119);
-  bottom: 0;
-  transition: width .3s;
-}
-
-header .main-menu ul li a:hover:before {
-  width: 50%;
-  border-top-width: 1px;
-  border-right-width: 1px;
-  border-bottom-width: 1px;
-  border-left-width: 1px;
-}
-
-header .user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  gap: 10px;
-}
-
-header .user-info:hover .profile-menu {
-  max-height: 100%;
-}
-
-header .user-info .profile-menu {
-  background: antiquewhite;
-  border-radius: 10px;
-  flex-direction: column;
-  align-items: start;
-  gap: 0;
-  width: 170px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .3s;
-}
-
-header .user-info .profile-menu li {
-  width: 100%;
-  transition: padding-left .3s;
-}
-
-header .user-info .profile-menu li:hover {
-  background: rgba(255, 212, 156, 0.699);
-  padding-left: 10px;
-}
-
-header .user-info .profile-menu li a {
-  color: black;
-  font-size: 17px;
-}
-
-header .cta-login {
-  background: antiquewhite;
-  color: black;
-  border-radius: 50px;
-  padding: 0 10px;
-}
-
-header .cta-login:hover {
-  background: rgba(255, 212, 156, 0.699);
+  background-position: center;
+  transition: background-size .5s;
 }
 
 /* Main */
@@ -143,7 +36,7 @@ header .cta-login:hover {
 main {
   margin: 0 auto;
   width: 100%;
-  height: 100%;
+  height: auto;
   overflow: scroll;
   overflow-x: hidden;
   scroll-behavior: smooth;
