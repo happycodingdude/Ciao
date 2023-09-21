@@ -24,11 +24,11 @@ body,
   position: relative;
   /* background: rgb(3, 3, 57); */
   background-image: url('./img/sunset.webp');
-  /* background-size: 100% 100%; */
-  background-size: var(--width);
+  background-size: 100% 100%;
+  /* background-size: var(--width); */
   background-repeat: no-repeat;
   background-position: center;
-  transition: background-size .5s;
+  transition: background-size .3s;
 }
 
 /* Main */
@@ -36,15 +36,11 @@ body,
 main {
   margin: 0 auto;
   width: 100%;
-  height: auto;
-  overflow: scroll;
+  height: 100%;
+  overflow: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
-
-/* main.active-scrollbar::-webkit-scrollbar {
-  width: 15px;
-} */
 
 main::-webkit-scrollbar {
   width: 15px;

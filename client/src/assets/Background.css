@@ -1,3 +1,5 @@
+/* Background */
+
 .animated-background {
     height: 0;
     display: flex;
@@ -8,23 +10,25 @@
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background: rgb(42, 219, 210);
-    box-shadow: 0 0 4px 5px rgb(11, 83, 79);
+    background: rgb(24, 153, 99);
+    box-shadow: 0 0 6px 4px rgb(11, 73, 47);
     animation: bubble linear infinite;
     animation-duration: calc(100s / var(--i));
 }
 
 .animated-background span:nth-child(even) {
-    background: rgb(250, 77, 77);
-    box-shadow: 0 0 4px 5px rgb(171, 29, 29);
+    /* background: rgb(250, 77, 77);
+    box-shadow: 0 0 4px 5px rgb(171, 29, 29); */
+    background: rgb(83, 33, 175);
+    box-shadow: 0 0 6px 4px rgb(49, 19, 104);
 }
 
 @keyframes bubble {
     0% {
-        transform: translateY(99vh) scale(0);
+        transform: translateY(90vh) scale(0);
     }
 
     100% {
-        transform: translateY(-10vh) scale(1);
+        transform: translateY(-10vh) scale(0.7);
     }
 }

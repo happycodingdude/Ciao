@@ -4,8 +4,6 @@ header {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    /* background: rgba(255, 127, 80, 0.578); */
-    /* background: rgb(3, 3, 57); */
     padding: 10px 0;
     transition: background-color .7s ease-in;
 }
@@ -16,6 +14,8 @@ header a {
     transition: color .7s;
 }
 
+/* Header when scroll */
+
 header.scroll {
     background-color: whitesmoke;
 }
@@ -23,6 +23,8 @@ header.scroll {
 header.scroll a {
     color: black;
 }
+
+/* Navigation */
 
 header nav ul {
     list-style-type: none;
@@ -36,6 +38,8 @@ header nav ul {
 header nav ul li {
     position: relative;
 }
+
+/* Main menu */
 
 header .main-menu ul li a.active:before {
     position: absolute;
@@ -63,6 +67,8 @@ header .main-menu ul li a:hover:before {
     border-bottom-width: 1px;
     border-left-width: 1px;
 }
+
+/* User info */
 
 header .user-info {
     display: flex;
@@ -102,6 +108,8 @@ header .user-info .profile-menu li a {
     font-size: 17px;
 }
 
+/* Button login */
+
 header .cta-login {
     background: whitesmoke;
     color: black;
@@ -114,6 +122,8 @@ header .cta-login:hover {
     background: rgb(211, 211, 211);
 }
 
+/* Button login when scroll */
+
 header .cta-login.scroll {
     background: rgb(211, 211, 211);
     transform: translateX(-50px);
@@ -122,6 +132,8 @@ header .cta-login.scroll {
 header .cta-login.scroll:hover {
     background: rgb(155, 155, 155);
 }
+
+/* Button scroll to top */
 
 header .scroll-to-top {
     color: black;
@@ -138,6 +150,8 @@ header .scroll-to-top {
     border-radius: 50%;
     transition: transform .7s;
 }
+
+/* Button scroll to top when scroll */
 
 header .scroll-to-top.scroll {
     transform: translateY(59px);

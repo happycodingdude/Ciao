@@ -1,7 +1,8 @@
-import React from 'react'
-import '../../../src/assets/Background.css'
+import React, { memo } from 'react';
+import '../../../src/assets/Background.css';
 
 const Background = () => {
+    console.log('Background rendering');
     return (
         <div className='animated-background'>
             <span style={{ "--i": "8" }}></span>
@@ -60,4 +61,4 @@ const Background = () => {
     )
 }
 
-export default Background
+export default memo(Background)

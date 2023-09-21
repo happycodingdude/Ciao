@@ -1,12 +1,13 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { memo, useLayoutEffect, useState } from 'react';
 import '../../../src/assets/Header.css';
 import useAuth from '../../hooks/useAuth.js';
 
-const Header = ({ scroll, scrollToTop }) => {
-    // console.log('Header rendering');
+const Header = (props) => {
+    console.log('Header rendering');
+
+    const { scroll, scrollToTop } = props;
 
     const auth = useAuth();
-
     const [isLogin, setIsLogin] = useState(false);
 
     useLayoutEffect(() => {
@@ -21,10 +22,10 @@ const Header = ({ scroll, scrollToTop }) => {
 
     return (
         <header className={scroll}>
-            <a href='#'><img src='' alt='Logo here'></img></a>
-            <nav className='main-menu'>
+            <a href='/'><img src='' alt='Logo here'></img></a>
+            <nav className='main-menu' >
                 <ul>
-                    <li><a href='/' className='active'>Home</a></li>
+                    <li><a href='/home'>Home</a></li>
                     <li><a href='/form'>Form</a></li>
                     <li><a href='/participant'>Participant</a></li>
                     <li><a href='/location'>Location</a></li>
@@ -55,4 +56,4 @@ const Header = ({ scroll, scrollToTop }) => {
     )
 }
 
-export default Header
+export default memo(Header)
