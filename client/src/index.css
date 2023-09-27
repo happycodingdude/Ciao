@@ -1,3 +1,7 @@
+:root {
+  font-size: 62.5%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -16,13 +20,12 @@ html,
 body,
 #root,
 .wrapper {
-  font-size: 20px;
+  font-size: 1.6rem;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  /* background: rgb(3, 3, 57); */
   background-image: url('./img/sunset.webp');
   background-size: 100% 100%;
   /* background-size: var(--width); */

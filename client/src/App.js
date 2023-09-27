@@ -19,8 +19,8 @@ const App = () => {
 
   // The scroll listener
   const handleScroll = useCallback(() => {
-    // 53 is height of header
-    if (refMain.current.scrollTop >= 53)
+    // 50 is height of header
+    if (refMain.current.scrollTop >= 50)
       setScroll('scroll');
     else
       setScroll('');
