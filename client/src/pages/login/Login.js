@@ -50,7 +50,7 @@ const Login = () => {
   };
 
   return (
-    <section className='login-wrapper'>
+    <section className='wrapper login-wrapper'>
       <div className='login'>
         <span className='title'><h1><strong>Login</strong></h1></span>
 

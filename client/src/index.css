@@ -18,26 +18,37 @@ code {
 
 html,
 body,
-#root,
-.wrapper {
+#root {
   font-size: 1.6rem;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  background-image: url('./img/sunset.webp');
+  /* background-image: url('./img/sunset.webp'); */
   background-size: 100% 100%;
+
   /* background-size: var(--width); */
   background-repeat: no-repeat;
   background-position: center;
   transition: background-size .3s;
+  /* padding-left: 2rem;
+  padding-right: 2rem; */
+}
+
+.wrapper {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border: 1px solid red;
 }
 
 /* Main */
 
 main {
-  margin: 0 auto;
+  /* margin: 0 auto; */
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -64,4 +75,18 @@ main::-webkit-scrollbar-thumb {
 
 main::-webkit-scrollbar-thumb:hover {
   background: rgb(163, 163, 163);
+}
+
+
+@media screen and (width > 475xp) {
+  .wrapper {
+    max-width: 475xp;
+    background-color: coral;
+  }
+}
+
+@media (width > 640xp) {
+  .wrapper {
+    max-width: 640xp;
+  }
 }

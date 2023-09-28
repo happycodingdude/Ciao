@@ -21,7 +21,7 @@ const Header = (props) => {
     }
 
     return (
-        <header className={scroll}>
+        <header className={`wrapper ${scroll}`}>
             <a href='/' className='header-item'><img src='' alt='Logo here'></img></a>
             <nav className='header-item' >
                 <div className='burger'>

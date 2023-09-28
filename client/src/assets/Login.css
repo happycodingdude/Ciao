@@ -2,10 +2,10 @@
 
 .login-wrapper {
     margin: 0 auto;
-    width: 30%;
-    max-width: 350px;
+    /* width: 50%;
+    max-width: 350px; */
     height: 100%;
-    font-size: 1.5rem;
+    min-height: 750px;
     display: flex;
     align-items: center;
 }
@@ -18,7 +18,7 @@
 /* Login section */
 
 .login {
-    height: 70%;
+    height: 65%;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -28,17 +28,17 @@
     position: relative;
 }
 
-.login .title {
+.title {
     text-align: center;
 }
 
 
-.login .user-input p,
-.login .user-input input {
+.user-input p,
+.user-input input {
     margin: 5px 0;
 }
 
-.login .user-input input {
+.user-input input {
     font-family: FontAwesome;
     border: none;
     border-bottom: 2px outset;
@@ -46,14 +46,14 @@
 }
 
 
-.login .forgot-password {
+.forgot-password {
     text-align: end;
     margin: 5px 0 20px 0;
     color: black;
 }
 
 
-.login .cta-submit {
+.cta-submit {
     color: white;
     background-color: #cc81db;
     padding: 7px 0;
@@ -62,18 +62,18 @@
     cursor: pointer;
 }
 
-.login .error-message {
+.error-message {
     color: red;
     text-align: center;
     display: none;
 }
 
-.login .error-message.active {
+.error-message.active {
     display: block;
 }
 
 
-.login .other {
+.other {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -83,19 +83,19 @@
     right: 0;
 }
 
-.login .other .other-login {
+.other .other-login {
     text-align: center;
 }
 
-.login .other .other-login .icon {
+.other .other-login .icon {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.login .other .other-login .icon a {
-    font-size: 20px;
+.other .other-login .icon a {
+    font-size: 2rem;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -106,45 +106,41 @@
     cursor: pointer;
 }
 
-.login .other .other-login .icon .facebook {
+.other .other-login .icon .facebook {
     background: rgb(7 102 255);
 }
 
-.login .other .other-login .icon .twitter {
+.other .other-login .icon .twitter {
     background: rgb(31, 118, 199);
 }
 
-.login .other .other-login .icon .google {
+.other .other-login .icon .google {
     background: rgb(172, 13, 13);
 }
 
 
-.login .other .signup {
+.other .signup {
     text-align: center;
 }
 
-.login .other .signup p {
+.other .signup p {
     margin-bottom: 0;
 }
 
-.login .other .signup .cta-signup {
+.other .signup .cta-signup {
     color: rgb(0, 141, 7);
     cursor: pointer;
 }
 
-
 /* Responsive */
 
-@media (width < 576px) {
+@media (width < 768px) {
     .login-wrapper {
-        width: 60%;
-        min-width: 250px;
-        min-height: 750px;
         font-size: 1.5rem;
     }
 
     .login {
-        height: 65%;
+        height: 55%;
     }
 
     .login .title h1 {
@@ -152,12 +148,69 @@
     }
 
     .login .cta-submit {
-        padding: 6px 0;
+        padding: 5px 0;
     }
 
     .login .other .other-login .icon a {
         font-size: 1.5rem;
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (width >=768px) {
+    .login-wrapper {
+        max-width: 300px;
+        font-size: 1.5rem;
+    }
+
+    .login {
+        height: 60%;
+    }
+
+    .login .title h1 {
+        font-size: 4.3rem;
+    }
+
+    .login .cta-submit {
+        padding: 5.5px 0;
+    }
+
+    .login .other .other-login .icon a {
+        font-size: 1.8rem;
         width: 35px;
         height: 35px;
+    }
+}
+
+@media (width >=992px) {
+    .login {
+        height: 65%;
+    }
+
+    .login .title h1 {
+        font-size: 4.5rem;
+    }
+
+    .login .cta-submit {
+        padding: 6px 0;
+    }
+
+    .login .other .other-login .icon a {
+        font-size: 2rem;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (width >=1400px) {
+    .login .cta-submit {
+        padding: 7px 0;
+    }
+
+    .login .other .other-login .icon a {
+        font-size: 2.5rem;
+        width: 45px;
+        height: 45px;
     }
 }

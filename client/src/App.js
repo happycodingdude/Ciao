@@ -46,9 +46,10 @@ const App = () => {
   }, []);
 
   return (
-    <div className='wrapper'
-      style={{ '--width': `${backgroundSize}%` }}
-    >
+    // <div className='wrapper'
+    //   style={{ '--width': `${backgroundSize}%` }}
+    // >
+    <>
       <Background />
       <Header
         scroll={scroll}
@@ -67,7 +68,8 @@ const App = () => {
           </Route>
         </Routes>
       </main>
-    </div>
+    </>
+    // </div>
   )
 }
 export default App;
