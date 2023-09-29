@@ -134,7 +134,7 @@
 
 /* Responsive */
 
-@media (width < 768px) {
+/* @media (width < 768px) {
     .login-wrapper {
         font-size: 1.5rem;
     }
@@ -213,4 +213,4 @@
         width: 45px;
         height: 45px;
     }
-}
+} */

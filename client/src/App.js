@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './pages/RequireAuth.js';
-import Background from './pages/base/Background.js';
 import Header from './pages/base/Header.js';
 import Home from './pages/home/Home.js';
 import Login from './pages/login/Login.js';
@@ -11,7 +10,7 @@ import Participant from './pages/setting/Participant.js';
 import Submission from './pages/setting/Submission.js';
 
 const App = () => {
-  // console.log('App rendering');
+  console.log('App rendering');
   const refMain = useRef(null);
   const [scroll, setScroll] = useState('');
 
@@ -50,7 +49,7 @@ const App = () => {
     //   style={{ '--width': `${backgroundSize}%` }}
     // >
     <>
-      <Background />
+      {/* <Background /> */}
       <Header
         scroll={scroll}
         scrollToTop={scrollToTop}

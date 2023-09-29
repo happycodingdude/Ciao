@@ -52,7 +52,7 @@ const Login = () => {
   return (
     <section className='wrapper login-wrapper'>
       <div className='login'>
-        <span className='title'><h1><strong>Login</strong></h1></span>
+        <span className='title'><p>Login</p></span>
 
         <div className='user-input'>
           <p>Username</p>
