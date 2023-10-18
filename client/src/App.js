@@ -54,7 +54,7 @@ const App = () => {
         scroll={scroll}
         scrollToTop={scrollToTop}
       />
-      <main ref={refMain}>
+      <main className='wrapper' ref={refMain}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />

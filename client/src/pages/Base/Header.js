@@ -42,7 +42,7 @@ const Header = (props) => {
                     isLogin
                         ? (
                             <>
-                                <a href='#' className='fa fa-user profile-icon'>  {auth.user}</a>
+                                <a href='#' className={`fa fa-user profile-icon ${scroll}`}>  {auth.user}</a>
                                 <ul className='profile-menu'>
                                     <li><a href='#'>Profile</a></li>
                                     <li><a href='#'>Change password</a></li>
@@ -52,11 +52,11 @@ const Header = (props) => {
                         )
                         : <a href='/login' className={`cta-login ${scroll}`}>Login</a>
                 }
+                <a href='#'
+                    className={`fa fa-arrow-up scroll-to-top ${scroll}`}
+                    onClick={scrollToTop}
+                ></a>
             </div>
-            <a href='#'
-                className={`fa fa-arrow-up scroll-to-top ${scroll}`}
-                onClick={scrollToTop}
-            ></a>
         </header >
     )
 }

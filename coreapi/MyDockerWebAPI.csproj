@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- <AssemblyVersion>1.0.0.0</AssemblyVersion> -->
   </PropertyGroup>
 
   <ItemGroup>

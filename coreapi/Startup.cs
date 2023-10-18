@@ -11,22 +11,20 @@ namespace MyDockerWebAPI
 {
     public class Startup
     {
-        private WebApplication? _app;
-
         public void ConfigureServices(WebApplicationBuilder builder)
         {
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession();
-            // Add services to the container.
             builder.Services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContextPool<CoreContext>(option =>
+            builder.Services
+            .AddDbContextPool<CoreContext>(option =>
             {
                 option.UseMySQL(builder.Configuration.GetConnectionString("MyDbContext"));
-            }).AddDbContext<MigrationContext>(option =>
+            })
+            .AddDbContext<MigrationContext>(option =>
             {
                 option.UseMySQL(builder.Configuration.GetConnectionString("MyDbContext"));
             });
@@ -52,7 +50,7 @@ namespace MyDockerWebAPI
             builder.Services.AddScoped<IParticipantService, ParticipantService>();
             builder.Services.AddScoped<TelegramFunction>();
 
-            // Start Telegram engine
+            // Start Telegram service
             var serviceProvider = builder.Services.BuildServiceProvider();
             var telegramFunction = serviceProvider.GetService<TelegramFunction>();
             _ = telegramFunction.StartAsync();
@@ -73,7 +71,6 @@ namespace MyDockerWebAPI
             app.UseAuthorization();
             app.Lifetime.ApplicationStarted.Register(OnStarted);
             app.Lifetime.ApplicationStopping.Register(OnStopping);
-            _app = app;
 
             DatabaseMigration.Migrate(app);
         }

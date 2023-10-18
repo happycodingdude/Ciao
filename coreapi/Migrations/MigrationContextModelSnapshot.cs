@@ -177,23 +177,23 @@ namespace MyDockerWebAPI.Migrations
                         {
                             Id = 1,
                             FormId = 1,
-                            FromTime = new DateTime(2023, 8, 23, 18, 0, 0, 0, DateTimeKind.Local),
+                            FromTime = new DateTime(2023, 10, 25, 18, 0, 0, 0, DateTimeKind.Local),
                             LocationId = 1,
                             Note = "Note 1",
                             Participants = "1,2",
                             Status = "draft",
-                            ToTime = new DateTime(2023, 8, 23, 20, 0, 0, 0, DateTimeKind.Local)
+                            ToTime = new DateTime(2023, 10, 25, 20, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 2,
                             FormId = 1,
-                            FromTime = new DateTime(2023, 8, 23, 18, 0, 0, 0, DateTimeKind.Local),
+                            FromTime = new DateTime(2023, 10, 25, 18, 0, 0, 0, DateTimeKind.Local),
                             LocationId = 1,
                             Note = "Note 2",
                             Participants = "1,2",
                             Status = "draft",
-                            ToTime = new DateTime(2023, 8, 23, 20, 0, 0, 0, DateTimeKind.Local)
+                            ToTime = new DateTime(2023, 10, 25, 20, 0, 0, 0, DateTimeKind.Local)
                         });
                 });
 
