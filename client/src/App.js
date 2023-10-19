@@ -24,14 +24,22 @@ const App = () => {
     else
       setScroll('');
 
-    // console.log(100 - -refMain.current.scrollTop / 50);
     setBackgroundSize(100 - -refMain.current.scrollTop / 50);
   }, []);
+  // const handleScroll = () => {
+  //   // 50 is height of header
+  //   if (refMain.current.scrollTop >= 50)
+  //     setScroll('scroll');
+  //   else
+  //     setScroll('');
+
+  //   setBackgroundSize(100 - -refMain.current.scrollTop / 50);
+  // };
 
   // Attach the scroll listener to window element
+  window.scrollTo(0, 0);
   useEffect(() => {
     console.log('scrolling to 0,0');
-    // window.scrollTo(0, 0);
 
     window.addEventListener('scroll', handleScroll, true);
     return () => {

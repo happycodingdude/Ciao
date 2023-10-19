@@ -1,11 +1,12 @@
 /* Wrapper */
 
 .login-wrapper {
-    margin: 0 auto;
+    /* margin: 0 auto; */
     /* height: clamp(700px, 100%, 750px); */
     height: 100%;
     display: flex;
     justify-content: center;
+    /* align-items: center; */
     /* font-size: 1vw; */
     /* font-size: .8rem; */
     /* font-size: clamp(.2rem, 2vw, 1rem); */
@@ -21,10 +22,10 @@
 
 .login {
     width: clamp(300px, 50%, 400px);
-    /* height: clamp(550px, 80%, 600px); */
-    height: 80%;
-    min-height: 550px;
-    max-height: 600px;
+    height: clamp(600px, 80%, 650px);
+    /* height: 80%; */
+    /* min-height: 550px;
+    max-height: 600px; */
     margin: auto 0;
     /* margin-top: clamp(20px, auto, auto);
     margin-bottom: clamp(20px, auto, auto);
@@ -109,8 +110,10 @@
 
 .other .other-login .icon a {
     /* font-size: clamp(.7rem, 2rem, 1.2rem); */
-    width: 40px;
-    height: 40px;
+    /* width: 40px; */
+    /* height: 40px; */
+    width: clamp(35px, 3vw, 40px);
+    height: clamp(35px, 3vw, 40px);
     border-radius: 50%;
     color: white;
     display: flex;
@@ -146,6 +149,11 @@
 }
 
 /* Responsive */
+@media (width < 992px) {
+    .login {
+        height: clamp(600px, 70%, 650px);
+    }
+}
 
 /* @media (width < 768px) {
     .login-wrapper {

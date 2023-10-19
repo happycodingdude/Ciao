@@ -30,7 +30,8 @@ header a {
 /* Header when scroll */
 
 header.scroll {
-    background-color: whitesmoke;
+    /* background-color: whitesmoke; */
+    background-color: rgb(117, 209, 42);
 }
 
 header.scroll a {
@@ -131,12 +132,13 @@ header ul {
     flex-direction: column;
     align-items: start;
     position: absolute;
+    width: clamp(160px, 17vw, 200px);
     right: 0;
     top: 25px;
     gap: 5px;
     overflow: hidden;
     z-index: 99;
-    transform: scaleY(0);
+    transform: scaleY(1);
     transform-origin: top;
     transition: transform .3s;
 }
@@ -147,7 +149,6 @@ header ul {
 }
 
 .user-info .profile-menu li {
-    width: 100%;
     transition: padding-left .3s;
 }
 
@@ -202,7 +203,7 @@ header ul {
     /* set width equals height */
     aspect-ratio: 1 / 1;
     height: 100%;
-    font-size: .7rem;
+    /* font-size: 1rem; */
     display: flex;
     justify-content: center;
     align-items: center;
