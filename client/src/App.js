@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './pages/RequireAuth.js';
-import Header from './pages/base/Header.js';
 import Home from './pages/home/Home.js';
 import Login from './pages/login/Login.js';
 import Form from './pages/setting/Form.js';
@@ -15,6 +14,21 @@ const App = () => {
   const [scroll, setScroll] = useState('');
 
   const [backgroundSize, setBackgroundSize] = useState(100);
+
+  (function (timer) {
+    window.addEventListener('load', function () {
+      var el = document.querySelector('.scrollbar');
+      el.addEventListener('scroll', function (e) {
+        (function (el) {
+          el.classList.add('scroll');
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            el.classList.remove('scroll');
+          }, 100);
+        })(el);
+      })
+    })
+  })();
 
   // The scroll listener
   const handleScroll = useCallback(() => {
@@ -58,22 +72,24 @@ const App = () => {
     // >
     <>
       {/* <Background /> */}
-      <Header
+      {/* <Header
         scroll={scroll}
         scrollToTop={scrollToTop}
-      />
+      /> */}
       <main className='wrapper' ref={refMain}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<Home />} />
+        <div className='scrollbar'>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
 
-          <Route element={<RequireAuth />}>
-            <Route path="/form" element={<Form />} />
-            <Route path="/participant" element={<Participant />} />
-            <Route path="/location" element={<Location />} />
-            <Route path="/submission" element={<Submission />} />
-          </Route>
-        </Routes>
+            <Route element={<RequireAuth />}>
+              <Route path="/form" element={<Form />} />
+              <Route path="/participant" element={<Participant />} />
+              <Route path="/location" element={<Location />} />
+              <Route path="/submission" element={<Submission />} />
+            </Route>
+          </Routes>
+        </div>
       </main>
     </>
     // </div>
