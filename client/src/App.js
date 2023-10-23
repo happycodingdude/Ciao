@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './pages/RequireAuth.js';
+import Header from './pages/base/Header.js';
 import Home from './pages/home/Home.js';
 import Login from './pages/login/Login.js';
 import Form from './pages/setting/Form.js';
@@ -72,12 +73,12 @@ const App = () => {
     // >
     <>
       {/* <Background /> */}
-      {/* <Header
+      <Header
         scroll={scroll}
         scrollToTop={scrollToTop}
-      /> */}
-      <main className='wrapper' ref={refMain}>
-        <div className='scrollbar'>
+      />
+      <main className='wrapper'>
+        <div className='scrollbar' ref={refMain}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
@@ -90,7 +91,7 @@ const App = () => {
             </Route>
           </Routes>
         </div>
-      </main>
+      </main >
     </>
     // </div>
   )
