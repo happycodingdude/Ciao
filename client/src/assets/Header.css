@@ -6,36 +6,53 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
+    padding: 10px 1rem;
     transition: background-color .7s ease-in;
-}
 
-header .header-item {
-    flex: 1 1 0;
-}
+    .header-item {
+        flex: 1 1 0;
 
-header .header-item:nth-child(2) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+        &:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+    }
+
+    .header-item .burger {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        cursor: pointer;
+        transform: scaleY(0);
+    }
+
+    .header-item .burger div {
+        width: 100%;
+        height: 3px;
+        background-color: black;
+        transition: background-color .5s ease-in;
+    }
+
+    /* Header when scroll */
+
+    &.scroll {
+        /* background-color: whitesmoke; */
+        background-color: rgb(117, 209, 42);
+    }
+
+    &.scroll a {
+        color: black;
+    }
 }
 
 header a {
     text-decoration: none;
     color: black;
     transition: color .7s;
-}
-
-/* Header when scroll */
-
-header.scroll {
-    /* background-color: whitesmoke; */
-    background-color: rgb(117, 209, 42);
-}
-
-header.scroll a {
-    color: black;
 }
 
 /* Navigation */
@@ -51,7 +68,7 @@ header ul {
 
 /* Main menu */
 
-.burger {
+/* .burger {
     width: 20px;
     height: 20px;
     display: flex;
@@ -66,7 +83,7 @@ header ul {
     height: 3px;
     background-color: black;
     transition: background-color .5s ease-in;
-}
+} */
 
 .main-menu {
     display: flex;
