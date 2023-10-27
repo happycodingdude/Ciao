@@ -18,23 +18,74 @@ header {
             align-items: center;
             position: relative;
         }
-    }
 
-    .header-item .burger {
-        width: 20px;
-        height: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        cursor: pointer;
-        transform: scaleY(0);
-    }
+        /* Main menu */
 
-    .header-item .burger div {
-        width: 100%;
-        height: 3px;
-        background-color: black;
-        transition: background-color .5s ease-in;
+        .burger {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transform: scaleY(0);
+
+            >div {
+                width: 100%;
+                height: 3px;
+                background-color: black;
+                transition: background-color .5s ease-in;
+            }
+        }
+
+        .main-menu {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgb(214, 169, 121);
+            transform: scaleY(0);
+            transition:
+                transform .3s,
+                background-color .7s ease-in;
+            overflow: hidden;
+            z-index: 99;
+
+            >li {
+                position: relative;
+
+                >a {
+                    &.active {
+                        &:before {
+                            content: '';
+                            position: absolute;
+                            width: 50%;
+                            height: 1px;
+                            border: 1px solid red;
+                            bottom: 0;
+                        }
+                    }
+
+                    &:before {
+                        content: '';
+                        position: absolute;
+                        width: 0;
+                        height: 1px;
+                        border: 0 solid rgb(247, 119, 119);
+                        bottom: 0;
+                        transition: width .3s;
+                    }
+
+                    &:hover {
+                        &:before {
+                            width: 50%;
+                            border-top-width: 1px;
+                            border-right-width: 1px;
+                            border-bottom-width: 1px;
+                            border-left-width: 1px;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /* Header when scroll */
@@ -85,7 +136,7 @@ header ul {
     transition: background-color .5s ease-in;
 } */
 
-.main-menu {
+/* .main-menu {
     display: flex;
     justify-content: space-between;
     background-color: rgb(214, 169, 121);
@@ -126,7 +177,7 @@ header ul {
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-}
+} */
 
 /* User info */
 
@@ -239,19 +290,23 @@ header ul {
 /* Responsive */
 
 @media (width < 992px) {
-    .burger {
-        transform: scaleY(1);
-    }
+    header {
+        .header-item {
+            .burger {
+                transform: scaleY(1);
+            }
 
-    .main-menu {
-        flex-direction: column;
-        position: absolute;
-        top: 25px;
-        gap: 5px;
-        width: clamp(150px, 100%, 200px);
-        border-radius: 10px;
-        padding: 5px 0;
-        transform-origin: top;
+            .main-menu {
+                flex-direction: column;
+                position: absolute;
+                top: 25px;
+                gap: 5px;
+                width: clamp(150px, 100%, 200px);
+                border-radius: 10px;
+                padding: 5px 0;
+                transform-origin: top;
+            }
+        }
     }
 
     .burger:hover~.main-menu,
@@ -266,16 +321,33 @@ header ul {
 }
 
 @media (width >=992px) {
-    header .header-item:nth-child(2) {
+    header {
+        .header-item {
+            &:nth-child(2) {
+                flex-grow: 2;
+            }
+
+            .burger {
+                position: absolute;
+            }
+
+            .main-menu {
+                transform: scaleY(1);
+                width: clamp(500px, 100%, 800px);
+            }
+        }
+    }
+
+    /* header .header-item:nth-child(2) {
         flex-grow: 2;
     }
 
-    .burger {
+    header .header-item .burger {
         position: absolute;
     }
 
-    .main-menu {
+    header .header-item .main-menu {
         transform: scaleY(1);
         width: clamp(500px, 100%, 800px);
-    }
+    } */
 }
