@@ -8,6 +8,7 @@ import useAuth from '../../hooks/useAuth.js';
 import usePagingView from '../../hooks/usePagingView.js';
 
 const Form = () => {
+  console.log('Form rendering');
   const auth = useAuth();
   const navigate = useNavigate();
 

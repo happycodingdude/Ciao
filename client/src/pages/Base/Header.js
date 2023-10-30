@@ -24,7 +24,7 @@ const Header = (props) => {
         <header className={`wrapper ${scroll}`}>
             <a href='/' className='header-item'><img src='' alt='Logo here'></img></a>
             <nav className='header-item' >
-                <div className='burger'>
+                <div className='burger-menu'>
                     <div></div>
                     <div></div>
                     <div></div>

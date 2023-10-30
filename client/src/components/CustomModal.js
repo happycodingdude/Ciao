@@ -78,7 +78,7 @@ const CustomModal = ({ show, formParam, handleClose, setSaveObject, handleSaveCh
   }, [show])
 
   const [currentCarousel, setCurrentCarousel] = useState(0);
-  const length = formParam?.formData?.find(item => item.ItemType === 'carousel').ItemValue.length;
+  const length = formParam?.formData?.find(item => item.ItemType === 'carousel')?.ItemValue.length;
 
   const nextSlide = () => {
     setCurrentCarousel(currentCarousel === length - 1 ? 0 : currentCarousel + 1);

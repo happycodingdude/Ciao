@@ -21,7 +21,7 @@ header {
 
         /* Main menu */
 
-        .burger {
+        .burger-menu {
             width: 20px;
             height: 20px;
             display: flex;
@@ -86,6 +86,114 @@ header {
                 }
             }
         }
+
+        /* User info */
+
+        &.user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            gap: 10px;
+            position: relative;
+
+            .profile-icon {
+                height: 20px;
+                transition: transform .7s;
+
+                &.scroll {
+                    transform: translateX(-40px);
+                }
+            }
+
+            .profile-menu {
+                background: rgb(214, 169, 121);
+                border-radius: 10px;
+                flex-direction: column;
+                align-items: start;
+                position: absolute;
+                width: clamp(160px, 17vw, 200px);
+                right: 0;
+                top: 25px;
+                gap: 5px;
+                overflow: hidden;
+                z-index: 99;
+                transform: scaleY(0);
+                transform-origin: top;
+                transition: transform .3s;
+
+                >li {
+                    transition: padding-left .3s;
+
+                    &:hover {
+                        background: rgba(255, 212, 156, 0.699);
+                        padding-left: 10px;
+                        cursor: pointer;
+                    }
+
+                    >a {
+                        padding-left: 5px;
+                    }
+                }
+            }
+
+            .profile-icon:hover~.profile-menu,
+            .profile-menu:hover {
+                transform: scaleY(1);
+            }
+        }
+
+        /* Button login */
+
+        .cta-login {
+            /* background: whitesmoke; */
+            background: rgb(211, 211, 211);
+            color: black;
+            border-radius: 50px;
+            padding: 0 10px;
+            transition: transform .7s;
+
+            &:hover {
+                background: rgb(211, 211, 211);
+            }
+
+            /* Button login when scroll */
+
+            &.scroll {
+                transform: translateX(-40px);
+                background: rgb(211, 211, 211);
+
+                &:hover {
+                    background: rgb(155, 155, 155);
+                }
+            }
+        }
+
+        /* Button scroll to top */
+
+        .scroll-to-top {
+            color: black;
+            position: absolute;
+            top: -100px;
+            right: -5px;
+            /* width: height; */
+            /* set width equals height */
+            aspect-ratio: 1 / 1;
+            height: 100%;
+            /* font-size: 1rem; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid black;
+            border-radius: 50%;
+            transition: transform .7s;
+
+            /* Button scroll to top when scroll */
+
+            &.scroll {
+                transform: translateY(100px);
+            }
+        }
     }
 
     /* Header when scroll */
@@ -117,182 +225,12 @@ header ul {
     gap: 10px;
 }
 
-/* Main menu */
-
-/* .burger {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    transform: scaleY(0);
-}
-
-.burger div {
-    width: 100%;
-    height: 3px;
-    background-color: black;
-    transition: background-color .5s ease-in;
-} */
-
-/* .main-menu {
-    display: flex;
-    justify-content: space-between;
-    background-color: rgb(214, 169, 121);
-    transform: scaleY(0);
-    transition:
-        transform .3s,
-        background-color .7s ease-in;
-    overflow: hidden;
-    z-index: 99;
-}
-
-.main-menu li {
-    position: relative;
-}
-
-.main-menu li a.active:before {
-    content: '';
-    position: absolute;
-    width: 50%;
-    height: 1px;
-    border: 1px solid red;
-    bottom: 0;
-}
-
-.main-menu li a:before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 1px;
-    border: 0 solid rgb(247, 119, 119);
-    bottom: 0;
-    transition: width .3s;
-}
-
-.main-menu li a:hover:before {
-    width: 50%;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-} */
-
-/* User info */
-
-.user-info {
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    gap: 10px;
-    position: relative;
-}
-
-.user-info .profile-icon {
-    height: 20px;
-    transition: transform .7s;
-}
-
-.user-info .profile-menu {
-    background: rgb(214, 169, 121);
-    border-radius: 10px;
-    flex-direction: column;
-    align-items: start;
-    position: absolute;
-    width: clamp(160px, 17vw, 200px);
-    right: 0;
-    top: 25px;
-    gap: 5px;
-    overflow: hidden;
-    z-index: 99;
-    transform: scaleY(1);
-    transform-origin: top;
-    transition: transform .3s;
-}
-
-.user-info .profile-icon:hover~.profile-menu,
-.user-info .profile-menu:hover {
-    transform: scaleY(1);
-}
-
-.user-info .profile-menu li {
-    transition: padding-left .3s;
-}
-
-.user-info .profile-menu li:hover {
-    background: rgba(255, 212, 156, 0.699);
-    padding-left: 10px;
-    cursor: pointer;
-}
-
-.user-info .profile-menu li a {
-    padding-left: 5px;
-}
-
-/* Button login */
-
-.cta-login {
-    /* background: whitesmoke; */
-    background: rgb(211, 211, 211);
-    color: black;
-    border-radius: 50px;
-    padding: 0 10px;
-    transition: transform .7s;
-}
-
-.cta-login:hover {
-    background: rgb(211, 211, 211);
-}
-
-/* Button login when scroll */
-
-.cta-login.scroll,
-.profile-icon.scroll {
-    transform: translateX(-40px);
-}
-
-.cta-login.scroll {
-    background: rgb(211, 211, 211);
-}
-
-.cta-login.scroll:hover {
-    background: rgb(155, 155, 155);
-}
-
-/* Button scroll to top */
-
-.scroll-to-top {
-    color: black;
-    position: absolute;
-    top: -100px;
-    right: -5px;
-    /* width: height; */
-    /* set width equals height */
-    aspect-ratio: 1 / 1;
-    height: 100%;
-    /* font-size: 1rem; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    border: 2px solid black;
-    border-radius: 50%;
-    transition: transform .7s;
-}
-
-/* Button scroll to top when scroll */
-
-.scroll-to-top.scroll {
-    transform: translateY(100px);
-}
-
 /* Responsive */
 
 @media (width < 992px) {
     header {
         .header-item {
-            .burger {
+            .burger-menu {
                 transform: scaleY(1);
             }
 
@@ -306,17 +244,19 @@ header ul {
                 padding: 5px 0;
                 transform-origin: top;
             }
+
+            .burger-menu:hover~.main-menu,
+            .main-menu:hover {
+                transform: scaleY(1);
+            }
+
+            .cta-login {
+                &.scroll {
+                    background: rgb(211, 211, 211);
+                    transform: translateX(-40px);
+                }
+            }
         }
-    }
-
-    .burger:hover~.main-menu,
-    .main-menu:hover {
-        transform: scaleY(1);
-    }
-
-    .cta-login.scroll {
-        background: rgb(211, 211, 211);
-        transform: translateX(-40px);
     }
 }
 
@@ -327,7 +267,7 @@ header ul {
                 flex-grow: 2;
             }
 
-            .burger {
+            .burger-menu {
                 position: absolute;
             }
 
@@ -337,17 +277,4 @@ header ul {
             }
         }
     }
-
-    /* header .header-item:nth-child(2) {
-        flex-grow: 2;
-    }
-
-    header .header-item .burger {
-        position: absolute;
-    }
-
-    header .header-item .main-menu {
-        transform: scaleY(1);
-        width: clamp(500px, 100%, 800px);
-    } */
 }
