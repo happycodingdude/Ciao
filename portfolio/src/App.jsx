@@ -47,9 +47,9 @@ function App() {
         </div>
       </section>
 
-      {/* More about */}
-      <section className='more-about' id='more-about'>
-        <h2>More about me</h2>
+      {/* About */}
+      <section className='about' id='about'>
+        <h2>About me</h2>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate accusantium, aperiam ipsum optio, quasi quam inventore vel similique cumque rerum tenetur minima deleniti ea omnis cum repellendus harum, expedita ullam!</p>
       </section>

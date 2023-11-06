@@ -93,20 +93,22 @@ li {
 
                 .dark-mode-label {
                     display: block;
-                    width: 40px;
+                    width: 45px;
                     height: 20px;
                     background-color: rgb(168, 168, 168);
-                    border-radius: 20px;
+                    border-radius: 10px;
                     position: relative;
                     cursor: pointer;
 
                     &::before {
                         content: '';
-                        width: 20px;
-                        height: 20px;
+                        width: 17px;
+                        aspect-ratio: 1/1;
                         background-color: rgb(255, 194, 40);
                         border-radius: 50%;
                         position: absolute;
+                        top: 50%;
+                        transform: translate(10%, -50%);
                         transition: transform .5s;
                         z-index: 2;
                     }
@@ -119,7 +121,7 @@ li {
                     &:checked {
                         +.dark-mode-label {
                             &::before {
-                                transform: translateX(20px);
+                                transform: translate(26px, -50%);
                             }
                         }
                     }
@@ -127,19 +129,22 @@ li {
 
                 .dark-mode-label {
                     position: relative;
+                    font-size: 16px;
 
                     .fa-moon,
                     .fa-sun {
                         position: absolute;
+                        top: 2px;
                     }
 
                     .fa-moon {
                         color: coral;
+                        left: 2px;
                     }
 
                     .fa-sun {
                         color: gold;
-                        right: 0;
+                        right: 2px;
                     }
                 }
             }
