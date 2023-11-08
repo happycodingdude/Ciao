@@ -11,3 +11,9 @@ body,
 #root {
     font-size: 1.6rem;
 }
+
+@layer components {
+    .burder-div {
+        @apply w-[2rem] h-[.3rem] bg-[var(--text-color)]
+    }
+}

@@ -11,23 +11,23 @@ function App() {
   }
 
   return (
-    <div className="wrapper" ref={refMain}>
+    <div className="wrapper text-[clamp(1.5rem,1.5vw,2.5rem)]" ref={refMain}>
       {/* Navbar */}
-      <nav className='
-      min-h-[4rem] max-h-[7rem] 
-      bg-neutral-100 
-      text-[1.5rem]
+      <nav className='      
+      h-[clamp(4rem,6vh,7rem)]
+      bg-[var(--nav-bg-color)]
       sticky top-0
       z-[2]
       flex justify-between items-center
       shadow-[0_3px_5px_var(--box-shadow-color)]
-      px-[5px]'>
-        <h1>Name</h1>
+      px-[1rem]
+      duration-[var(--transition-duration)]'>
+        <h1 className='cursor-pointer'>Name</h1>
         <ul className='flex gap-[10px] p-0 m-0 h-[70%]'>
-          <div className='flex flex-col justify-between cursor-pointer'>
-            <div className='w-[2rem] h-[.3rem] bg-black'></div>
-            <div className='w-[2rem] h-[.3rem] bg-black'></div>
-            <div className='w-[2rem] h-[.3rem] bg-black'></div>
+          <div className='flex flex-col justify-evenly cursor-pointer'>
+            <div className='burder-div'></div>
+            <div className='burder-div'></div>
+            <div className='burder-div'></div>
           </div>
           <div className='flex gap-[10px]'>
             <li><a href='#about' className='relative before:absolute before:bg-red-600 before:bottom-0 before:w-[50%] before:h-[.2rem]'>About</a></li>
@@ -35,43 +35,40 @@ function App() {
             <li><a href='#projects' >Project</a></li>
             <li><a href='#contact' >Contact</a></li>
           </div>
-          <div className='relative'>
+          <div className='relative flex items-center'>
             <input type='checkbox' id='checkbox' className='absolute opacity-0 peer' onChange={toggleDarkMode} />
             <label for='checkbox' className='
             block
-            w-[4.5rem] h-[100%] text-[1.6rem]
-            bg-[#00bfff]
-            rounded-[1rem]
+            text-[clamp(1.5rem,1.3vw,2rem)]
+            w-[clamp(6rem,4.5vw,8rem)] h-[90%]
+            bg-black
+            rounded-[5rem]
             relative
             cursor-pointer
-            before:w-[1.7rem]
+            before:h-full
             before:aspect-square
-            before:bg-[#ffc228]
+            before:bg-[#a9a9a9]
             before:rounded-[50%]
+            before:border-[.2rem]
+            before:border-[var(--darkmode-toggle-bd-color)]
             before:absolute
-            before:top-[50%]
-            before:z-[2]
-            before:translate-x-[10%]
-            before:translate-y-[-50%]
-            before:transition-transform 
-            before:duration-[.5s]
-            before:peer-checked:translate-x-[2.6rem]
-            before:peer-checked:translate-y-[-50%]
-            peer-checked:bg-black
-            transition-background duration-[.5s]
-            ' >
-              <i class="fa fa-moon absolute top-[.3rem] left-[.2rem] text-white"></i>
-              <i class="fa fa-sun absolute top-[.3rem] right-[.2rem] text-yellow-400"></i>
+            before:z-[2]            
+            before:duration-[var(--transition-duration)]
+            before:peer-checked:translate-x-[140%]            
+            peer-checked:bg-white            
+            duration-[var(--transition-duration)]' >
+              <i class="fa fa-moon absolute top-1/2 translate-y-[-50%] translate-x-[50%] text-[#ffd700]"></i>
+              <i class="fa fa-sun absolute top-1/2 translate-y-[-50%] right-0 translate-x-[-50%] text-[#ffd700]"></i>
             </label>
           </div>
         </ul>
       </nav>
 
       {/* Hero */}
-      <section className='hero' id='hero'>
+      <section className='w-full flex flex-col items-center justify-evenly' id='hero'>
         {/* <div className='profile-image'></div> */}
-        <img src='../src/img/hanoi4.jpg' className='profile-image'></img>
-        <div className='introduction'>
+        <img src='../src/img/hanoi4.jpg' className='w-[clamp(45rem,80%,60rem)] p-[2rem]'></img>
+        <div className='w-[clamp(40rem,50%,60rem)] p-[.5rem] rounded-[.5rem] shadow-[0_0_10px_var(--box-shadow-color)]'>
           Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ut voluptatibus corporis veniam blanditiis nulla eaque facilis et distinctio sit, natus, qui optio magnam, quam repellendus excepturi autem praesentium vero. Distinctio.
         </div>
       </section>
