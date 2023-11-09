@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 function App() {
   const refMain = useRef(null);
@@ -6,12 +6,17 @@ function App() {
     refMain.current.scrollTo(0, 0);
   }
 
+  const [dark, setDark] = useState(false);
   const toggleDarkMode = () => {
-    document.querySelector(':root').classList.toggle('dark');
+    setDark(val => {
+      val = !val;
+      document.querySelector('html').setAttribute('data-theme', val ? 'dark' : 'light');
+      return val;
+    });
   }
 
   return (
-    <div className="wrapper text-[clamp(1.5rem,1.5vw,2.5rem)]" ref={refMain}>
+    <div className="text-[clamp(1.5rem,1.5vw,2.5rem)] [&>*:not(first)]:px-[2rem]" ref={refMain}>
       {/* Navbar */}
       <nav className='      
       h-[clamp(4rem,6vh,7rem)]
@@ -19,17 +24,25 @@ function App() {
       sticky top-0
       z-[2]
       flex justify-between items-center
-      shadow-[0_3px_5px_var(--box-shadow-color)]
-      px-[1rem]
+      shadow-[0_3px_5px_var(--box-shadow-color)]      
       duration-[var(--transition-duration)]'>
-        <h1 className='cursor-pointer'>Name</h1>
-        <ul className='flex gap-[10px] p-0 m-0 h-[70%]'>
-          <div className='flex flex-col justify-evenly cursor-pointer'>
+        <h1 className='cursor-pointer text-3xl'>Name</h1>
+        <ul className='flex gap-[10px] p-0 m-0 h-[70%] relative'>
+          <div className='flex flex-col justify-evenly cursor-pointer 
+          laptop:hidden'>
             <div className='burder-div'></div>
             <div className='burder-div'></div>
             <div className='burder-div'></div>
           </div>
-          <div className='flex gap-[10px]'>
+          <div className='flex gap-[10px]
+          flex-col
+          absolute
+          top-[4rem] left-[-2.5rem]
+          bg-[var(--box-shadow-color)]
+          scale-y-1
+          duration-[.5s]
+          origin-top          
+          laptop:flex-row'>
             <li><a href='#about' className='relative before:absolute before:bg-red-600 before:bottom-0 before:w-[50%] before:h-[.2rem]'>About</a></li>
             <li><a href='#skills' >Skills</a></li>
             <li><a href='#projects' >Project</a></li>
@@ -74,61 +87,100 @@ function App() {
       </section>
 
       {/* About */}
-      <section className='about' id='about'>
-        <h2>About me</h2>
+      <section id='about'>
+        <h2 className='text-3xl'>About me</h2>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate accusantium, aperiam ipsum optio, quasi quam inventore vel similique cumque rerum tenetur minima deleniti ea omnis cum repellendus harum, expedita ullam!</p>
       </section>
 
       {/* Skills section */}
-      <section className='skills' id='skills'>
-        <h2>My top skills</h2>
-        <div className='skill-set'>
-          <div className='skill'></div>
-          <div className='skill'></div>
-          <div className='skill'></div>
+      <section className='flex flex-col items-center gap-[2.5rem]' id='skills'>
+        <h2 className='text-3xl'>My top skills</h2>
+        <div className='flex gap-[2.5rem]'>
+          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
         </div>
-        <div className='skill-set'>
-          <div className='skill'></div>
-          <div className='skill'></div>
-          <div className='skill'></div>
+        <div className='flex gap-[2.5rem]'>
+          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
         </div>
       </section>
 
       {/* Projects section */}
-      <section className='projects' id='projects'>
-        <h2>My projects</h2>
-        <div className='projects-wrapper'>
-          <div className='project-content'>
-            <div className='project' id='project1'>
-              <div className='project-detail'>
-                <div className='project-image'></div>
-                <h2>Project 1</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                <a href='#' className='live-demo'>Live demo</a>
+      <section className='flex flex-col items-center' id='projects'>
+        <h2 className='text-3xl'>My projects</h2>
+        <div className='w-[clamp(40rem,50%,60rem)] overflow-hidden p-[1rem]'>
+          <div className='flex gap-[2rem] duration-[.5s] overflow-x-scroll snap-mandatory scroll-smooth scrollbar'>
+            <div className='
+            flex flex-col shrink-0
+            items-center
+            rounded-[1rem]
+            border-[.2rem]
+            border-[var(--box-shadow-color)]            
+            w-[clamp(10rem,100%,60rem)]
+            h-[100%]
+            px-[5rem] py-[1rem]
+            origin-center
+            snap-center
+            relative
+            'id='project1'>
+              <div className='flex flex-col items-center gap-[2rem]'>
+                <div className='w-[clamp(10rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
+                <h2 className='text-2xl'>Project 1</h2>
+                <p className='text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                <a href='#' className={`text-xl mt-[2rem] ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]` : ``} `}
+                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>Live demo</a>
               </div>
-              <a href='#project3' className='fa fa-arrow-left back-project'></a>
-              <a href='#project2' className='fa fa-arrow-right next-project'></a>
+              <a href='#project3' className='fa fa-arrow-left absolute top-[50%] left-[5%]'></a>
+              <a href='#project2' className='fa fa-arrow-right absolute top-[50%] right-[5%]'></a>
             </div>
-            <div className='project' id='project2'>
-              <div className='project-detail'>
-                <div className='project-image'></div>
-                <h2>Project 2</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                <a href='#' className='live-demo'>Live demo</a>
+            <div className='
+            flex flex-col shrink-0
+            items-center
+            rounded-[1rem]
+            border-[.2rem]
+            border-[var(--box-shadow-color)]            
+            w-[clamp(10rem,100%,60rem)]
+            h-[100%]
+            px-[5rem] py-[1rem]
+            origin-center
+            snap-center
+            relative
+            'id='project2'>
+              <div className='flex flex-col items-center gap-[2rem]'>
+                <div className='w-[clamp(10rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
+                <h2 className='text-2xl'>Project 1</h2>
+                <p className='text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                <a href='#' className={`text-xl mt-[2rem] ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]` : ``} `}
+                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>Live demo</a>
               </div>
-              <a href='#project1' className='fa fa-arrow-left back-project'></a>
-              <a href='#project3' className='fa fa-arrow-right next-project'></a>
+              <a href='#project1' className='fa fa-arrow-left absolute top-[50%] left-[5%]'></a>
+              <a href='#project3' className='fa fa-arrow-right absolute top-[50%] right-[5%]'></a>
             </div>
-            <div className='project' id='project3'>
-              <div className='project-detail'>
-                <div className='project-image'></div>
-                <h2>Project 3</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                <a href='#' className='live-demo'>Live demo</a>
+            <div className='
+            flex flex-col shrink-0
+            items-center
+            rounded-[1rem]
+            border-[.2rem]
+            border-[var(--box-shadow-color)]            
+            w-[clamp(10rem,100%,60rem)]
+            h-[100%]
+            px-[5rem] py-[1rem]
+            origin-center
+            snap-center
+            relative
+            'id='project3'>
+              <div className='flex flex-col items-center gap-[2rem]'>
+                <div className='w-[clamp(10rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
+                <h2 className='text-2xl'>Project 1</h2>
+                <p className='text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                <a href='#' className={`text-xl mt-[2rem] ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]` : ``} `}
+                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>Live demo</a>
               </div>
-              <a href='#project2' className='fa fa-arrow-left back-project'></a>
-              <a href='#project1' className='fa fa-arrow-right next-project'></a>
+              <a href='#project2' className='fa fa-arrow-left absolute top-[50%] left-[5%]'></a>
+              <a href='#project1' className='fa fa-arrow-right absolute top-[50%] right-[5%]'></a>
             </div>
           </div>
         </div>
@@ -139,7 +191,19 @@ function App() {
       {/* Social accounts - Fixed to the right */}
 
       {/* Scroll to top */}
-      <a href='#' className='fa fa-arrow-up scroll-to-top' onClick={scrollToTop}></a>
+      <a href='#' className='fa fa-arrow-up
+      scroll-to-top
+      w-[5rem] aspect-square
+      sticky
+      bottom-[2rem] left-[95%]
+      border-[.2rem] border-[var(--box-shadow-color)]
+      rounded-[50%]
+      flex
+      items-center
+      justify-center
+      cursor-pointer
+      duration-[1s]
+      ' onClick={scrollToTop}></a>
 
       {/* Footer section */}
 
