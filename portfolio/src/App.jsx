@@ -15,8 +15,14 @@ function App() {
     });
   }
 
+  const toggleMainMenu = () => {
+    console.log('toggleMainMenu');
+    document.querySelector('.main-menu').classList.toggle('scale-y-0');
+    document.querySelector('.main-menu').classList.toggle('scale-y-100');
+  }
+
   return (
-    <div className="text-[clamp(1.5rem,1.5vw,2.5rem)] [&>*:not(first)]:px-[2rem]" ref={refMain}>
+    <div className="text-[clamp(1.5rem,1.5vw,2.5rem)] [&>*]:px-[2rem] [&>*:not(nav)]:mt-[2rem]" ref={refMain}>
       {/* Navbar */}
       <nav className='      
       h-[clamp(4rem,6vh,7rem)]
@@ -28,21 +34,25 @@ function App() {
       duration-[var(--transition-duration)]'>
         <h1 className='cursor-pointer text-3xl'>Name</h1>
         <ul className='flex gap-[10px] p-0 m-0 h-[70%] relative'>
-          <div className='flex flex-col justify-evenly cursor-pointer 
-          laptop:hidden'>
+          <div className='flex flex-col justify-evenly cursor-pointer
+          laptop:hidden'
+            onClick={toggleMainMenu}>
             <div className='burder-div'></div>
             <div className='burder-div'></div>
             <div className='burder-div'></div>
           </div>
-          <div className='flex gap-[10px]
+          <div className='main-menu
+          flex gap-[10px]
           flex-col
           absolute
           top-[4rem] left-[-2.5rem]
-          bg-[var(--box-shadow-color)]
-          scale-y-1
-          duration-[.5s]
-          origin-top          
-          laptop:flex-row'>
+          bg-[var(--nav-bg-color)]
+          scale-y-0
+          duration-[var(--transition-duration)]
+          origin-top
+          laptop:flex-row
+          laptop:static
+          laptop:scale-y-100'>
             <li><a href='#about' className='relative before:absolute before:bg-red-600 before:bottom-0 before:w-[50%] before:h-[.2rem]'>About</a></li>
             <li><a href='#skills' >Skills</a></li>
             <li><a href='#projects' >Project</a></li>
@@ -53,7 +63,7 @@ function App() {
             <label for='checkbox' className='
             block
             text-[clamp(1.5rem,1.3vw,2rem)]
-            w-[clamp(6rem,4.5vw,8rem)] h-[90%]
+            w-[clamp(5.5rem,4.5vw,8rem)] h-[90%]
             bg-black
             rounded-[5rem]
             relative
@@ -65,11 +75,12 @@ function App() {
             before:border-[.2rem]
             before:border-[var(--darkmode-toggle-bd-color)]
             before:absolute
-            before:z-[2]            
-            before:duration-[var(--transition-duration)]
-            before:peer-checked:translate-x-[140%]            
-            peer-checked:bg-white            
-            duration-[var(--transition-duration)]' >
+            before:z-[2]
+            before:duration-[.3s]
+            before:peer-checked:translate-x-[93%]
+            peer-checked:bg-white
+            duration-[.3s]
+            laptop:before:peer-checked:translate-x-[130%]' >
               <i class="fa fa-moon absolute top-1/2 translate-y-[-50%] translate-x-[50%] text-[#ffd700]"></i>
               <i class="fa fa-sun absolute top-1/2 translate-y-[-50%] right-0 translate-x-[-50%] text-[#ffd700]"></i>
             </label>
@@ -78,40 +89,41 @@ function App() {
       </nav>
 
       {/* Hero */}
-      <section className='w-full flex flex-col items-center justify-evenly' id='hero'>
+      <section className='w-full flex flex-col items-center justify-evenly
+      laptop:flex-row'
+        id='hero'>
         {/* <div className='profile-image'></div> */}
-        <img src='../src/img/hanoi4.jpg' className='w-[clamp(45rem,80%,60rem)] p-[2rem]'></img>
-        <div className='w-[clamp(40rem,50%,60rem)] p-[.5rem] rounded-[.5rem] shadow-[0_0_10px_var(--box-shadow-color)]'>
+        <img src='../src/img/hanoi4.jpg' className='w-[clamp(45rem,50%,80rem)] p-[2rem]'></img>
+        <div className='w-[clamp(30rem,40%,80rem)] p-[.5rem] rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'>
           Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ut voluptatibus corporis veniam blanditiis nulla eaque facilis et distinctio sit, natus, qui optio magnam, quam repellendus excepturi autem praesentium vero. Distinctio.
         </div>
-      </section>
+      </section >
 
       {/* About */}
-      <section id='about'>
+      <section id='about' >
         <h2 className='text-3xl'>About me</h2>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate accusantium, aperiam ipsum optio, quasi quam inventore vel similique cumque rerum tenetur minima deleniti ea omnis cum repellendus harum, expedita ullam!</p>
       </section>
 
       {/* Skills section */}
-      <section className='flex flex-col items-center gap-[2.5rem]' id='skills'>
+      < section className='flex flex-col items-center gap-[2.5rem]' id='skills' >
         <h2 className='text-3xl'>My top skills</h2>
-        <div className='flex gap-[2.5rem]'>
-          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
-          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
-          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+        <div className='flex flex-wrap gap-[2.5rem]'>
+          <div className='w-[clamp(15rem,10vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(15rem,10vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(15rem,10vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(15rem,10vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(15rem,10vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
+          <div className='w-[clamp(15rem,10vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
         </div>
-        <div className='flex gap-[2.5rem]'>
-          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
-          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
-          <div className='w-[clamp(18rem,15vw,30rem)] aspect-square rounded-[1rem] shadow-[0_0_10px_var(--box-shadow-color)]'></div>
-        </div>
-      </section>
+      </ section>
 
       {/* Projects section */}
-      <section className='flex flex-col items-center' id='projects'>
+      < section className='flex flex-col items-center' id='projects' >
         <h2 className='text-3xl'>My projects</h2>
-        <div className='w-[clamp(40rem,50%,60rem)] overflow-hidden p-[1rem]'>
+        <div className='w-[clamp(30rem,50%,60rem)] overflow-hidden p-[1rem]
+        desktop:w-[90%]'>
           <div className='flex gap-[2rem] duration-[.5s] overflow-x-scroll snap-mandatory scroll-smooth scrollbar'>
             <div className='
             flex flex-col shrink-0
@@ -125,16 +137,25 @@ function App() {
             origin-center
             snap-center
             relative
+            desktop:px-[1rem]
+            desktop:shrink
             'id='project1'>
               <div className='flex flex-col items-center gap-[2rem]'>
-                <div className='w-[clamp(10rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
+                <div className='w-[clamp(20rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
                 <h2 className='text-2xl'>Project 1</h2>
                 <p className='text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                <a href='#' className={`text-xl mt-[2rem] ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]` : ``} `}
-                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>Live demo</a>
+                <div className={`text-xl 
+                ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]
+                bg-[url('https://cdn.pixabay.com/photo/2017/02/12/12/42/wall-2059909_640.png')] bg-[length:100%_100%] bg-no-repeat
+                w-full aspect-[1/0.5]
+                flex items-center justify-center`
+                    : ``}`}
+                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>
+                  <a href='#'>Live demo</a>
+                </div>
               </div>
-              <a href='#project3' className='fa fa-arrow-left absolute top-[50%] left-[5%]'></a>
-              <a href='#project2' className='fa fa-arrow-right absolute top-[50%] right-[5%]'></a>
+              <a href='#project3' className='fa fa-arrow-left absolute top-[50%] left-[5%] desktop:hidden'></a>
+              <a href='#project2' className='fa fa-arrow-right absolute top-[50%] right-[5%] desktop:hidden'></a>
             </div>
             <div className='
             flex flex-col shrink-0
@@ -148,16 +169,25 @@ function App() {
             origin-center
             snap-center
             relative
+            desktop:px-[1rem]
+            desktop:shrink
             'id='project2'>
               <div className='flex flex-col items-center gap-[2rem]'>
-                <div className='w-[clamp(10rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
+                <div className='w-[clamp(20rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
                 <h2 className='text-2xl'>Project 1</h2>
                 <p className='text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                <a href='#' className={`text-xl mt-[2rem] ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]` : ``} `}
-                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>Live demo</a>
+                <div className={`text-xl 
+                ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]
+                bg-[url('https://cdn.pixabay.com/photo/2017/02/12/12/42/wall-2059909_640.png')] bg-[length:100%_100%] bg-no-repeat
+                w-full aspect-[1/0.5]
+                flex items-center justify-center`
+                    : ``}`}
+                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>
+                  <a href='#'>Live demo</a>
+                </div>
               </div>
-              <a href='#project1' className='fa fa-arrow-left absolute top-[50%] left-[5%]'></a>
-              <a href='#project3' className='fa fa-arrow-right absolute top-[50%] right-[5%]'></a>
+              <a href='#project1' className='fa fa-arrow-left absolute top-[50%] left-[5%] desktop:hidden'></a>
+              <a href='#project3' className='fa fa-arrow-right absolute top-[50%] right-[5%] desktop:hidden'></a>
             </div>
             <div className='
             flex flex-col shrink-0
@@ -171,20 +201,29 @@ function App() {
             origin-center
             snap-center
             relative
+            desktop:px-[1rem]
+            desktop:shrink
             'id='project3'>
               <div className='flex flex-col items-center gap-[2rem]'>
-                <div className='w-[clamp(10rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
+                <div className='w-[clamp(20rem,60%,30rem)] aspect-[1/0.5] border-[.2rem] border-[var(--box-shadow-color)]'></div>
                 <h2 className='text-2xl'>Project 1</h2>
                 <p className='text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                <a href='#' className={`text-xl mt-[2rem] ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]` : ``} `}
-                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>Live demo</a>
+                <div className={`text-xl 
+                ${dark ? `text-shadow-[0_0_7px_#fff,0_0_10px_#fff,0_0_21px_#fff,0_0_42px_#0fa,0_0_82px_#0fa,0_0_92px_#0fa,0_0_102px_#0fa,0_0_151px_#0fa]
+                bg-[url('https://cdn.pixabay.com/photo/2017/02/12/12/42/wall-2059909_640.png')] bg-[length:100%_100%] bg-no-repeat
+                w-full aspect-[1/0.5]
+                flex items-center justify-center`
+                    : ``}`}
+                  onClick={(e) => { e.preventDefault(); window.open('https://google.com') }}>
+                  <a href='#'>Live demo</a>
+                </div>
               </div>
-              <a href='#project2' className='fa fa-arrow-left absolute top-[50%] left-[5%]'></a>
-              <a href='#project1' className='fa fa-arrow-right absolute top-[50%] right-[5%]'></a>
+              <a href='#project2' className='fa fa-arrow-left absolute top-[50%] left-[5%] desktop:hidden'></a>
+              <a href='#project1' className='fa fa-arrow-right absolute top-[50%] right-[5%] desktop:hidden'></a>
             </div>
           </div>
         </div>
-      </section>
+      </ section>
 
       {/* Contact section */}
 
@@ -194,21 +233,21 @@ function App() {
       <a href='#' className='fa fa-arrow-up
       scroll-to-top
       w-[5rem] aspect-square
-      sticky
-      bottom-[2rem] left-[95%]
-      border-[.2rem] border-[var(--box-shadow-color)]
+      fixed
+      bottom-[.5rem] right-[.5rem]      
       rounded-[50%]
       flex
       items-center
       justify-center
       cursor-pointer
-      duration-[1s]
-      ' onClick={scrollToTop}></a>
+      text-xl
+      laptop:text-3xl'
+        onClick={scrollToTop}></a>
 
       {/* Footer section */}
 
       {/* Website scripts */}
-    </div>
+    </div >
   )
 }
 

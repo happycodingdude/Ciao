@@ -11,7 +11,8 @@ export default {
       'phone': '320px',
       'tablet': '640px',
       'laptop': '1024px',
-      'desktop': '1280px',
+      'desktop': '1281px',
+      'lg-desktop': '1536px'
     },
     fontSize: {
       sm: ['14px', '20px'],
