@@ -54,7 +54,8 @@ namespace MyConnect
             app.Lifetime.ApplicationStarted.Register(OnStarted);
             app.Lifetime.ApplicationStopping.Register(OnStopping);
 
-            DatabaseMigration.Migrate(app);
+            var context = app.Services.GetService<CoreContext>();
+            context.Database.Migrate();
         }
 
         private void OnStarted()
