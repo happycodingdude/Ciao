@@ -1,0 +1,128 @@
+/* Grid */
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+    grid-template-rows: repeat(2, minmax(200px, 1fr));
+    column-gap: 20px;
+    row-gap: 50px;
+    padding: 40px;
+    width: 100%;
+    height: 100%;
+    /* overflow-y: auto;
+    -webkit-overflow-scrolling: touch; */
+}
+
+/* Grid items */
+
+.grid-item {
+    /* background-image: var(--item-image); */
+    background-color: rgba(255, 166, 0, 0.208);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: background-size .3s;
+    display: grid;
+    align-items: end;
+    position: relative;
+}
+
+.grid-item:nth-child(3)::after {
+    content: 'VS';
+    color: orange;
+    text-align: center;
+    font-weight: bold;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: -40px;
+    margin: auto;
+    /* background: radial-gradient(rgb(255, 243, 182), rgb(248, 186, 72)); */
+    box-shadow: 0 0 10px rgb(248, 186, 72);
+}
+
+.grid-item:hover {
+    background-size: 120% 120%;
+}
+
+.grid-item .content {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr;
+    grid-template-rows: 1fr 2fr 2fr;
+    place-items: center;
+}
+
+.champ-name {
+    color: aqua;
+    text-align: center;
+    grid-area: 1 / 1 / 2 / 4;
+}
+
+.champ-name p {
+    margin: 0;
+}
+
+.champ-avatar {
+    grid-area: 2 / 1 / 4 / 2;
+    border: 3px solid rgba(255, 166, 0, 0.208);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    align-self: center;
+    transform: rotate(0);
+    transition:
+        transform .5s linear,
+        box-shadow .3s linear;
+}
+
+.champ-avatar:hover {
+    transform: rotate(360deg);
+    box-shadow: 0 -5px 10px wheat;
+}
+
+.champ-skill {
+    display: flex;
+    gap: 3px;
+}
+
+.skill-1,
+.skill-2,
+.skill-3,
+.loading {
+    border: 1px solid black;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.loading {
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: conic-gradient(black, rgb(47, 255, 161));
+}
+
+.loading::before {
+    content: '';
+    width: 30px;
+    height: 30px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+.loading-percent {
+    position: absolute;
+    font-size: 7px;
+    color: white;
+    font-weight: bold;
+}
+
+.player-name {
+    grid-area: 3 / 2 / 4 / 4;
+    text-align: center;
+    color: white;
+}

@@ -44,6 +44,53 @@
 
 
 
+
+/MyConnect/api/*.swp
+/MyConnect/api/*.*~
+/MyConnect/api/project.lock.json
+/MyConnect/api/.DS_Store
+/MyConnect/api/*.pyc
+/MyConnect/api/nupkg/
+
+# Visual Studio Code
+#.vscode/
+
+# Rider
+/MyConnect/api/.idea/
+
+# Visual Studio
+/MyConnect/api/.vs/
+
+# Fleet
+/MyConnect/api/.fleet/
+
+# Code Rush
+/MyConnect/api/.cr/
+
+# User-specific files
+/MyConnect/api/*.suo
+/MyConnect/api/*.user
+/MyConnect/api/*.userosscache
+/MyConnect/api/*.sln.docstates
+
+# Build results
+/MyConnect/api/[Dd]ebug/
+/MyConnect/api/[Dd]ebugPublic/
+/MyConnect/api/[Rr]elease/
+/MyConnect/api/[Rr]eleases/
+/MyConnect/api/x64/
+/MyConnect/api/x86/
+/MyConnect/api/build/
+/MyConnect/api/bld/
+/MyConnect/api/[Bb]in/
+/MyConnect/api/[Oo]bj/
+/MyConnect/api/[Oo]ut/
+/MyConnect/api/msbuild.log
+/MyConnect/api/msbuild.err
+/MyConnect/api/msbuild.wrn
+
+
+
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -67,3 +114,29 @@
 /client/npm-debug.log*
 /client/yarn-debug.log*
 /client/yarn-error.log*
+
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/MyConnect/client/node_modules
+/MyConnect/client/.pnp
+/MyConnect/client.pnp.js
+
+# testing
+/MyConnect/client/coverage
+
+# production
+/MyConnect/client/build
+
+# misc
+/MyConnect/client/.DS_Store
+/MyConnect/client/.env.local
+/MyConnect/client/.env.development.local
+/MyConnect/client/.env.test.local
+/MyConnect/client/.env.production.local
+
+/MyConnect/client/npm-debug.log*
+/MyConnect/client/yarn-debug.log*
+/MyConnect/client/yarn-error.log*
