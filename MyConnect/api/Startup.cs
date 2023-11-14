@@ -3,6 +3,7 @@ using MyConnect.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MyConnect.UOW;
 
 namespace MyConnect
 {
@@ -36,6 +37,8 @@ namespace MyConnect
                     };
                 });
             builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         public void Configure(WebApplication app)
@@ -54,8 +57,7 @@ namespace MyConnect
             app.Lifetime.ApplicationStarted.Register(OnStarted);
             app.Lifetime.ApplicationStopping.Register(OnStopping);
 
-            var context = app.Services.GetService<CoreContext>();
-            context.Database.Migrate();
+            DatabaseMigration.Migrate(app);
         }
 
         private void OnStarted()

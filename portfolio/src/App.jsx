@@ -27,8 +27,7 @@ function App() {
       <nav className='      
       h-[clamp(4rem,6vh,7rem)]
       bg-[var(--nav-bg-color)]
-      sticky top-0
-      z-[2]
+      sticky top-0 z-[2]
       flex justify-between items-center
       shadow-[0_3px_5px_var(--box-shadow-color)]      
       duration-[var(--transition-duration)]'>
