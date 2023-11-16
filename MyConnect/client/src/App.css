@@ -36,4 +36,8 @@ body,
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  .item-active {
+    @apply bg-blue-500 text-white
+  }
 }

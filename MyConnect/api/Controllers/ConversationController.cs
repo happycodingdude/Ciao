@@ -5,12 +5,12 @@ using MyConnect.UOW;
 namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-// [MyAuthorize("Authorization")]
-public class ConversationController : ControllerBase
+[MyAuthorize("Authorization")]
+public class ConversationsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public ConversationController(IUnitOfWork unitOfWork)
+    public ConversationsController(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
@@ -20,7 +20,7 @@ public class ConversationController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Conversation.GetAll();
+            var response = _unitOfWork.Conversation.GetAll().OrderByDescending(q => q.CreatedTime);
             return new ResponseModel<IEnumerable<Conversation>>(response).Ok();
         }
         catch (Exception ex)
@@ -35,6 +35,48 @@ public class ConversationController : ControllerBase
         try
         {
             var response = _unitOfWork.Conversation.GetById(id);
+            return new ResponseModel<Conversation>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Conversation>().BadRequest(ex);
+        }
+    }
+
+    [HttpGet("{id}/participants")]
+    public IActionResult GetParticipants(Guid id)
+    {
+        try
+        {
+            var response = _unitOfWork.Participants.GetByConversationIdIncludeContact(id);
+            return new ResponseModel<IEnumerable<Participants>>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Participants>().BadRequest(ex);
+        }
+    }
+
+    [HttpGet("{id}/messages")]
+    public IActionResult GetMessages(Guid id)
+    {
+        try
+        {
+            var response = _unitOfWork.Message.GetByConversationId(id);
+            return new ResponseModel<IEnumerable<Message>>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<IEnumerable<Message>>().BadRequest(ex);
+        }
+    }
+
+    [HttpGet("{id}/details")]
+    public IActionResult GetChatDetails(Guid id)
+    {
+        try
+        {
+            var response = _unitOfWork.Conversation.GetByIdIncludeDetails(id);
             return new ResponseModel<Conversation>(response).Ok();
         }
         catch (Exception ex)

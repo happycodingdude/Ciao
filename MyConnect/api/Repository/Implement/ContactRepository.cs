@@ -30,7 +30,7 @@ namespace MyConnect.Repository
 
             var response = new LoginResponse
             {
-                Token = JwtToken.GenerateToken(_configuration["Jwt:Key"], model.Username, model.Password)
+                Token = JwtToken.GenerateToken(_configuration["Jwt:Key"], user)
             };
             return Task.FromResult(response);
         }

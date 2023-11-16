@@ -5,12 +5,12 @@ using MyConnect.UOW;
 namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-// [MyAuthorize("Authorization")]
-public class MessageController : ControllerBase
+[MyAuthorize("Authorization")]
+public class MessagesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public MessageController(IUnitOfWork unitOfWork)
+    public MessagesController(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

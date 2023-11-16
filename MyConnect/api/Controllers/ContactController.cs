@@ -7,11 +7,11 @@ namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 // [MyAuthorize("Authorization")]
-public class ContactController : ControllerBase
+public class ContactsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public ContactController(IUnitOfWork unitOfWork)
+    public ContactsController(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

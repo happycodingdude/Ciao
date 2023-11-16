@@ -6,11 +6,11 @@ namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 // [MyAuthorize("Authorization")]
-public class ScheduleContactController : ControllerBase
+public class ScheduleContactsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public ScheduleContactController(IUnitOfWork unitOfWork)
+    public ScheduleContactsController(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
