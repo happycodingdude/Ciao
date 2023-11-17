@@ -50,7 +50,7 @@ public class MessagesController : ControllerBase
         {
             _unitOfWork.Message.Add(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Message>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -59,13 +59,13 @@ public class MessagesController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(Message model)
+    public IActionResult Edit(Message model)
     {
         try
         {
             _unitOfWork.Message.Update(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Message>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -74,7 +74,7 @@ public class MessagesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public IActionResult Delete(Guid id)
     {
         try
         {

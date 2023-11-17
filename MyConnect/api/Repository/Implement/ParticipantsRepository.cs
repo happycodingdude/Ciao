@@ -19,10 +19,5 @@ namespace MyConnect.Repository
             .Where(q => q.ConversationId == id)
             .ToList();
         }
-
-        public IEnumerable<Participants> GetByConversationId(Guid id)
-        {
-            return _context.Set<Participants>().Where(q => q.ConversationId == id).ToList();
-        }
     }
 }

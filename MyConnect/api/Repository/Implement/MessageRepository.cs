@@ -11,9 +11,16 @@ namespace MyConnect.Repository
             _context = context;
         }
 
-        public IEnumerable<Message> GetByConversationId(Guid id)
+        public IEnumerable<MessageGroupByCreatedTime> GetByConversationId(Guid id)
         {
-            return _context.Set<Message>().Where(q => q.ConversationId == id).OrderBy(q => q.CreatedTime).ToList();
+            var messages = _context.Set<Message>().Where(q => q.ConversationId == id).OrderBy(q => q.CreatedTime).ToList();
+            var groupByCreatedTime = messages.GroupBy(q => q.CreatedTime.Value.Date)
+            .Select(q => new MessageGroupByCreatedTime
+            {
+                Date = q.Key.ToShortDateString(),
+                Messages = q.ToList()
+            });
+            return groupByCreatedTime;
         }
     }
 }

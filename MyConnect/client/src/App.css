@@ -12,6 +12,7 @@
   --box-shadow-color: purple;
   --nav-bg-color: #f5f5f5;
   --darkmode-toggle-bd-color: black;
+  --text-morderator-color: white;
 }
 
 [data-theme="dark"] {
@@ -20,6 +21,7 @@
   --box-shadow-color: white;
   --nav-bg-color: #252525;
   --darkmode-toggle-bd-color: #252525;
+  --text-morderator-color: rgb(251 146 60 / var(--tw-bg-opacity));
 }
 
 html,

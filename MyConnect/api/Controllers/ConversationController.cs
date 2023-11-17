@@ -63,25 +63,11 @@ public class ConversationsController : ControllerBase
         try
         {
             var response = _unitOfWork.Message.GetByConversationId(id);
-            return new ResponseModel<IEnumerable<Message>>(response).Ok();
+            return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Message>>().BadRequest(ex);
-        }
-    }
-
-    [HttpGet("{id}/details")]
-    public IActionResult GetChatDetails(Guid id)
-    {
-        try
-        {
-            var response = _unitOfWork.Conversation.GetByIdIncludeDetails(id);
-            return new ResponseModel<Conversation>(response).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Conversation>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>().BadRequest(ex);
         }
     }
 
@@ -92,7 +78,7 @@ public class ConversationsController : ControllerBase
         {
             _unitOfWork.Conversation.Add(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Conversation>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -101,13 +87,13 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(Conversation model)
+    public IActionResult Edit(Conversation model)
     {
         try
         {
             _unitOfWork.Conversation.Update(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Conversation>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -116,7 +102,7 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public IActionResult Delete(Guid id)
     {
         try
         {

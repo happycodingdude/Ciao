@@ -52,7 +52,7 @@ public class ContactsController : ControllerBase
             model.Password = Hash.Encrypt(model.Password);
             _unitOfWork.Contact.Add(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Contact>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -67,7 +67,7 @@ public class ContactsController : ControllerBase
         {
             _unitOfWork.Contact.Update(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Contact>(model).Ok();
         }
         catch (Exception ex)
         {

@@ -4,18 +4,19 @@ import React, { createContext, useEffect, useState } from 'react';
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
-    console.log('AuthProvider rendering')
+    console.log('AuthProvider rendering');
+
     const [token, setToken] = useState(() => localStorage.getItem('token'));
     const [user, setUser] = useState(() => localStorage.getItem('user'));
     const [id, setId] = useState(() => localStorage.getItem('id'));
 
     useEffect(() => {
-        localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwOGE3YWIwLWMyZDktNDFjYy0zYjAxLTA4ZGJlNjVjMTEyZiIsInVzZXJuYW1lIjoidHJpbmd1eWVuIiwibmJmIjoxNzAwMTMxNTkwLCJleHAiOjE3MDAxNjAzOTAsImlhdCI6MTcwMDEzMTU5MH0.mSsK2Ab7YHVs2GEaH_KvQu08l5d10XDEU_Hh2ePuaxo');
+        localStorage.setItem('token', import.meta.env.VITE_TOKEN);
 
         const cancelToken = axios.CancelToken.source();
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwOGE3YWIwLWMyZDktNDFjYy0zYjAxLTA4ZGJlNjVjMTEyZiIsInVzZXJuYW1lIjoidHJpbmd1eWVuIiwibmJmIjoxNzAwMTMxNTkwLCJleHAiOjE3MDAxNjAzOTAsImlhdCI6MTcwMDEzMTU5MH0.mSsK2Ab7YHVs2GEaH_KvQu08l5d10XDEU_Hh2ePuaxo'
+            'Authorization': `Bearer ${import.meta.env.VITE_TOKEN}`
         };
         axios.get('api/user/authenticate',
             { cancelToken: cancelToken.token, headers: headers })

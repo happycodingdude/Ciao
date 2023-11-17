@@ -5,7 +5,7 @@ using MyConnect.UOW;
 namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-// [MyAuthorize("Authorization")]
+[MyAuthorize("Authorization")]
 public class SchedulesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -50,7 +50,7 @@ public class SchedulesController : ControllerBase
         {
             _unitOfWork.Schedule.Add(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Schedule>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -59,13 +59,13 @@ public class SchedulesController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(Schedule model)
+    public IActionResult Edit(Schedule model)
     {
         try
         {
             _unitOfWork.Schedule.Update(model);
             _unitOfWork.Save();
-            return Ok();
+            return new ResponseModel<Schedule>(model).Ok();
         }
         catch (Exception ex)
         {
@@ -74,7 +74,7 @@ public class SchedulesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public IActionResult Delete(Guid id)
     {
         try
         {

@@ -14,4 +14,10 @@ namespace MyConnect.Model
         public Contact? Contact { get; set; }
         public Conversation? Conversation { get; set; }
     }
+
+    public class MessageGroupByCreatedTime
+    {
+        public string? Date { get; set; }
+        public List<Message>? Messages { get; set; }
+    }
 }
