@@ -20,7 +20,7 @@ namespace MyConnect.Authentication
                     new Claim("id", user.Id.ToString()),
                     new Claim("username", user.Username)
                 }),
-                Expires = DateTime.UtcNow.AddHours(8),
+                Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

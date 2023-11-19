@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MyConnect.UOW;
+using MyDockerWebAPI.RestApi;
+using MyConnect.RestApi;
+using MyConnect.Interface;
+using MyConnect.Implement;
 
 namespace MyConnect
 {
@@ -39,6 +43,9 @@ namespace MyConnect
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IParticipantsService, ParticipantsService>();
+            builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
         }
 
         public void Configure(WebApplication app)

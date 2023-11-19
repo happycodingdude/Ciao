@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -9,10 +10,12 @@ namespace MyConnect.Controllers;
 public class ParticipantsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IParticipantsService _participantsService;
 
-    public ParticipantsController(IUnitOfWork unitOfWork)
+    public ParticipantsController(IUnitOfWork unitOfWork, IParticipantsService participantsService)
     {
         _unitOfWork = unitOfWork;
+        _participantsService = participantsService;
     }
 
     [HttpGet]
@@ -55,6 +58,20 @@ public class ParticipantsController : ControllerBase
         catch (Exception ex)
         {
             return new ResponseModel<Participants>().BadRequest(ex);
+        }
+    }
+
+    [HttpPost("{id}/notify")]
+    public async Task<IActionResult> Notify(Guid id)
+    {
+        try
+        {
+            await _participantsService.NotifyMessage(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
         }
     }
 
