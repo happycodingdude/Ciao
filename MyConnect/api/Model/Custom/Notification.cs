@@ -1,5 +1,11 @@
 namespace MyConnect.Model
 {
+    public class RegisterConnection
+    {
+        public Guid Id { get; set; }
+        public string? Token { get; set; }
+    }
+
     public class FirebaseNotification
     {
         public string? to { get; set; }

@@ -1,46 +1,45 @@
-// Import the functions you need from the SDKs you need
-import { getAnalytics } from "firebase/analytics";
-import firebase, { initializeApp } from "firebase/app";
-import "firebase/messaging";
-// import { firebaseConfig } from './constants';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "firebase/app";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
-    authDomain: "myconnect-f2af8.firebaseapp.com",
-    projectId: "myconnect-f2af8",
-    storageBucket: "myconnect-f2af8.appspot.com",
-    messagingSenderId: "191922075446",
-    appId: "1:191922075446:web:72ab430046b40d39e22597",
-    measurementId: "G-8Q1N0TGXLZ"
+  apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
+  authDomain: "myconnect-f2af8.firebaseapp.com",
+  projectId: "myconnect-f2af8",
+  storageBucket: "myconnect-f2af8.appspot.com",
+  messagingSenderId: "191922075446",
+  appId: "1:191922075446:web:72ab430046b40d39e22597",
+  measurementId: "G-8Q1N0TGXLZ",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const messaging = getMessaging(app);
 
-let messaging = firebase.messaging();
+export const requestPermission = async () => {
+  // const serviceWorkerRegistration = await navigator.serviceWorker.register(
+  //   "../src/components/firebase-messaging-sw.jsx",
+  // );
 
-export const getMessagingToken = async () => {
-    let currentToken = "";
-    if (!messaging) return;
-    try {
-        currentToken = await messaging.getToken({
-            vapidKey: 'BM0h2oAh38_Q1ra_BvhpventqyMPRuUJ8Fwseh0IaVuXPfepULakLtaUZHdnVk5sMVCSF4nrvfGNPg0yitS4HBM',
+  return await Notification.requestPermission().then((permission) => {
+    if (permission == "granted") {
+      return getToken(messaging, {
+        vapidKey:
+          "BM0h2oAh38_Q1ra_BvhpventqyMPRuUJ8Fwseh0IaVuXPfepULakLtaUZHdnVk5sMVCSF4nrvfGNPg0yitS4HBM",
+        // serviceWorkerRegistration,
+      })
+        .then((token) => {
+          if (token) {
+            // Receive message
+            onMessage(messaging, (payload) => {
+              console.log("Message received. ", payload);
+            });
+
+            return token;
+          } else console.log("Token failed");
+        })
+        .catch((err) => {
+          console.log("Error: ", err);
         });
-        console.log("FCM registration token", currentToken);
-    } catch (error) {
-        console.log("An error occurred while retrieving token. ", error);
     }
-    return currentToken;
+  });
 };
-
-export const onMessageListener = () =>
-    new Promise((resolve) => {
-        messaging.onMessage((payload) => {
-            resolve(payload);
-        });
-    });

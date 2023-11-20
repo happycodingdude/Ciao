@@ -10,7 +10,7 @@ const Information = ({ conversation }) => {
   const [isNotifying, setIsNotifying] = useState(false);
 
   useEffect(() => {
-    console.log("conversation changed");
+    if (!conversation) return;
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",

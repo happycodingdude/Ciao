@@ -46,6 +46,7 @@ namespace MyConnect
             builder.Services.AddScoped<IParticipantsService, ParticipantsService>();
             builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
         }
 
         public void Configure(WebApplication app)

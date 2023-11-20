@@ -14,6 +14,7 @@ const Chatbox = ({ conversation }) => {
   const [messages, setMessages] = useState();
 
   useEffect(() => {
+    if (!conversation) return;
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
@@ -75,7 +76,7 @@ const Chatbox = ({ conversation }) => {
       ConversationId: conversation.Id,
     };
     axios
-      .post(`api/messages`, body, {
+      .post(`api/messages/send`, body, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -83,11 +84,24 @@ const Chatbox = ({ conversation }) => {
         if (res.status === 200) {
           console.log(res.data.data);
           refChatInput.current.value = "";
-          setMessages([...messages, res.data.data]);
+
+          var newArr = messages.map((item) => {
+            if (
+              item.Date ===
+              moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
+            ) {
+              item.Messages = [...item.Messages, res.data.data];
+              return item;
+            }
+            return item;
+          });
+          console.log(newArr);
+          setMessages(newArr);
+
           setTimeout(() => {
             refChatContent.current.scrollTop =
               refChatContent.current.scrollHeight;
-          }, 100);
+          }, 200);
         } else throw new Error(res.status);
       })
       .catch((err) => {
@@ -113,12 +127,13 @@ const Chatbox = ({ conversation }) => {
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-400">
-            <div className="relative flex h-full items-center gap-[8rem]">
+            <div className="relative flex h-full items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
                   <div
-                    className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[red]
-                                            left-[${i * 2}rem]`}
+                    className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[red] left-[${
+                      i * 2
+                    }rem]`}
                   ></div>
                 ) : (
                   ""

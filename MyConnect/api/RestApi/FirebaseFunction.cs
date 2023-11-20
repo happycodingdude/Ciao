@@ -18,6 +18,7 @@ namespace MyDockerWebAPI.RestApi
             request.Content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
             var response = await httpClient.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(result);
         }
     }
 }

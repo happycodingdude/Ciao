@@ -1,8 +1,10 @@
+using MyConnect.Model;
+
 namespace MyConnect.Interface
 {
     public interface INotificationService
     {
-        List<string> Connections { get; }
-        void RegisterToken(string token);
+        Dictionary<Guid, string> Connections { get; }
+        void RegisterToken(RegisterConnection param);
     }
 }

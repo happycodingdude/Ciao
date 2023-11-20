@@ -3,6 +3,12 @@ import useAuth from "../hook/useAuth";
 
 const Header = () => {
   const auth = useAuth();
+
+  const logout = () => {
+    console.log("Logging out");
+    auth.logout();
+  };
+
   return (
     <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-[var(--nav-bg-color)]">
       {/* Phone, Tablet */}
@@ -29,24 +35,35 @@ const Header = () => {
       {/* Laptop, Desktop */}
       <div className=" flex grow items-center justify-between">
         <a href="#" className="font-bold">
-          Messenger
+          MyConnect
         </a>
-        <div className="flex items-center gap-[5rem]">
-          <div className="flex items-center gap-[1rem]">
-            <a
-              href="#"
-              className="aspect-square w-[3rem] rounded-[50%] bg-orange-400"
-            ></a>
-            <div className="text-left">
-              <p className="">{auth.user}</p>
-              <p className="text-blue-500">status</p>
+        {auth.user ? (
+          <div className="flex items-center gap-[5rem]">
+            <div className="flex items-center gap-[1rem]">
+              <a
+                href="#"
+                className="aspect-square w-[3rem] rounded-[50%] bg-orange-400"
+              ></a>
+              <div className="text-left">
+                <p className="">{auth.user}</p>
+                <p className="text-blue-500">status</p>
+              </div>
+            </div>
+            <div
+              className="fa fa-arrow-down group relative flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal
+              text-gray-500 "
+            >
+              <div
+                className="absolute right-0 top-[3rem] flex aspect-square w-[10rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-300 p-[1rem]
+              duration-[.5s] group-hover:scale-y-100"
+              >
+                <span onClick={logout}>Logout</span>
+              </div>
             </div>
           </div>
-          <a
-            href="#"
-            className="fa fa-arrow-down flex aspect-square w-[3rem] items-center justify-center rounded-[1rem] bg-gray-300 font-normal text-gray-500"
-          ></a>
-        </div>
+        ) : (
+          ""
+        )}
       </div>
     </section>
   );

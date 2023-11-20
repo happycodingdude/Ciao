@@ -1,12 +1,13 @@
 using MyConnect.Interface;
+using MyConnect.Model;
 
 namespace MyConnect.Implement
 {
     public class NotificationService : INotificationService
     {
-        private static List<string> connections = new List<string>();
+        private static Dictionary<Guid, string> connections = new Dictionary<Guid, string>();
 
-        public List<string> Connections
+        public Dictionary<Guid, string> Connections
         {
             get
             {
@@ -14,10 +15,11 @@ namespace MyConnect.Implement
             }
         }
 
-        public void RegisterToken(string token)
+        public void RegisterToken(RegisterConnection param)
         {
-            if (!connections.Contains(token))
-                connections.Add(token);
+            connections[param.Id] = param.Token;
+            // Console.WriteLine(JsonConvert.SerializeObject(connections));
+            Console.WriteLine(connections.Count);
         }
     }
 }

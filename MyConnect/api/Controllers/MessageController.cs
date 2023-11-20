@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -9,10 +10,12 @@ namespace MyConnect.Controllers;
 public class MessagesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMessageService _messageService;
 
-    public MessagesController(IUnitOfWork unitOfWork)
+    public MessagesController(IUnitOfWork unitOfWork, IMessageService messageService)
     {
         _unitOfWork = unitOfWork;
+        _messageService = messageService;
     }
 
     [HttpGet]
@@ -81,6 +84,20 @@ public class MessagesController : ControllerBase
             _unitOfWork.Message.Delete(id);
             _unitOfWork.Save();
             return Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Message>().BadRequest(ex);
+        }
+    }
+
+    [HttpPost("send")]
+    public IActionResult SaveAndNotifyMessage(Message model)
+    {
+        try
+        {
+            _messageService.SaveAndNotifyMessage(model);
+            return new ResponseModel<Message>(model).Ok();
         }
         catch (Exception ex)
         {

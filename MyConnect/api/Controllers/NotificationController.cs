@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
+using MyConnect.Model;
 
 namespace MyConnect.Controllers;
 [ApiController]
@@ -14,12 +15,12 @@ public class NotificationController : ControllerBase
         _notificationService = notificationService;
     }
 
-    [HttpPost("{token}")]
-    public IActionResult Get(string token)
+    [HttpPost("register")]
+    public IActionResult RegisterToken(RegisterConnection param)
     {
         try
         {
-            _notificationService.RegisterToken(token);
+            _notificationService.RegisterToken(param);
             return Ok();
         }
         catch (Exception ex)

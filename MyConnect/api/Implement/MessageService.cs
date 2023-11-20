@@ -5,13 +5,13 @@ using MyConnect.UOW;
 
 namespace MyConnect.Implement
 {
-    public class ParticipantsService : IParticipantsService
+    public class MessageService : IMessageService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFirebaseFunction _firebaseFunction;
         private readonly INotificationService _notificationService;
 
-        public ParticipantsService(IUnitOfWork unitOfWork,
+        public MessageService(IUnitOfWork unitOfWork,
         IFirebaseFunction firebaseFunction,
         INotificationService notificationService)
         {
@@ -20,25 +20,16 @@ namespace MyConnect.Implement
             _notificationService = notificationService;
         }
 
-        public async Task NotifyMessage(Guid id)
+        public async Task SaveAndNotifyMessage(Message model)
         {
-            // var entity = _unitOfWork.Participants.GetByConversationIdIncludeContact(id);
-            // foreach (var item in entity)
-            // {
-
-            // }
-
-
+            _unitOfWork.Message.Add(model);
+            _unitOfWork.Save();
             foreach (var connection in _notificationService.Connections)
             {
                 var notification = new FirebaseNotification
                 {
                     to = connection.Value,
-                    data = new
-                    {
-                        ConversationId = "ConversationId",
-                        Content = "Content"
-                    }
+                    data = model
                 };
                 await _firebaseFunction.Notify(notification);
             }
