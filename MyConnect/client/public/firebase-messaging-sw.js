@@ -29,7 +29,7 @@ messaging.onBackgroundMessage((payload) => {
   // };
 
   // self.registration.showNotification(notificationTitle, notificationOptions);
-  self.clients.matchAll().then((clients) => {
-    clients.forEach((client) => client.postMessage({ msg: "Hello from SW" }));
+  self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+    clients.forEach((client) => client.postMessage(payload));
   });
 });
