@@ -24,7 +24,6 @@ const ListChat = ({ setConversation }) => {
       .then((res) => {
         if (res.status === 200) {
           setChats(res.data.data);
-          console.log(res.data.data);
 
           setTimeout(() => {
             handleSetConversation(res.data.data[0]);

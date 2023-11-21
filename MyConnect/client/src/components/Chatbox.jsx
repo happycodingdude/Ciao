@@ -12,7 +12,6 @@ const Chatbox = ({ conversation }) => {
 
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
-
   useEffect(() => {
     if (!conversation) return;
     const cancelToken = axios.CancelToken.source();
@@ -27,7 +26,6 @@ const Chatbox = ({ conversation }) => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log(res.data.data);
           setParticipants(res.data.data);
         } else throw new Error(res.status);
       })
@@ -41,7 +39,6 @@ const Chatbox = ({ conversation }) => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log(res.data.data);
           setMessages(res.data.data);
 
           setTimeout(() => {
@@ -58,6 +55,54 @@ const Chatbox = ({ conversation }) => {
       cancelToken.cancel();
     };
   }, [conversation]);
+
+  useEffect(() => {
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then(navigator.serviceWorker.ready)
+        .then(() => {
+          navigator.serviceWorker.onmessage = (event) => {
+            // event is a MessageEvent object
+            console.log(
+              `The service worker sent me a message: ${event.data.data}`,
+            );
+
+            // user config unnotified
+            if (localStorage.getItem("notification") === "false") return;
+
+            // add new message to current list
+            var newArr = messages?.map((item) => {
+              if (
+                item.Messages.some(
+                  (message) => message.Id === event.data.data.Id,
+                )
+              )
+                return item;
+              if (
+                item.Date !==
+                moment(event.data.data.CreatedTime).format("MM/DD/YYYY")
+              )
+                return item;
+
+              item.Messages = [...item.Messages, event.data.data];
+              return item;
+            });
+            setMessages(newArr);
+
+            setTimeout(() => {
+              refChatContent.current.scrollTop =
+                refChatContent.current.scrollHeight;
+            }, 200);
+          };
+        });
+
+      // navigator.serviceWorker.addEventListener("message", (event) => {
+      //   // event is a MessageEvent object
+      //   console.log(`The service worker sent me a message: ${event.data}`);
+      // });
+    }
+  }, [messages]);
 
   const scrollChatContentToBottom = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
@@ -82,9 +127,9 @@ const Chatbox = ({ conversation }) => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log(res.data.data);
           refChatInput.current.value = "";
 
+          // add new message to current list
           var newArr = messages.map((item) => {
             if (
               item.Date ===
@@ -95,7 +140,6 @@ const Chatbox = ({ conversation }) => {
             }
             return item;
           });
-          console.log(newArr);
           setMessages(newArr);
 
           setTimeout(() => {

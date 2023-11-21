@@ -5,7 +5,6 @@ const Header = () => {
   const auth = useAuth();
 
   const logout = () => {
-    console.log("Logging out");
     auth.logout();
   };
 

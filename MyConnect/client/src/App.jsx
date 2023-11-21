@@ -6,23 +6,6 @@ import Login from "./Login";
 import Header from "./components/Header";
 
 function App() {
-  if (navigator.serviceWorker) {
-    navigator.serviceWorker
-      .register("/firebase-messaging-sw.js")
-      .then((registration) => {
-        console.log(registration);
-      });
-
-    navigator.serviceWorker.onmessage = (event) => {
-      // event is a MessageEvent object
-      console.log(`The service worker sent me a message: ${event.data}`);
-    };
-    // navigator.serviceWorker.addEventListener("message", (event) => {
-    //   // event is a MessageEvent object
-    //   console.log(`The service worker sent me a message: ${event.data}`);
-    // });
-  }
-
   return (
     <div
       className="flex w-full flex-col bg-gradient-to-r from-purple-100

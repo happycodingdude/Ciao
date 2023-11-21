@@ -23,7 +23,6 @@ const Information = ({ conversation }) => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log(res.data.data);
           setParticipants(res.data.data);
           setIsNotifying(
             res.data.data.find((item) => item.ContactId === auth.id)
@@ -56,8 +55,6 @@ const Information = ({ conversation }) => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log(res.data.data);
-
           setIsNotifying(checked);
         } else throw new Error(res.status);
       })
@@ -69,6 +66,10 @@ const Information = ({ conversation }) => {
       cancelToken.cancel();
     };
   };
+
+  useEffect(() => {
+    localStorage.setItem("notification", isNotifying);
+  }, [isNotifying]);
 
   return (
     <>
