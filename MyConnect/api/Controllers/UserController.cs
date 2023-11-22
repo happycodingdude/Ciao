@@ -37,11 +37,11 @@ public class UserController : ControllerBase
         try
         {
             var response = _unitOfWork.Contact.ValidateToken();
-            return new ResponseModel<object>(response).Ok();
+            return new ResponseModel<Contact>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<object>().BadRequest(ex);
+            return new ResponseModel<Contact>().BadRequest(ex);
         }
     }
 }

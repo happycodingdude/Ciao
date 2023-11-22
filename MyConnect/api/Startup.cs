@@ -13,20 +13,28 @@ namespace MyConnect
 {
     public class Startup
     {
-        public void ConfigureServices(WebApplicationBuilder builder)
+        public IConfiguration _configuration { get; }
+
+        public Startup(IConfiguration configuration)
         {
-            builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession();
-            builder.Services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services
+            _configuration = configuration;
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            Console.WriteLine("ConfigureServices running");
+            services.AddDistributedMemoryCache();
+            services.AddSession();
+            services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
+            services
             .AddDbContextPool<CoreContext>(option =>
             {
-                option.UseMySQL(builder.Configuration.GetConnectionString("MyDbContext"));
+                option.UseMySQL(_configuration.GetConnectionString("MyDbContext"));
             });
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.RequireHttpsMetadata = false;
@@ -34,36 +42,41 @@ namespace MyConnect
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"])),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ClockSkew = TimeSpan.Zero
                     };
                 });
-            builder.Services.AddHttpContextAccessor();
+            services.AddHttpContextAccessor();
 
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IParticipantsService, ParticipantsService>();
-            builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
-            builder.Services.AddScoped<INotificationService, NotificationService>();
-            builder.Services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IParticipantsService, ParticipantsService>();
+            services.AddScoped<IFirebaseFunction, FirebaseFunction>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IMessageService, MessageService>();
         }
 
-        public void Configure(WebApplication app)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            Console.WriteLine("Configure running");
+            app.UseRouting();
             app.UseSession();
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
             app.UseHttpsRedirection();
-            app.MapControllers();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.Lifetime.ApplicationStarted.Register(OnStarted);
-            app.Lifetime.ApplicationStopping.Register(OnStopping);
+            app.UseCors();
+            // app.MapControllers();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             DatabaseMigration.Migrate(app);
         }

@@ -43,7 +43,7 @@ namespace MyConnect.Model
         public ResponseModel<T> BadRequest(Exception exception)
         {
             code = HttpStatusCode.BadRequest;
-            this.error = exception.Message;
+            this.error = JsonConvert.SerializeObject(exception);
 
             // Additional data in some case
             if (exception.Data.Count != 0)

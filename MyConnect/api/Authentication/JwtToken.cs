@@ -30,7 +30,7 @@ namespace MyConnect.Authentication
             return jwtToken;
         }
 
-        public static object? ExtractToken(string jwtToken)
+        public static Contact ExtractToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             // Read and validate the JWT token
@@ -39,7 +39,7 @@ namespace MyConnect.Authentication
             var username = token.Claims.FirstOrDefault(q => q.Type.Equals("username")).Value;
             var id = token.Claims.FirstOrDefault(q => q.Type.Equals("id")).Value;
 
-            return new { Id = id, Username = username };
+            return new Contact { Id = Guid.Parse(id), Username = username };
         }
     }
 }

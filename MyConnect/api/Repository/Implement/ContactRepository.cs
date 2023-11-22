@@ -35,7 +35,7 @@ namespace MyConnect.Repository
             return Task.FromResult(response);
         }
 
-        public object ValidateToken()
+        public Contact ValidateToken()
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             return JwtToken.ExtractToken(token);
