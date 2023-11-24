@@ -1,6 +1,6 @@
 import axios from "axios";
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
 const Chatbox = ({ conversation }) => {
@@ -9,6 +9,7 @@ const Chatbox = ({ conversation }) => {
 
   const refChatInput = useRef();
   const refChatContent = useRef();
+  const refScrollButton = useRef();
 
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
@@ -130,17 +131,27 @@ const Chatbox = ({ conversation }) => {
           refChatInput.current.value = "";
 
           // add new message to current list
-          var newArr = messages.map((item) => {
-            if (
-              item.Date ===
-              moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
-            ) {
-              item.Messages = [...item.Messages, res.data.data];
+          if (messages.length === 0) {
+            var firstMessage = [
+              {
+                Date: moment().format("MM/DD/YYYY"),
+                Messages: [res.data.data],
+              },
+            ];
+            setMessages(firstMessage);
+          } else {
+            var newArr = messages.map((item) => {
+              if (
+                item.Date ===
+                moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
+              ) {
+                item.Messages = [...item.Messages, res.data.data];
+                return item;
+              }
               return item;
-            }
-            return item;
-          });
-          setMessages(newArr);
+            });
+            setMessages(newArr);
+          }
 
           setTimeout(() => {
             refChatContent.current.scrollTop =
@@ -161,23 +172,43 @@ const Chatbox = ({ conversation }) => {
     if (e.key === "Enter") sendMessage();
   };
 
+  // The scroll listener
+  const handleScroll = useCallback(() => {
+    if (
+      refChatContent.current.scrollHeight - refChatContent.current.scrollTop >
+      500
+    )
+      refScrollButton.current.classList.remove("hidden");
+    else refScrollButton.current.classList.add("hidden");
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, true);
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [handleScroll]);
+
   return (
     <>
       <div className="my-[1rem] flex grow flex-col items-center gap-[1rem]">
         <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
-            className="fa fa-arrow-down absolute bottom-[1rem] right-[1rem] flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem]
-                        bg-gray-300 font-normal text-gray-500"
+            ref={refScrollButton}
+            className="fa fa-arrow-down absolute bottom-[1rem] right-[1rem] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
+                        rounded-[50%] bg-gray-300 font-normal text-gray-500"
             onClick={scrollChatContentToBottom}
           ></div>
-          <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-400">
-            <div className="relative flex h-full items-center">
+          <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-500">
+            <div className="relative flex h-full grow items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
                   <div
-                    className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[red] left-[${
-                      i * 2
-                    }rem]`}
+                    className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[red] ${
+                      i === 0 ? "left-0" : ""
+                    } ${i === 1 ? "left-[2rem]" : ""} ${
+                      i === 2 ? "left-[4rem]" : ""
+                    }`}
                   ></div>
                 ) : (
                   ""
@@ -185,14 +216,14 @@ const Chatbox = ({ conversation }) => {
               )}
               <a
                 href="#"
-                className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal"
+                className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
               ></a>
             </div>
-            <div className="text-center">
-              <p className="font-bold">{conversation?.Title}</p>
+            <div className="grow text-center">
+              <p className="font-bold text-gray-600">{conversation?.Title}</p>
               <p className="text-gray-400">status</p>
             </div>
-            <div className="flex gap-[1rem]">
+            <div className="flex grow justify-end gap-[1rem]">
               <div className="fa fa-search font-normal text-gray-500"></div>
               <div className="flex items-center gap-[.3rem]">
                 <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
@@ -208,7 +239,7 @@ const Chatbox = ({ conversation }) => {
             {messages?.map((date) => (
               <>
                 <div
-                  className="flex items-center text-center
+                  className="flex items-center text-center text-gray-400
                                     before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
                                     after:ml-[2rem] after:h-[.1rem]  after:grow after:bg-gray-400"
                 >
@@ -251,7 +282,7 @@ const Chatbox = ({ conversation }) => {
             ))}
           </div>
         </div>
-        <div className="r flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.3rem]">
+        <div className="r flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
           <div className="flex grow items-center justify-evenly">
             <a href="#" className="fa fa-image font-normal text-gray-500"></a>
             <a href="#" className="fa fa-file font-normal text-gray-500"></a>
@@ -260,15 +291,15 @@ const Chatbox = ({ conversation }) => {
             <input
               ref={refChatInput}
               type="text"
-              placeholder="Text here"
-              className="w-full rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
+              placeholder="Write some text"
+              className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
               onKeyDown={handlePressKey}
             ></input>
           </div>
-          <div className="flex grow items-center justify-center">
+          <div className="flex h-full grow items-center justify-center">
             <a
               href="#"
-              className="fa fa-paper-plane flex aspect-square w-[4rem] items-center justify-center rounded-[1rem] bg-blue-500 font-normal text-white"
+              className="fa fa-paper-plane flex aspect-square h-[90%] items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
               onClick={sendMessage}
             ></a>
           </div>

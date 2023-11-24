@@ -17,7 +17,7 @@ const Header = () => {
         </a>
         <div className="text-center">
           <p className="font-bold">{auth.user}</p>
-          <p className="text-blue-500">status</p>
+          <p className="text-blue-500">Online</p>
         </div>
         <div className="flex gap-[3rem]">
           <div className="flex items-center gap-[.3rem]">
@@ -44,8 +44,8 @@ const Header = () => {
                 className="aspect-square w-[3rem] rounded-[50%] bg-orange-400"
               ></a>
               <div className="text-left">
-                <p className="">{auth.user}</p>
-                <p className="text-blue-500">status</p>
+                <p className="font-medium text-gray-600">{auth.user}</p>
+                <p className="text-base text-blue-500">Online</p>
               </div>
             </div>
             <div
@@ -53,7 +53,7 @@ const Header = () => {
               text-gray-500 "
             >
               <div
-                className="absolute right-0 top-[3rem] flex aspect-square w-[10rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-300 p-[1rem]
+                className="absolute right-0 top-[3rem] flex w-[10rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-300 p-[1rem]
               duration-[.5s] group-hover:scale-y-100"
               >
                 <span onClick={logout}>Logout</span>

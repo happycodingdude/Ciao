@@ -10,10 +10,10 @@ const Home = () => {
   const auth = useAuth();
 
   const [conversation, setConversation] = useState();
+  const [chats, setChats] = useState([]);
 
   useEffect(() => {
     requestPermission().then((token) => {
-      console.log(token);
       const cancelToken = axios.CancelToken.source();
       const headers = {
         "Content-Type": "application/json",
@@ -35,17 +35,45 @@ const Home = () => {
           console.log(err);
         });
 
+      axios
+        .get("api/conversations", {
+          cancelToken: cancelToken.token,
+          headers: headers,
+        })
+        .then((res) => {
+          if (res.status === 200) {
+            setChats(res.data.data);
+
+            setTimeout(() => {
+              setConversation(res.data.data[0]);
+            }, 100);
+          } else throw new Error(res.status);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
       return () => {
         cancelToken.cancel();
       };
     });
   }, []);
 
+  const removeInListChat = (id) => {
+    const remainChats = chats.filter((item) => item.Id !== id);
+    setChats(remainChats);
+    setConversation(remainChats[0]);
+    removeRefChatItem(id);
+  };
+
   return (
     <section className="flex grow overflow-hidden">
-      <ListChat setConversation={setConversation} />
+      <ListChat chats={chats} setConversation={setConversation} />
       <Chatbox conversation={conversation} />
-      <Information conversation={conversation} />
+      <Information
+        conversation={conversation}
+        removeInListChat={removeInListChat}
+      />
     </section>
   );
 };

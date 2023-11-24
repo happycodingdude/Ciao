@@ -1,4 +1,5 @@
 using AutoMapper;
+using MyConnect.Model;
 
 namespace MyConnect.Configuration
 {
@@ -6,6 +7,7 @@ namespace MyConnect.Configuration
     {
         public MyMapping()
         {
+            CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         }
     }
 }

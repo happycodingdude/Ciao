@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import useAuth from "../hook/useAuth";
 
-const Information = ({ conversation }) => {
+const Information = ({ conversation, removeInListChat }) => {
   console.log("Information calling");
   const auth = useAuth();
 
@@ -71,11 +71,40 @@ const Information = ({ conversation }) => {
     localStorage.setItem("notification", isNotifying);
   }, [isNotifying]);
 
+  const deleteChat = () => {
+    if (confirm("Delete this chat?") === true) {
+      const cancelToken = axios.CancelToken.source();
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + auth.token,
+      };
+      const selected = participants.find((item) => item.ContactId === auth.id);
+      selected.IsDeleted = true;
+      axios
+        .put(`api/participants`, selected, {
+          cancelToken: cancelToken.token,
+          headers: headers,
+        })
+        .then((res) => {
+          if (res.status === 200)
+            removeInListChat(res.data.data.ConversationId);
+          else throw new Error(res.status);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      return () => {
+        cancelToken.cancel();
+      };
+    }
+  };
+
   return (
     <>
-      <div className="m-[1rem] w-[clamp(30rem,20vw,40rem)] shrink-0 rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-400 [&>*]:px-[1rem] [&>*]:pb-[1rem]">
+      <div className="m-[1rem] w-[clamp(30rem,20vw,40rem)] shrink-0 rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-500 [&>*]:px-[1rem] [&>*]:pb-[1rem]">
         <div className="flex justify-between border-b-[.1rem] pt-[1rem]">
-          <p className="font-bold">Contact Information</p>
+          <p className="font-bold text-gray-600">Contact Information</p>
           <div className="flex items-center gap-[.3rem]">
             <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
             <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
@@ -85,7 +114,7 @@ const Information = ({ conversation }) => {
         <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
           <div className="flex flex-col items-center">
             <div className="aspect-square w-[5rem] rounded-[50%] bg-orange-400"></div>
-            <p className="font-bold">{conversation?.Title}</p>
+            <p className="font-bold text-gray-600">{conversation?.Title}</p>
             <p className=" text-gray-400">{participants?.length} members</p>
           </div>
           <div className="flex w-full justify-evenly">
@@ -100,19 +129,21 @@ const Information = ({ conversation }) => {
           </div>
         </div>
         <div className="border-b-[.1rem]">
-          <label className="uppercase text-[#757dba]">username</label>
+          <label className="uppercase text-gray-400">username</label>
           <p className="text-blue-500">@user_name</p>
         </div>
         <div className=" border-b-[.1rem]">
           <div className="flex justify-between">
-            <label>Files</label>
+            <label className="font-bold text-gray-600">Files</label>
             <a href="#" className="text-blue-500">
               See all
             </a>
           </div>
         </div>
-        <div className="flex justify-between  border-b-[.1rem]">
-          <label className="fa fa-bell font-normal">&ensp;Notification</label>
+        <div className="flex justify-between border-b-[.1rem]">
+          <label className="fa fa-bell font-normal text-gray-500">
+            &ensp;Notification
+          </label>
           <div className="relative">
             <input
               type="checkbox"
@@ -147,10 +178,11 @@ const Information = ({ conversation }) => {
             ></label>
           </div>
         </div>
-        <div>
-          <a href="#" className="fa fa-trash font-normal text-red-500">
-            &ensp;Delete chat
-          </a>
+        <div
+          onClick={deleteChat}
+          className="fa fa-trash cursor-pointer font-normal text-red-500"
+        >
+          &ensp;Delete chat
         </div>
       </div>
     </>

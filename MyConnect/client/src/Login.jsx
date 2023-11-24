@@ -79,7 +79,7 @@ const Login = () => {
               <span className="">Password</span>
               <input
                 className="rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
-                type="text"
+                type="password"
                 ref={refPassword}
                 placeholder="Type your password"
               />

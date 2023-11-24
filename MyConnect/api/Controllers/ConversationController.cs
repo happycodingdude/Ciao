@@ -20,12 +20,12 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Conversation.GetAll().OrderByDescending(q => q.CreatedTime);
-            return new ResponseModel<IEnumerable<Conversation>>(response).Ok();
+            var response = _unitOfWork.Conversation.GetAllWithUnseenMesages();
+            return new ResponseModel<IEnumerable<ConversationWithTotalUnseen>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Conversation>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<ConversationWithTotalUnseen>>().BadRequest(ex);
         }
     }
 
