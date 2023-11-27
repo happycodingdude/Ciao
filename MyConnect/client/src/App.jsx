@@ -9,7 +9,7 @@ function App() {
   return (
     <div
       className="flex w-full flex-col bg-gradient-to-r from-purple-100
-    to-blue-100 text-[clamp(1.6rem,1.3vw,2rem)] [&>*]:px-[2rem]"
+    to-blue-100 text-[clamp(1rem,1.2vw,2rem)] [&>*]:px-[2rem]"
     >
       <Header />
       <Routes>

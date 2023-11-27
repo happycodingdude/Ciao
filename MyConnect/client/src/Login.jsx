@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../src/hook/useAuth";
+import Signup from "./Signup";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const Login = () => {
     }
   }, []);
 
+  const refLogin = useRef();
   useEffect(() => {
     refUsername.current?.focus();
   }, []);
@@ -28,7 +30,7 @@ const Login = () => {
   // const errorMessageRef = useRef(null);
   // const [retry, setRetry] = useState(0);
 
-  const handleSubmit = () => {
+  const handleLogin = () => {
     const headers = {
       "Content-Type": "application/json",
     };
@@ -56,17 +58,39 @@ const Login = () => {
       });
   };
 
+  const refSignup = useRef();
+  const toggleSignup = () => {
+    refLogin.current.classList.add("animate-login-hide");
+    setTimeout(() => {
+      refLogin.current.classList.remove("animate-login-hide");
+      refLogin.current.classList.toggle("opacity-0");
+    }, 950);
+    refSignup.current?.toggleSignup();
+  };
+
+  const toggleLogin = () => {
+    refLogin.current.classList.add("animate-login-show");
+    setTimeout(() => {
+      refLogin.current.classList.remove("animate-login-show");
+      refLogin.current.classList.toggle("opacity-0");
+    }, 950);
+  };
+
   return (
     <>
       {!isLogin ? (
-        <section className="flex h-full justify-center">
+        <section className="relative flex h-full justify-center gap-[2rem]">
           <div
-            className="relative m-auto
-          flex h-[clamp(40rem,80%,50rem)] w-[clamp(30rem,50%,40rem)] flex-col rounded-[1rem]
-          bg-white px-[4rem] py-[2rem]
-          [&>*:not(:first-child)]:mt-[2rem]"
+            ref={refLogin}
+            className="absolute bottom-0 top-0 z-10 m-auto flex h-[clamp(40rem,80%,50rem)]
+          w-[clamp(30rem,50%,40rem)] flex-col
+          rounded-[1rem] bg-white px-[4rem]
+          py-[2rem]
+          duration-[1s] [&>*:not(:first-child)]:mt-[2rem]"
           >
-            <span className="text-center text-3xl font-bold">Login</span>
+            <span className="text-center text-3xl font-bold uppercase">
+              login
+            </span>
 
             <div className="flex flex-col gap-[1rem]">
               <span className="">Username</span>
@@ -91,38 +115,22 @@ const Login = () => {
 
             <button
               className="w-[50%] self-center rounded-[1rem] border-[.2rem] border-gray-400 uppercase"
-              onClick={handleSubmit}
+              onClick={handleLogin}
             >
               Login
             </button>
+            <div className="flex flex-col items-center">
+              <p>Don't have an account?</p>
+              <a onClick={toggleSignup} href="#" className="text-blue-500">
+                Sign Up
+              </a>
+            </div>
             {/* <span ref={errorMessageRef} className="error-message">
               Retry times remain: {retry}
             </span>
-
-            <div className="other">
-              <div className="other-login">
-                <p>Or login with</p>
-                <div className="icon">
-                  <a href="#" className="facebook">
-                    <i className="fa fa-facebook"></i>
-                  </a>
-                  <a href="#" className="twitter">
-                    <i className=" fa fa-twitter"></i>
-                  </a>
-                  <a href="#" className="google">
-                    <i className=" fa fa-google"></i>
-                  </a>
-                </div>
-              </div>
-
-              <div className="signup">
-                <p>Don't have an account?</p>
-                <a href="#" className="cta-signup">
-                  Sign Up
-                </a>
-              </div>
             </div> */}
           </div>
+          <Signup ref={refSignup} toggleLogin={toggleLogin}></Signup>
         </section>
       ) : (
         ""

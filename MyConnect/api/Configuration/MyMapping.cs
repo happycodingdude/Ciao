@@ -8,6 +8,7 @@ namespace MyConnect.Configuration
         public MyMapping()
         {
             CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
+            CreateMap<Message, MessageToNotify>().ReverseMap();
         }
     }
 }

@@ -14,5 +14,6 @@ namespace MyConnect.Model
         public DateTime? DeletedTime { get; set; }
         public int UnSeenMessages { get; set; }
         public string? LastMessage { get; set; }
+        public DateTime? LastMessageTime { get; set; }
     }
 }

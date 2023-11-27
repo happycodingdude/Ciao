@@ -23,13 +23,14 @@ namespace MyConnect.Repository
             var contact = JwtToken.ExtractToken(token);
             var entity = _context.Set<Conversation>()
             .Where(q => q.Participants.Any(w => w.ContactId == contact.Id && !w.IsDeleted))
-            .OrderByDescending(q => q.CreatedTime)
+            .OrderByDescending(q => q.UpdatedTime)
             .ToList();
             var result = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var item in result)
             {
                 item.UnSeenMessages = _context.Set<Message>().Count(q => q.ConversationId == item.Id && q.Status == "received");
                 item.LastMessage = _context.Set<Message>().Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault()?.Content;
+                item.LastMessageTime = _context.Set<Message>().Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault()?.CreatedTime;
             }
             return result;
         }

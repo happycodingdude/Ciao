@@ -1,4 +1,3 @@
-using System;
 namespace MyConnect.Model
 {
     public class BaseModel
@@ -7,13 +6,8 @@ namespace MyConnect.Model
         public DateTime? CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }
 
-        public void BeforeAdd()
+        public void BeforeUpdate()
         {
-        }
-
-        public void BeforeUpdate(BaseModel current)
-        {
-            CreatedTime = current.CreatedTime;
             UpdatedTime = DateTime.Now;
         }
     }

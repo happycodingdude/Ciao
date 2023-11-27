@@ -4,6 +4,7 @@ import { requestPermission } from "../src/components/Notification";
 import Chatbox from "./components/Chatbox";
 import Information from "./components/Information";
 import ListChat from "./components/ListChat";
+import Signout from "./components/Signout";
 import useAuth from "./hook/useAuth";
 
 const Home = () => {
@@ -67,7 +68,8 @@ const Home = () => {
   };
 
   return (
-    <section className="flex grow overflow-hidden">
+    <section className="relative flex grow overflow-hidden">
+      <Signout />
       <ListChat chats={chats} setConversation={setConversation} />
       <Chatbox conversation={conversation} />
       <Information

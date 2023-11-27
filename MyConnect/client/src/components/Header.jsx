@@ -3,11 +3,6 @@ import useAuth from "../hook/useAuth";
 
 const Header = () => {
   const auth = useAuth();
-
-  const logout = () => {
-    auth.logout();
-  };
-
   return (
     <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-[var(--nav-bg-color)]">
       {/* Phone, Tablet */}
@@ -55,9 +50,7 @@ const Header = () => {
               <div
                 className="absolute right-0 top-[3rem] flex w-[10rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-300 p-[1rem]
               duration-[.5s] group-hover:scale-y-100"
-              >
-                <span onClick={logout}>Logout</span>
-              </div>
+              ></div>
             </div>
           </div>
         ) : (
