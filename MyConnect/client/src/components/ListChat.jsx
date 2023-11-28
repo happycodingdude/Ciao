@@ -1,12 +1,55 @@
 import moment from "moment";
-import React, { useEffect, useRef } from "react";
+import React, {
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import useAuth from "../hook/useAuth";
 
-const ListChat = ({ chats, setConversation }) => {
+const ListChat = forwardRef((props, ref) => {
+  const auth = useAuth();
+
   const refChatItem = useRef([]);
   const refChats = useRef();
   const refChatsScroll = useRef();
 
-  const focusFirstChat = (item) => {
+  const [chats, setChats] = useState();
+
+  const unfocusChat = () => {
+    refChatItem.current.map((ref) => {
+      ref.classList.remove("item-active");
+    });
+  };
+
+  useImperativeHandle(ref, () => ({
+    setChats(chats) {
+      var focus = refChatItem.current.find((ref) =>
+        ref.classList.contains("item-active"),
+      );
+      if (focus == undefined) setChats(chats);
+      else {
+        setChats((current) => {
+          return chats.map((item) => {
+            if (item.Id !== focus.dataset.key) return item;
+            item.UnSeenMessages = 0;
+            return item;
+          });
+        });
+      }
+    },
+
+    removeChat(id) {
+      const remainChats = chats.filter((item) => item.Id !== id);
+      setChats(remainChats);
+      props.setConversation(undefined);
+      unfocusChat();
+    },
+  }));
+
+  const focusChat = (item) => {
     refChatItem.current.map((ref) => {
       if (ref.dataset.key === item.Id) {
         ref.classList.add("item-active");
@@ -17,20 +60,24 @@ const ListChat = ({ chats, setConversation }) => {
   };
 
   const handleSetConversation = (item) => {
-    setConversation(item);
-    focusFirstChat(item);
+    props.setConversation(item);
+    focusChat(item);
+    setChats((current) => {
+      return current.map((chat) => {
+        if (chat.Id !== item.Id) return chat;
+        chat.UnSeenMessages = 0;
+        return chat;
+      });
+    });
   };
 
   useEffect(() => {
     refChatItem.current = refChatItem.current.filter((item) => item !== null);
-    focusFirstChat(chats[0]);
 
-    console.log("scrollHeight ", refChats.current.scrollHeight);
-    console.log("clientHeight ", refChats.current.clientHeight);
     if (refChats.current.scrollHeight <= refChats.current.clientHeight)
       refChatsScroll.current.classList.add("hidden");
     else refChatsScroll.current.classList.remove("hidden");
-  }, chats);
+  }, [chats]);
 
   const scrollListChatToBottom = () => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
@@ -58,7 +105,7 @@ const ListChat = ({ chats, setConversation }) => {
           ref={refChats}
           className="hide-scrollbar flex h-[clamp(50%,50vh,60%)] flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
         >
-          {chats.map((item, i) => (
+          {chats?.map((item, i) => (
             <div
               data-key={item.Id}
               ref={(element) => {
@@ -74,7 +121,17 @@ const ListChat = ({ chats, setConversation }) => {
                 <div className="aspect-square w-[4rem] rounded-[50%] bg-orange-400"></div>
                 <div className="grow">
                   <p className="font-bold">{item.Title}</p>
-                  <p className="">{item.LastMessage}</p>
+                  {item.LastMessageContact == auth.id ? (
+                    <p>{item.LastMessage}</p>
+                  ) : (
+                    <p
+                      className={
+                        item.UnSeenMessages > 0 ? "font-bold text-red-400" : ""
+                      }
+                    >
+                      {item.LastMessage}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-[.5rem]">
@@ -84,14 +141,19 @@ const ListChat = ({ chats, setConversation }) => {
                     ? moment(item.LastMessageTime).format("HH:mm")
                     : moment(item.LastMessageTime).format("DD/MM HH:mm")}
                 </p>
-                <p
-                  className="flex aspect-square w-[3rem] items-center justify-center rounded-[50%] bg-blue-500 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
-                                        font-bold text-white
-                                        group-hover:bg-white group-hover:text-blue-500
-                                        group-[.item-active]:bg-white group-[.item-active]:text-blue-500"
-                >
-                  {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
-                </p>
+                {item.LastMessageContact == auth.id ||
+                item.UnSeenMessages == 0 ? (
+                  ""
+                ) : (
+                  <p
+                    className="flex aspect-square w-[3rem] items-center justify-center rounded-[50%] bg-blue-500 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
+                                                font-bold text-white
+                                                group-hover:bg-white group-hover:text-blue-500
+                                                group-[.item-active]:bg-white group-[.item-active]:text-blue-500"
+                  >
+                    {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -111,6 +173,6 @@ const ListChat = ({ chats, setConversation }) => {
       </div>
     </div>
   );
-};
+});
 
-export default ListChat;
+export default memo(ListChat);

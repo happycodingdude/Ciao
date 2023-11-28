@@ -11,5 +11,16 @@ namespace MyConnect.Model
         public ICollection<ScheduleContact>? ScheduleContacts { get; set; }
         public ICollection<Participants>? Participants { get; set; }
         public ICollection<Message>? Messages { get; set; }
+
+        public void Login()
+        {
+            IsOnline = true;
+        }
+
+        public void Logout()
+        {
+            IsOnline = false;
+            LastLogout = DateTime.Now;
+        }
     }
 }

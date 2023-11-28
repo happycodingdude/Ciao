@@ -17,16 +17,31 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LoginAsync(LoginRequest model)
+    public IActionResult Login(LoginRequest model)
     {
         try
         {
-            var response = await _unitOfWork.Contact.LoginAsync(model);
+            var response = _unitOfWork.Contact.Login(model);
             return new ResponseModel<LoginResponse>(response).Ok();
         }
         catch (Exception ex)
         {
             return new ResponseModel<LoginResponse>().BadRequest(ex);
+        }
+    }
+
+    [HttpPost("Logout")]
+    [MyAuthorizeAttribute("Authorization")]
+    public IActionResult Logout()
+    {
+        try
+        {
+            _unitOfWork.Contact.Logout();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
         }
     }
 

@@ -4,7 +4,8 @@ namespace MyConnect.Repository
 {
     public interface IContactRepository : IRepository<Contact>
     {
-        Task<LoginResponse> LoginAsync(LoginRequest model);
+        LoginResponse Login(LoginRequest model);
+        void Logout();
         Contact ValidateToken();
     }
 }

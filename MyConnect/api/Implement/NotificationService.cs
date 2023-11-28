@@ -18,8 +18,6 @@ namespace MyConnect.Implement
         public void RegisterToken(RegisterConnection param)
         {
             connections[param.Id] = param.Token;
-            // Console.WriteLine(JsonConvert.SerializeObject(connections));
-            Console.WriteLine(connections.Count);
         }
     }
 }

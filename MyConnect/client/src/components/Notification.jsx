@@ -15,7 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export const requestPermission = async () => {
+export const requestPermission = async (notifyMessage) => {
   // const serviceWorkerRegistration = await navigator.serviceWorker.register(
   //   "../src/components/firebase-messaging-sw.jsx",
   // );
@@ -32,6 +32,7 @@ export const requestPermission = async () => {
             // Receive message
             onMessage(messaging, (payload) => {
               console.log("Message received. ", payload);
+              notifyMessage(payload.data);
             });
 
             return token;

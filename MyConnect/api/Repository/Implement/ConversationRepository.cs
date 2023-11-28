@@ -28,9 +28,10 @@ namespace MyConnect.Repository
             var result = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var item in result)
             {
-                item.UnSeenMessages = _context.Set<Message>().Count(q => q.ConversationId == item.Id && q.Status == "received");
+                item.UnSeenMessages = _context.Set<Message>().Count(q => q.ConversationId == item.Id && q.ContactId != contact.Id && q.Status == "received");
                 item.LastMessage = _context.Set<Message>().Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault()?.Content;
                 item.LastMessageTime = _context.Set<Message>().Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault()?.CreatedTime;
+                item.LastMessageContact = _context.Set<Message>().Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault()?.ContactId;
             }
             return result;
         }

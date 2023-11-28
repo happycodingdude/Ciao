@@ -15,5 +15,6 @@ namespace MyConnect.Model
         public int UnSeenMessages { get; set; }
         public string? LastMessage { get; set; }
         public DateTime? LastMessageTime { get; set; }
+        public Guid? LastMessageContact { get; set; }
     }
 }

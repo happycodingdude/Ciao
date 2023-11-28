@@ -196,7 +196,7 @@ const Chatbox = ({ conversation }) => {
           <div
             ref={refScrollButton}
             className="fa fa-arrow-down absolute bottom-[1rem] right-[1rem] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
-                        rounded-[50%] bg-gray-300 font-normal text-gray-500"
+                      rounded-[50%] bg-gray-300 font-normal text-gray-500"
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-500">
@@ -221,7 +221,18 @@ const Chatbox = ({ conversation }) => {
             </div>
             <div className="grow text-center">
               <p className="font-bold text-gray-600">{conversation?.Title}</p>
-              <p className="text-gray-400">status</p>
+              {participants?.find((item) => item.ContactId !== auth.id)?.Contact
+                .IsOnline ? (
+                <p className="text-blue-500">Online</p>
+              ) : (
+                <p className="text-gray-400">
+                  Last seen{" "}
+                  {moment(
+                    participants?.find((item) => item.ContactId !== auth.id)
+                      ?.Contact.LastLogout,
+                  ).format("DD/MM HH:mm")}
+                </p>
+              )}
             </div>
             <div className="flex grow justify-end gap-[1rem]">
               <div className="fa fa-search font-normal text-gray-500"></div>
@@ -240,8 +251,8 @@ const Chatbox = ({ conversation }) => {
               <>
                 <div
                   className="flex items-center text-center text-gray-400
-                                    before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
-                                    after:ml-[2rem] after:h-[.1rem]  after:grow after:bg-gray-400"
+                                  before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
+                                  after:ml-[2rem] after:h-[.1rem]  after:grow after:bg-gray-400"
                 >
                   {moment(date.Date).format("DD/MM/YYYY")}
                 </div>
