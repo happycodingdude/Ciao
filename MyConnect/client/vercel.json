@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api",
-      "destination": "https://b37b-27-74-249-68.ngrok-free.app/api"
+      "source": "/api/:path*",
+      "destination": "https://b37b-27-74-249-68.ngrok-free.app/api/:path*"
     }
   ]
 }
