@@ -86,7 +86,7 @@ const ListChat = forwardRef((props, ref) => {
   return (
     <div
       div
-      className="m-[1rem] flex w-[clamp(30rem,20vw,40rem)] shrink-0 flex-col [&>*]:m-[1rem]"
+      className="flex w-[clamp(30rem,20vw,40rem)] shrink-0 flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]"
     >
       <div className="relative">
         <input

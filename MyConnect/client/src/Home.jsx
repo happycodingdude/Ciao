@@ -19,6 +19,7 @@ const Home = () => {
       item.UnSeenMessages++;
       item.LastMessage = message.Content;
       item.LastMessageTime = message.CreatedTime;
+      item.LastMessageContact = message.ContactId;
       return item;
     });
     refListChat.current?.setChats(newChats);
@@ -89,7 +90,7 @@ const Home = () => {
   };
 
   return (
-    <section className="relative flex grow overflow-hidden">
+    <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
       <Signout />
       <ListChat ref={refListChat} setConversation={setConversation} />
       {conversation == undefined ? (

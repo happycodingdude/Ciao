@@ -102,7 +102,7 @@ const Information = ({ conversation, removeInListChat }) => {
 
   return (
     <>
-      <div className="m-[1rem] w-[clamp(30rem,20vw,40rem)] shrink-0 rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-500 [&>*]:px-[1rem] [&>*]:pb-[1rem]">
+      <div className="w-[clamp(30rem,20vw,40rem)] shrink-0 origin-right overflow-hidden rounded-[1rem] bg-white duration-[.5s] [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]">
         <div className="flex justify-between border-b-[.1rem] pt-[1rem]">
           <p className="font-bold text-gray-600">Contact Information</p>
           <div className="flex items-center gap-[.3rem]">
@@ -157,7 +157,7 @@ const Information = ({ conversation, removeInListChat }) => {
               className="
                         relative                
                         block h-[100%]
-                        w-[clamp(3rem,3vw,4.5rem)]
+                        w-[clamp(3rem,2.5vw,4rem)]
                         cursor-pointer
                         rounded-[5rem]
                         bg-gray-400
@@ -172,9 +172,9 @@ const Information = ({ conversation, removeInListChat }) => {
                         before:bg-white
                         before:duration-[.3s]
                         peer-checked:bg-blue-500
-                        before:peer-checked:translate-x-[90%]
+                        before:peer-checked:translate-x-[100%]
                         before:peer-checked:border-blue-500
-                        laptop:before:peer-checked:translate-x-[130%]"
+                        laptop:before:peer-checked:translate-x-[110%]"
             ></label>
           </div>
         </div>

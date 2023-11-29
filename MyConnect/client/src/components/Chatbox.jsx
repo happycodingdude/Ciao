@@ -10,6 +10,9 @@ const Chatbox = ({ conversation }) => {
   const refChatInput = useRef();
   const refChatContent = useRef();
   const refScrollButton = useRef();
+  const refChatboxOption = useRef();
+  const refChatboxOptionMenu = useRef();
+  const [showChatboxOption, setShowChatboxOption] = useState(false);
 
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
@@ -182,16 +185,60 @@ const Chatbox = ({ conversation }) => {
     else refScrollButton.current.classList.add("hidden");
   }, []);
 
+  const toggleChatboxOption = useCallback((event) => {
+    // click anywhere on screen except the option toggle
+    if (!refChatboxOption.current?.contains(event.target)) {
+      refChatboxOptionMenu.current.classList.remove("scale-y-100");
+    } else if (refChatboxOptionMenu.current.classList.contains("scale-y-100"))
+      refChatboxOptionMenu.current.classList.remove("scale-y-100");
+    else refChatboxOptionMenu.current.classList.add("scale-y-100");
+  }, []);
+
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("click", toggleChatboxOption, true);
     return () => {
       window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("click", toggleChatboxOption, true);
     };
-  }, [handleScroll]);
+  }, [handleScroll, toggleChatboxOption]);
+
+  const handleUpdateTitle = () => {
+    var title = prompt("New title");
+    if (title === null || title === "") return;
+    conversation.Title = title;
+
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    axios
+      .put("api/conversations", conversation, {
+        cancelToken: cancelToken.token,
+        headers: headers,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          console.log(res.data.data);
+        } else throw new Error(res.status);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => {
+      cancelToken.cancel();
+    };
+  };
+
+  const toggleInformation = () => {
+    console.log("toggleInformation");
+  };
 
   return (
     <>
-      <div className="my-[1rem] flex grow flex-col items-center gap-[1rem]">
+      <div className="flex grow flex-col items-center gap-[1rem]">
         <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
@@ -199,7 +246,7 @@ const Chatbox = ({ conversation }) => {
                       rounded-[50%] bg-gray-300 font-normal text-gray-500"
             onClick={scrollChatContentToBottom}
           ></div>
-          <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-500">
+          <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
             <div className="relative flex h-full grow items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
@@ -235,12 +282,30 @@ const Chatbox = ({ conversation }) => {
               )}
             </div>
             <div className="flex grow justify-end gap-[1rem]">
-              <div className="fa fa-search font-normal text-gray-500"></div>
-              <div className="flex items-center gap-[.3rem]">
+              <div className="fa fa-search self-center font-normal text-gray-500"></div>
+              <div
+                ref={refChatboxOption}
+                className="relative flex cursor-pointer items-center gap-[.3rem]"
+              >
                 <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
                 <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
                 <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
+                <div
+                  ref={refChatboxOptionMenu}
+                  className="absolute right-0 top-[150%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] duration-[.5s] [&>*]:text-gray-500"
+                >
+                  <span
+                    className="pl-[1rem] hover:bg-gray-300"
+                    onClick={handleUpdateTitle}
+                  >
+                    Update title
+                  </span>
+                </div>
               </div>
+              <div
+                onClick={toggleInformation}
+                className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal text-gray-500"
+              ></div>
             </div>
           </div>
           <div
