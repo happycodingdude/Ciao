@@ -1,16 +1,17 @@
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
 
-// https://vitejs.dev/config/
+const env = loadEnv("all", process.cwd());
+
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:4000/api',
+      "/api": {
+        target: env.VITE_ASPNETCORE_URL,
         changeOrigin: true,
-        rewrite: path => path.replace('/api', '')
+        rewrite: (path) => path.replace("/api", ""),
       },
-    }
-  }
-})
+    },
+  },
+});
