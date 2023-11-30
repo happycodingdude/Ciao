@@ -28,7 +28,7 @@ const Header = () => {
       </div>
       {/* Laptop, Desktop */}
       <div className=" flex grow items-center justify-between">
-        <a href="#" className="font-bold">
+        <a href="#" className="animate-logo font-bold">
           MyConnect
         </a>
         {auth.user ? (

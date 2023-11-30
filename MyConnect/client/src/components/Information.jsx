@@ -1,13 +1,35 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
-const Information = ({ conversation, removeInListChat }) => {
+const Information = ({ conversation, func }) => {
   console.log("Information calling");
   const auth = useAuth();
 
   const [participants, setParticipants] = useState();
   const [isNotifying, setIsNotifying] = useState(false);
+
+  const refInformation = useRef();
+
+  const showInformation = () => {
+    refInformation.current.classList.remove("animate-information-hide");
+    refInformation.current.classList.add("animate-information-show");
+  };
+
+  const hideInformation = () => {
+    refInformation.current.classList.remove("animate-information-show");
+    refInformation.current.classList.add("animate-information-hide");
+  };
+
+  const toggleInformation = () => {
+    if (refInformation.current.classList.contains("animate-information-hide"))
+      showInformation();
+    else hideInformation();
+  };
+
+  useEffect(() => {
+    func.refInformation.toggleInformation = toggleInformation;
+  }, [toggleInformation]);
 
   useEffect(() => {
     if (!conversation) return;
@@ -87,7 +109,7 @@ const Information = ({ conversation, removeInListChat }) => {
         })
         .then((res) => {
           if (res.status === 200)
-            removeInListChat(res.data.data.ConversationId);
+            func.removeInListChat(res.data.data.ConversationId);
           else throw new Error(res.status);
         })
         .catch((err) => {
@@ -102,7 +124,10 @@ const Information = ({ conversation, removeInListChat }) => {
 
   return (
     <>
-      <div className="w-[clamp(30rem,20vw,40rem)] shrink-0 origin-right overflow-hidden rounded-[1rem] bg-white duration-[.5s] [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]">
+      <div
+        ref={refInformation}
+        className="w-[clamp(30rem,20vw,40rem)] shrink-0 overflow-hidden rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+      >
         <div className="flex justify-between border-b-[.1rem] pt-[1rem]">
           <p className="font-bold text-gray-600">Contact Information</p>
           <div className="flex items-center gap-[.3rem]">
@@ -112,8 +137,8 @@ const Information = ({ conversation, removeInListChat }) => {
           </div>
         </div>
         <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
-          <div className="flex flex-col items-center">
-            <div className="aspect-square w-[5rem] rounded-[50%] bg-orange-400"></div>
+          <div className="flex flex-col items-center gap-[.5rem]">
+            <div className="aspect-square w-[20%] rounded-[50%] bg-orange-400"></div>
             <p className="font-bold text-gray-600">{conversation?.Title}</p>
             <p className=" text-gray-400">{participants?.length} members</p>
           </div>
@@ -132,7 +157,7 @@ const Information = ({ conversation, removeInListChat }) => {
           <label className="uppercase text-gray-400">username</label>
           <p className="text-blue-500">@user_name</p>
         </div>
-        <div className=" border-b-[.1rem]">
+        <div className="border-b-[.1rem]">
           <div className="flex justify-between">
             <label className="font-bold text-gray-600">Files</label>
             <a href="#" className="text-blue-500">

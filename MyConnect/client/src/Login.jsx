@@ -65,7 +65,7 @@ const Login = () => {
       refLogin.current.classList.remove("animate-login-hide");
       refLogin.current.classList.toggle("opacity-0");
     }, 950);
-    refSignup.current?.toggleSignup();
+    refSignup.toggleSignup();
   };
 
   const toggleLogin = () => {
@@ -130,7 +130,7 @@ const Login = () => {
             </span>
             </div> */}
           </div>
-          <Signup ref={refSignup} toggleLogin={toggleLogin}></Signup>
+          <Signup reference={{ refSignup, toggleLogin }}></Signup>
         </section>
       ) : (
         ""

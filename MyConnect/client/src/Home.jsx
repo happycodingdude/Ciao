@@ -12,6 +12,7 @@ const Home = () => {
 
   const [conversation, setConversation] = useState();
   const refListChat = useRef();
+  const refInformation = useRef();
 
   const notifyMessage = (chats, message) => {
     var newChats = chats.map((item) => {
@@ -22,7 +23,7 @@ const Home = () => {
       item.LastMessageContact = message.ContactId;
       return item;
     });
-    refListChat.current?.setChats(newChats);
+    refListChat.setChats(newChats);
   };
 
   useEffect(() => {
@@ -38,11 +39,8 @@ const Home = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          refListChat.current?.setChats(res.data.data);
+          refListChat.setChats(res.data.data);
           registerNotification(res.data.data);
-          // setTimeout(() => {
-          //   setConversation(res.data.data[0]);
-          // }, 100);
         } else throw new Error(res.status);
       })
       .catch((err) => {
@@ -86,21 +84,21 @@ const Home = () => {
   };
 
   const removeInListChat = (id) => {
-    refListChat.current?.removeChat(id);
+    refListChat.removeChat(id);
   };
 
   return (
     <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
       <Signout />
-      <ListChat ref={refListChat} setConversation={setConversation} />
+      <ListChat reference={{ refListChat, setConversation }} />
       {conversation == undefined ? (
         ""
       ) : (
         <>
-          <Chatbox conversation={conversation} />
+          <Chatbox conversation={conversation} func={{ refInformation }} />
           <Information
             conversation={conversation}
-            removeInListChat={removeInListChat}
+            func={{ refInformation, removeInListChat }}
           />
         </>
       )}

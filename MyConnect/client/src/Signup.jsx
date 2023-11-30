@@ -1,7 +1,7 @@
 import axios from "axios";
-import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
-const Signup = forwardRef((props, ref) => {
+const Signup = ({ reference }) => {
   const refName = useRef();
   const refUsername = useRef();
   const refPassword = useRef();
@@ -9,18 +9,16 @@ const Signup = forwardRef((props, ref) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
-    refSignup.current.classList.add("animate-signup-show");
+    refSignup.current?.classList.add("animate-signup-show");
     setTimeout(() => {
-      refSignup.current.classList.remove("animate-signup-show");
+      refSignup.current?.classList.remove("animate-signup-show");
     }, 950);
-    refSignup.current.classList.toggle("z-20");
+    refSignup.current?.classList.toggle("z-20");
   };
 
-  useImperativeHandle(ref, () => ({
-    toggleSignup() {
-      toggleSignup();
-    },
-  }));
+  useEffect(() => {
+    reference.refSignup.toggleSignup = toggleSignup;
+  }, [toggleSignup]);
 
   const backToLogin = () => {
     refSignup.current.classList.add("animate-signup-hide");
@@ -28,7 +26,7 @@ const Signup = forwardRef((props, ref) => {
       refSignup.current.classList.remove("animate-signup-hide");
     }, 950);
     refSignup.current.classList.toggle("z-20");
-    props.toggleLogin();
+    reference.toggleLogin();
   };
 
   const handleSignup = () => {
@@ -45,7 +43,7 @@ const Signup = forwardRef((props, ref) => {
       .then((res) => {
         if (res.status === 200) {
           setTimeout(() => {
-            toggleSignup();
+            backToLogin();
           }, 100);
         } else throw new Error(res.status);
       })
@@ -105,6 +103,6 @@ const Signup = forwardRef((props, ref) => {
       </div>
     </>
   );
-});
+};
 
 export default Signup;

@@ -3,7 +3,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
-const Chatbox = ({ conversation }) => {
+const Chatbox = ({ conversation, func }) => {
   console.log("Chatbox calling");
   const auth = useAuth();
 
@@ -12,7 +12,7 @@ const Chatbox = ({ conversation }) => {
   const refScrollButton = useRef();
   const refChatboxOption = useRef();
   const refChatboxOptionMenu = useRef();
-  const [showChatboxOption, setShowChatboxOption] = useState(false);
+  const refToggleInformation = useRef();
 
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
@@ -233,12 +233,15 @@ const Chatbox = ({ conversation }) => {
   };
 
   const toggleInformation = () => {
-    console.log("toggleInformation");
+    func.refInformation.toggleInformation();
+
+    refToggleInformation.current.classList.toggle("fa-arrow-left");
+    refToggleInformation.current.classList.toggle("fa-arrow-right");
   };
 
   return (
     <>
-      <div className="flex grow flex-col items-center gap-[1rem]">
+      <div className="z-10 flex grow flex-col items-center gap-[1rem]">
         <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
@@ -303,6 +306,7 @@ const Chatbox = ({ conversation }) => {
                 </div>
               </div>
               <div
+                ref={refToggleInformation}
                 onClick={toggleInformation}
                 className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal text-gray-500"
               ></div>

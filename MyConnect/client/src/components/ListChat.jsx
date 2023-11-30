@@ -1,15 +1,8 @@
 import moment from "moment";
-import React, {
-  forwardRef,
-  memo,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
-const ListChat = forwardRef((props, ref) => {
+const ListChat = ({ reference }) => {
   const auth = useAuth();
 
   const refChatItem = useRef([]);
@@ -24,31 +17,6 @@ const ListChat = forwardRef((props, ref) => {
     });
   };
 
-  useImperativeHandle(ref, () => ({
-    setChats(chats) {
-      var focus = refChatItem.current.find((ref) =>
-        ref.classList.contains("item-active"),
-      );
-      if (focus == undefined) setChats(chats);
-      else {
-        setChats((current) => {
-          return chats.map((item) => {
-            if (item.Id !== focus.dataset.key) return item;
-            item.UnSeenMessages = 0;
-            return item;
-          });
-        });
-      }
-    },
-
-    removeChat(id) {
-      const remainChats = chats.filter((item) => item.Id !== id);
-      setChats(remainChats);
-      props.setConversation(undefined);
-      unfocusChat();
-    },
-  }));
-
   const focusChat = (item) => {
     refChatItem.current.map((ref) => {
       if (ref.dataset.key === item.Id) {
@@ -60,7 +28,7 @@ const ListChat = forwardRef((props, ref) => {
   };
 
   const handleSetConversation = (item) => {
-    props.setConversation(item);
+    reference.setConversation(item);
     focusChat(item);
     setChats((current) => {
       return current.map((chat) => {
@@ -77,6 +45,28 @@ const ListChat = forwardRef((props, ref) => {
     if (refChats.current.scrollHeight <= refChats.current.clientHeight)
       refChatsScroll.current.classList.add("hidden");
     else refChatsScroll.current.classList.remove("hidden");
+
+    reference.refListChat.setChats = (chats) => {
+      var focus = refChatItem.current.find((ref) =>
+        ref.classList.contains("item-active"),
+      );
+      if (focus == undefined) setChats(chats);
+      else {
+        setChats((current) => {
+          return chats.map((item) => {
+            if (item.Id !== focus.dataset.key) return item;
+            item.UnSeenMessages = 0;
+            return item;
+          });
+        });
+      }
+    };
+    reference.refListChat.removeChat = (id) => {
+      const remainChats = chats.filter((item) => item.Id !== id);
+      setChats(remainChats);
+      reference.setConversation(undefined);
+      unfocusChat();
+    };
   }, [chats]);
 
   const scrollListChatToBottom = () => {
@@ -173,6 +163,6 @@ const ListChat = forwardRef((props, ref) => {
       </div>
     </div>
   );
-});
+};
 
 export default memo(ListChat);
