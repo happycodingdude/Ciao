@@ -60,20 +60,20 @@ const Login = () => {
 
   const refSignup = useRef();
   const toggleSignup = () => {
-    refLogin.current.classList.add("animate-login-hide");
+    refLogin.current.classList.add("animate-registration-hide");
     setTimeout(() => {
-      refLogin.current.classList.remove("animate-login-hide");
-      refLogin.current.classList.toggle("opacity-0");
-    }, 950);
+      refLogin.current.classList.remove("animate-registration-hide");
+      // refLogin.current.classList.toggle("opacity-0");
+    }, 1000);
     refSignup.toggleSignup();
   };
 
   const toggleLogin = () => {
-    refLogin.current.classList.add("animate-login-show");
+    refLogin.current.classList.add("animate-registration-show");
     setTimeout(() => {
-      refLogin.current.classList.remove("animate-login-show");
-      refLogin.current.classList.toggle("opacity-0");
-    }, 950);
+      refLogin.current.classList.remove("animate-registration-show");
+      // refLogin.current.classList.toggle("opacity-0");
+    }, 1000);
   };
 
   return (

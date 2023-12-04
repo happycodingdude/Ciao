@@ -67,6 +67,10 @@ const ListChat = ({ reference }) => {
       reference.setConversation(undefined);
       unfocusChat();
     };
+
+    // setTimeout(() => {
+    //   handleSetConversation(chats?.[0]);
+    // }, 500);
   }, [chats]);
 
   const scrollListChatToBottom = () => {

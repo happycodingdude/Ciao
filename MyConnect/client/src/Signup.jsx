@@ -9,10 +9,10 @@ const Signup = ({ reference }) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
-    refSignup.current?.classList.add("animate-signup-show");
+    refSignup.current?.classList.add("animate-registration-show");
     setTimeout(() => {
-      refSignup.current?.classList.remove("animate-signup-show");
-    }, 950);
+      refSignup.current?.classList.remove("animate-registration-show");
+    }, 1000);
     refSignup.current?.classList.toggle("z-20");
   };
 
@@ -21,10 +21,10 @@ const Signup = ({ reference }) => {
   }, [toggleSignup]);
 
   const backToLogin = () => {
-    refSignup.current.classList.add("animate-signup-hide");
+    refSignup.current.classList.add("animate-registration-hide");
     setTimeout(() => {
-      refSignup.current.classList.remove("animate-signup-hide");
-    }, 950);
+      refSignup.current.classList.remove("animate-registration-hide");
+    }, 1000);
     refSignup.current.classList.toggle("z-20");
     reference.toggleLogin();
   };

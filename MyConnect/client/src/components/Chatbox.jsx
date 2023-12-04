@@ -1,4 +1,5 @@
 import axios from "axios";
+// import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
@@ -14,10 +15,19 @@ const Chatbox = ({ conversation, func }) => {
   const refChatboxOptionMenu = useRef();
   const refToggleInformation = useRef();
 
+  const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
   useEffect(() => {
     if (!conversation) return;
+
+    // const storage = getStorage();
+    // const storageRef = ref(storage, "img/anhdep1.jpg");
+    // getDownloadURL(storageRef).then((url) => {
+    //   console.log(url);
+    // });
+    setFiles([]);
+
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
@@ -44,11 +54,12 @@ const Chatbox = ({ conversation, func }) => {
       .then((res) => {
         if (res.status === 200) {
           setMessages(res.data.data);
+          // refChatContent.current.scrollTop = 0;
 
-          setTimeout(() => {
-            refChatContent.current.scrollTop =
-              refChatContent.current.scrollHeight;
-          }, 100);
+          // setTimeout(() => {
+          //   refChatContent.current.scrollTop =
+          //     refChatContent.current.scrollHeight;
+          // }, 200);
         } else throw new Error(res.status);
       })
       .catch((err) => {
@@ -235,8 +246,34 @@ const Chatbox = ({ conversation, func }) => {
   const toggleInformation = () => {
     func.refInformation.toggleInformation();
 
-    refToggleInformation.current.classList.toggle("fa-arrow-left");
-    refToggleInformation.current.classList.toggle("fa-arrow-right");
+    refToggleInformation.current.classList.add("animate-ping");
+    setTimeout(() => {
+      refToggleInformation.current.classList.remove("animate-ping");
+      refToggleInformation.current.classList.toggle("fa-arrow-left");
+      refToggleInformation.current.classList.toggle("fa-arrow-right");
+    }, 500);
+  };
+
+  const chooseFile = (e) => {
+    const chosenFiles = Array.from(e.target.files);
+    if (chosenFiles.length === 0) return;
+
+    const mergedFiles = chosenFiles.filter((item) => {
+      if (!files.some((file) => file.name === item.name)) return item;
+    });
+    setFiles([...files, ...mergedFiles]);
+
+    // Create a root reference
+    // const storage = getStorage();
+    // const storageRef = ref(storage, `img/${e.target.files[0].name}`);
+    // uploadBytes(storageRef, e.target.files[0]).then((snapshot) => {
+    //   console.log("Uploaded a blob or file!");
+    //   console.log(snapshot);
+    // });
+  };
+
+  const removeFile = (e) => {
+    setFiles(files.filter((item) => item.name !== e.target.dataset.key));
   };
 
   return (
@@ -295,7 +332,7 @@ const Chatbox = ({ conversation, func }) => {
                 <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
                 <div
                   ref={refChatboxOptionMenu}
-                  className="absolute right-0 top-[150%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] duration-[.5s] [&>*]:text-gray-500"
+                  className="absolute right-0 top-[120%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] duration-[.5s] [&>*]:text-gray-500"
                 >
                   <span
                     className="pl-[1rem] hover:bg-gray-300"
@@ -362,26 +399,53 @@ const Chatbox = ({ conversation, func }) => {
             ))}
           </div>
         </div>
-        <div className="r flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
+        <div className="flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
           <div className="flex grow items-center justify-evenly">
-            <a href="#" className="fa fa-image font-normal text-gray-500"></a>
-            <a href="#" className="fa fa-file font-normal text-gray-500"></a>
-          </div>
-          <div className="grow-[2]">
             <input
-              ref={refChatInput}
-              type="text"
-              placeholder="Write some text"
-              className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
-              onKeyDown={handlePressKey}
+              multiple
+              type="file"
+              className="fa fa-image hidden font-normal text-gray-500"
+              id="choose-image"
+              onChange={chooseFile}
             ></input>
+            <label
+              for="choose-image"
+              className="fa fa-image cursor-pointer font-normal text-gray-500"
+            ></label>
+            <label
+              for="choose-image"
+              className="fa fa-file cursor-pointer font-normal text-gray-500"
+            ></label>
           </div>
-          <div className="flex h-full grow items-center justify-center">
-            <a
-              href="#"
-              className="fa fa-paper-plane flex aspect-square h-[90%] items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
+          {files.length !== 0 ? (
+            <div className="flex h-full flex-wrap items-center gap-[1rem] rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] laptop:w-[40rem] desktop:w-[80rem]">
+              {files.map((item) => (
+                <div className="relative rounded-[.8rem] border-[.1rem] border-gray-300 px-[.5rem]">
+                  <span
+                    data-key={item.name}
+                    onClick={removeFile}
+                    className="absolute right-[-.5rem] top-[-.5rem] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-red-500"
+                  ></span>
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grow-[2]">
+              <input
+                ref={refChatInput}
+                type="text"
+                placeholder="Write some text"
+                className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
+                onKeyDown={handlePressKey}
+              ></input>
+            </div>
+          )}
+          <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">
+            <div
+              className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
               onClick={sendMessage}
-            ></a>
+            ></div>
           </div>
         </div>
       </div>

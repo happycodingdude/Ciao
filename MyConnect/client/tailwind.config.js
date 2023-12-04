@@ -21,26 +21,113 @@ export default {
     },
     extend: {
       keyframes: {
-        "login-hide": {
-          "0%": { opacity: 1 },
-          "50%": { transform: "translateX(-22rem)", opacity: 0.5 },
-          "100%": { opacity: 0 },
+        // "login-hide": {
+        //   "0%": { opacity: 1 },
+        //   "50%": { transform: "translateX(-22rem)", opacity: 0.5 },
+        //   "100%": { opacity: 0 },
+        // },
+        // "login-show": {
+        //   "0%": { opacity: 0 },
+        //   "50%": { transform: "translateX(-22rem)", opacity: 0.5 },
+        //   "100%": { opacity: 1 },
+        // },
+        // "signup-hide": {
+        //   "0%": { opacity: 1 },
+        //   "50%": { transform: "translateX(22rem)", opacity: 0.5 },
+        //   "100%": { opacity: 0 },
+        // },
+        // "signup-show": {
+        //   "0%": { opacity: 0 },
+        //   "50%": { transform: "translateX(22rem)", opacity: 0.5 },
+        //   "100%": { opacity: 1 },
+        // },
+        // "login-show": {
+        //   "0%": {
+        //     transform: "translateX(-800px) rotateY(-30deg) scale(6.5)",
+        //     "transform-origin": "200% 50%",
+        //     opacity: 0,
+        //   },
+        //   "100%": {
+        //     transform: "translateX(0) rotateY(0) scale(1)",
+        //     "transform-origin": "-600px 50%",
+        //     opacity: 1,
+        //   },
+        // },
+
+        // "login-show": {
+        //   "0%": {
+        //     transform: "translateX(-800px) rotateY(30deg) scale(0)",
+        //     "transform-origin": "-100% 50%",
+        //     opacity: 0,
+        //   },
+        //   "100%": {
+        //     transform: "translateX(0) rotateY(0) scale(1)",
+        //     "transform-origin": "1800px 50%",
+        //     opacity: 1,
+        //   },
+        // },
+        // "login-hide": {
+        //   "0%": {
+        //     transform: "translateX(0) rotateY(0) scale(1)",
+        //     "transform-origin": "-1800px 50%",
+        //     opacity: 1,
+        //   },
+        //   "100%": {
+        //     transform: "translateX(1000px) rotateY(-30deg) scale(0)",
+        //     "transform-origin": "-100% 50%",
+        //     opacity: 0,
+        //   },
+        // },
+        // "signup-show": {
+        //   "0%": {
+        //     transform: "translateX(-800px) rotateY(30deg) scale(0)",
+        //     "transform-origin": "-100% 50%",
+        //     opacity: 0,
+        //   },
+        //   "100%": {
+        //     transform: "translateX(0) rotateY(0) scale(1)",
+        //     "transform-origin": "1800px 50%",
+        //     opacity: 1,
+        //   },
+        // },
+        // "signup-hide": {
+        //   "0%": {
+        //     transform: "translateX(0) rotateY(0) scale(1)",
+        //     "transform-origin": "-1800px 50%",
+        //     opacity: 1,
+        //   },
+        //   "100%": {
+        //     transform: "translateX(1000px) rotateY(-30deg) scale(0)",
+        //     "transform-origin": "-100% 50%",
+        //     opacity: 0,
+        //   },
+        // },
+
+        "registration-show": {
+          "0%": {
+            transform: "translateX(-800px) rotateY(30deg) scale(0)",
+            "transform-origin": "-100% 50%",
+            opacity: 0,
+          },
+          "100%": {
+            transform: "translateX(0) rotateY(0) scale(1)",
+            "transform-origin": "1800px 50%",
+            opacity: 1,
+          },
         },
-        "login-show": {
-          "0%": { opacity: 0 },
-          "50%": { transform: "translateX(-22rem)", opacity: 0.5 },
-          "100%": { opacity: 1 },
+        "registration-hide": {
+          "0%": {
+            transform: "translateX(0) rotateY(0) scale(1)",
+            "transform-origin": "-1800px 50%",
+            opacity: 1,
+          },
+          "100%": {
+            transform: "translateX(1000px) rotateY(-30deg) scale(0)",
+            "transform-origin": "-100% 50%",
+            opacity: 0,
+          },
         },
-        "signup-hide": {
-          "0%": { opacity: 1 },
-          "50%": { transform: "translateX(22rem)", opacity: 0.5 },
-          "100%": { opacity: 0 },
-        },
-        "signup-show": {
-          "0%": { opacity: 0 },
-          "50%": { transform: "translateX(22rem)", opacity: 0.5 },
-          "100%": { opacity: 1 },
-        },
+
         // "information-hide": {
         //   "100%": {
         //     transform: "rotate(-540deg)",
@@ -93,7 +180,7 @@ export default {
           },
           "19%": {
             transform: "translateX(-10px) translateY(-16px)",
-            "animation-timing-function": "ease-in",
+            "animation-timing-function": "linear",
           },
           "38%": {
             transform: "translateX(0) translateY(0)",
@@ -124,15 +211,48 @@ export default {
             // "animation-timing-function": "ease-out",
           },
         },
+        // "custom-ping": {
+        //   "0%": {
+        //     transform: "scale(0.2)",
+        //     opacity: 0.8,
+        //   },
+        //   "25%": {
+        //     transform: "scale(0.7)",
+        //   },
+        //   "50%": {
+        //     transform: "scale(1.2)",
+        //   },
+        //   "75%": {
+        //     transform: "scale(1.7)",
+        //   },
+        //   "100%": {
+        //     transform: "scale(2.2)",
+        //     opacity: 0,
+        //   },
+        // },
+        "custom-ping": {
+          "0%": {
+            transform: "scale(1) rotate(0)",
+          },
+          "50%": {
+            transform: "scale(1.5) rotate(90deg)",
+          },
+          "100%": {
+            transform: "scale(1) rotate(180deg)",
+          },
+        },
       },
       animation: {
-        "login-hide": "login-hide 1s linear 1",
-        "login-show": "login-show 1s linear 1",
-        "signup-hide": "signup-hide 1s linear 1",
-        "signup-show": "signup-show 1s linear 1",
+        // "login-hide": "login-hide 1s linear 1",
+        // "login-show": "login-show 1s linear 1",
+        // "signup-hide": "signup-hide 1s linear 1",
+        // "signup-show": "signup-show 1s linear 1",
+        "registration-show": "registration-show 1s linear 1",
+        "registration-hide": "registration-hide 1s linear 1",
         "information-hide": "information-hide .5s both",
         "information-show": "information-show .5s both",
         logo: "logo 1.5s infinite",
+        ping: "custom-ping .5s",
       },
     },
   },

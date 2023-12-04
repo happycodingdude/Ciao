@@ -40,6 +40,6 @@ body,
   }
 
   .item-active {
-    @apply bg-blue-500 text-white
+    @apply bg-blue-500 text-white;
   }
 }

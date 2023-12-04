@@ -4,7 +4,7 @@ import useAuth from "../hook/useAuth";
 const Header = () => {
   const auth = useAuth();
   return (
-    <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-[var(--nav-bg-color)]">
+    <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-white">
       {/* Phone, Tablet */}
       <div className=" flex items-center justify-between laptop:hidden">
         <a href="#" className="fa fa-arrow-left">
@@ -48,9 +48,13 @@ const Header = () => {
               text-gray-500 "
             >
               <div
-                className="absolute right-0 top-[3rem] flex w-[10rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-300 p-[1rem]
-              duration-[.5s] group-hover:scale-y-100"
-              ></div>
+                className="absolute right-0 top-[120%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] font-sans duration-[.5s]
+              group-hover:scale-y-100 [&>*]:text-gray-500"
+              >
+                <span className="pl-[1rem] hover:bg-gray-300">
+                  Update Profile
+                </span>
+              </div>
             </div>
           </div>
         ) : (
