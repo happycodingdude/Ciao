@@ -78,10 +78,7 @@ const ListChat = ({ reference }) => {
   };
 
   return (
-    <div
-      div
-      className="flex w-[clamp(30rem,20vw,40rem)] shrink-0 flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]"
-    >
+    <div className="flex w-[calc(100%/4)] shrink-0 flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]">
       <div className="relative">
         <input
           type="text"
@@ -105,30 +102,30 @@ const ListChat = ({ reference }) => {
               ref={(element) => {
                 refChatItem.current[i] = element;
               }}
-              className="group flex cursor-pointer rounded-[1rem] p-[1rem] 
+              className="group flex cursor-pointer gap-[1rem] rounded-[1rem] p-[1rem] 
                                 hover:bg-blue-500 hover:text-white"
               onClick={() => {
                 handleSetConversation(item);
               }}
             >
-              <div className="flex grow items-start gap-[1rem]">
-                <div className="aspect-square w-[4rem] rounded-[50%] bg-orange-400"></div>
-                <div className="grow">
-                  <p className="font-bold">{item.Title}</p>
-                  {item.LastMessageContact == auth.id ? (
-                    <p>{item.LastMessage}</p>
-                  ) : (
-                    <p
-                      className={
-                        item.UnSeenMessages > 0 ? "font-bold text-red-400" : ""
-                      }
-                    >
-                      {item.LastMessage}
-                    </p>
-                  )}
-                </div>
+              <div className="aspect-square rounded-[50%] bg-orange-400 laptop:w-[calc(100%/6)] desktop:w-[calc(100%/8)]"></div>
+              <div className="w-[calc(100%/2)]">
+                <p className="font-bold">{item.Title}</p>
+                {item.LastMessageContact == auth.id ? (
+                  <p className="overflow-hidden text-ellipsis">
+                    {item.LastMessage}
+                  </p>
+                ) : (
+                  <p
+                    className={`overflow-hidden text-ellipsis ${
+                      item.UnSeenMessages > 0 ? "font-bold text-red-400" : ""
+                    } `}
+                  >
+                    {item.LastMessage}
+                  </p>
+                )}
               </div>
-              <div className="flex flex-col items-end gap-[.5rem]">
+              <div className="flex w-[calc(100%/4)] flex-col items-end gap-[.5rem]">
                 <p className="font-thin text-gray-950 group-hover:text-white group-[.item-active]:text-white">
                   {moment(item.LastMessageTime).format("DD/MM/YYYY") ===
                   moment().format("DD/MM/YYYY")

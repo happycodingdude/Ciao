@@ -152,7 +152,7 @@ export default {
           },
           "50%": {
             transform: "rotateX(89deg)",
-            width: "clamp(30rem,20vw,40rem)",
+            width: "calc(100%/5)",
           },
           "100%": {
             transform: "rotateX(90deg)",
@@ -166,11 +166,11 @@ export default {
           },
           "50%": {
             transform: "rotateX(89deg)",
-            width: "clamp(30rem,20vw,40rem)",
+            width: "calc(100%/5)",
           },
           "100%": {
             transform: "rotateX(0)",
-            width: "clamp(30rem,20vw,40rem)",
+            width: "calc(100%/5)",
           },
         },
         logo: {

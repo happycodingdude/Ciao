@@ -4,11 +4,13 @@ namespace MyConnect.Repository
 {
     public class BaseRepository<T> : IRepository<T> where T : class
     {
-        private readonly CoreContext _context;
+        protected readonly CoreContext _context;
+        protected readonly DbSet<T> _dbSet;
 
         public BaseRepository(CoreContext context)
         {
             _context = context;
+            _dbSet = context.Set<T>();
         }
 
         public virtual IEnumerable<T> GetAll()

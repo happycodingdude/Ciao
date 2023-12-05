@@ -5,18 +5,16 @@ namespace MyConnect.Repository
 {
     public class MessageRepository : BaseRepository<Message>, IMessageRepository
     {
-        private readonly CoreContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public MessageRepository(CoreContext context, IHttpContextAccessor httpContextAccessor) : base(context)
         {
-            _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
 
         public IEnumerable<MessageGroupByCreatedTime> GetByConversationId(Guid id)
         {
-            var messages = _context.Set<Message>()
+            var messages = _dbSet
             .Where(q => q.ConversationId == id)
             .OrderBy(q => q.CreatedTime)
             .ToList();
@@ -25,7 +23,7 @@ namespace MyConnect.Repository
             .GroupBy(q => q.CreatedTime.Value.Date)
             .Select(q => new MessageGroupByCreatedTime
             {
-                Date = q.Key.ToShortDateString(),
+                Date = q.Key.ToString("MM/dd/yyyy"),
                 Messages = q.ToList()
             });
             return groupByCreatedTime;
@@ -39,7 +37,7 @@ namespace MyConnect.Repository
             var unseenMessages = messages.Where(q => q.ContactId != contact.Id && q.Status == "received");
             foreach (var message in unseenMessages)
                 message.Status = "seen";
-            _context.Set<Message>().UpdateRange(unseenMessages);
+            _dbSet.UpdateRange(unseenMessages);
             _context.SaveChanges();
         }
     }

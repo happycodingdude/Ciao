@@ -129,12 +129,25 @@ const Chatbox = ({ conversation, func }) => {
       "Content-Type": "application/json",
       Authorization: "Bearer " + auth.token,
     };
-    const body = {
-      Type: "text",
-      Content: refChatInput.current.value,
+    var body = {
+      // Type: files.length === 0 ? "text" : "file",
+      // Content: refChatInput.current.value,
       ContactId: auth.id,
       ConversationId: conversation.Id,
     };
+    if (files.length === 0) {
+      body = {
+        ...body,
+        Type: "text",
+        Content: refChatInput.current.value,
+      };
+    } else {
+      body = {
+        ...body,
+        Type: "file",
+        Mediaurl: files.map((item) => item.name).join(","),
+      };
+    }
     axios
       .post(`api/messages/send`, body, {
         cancelToken: cancelToken.token,
@@ -143,6 +156,7 @@ const Chatbox = ({ conversation, func }) => {
       .then((res) => {
         if (res.status === 200) {
           refChatInput.current.value = "";
+          setFiles([]);
 
           // add new message to current list
           if (messages.length === 0) {
@@ -170,7 +184,7 @@ const Chatbox = ({ conversation, func }) => {
           setTimeout(() => {
             refChatContent.current.scrollTop =
               refChatContent.current.scrollHeight;
-          }, 200);
+          }, 500);
         } else throw new Error(res.status);
       })
       .catch((err) => {
@@ -263,6 +277,8 @@ const Chatbox = ({ conversation, func }) => {
     });
     setFiles([...files, ...mergedFiles]);
 
+    e.target.value = null;
+
     // Create a root reference
     // const storage = getStorage();
     // const storageRef = ref(storage, `img/${e.target.files[0].name}`);
@@ -277,179 +293,201 @@ const Chatbox = ({ conversation, func }) => {
   };
 
   return (
-    <>
-      <div className="z-10 flex grow flex-col items-center gap-[1rem]">
-        <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
-          <div
-            ref={refScrollButton}
-            className="fa fa-arrow-down absolute bottom-[1rem] right-[1rem] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
+    <div className="z-10 flex w-[calc(100%/2)] grow flex-col items-center gap-[1rem]">
+      <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
+        <div
+          ref={refScrollButton}
+          className="fa fa-arrow-down absolute bottom-[1rem] right-[1rem] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
                       rounded-[50%] bg-gray-300 font-normal text-gray-500"
-            onClick={scrollChatContentToBottom}
-          ></div>
-          <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
-            <div className="relative flex h-full grow items-center">
-              {participants?.map((item, i) =>
-                i < 3 ? (
-                  <div
-                    className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[red] ${
-                      i === 0 ? "left-0" : ""
-                    } ${i === 1 ? "left-[2rem]" : ""} ${
-                      i === 2 ? "left-[4rem]" : ""
-                    }`}
-                  ></div>
-                ) : (
-                  ""
-                ),
-              )}
-              <a
-                href="#"
-                className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
-              ></a>
-            </div>
-            <div className="grow text-center">
-              <p className="font-bold text-gray-600">{conversation?.Title}</p>
-              {participants?.find((item) => item.ContactId !== auth.id)?.Contact
-                .IsOnline ? (
-                <p className="text-blue-500">Online</p>
+          onClick={scrollChatContentToBottom}
+        ></div>
+        <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
+          <div className="relative flex h-full grow items-center">
+            {participants?.map((item, i) =>
+              i < 3 ? (
+                <div
+                  className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[red] ${
+                    i === 0 ? "left-0" : ""
+                  } ${i === 1 ? "left-[2rem]" : ""} ${
+                    i === 2 ? "left-[4rem]" : ""
+                  }`}
+                ></div>
               ) : (
-                <p className="text-gray-400">
-                  Last seen{" "}
-                  {moment(
-                    participants?.find((item) => item.ContactId !== auth.id)
-                      ?.Contact.LastLogout,
-                  ).format("DD/MM HH:mm")}
-                </p>
-              )}
-            </div>
-            <div className="flex grow justify-end gap-[1rem]">
-              <div className="fa fa-search self-center font-normal text-gray-500"></div>
-              <div
-                ref={refChatboxOption}
-                className="relative flex cursor-pointer items-center gap-[.3rem]"
-              >
-                <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-                <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-                <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-                <div
-                  ref={refChatboxOptionMenu}
-                  className="absolute right-0 top-[120%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] duration-[.5s] [&>*]:text-gray-500"
-                >
-                  <span
-                    className="pl-[1rem] hover:bg-gray-300"
-                    onClick={handleUpdateTitle}
-                  >
-                    Update title
-                  </span>
-                </div>
-              </div>
-              <div
-                ref={refToggleInformation}
-                onClick={toggleInformation}
-                className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal text-gray-500"
-              ></div>
-            </div>
+                ""
+              ),
+            )}
+            <a
+              href="#"
+              className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
+            ></a>
           </div>
-          <div
-            ref={refChatContent}
-            className="hide-scrollbar my-[2rem] flex flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
-          >
-            {messages?.map((date) => (
-              <>
-                <div
-                  className="flex items-center text-center text-gray-400
-                                  before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
-                                  after:ml-[2rem] after:h-[.1rem]  after:grow after:bg-gray-400"
-                >
-                  {moment(date.Date).format("DD/MM/YYYY")}
-                </div>
-                {date.Messages.map((message) => (
-                  <div className="flex items-center gap-[2rem]">
-                    <div className="aspect-square w-[5rem] self-start rounded-[50%] bg-orange-400"></div>
-                    <div className="flex w-full flex-col">
-                      <div className="flex items-center gap-[1rem]">
-                        <h1 className="font-semibold">
-                          {message.ContactId === auth.id
-                            ? "You"
-                            : participants?.find(
-                                (item) => item.ContactId === message.ContactId,
-                              )?.Contact.Name}
-                        </h1>
-                        {participants?.find(
-                          (item) => item.ContactId === message.ContactId,
-                        )?.IsModerator ? (
-                          <div className="rounded-[.8rem] bg-orange-400 px-[.5rem] py-[.1rem] text-[var(--text-morderator-color)]">
-                            Moderator
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                        <p className="text-blue-400">
-                          {moment(message.CreatedTime).format("HH:mm")}
-                        </p>
-                        <img
-                          src="../src/img/double-check.svg"
-                          className="w-[2rem]"
-                        ></img>
-                      </div>
-                      <p className=" text-gray-400">{message.Content}</p>
-                    </div>
-                  </div>
-                ))}
-              </>
-            ))}
+          <div className="grow text-center">
+            <p className="font-bold text-gray-600">{conversation?.Title}</p>
+            {participants?.find((item) => item.ContactId !== auth.id)?.Contact
+              .IsOnline ? (
+              <p className="text-blue-500">Online</p>
+            ) : (
+              <p className="text-gray-400">
+                Last seen{" "}
+                {moment(
+                  participants?.find((item) => item.ContactId !== auth.id)
+                    ?.Contact.LastLogout,
+                ).format("DD/MM HH:mm")}
+              </p>
+            )}
           </div>
-        </div>
-        <div className="flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
-          <div className="flex grow items-center justify-evenly">
-            <input
-              multiple
-              type="file"
-              className="fa fa-image hidden font-normal text-gray-500"
-              id="choose-image"
-              onChange={chooseFile}
-            ></input>
-            <label
-              for="choose-image"
-              className="fa fa-image cursor-pointer font-normal text-gray-500"
-            ></label>
-            <label
-              for="choose-image"
-              className="fa fa-file cursor-pointer font-normal text-gray-500"
-            ></label>
-          </div>
-          {files.length !== 0 ? (
-            <div className="flex h-full flex-wrap items-center gap-[1rem] rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] laptop:w-[40rem] desktop:w-[80rem]">
-              {files.map((item) => (
-                <div className="relative rounded-[.8rem] border-[.1rem] border-gray-300 px-[.5rem]">
-                  <span
-                    data-key={item.name}
-                    onClick={removeFile}
-                    className="absolute right-[-.5rem] top-[-.5rem] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-red-500"
-                  ></span>
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grow-[2]">
-              <input
-                ref={refChatInput}
-                type="text"
-                placeholder="Write some text"
-                className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
-                onKeyDown={handlePressKey}
-              ></input>
-            </div>
-          )}
-          <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">
+          <div className="flex grow justify-end gap-[1rem]">
+            <div className="fa fa-search self-center font-normal text-gray-500"></div>
             <div
-              className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
-              onClick={sendMessage}
+              ref={refChatboxOption}
+              className="relative flex cursor-pointer items-center gap-[.3rem]"
+            >
+              <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
+              <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
+              <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
+              <div
+                ref={refChatboxOptionMenu}
+                className="absolute right-0 top-[120%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] duration-[.5s] [&>*]:text-gray-500"
+              >
+                <span
+                  className="pl-[1rem] hover:bg-gray-300"
+                  onClick={handleUpdateTitle}
+                >
+                  Update title
+                </span>
+              </div>
+            </div>
+            <div
+              ref={refToggleInformation}
+              onClick={toggleInformation}
+              className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal text-gray-500"
             ></div>
           </div>
         </div>
+        <div
+          ref={refChatContent}
+          className="hide-scrollbar my-[2rem] flex w-full flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+        >
+          {messages?.map((date) => (
+            <>
+              <div
+                className="flex items-center text-center text-gray-400
+                                  before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
+                                  after:ml-[2rem] after:h-[.1rem]  after:grow after:bg-gray-400"
+              >
+                {moment(date.Date).format("DD/MM/YYYY")}
+              </div>
+              {date.Messages.map((message) => (
+                <div className="flex items-center gap-[2rem]">
+                  <div className="aspect-square self-start rounded-[50%] bg-orange-400 laptop:w-[calc(100%/15)] desktop:w-[calc(100%/20)]"></div>
+                  <div className="flex w-[90%] flex-col">
+                    <div className="flex items-center gap-[1rem]">
+                      <h1 className="font-semibold">
+                        {message.ContactId === auth.id
+                          ? "You"
+                          : participants?.find(
+                              (item) => item.ContactId === message.ContactId,
+                            )?.Contact.Name}
+                      </h1>
+                      {participants?.find(
+                        (item) => item.ContactId === message.ContactId,
+                      )?.IsModerator ? (
+                        <div className="rounded-[.8rem] bg-orange-400 px-[.5rem] py-[.1rem] text-[var(--text-morderator-color)]">
+                          Moderator
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      <p className="text-blue-400">
+                        {moment(message.CreatedTime).format("HH:mm")}
+                      </p>
+                      <img
+                        src="../src/img/double-check.svg"
+                        className="w-[2rem]"
+                      ></img>
+                    </div>
+                    <div className="grid auto-rows-max grid-cols-[repeat(auto-fill,calc(100%/2))] break-words text-gray-400">
+                      {message.Type === "text"
+                        ? message.Content
+                        : message.MediaUrl.split(",").map((media) => (
+                            <div className="m-[.5rem] aspect-video rounded-2xl bg-gray-200">
+                              {media}
+                            </div>
+                          ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          ))}
+        </div>
       </div>
-    </>
+      <div className="flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
+        <div className="flex grow items-center justify-evenly">
+          <input
+            multiple
+            type="file"
+            className="fa fa-image hidden font-normal text-gray-500"
+            id="choose-image"
+            onChange={chooseFile}
+          ></input>
+          <label
+            for="choose-image"
+            className="fa fa-image cursor-pointer font-normal text-gray-500"
+          ></label>
+          <label
+            for="choose-image"
+            className="fa fa-file cursor-pointer font-normal text-gray-500"
+          ></label>
+        </div>
+        {files.length !== 0 ? (
+          <div
+            className="hide-scrollbar grid h-full auto-rows-max grid-cols-[repeat(auto-fill,calc(100%/3))] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] 
+          laptop:max-h-[10rem] 
+          laptop:w-[50rem]
+          desktop:w-[80rem]"
+          >
+            {files.map((item) => (
+              <div
+                style={{ "--image-url": `url('${URL.createObjectURL(item)}'` }}
+                className={`group relative m-[.5rem] aspect-video rounded-[.8rem]
+                before:absolute before:h-full before:w-full before:rounded-[.8rem] 
+                before:bg-[image:var(--image-url)] before:bg-[length:100%_100%] before:bg-center
+                hover:before:opacity-50`}
+              >
+                <span
+                  data-key={item.name}
+                  onClick={removeFile}
+                  // className="fa fa-times-circle absolute right-[0] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] text-red-500 group-hover:opacity-100"
+                  // className="absolute right-1/2 top-1/2 aspect-square w-[5rem] translate-x-[50%] translate-y-[-50%] cursor-pointer rounded-[50%] bg-red-500 text-red-500 group-hover:opacity-100"
+                  className="before:absolute before:left-[5%] before:top-1/2 before:h-[.5rem] before:w-[5rem] before:translate-x-[80%] before:translate-y-[-50%] before:rotate-[28deg] before:scale-0 before:cursor-pointer before:bg-red-500 
+                  before:text-red-500 before:duration-[.2s] after:absolute after:bottom-[5%] after:left-[5%] after:top-1/2 after:h-[.5rem] after:w-[5rem] after:translate-x-[80%] after:translate-y-[-50%] after:rotate-[-28deg] after:scale-0
+                  after:cursor-pointer after:bg-red-500
+                  after:text-red-500 after:duration-[.2s]
+                  group-hover:before:scale-100 group-hover:after:scale-100"
+                ></span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grow-[2]">
+            <input
+              ref={refChatInput}
+              type="text"
+              placeholder="Write some text"
+              className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
+              onKeyDown={handlePressKey}
+            ></input>
+          </div>
+        )}
+        <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">
+          <div
+            className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
+            onClick={sendMessage}
+          ></div>
+        </div>
+      </div>
+    </div>
   );
 };
 

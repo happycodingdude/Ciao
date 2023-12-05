@@ -6,7 +6,6 @@ namespace MyConnect.Repository
 {
     public class ContactRepository : BaseRepository<Contact>, IContactRepository
     {
-        private readonly CoreContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
 
@@ -14,7 +13,6 @@ namespace MyConnect.Repository
         IHttpContextAccessor httpContextAccessor,
         IConfiguration configuration) : base(context)
         {
-            _context = context;
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
         }
@@ -22,7 +20,7 @@ namespace MyConnect.Repository
         public LoginResponse Login(LoginRequest model)
         {
             // Check username
-            var entity = _context.Set<Contact>().FirstOrDefault(q => q.Username == model.Username);
+            var entity = _dbSet.FirstOrDefault(q => q.Username == model.Username);
             if (entity == null)
                 throw new Exception(ErrorCode.NotFound);
 
@@ -31,7 +29,7 @@ namespace MyConnect.Repository
                 throw new Exception(ErrorCode.WrongPassword);
 
             entity.Login();
-            _context.Set<Contact>().Update(entity);
+            _dbSet.Update(entity);
             _context.SaveChanges();
 
             var response = new LoginResponse
@@ -44,9 +42,9 @@ namespace MyConnect.Repository
         public void Logout()
         {
             var contact = ValidateToken();
-            var entity = _context.Set<Contact>().Find(contact.Id);
+            var entity = _dbSet.Find(contact.Id);
             entity.Logout();
-            _context.Set<Contact>().Update(entity);
+            _dbSet.Update(entity);
             _context.SaveChanges();
         }
 
