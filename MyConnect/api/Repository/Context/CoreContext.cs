@@ -26,6 +26,7 @@ namespace MyConnect.Repository
             modelBuilder.ApplyConfiguration(new ParticipantsEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ScheduleEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ScheduleContactEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new AttachmentEntityConfiguration());
         }
 
         public DbSet<Contact>? Contacts { get; set; }

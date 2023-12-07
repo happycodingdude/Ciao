@@ -71,6 +71,20 @@ public class ConversationsController : ControllerBase
         }
     }
 
+    [HttpGet("{id}/attachments")]
+    public IActionResult GetAttachments(Guid id)
+    {
+        try
+        {
+            var response = _unitOfWork.Attachment.GetByConversationId(id);
+            return new ResponseModel<IEnumerable<Model.AttachmentGroupByCreatedTime>>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<IEnumerable<Model.AttachmentGroupByCreatedTime>>().BadRequest(ex);
+        }
+    }
+
     [HttpPost]
     public IActionResult Add(Conversation model)
     {

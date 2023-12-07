@@ -1,5 +1,6 @@
+import { wrapGrid } from "animate-css-grid";
 import axios from "axios";
-// import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
@@ -53,13 +54,9 @@ const Chatbox = ({ conversation, func }) => {
       })
       .then((res) => {
         if (res.status === 200) {
+          refChatContent.current.classList.remove("scroll-smooth");
+          refChatContent.current.scrollTop = 0;
           setMessages(res.data.data);
-          // refChatContent.current.scrollTop = 0;
-
-          // setTimeout(() => {
-          //   refChatContent.current.scrollTop =
-          //     refChatContent.current.scrollHeight;
-          // }, 200);
         } else throw new Error(res.status);
       })
       .catch((err) => {
@@ -117,21 +114,46 @@ const Chatbox = ({ conversation, func }) => {
       //   console.log(`The service worker sent me a message: ${event.data}`);
       // });
     }
+
+    refChatContent.current.classList.add("scroll-smooth");
+    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+
+    setTimeout(() => {
+      const grids = Array.from(document.querySelectorAll(".grid-chat"));
+      grids.map((grid) => {
+        wrapGrid(grid, { duration: 400, easing: "easeOut" });
+      });
+    }, 500);
   }, [messages]);
 
   const scrollChatContentToBottom = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
   };
 
-  const sendMessage = () => {
+  const uploadFile = async () => {
+    // Create a root reference
+    const storage = getStorage();
+    return Promise.all(
+      files.map((item) => {
+        return uploadBytes(ref(storage, `img/${item.name}`), item).then(
+          (snapshot) => {
+            return getDownloadURL(snapshot.ref).then((url) => {
+              console.log(url);
+              return url;
+            });
+          },
+        );
+      }),
+    );
+  };
+
+  const sendMessage = async () => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
       Authorization: "Bearer " + auth.token,
     };
     var body = {
-      // Type: files.length === 0 ? "text" : "file",
-      // Content: refChatInput.current.value,
       ContactId: auth.id,
       ConversationId: conversation.Id,
     };
@@ -145,7 +167,11 @@ const Chatbox = ({ conversation, func }) => {
       body = {
         ...body,
         Type: "file",
-        Mediaurl: files.map((item) => item.name).join(","),
+        Attachments: await uploadFile().then((urls) => {
+          return urls.map((url) => ({
+            MediaUrl: url,
+          }));
+        }),
       };
     }
     axios
@@ -155,7 +181,7 @@ const Chatbox = ({ conversation, func }) => {
       })
       .then((res) => {
         if (res.status === 200) {
-          refChatInput.current.value = "";
+          if (refChatInput.current !== null) refChatInput.current.value = "";
           setFiles([]);
 
           // add new message to current list
@@ -265,7 +291,23 @@ const Chatbox = ({ conversation, func }) => {
       refToggleInformation.current.classList.remove("animate-ping");
       refToggleInformation.current.classList.toggle("fa-arrow-left");
       refToggleInformation.current.classList.toggle("fa-arrow-right");
+      refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     }, 500);
+
+    const grids = Array.from(document.querySelectorAll(".grid-chat"));
+    grids.map((grid) => {
+      if (
+        grid.classList.contains(
+          "grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]",
+        )
+      ) {
+        grid.classList.remove("grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]");
+        grid.classList.add("grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]");
+      } else {
+        grid.classList.add("grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]");
+        grid.classList.remove("grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]");
+      }
+    });
   };
 
   const chooseFile = (e) => {
@@ -278,18 +320,15 @@ const Chatbox = ({ conversation, func }) => {
     setFiles([...files, ...mergedFiles]);
 
     e.target.value = null;
-
-    // Create a root reference
-    // const storage = getStorage();
-    // const storageRef = ref(storage, `img/${e.target.files[0].name}`);
-    // uploadBytes(storageRef, e.target.files[0]).then((snapshot) => {
-    //   console.log("Uploaded a blob or file!");
-    //   console.log(snapshot);
-    // });
   };
 
   const removeFile = (e) => {
     setFiles(files.filter((item) => item.name !== e.target.dataset.key));
+  };
+
+  const imageOnError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "../src/assets/imagenotfound.jpg";
   };
 
   return (
@@ -301,8 +340,8 @@ const Chatbox = ({ conversation, func }) => {
                       rounded-[50%] bg-gray-300 font-normal text-gray-500"
           onClick={scrollChatContentToBottom}
         ></div>
-        <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
-          <div className="relative flex h-full grow items-center">
+        <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem] laptop:max-h-[5.5rem]">
+          <div className="relative flex h-full basis-[calc(100%/3)] items-center">
             {participants?.map((item, i) =>
               i < 3 ? (
                 <div
@@ -321,7 +360,7 @@ const Chatbox = ({ conversation, func }) => {
               className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
             ></a>
           </div>
-          <div className="grow text-center">
+          <div className="basis-[calc(100%/3)] text-center">
             <p className="font-bold text-gray-600">{conversation?.Title}</p>
             {participants?.find((item) => item.ContactId !== auth.id)?.Contact
               .IsOnline ? (
@@ -332,11 +371,19 @@ const Chatbox = ({ conversation, func }) => {
                 {moment(
                   participants?.find((item) => item.ContactId !== auth.id)
                     ?.Contact.LastLogout,
-                ).format("DD/MM HH:mm")}
+                ).format("DD/MM/YYYY") === moment().format("DD/MM/YYYY")
+                  ? moment(
+                      participants?.find((item) => item.ContactId !== auth.id)
+                        ?.Contact.LastLogout,
+                    ).fromNow()
+                  : moment(
+                      participants?.find((item) => item.ContactId !== auth.id)
+                        ?.Contact.LastLogout,
+                    ).format("DD/MM HH:mm")}
               </p>
             )}
           </div>
-          <div className="flex grow justify-end gap-[1rem]">
+          <div className="flex basis-[calc(100%/3)] justify-end gap-[1rem]">
             <div className="fa fa-search self-center font-normal text-gray-500"></div>
             <div
               ref={refChatboxOption}
@@ -360,7 +407,7 @@ const Chatbox = ({ conversation, func }) => {
             <div
               ref={refToggleInformation}
               onClick={toggleInformation}
-              className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal text-gray-500"
+              className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
             ></div>
           </div>
         </div>
@@ -406,13 +453,29 @@ const Chatbox = ({ conversation, func }) => {
                         className="w-[2rem]"
                       ></img>
                     </div>
-                    <div className="grid auto-rows-max grid-cols-[repeat(auto-fill,calc(100%/2))] break-words text-gray-400">
+                    <div
+                      className={`grid gap-[1rem] ${
+                        message.Type === "file" &&
+                        message.Attachments.length === 1
+                          ? "grid-cols-[repeat(1,70%)]"
+                          : "grid-chat grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
+                        // "grid-cols-[repeat(2,1fr)]"
+                      }  break-words text-gray-400`}
+                    >
                       {message.Type === "text"
                         ? message.Content
-                        : message.MediaUrl.split(",").map((media) => (
-                            <div className="m-[.5rem] aspect-video rounded-2xl bg-gray-200">
-                              {media}
-                            </div>
+                        : message.Attachments.map((item) => (
+                            // <div
+                            //   style={{
+                            //     "--image-url": `url('${media.MediaUrl}')`,
+                            //   }}
+                            //   className="aspect-video cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
+                            // ></div>
+                            <img
+                              src={item.MediaUrl}
+                              onError={imageOnError}
+                              className="aspect-video cursor-pointer rounded-2xl"
+                            ></img>
                           ))}
                     </div>
                   </div>
@@ -442,15 +505,19 @@ const Chatbox = ({ conversation, func }) => {
         </div>
         {files.length !== 0 ? (
           <div
-            className="hide-scrollbar grid h-full auto-rows-max grid-cols-[repeat(auto-fill,calc(100%/3))] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] 
+            className={`${
+              files.length === 1
+                ? "grid-cols-[repeat(1,50%)]"
+                : "grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
+            } hide-scrollbar grid h-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] 
           laptop:max-h-[10rem] 
-          laptop:w-[50rem]
-          desktop:w-[80rem]"
+          laptop:w-[clamp(40rem,70%,70rem)]          
+          desktop:w-[80rem]`}
           >
             {files.map((item) => (
               <div
                 style={{ "--image-url": `url('${URL.createObjectURL(item)}'` }}
-                className={`group relative m-[.5rem] aspect-video rounded-[.8rem]
+                className={`group relative aspect-video rounded-[.8rem]
                 before:absolute before:h-full before:w-full before:rounded-[.8rem] 
                 before:bg-[image:var(--image-url)] before:bg-[length:100%_100%] before:bg-center
                 hover:before:opacity-50`}

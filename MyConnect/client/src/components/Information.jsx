@@ -1,3 +1,4 @@
+import { wrapGrid } from "animate-css-grid";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
@@ -7,9 +8,12 @@ const Information = ({ conversation, func }) => {
   const auth = useAuth();
 
   const [participants, setParticipants] = useState();
+  const [attachments, setAttachments] = useState();
+  const [displayAttachments, setDisplayAttachments] = useState();
   const [isNotifying, setIsNotifying] = useState(false);
 
   const refInformation = useRef();
+  const refGrid = useRef();
 
   const showInformation = () => {
     refInformation.current.classList.remove("animate-information-hide");
@@ -50,6 +54,22 @@ const Information = ({ conversation, func }) => {
             res.data.data.find((item) => item.ContactId === auth.id)
               ?.IsNotifying,
           );
+        } else throw new Error(res.status);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    axios
+      .get(`api/conversations/${conversation?.Id}/attachments`, {
+        cancelToken: cancelToken.token,
+        headers: headers,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setAttachments(res.data.data);
+          setDisplayAttachments(res.data.data[0].Attachments.slice(0, 8));
+          wrapGrid(refGrid.current, { duration: 600, easing: "backInOut" });
         } else throw new Error(res.status);
       })
       .catch((err) => {
@@ -122,12 +142,27 @@ const Information = ({ conversation, func }) => {
     }
   };
 
+  const showAllAttachment = () => {
+    // if (refGrid.current.classList.contains("grid-cols-[repeat(4,1fr)]")) {
+    //   refGrid.current.classList.remove("grid-cols-[repeat(4,1fr)]");
+    //   refGrid.current.classList.add("grid-cols-[repeat(5,1fr)]");
+    // } else {
+    //   refGrid.current.classList.add("grid-cols-[repeat(4,1fr)]");
+    //   refGrid.current.classList.remove("grid-cols-[repeat(5,1fr)]");
+    // }
+  };
+
+  const imageOnError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "../src/assets/imagenotfound.jpg";
+  };
+
   return (
     <div
       ref={refInformation}
-      className="w-[calc(100%/5)] shrink-0 overflow-hidden rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+      className="hide-scrollbar w-[calc(100%/4)] shrink-0 overflow-hidden overflow-y-auto scroll-smooth rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
     >
-      <div className="flex justify-between border-b-[.1rem] pt-[1rem]">
+      <div className="flex items-center justify-between border-b-[.1rem] pt-[1rem] laptop:h-[5.5rem]">
         <p className="font-bold text-gray-600">Contact Information</p>
         <div className="flex items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
@@ -139,7 +174,9 @@ const Information = ({ conversation, func }) => {
         <div className="flex flex-col items-center gap-[.5rem]">
           <div className="aspect-square w-[20%] rounded-[50%] bg-orange-400"></div>
           <p className="font-bold text-gray-600">{conversation?.Title}</p>
-          <p className=" text-gray-400">{participants?.length} members</p>
+          <div className="cursor-pointer text-gray-400">
+            {participants?.length} members
+          </div>
         </div>
         <div className="flex w-full justify-evenly">
           <a
@@ -152,16 +189,37 @@ const Information = ({ conversation, func }) => {
           ></a>
         </div>
       </div>
-      <div className="border-b-[.1rem]">
+      {/* <div className="border-b-[.1rem]">
         <label className="uppercase text-gray-400">username</label>
         <p className="text-blue-500">@user_name</p>
-      </div>
-      <div className="border-b-[.1rem]">
+      </div> */}
+      <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
         <div className="flex justify-between">
-          <label className="font-bold text-gray-600">Files</label>
-          <a href="#" className="text-blue-500">
+          <label className="font-bold text-gray-600">Attachments</label>
+          <div
+            onClick={showAllAttachment}
+            className="cursor-pointer text-blue-500"
+          >
             See all
-          </a>
+          </div>
+        </div>
+        <div
+          ref={refGrid}
+          className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]"
+        >
+          {displayAttachments?.map((item) => (
+            // <div
+            //   style={{
+            //     "--image-url": `url('${item.MediaUrl}')`,
+            //   }}
+            //   className="aspect-square cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
+            // ></div>
+            <img
+              src={item.MediaUrl}
+              onError={imageOnError}
+              className="aspect-square cursor-pointer rounded-2xl"
+            ></img>
+          ))}
         </div>
       </div>
       <div className="flex justify-between border-b-[.1rem]">

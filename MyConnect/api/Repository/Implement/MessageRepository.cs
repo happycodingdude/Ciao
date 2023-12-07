@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MyConnect.Authentication;
 using MyConnect.Model;
 
@@ -15,6 +16,7 @@ namespace MyConnect.Repository
         public IEnumerable<MessageGroupByCreatedTime> GetByConversationId(Guid id)
         {
             var messages = _dbSet
+            .Include(q => q.Attachments)
             .Where(q => q.ConversationId == id)
             .OrderBy(q => q.CreatedTime)
             .ToList();

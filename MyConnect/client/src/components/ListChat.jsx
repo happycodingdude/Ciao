@@ -90,7 +90,7 @@ const ListChat = ({ reference }) => {
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex h-[clamp(5rem,10vh,7rem)] items-center justify-between">
           <label className="text-gray-400">Friends</label>
-          <a href="#" className="fa fa-arrow-up text-gray-500"></a>
+          <div className="fa fa-arrow-up cursor-pointer text-lg font-normal text-gray-500"></div>
         </div>
         <div
           ref={refChats}
@@ -125,7 +125,7 @@ const ListChat = ({ reference }) => {
                   </p>
                 )}
               </div>
-              <div className="flex w-[calc(100%/4)] flex-col items-end gap-[.5rem]">
+              <div className="flex w-[calc(100%/3)] flex-col items-end gap-[.5rem]">
                 <p className="font-thin text-gray-950 group-hover:text-white group-[.item-active]:text-white">
                   {moment(item.LastMessageTime).format("DD/MM/YYYY") ===
                   moment().format("DD/MM/YYYY")

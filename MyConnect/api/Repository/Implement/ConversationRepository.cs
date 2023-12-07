@@ -31,7 +31,7 @@ namespace MyConnect.Repository
 
                 var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
                 if (lastMessageEntity == null) continue;
-                item.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : lastMessageEntity.MediaUrl;
+                item.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
                 item.LastMessageTime = lastMessageEntity.CreatedTime;
                 item.LastMessageContact = lastMessageEntity.ContactId;
             }

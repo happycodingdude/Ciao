@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyConnect.Repository;
 
@@ -10,9 +11,11 @@ using MyConnect.Repository;
 namespace MyConnect.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    partial class CoreContextModelSnapshot : ModelSnapshot
+    [Migration("20231206040049_AddSchemaAttachment")]
+    partial class AddSchemaAttachment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,13 +29,10 @@ namespace MyConnect.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("CreatedTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("MediaUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("MessageId")
                         .HasColumnType("char(36)");
@@ -44,7 +44,7 @@ namespace MyConnect.Migrations
 
                     b.HasIndex("MessageId");
 
-                    b.ToTable("Attachment", (string)null);
+                    b.ToTable("Attachment");
                 });
 
             modelBuilder.Entity("MyConnect.Model.Contact", b =>

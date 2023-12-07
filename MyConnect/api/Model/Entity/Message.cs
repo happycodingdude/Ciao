@@ -4,7 +4,6 @@ namespace MyConnect.Model
     {
         public string? Type { get; set; }
         public string? Content { get; set; }
-        public string? MediaUrl { get; set; }
         public string? Status { get; set; } = "received";
         public bool IsPinned { get; set; }
         public bool IsLike { get; set; }
@@ -13,6 +12,7 @@ namespace MyConnect.Model
         public Guid ConversationId { get; set; }
         public Contact? Contact { get; set; }
         public Conversation? Conversation { get; set; }
+        public ICollection<Attachment>? Attachments { get; set; }
     }
 
     public class MessageGroupByCreatedTime

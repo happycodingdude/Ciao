@@ -10,6 +10,7 @@ namespace MyConnect.UOW
         IParticipantsRepository Participants { get; }
         IScheduleRepository Schedule { get; }
         IScheduleContactRepository ScheduleContact { get; }
+        IAttachmentRepository Attachment { get; }
         void Save();
     }
 }

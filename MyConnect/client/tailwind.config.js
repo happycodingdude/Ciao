@@ -152,7 +152,7 @@ export default {
           },
           "50%": {
             transform: "rotateX(89deg)",
-            width: "calc(100%/5)",
+            width: "calc(100%/4)",
           },
           "100%": {
             transform: "rotateX(90deg)",
@@ -166,11 +166,11 @@ export default {
           },
           "50%": {
             transform: "rotateX(89deg)",
-            width: "calc(100%/5)",
+            width: "calc(100%/4)",
           },
           "100%": {
             transform: "rotateX(0)",
-            width: "calc(100%/5)",
+            width: "calc(100%/4)",
           },
         },
         logo: {
@@ -251,7 +251,7 @@ export default {
         "registration-hide": "registration-hide 1s linear 1",
         "information-hide": "information-hide .5s both",
         "information-show": "information-show .5s both",
-        logo: "logo 1.5s infinite",
+        logo: "logo 2s infinite",
         ping: "custom-ping .5s",
       },
     },

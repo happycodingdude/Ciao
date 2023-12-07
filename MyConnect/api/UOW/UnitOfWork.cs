@@ -16,6 +16,7 @@ namespace MyConnect.UOW
             Participants = new ParticipantsRepository(_context);
             Schedule = new ScheduleRepository(_context);
             ScheduleContact = new ScheduleContactRepository(_context);
+            Attachment = new AttachmentRepository(_context);
         }
 
         public IContactRepository Contact { get; private set; }
@@ -24,6 +25,7 @@ namespace MyConnect.UOW
         public IParticipantsRepository Participants { get; private set; }
         public IScheduleRepository Schedule { get; private set; }
         public IScheduleContactRepository ScheduleContact { get; private set; }
+        public IAttachmentRepository Attachment { get; private set; }
 
         public void Save()
         {
