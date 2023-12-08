@@ -15,28 +15,9 @@ const Information = ({ conversation, func }) => {
   const refInformation = useRef();
   const refGrid = useRef();
 
-  const showInformation = () => {
-    refInformation.current.classList.remove("animate-information-hide");
-    refInformation.current.classList.add("animate-information-show");
-  };
-
-  const hideInformation = () => {
-    refInformation.current.classList.remove("animate-information-show");
-    refInformation.current.classList.add("animate-information-hide");
-  };
-
-  const toggleInformation = () => {
-    if (refInformation.current.classList.contains("animate-information-hide"))
-      showInformation();
-    else hideInformation();
-  };
-
-  useEffect(() => {
-    func.refInformation.toggleInformation = toggleInformation;
-  }, [toggleInformation]);
-
   useEffect(() => {
     if (!conversation) return;
+
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
@@ -48,13 +29,11 @@ const Information = ({ conversation, func }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          setParticipants(res.data.data);
-          setIsNotifying(
-            res.data.data.find((item) => item.ContactId === auth.id)
-              ?.IsNotifying,
-          );
-        } else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
+        setParticipants(res.data.data);
+        setIsNotifying(
+          res.data.data.find((item) => item.ContactId === auth.id)?.IsNotifying,
+        );
       })
       .catch((err) => {
         console.log(err);
@@ -66,20 +45,27 @@ const Information = ({ conversation, func }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status !== 200) throw new Error(res.status);
+        if (res.data.data.length !== 0) {
           setAttachments(res.data.data);
           setDisplayAttachments(res.data.data[0].Attachments.slice(0, 8));
-          wrapGrid(refGrid.current, { duration: 600, easing: "backInOut" });
-        } else throw new Error(res.status);
+        }
       })
       .catch((err) => {
         console.log(err);
       });
 
+    reset();
+    // func.refAttachment.reset();
+
     return () => {
       cancelToken.cancel();
     };
   }, [conversation]);
+
+  useEffect(() => {
+    wrapGrid(refGrid.current, { duration: 600, easing: "backInOut" });
+  }, [displayAttachments]);
 
   const toggleNotification = (e) => {
     const checked = e.target.checked;
@@ -96,9 +82,8 @@ const Information = ({ conversation, func }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          setIsNotifying(checked);
-        } else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
+        setIsNotifying(checked);
       })
       .catch((err) => {
         console.log(err);
@@ -128,9 +113,8 @@ const Information = ({ conversation, func }) => {
           headers: headers,
         })
         .then((res) => {
-          if (res.status === 200)
-            func.removeInListChat(res.data.data.ConversationId);
-          else throw new Error(res.status);
+          if (res.status !== 200) throw new Error(res.status);
+          func.removeInListChat(res.data.data.ConversationId);
         })
         .catch((err) => {
           console.log(err);
@@ -142,27 +126,41 @@ const Information = ({ conversation, func }) => {
     }
   };
 
-  const showAllAttachment = () => {
-    // if (refGrid.current.classList.contains("grid-cols-[repeat(4,1fr)]")) {
-    //   refGrid.current.classList.remove("grid-cols-[repeat(4,1fr)]");
-    //   refGrid.current.classList.add("grid-cols-[repeat(5,1fr)]");
-    // } else {
-    //   refGrid.current.classList.add("grid-cols-[repeat(4,1fr)]");
-    //   refGrid.current.classList.remove("grid-cols-[repeat(5,1fr)]");
-    // }
-  };
-
   const imageOnError = (e) => {
     e.target.onerror = null;
     e.target.src = "../src/assets/imagenotfound.jpg";
   };
 
+  const showInformation = () => {
+    refInformation.current.classList.remove("animate-flip-scale-down-vertical");
+    refInformation.current.classList.add("animate-flip-scale-up-vertical");
+  };
+
+  useEffect(() => {
+    func.refAttachment.showInformation = showInformation;
+  }, [showInformation]);
+
+  const hideInformation = () => {
+    refInformation.current.classList.remove("animate-flip-scale-up-vertical");
+    refInformation.current.classList.add("animate-flip-scale-down-vertical");
+  };
+
+  const showAllAttachment = () => {
+    hideInformation();
+    func.refAttachment.showAttachment(attachments);
+  };
+
+  const reset = () => {
+    refInformation.current.classList.remove("animate-flip-scale-up-vertical");
+    refInformation.current.classList.remove("animate-flip-scale-down-vertical");
+  };
+
   return (
     <div
       ref={refInformation}
-      className="hide-scrollbar w-[calc(100%/4)] shrink-0 overflow-hidden overflow-y-auto scroll-smooth rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+      className="hide-scrollbar relative z-10 h-full overflow-hidden overflow-y-auto scroll-smooth rounded-[1rem] bg-white [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
     >
-      <div className="flex items-center justify-between border-b-[.1rem] pt-[1rem] laptop:h-[5.5rem]">
+      <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 pt-[1rem] laptop:h-[5.5rem]">
         <p className="font-bold text-gray-600">Contact Information</p>
         <div className="flex items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
@@ -189,10 +187,6 @@ const Information = ({ conversation, func }) => {
           ></a>
         </div>
       </div>
-      {/* <div className="border-b-[.1rem]">
-        <label className="uppercase text-gray-400">username</label>
-        <p className="text-blue-500">@user_name</p>
-      </div> */}
       <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
         <div className="flex justify-between">
           <label className="font-bold text-gray-600">Attachments</label>
@@ -208,12 +202,6 @@ const Information = ({ conversation, func }) => {
           className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]"
         >
           {displayAttachments?.map((item) => (
-            // <div
-            //   style={{
-            //     "--image-url": `url('${item.MediaUrl}')`,
-            //   }}
-            //   className="aspect-square cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
-            // ></div>
             <img
               src={item.MediaUrl}
               onError={imageOnError}

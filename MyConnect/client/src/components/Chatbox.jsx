@@ -14,7 +14,7 @@ const Chatbox = ({ conversation, func }) => {
   const refScrollButton = useRef();
   const refChatboxOption = useRef();
   const refChatboxOptionMenu = useRef();
-  const refToggleInformation = useRef();
+  const refToggleInformationContainer = useRef();
 
   const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
@@ -283,14 +283,14 @@ const Chatbox = ({ conversation, func }) => {
     };
   };
 
-  const toggleInformation = () => {
-    func.refInformation.toggleInformation();
+  const toggleInformationContainer = () => {
+    func.toggleInformationContainer();
 
-    refToggleInformation.current.classList.add("animate-ping");
+    refToggleInformationContainer.current.classList.add("animate-spin");
     setTimeout(() => {
-      refToggleInformation.current.classList.remove("animate-ping");
-      refToggleInformation.current.classList.toggle("fa-arrow-left");
-      refToggleInformation.current.classList.toggle("fa-arrow-right");
+      refToggleInformationContainer.current.classList.remove("animate-spin");
+      refToggleInformationContainer.current.classList.toggle("fa-arrow-left");
+      refToggleInformationContainer.current.classList.toggle("fa-arrow-right");
       refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     }, 500);
 
@@ -405,8 +405,8 @@ const Chatbox = ({ conversation, func }) => {
               </div>
             </div>
             <div
-              ref={refToggleInformation}
-              onClick={toggleInformation}
+              ref={refToggleInformationContainer}
+              onClick={toggleInformationContainer}
               className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
             ></div>
           </div>

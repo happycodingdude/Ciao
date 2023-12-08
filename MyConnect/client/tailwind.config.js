@@ -230,7 +230,7 @@ export default {
         //     opacity: 0,
         //   },
         // },
-        "custom-ping": {
+        "custom-spin": {
           "0%": {
             transform: "scale(1) rotate(0)",
           },
@@ -239,6 +239,35 @@ export default {
           },
           "100%": {
             transform: "scale(1) rotate(180deg)",
+          },
+        },
+        "flip-scale-down-vertical": {
+          "0%": {
+            transform: "scale(1) rotateY(0)",
+          },
+          "50%": {
+            transform: "scale(0.4) rotateY(90deg)",
+            opacity: 0,
+          },
+          "100%": {
+            transform: "scale(1) rotateY(0)",
+            opacity: 0,
+            "z-index": 0,
+          },
+        },
+        "flip-scale-up-vertical": {
+          "0%": {
+            transform: "scale(1) rotateY(0)",
+            opacity: 0,
+          },
+          "50%": {
+            transform: "scale(0.4) rotateY(-90deg)",
+            opacity: 0,
+          },
+          "100%": {
+            transform: "scale(1) rotateY(0)",
+            opacity: 1,
+            "z-index": 10,
           },
         },
       },
@@ -252,7 +281,9 @@ export default {
         "information-hide": "information-hide .5s both",
         "information-show": "information-show .5s both",
         logo: "logo 2s infinite",
-        ping: "custom-ping .5s",
+        spin: "custom-spin .5s",
+        "flip-scale-down-vertical": "flip-scale-down-vertical .5s both",
+        "flip-scale-up-vertical": "flip-scale-up-vertical .5s both",
       },
     },
   },

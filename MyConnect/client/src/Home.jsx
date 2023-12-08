@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { requestPermission } from "../src/components/Notification";
+import Attachment from "./components/Attachment";
 import Chatbox from "./components/Chatbox";
 import Information from "./components/Information";
 import ListChat from "./components/ListChat";
@@ -12,7 +13,8 @@ const Home = () => {
 
   const [conversation, setConversation] = useState();
   const refListChat = useRef();
-  const refInformation = useRef();
+  const refInformationContainer = useRef();
+  const refAttachment = useRef();
 
   const notifyMessage = (chats, message) => {
     var newChats = chats.map((item) => {
@@ -87,6 +89,30 @@ const Home = () => {
     refListChat.removeChat(id);
   };
 
+  const showInformationContainer = () => {
+    refInformationContainer.current.classList.remove(
+      "animate-information-hide",
+    );
+    refInformationContainer.current.classList.add("animate-information-show");
+  };
+
+  const hideInformationContainer = () => {
+    refInformationContainer.current.classList.remove(
+      "animate-information-show",
+    );
+    refInformationContainer.current.classList.add("animate-information-hide");
+  };
+
+  const toggleInformationContainer = () => {
+    if (
+      refInformationContainer.current.classList.contains(
+        "animate-information-hide",
+      )
+    )
+      showInformationContainer();
+    else hideInformationContainer();
+  };
+
   return (
     <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
       <Signout />
@@ -95,11 +121,20 @@ const Home = () => {
         ""
       ) : (
         <>
-          <Chatbox conversation={conversation} func={{ refInformation }} />
-          <Information
+          <Chatbox
             conversation={conversation}
-            func={{ refInformation, removeInListChat }}
+            func={{ toggleInformationContainer }}
           />
+          <div
+            ref={refInformationContainer}
+            className="relative w-[calc(100%/4)] shrink-0"
+          >
+            <Information
+              conversation={conversation}
+              func={{ refAttachment, removeInListChat }}
+            />
+            <Attachment func={{ refAttachment }} />
+          </div>
         </>
       )}
     </section>
