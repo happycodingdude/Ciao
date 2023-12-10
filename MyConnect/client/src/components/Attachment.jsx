@@ -66,13 +66,21 @@ const Attachment = ({ func }) => {
               ref={refGrid}
               className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]"
             >
-              {date.Attachments.map((item) => (
-                <img
-                  src={item.MediaUrl}
-                  onError={imageOnError}
-                  className="aspect-square cursor-pointer rounded-2xl"
-                ></img>
-              ))}
+              {date.Attachments.map((item) => {
+                return item.Type === "image" ? (
+                  <img
+                    src={item.MediaUrl}
+                    onError={imageOnError}
+                    className="aspect-square cursor-pointer rounded-2xl"
+                  ></img>
+                ) : (
+                  <img
+                    src="../src/assets/filenotfound.svg"
+                    onError={imageOnError}
+                    className="aspect-square cursor-pointer rounded-2xl"
+                  ></img>
+                );
+              })}
             </div>
           </div>
         ))}

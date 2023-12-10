@@ -49,6 +49,9 @@ const Information = ({ conversation, func }) => {
         if (res.data.data.length !== 0) {
           setAttachments(res.data.data);
           setDisplayAttachments(res.data.data[0].Attachments.slice(0, 8));
+        } else {
+          setAttachments([]);
+          setDisplayAttachments([]);
         }
       })
       .catch((err) => {
@@ -201,13 +204,21 @@ const Information = ({ conversation, func }) => {
           ref={refGrid}
           className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]"
         >
-          {displayAttachments?.map((item) => (
-            <img
-              src={item.MediaUrl}
-              onError={imageOnError}
-              className="aspect-square cursor-pointer rounded-2xl"
-            ></img>
-          ))}
+          {displayAttachments?.map((item) => {
+            return item.Type === "image" ? (
+              <img
+                src={item.MediaUrl}
+                onError={imageOnError}
+                className="aspect-square cursor-pointer rounded-2xl"
+              ></img>
+            ) : (
+              <img
+                src="../src/assets/filenotfound.svg"
+                onError={imageOnError}
+                className="aspect-square cursor-pointer rounded-2xl"
+              ></img>
+            );
+          })}
         </div>
       </div>
       <div className="flex justify-between border-b-[.1rem]">

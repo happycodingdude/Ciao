@@ -135,11 +135,25 @@ const Chatbox = ({ conversation, func }) => {
     const storage = getStorage();
     return Promise.all(
       files.map((item) => {
+        if (
+          ["doc", "docx", "xls", "xlsx", "pdf"].includes(
+            item.name.split(".")[1],
+          )
+        ) {
+          return uploadBytes(ref(storage, `file/${item.name}`), item).then(
+            (snapshot) => {
+              return getDownloadURL(snapshot.ref).then((url) => {
+                console.log(url);
+                return { type: "file", url: url };
+              });
+            },
+          );
+        }
         return uploadBytes(ref(storage, `img/${item.name}`), item).then(
           (snapshot) => {
             return getDownloadURL(snapshot.ref).then((url) => {
               console.log(url);
-              return url;
+              return { type: "image", url: url };
             });
           },
         );
@@ -167,9 +181,10 @@ const Chatbox = ({ conversation, func }) => {
       body = {
         ...body,
         Type: "file",
-        Attachments: await uploadFile().then((urls) => {
-          return urls.map((url) => ({
-            MediaUrl: url,
+        Attachments: await uploadFile().then((uploads) => {
+          return uploads.map((item) => ({
+            Type: item.type,
+            MediaUrl: item.url,
           }));
         }),
       };
@@ -311,6 +326,7 @@ const Chatbox = ({ conversation, func }) => {
   };
 
   const chooseFile = (e) => {
+    // console.log(e.target.files);
     const chosenFiles = Array.from(e.target.files);
     if (chosenFiles.length === 0) return;
 
@@ -464,19 +480,21 @@ const Chatbox = ({ conversation, func }) => {
                     >
                       {message.Type === "text"
                         ? message.Content
-                        : message.Attachments.map((item) => (
-                            // <div
-                            //   style={{
-                            //     "--image-url": `url('${media.MediaUrl}')`,
-                            //   }}
-                            //   className="aspect-video cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
-                            // ></div>
-                            <img
-                              src={item.MediaUrl}
-                              onError={imageOnError}
-                              className="aspect-video cursor-pointer rounded-2xl"
-                            ></img>
-                          ))}
+                        : message.Attachments.map((item) => {
+                            return item.Type === "image" ? (
+                              <img
+                                src={item.MediaUrl}
+                                onError={imageOnError}
+                                className="aspect-video cursor-pointer rounded-2xl"
+                              ></img>
+                            ) : (
+                              <img
+                                src="../src/assets/filenotfound.svg"
+                                onError={imageOnError}
+                                className="aspect-video cursor-pointer rounded-2xl"
+                              ></img>
+                            );
+                          })}
                     </div>
                   </div>
                 </div>
@@ -490,7 +508,8 @@ const Chatbox = ({ conversation, func }) => {
           <input
             multiple
             type="file"
-            className="fa fa-image hidden font-normal text-gray-500"
+            accept="image/png, image/jpeg"
+            className="hidden"
             id="choose-image"
             onChange={chooseFile}
           ></input>
@@ -498,8 +517,16 @@ const Chatbox = ({ conversation, func }) => {
             for="choose-image"
             className="fa fa-image cursor-pointer font-normal text-gray-500"
           ></label>
+          <input
+            multiple
+            type="file"
+            accept=".doc,.docx,.xls,.xlsx,.pdf"
+            className="hidden"
+            id="choose-file"
+            onChange={chooseFile}
+          ></input>
           <label
-            for="choose-image"
+            for="choose-file"
             className="fa fa-file cursor-pointer font-normal text-gray-500"
           ></label>
         </div>
@@ -514,27 +541,52 @@ const Chatbox = ({ conversation, func }) => {
           laptop:w-[clamp(40rem,70%,70rem)]          
           desktop:w-[80rem]`}
           >
-            {files.map((item) => (
-              <div
-                style={{ "--image-url": `url('${URL.createObjectURL(item)}'` }}
-                className={`group relative aspect-video rounded-[.8rem]
-                before:absolute before:h-full before:w-full before:rounded-[.8rem] 
-                before:bg-[image:var(--image-url)] before:bg-[length:100%_100%] before:bg-center
-                hover:before:opacity-50`}
-              >
-                <span
-                  data-key={item.name}
-                  onClick={removeFile}
-                  // className="fa fa-times-circle absolute right-[0] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] text-red-500 group-hover:opacity-100"
-                  // className="absolute right-1/2 top-1/2 aspect-square w-[5rem] translate-x-[50%] translate-y-[-50%] cursor-pointer rounded-[50%] bg-red-500 text-red-500 group-hover:opacity-100"
-                  className="before:absolute before:left-[5%] before:top-1/2 before:h-[.5rem] before:w-[5rem] before:translate-x-[80%] before:translate-y-[-50%] before:rotate-[28deg] before:scale-0 before:cursor-pointer before:bg-red-500 
-                  before:text-red-500 before:duration-[.2s] after:absolute after:bottom-[5%] after:left-[5%] after:top-1/2 after:h-[.5rem] after:w-[5rem] after:translate-x-[80%] after:translate-y-[-50%] after:rotate-[-28deg] after:scale-0
-                  after:cursor-pointer after:bg-red-500
-                  after:text-red-500 after:duration-[.2s]
-                  group-hover:before:scale-100 group-hover:after:scale-100"
-                ></span>
-              </div>
-            ))}
+            {files.map((item) => {
+              return ["doc", "docx", "xls", "xlsx", "pdf"].includes(
+                item.name.split(".")[1],
+              ) ? (
+                <div
+                  className={`group relative aspect-video rounded-[.8rem]
+                  before:absolute before:h-full before:w-full before:rounded-[.8rem] 
+                  before:bg-[url('../src/assets/imagenotfound.jpg')] before:bg-[length:100%_100%] before:bg-center
+                  hover:before:opacity-50`}
+                >
+                  <span
+                    data-key={item.name}
+                    onClick={removeFile}
+                    // className="fa fa-times-circle absolute right-[0] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] text-red-500 group-hover:opacity-100"
+                    // className="absolute right-1/2 top-1/2 aspect-square w-[5rem] translate-x-[50%] translate-y-[-50%] cursor-pointer rounded-[50%] bg-red-500 text-red-500 group-hover:opacity-100"
+                    className="before:absolute before:left-[5%] before:top-1/2 before:h-[.5rem] before:w-[5rem] before:translate-x-[80%] before:translate-y-[-50%] before:rotate-[28deg] before:scale-0 before:cursor-pointer before:bg-red-500 
+                    before:text-red-500 before:duration-[.2s] after:absolute after:bottom-[5%] after:left-[5%] after:top-1/2 after:h-[.5rem] after:w-[5rem] after:translate-x-[80%] after:translate-y-[-50%] after:rotate-[-28deg] after:scale-0
+                    after:cursor-pointer after:bg-red-500
+                    after:text-red-500 after:duration-[.2s]
+                    group-hover:before:scale-100 group-hover:after:scale-100"
+                  ></span>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    "--image-url": `url('${URL.createObjectURL(item)}'`,
+                  }}
+                  className={`group relative aspect-video rounded-[.8rem]
+                  before:absolute before:h-full before:w-full before:rounded-[.8rem] 
+                  before:bg-[image:var(--image-url)] before:bg-[length:100%_100%] before:bg-center
+                  hover:before:opacity-50`}
+                >
+                  <span
+                    data-key={item.name}
+                    onClick={removeFile}
+                    // className="fa fa-times-circle absolute right-[0] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] text-red-500 group-hover:opacity-100"
+                    // className="absolute right-1/2 top-1/2 aspect-square w-[5rem] translate-x-[50%] translate-y-[-50%] cursor-pointer rounded-[50%] bg-red-500 text-red-500 group-hover:opacity-100"
+                    className="before:absolute before:left-[5%] before:top-1/2 before:h-[.5rem] before:w-[5rem] before:translate-x-[80%] before:translate-y-[-50%] before:rotate-[28deg] before:scale-0 before:cursor-pointer before:bg-red-500 
+                    before:text-red-500 before:duration-[.2s] after:absolute after:bottom-[5%] after:left-[5%] after:top-1/2 after:h-[.5rem] after:w-[5rem] after:translate-x-[80%] after:translate-y-[-50%] after:rotate-[-28deg] after:scale-0
+                    after:cursor-pointer after:bg-red-500
+                    after:text-red-500 after:duration-[.2s]
+                    group-hover:before:scale-100 group-hover:after:scale-100"
+                  ></span>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="grow-[2]">
