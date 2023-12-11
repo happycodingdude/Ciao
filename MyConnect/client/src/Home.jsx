@@ -121,19 +121,15 @@ const Home = () => {
         ""
       ) : (
         <>
-          <Chatbox
-            conversation={conversation}
-            func={{ toggleInformationContainer }}
-          />
+          <Chatbox reference={{ conversation, toggleInformationContainer }} />
           <div
             ref={refInformationContainer}
             className="relative w-[calc(100%/4)] shrink-0"
           >
             <Information
-              conversation={conversation}
-              func={{ refAttachment, removeInListChat }}
+              reference={{ conversation, refAttachment, removeInListChat }}
             />
-            <Attachment func={{ refAttachment }} />
+            <Attachment reference={{ conversation, refAttachment }} />
           </div>
         </>
       )}

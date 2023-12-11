@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
-const Information = ({ conversation, func }) => {
+const Information = ({ reference }) => {
   console.log("Information calling");
   const auth = useAuth();
 
@@ -16,7 +16,7 @@ const Information = ({ conversation, func }) => {
   const refGrid = useRef();
 
   useEffect(() => {
-    if (!conversation) return;
+    if (!reference.conversation) return;
 
     const cancelToken = axios.CancelToken.source();
     const headers = {
@@ -24,7 +24,7 @@ const Information = ({ conversation, func }) => {
       Authorization: "Bearer " + auth.token,
     };
     axios
-      .get(`api/conversations/${conversation?.Id}/participants`, {
+      .get(`api/conversations/${reference.conversation?.Id}/participants`, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -40,7 +40,7 @@ const Information = ({ conversation, func }) => {
       });
 
     axios
-      .get(`api/conversations/${conversation?.Id}/attachments`, {
+      .get(`api/conversations/${reference.conversation?.Id}/attachments`, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -59,12 +59,11 @@ const Information = ({ conversation, func }) => {
       });
 
     reset();
-    // func.refAttachment.reset();
 
     return () => {
       cancelToken.cancel();
     };
-  }, [conversation]);
+  }, [reference.conversation]);
 
   useEffect(() => {
     wrapGrid(refGrid.current, { duration: 600, easing: "backInOut" });
@@ -117,7 +116,7 @@ const Information = ({ conversation, func }) => {
         })
         .then((res) => {
           if (res.status !== 200) throw new Error(res.status);
-          func.removeInListChat(res.data.data.ConversationId);
+          reference.removeInListChat(res.data.data.ConversationId);
         })
         .catch((err) => {
           console.log(err);
@@ -140,7 +139,7 @@ const Information = ({ conversation, func }) => {
   };
 
   useEffect(() => {
-    func.refAttachment.showInformation = showInformation;
+    reference.refAttachment.showInformation = showInformation;
   }, [showInformation]);
 
   const hideInformation = () => {
@@ -150,7 +149,7 @@ const Information = ({ conversation, func }) => {
 
   const showAllAttachment = () => {
     hideInformation();
-    func.refAttachment.showAttachment(attachments);
+    reference.refAttachment.showAttachment(attachments);
   };
 
   const reset = () => {
@@ -174,7 +173,9 @@ const Information = ({ conversation, func }) => {
       <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
         <div className="flex flex-col items-center gap-[.5rem]">
           <div className="aspect-square w-[20%] rounded-[50%] bg-orange-400"></div>
-          <p className="font-bold text-gray-600">{conversation?.Title}</p>
+          <p className="font-bold text-gray-600">
+            {reference.conversation?.Title}
+          </p>
           <div className="cursor-pointer text-gray-400">
             {participants?.length} members
           </div>

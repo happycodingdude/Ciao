@@ -5,7 +5,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
-const Chatbox = ({ conversation, func }) => {
+const Chatbox = ({ reference }) => {
   console.log("Chatbox calling");
   const auth = useAuth();
 
@@ -20,13 +20,8 @@ const Chatbox = ({ conversation, func }) => {
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
   useEffect(() => {
-    if (!conversation) return;
+    if (!reference.conversation) return;
 
-    // const storage = getStorage();
-    // const storageRef = ref(storage, "img/anhdep1.jpg");
-    // getDownloadURL(storageRef).then((url) => {
-    //   console.log(url);
-    // });
     setFiles([]);
 
     const cancelToken = axios.CancelToken.source();
@@ -35,7 +30,7 @@ const Chatbox = ({ conversation, func }) => {
       Authorization: "Bearer " + auth.token,
     };
     axios
-      .get(`api/conversations/${conversation?.Id}/participants`, {
+      .get(`api/conversations/${reference.conversation?.Id}/participants`, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -48,7 +43,7 @@ const Chatbox = ({ conversation, func }) => {
         console.log(err);
       });
     axios
-      .get(`api/conversations/${conversation?.Id}/messages`, {
+      .get(`api/conversations/${reference.conversation?.Id}/messages`, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -66,7 +61,7 @@ const Chatbox = ({ conversation, func }) => {
     return () => {
       cancelToken.cancel();
     };
-  }, [conversation]);
+  }, [reference.conversation]);
 
   useEffect(() => {
     if (navigator.serviceWorker) {
@@ -169,7 +164,7 @@ const Chatbox = ({ conversation, func }) => {
     };
     var body = {
       ContactId: auth.id,
-      ConversationId: conversation.Id,
+      ConversationId: reference.conversation.Id,
     };
     if (files.length === 0) {
       body = {
@@ -272,7 +267,7 @@ const Chatbox = ({ conversation, func }) => {
   const handleUpdateTitle = () => {
     var title = prompt("New title");
     if (title === null || title === "") return;
-    conversation.Title = title;
+    reference.conversation.Title = title;
 
     const cancelToken = axios.CancelToken.source();
     const headers = {
@@ -280,7 +275,7 @@ const Chatbox = ({ conversation, func }) => {
       Authorization: "Bearer " + auth.token,
     };
     axios
-      .put("api/conversations", conversation, {
+      .put("api/conversations", reference.conversation, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -299,7 +294,7 @@ const Chatbox = ({ conversation, func }) => {
   };
 
   const toggleInformationContainer = () => {
-    func.toggleInformationContainer();
+    reference.toggleInformationContainer();
 
     refToggleInformationContainer.current.classList.add("animate-spin");
     setTimeout(() => {
@@ -326,7 +321,6 @@ const Chatbox = ({ conversation, func }) => {
   };
 
   const chooseFile = (e) => {
-    // console.log(e.target.files);
     const chosenFiles = Array.from(e.target.files);
     if (chosenFiles.length === 0) return;
 
@@ -377,7 +371,9 @@ const Chatbox = ({ conversation, func }) => {
             ></a>
           </div>
           <div className="basis-[calc(100%/3)] text-center">
-            <p className="font-bold text-gray-600">{conversation?.Title}</p>
+            <p className="font-bold text-gray-600">
+              {reference.conversation?.Title}
+            </p>
             {participants?.find((item) => item.ContactId !== auth.id)?.Contact
               .IsOnline ? (
               <p className="text-blue-500">Online</p>

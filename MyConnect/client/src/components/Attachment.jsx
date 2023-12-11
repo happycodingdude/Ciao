@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 
-const Attachment = ({ func }) => {
+const Attachment = ({ reference }) => {
   console.log("Attachment calling");
 
   const refAttachment = useRef();
@@ -25,8 +25,8 @@ const Attachment = ({ func }) => {
   };
 
   useEffect(() => {
-    func.refAttachment.showAttachment = showAttachment;
-    func.refAttachment.reset = reset;
+    reference.refAttachment.showAttachment = showAttachment;
+    reference.refAttachment.reset = reset;
   }, [showAttachment, reset]);
 
   const hideAttachment = () => {
@@ -35,16 +35,20 @@ const Attachment = ({ func }) => {
   };
 
   const showInformation = () => {
-    func.refAttachment.showInformation();
+    reference.refAttachment.showInformation();
     hideAttachment();
   };
+
+  useEffect(() => {
+    reset();
+  }, [reference.conversation]);
 
   return (
     <div
       ref={refAttachment}
       className="hide-scrollbar absolute top-0 h-full w-full overflow-hidden overflow-y-auto scroll-smooth rounded-[1rem] bg-white"
     >
-      <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] pt-[1rem] laptop:h-[5.5rem]">
+      <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem] laptop:h-[5.5rem]">
         <div
           className="fa fa-arrow-left flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
           onClick={showInformation}
