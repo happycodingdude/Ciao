@@ -1,4 +1,4 @@
-import { wrapGrid } from "animate-css-grid";
+// import { wrapGrid } from "animate-css-grid";
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
@@ -111,14 +111,17 @@ const Chatbox = ({ reference }) => {
     }
 
     refChatContent.current.classList.add("scroll-smooth");
-    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-
+    // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     setTimeout(() => {
-      const grids = Array.from(document.querySelectorAll(".grid-chat"));
-      grids.map((grid) => {
-        wrapGrid(grid, { duration: 400, easing: "easeOut" });
-      });
+      refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     }, 500);
+
+    // setTimeout(() => {
+    //   const grids = Array.from(document.querySelectorAll(".grid-chat"));
+    //   grids.map((grid) => {
+    //     wrapGrid(grid, { duration: 400, easing: "easeOut" });
+    //   });
+    // }, 500);
   }, [messages]);
 
   const scrollChatContentToBottom = () => {
@@ -138,8 +141,12 @@ const Chatbox = ({ reference }) => {
           return uploadBytes(ref(storage, `file/${item.name}`), item).then(
             (snapshot) => {
               return getDownloadURL(snapshot.ref).then((url) => {
-                console.log(url);
-                return { type: "file", url: url };
+                return {
+                  type: "file",
+                  url: url,
+                  name: item.name,
+                  size: item.size,
+                };
               });
             },
           );
@@ -147,8 +154,12 @@ const Chatbox = ({ reference }) => {
         return uploadBytes(ref(storage, `img/${item.name}`), item).then(
           (snapshot) => {
             return getDownloadURL(snapshot.ref).then((url) => {
-              console.log(url);
-              return { type: "image", url: url };
+              return {
+                type: "image",
+                url: url,
+                name: item.name,
+                size: item.size,
+              };
             });
           },
         );
@@ -175,11 +186,13 @@ const Chatbox = ({ reference }) => {
     } else {
       body = {
         ...body,
-        Type: "file",
+        Type: "media",
         Attachments: await uploadFile().then((uploads) => {
           return uploads.map((item) => ({
             Type: item.type,
             MediaUrl: item.url,
+            MediaName: item.name,
+            MediaSize: item.size,
           }));
         }),
       };
@@ -304,20 +317,24 @@ const Chatbox = ({ reference }) => {
       refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     }, 500);
 
-    const grids = Array.from(document.querySelectorAll(".grid-chat"));
-    grids.map((grid) => {
-      if (
-        grid.classList.contains(
-          "grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]",
-        )
-      ) {
-        grid.classList.remove("grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]");
-        grid.classList.add("grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]");
-      } else {
-        grid.classList.add("grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]");
-        grid.classList.remove("grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]");
-      }
-    });
+    // const grids = Array.from(document.querySelectorAll(".grid-chat"));
+    // grids.map((grid) => {
+    //   if (
+    //     grid.classList.contains(
+    //       "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]",
+    //     )
+    //   ) {
+    //     grid.classList.remove(
+    //       "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]",
+    //     );
+    //     grid.classList.add("grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]");
+    //   } else {
+    //     grid.classList.add("grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]");
+    //     grid.classList.remove(
+    //       "grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]",
+    //     );
+    //   }
+    // });
   };
 
   const chooseFile = (e) => {
@@ -328,6 +345,7 @@ const Chatbox = ({ reference }) => {
       if (!files.some((file) => file.name === item.name)) return item;
     });
     setFiles([...files, ...mergedFiles]);
+    console.log(mergedFiles);
 
     e.target.value = null;
   };
@@ -365,10 +383,7 @@ const Chatbox = ({ reference }) => {
                 ""
               ),
             )}
-            <a
-              href="#"
-              className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
-            ></a>
+            <div className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] cursor-pointer items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"></div>
           </div>
           <div className="basis-[calc(100%/3)] text-center">
             <p className="font-bold text-gray-600">
@@ -438,7 +453,11 @@ const Chatbox = ({ reference }) => {
               </div>
               {date.Messages.map((message) => (
                 <div className="flex items-center gap-[2rem]">
-                  <div className="aspect-square self-start rounded-[50%] bg-orange-400 laptop:w-[calc(100%/15)] desktop:w-[calc(100%/20)]"></div>
+                  <div
+                    className="aspect-square self-start rounded-[50%] bg-orange-400 
+                  laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)] 
+                  desktop:w-[calc(100%/20)]"
+                  ></div>
                   <div className="flex w-[90%] flex-col">
                     <div className="flex items-center gap-[1rem]">
                       <h1 className="font-semibold">
@@ -467,30 +486,26 @@ const Chatbox = ({ reference }) => {
                     </div>
                     <div
                       className={`grid gap-[1rem] ${
-                        message.Type === "file" &&
+                        message.Type === "media" &&
                         message.Attachments.length === 1
-                          ? "grid-cols-[repeat(1,70%)]"
-                          : "grid-chat grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-                        // "grid-cols-[repeat(2,1fr)]"
+                          ? "grid-cols-[50%]"
+                          : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
                       }  break-words text-gray-400`}
                     >
                       {message.Type === "text"
                         ? message.Content
-                        : message.Attachments.map((item) => {
-                            return item.Type === "image" ? (
-                              <img
-                                src={item.MediaUrl}
-                                onError={imageOnError}
-                                className="aspect-video cursor-pointer rounded-2xl"
-                              ></img>
-                            ) : (
-                              <img
-                                src="../src/assets/filenotfound.svg"
-                                onError={imageOnError}
-                                className="aspect-video cursor-pointer rounded-2xl"
-                              ></img>
-                            );
-                          })}
+                        : message.Attachments.map((item) => (
+                            <img
+                              src={
+                                item.Type === "image"
+                                  ? item.MediaUrl
+                                  : "../src/assets/filenotfound.svg"
+                              }
+                              onError={imageOnError}
+                              className="my-auto cursor-pointer rounded-2xl"
+                              title={item.MediaName?.split(".")[0]}
+                            ></img>
+                          ))}
                     </div>
                   </div>
                 </div>
@@ -530,59 +545,33 @@ const Chatbox = ({ reference }) => {
           <div
             className={`${
               files.length === 1
-                ? "grid-cols-[repeat(1,50%)]"
-                : "grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
-            } hide-scrollbar grid h-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] 
+                ? "grid-cols-[50%]"
+                : "grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]"
+            } hide-scrollbar grid w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] 
           laptop:max-h-[10rem] 
           laptop:w-[clamp(40rem,70%,70rem)]          
           desktop:w-[80rem]`}
           >
-            {files.map((item) => {
-              return ["doc", "docx", "xls", "xlsx", "pdf"].includes(
-                item.name.split(".")[1],
-              ) ? (
-                <div
-                  className={`group relative aspect-video rounded-[.8rem]
-                  before:absolute before:h-full before:w-full before:rounded-[.8rem] 
-                  before:bg-[url('../src/assets/imagenotfound.jpg')] before:bg-[length:100%_100%] before:bg-center
-                  hover:before:opacity-50`}
-                >
-                  <span
-                    data-key={item.name}
-                    onClick={removeFile}
-                    // className="fa fa-times-circle absolute right-[0] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] text-red-500 group-hover:opacity-100"
-                    // className="absolute right-1/2 top-1/2 aspect-square w-[5rem] translate-x-[50%] translate-y-[-50%] cursor-pointer rounded-[50%] bg-red-500 text-red-500 group-hover:opacity-100"
-                    className="before:absolute before:left-[5%] before:top-1/2 before:h-[.5rem] before:w-[5rem] before:translate-x-[80%] before:translate-y-[-50%] before:rotate-[28deg] before:scale-0 before:cursor-pointer before:bg-red-500 
-                    before:text-red-500 before:duration-[.2s] after:absolute after:bottom-[5%] after:left-[5%] after:top-1/2 after:h-[.5rem] after:w-[5rem] after:translate-x-[80%] after:translate-y-[-50%] after:rotate-[-28deg] after:scale-0
-                    after:cursor-pointer after:bg-red-500
-                    after:text-red-500 after:duration-[.2s]
-                    group-hover:before:scale-100 group-hover:after:scale-100"
-                  ></span>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    "--image-url": `url('${URL.createObjectURL(item)}'`,
-                  }}
-                  className={`group relative aspect-video rounded-[.8rem]
-                  before:absolute before:h-full before:w-full before:rounded-[.8rem] 
-                  before:bg-[image:var(--image-url)] before:bg-[length:100%_100%] before:bg-center
-                  hover:before:opacity-50`}
-                >
-                  <span
-                    data-key={item.name}
-                    onClick={removeFile}
-                    // className="fa fa-times-circle absolute right-[0] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] text-red-500 group-hover:opacity-100"
-                    // className="absolute right-1/2 top-1/2 aspect-square w-[5rem] translate-x-[50%] translate-y-[-50%] cursor-pointer rounded-[50%] bg-red-500 text-red-500 group-hover:opacity-100"
-                    className="before:absolute before:left-[5%] before:top-1/2 before:h-[.5rem] before:w-[5rem] before:translate-x-[80%] before:translate-y-[-50%] before:rotate-[28deg] before:scale-0 before:cursor-pointer before:bg-red-500 
-                    before:text-red-500 before:duration-[.2s] after:absolute after:bottom-[5%] after:left-[5%] after:top-1/2 after:h-[.5rem] after:w-[5rem] after:translate-x-[80%] after:translate-y-[-50%] after:rotate-[-28deg] after:scale-0
-                    after:cursor-pointer after:bg-red-500
-                    after:text-red-500 after:duration-[.2s]
-                    group-hover:before:scale-100 group-hover:after:scale-100"
-                  ></span>
-                </div>
-              );
-            })}
+            {files.map((item) => (
+              <div
+                style={{
+                  "--image-url": ["doc", "docx", "xls", "xlsx", "pdf"].includes(
+                    item.name.split(".")[1],
+                  )
+                    ? "url('../src/assets/imagenotfound.jpg')"
+                    : `url('${URL.createObjectURL(item)}'`,
+                }}
+                className={`relative aspect-square rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}
+                title={item.name.split(".")[0]}
+              >
+                <span
+                  data-key={item.name}
+                  onClick={removeFile}
+                  className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-red-500 hover:text-blue-500"
+                  title="Clear image"
+                ></span>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grow-[2]">
