@@ -34,9 +34,9 @@ namespace MyConnect.Repository
         private void UpdateStatus(List<Message> messages)
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var contact = JwtToken.ExtractToken(token);
+            var id = JwtToken.ExtractToken(token);
 
-            var unseenMessages = messages.Where(q => q.ContactId != contact.Id && q.Status == "received");
+            var unseenMessages = messages.Where(q => q.ContactId != id && q.Status == "received");
             foreach (var message in unseenMessages)
                 message.Status = "seen";
             _dbSet.UpdateRange(unseenMessages);

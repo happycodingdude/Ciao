@@ -13,6 +13,7 @@ namespace MyConnect.Model
         public string? Title { get; set; }
         public DateTime? DeletedTime { get; set; }
         public int UnSeenMessages { get; set; }
+        public Guid LastMessageId { get; set; }
         public string? LastMessage { get; set; }
         public DateTime? LastMessageTime { get; set; }
         public Guid? LastMessageContact { get; set; }

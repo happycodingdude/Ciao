@@ -20,6 +20,7 @@ const Home = () => {
     var newChats = chats.map((item) => {
       if (item.Id !== message.ConversationId) return item;
       item.UnSeenMessages++;
+      item.LastMessageId = message.Id;
       item.LastMessage = message.Content;
       item.LastMessageTime = message.CreatedTime;
       item.LastMessageContact = message.ContactId;
@@ -40,10 +41,9 @@ const Home = () => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          refListChat.setChats(res.data.data);
-          registerNotification(res.data.data);
-        } else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
+        refListChat.setChats(res.data.data);
+        registerNotification(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -116,12 +116,18 @@ const Home = () => {
   return (
     <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
       <Signout />
-      <ListChat reference={{ refListChat, setConversation }} />
+      <ListChat reference={{ refListChat, setConversation, notifyMessage }} />
       {conversation == undefined ? (
         ""
       ) : (
         <>
-          <Chatbox reference={{ conversation, toggleInformationContainer }} />
+          <Chatbox
+            reference={{
+              conversation,
+              setConversation,
+              toggleInformationContainer,
+            }}
+          />
           <div
             ref={refInformationContainer}
             className="relative w-[calc(100%/4)] shrink-0"

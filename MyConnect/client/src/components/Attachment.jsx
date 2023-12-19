@@ -135,7 +135,7 @@ const Attachment = ({ reference }) => {
                       : "../src/assets/filenotfound.svg"
                   }
                   onError={imageOnError}
-                  className="aspect-square cursor-pointer rounded-2xl"
+                  className="aspect-square w-full cursor-pointer rounded-2xl"
                   title={item.MediaName?.split(".")[0]}
                 ></img>
               ))}

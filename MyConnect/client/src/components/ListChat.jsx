@@ -68,9 +68,28 @@ const ListChat = ({ reference }) => {
       unfocusChat();
     };
 
-    // setTimeout(() => {
-    //   handleSetConversation(chats?.[0]);
-    // }, 500);
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then(navigator.serviceWorker.ready)
+        .then(() => {
+          navigator.serviceWorker.onmessage = (event) => {
+            // event is a MessageEvent object
+            console.log(
+              `The service worker sent me a message: ${event.data.data}`,
+            );
+            if (
+              !chats.some((item) => item.LastMessageId === event.data.data.Id)
+            )
+              reference.notifyMessage(chats, event.data.data);
+          };
+        });
+
+      // navigator.serviceWorker.addEventListener("message", (event) => {
+      //   // event is a MessageEvent object
+      //   console.log(`The service worker sent me a message: ${event.data}`);
+      // });
+    }
   }, [chats]);
 
   const scrollListChatToBottom = () => {

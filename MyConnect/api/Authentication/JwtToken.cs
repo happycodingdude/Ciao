@@ -18,7 +18,6 @@ namespace MyConnect.Authentication
                 {
                     //new Claim(ClaimTypes.Role, "admin"),
                     new Claim("id", user.Id.ToString()),
-                    new Claim("username", user.Username)
                 }),
                 Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -30,16 +29,13 @@ namespace MyConnect.Authentication
             return jwtToken;
         }
 
-        public static Contact ExtractToken(string jwtToken)
+        public static Guid ExtractToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             // Read and validate the JWT token
             var token = tokenHandler.ReadJwtToken(jwtToken);
-
-            var username = token.Claims.FirstOrDefault(q => q.Type.Equals("username")).Value;
             var id = token.Claims.FirstOrDefault(q => q.Type.Equals("id")).Value;
-
-            return new Contact { Id = Guid.Parse(id), Username = username };
+            return Guid.Parse(id);
         }
     }
 }

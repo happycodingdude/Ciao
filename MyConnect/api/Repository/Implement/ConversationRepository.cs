@@ -19,18 +19,19 @@ namespace MyConnect.Repository
         {
             var messageDbSet = _context.Set<Message>();
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var contact = JwtToken.ExtractToken(token);
+            var id = JwtToken.ExtractToken(token);
             var entity = _dbSet
-            .Where(q => q.Participants.Any(w => w.ContactId == contact.Id && !w.IsDeleted))
+            .Where(q => q.Participants.Any(w => w.ContactId == id && !w.IsDeleted))
             .OrderByDescending(q => q.UpdatedTime)
             .ToList();
             var result = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var item in result)
             {
-                item.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == item.Id && q.ContactId != contact.Id && q.Status == "received");
+                item.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == item.Id && q.ContactId != id && q.Status == "received");
 
                 var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
                 if (lastMessageEntity == null) continue;
+                item.LastMessageId = lastMessageEntity.Id;
                 item.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
                 item.LastMessageTime = lastMessageEntity.CreatedTime;
                 item.LastMessageContact = lastMessageEntity.ContactId;

@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using MyConnect.Model;
 
 namespace MyConnect.Repository
 {
-    public class BaseRepository<T> : IRepository<T> where T : class
+    public class BaseRepository<T> : IRepository<T> where T : BaseModel
     {
         protected readonly CoreContext _context;
         protected readonly DbSet<T> _dbSet;
@@ -31,6 +32,8 @@ namespace MyConnect.Repository
         public virtual void Update(T entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
+            _context.Entry(entity).Property(q => q.CreatedTime).IsModified = false;
+            entity.BeforeUpdate();
         }
 
         public virtual void Delete(Guid id)

@@ -6,7 +6,7 @@ using MyConnect.UOW;
 namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-// [MyAuthorize("Authorization")]
+[MyAuthorize("Authorization")]
 public class ContactsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -61,7 +61,7 @@ public class ContactsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(Contact model)
+    public IActionResult Edit(Contact model)
     {
         try
         {
@@ -75,8 +75,25 @@ public class ContactsController : ControllerBase
         }
     }
 
+    [HttpPut("{id}/avatars")]
+    public IActionResult Edit(Guid id, Contact model)
+    {
+        try
+        {
+            var entity = _unitOfWork.Contact.GetById(id);
+            entity.Avatar = model.Avatar;
+            _unitOfWork.Contact.Update(entity);
+            _unitOfWork.Save();
+            return new ResponseModel<Contact>(entity).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Contact>().BadRequest(ex);
+        }
+    }
+
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public IActionResult Delete(Guid id)
     {
         try
         {

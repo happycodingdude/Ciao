@@ -35,9 +35,8 @@ const Chatbox = ({ reference }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          setParticipants(res.data.data);
-        } else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
+        setParticipants(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -48,11 +47,10 @@ const Chatbox = ({ reference }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          refChatContent.current.classList.remove("scroll-smooth");
-          refChatContent.current.scrollTop = 0;
-          setMessages(res.data.data);
-        } else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
+        refChatContent.current.classList.remove("scroll-smooth");
+        refChatContent.current.scrollTop = 0;
+        setMessages(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -203,38 +201,37 @@ const Chatbox = ({ reference }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          if (refChatInput.current !== null) refChatInput.current.value = "";
-          setFiles([]);
+        if (res.status !== 200) throw new Error(res.status);
+        if (refChatInput.current !== null) refChatInput.current.value = "";
+        setFiles([]);
 
-          // add new message to current list
-          if (messages.length === 0) {
-            var firstMessage = [
-              {
-                Date: moment().format("MM/DD/YYYY"),
-                Messages: [res.data.data],
-              },
-            ];
-            setMessages(firstMessage);
-          } else {
-            var newArr = messages.map((item) => {
-              if (
-                item.Date ===
-                moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
-              ) {
-                item.Messages = [...item.Messages, res.data.data];
-                return item;
-              }
+        // add new message to current list
+        if (messages.length === 0) {
+          var firstMessage = [
+            {
+              Date: moment().format("MM/DD/YYYY"),
+              Messages: [res.data.data],
+            },
+          ];
+          setMessages(firstMessage);
+        } else {
+          var newArr = messages.map((item) => {
+            if (
+              item.Date ===
+              moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
+            ) {
+              item.Messages = [...item.Messages, res.data.data];
               return item;
-            });
-            setMessages(newArr);
-          }
+            }
+            return item;
+          });
+          setMessages(newArr);
+        }
 
-          setTimeout(() => {
-            refChatContent.current.scrollTop =
-              refChatContent.current.scrollHeight;
-          }, 500);
-        } else throw new Error(res.status);
+        setTimeout(() => {
+          refChatContent.current.scrollTop =
+            refChatContent.current.scrollHeight;
+        }, 500);
       })
       .catch((err) => {
         console.log(err);
@@ -277,8 +274,8 @@ const Chatbox = ({ reference }) => {
     };
   }, [handleScroll, toggleChatboxOption]);
 
-  const handleUpdateTitle = () => {
-    var title = prompt("New title");
+  const updateTitle = () => {
+    var title = prompt("New title", reference.conversation.Title);
     if (title === null || title === "") return;
     reference.conversation.Title = title;
 
@@ -293,9 +290,8 @@ const Chatbox = ({ reference }) => {
         headers: headers,
       })
       .then((res) => {
-        if (res.status === 200) {
-          console.log(res.data.data);
-        } else throw new Error(res.status);
+        if (res.status !== 200) throw new Error(res.status);
+        reference.setConversation({ ...reference.conversation });
       })
       .catch((err) => {
         console.log(err);
@@ -369,7 +365,7 @@ const Chatbox = ({ reference }) => {
           onClick={scrollChatContentToBottom}
         ></div>
         <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem] laptop:max-h-[5.5rem]">
-          <div className="relative flex h-full basis-[calc(100%/3)] items-center">
+          <div className="relative flex h-full basis-[25%]  items-center">
             {participants?.map((item, i) =>
               i < 3 ? (
                 <div
@@ -385,7 +381,7 @@ const Chatbox = ({ reference }) => {
             )}
             <div className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] cursor-pointer items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"></div>
           </div>
-          <div className="basis-[calc(100%/3)] text-center">
+          <div className="grow text-center">
             <p className="font-bold text-gray-600">
               {reference.conversation?.Title}
             </p>
@@ -410,7 +406,7 @@ const Chatbox = ({ reference }) => {
               </p>
             )}
           </div>
-          <div className="flex basis-[calc(100%/3)] justify-end gap-[1rem]">
+          <div className="flex justify-end gap-[1rem]">
             <div className="fa fa-search self-center font-normal text-gray-500"></div>
             <div
               ref={refChatboxOption}
@@ -425,7 +421,7 @@ const Chatbox = ({ reference }) => {
               >
                 <span
                   className="pl-[1rem] hover:bg-gray-300"
-                  onClick={handleUpdateTitle}
+                  onClick={updateTitle}
                 >
                   Update title
                 </span>

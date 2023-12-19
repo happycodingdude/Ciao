@@ -6,9 +6,10 @@ const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   console.log("AuthProvider rendering");
 
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
-  const [user, setUser] = useState(() => localStorage.getItem("user"));
-  const [id, setId] = useState(() => localStorage.getItem("id"));
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [display, setDisplay] = useState(localStorage.getItem("display"));
+  const [id, setId] = useState(localStorage.getItem("id"));
+  const [user, setUser] = useState();
 
   useEffect(() => {
     if (token) {
@@ -23,24 +24,26 @@ export const AuthProvider = ({ children }) => {
           headers: headers,
         })
         .then((res) => {
-          if (res.status === 200) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", res.data.data.Username);
-            localStorage.setItem("id", res.data.data.Id);
+          if (res.status !== 200) throw new Error(res.status);
+          localStorage.setItem("token", token);
+          localStorage.setItem("display", res.data.data.Name);
+          localStorage.setItem("id", res.data.data.Id);
 
-            setUser(res.data.data.Username);
-            setId(res.data.data.Id);
-          } else throw new Error(res.status);
+          setDisplay(res.data.data.Name);
+          setId(res.data.data.Id);
+          setUser(res.data.data);
         })
         .catch((err) => {
           console.log(err);
+          if (err.code === "ERR_CANCELED") return;
           if (err.response?.status === 401) {
             console.log("Unauthen");
             localStorage.removeItem("token");
-            localStorage.removeItem("user");
+            localStorage.removeItem("display");
             localStorage.removeItem("id");
-            setUser(null);
+            setDisplay(null);
             setId(null);
+            setUser(null);
           }
         });
 
@@ -49,10 +52,11 @@ export const AuthProvider = ({ children }) => {
       };
     } else {
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem("display");
       localStorage.removeItem("id");
-      setUser(null);
+      setDisplay(null);
       setId(null);
+      setUser(null);
     }
   }, [token]);
 
@@ -65,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, id, login, logout }}>
+    <AuthContext.Provider value={{ token, display, id, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
