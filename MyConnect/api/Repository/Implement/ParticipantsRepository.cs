@@ -13,7 +13,7 @@ namespace MyConnect.Repository
         {
             return _dbSet
             .Include(q => q.Contact)
-            .Where(q => q.ConversationId == id)
+            .Where(q => q.ConversationId == id && !q.IsDeleted)
             .ToList();
         }
     }

@@ -170,7 +170,7 @@ const Information = ({ reference }) => {
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
         </div>
       </div>
-      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] [&>*]:border-b-gray-300 [&>*]:px-[2rem] [&>*]:pb-[1rem] ">
+      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth  [&>*]:border-b-gray-300 [&>*]:p-[2rem]">
         <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
           <div className="flex flex-col items-center gap-[.5rem]">
             <div className="aspect-square w-[20%] rounded-[50%] bg-orange-400"></div>

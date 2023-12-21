@@ -5,6 +5,7 @@ namespace MyConnect.Repository
         IEnumerable<T> GetAll();
         T GetById(Guid id);
         void Add(T entity);
+        void AddRange(List<T> entities);
         void Update(T entity);
         void Delete(Guid id);
     }

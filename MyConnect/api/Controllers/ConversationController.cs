@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -9,10 +10,12 @@ namespace MyConnect.Controllers;
 public class ConversationsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IParticipantsService _participantsService;
 
-    public ConversationsController(IUnitOfWork unitOfWork)
+    public ConversationsController(IUnitOfWork unitOfWork, IParticipantsService participantsService)
     {
         _unitOfWork = unitOfWork;
+        _participantsService = participantsService;
     }
 
     [HttpGet]
@@ -54,6 +57,20 @@ public class ConversationsController : ControllerBase
         catch (Exception ex)
         {
             return new ResponseModel<Participants>().BadRequest(ex);
+        }
+    }
+
+    [HttpPost("{id}/participants")]
+    public async Task<IActionResult> AddParticipants(List<Participants> model)
+    {
+        try
+        {
+            var response = await _participantsService.AddParticipantAndNotify(model);
+            return new ResponseModel<List<Participants>>(model).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<List<Participants>>().BadRequest(ex);
         }
     }
 

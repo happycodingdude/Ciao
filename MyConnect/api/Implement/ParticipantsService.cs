@@ -20,28 +20,20 @@ namespace MyConnect.Implement
             _notificationService = notificationService;
         }
 
-        public async Task NotifyMessage(Guid id)
+        public async Task<IEnumerable<Participants>> AddParticipantAndNotify(List<Participants> model)
         {
-            // var entity = _unitOfWork.Participants.GetByConversationIdIncludeContact(id);
-            // foreach (var item in entity)
-            // {
-
-            // }
-
-
+            _unitOfWork.Participants.AddRange(model);
+            _unitOfWork.Save();
             foreach (var connection in _notificationService.Connections)
             {
                 var notification = new FirebaseNotification
                 {
                     to = connection.Value,
-                    data = new
-                    {
-                        ConversationId = "ConversationId",
-                        Content = "Content"
-                    }
+                    data = new Notification(NotificationEvent.AddMember, model)
                 };
                 await _firebaseFunction.Notify(notification);
             }
+            return model;
         }
     }
 }

@@ -5,6 +5,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 import CustomModal from "./CustomModal";
+import { listenNotification } from "./Notification";
 
 const Chatbox = ({ reference }) => {
   console.log("Chatbox calling");
@@ -63,51 +64,34 @@ const Chatbox = ({ reference }) => {
   }, [reference.conversation]);
 
   useEffect(() => {
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
-        .then(navigator.serviceWorker.ready)
-        .then(() => {
-          navigator.serviceWorker.onmessage = (event) => {
-            // event is a MessageEvent object
-            console.log(
-              `The service worker sent me a message: ${event.data.data}`,
-            );
-
-            // user config unnotified
-            if (localStorage.getItem("notification") === "false") return;
-
-            // add new message to current list
-            var newArr = messages?.map((item) => {
-              if (
-                item.Messages.some(
-                  (message) => message.Id === event.data.data.Id,
-                )
-              )
-                return item;
-              if (
-                item.Date !==
-                moment(event.data.data.CreatedTime).format("MM/DD/YYYY")
-              )
-                return item;
-
-              item.Messages = [...item.Messages, event.data.data];
+    listenNotification((message) => {
+      console.log("Chatbox receive message from worker");
+      const messageData = JSON.parse(message.data);
+      switch (message.event) {
+        case "NewMessage":
+          // add new message to current list
+          var newArr = messages?.map((item) => {
+            if (item.Messages.some((message) => message.Id === messageData.Id))
               return item;
-            });
-            setMessages(newArr);
+            if (
+              item.Date !== moment(messageData.CreatedTime).format("MM/DD/YYYY")
+            )
+              return item;
 
-            setTimeout(() => {
-              refChatContent.current.scrollTop =
-                refChatContent.current.scrollHeight;
-            }, 200);
-          };
-        });
+            item.Messages = [...item.Messages, messageData];
+            return item;
+          });
+          setMessages(newArr);
 
-      // navigator.serviceWorker.addEventListener("message", (event) => {
-      //   // event is a MessageEvent object
-      //   console.log(`The service worker sent me a message: ${event.data}`);
-      // });
-    }
+          setTimeout(() => {
+            refChatContent.current.scrollTop =
+              refChatContent.current.scrollHeight;
+          }, 200);
+          break;
+        default:
+          break;
+      }
+    });
 
     refChatContent.current.classList.add("scroll-smooth");
     // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
@@ -357,14 +341,80 @@ const Chatbox = ({ reference }) => {
   };
 
   const [show, setShow] = useState(false);
+  const [options, setOptions] = useState([]);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleAddParticipant = () => {
-    setShow(true);
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    axios
+      .get("api/contacts", {
+        cancelToken: cancelToken.token,
+        headers: headers,
+      })
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+        var options = [];
+        res.data.data
+          .filter(
+            (item) =>
+              !participants.some(
+                (participant) => participant.ContactId === item.Id,
+              ),
+          )
+          .map((item) => {
+            options.push({ label: item.Name, value: item.Id });
+          });
+        setOptions(options);
+        setShow(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => {
+      cancelToken.cancel();
+    };
   };
 
-  const addParticipant = () => {};
+  const addParticipant = (options) => {
+    handleClose();
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    const body = options.map((item) => {
+      return {
+        ConversationId: reference.conversation.Id,
+        ContactId: item.value,
+      };
+    });
+    axios
+      .post(
+        `api/conversations/${reference.conversation?.Id}/participants`,
+        body,
+        {
+          cancelToken: cancelToken.token,
+          headers: headers,
+        },
+      )
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+        reference.setConversation({ ...reference.conversation });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => {
+      cancelToken.cancel();
+    };
+  };
 
   return (
     <>
@@ -612,9 +662,12 @@ const Chatbox = ({ reference }) => {
           </div>
         </div>
         <CustomModal
-          show={show}
-          handleClose={handleClose}
-          saveChanges={addParticipant}
+          reference={{
+            show,
+            options,
+            handleClose,
+            saveChanges: addParticipant,
+          }}
         ></CustomModal>
       </div>
     </>

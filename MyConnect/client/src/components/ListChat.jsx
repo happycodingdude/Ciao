@@ -1,6 +1,7 @@
 import moment from "moment";
 import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
+import { listenNotification } from "./Notification";
 
 const ListChat = ({ reference }) => {
   const auth = useAuth();
@@ -68,28 +69,18 @@ const ListChat = ({ reference }) => {
       unfocusChat();
     };
 
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
-        .then(navigator.serviceWorker.ready)
-        .then(() => {
-          navigator.serviceWorker.onmessage = (event) => {
-            // event is a MessageEvent object
-            console.log(
-              `The service worker sent me a message: ${event.data.data}`,
-            );
-            if (
-              !chats.some((item) => item.LastMessageId === event.data.data.Id)
-            )
-              reference.notifyMessage(chats, event.data.data);
-          };
-        });
-
-      // navigator.serviceWorker.addEventListener("message", (event) => {
-      //   // event is a MessageEvent object
-      //   console.log(`The service worker sent me a message: ${event.data}`);
-      // });
-    }
+    listenNotification((message) => {
+      console.log("ListChat receive message from worker");
+      const messageData = JSON.parse(message.data);
+      switch (message.event) {
+        case "NewMessage":
+          if (!chats.some((item) => item.LastMessageId === messageData.Id))
+            reference.notifyMessage(chats, messageData);
+          break;
+        default:
+          break;
+      }
+    });
   }, [chats]);
 
   const scrollListChatToBottom = () => {
@@ -157,7 +148,7 @@ const ListChat = ({ reference }) => {
                 ) : (
                   <p
                     className="flex aspect-square w-[3rem] items-center justify-center rounded-[50%] bg-blue-500 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
-                                                font-bold text-white
+                                                font-bold text-slate-50
                                                 group-hover:bg-white group-hover:text-blue-500
                                                 group-[.item-active]:bg-white group-[.item-active]:text-blue-500"
                   >

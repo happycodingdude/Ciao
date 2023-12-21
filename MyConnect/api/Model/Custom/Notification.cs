@@ -6,6 +6,18 @@ namespace MyConnect.Model
         public string? Token { get; set; }
     }
 
+    public class Notification
+    {
+        public string @event { get; set; }
+        public object data { get; set; }
+
+        public Notification(string @event, object data)
+        {
+            this.@event = @event;
+            this.data = data;
+        }
+    }
+
     public class FirebaseNotification
     {
         public string? to { get; set; }

@@ -1,10 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { requestPermission } from "../src/components/Notification";
 import Attachment from "./components/Attachment";
 import Chatbox from "./components/Chatbox";
 import Information from "./components/Information";
 import ListChat from "./components/ListChat";
+import { requestPermission } from "./components/Notification";
 import Signout from "./components/Signout";
 import useAuth from "./hook/useAuth";
 
@@ -17,16 +17,23 @@ const Home = () => {
   const refAttachment = useRef();
 
   const notifyMessage = (chats, message) => {
-    var newChats = chats.map((item) => {
-      if (item.Id !== message.ConversationId) return item;
-      item.UnSeenMessages++;
-      item.LastMessageId = message.Id;
-      item.LastMessage = message.Content;
-      item.LastMessageTime = message.CreatedTime;
-      item.LastMessageContact = message.ContactId;
-      return item;
-    });
-    refListChat.setChats(newChats);
+    const messageData = JSON.parse(message.data);
+    switch (message.event) {
+      case "NewMessage":
+        var newChats = chats.map((item) => {
+          if (item.Id !== messageData.ConversationId) return item;
+          item.UnSeenMessages++;
+          item.LastMessageId = messageData.Id;
+          item.LastMessage = messageData.Content;
+          item.LastMessageTime = messageData.CreatedTime;
+          item.LastMessageContact = messageData.ContactId;
+          return item;
+        });
+        refListChat.setChats(newChats);
+        break;
+      default:
+        break;
+    }
   };
 
   useEffect(() => {
@@ -48,6 +55,18 @@ const Home = () => {
       .catch((err) => {
         console.log(err);
       });
+
+    // listenNotification((message) => {
+    //   console.log("Home receive message from worker");
+    //   const messageData = JSON.parse(message.data);
+    //   switch (message.event) {
+    //     case "AddMember":
+    //       console.log(messageData);
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // });
 
     return () => {
       cancelToken.cancel();

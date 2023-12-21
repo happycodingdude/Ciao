@@ -61,20 +61,6 @@ public class ParticipantsController : ControllerBase
         }
     }
 
-    [HttpPost("{id}/notify")]
-    public async Task<IActionResult> Notify(Guid id)
-    {
-        try
-        {
-            await _participantsService.NotifyMessage(id);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex);
-        }
-    }
-
     [HttpPut]
     public IActionResult Edit(Participants model)
     {

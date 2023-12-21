@@ -29,6 +29,11 @@ namespace MyConnect.Repository
             _context.Set<T>().Add(entity);
         }
 
+        public virtual void AddRange(List<T> entities)
+        {
+            _context.Set<T>().AddRange(entities);
+        }
+
         public virtual void Update(T entity)
         {
             _context.Entry(entity).State = EntityState.Modified;

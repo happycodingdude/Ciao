@@ -1,7 +1,9 @@
+using MyConnect.Model;
+
 namespace MyConnect.Interface
 {
     public interface IParticipantsService
     {
-        Task NotifyMessage(Guid id);
+        Task<IEnumerable<Participants>> AddParticipantAndNotify(List<Participants> model);
     }
 }
