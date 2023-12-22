@@ -4,5 +4,6 @@ namespace MyConnect.Model
     {
         public const string NewMessage = "NewMessage";
         public const string AddMember = "AddMember";
+        public const string RemoveChat = "RemoveChat";
     }
 }

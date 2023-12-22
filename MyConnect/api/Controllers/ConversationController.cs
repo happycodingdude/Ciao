@@ -74,6 +74,20 @@ public class ConversationsController : ControllerBase
         }
     }
 
+    [HttpPut("{id}/participants")]
+    public async Task<IActionResult> RemoveChat(Participants model)
+    {
+        try
+        {
+            var response = await _participantsService.RemoveChatAndNotify(model);
+            return new ResponseModel<Participants>(model).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Participants>().BadRequest(ex);
+        }
+    }
+
     [HttpGet("{id}/messages")]
     public IActionResult GetMessages(Guid id)
     {

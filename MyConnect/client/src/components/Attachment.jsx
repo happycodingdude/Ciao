@@ -52,7 +52,7 @@ const Attachment = ({ reference }) => {
   };
 
   const showInformation = () => {
-    reference.refAttachment.showInformation();
+    reference.refInformation.showInformation();
     hideAttachment();
   };
 

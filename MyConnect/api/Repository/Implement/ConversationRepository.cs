@@ -18,25 +18,29 @@ namespace MyConnect.Repository
         public IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages()
         {
             var messageDbSet = _context.Set<Message>();
+            var participantDbSet = _context.Set<Participants>();
+
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var id = JwtToken.ExtractToken(token);
+            var contactId = JwtToken.ExtractToken(token);
+
             var entity = _dbSet
-            .Where(q => q.Participants.Any(w => w.ContactId == id && !w.IsDeleted))
+            .Where(q => q.Participants.Any(w => w.ContactId == contactId && !w.IsDeleted))
             .OrderByDescending(q => q.UpdatedTime)
             .ToList();
-            var result = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
-            foreach (var item in result)
+            var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
+            foreach (var conversation in conversations)
             {
-                item.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == item.Id && q.ContactId != id && q.Status == "received");
+                conversation.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == conversation.Id && q.ContactId != contactId && q.Status == "received");
 
-                var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == item.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
+                var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == conversation.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
                 if (lastMessageEntity == null) continue;
-                item.LastMessageId = lastMessageEntity.Id;
-                item.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
-                item.LastMessageTime = lastMessageEntity.CreatedTime;
-                item.LastMessageContact = lastMessageEntity.ContactId;
+                conversation.LastMessageId = lastMessageEntity.Id;
+                conversation.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
+                conversation.LastMessageTime = lastMessageEntity.CreatedTime;
+                conversation.LastMessageContact = lastMessageEntity.ContactId;
+                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
             }
-            return result;
+            return conversations;
         }
     }
 }

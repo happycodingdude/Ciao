@@ -1,7 +1,6 @@
 import moment from "moment";
 import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
-import { listenNotification } from "./Notification";
 
 const ListChat = ({ reference }) => {
   const auth = useAuth();
@@ -69,18 +68,18 @@ const ListChat = ({ reference }) => {
       unfocusChat();
     };
 
-    listenNotification((message) => {
-      console.log("ListChat receive message from worker");
-      const messageData = JSON.parse(message.data);
-      switch (message.event) {
-        case "NewMessage":
-          if (!chats.some((item) => item.LastMessageId === messageData.Id))
-            reference.notifyMessage(chats, messageData);
-          break;
-        default:
-          break;
-      }
-    });
+    // listenNotification((message) => {
+    //   console.log("ListChat receive message from worker");
+    //   const messageData = JSON.parse(message.data);
+    //   switch (message.event) {
+    //     case "NewMessage":
+    //       if (!chats.some((item) => item.LastMessageId === messageData.Id))
+    //         reference.notifyMessage(chats, messageData);
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // });
   }, [chats]);
 
   const scrollListChatToBottom = () => {
@@ -112,7 +111,7 @@ const ListChat = ({ reference }) => {
               ref={(element) => {
                 refChatItem.current[i] = element;
               }}
-              className="group flex cursor-pointer gap-[1rem] rounded-[1rem] p-[1rem] 
+              className="chat-item group flex cursor-pointer gap-[1rem] rounded-[1rem] p-[1rem] 
                                 hover:bg-blue-500 hover:text-white"
               onClick={() => {
                 handleSetConversation(item);

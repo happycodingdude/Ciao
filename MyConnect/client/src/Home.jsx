@@ -13,15 +13,19 @@ const Home = () => {
 
   const [conversation, setConversation] = useState();
   const refListChat = useRef();
+  const refChatbox = useRef();
   const refInformationContainer = useRef();
+  const refInformation = useRef();
   const refAttachment = useRef();
 
   const notifyMessage = (chats, message) => {
+    console.log(message);
     const messageData = JSON.parse(message.data);
     switch (message.event) {
       case "NewMessage":
         var newChats = chats.map((item) => {
-          if (item.Id !== messageData.ConversationId) return item;
+          if (item.Id !== messageData.ConversationId || !item.IsNotifying)
+            return item;
           item.UnSeenMessages++;
           item.LastMessageId = messageData.Id;
           item.LastMessage = messageData.Content;
@@ -31,22 +35,45 @@ const Home = () => {
         });
         refListChat.setChats(newChats);
         break;
+      case "AddMember":
+      case "RemoveChat":
+        const listChat = Array.from(document.querySelectorAll(".chat-item"));
+        const isFocusChat = listChat.some((item) =>
+          item.classList.contains("item-active"),
+        );
+        if (isFocusChat) {
+          refChatbox.setParticipants();
+        } else {
+          const cancelToken = axios.CancelToken.source();
+          getAllChats(cancelToken)
+            .then((res) => {
+              if (res.status !== 200) throw new Error(res.status);
+              refListChat.setChats(res.data.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+        break;
       default:
         break;
     }
   };
 
-  useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
+  const getAllChats = async (cancelToken) => {
     const headers = {
       "Content-Type": "application/json",
       Authorization: "Bearer " + auth.token,
     };
-    axios
-      .get("api/conversations", {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
+    return axios.get("api/conversations", {
+      cancelToken: cancelToken.token,
+      headers: headers,
+    });
+  };
+
+  useEffect(() => {
+    const cancelToken = axios.CancelToken.source();
+    getAllChats(cancelToken)
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         refListChat.setChats(res.data.data);
@@ -143,6 +170,8 @@ const Home = () => {
           <Chatbox
             reference={{
               conversation,
+              refChatbox,
+              refInformation,
               setConversation,
               toggleInformationContainer,
             }}
@@ -152,9 +181,16 @@ const Home = () => {
             className="relative w-[calc(100%/4)] shrink-0"
           >
             <Information
-              reference={{ conversation, refAttachment, removeInListChat }}
+              reference={{
+                conversation,
+                refInformation,
+                refAttachment,
+                removeInListChat,
+              }}
             />
-            <Attachment reference={{ conversation, refAttachment }} />
+            <Attachment
+              reference={{ conversation, refInformation, refAttachment }}
+            />
           </div>
         </>
       )}

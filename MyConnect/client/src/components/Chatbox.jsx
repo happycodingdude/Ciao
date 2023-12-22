@@ -5,7 +5,6 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 import CustomModal from "./CustomModal";
-import { listenNotification } from "./Notification";
 
 const Chatbox = ({ reference }) => {
   console.log("Chatbox calling");
@@ -21,11 +20,8 @@ const Chatbox = ({ reference }) => {
   const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
-  useEffect(() => {
-    if (!reference.conversation) return;
 
-    setFiles([]);
-
+  const handleSetParticipants = () => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
@@ -39,10 +35,24 @@ const Chatbox = ({ reference }) => {
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         setParticipants(res.data.data);
+        reference.refInformation.setParticipants(res.data.data);
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  useEffect(() => {
+    if (!reference.conversation) return;
+
+    setFiles([]);
+
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+
     axios
       .get(`api/conversations/${reference.conversation?.Id}/messages`, {
         cancelToken: cancelToken.token,
@@ -58,40 +68,46 @@ const Chatbox = ({ reference }) => {
         console.log(err);
       });
 
+    handleSetParticipants();
+
     return () => {
       cancelToken.cancel();
     };
   }, [reference.conversation]);
 
   useEffect(() => {
-    listenNotification((message) => {
-      console.log("Chatbox receive message from worker");
-      const messageData = JSON.parse(message.data);
-      switch (message.event) {
-        case "NewMessage":
-          // add new message to current list
-          var newArr = messages?.map((item) => {
-            if (item.Messages.some((message) => message.Id === messageData.Id))
-              return item;
-            if (
-              item.Date !== moment(messageData.CreatedTime).format("MM/DD/YYYY")
-            )
-              return item;
+    reference.refChatbox.setParticipants = handleSetParticipants;
+  }, [handleSetParticipants]);
 
-            item.Messages = [...item.Messages, messageData];
-            return item;
-          });
-          setMessages(newArr);
+  useEffect(() => {
+    // listenNotification((message) => {
+    //   console.log("Chatbox receive message from worker");
+    //   const messageData = JSON.parse(message.data);
+    //   switch (message.event) {
+    //     case "NewMessage":
+    //       // add new message to current list
+    //       var newArr = messages?.map((item) => {
+    //         if (item.Messages.some((message) => message.Id === messageData.Id))
+    //           return item;
+    //         if (
+    //           item.Date !== moment(messageData.CreatedTime).format("MM/DD/YYYY")
+    //         )
+    //           return item;
 
-          setTimeout(() => {
-            refChatContent.current.scrollTop =
-              refChatContent.current.scrollHeight;
-          }, 200);
-          break;
-        default:
-          break;
-      }
-    });
+    //         item.Messages = [...item.Messages, messageData];
+    //         return item;
+    //       });
+    //       setMessages(newArr);
+
+    //       setTimeout(() => {
+    //         refChatContent.current.scrollTop =
+    //           refChatContent.current.scrollHeight;
+    //       }, 200);
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // });
 
     refChatContent.current.classList.add("scroll-smooth");
     // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
@@ -392,6 +408,7 @@ const Chatbox = ({ reference }) => {
       return {
         ConversationId: reference.conversation.Id,
         ContactId: item.value,
+        IsNotifying: true,
       };
     });
     axios
@@ -405,7 +422,7 @@ const Chatbox = ({ reference }) => {
       )
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        reference.setConversation({ ...reference.conversation });
+        // reference.setConversation({ ...reference.conversation });
       })
       .catch((err) => {
         console.log(err);
@@ -529,9 +546,7 @@ const Chatbox = ({ reference }) => {
                         <h1 className="font-semibold">
                           {message.ContactId === auth.id
                             ? "You"
-                            : participants?.find(
-                                (item) => item.ContactId === message.ContactId,
-                              )?.Contact.Name}
+                            : message.Contact.Name}
                         </h1>
                         {participants?.find(
                           (item) => item.ContactId === message.ContactId,

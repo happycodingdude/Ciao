@@ -17,5 +17,6 @@ namespace MyConnect.Model
         public string? LastMessage { get; set; }
         public DateTime? LastMessageTime { get; set; }
         public Guid? LastMessageContact { get; set; }
+        public bool IsNotifying { get; set; }
     }
 }

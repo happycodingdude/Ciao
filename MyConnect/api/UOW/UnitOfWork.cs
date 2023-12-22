@@ -12,7 +12,7 @@ namespace MyConnect.UOW
             _context = context;
             Contact = new ContactRepository(_context, httpContextAccessor, configuration);
             Conversation = new ConversationRepository(_context, _mapper, httpContextAccessor);
-            Message = new MessageRepository(_context, httpContextAccessor);
+            Message = new MessageRepository(_context, _mapper, httpContextAccessor);
             Participants = new ParticipantsRepository(_context);
             Schedule = new ScheduleRepository(_context);
             ScheduleContact = new ScheduleContactRepository(_context);

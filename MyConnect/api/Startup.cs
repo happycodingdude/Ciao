@@ -8,6 +8,7 @@ using MyDockerWebAPI.RestApi;
 using MyConnect.RestApi;
 using MyConnect.Interface;
 using MyConnect.Implement;
+using Newtonsoft.Json;
 
 namespace MyConnect
 {
@@ -25,7 +26,7 @@ namespace MyConnect
             Console.WriteLine("ConfigureServices running");
             services.AddDistributedMemoryCache();
             services.AddSession();
-            services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();

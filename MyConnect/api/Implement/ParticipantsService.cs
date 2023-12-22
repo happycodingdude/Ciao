@@ -35,5 +35,21 @@ namespace MyConnect.Implement
             }
             return model;
         }
+
+        public async Task<Participants> RemoveChatAndNotify(Participants model)
+        {
+            _unitOfWork.Participants.Update(model);
+            _unitOfWork.Save();
+            foreach (var connection in _notificationService.Connections)
+            {
+                var notification = new FirebaseNotification
+                {
+                    to = connection.Value,
+                    data = new Notification(NotificationEvent.RemoveChat, model)
+                };
+                await _firebaseFunction.Notify(notification);
+            }
+            return model;
+        }
     }
 }

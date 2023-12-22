@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyConnect.Authentication;
 using MyConnect.Model;
@@ -7,26 +8,31 @@ namespace MyConnect.Repository
     public class MessageRepository : BaseRepository<Message>, IMessageRepository
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public MessageRepository(CoreContext context, IHttpContextAccessor httpContextAccessor) : base(context)
+        public MessageRepository(CoreContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context)
         {
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
         public IEnumerable<MessageGroupByCreatedTime> GetByConversationId(Guid id)
         {
             var messages = _dbSet
             .Include(q => q.Attachments)
+            .Include(q => q.Contact)
             .Where(q => q.ConversationId == id)
             .OrderBy(q => q.CreatedTime)
             .ToList();
+
             UpdateStatus(messages);
+
             var groupByCreatedTime = messages
             .GroupBy(q => q.CreatedTime.Value.Date)
             .Select(q => new MessageGroupByCreatedTime
             {
                 Date = q.Key.ToString("MM/dd/yyyy"),
-                Messages = q.ToList()
+                Messages = _mapper.Map<List<Message>, List<MessageNoReference>>(q.ToList())
             });
             return groupByCreatedTime;
         }

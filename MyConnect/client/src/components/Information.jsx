@@ -23,21 +23,6 @@ const Information = ({ reference }) => {
       "Content-Type": "application/json",
       Authorization: "Bearer " + auth.token,
     };
-    axios
-      .get(`api/conversations/${reference.conversation?.Id}/participants`, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        setParticipants(res.data.data);
-        setIsNotifying(
-          res.data.data.find((item) => item.ContactId === auth.id)?.IsNotifying,
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
 
     axios
       .get(`api/conversations/${reference.conversation?.Id}/attachments`, {
@@ -64,6 +49,11 @@ const Information = ({ reference }) => {
       cancelToken.cancel();
     };
   }, [reference.conversation]);
+
+  const reset = () => {
+    refInformation.current.classList.remove("animate-flip-scale-up-vertical");
+    refInformation.current.classList.remove("animate-flip-scale-down-vertical");
+  };
 
   // useEffect(() => {
   //   wrapGrid(refGrid.current, { duration: 600, easing: "backInOut" });
@@ -110,10 +100,14 @@ const Information = ({ reference }) => {
       const selected = participants.find((item) => item.ContactId === auth.id);
       selected.IsDeleted = true;
       axios
-        .put(`api/participants`, selected, {
-          cancelToken: cancelToken.token,
-          headers: headers,
-        })
+        .put(
+          `api/conversations/${reference.conversation?.Id}/participants`,
+          selected,
+          {
+            cancelToken: cancelToken.token,
+            headers: headers,
+          },
+        )
         .then((res) => {
           if (res.status !== 200) throw new Error(res.status);
           reference.removeInListChat(res.data.data.ConversationId);
@@ -133,14 +127,33 @@ const Information = ({ reference }) => {
     e.target.src = "../src/assets/imagenotfound.jpg";
   };
 
-  const showInformation = () => {
-    refInformation.current.classList.remove("animate-flip-scale-down-vertical");
-    refInformation.current.classList.add("animate-flip-scale-up-vertical");
-  };
+  // const showInformation = () => {
+  //   refInformation.current.classList.remove("animate-flip-scale-down-vertical");
+  //   refInformation.current.classList.add("animate-flip-scale-up-vertical");
+  // };
+
+  // const handleSetParticipants = (data) => {
+  //   setParticipants(data);
+  //   setIsNotifying(
+  //     data.find((item) => item.ContactId === auth.id)?.IsNotifying,
+  //   );
+  // };
 
   useEffect(() => {
-    reference.refAttachment.showInformation = showInformation;
-  }, [showInformation]);
+    reference.refInformation.showInformation = () => {
+      refInformation.current.classList.remove(
+        "animate-flip-scale-down-vertical",
+      );
+      refInformation.current.classList.add("animate-flip-scale-up-vertical");
+    };
+
+    reference.refInformation.setParticipants = (data) => {
+      setParticipants(data);
+      setIsNotifying(
+        data.find((item) => item.ContactId === auth.id)?.IsNotifying,
+      );
+    };
+  }, []);
 
   const hideInformation = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
@@ -150,11 +163,6 @@ const Information = ({ reference }) => {
   const showAllAttachment = () => {
     hideInformation();
     reference.refAttachment.showAttachment(attachments);
-  };
-
-  const reset = () => {
-    refInformation.current.classList.remove("animate-flip-scale-up-vertical");
-    refInformation.current.classList.remove("animate-flip-scale-down-vertical");
   };
 
   return (
