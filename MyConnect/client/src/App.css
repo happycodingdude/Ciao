@@ -55,4 +55,23 @@ body,
     @apply before:absolute before:bottom-0 before:left-0 before:right-0 before:m-auto
     before:h-[.2rem] before:w-[80%] before:bg-blue-500;
   }
+
+  .mention-input {
+    border-radius: 0;
+    border: none !important;
+    box-shadow: none !important;
+
+    &:hover {
+      outline: unset !important;
+    }
+    textarea {
+      border-bottom: 0.1rem gray solid;
+      overflow-y: scroll;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+      scrollbar-width: none; /* For Firefox */
+    }
+  }
 }

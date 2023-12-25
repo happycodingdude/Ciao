@@ -38,6 +38,11 @@ namespace MyConnect.Repository
                 conversation.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
                 conversation.LastMessageTime = lastMessageEntity.CreatedTime;
                 conversation.LastMessageContact = lastMessageEntity.ContactId;
+                conversation.LastSeenTime = messageDbSet
+                .Where(q => q.ConversationId == conversation.Id && q.ContactId == contactId && q.Status == "seen" && q.SeenTime.HasValue)
+                .OrderByDescending(q => q.CreatedTime)
+                .FirstOrDefault()
+                .SeenTime;
                 conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
             }
             return conversations;

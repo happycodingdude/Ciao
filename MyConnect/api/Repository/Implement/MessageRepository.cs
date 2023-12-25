@@ -44,7 +44,10 @@ namespace MyConnect.Repository
 
             var unseenMessages = messages.Where(q => q.ContactId != id && q.Status == "received");
             foreach (var message in unseenMessages)
+            {
                 message.Status = "seen";
+                message.SeenTime = DateTime.Now;
+            }
             _dbSet.UpdateRange(unseenMessages);
             _context.SaveChanges();
         }

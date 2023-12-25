@@ -1,6 +1,8 @@
 // import { wrapGrid } from "animate-css-grid";
+import { Mentions } from "antd";
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import parse from "html-react-parser";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
@@ -20,6 +22,7 @@ const Chatbox = ({ reference }) => {
   const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
+  const [suggestion, setSuggestion] = useState();
 
   const handleSetParticipants = () => {
     const cancelToken = axios.CancelToken.source();
@@ -35,6 +38,13 @@ const Chatbox = ({ reference }) => {
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         setParticipants(res.data.data);
+        const suggestion = res.data.data
+          .filter((item) => item.ContactId !== auth.id)
+          .map((item) => {
+            return { value: item.Contact.Name, label: item.Contact.Name };
+          });
+        setSuggestion(suggestion);
+
         reference.refInformation.setParticipants(res.data.data);
       })
       .catch((err) => {
@@ -180,7 +190,7 @@ const Chatbox = ({ reference }) => {
       body = {
         ...body,
         Type: "text",
-        Content: refChatInput.current.value,
+        Content: refChatInput.current.textarea.value,
       };
     } else {
       body = {
@@ -203,7 +213,8 @@ const Chatbox = ({ reference }) => {
       })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        if (refChatInput.current !== null) refChatInput.current.value = "";
+        if (refChatInput.current.textarea !== null)
+          refChatInput.current.textarea.value = "";
         setFiles([]);
 
         // add new message to current list
@@ -472,7 +483,17 @@ const Chatbox = ({ reference }) => {
               <p className="font-bold text-gray-600">
                 {reference.conversation?.Title}
               </p>
-              {participants?.find((item) => item.ContactId !== auth.id)?.Contact
+              <p className="text-gray-400">
+                Last seen{" "}
+                {moment(reference.conversation?.LastSeenTime).format(
+                  "DD/MM/YYYY",
+                ) === moment().format("DD/MM/YYYY")
+                  ? moment(reference.conversation?.LastSeenTime).fromNow()
+                  : moment(reference.conversation?.LastSeenTime).format(
+                      "DD/MM HH:mm",
+                    )}
+              </p>
+              {/* {participants?.find((item) => item.ContactId !== auth.id)?.Contact
                 .IsOnline ? (
                 <p className="text-blue-500">Online</p>
               ) : (
@@ -491,7 +512,7 @@ const Chatbox = ({ reference }) => {
                           ?.Contact.LastLogout,
                       ).format("DD/MM HH:mm")}
                 </p>
-              )}
+              )} */}
             </div>
             <div className="flex justify-end gap-[1rem]">
               <div className="fa fa-search self-center font-normal text-gray-500"></div>
@@ -558,36 +579,61 @@ const Chatbox = ({ reference }) => {
                           ""
                         )}
                         <p className="text-blue-400">
-                          {moment(message.CreatedTime).format("HH:mm")}
+                          {moment(message.CreatedTime).format("DD/MM/YYYY") ===
+                          moment().format("DD/MM/YYYY")
+                            ? moment(message.CreatedTime).format("HH:mm")
+                            : moment(message.CreatedTime).format("DD/MM HH:mm")}
                         </p>
                         <img
                           src="../src/img/double-check.svg"
                           className="w-[2rem]"
                         ></img>
                       </div>
-                      <div
-                        className={`grid gap-[1rem] ${
-                          message.Type === "media" &&
-                          message.Attachments.length === 1
-                            ? "grid-cols-[50%]"
-                            : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
-                        }  break-words text-gray-400`}
-                      >
-                        {message.Type === "text"
-                          ? message.Content
-                          : message.Attachments.map((item) => (
-                              <img
-                                src={
-                                  item.Type === "image"
-                                    ? item.MediaUrl
-                                    : "../src/assets/filenotfound.svg"
-                                }
-                                onError={imageOnError}
-                                className="my-auto cursor-pointer rounded-2xl"
-                                title={item.MediaName?.split(".")[0]}
-                              ></img>
-                            ))}
-                      </div>
+                      {message.Type === "text" ? (
+                        <div className="break-words text-gray-400">
+                          {participants
+                            .filter(
+                              (item) => item.Contact.Name === "Tri Nguyen 1",
+                            )
+                            .map((item) => {
+                              if (
+                                !message.Content.includes(
+                                  `@${item.Contact.Name}`,
+                                )
+                              ) {
+                                return message.Content;
+                              }
+                              return parse(
+                                message.Content.replace(
+                                  `@${item.Contact.Name}`,
+                                  `<span className="text-blue-400 cursor-pointer">@${item.Contact.Name}</span>`,
+                                ),
+                              );
+                            })}
+                        </div>
+                      ) : (
+                        <div
+                          className={`grid gap-[1rem] ${
+                            message.Type === "media" &&
+                            message.Attachments.length === 1
+                              ? "grid-cols-[50%]"
+                              : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
+                          }  break-words text-gray-400`}
+                        >
+                          {message.Attachments.map((item) => (
+                            <img
+                              src={
+                                item.Type === "image"
+                                  ? item.MediaUrl
+                                  : "../src/assets/filenotfound.svg"
+                              }
+                              onError={imageOnError}
+                              className="my-auto cursor-pointer rounded-2xl"
+                              title={item.MediaName?.split(".")[0]}
+                            ></img>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -660,13 +706,19 @@ const Chatbox = ({ reference }) => {
             </div>
           ) : (
             <div className="grow-[2]">
-              <input
+              <Mentions
+                ref={refChatInput}
+                className="mention-input"
+                options={suggestion}
+                onKeyDown={handlePressKey}
+              ></Mentions>
+              {/* <input
                 ref={refChatInput}
                 type="text"
                 placeholder="Write some text"
                 className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
                 onKeyDown={handlePressKey}
-              ></input>
+              ></input> */}
             </div>
           )}
           <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">

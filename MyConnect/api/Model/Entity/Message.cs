@@ -8,6 +8,7 @@ namespace MyConnect.Model
         public bool IsPinned { get; set; }
         public bool IsLike { get; set; }
         public int LikeCount { get; set; }
+        public DateTime? SeenTime { get; set; }
         public Guid ContactId { get; set; }
         public Guid ConversationId { get; set; }
         public Contact? Contact { get; set; }
@@ -23,6 +24,7 @@ namespace MyConnect.Model
         public bool IsPinned { get; set; }
         public bool IsLike { get; set; }
         public int LikeCount { get; set; }
+        public DateTime? SeenTime { get; set; }
         public Guid ContactId { get; set; }
         public Guid ConversationId { get; set; }
         public ContactNoReference? Contact { get; set; }
