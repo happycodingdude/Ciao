@@ -86,8 +86,13 @@ const ListChat = ({ reference }) => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
   };
 
+  const imageOnError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "../src/assets/imagenotfound.jpg";
+  };
+
   return (
-    <div className="flex w-[calc(100%/4)] shrink-0 flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]">
+    <div className="flex w-[calc(100%/4)] flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]">
       <div className="relative">
         <input
           type="text"
@@ -111,17 +116,27 @@ const ListChat = ({ reference }) => {
               ref={(element) => {
                 refChatItem.current[i] = element;
               }}
-              className="chat-item group flex cursor-pointer gap-[1rem] rounded-[1rem] p-[1rem] 
-                                hover:bg-blue-500 hover:text-white"
+              className="chat-item group flex cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] p-[1rem] hover:bg-blue-500 
+                                hover:text-white laptop:h-[8rem]"
               onClick={() => {
                 handleSetConversation(item);
               }}
             >
-              <div className="aspect-square rounded-[50%] bg-orange-400 laptop:w-[calc(100%/6)] desktop:w-[calc(100%/8)]"></div>
-              <div className="w-[calc(100%/2)]">
+              {/* <div
+                style={{
+                  "--image-url": `url('${item.Avatar}'`,
+                }}
+                className="aspect-square rounded-[50%] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center laptop:min-w-[5rem] desktop:min-w-[8rem]"
+              ></div> */}
+              <img
+                src={item.Avatar ?? ""}
+                onError={imageOnError}
+                className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[8rem]"
+              ></img>
+              <div className="grow">
                 <p className="font-bold">{item.Title}</p>
                 {item.LastMessageContact == auth.id ? (
-                  <p className="overflow-hidden text-ellipsis">
+                  <p className="overflow-hidden text-ellipsis ">
                     {item.LastMessage}
                   </p>
                 ) : (
@@ -134,7 +149,7 @@ const ListChat = ({ reference }) => {
                   </p>
                 )}
               </div>
-              <div className="flex w-[calc(100%/3)] flex-col items-end gap-[.5rem]">
+              <div className="flex flex-col items-end gap-[.5rem] self-start laptop:min-w-[5rem]">
                 <p className="font-thin text-gray-950 group-hover:text-white group-[.item-active]:text-white">
                   {moment(item.LastMessageTime).format("DD/MM/YYYY") ===
                   moment().format("DD/MM/YYYY")

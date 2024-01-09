@@ -128,51 +128,29 @@ export default {
           },
         },
 
-        // "information-hide": {
-        //   "100%": {
-        //     transform: "rotate(-540deg)",
-        //     scale: 0,
-        //     opacity: 0,
-        //   },
-        // },
-        // "information-show": {
-        //   "0%": {
-        //     transform: "rotate(-540deg)",
-        //     scale: 0,
-        //     opacity: 0,
-        //   },
-        //   "100%": {
-        //     scale: 1,
-        //     opacity: 1,
-        //   },
-        // },
         "information-hide": {
-          "0%": {
-            transform: "rotateX(0)",
-          },
           "50%": {
-            transform: "rotateX(89deg)",
-            width: "calc(100%/4)",
+            opacity: 0,
           },
           "100%": {
-            transform: "rotateX(90deg)",
-            width: 0,
+            "flex-grow": "0",
+            opacity: 0,
           },
         },
         "information-show": {
           "0%": {
-            transform: "rotateX(90deg)",
-            width: 0,
+            "flex-grow": "0",
+            opacity: 0,
           },
-          "50%": {
-            transform: "rotateX(89deg)",
-            width: "calc(100%/4)",
+          "30%": {
+            opacity: 0,
           },
           "100%": {
-            transform: "rotateX(0)",
-            width: "calc(100%/4)",
+            "flex-grow": "1",
+            opacity: 1,
           },
         },
+
         logo: {
           "0%": {
             transform: "translateX(-22px) translateY(-22px)",
@@ -211,34 +189,26 @@ export default {
             // "animation-timing-function": "ease-out",
           },
         },
-        // "custom-ping": {
-        //   "0%": {
-        //     transform: "scale(0.2)",
-        //     opacity: 0.8,
-        //   },
-        //   "25%": {
-        //     transform: "scale(0.7)",
-        //   },
-        //   "50%": {
-        //     transform: "scale(1.2)",
-        //   },
-        //   "75%": {
-        //     transform: "scale(1.7)",
-        //   },
-        //   "100%": {
-        //     transform: "scale(2.2)",
-        //     opacity: 0,
-        //   },
-        // },
-        "custom-spin": {
+        "information-hide-arrow": {
           "0%": {
             transform: "scale(1) rotate(0)",
           },
-          "50%": {
-            transform: "scale(1.5) rotate(90deg)",
+          "80%": {
+            transform: "scale(1.5) rotate(-90deg)",
           },
           "100%": {
+            transform: "scale(1) rotate(-180deg)",
+          },
+        },
+        "information-show-arrow": {
+          "0%": {
             transform: "scale(1) rotate(180deg)",
+          },
+          "50%": {
+            transform: "scale(1.5) rotate(270deg)",
+          },
+          "100%": {
+            transform: "scale(1) rotate(360deg)",
           },
         },
         "flip-scale-down-vertical": {
@@ -280,8 +250,9 @@ export default {
         "registration-hide": "registration-hide 1s linear 1",
         "information-hide": "information-hide .5s both",
         "information-show": "information-show .5s both",
+        "information-hide-arrow": "information-hide-arrow .5s both",
+        "information-show-arrow": "information-show-arrow .5s both",
         logo: "logo 2s infinite",
-        spin: "custom-spin .5s",
         "flip-scale-down-vertical": "flip-scale-down-vertical .5s both",
         "flip-scale-up-vertical": "flip-scale-up-vertical .5s both",
       },

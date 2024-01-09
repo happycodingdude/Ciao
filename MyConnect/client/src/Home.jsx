@@ -159,6 +159,13 @@ const Home = () => {
     else hideInformationContainer();
   };
 
+  // const toggleInformationContainer = () => {
+  //   // refInformationContainer.current.classList.toggle("grow-0");
+  //   // refInformationContainer.current.classList.toggle("opacity-0");
+  //   // refInformationContainer.current.classList.toggle("scale-0");
+  //   refInformationContainer.current.classList.toggle("information-toggle");
+  // };
+
   return (
     <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
       <Signout />
@@ -178,7 +185,7 @@ const Home = () => {
           />
           <div
             ref={refInformationContainer}
-            className="relative w-[calc(100%/4)] shrink-0"
+            className="relative flex-1 origin-right overflow-hidden"
           >
             <Information
               reference={{

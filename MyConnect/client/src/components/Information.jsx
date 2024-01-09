@@ -1,5 +1,5 @@
-// import { wrapGrid } from "animate-css-grid";
 import axios from "axios";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
@@ -13,7 +13,6 @@ const Information = ({ reference }) => {
   const [isNotifying, setIsNotifying] = useState(false);
 
   const refInformation = useRef();
-  // const refGrid = useRef();
 
   useEffect(() => {
     if (!reference.conversation) return;
@@ -54,10 +53,6 @@ const Information = ({ reference }) => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
     refInformation.current.classList.remove("animate-flip-scale-down-vertical");
   };
-
-  // useEffect(() => {
-  //   wrapGrid(refGrid.current, { duration: 600, easing: "backInOut" });
-  // }, [displayAttachments]);
 
   const toggleNotification = (e) => {
     const checked = e.target.checked;
@@ -127,17 +122,46 @@ const Information = ({ reference }) => {
     e.target.src = "../src/assets/imagenotfound.jpg";
   };
 
-  // const showInformation = () => {
-  //   refInformation.current.classList.remove("animate-flip-scale-down-vertical");
-  //   refInformation.current.classList.add("animate-flip-scale-up-vertical");
-  // };
+  const updateAvatar = async (e) => {
+    const file = e.target.files[0];
+    // Create a root reference
+    const storage = getStorage();
+    const url = await uploadBytes(
+      ref(storage, `avatar/${file.name}`),
+      file,
+    ).then((snapshot) => {
+      return getDownloadURL(snapshot.ref).then((url) => {
+        return url;
+      });
+    });
 
-  // const handleSetParticipants = (data) => {
-  //   setParticipants(data);
-  //   setIsNotifying(
-  //     data.find((item) => item.ContactId === auth.id)?.IsNotifying,
-  //   );
-  // };
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    axios
+      .put(
+        `api/conversations/${reference.conversation.Id}/avatars`,
+        { Avatar: url },
+        {
+          cancelToken: cancelToken.token,
+          headers: headers,
+        },
+      )
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    e.target.value = null;
+
+    return () => {
+      cancelToken.cancel();
+    };
+  };
 
   useEffect(() => {
     reference.refInformation.showInformation = () => {
@@ -180,8 +204,24 @@ const Information = ({ reference }) => {
       </div>
       <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth  [&>*]:border-b-gray-300 [&>*]:p-[2rem]">
         <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
-          <div className="flex flex-col items-center gap-[.5rem]">
-            <div className="aspect-square w-[20%] rounded-[50%] bg-orange-400"></div>
+          <div className="relative flex flex-col items-center gap-[.5rem]">
+            <img
+              src={reference.conversation?.Avatar ?? ""}
+              onError={imageOnError}
+              className="aspect-square w-[20%] rounded-[50%]"
+            ></img>
+            <input
+              multiple
+              type="file"
+              accept="image/png, image/jpeg"
+              className="hidden"
+              id="conversation-avatar"
+              onChange={updateAvatar}
+            ></input>
+            <label
+              for="conversation-avatar"
+              className="fa fa-camera absolute right-[40%] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-gray-500 hover:text-blue-500"
+            ></label>
             <p className="font-bold text-gray-600">
               {reference.conversation?.Title}
             </p>

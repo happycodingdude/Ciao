@@ -37,6 +37,22 @@ namespace MyConnect.Repository
             return groupByCreatedTime;
         }
 
+        public IEnumerable<MessageNoReference> GetWithPaging(Guid id, int page, int limit)
+        {
+            Console.WriteLine(page);
+            Console.WriteLine(limit);
+            var messages = _dbSet
+            .Include(q => q.Attachments)
+            .Include(q => q.Contact)
+            .Where(q => q.ConversationId == id)
+            .OrderByDescending(q => q.CreatedTime)
+            .Skip(limit * (page - 1))
+            .Take(limit)
+            .ToList();
+
+            return _mapper.Map<List<Message>, List<MessageNoReference>>(messages);
+        }
+
         private void UpdateStatus(List<Message> messages)
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");

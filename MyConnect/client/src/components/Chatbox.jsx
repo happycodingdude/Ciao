@@ -1,5 +1,4 @@
-// import { wrapGrid } from "animate-css-grid";
-import { Mentions } from "antd";
+import { Form, Mentions } from "antd";
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import parse from "html-react-parser";
@@ -8,16 +7,21 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 import CustomModal from "./CustomModal";
 
+const page = 1;
+const limit = 10;
+
 const Chatbox = ({ reference }) => {
   console.log("Chatbox calling");
   const auth = useAuth();
 
+  const [form] = Form.useForm();
   const refChatInput = useRef();
   const refChatContent = useRef();
   const refScrollButton = useRef();
   const refChatboxOption = useRef();
   const refChatboxOptionMenu = useRef();
   const refToggleInformationContainer = useRef();
+  const refChatboxContainer = useRef();
 
   const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
@@ -41,7 +45,11 @@ const Chatbox = ({ reference }) => {
         const suggestion = res.data.data
           .filter((item) => item.ContactId !== auth.id)
           .map((item) => {
-            return { value: item.Contact.Name, label: item.Contact.Name };
+            return {
+              key: item.Contact.Id,
+              value: item.Contact.Id,
+              label: item.Contact.Name,
+            };
           });
         setSuggestion(suggestion);
 
@@ -64,15 +72,18 @@ const Chatbox = ({ reference }) => {
     };
 
     axios
-      .get(`api/conversations/${reference.conversation?.Id}/messages`, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
+      .get(
+        `api/conversations/${reference.conversation?.Id}/messages?page=${page}&limit=${limit}`,
+        {
+          cancelToken: cancelToken.token,
+          headers: headers,
+        },
+      )
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        refChatContent.current.classList.remove("scroll-smooth");
+        // refChatContent.current.classList.remove("scroll-smooth");
         refChatContent.current.scrollTop = 0;
-        setMessages(res.data.data);
+        setMessages(res.data.data.reverse());
       })
       .catch((err) => {
         console.log(err);
@@ -119,18 +130,10 @@ const Chatbox = ({ reference }) => {
     //   }
     // });
 
-    refChatContent.current.classList.add("scroll-smooth");
-    // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    // refChatContent.current.classList.add("scroll-smooth");
     setTimeout(() => {
       refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     }, 500);
-
-    // setTimeout(() => {
-    //   const grids = Array.from(document.querySelectorAll(".grid-chat"));
-    //   grids.map((grid) => {
-    //     wrapGrid(grid, { duration: 400, easing: "easeOut" });
-    //   });
-    // }, 500);
   }, [messages]);
 
   const scrollChatContentToBottom = () => {
@@ -213,32 +216,52 @@ const Chatbox = ({ reference }) => {
       })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        if (refChatInput.current.textarea !== null)
-          refChatInput.current.textarea.value = "";
+
+        form.resetFields();
         setFiles([]);
 
-        // add new message to current list
-        if (messages.length === 0) {
-          var firstMessage = [
-            {
-              Date: moment().format("MM/DD/YYYY"),
-              Messages: [res.data.data],
-            },
-          ];
-          setMessages(firstMessage);
-        } else {
-          var newArr = messages.map((item) => {
-            if (
-              item.Date ===
-              moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
-            ) {
-              item.Messages = [...item.Messages, res.data.data];
-              return item;
-            }
-            return item;
-          });
-          setMessages(newArr);
-        }
+        setMessages([...messages, res.data.data]);
+
+        // // first message
+        // if (messages.length === 0) {
+        //   var firstMessage = [
+        //     {
+        //       Date: moment().format("MM/DD/YYYY"),
+        //       Messages: [res.data.data],
+        //     },
+        //   ];
+        //   setMessages(res.data.data);
+        // }
+        // // first message of new day
+        // else if (
+        //   !messages.some(
+        //     (item) =>
+        //       item.Date ===
+        //       moment(res.data.data.CreatedTime).format("MM/DD/YYYY"),
+        //   )
+        // ) {
+        //   setMessages([
+        //     ...messages,
+        //     {
+        //       Date: moment().format("MM/DD/YYYY"),
+        //       Messages: [res.data.data],
+        //     },
+        //   ]);
+        // }
+        // // normal message
+        // else {
+        //   var newArr = messages.map((item) => {
+        //     if (
+        //       item.Date ===
+        //       moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
+        //     ) {
+        //       item.Messages = [...item.Messages, res.data.data];
+        //       return item;
+        //     }
+        //     return item;
+        //   });
+        //   setMessages(newArr);
+        // }
 
         setTimeout(() => {
           refChatContent.current.scrollTop =
@@ -255,7 +278,16 @@ const Chatbox = ({ reference }) => {
   };
 
   const handlePressKey = (e) => {
-    if (e.key === "Enter") sendMessage();
+    // Press Shift + Enter to generate new line
+    if (e.keyCode == 13 && !e.shiftKey) {
+      e.preventDefault();
+      if (refChatInput.current.textarea.value === "") return;
+      sendMessage();
+    }
+    // Press tab to choose
+    // else if (e.keyCode == 9) {
+    //   e.preventDefault();
+    // }
   };
 
   // The scroll listener
@@ -316,33 +348,25 @@ const Chatbox = ({ reference }) => {
 
   const toggleInformationContainer = () => {
     reference.toggleInformationContainer();
-
-    refToggleInformationContainer.current.classList.add("animate-spin");
-    setTimeout(() => {
-      refToggleInformationContainer.current.classList.remove("animate-spin");
-      refToggleInformationContainer.current.classList.toggle("fa-arrow-left");
-      refToggleInformationContainer.current.classList.toggle("fa-arrow-right");
-      refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-    }, 500);
-
-    // const grids = Array.from(document.querySelectorAll(".grid-chat"));
-    // grids.map((grid) => {
-    //   if (
-    //     grid.classList.contains(
-    //       "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]",
-    //     )
-    //   ) {
-    //     grid.classList.remove(
-    //       "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]",
-    //     );
-    //     grid.classList.add("grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]");
-    //   } else {
-    //     grid.classList.add("grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]");
-    //     grid.classList.remove(
-    //       "grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]",
-    //     );
-    //   }
-    // });
+    if (
+      refToggleInformationContainer.current.classList.contains(
+        "animate-information-hide-arrow",
+      )
+    ) {
+      refToggleInformationContainer.current.classList.remove(
+        "animate-information-hide-arrow",
+      );
+      refToggleInformationContainer.current.classList.add(
+        "animate-information-show-arrow",
+      );
+    } else {
+      refToggleInformationContainer.current.classList.remove(
+        "animate-information-show-arrow",
+      );
+      refToggleInformationContainer.current.classList.add(
+        "animate-information-hide-arrow",
+      );
+    }
   };
 
   const chooseFile = (e) => {
@@ -433,7 +457,6 @@ const Chatbox = ({ reference }) => {
       )
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        // reference.setConversation({ ...reference.conversation });
       })
       .catch((err) => {
         console.log(err);
@@ -444,9 +467,26 @@ const Chatbox = ({ reference }) => {
     };
   };
 
+  const generateContent = (text) => {
+    if (participants.some((item) => text.includes(`@${item.ContactId}`))) {
+      participants.map((item) => {
+        text = text.replace(
+          `@${item.ContactId}`,
+          `<span className="text-blue-400 cursor-pointer">${item.Contact.Name}</span>`,
+        );
+      });
+      return parse(text);
+    } else {
+      return text;
+    }
+  };
+
   return (
     <>
-      <div className="z-10 flex w-[calc(100%/2)] grow flex-col items-center gap-[1rem]">
+      <div
+        ref={refChatboxContainer}
+        className="flex flex-1 grow-[2] flex-col items-center gap-[1rem]"
+      >
         <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
@@ -493,26 +533,6 @@ const Chatbox = ({ reference }) => {
                       "DD/MM HH:mm",
                     )}
               </p>
-              {/* {participants?.find((item) => item.ContactId !== auth.id)?.Contact
-                .IsOnline ? (
-                <p className="text-blue-500">Online</p>
-              ) : (
-                <p className="text-gray-400">
-                  Last seen{" "}
-                  {moment(
-                    participants?.find((item) => item.ContactId !== auth.id)
-                      ?.Contact.LastLogout,
-                  ).format("DD/MM/YYYY") === moment().format("DD/MM/YYYY")
-                    ? moment(
-                        participants?.find((item) => item.ContactId !== auth.id)
-                          ?.Contact.LastLogout,
-                      ).fromNow()
-                    : moment(
-                        participants?.find((item) => item.ContactId !== auth.id)
-                          ?.Contact.LastLogout,
-                      ).format("DD/MM HH:mm")}
-                </p>
-              )} */}
             </div>
             <div className="flex justify-end gap-[1rem]">
               <div className="fa fa-search self-center font-normal text-gray-500"></div>
@@ -546,7 +566,7 @@ const Chatbox = ({ reference }) => {
             ref={refChatContent}
             className="hide-scrollbar my-[2rem] flex w-full flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
           >
-            {messages?.map((date) => (
+            {/* {messages?.map((date) => (
               <>
                 <div
                   className="flex items-center text-center text-gray-400
@@ -591,25 +611,7 @@ const Chatbox = ({ reference }) => {
                       </div>
                       {message.Type === "text" ? (
                         <div className="break-words text-gray-400">
-                          {participants
-                            .filter(
-                              (item) => item.Contact.Name === "Tri Nguyen 1",
-                            )
-                            .map((item) => {
-                              if (
-                                !message.Content.includes(
-                                  `@${item.Contact.Name}`,
-                                )
-                              ) {
-                                return message.Content;
-                              }
-                              return parse(
-                                message.Content.replace(
-                                  `@${item.Contact.Name}`,
-                                  `<span className="text-blue-400 cursor-pointer">@${item.Contact.Name}</span>`,
-                                ),
-                              );
-                            })}
+                          {generateContent(message.Content)}
                         </div>
                       ) : (
                         <div
@@ -638,6 +640,70 @@ const Chatbox = ({ reference }) => {
                   </div>
                 ))}
               </>
+            ))} */}
+            {messages?.map((message) => (
+              <div className="flex items-center gap-[2rem]">
+                <div
+                  className="aspect-square self-start rounded-[50%] bg-orange-400 
+                  laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)] 
+                  desktop:w-[calc(100%/20)]"
+                ></div>
+                <div className="flex w-[90%] flex-col">
+                  <div className="flex items-center gap-[1rem]">
+                    <h1 className="font-semibold">
+                      {message.ContactId === auth.id
+                        ? "You"
+                        : message.Contact.Name}
+                    </h1>
+                    {participants?.find(
+                      (item) => item.ContactId === message.ContactId,
+                    )?.IsModerator ? (
+                      <div className="rounded-[.8rem] bg-orange-400 px-[.5rem] py-[.1rem] text-[var(--text-morderator-color)]">
+                        Moderator
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    <p className="text-blue-400">
+                      {moment(message.CreatedTime).format("DD/MM/YYYY") ===
+                      moment().format("DD/MM/YYYY")
+                        ? moment(message.CreatedTime).format("HH:mm")
+                        : moment(message.CreatedTime).format("DD/MM HH:mm")}
+                    </p>
+                    <img
+                      src="../src/img/double-check.svg"
+                      className="w-[2rem]"
+                    ></img>
+                  </div>
+                  {message.Type === "text" ? (
+                    <div className="break-words text-gray-400">
+                      {generateContent(message.Content)}
+                    </div>
+                  ) : (
+                    <div
+                      className={`grid gap-[1rem] ${
+                        message.Type === "media" &&
+                        message.Attachments.length === 1
+                          ? "grid-cols-[50%]"
+                          : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
+                      }  break-words text-gray-400`}
+                    >
+                      {message.Attachments.map((item) => (
+                        <img
+                          src={
+                            item.Type === "image"
+                              ? item.MediaUrl
+                              : "../src/assets/filenotfound.svg"
+                          }
+                          onError={imageOnError}
+                          className="my-auto cursor-pointer rounded-2xl"
+                          title={item.MediaName?.split(".")[0]}
+                        ></img>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -706,12 +772,16 @@ const Chatbox = ({ reference }) => {
             </div>
           ) : (
             <div className="grow-[2]">
-              <Mentions
-                ref={refChatInput}
-                className="mention-input"
-                options={suggestion}
-                onKeyDown={handlePressKey}
-              ></Mentions>
+              <Form form={form}>
+                <Form.Item name="mentions" className="mb-0">
+                  <Mentions
+                    ref={refChatInput}
+                    className="mention-input"
+                    options={suggestion}
+                    onKeyDown={handlePressKey}
+                  ></Mentions>
+                </Form.Item>
+              </Form>
               {/* <input
                 ref={refChatInput}
                 type="text"

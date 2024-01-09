@@ -10,7 +10,6 @@ const Attachment = ({ reference }) => {
   const refAttachmentFile = useRef();
   const [allAttachments, setAllAttachments] = useState();
   const [displayAttachments, setDisplayAttachments] = useState();
-  // const refGrid = useRef();
 
   const imageOnError = (e) => {
     e.target.onerror = null;
@@ -62,7 +61,6 @@ const Attachment = ({ reference }) => {
 
   const toggleAttachmentActive = (e, type) => {
     if (!e.target.classList.contains("attachment-active")) {
-      console.log(type);
       refAttachmentImage.current.classList.toggle("attachment-active");
       refAttachmentFile.current.classList.toggle("attachment-active");
 

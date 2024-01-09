@@ -88,17 +88,31 @@ public class ConversationsController : ControllerBase
         }
     }
 
+    // [HttpGet("{id}/messages")]
+    // public IActionResult GetMessages(Guid id)
+    // {
+    //     try
+    //     {
+    //         var response = _unitOfWork.Message.GetByConversationId(id);
+    //         return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>(response).Ok();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>().BadRequest(ex);
+    //     }
+    // }
+
     [HttpGet("{id}/messages")]
-    public IActionResult GetMessages(Guid id)
+    public IActionResult GetMessages(Guid id, int page, int limit)
     {
         try
         {
-            var response = _unitOfWork.Message.GetByConversationId(id);
-            return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>(response).Ok();
+            var response = _unitOfWork.Message.GetWithPaging(id, page, limit);
+            return new ResponseModel<IEnumerable<MessageNoReference>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<MessageNoReference>>().BadRequest(ex);
         }
     }
 
@@ -139,6 +153,23 @@ public class ConversationsController : ControllerBase
             _unitOfWork.Conversation.Update(model);
             _unitOfWork.Save();
             return new ResponseModel<Conversation>(model).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Conversation>().BadRequest(ex);
+        }
+    }
+
+    [HttpPut("{id}/avatars")]
+    public IActionResult Edit(Guid id, Conversation model)
+    {
+        try
+        {
+            var entity = _unitOfWork.Conversation.GetById(id);
+            entity.Avatar = model.Avatar;
+            _unitOfWork.Conversation.Update(entity);
+            _unitOfWork.Save();
+            return new ResponseModel<Conversation>(entity).Ok();
         }
         catch (Exception ex)
         {

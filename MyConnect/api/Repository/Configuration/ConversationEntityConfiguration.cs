@@ -13,6 +13,7 @@ namespace MyConnect.Repository
             builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             builder.Property(q => q.UpdatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             builder.Property(q => q.Title).HasMaxLength(250);
+            builder.Property(q => q.Avatar).HasMaxLength(500);
         }
     }
 }

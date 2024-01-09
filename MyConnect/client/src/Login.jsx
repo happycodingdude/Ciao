@@ -16,9 +16,9 @@ const Login = () => {
 
   const [isLogin, setIsLogin] = useState(false);
   useLayoutEffect(() => {
-    if (auth.user) {
+    if (auth.id) {
       setIsLogin(true);
-      navigate("/", { replace: true });
+      navigate(from, { replace: true });
     }
   }, []);
 
