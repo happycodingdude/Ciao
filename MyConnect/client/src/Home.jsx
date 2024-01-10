@@ -192,6 +192,7 @@ const Home = () => {
                 conversation,
                 refInformation,
                 refAttachment,
+                setConversation,
                 removeInListChat,
               }}
             />

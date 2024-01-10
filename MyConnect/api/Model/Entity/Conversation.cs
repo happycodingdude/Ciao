@@ -5,8 +5,15 @@ namespace MyConnect.Model
         public string? Title { get; set; }
         public string? Avatar { get; set; }
         public DateTime? DeletedTime { get; set; }
-        public ICollection<Participants>? Participants { get; set; }
+        public ICollection<Participant>? Participants { get; set; }
         public ICollection<Message>? Messages { get; set; }
+    }
+
+    public class ConversationNoReference : BaseModel
+    {
+        public string? Title { get; set; }
+        public string? Avatar { get; set; }
+        public DateTime? DeletedTime { get; set; }
     }
 
     public class ConversationWithTotalUnseen : BaseModel

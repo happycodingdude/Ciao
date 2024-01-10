@@ -5,13 +5,13 @@ using MyConnect.UOW;
 
 namespace MyConnect.Implement
 {
-    public class ParticipantsService : IParticipantsService
+    public class ParticipantService : IParticipantService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFirebaseFunction _firebaseFunction;
         private readonly INotificationService _notificationService;
 
-        public ParticipantsService(IUnitOfWork unitOfWork,
+        public ParticipantService(IUnitOfWork unitOfWork,
         IFirebaseFunction firebaseFunction,
         INotificationService notificationService)
         {
@@ -20,9 +20,9 @@ namespace MyConnect.Implement
             _notificationService = notificationService;
         }
 
-        public async Task<IEnumerable<Participants>> AddParticipantAndNotify(List<Participants> model)
+        public async Task<IEnumerable<Participant>> AddParticipantAndNotify(List<Participant> model)
         {
-            _unitOfWork.Participants.AddRange(model);
+            _unitOfWork.Participant.AddRange(model);
             _unitOfWork.Save();
             foreach (var connection in _notificationService.Connections)
             {
@@ -36,9 +36,9 @@ namespace MyConnect.Implement
             return model;
         }
 
-        public async Task<Participants> RemoveChatAndNotify(Participants model)
+        public async Task<Participant> RemoveChatAndNotify(Participant model)
         {
-            _unitOfWork.Participants.Update(model);
+            _unitOfWork.Participant.Update(model);
             _unitOfWork.Save();
             foreach (var connection in _notificationService.Connections)
             {

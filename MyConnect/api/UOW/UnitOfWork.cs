@@ -13,7 +13,7 @@ namespace MyConnect.UOW
             Contact = new ContactRepository(_context, httpContextAccessor, configuration);
             Conversation = new ConversationRepository(_context, _mapper, httpContextAccessor);
             Message = new MessageRepository(_context, _mapper, httpContextAccessor);
-            Participants = new ParticipantsRepository(_context);
+            Participant = new ParticipantRepository(_context);
             Schedule = new ScheduleRepository(_context);
             ScheduleContact = new ScheduleContactRepository(_context);
             Attachment = new AttachmentRepository(_context);
@@ -22,7 +22,7 @@ namespace MyConnect.UOW
         public IContactRepository Contact { get; private set; }
         public IConversationRepository Conversation { get; private set; }
         public IMessageRepository Message { get; private set; }
-        public IParticipantsRepository Participants { get; private set; }
+        public IParticipantRepository Participant { get; private set; }
         public IScheduleRepository Schedule { get; private set; }
         public IScheduleContactRepository ScheduleContact { get; private set; }
         public IAttachmentRepository Attachment { get; private set; }

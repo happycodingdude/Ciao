@@ -14,7 +14,7 @@ namespace MyConnect.Repository
             builder.Property(q => q.Content).IsRequired();
             builder.Property(q => q.StartDate).IsRequired();
             builder.Property(q => q.EndDate).IsRequired();
-            builder.Property(q => q.Status).HasMaxLength(50);
+            builder.Property(q => q.Status).HasMaxLength(20);
         }
     }
 }

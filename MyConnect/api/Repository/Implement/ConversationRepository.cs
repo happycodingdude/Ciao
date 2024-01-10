@@ -19,7 +19,7 @@ namespace MyConnect.Repository
         public IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages()
         {
             var messageDbSet = _context.Set<Message>();
-            var participantDbSet = _context.Set<Participants>();
+            var participantDbSet = _context.Set<Participant>();
 
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var contactId = JwtToken.ExtractToken(token);
@@ -40,8 +40,8 @@ namespace MyConnect.Repository
                 if (lastMessageEntity.Type == "text")
                 {
                     conversation.LastMessage = lastMessageEntity.Content;
-                    var participants = participantDbSet.Include(q => q.Contact).Where(q => q.ConversationId == conversation.Id && !q.IsDeleted).ToList();
-                    foreach (var participant in participants)
+                    var Participant = participantDbSet.Include(q => q.Contact).Where(q => q.ConversationId == conversation.Id && !q.IsDeleted).ToList();
+                    foreach (var participant in Participant)
                         conversation.LastMessage = conversation.LastMessage.Replace($"@{participant.ContactId}", participant.Contact.Name);
                 }
                 else

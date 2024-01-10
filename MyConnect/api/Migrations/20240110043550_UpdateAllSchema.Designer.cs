@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyConnect.Repository;
 
@@ -10,9 +11,11 @@ using MyConnect.Repository;
 namespace MyConnect.Migrations
 {
     [DbContext(typeof(CoreContext))]
-    partial class CoreContextModelSnapshot : ModelSnapshot
+    [Migration("20240110043550_UpdateAllSchema")]
+    partial class UpdateAllSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,7 +224,7 @@ namespace MyConnect.Migrations
 
                     b.HasIndex("ConversationId");
 
-                    b.ToTable("Participant", (string)null);
+                    b.ToTable("Participants", (string)null);
                 });
 
             modelBuilder.Entity("MyConnect.Model.Schedule", b =>

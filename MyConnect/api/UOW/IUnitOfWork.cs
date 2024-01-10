@@ -7,7 +7,7 @@ namespace MyConnect.UOW
         IContactRepository Contact { get; }
         IConversationRepository Conversation { get; }
         IMessageRepository Message { get; }
-        IParticipantsRepository Participants { get; }
+        IParticipantRepository Participant { get; }
         IScheduleRepository Schedule { get; }
         IScheduleContactRepository ScheduleContact { get; }
         IAttachmentRepository Attachment { get; }

@@ -10,12 +10,12 @@ namespace MyConnect.Controllers;
 public class ConversationsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IParticipantsService _participantsService;
+    private readonly IParticipantService _participantService;
 
-    public ConversationsController(IUnitOfWork unitOfWork, IParticipantsService participantsService)
+    public ConversationsController(IUnitOfWork unitOfWork, IParticipantService participantService)
     {
         _unitOfWork = unitOfWork;
-        _participantsService = participantsService;
+        _participantService = participantService;
     }
 
     [HttpGet]
@@ -47,44 +47,44 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpGet("{id}/participants")]
-    public IActionResult GetParticipants(Guid id)
+    public IActionResult GetParticipant(Guid id)
     {
         try
         {
-            var response = _unitOfWork.Participants.GetByConversationIdIncludeContact(id);
-            return new ResponseModel<IEnumerable<Participants>>(response).Ok();
+            var response = _unitOfWork.Participant.GetByConversationIdIncludeContact(id);
+            return new ResponseModel<IEnumerable<Participant>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participants>().BadRequest(ex);
+            return new ResponseModel<Participant>().BadRequest(ex);
         }
     }
 
     [HttpPost("{id}/participants")]
-    public async Task<IActionResult> AddParticipants(List<Participants> model)
+    public async Task<IActionResult> AddParticipant(List<Participant> model)
     {
         try
         {
-            var response = await _participantsService.AddParticipantAndNotify(model);
-            return new ResponseModel<List<Participants>>(model).Ok();
+            var response = await _participantService.AddParticipantAndNotify(model);
+            return new ResponseModel<List<Participant>>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<List<Participants>>().BadRequest(ex);
+            return new ResponseModel<List<Participant>>().BadRequest(ex);
         }
     }
 
     [HttpPut("{id}/participants")]
-    public async Task<IActionResult> RemoveChat(Participants model)
+    public async Task<IActionResult> RemoveChat(Participant model)
     {
         try
         {
-            var response = await _participantsService.RemoveChatAndNotify(model);
-            return new ResponseModel<Participants>(model).Ok();
+            var response = await _participantService.RemoveChatAndNotify(model);
+            return new ResponseModel<Participant>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participants>().BadRequest(ex);
+            return new ResponseModel<Participant>().BadRequest(ex);
         }
     }
 

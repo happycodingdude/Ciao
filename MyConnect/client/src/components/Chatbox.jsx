@@ -94,7 +94,7 @@ const Chatbox = ({ reference }) => {
     return () => {
       cancelToken.cancel();
     };
-  }, [reference.conversation]);
+  }, [reference.conversation.Id]);
 
   useEffect(() => {
     reference.refChatbox.setParticipants = handleSetParticipants;

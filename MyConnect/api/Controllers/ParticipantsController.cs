@@ -7,15 +7,15 @@ namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [MyAuthorize("Authorization")]
-public class ParticipantsController : ControllerBase
+public class ParticipantController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IParticipantsService _participantsService;
+    private readonly IParticipantService _participantService;
 
-    public ParticipantsController(IUnitOfWork unitOfWork, IParticipantsService participantsService)
+    public ParticipantController(IUnitOfWork unitOfWork, IParticipantService participantService)
     {
         _unitOfWork = unitOfWork;
-        _participantsService = participantsService;
+        _participantService = participantService;
     }
 
     [HttpGet]
@@ -23,12 +23,12 @@ public class ParticipantsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Participants.GetAll();
-            return new ResponseModel<IEnumerable<Participants>>(response).Ok();
+            var response = _unitOfWork.Participant.GetAll();
+            return new ResponseModel<IEnumerable<Participant>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Participants>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<Participant>>().BadRequest(ex);
         }
     }
 
@@ -37,42 +37,42 @@ public class ParticipantsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Participants.GetById(id);
-            return new ResponseModel<Participants>(response).Ok();
+            var response = _unitOfWork.Participant.GetById(id);
+            return new ResponseModel<Participant>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participants>().BadRequest(ex);
+            return new ResponseModel<Participant>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public IActionResult Add(Participants model)
+    public IActionResult Add(Participant model)
     {
         try
         {
-            _unitOfWork.Participants.Add(model);
+            _unitOfWork.Participant.Add(model);
             _unitOfWork.Save();
-            return new ResponseModel<Participants>(model).Ok();
+            return new ResponseModel<Participant>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participants>().BadRequest(ex);
+            return new ResponseModel<Participant>().BadRequest(ex);
         }
     }
 
     [HttpPut]
-    public IActionResult Edit(Participants model)
+    public IActionResult Edit(Participant model)
     {
         try
         {
-            _unitOfWork.Participants.Update(model);
+            _unitOfWork.Participant.Update(model);
             _unitOfWork.Save();
-            return new ResponseModel<Participants>(model).Ok();
+            return new ResponseModel<Participant>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participants>().BadRequest(ex);
+            return new ResponseModel<Participant>().BadRequest(ex);
         }
     }
 
@@ -81,13 +81,13 @@ public class ParticipantsController : ControllerBase
     {
         try
         {
-            _unitOfWork.Participants.Delete(id);
+            _unitOfWork.Participant.Delete(id);
             _unitOfWork.Save();
             return Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participants>().BadRequest(ex);
+            return new ResponseModel<Participant>().BadRequest(ex);
         }
     }
 }

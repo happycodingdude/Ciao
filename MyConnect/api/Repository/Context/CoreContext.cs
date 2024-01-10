@@ -23,7 +23,7 @@ namespace MyConnect.Repository
             modelBuilder.ApplyConfiguration(new ContactEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ConversationEntityConfiguration());
             modelBuilder.ApplyConfiguration(new MessageEntityConfiguration());
-            modelBuilder.ApplyConfiguration(new ParticipantsEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new ParticipantEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ScheduleEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ScheduleContactEntityConfiguration());
             modelBuilder.ApplyConfiguration(new AttachmentEntityConfiguration());
@@ -32,7 +32,7 @@ namespace MyConnect.Repository
         public DbSet<Contact>? Contacts { get; set; }
         public DbSet<Conversation>? Conversations { get; set; }
         public DbSet<Message>? Messages { get; set; }
-        public DbSet<Participants>? Participants { get; set; }
+        public DbSet<Participant>? Participants { get; set; }
         public DbSet<Schedule>? Schedules { get; set; }
         public DbSet<ScheduleContact>? ScheduleContacts { get; set; }
     }

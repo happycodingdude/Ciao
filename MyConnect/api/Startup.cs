@@ -52,7 +52,7 @@ namespace MyConnect
             services.AddHttpContextAccessor();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IParticipantsService, ParticipantsService>();
+            services.AddScoped<IParticipantService, ParticipantService>();
             services.AddScoped<IFirebaseFunction, FirebaseFunction>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IMessageService, MessageService>();

@@ -3,13 +3,13 @@ using MyConnect.Model;
 
 namespace MyConnect.Repository
 {
-    public class ParticipantsRepository : BaseRepository<Participants>, IParticipantsRepository
+    public class ParticipantRepository : BaseRepository<Participant>, IParticipantRepository
     {
-        public ParticipantsRepository(CoreContext context) : base(context)
+        public ParticipantRepository(CoreContext context) : base(context)
         {
         }
 
-        public IEnumerable<Participants> GetByConversationIdIncludeContact(Guid id)
+        public IEnumerable<Participant> GetByConversationIdIncludeContact(Guid id)
         {
             return _dbSet
             .Include(q => q.Contact)

@@ -3,6 +3,7 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 
 const ListChat = ({ reference }) => {
+  console.log("ListChat calling");
   const auth = useAuth();
 
   const refChatItem = useRef([]);
@@ -133,7 +134,7 @@ const ListChat = ({ reference }) => {
                 onError={imageOnError}
                 className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[8rem]"
               ></img>
-              <div className="grow">
+              <div className="grow self-start">
                 <p className="font-bold">{item.Title}</p>
                 {item.LastMessageContact == auth.id ? (
                   <p className="overflow-hidden text-ellipsis ">

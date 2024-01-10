@@ -47,7 +47,7 @@ const Information = ({ reference }) => {
     return () => {
       cancelToken.cancel();
     };
-  }, [reference.conversation]);
+  }, [reference.conversation.Id]);
 
   const reset = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
@@ -134,6 +134,7 @@ const Information = ({ reference }) => {
         return url;
       });
     });
+    reference.conversation.Avatar = url;
 
     const cancelToken = axios.CancelToken.source();
     const headers = {
@@ -151,6 +152,7 @@ const Information = ({ reference }) => {
       )
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
+        reference.setConversation({ ...reference.conversation });
       })
       .catch((err) => {
         console.log(err);
