@@ -10,7 +10,7 @@ namespace MyConnect.Configuration
             CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
             CreateMap<Message, MessageToNotify>().ReverseMap();
             CreateMap<Message, MessageNoReference>().ReverseMap();
-            CreateMap<Contact, ContactNoReference>().ReverseMap();
+            CreateMap<Attachment, AttachmentNoReference>().ReverseMap();
         }
     }
 }

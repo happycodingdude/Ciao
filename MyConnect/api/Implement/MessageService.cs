@@ -30,6 +30,7 @@ namespace MyConnect.Implement
             var entity = _unitOfWork.Conversation.GetById(model.ConversationId);
             _unitOfWork.Conversation.Update(entity);
             _unitOfWork.Save();
+
             var notify = _mapper.Map<Message, MessageToNotify>(model);
             foreach (var connection in _notificationService.Connections)
             {

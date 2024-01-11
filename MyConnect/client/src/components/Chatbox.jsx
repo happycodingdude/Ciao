@@ -5,7 +5,9 @@ import parse from "html-react-parser";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
+import CustomLightbox from "./CustomLightbox";
 import CustomModal from "./CustomModal";
+import ImageWithLightBox from "./ImageWithLightBox";
 
 const page = 1;
 const limit = 10;
@@ -98,7 +100,12 @@ const Chatbox = ({ reference }) => {
 
   useEffect(() => {
     reference.refChatbox.setParticipants = handleSetParticipants;
-  }, [handleSetParticipants]);
+    reference.refChatbox.newMessage = (message) => {
+      setMessages((current) => {
+        return [...current, message];
+      });
+    };
+  }, [handleSetParticipants, setMessages]);
 
   useEffect(() => {
     // listenNotification((message) => {
@@ -219,49 +226,7 @@ const Chatbox = ({ reference }) => {
 
         form.resetFields();
         setFiles([]);
-
         setMessages([...messages, res.data.data]);
-
-        // // first message
-        // if (messages.length === 0) {
-        //   var firstMessage = [
-        //     {
-        //       Date: moment().format("MM/DD/YYYY"),
-        //       Messages: [res.data.data],
-        //     },
-        //   ];
-        //   setMessages(res.data.data);
-        // }
-        // // first message of new day
-        // else if (
-        //   !messages.some(
-        //     (item) =>
-        //       item.Date ===
-        //       moment(res.data.data.CreatedTime).format("MM/DD/YYYY"),
-        //   )
-        // ) {
-        //   setMessages([
-        //     ...messages,
-        //     {
-        //       Date: moment().format("MM/DD/YYYY"),
-        //       Messages: [res.data.data],
-        //     },
-        //   ]);
-        // }
-        // // normal message
-        // else {
-        //   var newArr = messages.map((item) => {
-        //     if (
-        //       item.Date ===
-        //       moment(res.data.data.CreatedTime).format("MM/DD/YYYY")
-        //     ) {
-        //       item.Messages = [...item.Messages, res.data.data];
-        //       return item;
-        //     }
-        //     return item;
-        //   });
-        //   setMessages(newArr);
-        // }
 
         setTimeout(() => {
           refChatContent.current.scrollTop =
@@ -468,17 +433,28 @@ const Chatbox = ({ reference }) => {
   };
 
   const generateContent = (text) => {
-    if (participants.some((item) => text.includes(`@${item.ContactId}`))) {
-      participants.map((item) => {
+    if (reference.contacts.some((item) => text.includes(`@${item.Id}`))) {
+      reference.contacts.map((item) => {
         text = text.replace(
-          `@${item.ContactId}`,
-          `<span className="text-blue-400 cursor-pointer">${item.Contact.Name}</span>`,
+          `@${item.Id}`,
+          `<span className="text-blue-400 cursor-pointer">${item.Name}</span>`,
         );
       });
       return parse(text);
-    } else {
-      return text;
     }
+    return text;
+  };
+
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [slides, setSlides] = useState();
+  const handleShowLightbox = (e) => {
+    var message = messages.find((item) => item.Id === e.target.dataset.key);
+    var images = message.Attachments.map((item) => ({
+      src: item.MediaUrl,
+    }));
+    console.log(images);
+    setSlides(images);
+    setShowLightbox(true);
   };
 
   return (
@@ -566,94 +542,33 @@ const Chatbox = ({ reference }) => {
             ref={refChatContent}
             className="hide-scrollbar my-[2rem] flex w-full flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
           >
-            {/* {messages?.map((date) => (
-              <>
-                <div
-                  className="flex items-center text-center text-gray-400
-                                  before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
-                                  after:ml-[2rem] after:h-[.1rem]  after:grow after:bg-gray-400"
-                >
-                  {moment(date.Date).format("DD/MM/YYYY")}
-                </div>
-                {date.Messages.map((message) => (
-                  <div className="flex items-center gap-[2rem]">
-                    <div
-                      className="aspect-square self-start rounded-[50%] bg-orange-400 
-                  laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)] 
-                  desktop:w-[calc(100%/20)]"
-                    ></div>
-                    <div className="flex w-[90%] flex-col">
-                      <div className="flex items-center gap-[1rem]">
-                        <h1 className="font-semibold">
-                          {message.ContactId === auth.id
-                            ? "You"
-                            : message.Contact.Name}
-                        </h1>
-                        {participants?.find(
-                          (item) => item.ContactId === message.ContactId,
-                        )?.IsModerator ? (
-                          <div className="rounded-[.8rem] bg-orange-400 px-[.5rem] py-[.1rem] text-[var(--text-morderator-color)]">
-                            Moderator
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                        <p className="text-blue-400">
-                          {moment(message.CreatedTime).format("DD/MM/YYYY") ===
-                          moment().format("DD/MM/YYYY")
-                            ? moment(message.CreatedTime).format("HH:mm")
-                            : moment(message.CreatedTime).format("DD/MM HH:mm")}
-                        </p>
-                        <img
-                          src="../src/img/double-check.svg"
-                          className="w-[2rem]"
-                        ></img>
-                      </div>
-                      {message.Type === "text" ? (
-                        <div className="break-words text-gray-400">
-                          {generateContent(message.Content)}
-                        </div>
-                      ) : (
-                        <div
-                          className={`grid gap-[1rem] ${
-                            message.Type === "media" &&
-                            message.Attachments.length === 1
-                              ? "grid-cols-[50%]"
-                              : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
-                          }  break-words text-gray-400`}
-                        >
-                          {message.Attachments.map((item) => (
-                            <img
-                              src={
-                                item.Type === "image"
-                                  ? item.MediaUrl
-                                  : "../src/assets/filenotfound.svg"
-                              }
-                              onError={imageOnError}
-                              className="my-auto cursor-pointer rounded-2xl"
-                              title={item.MediaName?.split(".")[0]}
-                            ></img>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </>
-            ))} */}
             {messages?.map((message) => (
               <div className="flex items-center gap-[2rem]">
-                <div
-                  className="aspect-square self-start rounded-[50%] bg-orange-400 
-                  laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)] 
-                  desktop:w-[calc(100%/20)]"
-                ></div>
+                <ImageWithLightBox
+                  src={
+                    reference.contacts.find(
+                      (item) => item.Id == message.ContactId,
+                    ).Avatar ?? ""
+                  }
+                  className="aspect-square cursor-pointer self-start rounded-[50%] laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)] 
+                          desktop:w-[calc(100%/20)]"
+                  slides={[
+                    {
+                      src:
+                        reference.contacts.find(
+                          (item) => item.Id == message.ContactId,
+                        ).Avatar ?? "",
+                    },
+                  ]}
+                ></ImageWithLightBox>
                 <div className="flex w-[90%] flex-col">
                   <div className="flex items-center gap-[1rem]">
                     <h1 className="font-semibold">
                       {message.ContactId === auth.id
                         ? "You"
-                        : message.Contact.Name}
+                        : reference.contacts.find(
+                            (item) => item.Id == message.ContactId,
+                          ).Name}
                     </h1>
                     {participants?.find(
                       (item) => item.ContactId === message.ContactId,
@@ -689,16 +604,14 @@ const Chatbox = ({ reference }) => {
                       }  break-words text-gray-400`}
                     >
                       {message.Attachments.map((item) => (
-                        <img
-                          src={
-                            item.Type === "image"
-                              ? item.MediaUrl
-                              : "../src/assets/filenotfound.svg"
-                          }
-                          onError={imageOnError}
-                          className="my-auto cursor-pointer rounded-2xl"
+                        <ImageWithLightBox
+                          src={item.MediaUrl}
                           title={item.MediaName?.split(".")[0]}
-                        ></img>
+                          className="my-auto cursor-pointer rounded-2xl"
+                          slides={message.Attachments.map((item) => ({
+                            src: item.MediaUrl,
+                          }))}
+                        ></ImageWithLightBox>
                       ))}
                     </div>
                   )}
@@ -739,11 +652,11 @@ const Chatbox = ({ reference }) => {
               className={`${
                 files.length === 1
                   ? "grid-cols-[50%]"
-                  : "grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]"
-              } hide-scrollbar grid w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] 
-          laptop:max-h-[10rem] 
-          laptop:w-[clamp(40rem,70%,70rem)]          
-          desktop:w-[80rem]`}
+                  : "laptop:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] desktop:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
+              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] 
+          py-[.5rem] 
+          laptop:w-[clamp(40rem,75%,70rem)]         
+          desktop:w-[clamp(70rem,75%,120rem)]`}
             >
               {files.map((item) => (
                 <div
@@ -758,7 +671,7 @@ const Chatbox = ({ reference }) => {
                       ? "url('../src/assets/imagenotfound.jpg')"
                       : `url('${URL.createObjectURL(item)}'`,
                   }}
-                  className={`relative aspect-square rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}
+                  className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}
                   title={item.name.split(".")[0]}
                 >
                   <span
@@ -806,6 +719,9 @@ const Chatbox = ({ reference }) => {
             saveChanges: addParticipant,
           }}
         ></CustomModal>
+        <CustomLightbox
+          reference={{ showLightbox, slides, setShowLightbox }}
+        ></CustomLightbox>
       </div>
     </>
   );

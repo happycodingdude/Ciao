@@ -27,14 +27,8 @@ namespace MyConnect.Model
         public DateTime? SeenTime { get; set; }
         public Guid ContactId { get; set; }
         public Guid ConversationId { get; set; }
-        public ContactNoReference? Contact { get; set; }
+        // public ContactNoReference? Contact { get; set; }
         public ICollection<Attachment>? Attachments { get; set; }
-    }
-
-    public class MessageGroupByCreatedTime
-    {
-        public string? Date { get; set; }
-        public List<MessageNoReference>? Messages { get; set; }
     }
 
     public class MessageToNotify : BaseModel
@@ -48,5 +42,6 @@ namespace MyConnect.Model
         public int LikeCount { get; set; }
         public Guid ContactId { get; set; }
         public Guid ConversationId { get; set; }
+        public ICollection<AttachmentNoReference>? Attachments { get; set; }
     }
 }

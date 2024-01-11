@@ -1,5 +1,4 @@
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using MyConnect.Authentication;
 using MyConnect.Model;
 
@@ -36,18 +35,19 @@ namespace MyConnect.Repository
                 var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == conversation.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
                 if (lastMessageEntity == null) continue;
                 conversation.LastMessageId = lastMessageEntity.Id;
+                conversation.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
 
-                if (lastMessageEntity.Type == "text")
-                {
-                    conversation.LastMessage = lastMessageEntity.Content;
-                    var Participant = participantDbSet.Include(q => q.Contact).Where(q => q.ConversationId == conversation.Id && !q.IsDeleted).ToList();
-                    foreach (var participant in Participant)
-                        conversation.LastMessage = conversation.LastMessage.Replace($"@{participant.ContactId}", participant.Contact.Name);
-                }
-                else
-                {
-                    conversation.LastMessage = "";
-                }
+                // if (lastMessageEntity.Type == "text")
+                // {
+                //     conversation.LastMessage = lastMessageEntity.Content;
+                //     var Participant = participantDbSet.Include(q => q.Contact).Where(q => q.ConversationId == conversation.Id && !q.IsDeleted).ToList();
+                //     foreach (var participant in Participant)
+                //         conversation.LastMessage = conversation.LastMessage.Replace($"@{participant.ContactId}", participant.Contact.Name);
+                // }
+                // else
+                // {
+                //     conversation.LastMessage = "";
+                // }
 
                 conversation.LastMessageTime = lastMessageEntity.CreatedTime;
                 conversation.LastMessageContact = lastMessageEntity.ContactId;

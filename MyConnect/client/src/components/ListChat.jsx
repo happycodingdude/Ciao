@@ -54,7 +54,7 @@ const ListChat = ({ reference }) => {
       if (focus == undefined) setChats(chats);
       else {
         setChats((current) => {
-          return chats.map((item) => {
+          return current.map((item) => {
             if (item.Id !== focus.dataset.key) return item;
             item.UnSeenMessages = 0;
             return item;
@@ -83,6 +83,19 @@ const ListChat = ({ reference }) => {
     // });
   }, [chats]);
 
+  useEffect(() => {
+    console.log(reference.conversation);
+    if (reference.conversation === undefined) return;
+    setChats((current) => {
+      return current.map((item) => {
+        if (item.Id !== reference.conversation.Id) return item;
+        item.Title = reference.conversation.Title;
+        item.Avatar = reference.conversation.Avatar;
+        return item;
+      });
+    });
+  }, [reference.conversation]);
+
   const scrollListChatToBottom = () => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
   };
@@ -90,6 +103,16 @@ const ListChat = ({ reference }) => {
   const imageOnError = (e) => {
     e.target.onerror = null;
     e.target.src = "../src/assets/imagenotfound.jpg";
+  };
+
+  const generateContent = (text) => {
+    if (reference.contacts.some((item) => text.includes(`@${item.Id}`))) {
+      reference.contacts.map((item) => {
+        text = text.replace(`@${item.Id}`, `${item.Name}`);
+      });
+      return text;
+    }
+    return text;
   };
 
   return (
@@ -132,13 +155,15 @@ const ListChat = ({ reference }) => {
               <img
                 src={item.Avatar ?? ""}
                 onError={imageOnError}
-                className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[8rem]"
+                className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[6rem]"
               ></img>
               <div className="grow self-start">
                 <p className="font-bold">{item.Title}</p>
                 {item.LastMessageContact == auth.id ? (
                   <p className="overflow-hidden text-ellipsis ">
-                    {item.LastMessage}
+                    {item.LastMessage === null
+                      ? ""
+                      : generateContent(item.LastMessage)}
                   </p>
                 ) : (
                   <p
@@ -146,7 +171,9 @@ const ListChat = ({ reference }) => {
                       item.UnSeenMessages > 0 ? "font-bold text-red-400" : ""
                     } `}
                   >
-                    {item.LastMessage}
+                    {item.LastMessage === null
+                      ? ""
+                      : generateContent(item.LastMessage)}
                   </p>
                 )}
               </div>

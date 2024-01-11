@@ -101,6 +101,7 @@ public class MessagesController : ControllerBase
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return new ResponseModel<Message>().BadRequest(ex);
         }
     }

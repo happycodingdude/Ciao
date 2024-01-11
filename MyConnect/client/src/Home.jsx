@@ -12,6 +12,8 @@ const Home = () => {
   const auth = useAuth();
 
   const [conversation, setConversation] = useState();
+  const [contacts, setContacts] = useState();
+
   const refListChat = useRef();
   const refChatbox = useRef();
   const refInformationContainer = useRef();
@@ -34,6 +36,9 @@ const Home = () => {
           return item;
         });
         refListChat.setChats(newChats);
+
+        if (messageData.ContactId !== auth.id)
+          refChatbox.newMessage(messageData);
         break;
       case "AddMember":
       case "RemoveChat":
@@ -71,6 +76,17 @@ const Home = () => {
     });
   };
 
+  const getAllContact = async (cancelToken) => {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    return axios.get("api/contacts", {
+      cancelToken: cancelToken.token,
+      headers: headers,
+    });
+  };
+
   useEffect(() => {
     const cancelToken = axios.CancelToken.source();
     getAllChats(cancelToken)
@@ -82,6 +98,11 @@ const Home = () => {
       .catch((err) => {
         console.log(err);
       });
+
+    getAllContact(cancelToken).then((res) => {
+      if (res.status !== 200) throw new Error(res.status);
+      setContacts(res.data.data);
+    });
 
     // listenNotification((message) => {
     //   console.log("Home receive message from worker");
@@ -103,6 +124,7 @@ const Home = () => {
   const registerNotification = (chats) => {
     requestPermission((message) => notifyMessage(chats, message)).then(
       (token) => {
+        console.log(token);
         const cancelToken = axios.CancelToken.source();
         const headers = {
           "Content-Type": "application/json",
@@ -169,7 +191,15 @@ const Home = () => {
   return (
     <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
       <Signout />
-      <ListChat reference={{ refListChat, setConversation, notifyMessage }} />
+      <ListChat
+        reference={{
+          conversation,
+          refListChat,
+          contacts,
+          setConversation,
+          notifyMessage,
+        }}
+      />
       {conversation == undefined ? (
         ""
       ) : (
@@ -179,6 +209,7 @@ const Home = () => {
               conversation,
               refChatbox,
               refInformation,
+              contacts,
               setConversation,
               toggleInformationContainer,
             }}
