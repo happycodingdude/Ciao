@@ -1,13 +1,13 @@
-import { Form, Mentions } from "antd";
+import { Form, Mentions, Tooltip } from "antd";
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import parse from "html-react-parser";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
-import CustomLightbox from "./CustomLightbox";
-import CustomModal from "./CustomModal";
+import AddParticipants from "./AddParticipants";
 import ImageWithLightBox from "./ImageWithLightBox";
+import { UpdateTitle } from "./UpdateTitle";
 
 const page = 1;
 const limit = 10;
@@ -197,6 +197,7 @@ const Chatbox = ({ reference }) => {
       ConversationId: reference.conversation.Id,
     };
     if (files.length === 0) {
+      if (refChatInput.current.textarea.value === "") return;
       body = {
         ...body,
         Type: "text",
@@ -265,51 +266,12 @@ const Chatbox = ({ reference }) => {
     else refScrollButton.current.classList.add("hidden");
   }, []);
 
-  const toggleChatboxOption = useCallback((event) => {
-    // click anywhere on screen except the option toggle
-    if (!refChatboxOption.current?.contains(event.target)) {
-      refChatboxOptionMenu.current.classList.remove("scale-y-100");
-    } else if (refChatboxOptionMenu.current.classList.contains("scale-y-100"))
-      refChatboxOptionMenu.current.classList.remove("scale-y-100");
-    else refChatboxOptionMenu.current.classList.add("scale-y-100");
-  }, []);
-
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, true);
-    window.addEventListener("click", toggleChatboxOption, true);
     return () => {
       window.removeEventListener("scroll", handleScroll, true);
-      window.removeEventListener("click", toggleChatboxOption, true);
     };
-  }, [handleScroll, toggleChatboxOption]);
-
-  const updateTitle = () => {
-    var title = prompt("New title", reference.conversation.Title);
-    if (title === null || title === "") return;
-    reference.conversation.Title = title;
-
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    axios
-      .put("api/conversations", reference.conversation, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        reference.setConversation({ ...reference.conversation });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
-  };
+  }, [handleScroll]);
 
   const toggleInformationContainer = () => {
     reference.toggleInformationContainer();
@@ -342,94 +304,12 @@ const Chatbox = ({ reference }) => {
       if (!files.some((file) => file.name === item.name)) return item;
     });
     setFiles([...files, ...mergedFiles]);
-    console.log(mergedFiles);
 
     e.target.value = null;
   };
 
   const removeFile = (e) => {
     setFiles(files.filter((item) => item.name !== e.target.dataset.key));
-  };
-
-  const imageOnError = (e) => {
-    e.target.onerror = null;
-    e.target.src = "../src/assets/imagenotfound.jpg";
-  };
-
-  const [show, setShow] = useState(false);
-  const [options, setOptions] = useState([]);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
-  const handleAddParticipant = () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    axios
-      .get("api/contacts", {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        var options = [];
-        res.data.data
-          .filter(
-            (item) =>
-              !participants.some(
-                (participant) => participant.ContactId === item.Id,
-              ),
-          )
-          .map((item) => {
-            options.push({ label: item.Name, value: item.Id });
-          });
-        setOptions(options);
-        setShow(true);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
-  };
-
-  const addParticipant = (options) => {
-    handleClose();
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    const body = options.map((item) => {
-      return {
-        ConversationId: reference.conversation.Id,
-        ContactId: item.value,
-        IsNotifying: true,
-      };
-    });
-    axios
-      .post(
-        `api/conversations/${reference.conversation?.Id}/participants`,
-        body,
-        {
-          cancelToken: cancelToken.token,
-          headers: headers,
-        },
-      )
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
   };
 
   const generateContent = (text) => {
@@ -445,16 +325,8 @@ const Chatbox = ({ reference }) => {
     return text;
   };
 
-  const [showLightbox, setShowLightbox] = useState(false);
-  const [slides, setSlides] = useState();
-  const handleShowLightbox = (e) => {
-    var message = messages.find((item) => item.Id === e.target.dataset.key);
-    var images = message.Attachments.map((item) => ({
-      src: item.MediaUrl,
-    }));
-    console.log(images);
-    setSlides(images);
-    setShowLightbox(true);
+  const showProfile = () => {
+    console.log("showProfile calling");
   };
 
   return (
@@ -474,26 +346,42 @@ const Chatbox = ({ reference }) => {
             <div className="relative flex h-full basis-[25%]  items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
-                  <div
-                    style={{
-                      "--image-url": `url('${
-                        item.Contact.Avatar ?? "../src/assets/imagenotfound.jpg"
-                      }'`,
-                    }}
-                    className={`absolute aspect-square h-[70%] rounded-[50%] border-[.2rem] border-white bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center ${
+                  // <div
+                  //   style={{
+                  //     "--image-url": `url('${
+                  //       item.Contact.Avatar ?? "../src/assets/imagenotfound.jpg"
+                  //     }'`,
+                  //   }}
+                  //   className={`absolute aspect-square h-[70%] cursor-pointer rounded-[50%] border-[.2rem] border-white bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center ${
+                  //     i === 0 ? "left-0" : ""
+                  //   } ${i === 1 ? "left-[2rem]" : ""} ${
+                  //     i === 2 ? "left-[4rem]" : ""
+                  //   }`}
+                  // ></div>
+                  <ImageWithLightBox
+                    src={item.Contact.Avatar ?? ""}
+                    className={`absolute aspect-square h-[70%] cursor-pointer rounded-[50%] border-[.2rem] border-white bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center ${
                       i === 0 ? "left-0" : ""
                     } ${i === 1 ? "left-[2rem]" : ""} ${
                       i === 2 ? "left-[4rem]" : ""
                     }`}
-                  ></div>
+                    slides={[
+                      {
+                        src: item.Contact.Avatar ?? "",
+                      },
+                    ]}
+                    onClick={showProfile}
+                  ></ImageWithLightBox>
                 ) : (
                   ""
                 ),
               )}
-              <div
-                onClick={handleAddParticipant}
-                className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] cursor-pointer items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
-              ></div>
+              <AddParticipants
+                reference={{
+                  participants,
+                  conversation: reference.conversation,
+                }}
+              ></AddParticipants>
             </div>
             <div className="grow text-center">
               <p className="font-bold text-gray-600">
@@ -511,26 +399,8 @@ const Chatbox = ({ reference }) => {
               </p>
             </div>
             <div className="flex justify-end gap-[1rem]">
-              <div className="fa fa-search self-center font-normal text-gray-500"></div>
-              <div
-                ref={refChatboxOption}
-                className="relative flex cursor-pointer items-center gap-[.3rem]"
-              >
-                <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-                <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-                <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-                <div
-                  ref={refChatboxOptionMenu}
-                  className="absolute right-0 top-[120%] flex w-[15rem] origin-top scale-y-0 flex-col rounded-2xl bg-gray-200 py-[1rem] duration-[.5s] [&>*]:text-gray-500"
-                >
-                  <span
-                    className="pl-[1rem] hover:bg-gray-300"
-                    onClick={updateTitle}
-                  >
-                    Update title
-                  </span>
-                </div>
-              </div>
+              <div className="fa fa-search cursor-not-allowed self-center font-normal text-gray-500"></div>
+              <UpdateTitle reference={reference}></UpdateTitle>
               <div
                 ref={refToggleInformationContainer}
                 onClick={toggleInformationContainer}
@@ -560,6 +430,7 @@ const Chatbox = ({ reference }) => {
                         ).Avatar ?? "",
                     },
                   ]}
+                  onClick={showProfile}
                 ></ImageWithLightBox>
                 <div className="flex w-[90%] flex-col">
                   <div className="flex items-center gap-[1rem]">
@@ -603,14 +474,18 @@ const Chatbox = ({ reference }) => {
                           : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
                       }  break-words text-gray-400`}
                     >
-                      {message.Attachments.map((item) => (
+                      {message.Attachments.map((item, index) => (
                         <ImageWithLightBox
                           src={item.MediaUrl}
                           title={item.MediaName?.split(".")[0]}
                           className="my-auto cursor-pointer rounded-2xl"
                           slides={message.Attachments.map((item) => ({
-                            src: item.MediaUrl,
+                            src:
+                              item.Type === "image"
+                                ? item.MediaUrl
+                                : "../src/assets/filenotfound.svg",
                           }))}
+                          index={index}
                         ></ImageWithLightBox>
                       ))}
                     </div>
@@ -630,10 +505,12 @@ const Chatbox = ({ reference }) => {
               id="choose-image"
               onChange={chooseFile}
             ></input>
-            <label
-              for="choose-image"
-              className="fa fa-image cursor-pointer font-normal text-gray-500"
-            ></label>
+            <Tooltip title="Choose image">
+              <label
+                for="choose-image"
+                className="fa fa-image cursor-pointer font-normal text-gray-500"
+              ></label>
+            </Tooltip>
             <input
               multiple
               type="file"
@@ -642,10 +519,12 @@ const Chatbox = ({ reference }) => {
               id="choose-file"
               onChange={chooseFile}
             ></input>
-            <label
-              for="choose-file"
-              className="fa fa-file cursor-pointer font-normal text-gray-500"
-            ></label>
+            <Tooltip title="Choose image">
+              <label
+                for="choose-file"
+                className="fa fa-file cursor-pointer font-normal text-gray-500"
+              ></label>
+            </Tooltip>
           </div>
           {files.length !== 0 ? (
             <div
@@ -705,23 +584,14 @@ const Chatbox = ({ reference }) => {
             </div>
           )}
           <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">
-            <div
-              className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
-              onClick={sendMessage}
-            ></div>
+            <Tooltip title="Send">
+              <div
+                className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
+                onClick={sendMessage}
+              ></div>
+            </Tooltip>
           </div>
         </div>
-        <CustomModal
-          reference={{
-            show,
-            options,
-            handleClose,
-            saveChanges: addParticipant,
-          }}
-        ></CustomModal>
-        <CustomLightbox
-          reference={{ showLightbox, slides, setShowLightbox }}
-        ></CustomLightbox>
       </div>
     </>
   );

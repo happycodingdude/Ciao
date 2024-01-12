@@ -45,30 +45,30 @@ export const requestPermission = async (notifyMessage) => {
   });
 };
 
-export const listenNotification = (action) => {
-  if (navigator.serviceWorker) {
-    navigator.serviceWorker
-      .register("/firebase-messaging-sw.js")
-      .then(navigator.serviceWorker.ready)
-      .then(() => {
-        navigator.serviceWorker.onmessage = (event) => {
-          const message = event.data.data;
-          // event is a MessageEvent object
-          console.log(`The service worker sent me a message: ${message}`);
-          action(message);
-        };
+// export const listenNotification = (action) => {
+//   if (navigator.serviceWorker) {
+//     navigator.serviceWorker
+//       .register("/firebase-messaging-sw.js")
+//       .then(navigator.serviceWorker.ready)
+//       .then(() => {
+//         navigator.serviceWorker.onmessage = (event) => {
+//           const message = event.data.data;
+//           // event is a MessageEvent object
+//           console.log(`The service worker sent me a message: ${message}`);
+//           action(message);
+//         };
 
-        // navigator.serviceWorker.addEventListener("message", (event) => {
-        //   const message = event.data.data;
-        //   // event is a MessageEvent object
-        //   console.log(`The service worker sent me a message: ${message}`);
-        //   action(message);
-        // });
-      });
+//         // navigator.serviceWorker.addEventListener("message", (event) => {
+//         //   const message = event.data.data;
+//         //   // event is a MessageEvent object
+//         //   console.log(`The service worker sent me a message: ${message}`);
+//         //   action(message);
+//         // });
+//       });
 
-    // navigator.serviceWorker.addEventListener("message", (event) => {
-    //   // event is a MessageEvent object
-    //   console.log(`The service worker sent me a message: ${event.data}`);
-    // });
-  }
-};
+//     // navigator.serviceWorker.addEventListener("message", (event) => {
+//     //   // event is a MessageEvent object
+//     //   console.log(`The service worker sent me a message: ${event.data}`);
+//     // });
+//   }
+// };

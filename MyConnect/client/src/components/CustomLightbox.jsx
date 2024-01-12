@@ -46,7 +46,7 @@ function CustomLightbox({ reference }) {
       }}
       carousel={{ preload: 1 }}
       thumbnails={{ showToggle: true }}
-      index={3}
+      index={reference.index}
     />
   );
 }

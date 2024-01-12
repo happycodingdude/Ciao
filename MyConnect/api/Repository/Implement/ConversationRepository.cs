@@ -54,8 +54,8 @@ namespace MyConnect.Repository
                 conversation.LastSeenTime = messageDbSet
                 .Where(q => q.ConversationId == conversation.Id && q.ContactId == contactId && q.Status == "seen" && q.SeenTime.HasValue)
                 .OrderByDescending(q => q.CreatedTime)
-                .FirstOrDefault()
-                .SeenTime;
+                .FirstOrDefault()?
+                .SeenTime ?? DateTime.Now;
                 conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
             }
             return conversations;

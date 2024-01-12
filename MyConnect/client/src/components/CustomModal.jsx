@@ -1,61 +1,90 @@
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import Select from "react-select";
 
-function CustomModal({ reference }) {
-  const [selected, setSelected] = useState([]);
-  const handleMultiSelectChange = (options) => {
-    setSelected(options);
-  };
-  const saveChanges = () => {
-    if (selected.length === 0) {
-      reference.handleClose();
-      return;
+const CustomModal = ({ show, forms, onClose, onSubmit }) => {
+  const refForm = useRef();
+
+  const submit = () => {
+    const formData = new FormData(refForm.current);
+
+    var formDataObj = {};
+    for (const key of forms.data.map((item) => item.name)) {
+      const value = formData.getAll(key);
+      formDataObj = {
+        ...formDataObj,
+        [key]:
+          value.length <= 1
+            ? value[0].trim().length === 0
+              ? null
+              : value[0]
+            : value,
+      };
     }
-    reference.saveChanges(selected);
-    setSelected([]);
+
+    onSubmit(formDataObj);
+    handleClose();
   };
+
   const handleClose = () => {
-    reference.handleClose();
-    setSelected([]);
+    onClose();
   };
 
   return (
-    <Modal show={reference.show} onHide={handleClose}>
+    <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Add member</Modal.Title>
+        <Modal.Title>{forms?.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form>
+        <Form ref={refForm}>
           <Form.Group className="mb-3" controlId="custom-modal">
-            <Form.Label>Members</Form.Label>
-            {/* <input type="hidden" value={item.ItemField} /> */}
-            <Select
-              className="basic-multi-select"
-              classNamePrefix="select"
-              isMulti
-              isSearchable
-              closeMenuOnSelect={false}
-              // value={selectedOptions}
-              name="colors"
-              options={reference.options}
-              onChange={(option) => {
-                handleMultiSelectChange(option);
-              }}
-            />
+            {forms?.data?.map((item) => {
+              switch (item.type) {
+                case "input":
+                  return (
+                    <>
+                      <Form.Label>{item.label}</Form.Label>
+                      <Form.Control
+                        size="lg"
+                        type="text"
+                        name={item.name}
+                        // value={item.value}
+                      />
+                    </>
+                  );
+                case "multiple":
+                  return (
+                    <>
+                      <Form.Label>{item.label}</Form.Label>
+                      <Select
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        isMulti
+                        isSearchable
+                        closeMenuOnSelect={false}
+                        // value={selectedOptions}
+                        name={item.name}
+                        options={item.options}
+                      />
+                    </>
+                  );
+                default:
+                  break;
+              }
+            })}
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button type="text" onClick={handleClose}>
+        <Button type="text" size="lg" onClick={handleClose}>
           Close
         </Button>
-        <Button type="primary" onClick={saveChanges}>
-          Save Changes
+        <Button type="text" size="lg" onClick={submit}>
+          Submit
         </Button>
       </Modal.Footer>
     </Modal>
   );
-}
+};
 
 export default CustomModal;

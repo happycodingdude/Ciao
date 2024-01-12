@@ -7,12 +7,12 @@ namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [MyAuthorize("Authorization")]
-public class ParticipantController : ControllerBase
+public class ParticipantsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IParticipantService _participantService;
 
-    public ParticipantController(IUnitOfWork unitOfWork, IParticipantService participantService)
+    public ParticipantsController(IUnitOfWork unitOfWork, IParticipantService participantService)
     {
         _unitOfWork = unitOfWork;
         _participantService = participantService;

@@ -1,5 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
+import ImageWithLightBox from "./ImageWithLightBox";
 
 const Attachment = ({ reference }) => {
   console.log("Attachment calling");
@@ -90,7 +91,7 @@ const Attachment = ({ reference }) => {
           onClick={showInformation}
         ></div>
         <p className="font-bold text-gray-600">Attachments</p>
-        <div className="flex h-1/2 cursor-pointer items-center gap-[.3rem]">
+        <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
@@ -121,21 +122,20 @@ const Attachment = ({ reference }) => {
             <div className="font-bold text-gray-600">
               {moment(date.Date).format("DD/MM/YYYY")}
             </div>
-            <div
-              // ref={refGrid}
-              className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]"
-            >
-              {date.Attachments.map((item) => (
-                <img
-                  src={
-                    item.Type === "image"
-                      ? item.MediaUrl
-                      : "../src/assets/filenotfound.svg"
-                  }
-                  onError={imageOnError}
-                  className="aspect-square w-full cursor-pointer rounded-2xl"
+            <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
+              {date.Attachments.map((item, index) => (
+                <ImageWithLightBox
+                  src={item.MediaUrl}
                   title={item.MediaName?.split(".")[0]}
-                ></img>
+                  className="aspect-square w-full cursor-pointer rounded-2xl"
+                  slides={date.Attachments.map((item) => ({
+                    src:
+                      item.Type === "image"
+                        ? item.MediaUrl
+                        : "../src/assets/filenotfound.svg",
+                  }))}
+                  index={index}
+                ></ImageWithLightBox>
               ))}
             </div>
           </div>

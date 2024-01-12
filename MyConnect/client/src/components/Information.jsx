@@ -2,6 +2,7 @@ import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
+import ImageWithLightBox from "./ImageWithLightBox";
 
 const Information = ({ reference }) => {
   console.log("Information calling");
@@ -191,6 +192,10 @@ const Information = ({ reference }) => {
     reference.refAttachment.showAttachment(attachments);
   };
 
+  const showProfile = () => {
+    console.log("showProfile calling");
+  };
+
   return (
     <div
       ref={refInformation}
@@ -198,7 +203,7 @@ const Information = ({ reference }) => {
     >
       <div className="flex max-h-[5.5rem] basis-full items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <p className="font-bold text-gray-600">Contact Information</p>
-        <div className="flex h-1/2 cursor-pointer items-center gap-[.3rem]">
+        <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
@@ -207,11 +212,16 @@ const Information = ({ reference }) => {
       <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth  [&>*]:border-b-gray-300 [&>*]:p-[2rem]">
         <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
-            <img
+            <ImageWithLightBox
               src={reference.conversation?.Avatar ?? ""}
-              onError={imageOnError}
-              className="aspect-square w-[20%] rounded-[50%]"
-            ></img>
+              className="aspect-square w-[20%] cursor-pointer rounded-[50%]"
+              slides={[
+                {
+                  src: reference.conversation?.Avatar ?? "",
+                },
+              ]}
+              onClick={showProfile}
+            ></ImageWithLightBox>
             <input
               multiple
               type="file"
@@ -232,14 +242,8 @@ const Information = ({ reference }) => {
             </div>
           </div>
           <div className="flex w-full justify-evenly">
-            <a
-              href="#"
-              className="fa fa-phone flex aspect-[4/1.5] w-[10rem] items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-blue-500"
-            ></a>
-            <a
-              href="#"
-              className="fa fa-video flex aspect-[4/1.5] w-[10rem] items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-blue-500"
-            ></a>
+            <div className="fa fa-phone flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-blue-500"></div>
+            <div className="fa fa-video flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-blue-500"></div>
           </div>
         </div>
         <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
@@ -252,21 +256,20 @@ const Information = ({ reference }) => {
               See all
             </div>
           </div>
-          <div
-            // ref={refGrid}
-            className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]"
-          >
-            {displayAttachments?.map((item) => (
-              <img
-                src={
-                  item.Type === "image"
-                    ? item.MediaUrl
-                    : "../src/assets/filenotfound.svg"
-                }
-                onError={imageOnError}
-                className="aspect-square w-full cursor-pointer rounded-2xl"
+          <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+            {displayAttachments?.map((item, index) => (
+              <ImageWithLightBox
+                src={item.MediaUrl}
                 title={item.MediaName?.split(".")[0]}
-              ></img>
+                className="aspect-square w-full cursor-pointer rounded-2xl"
+                slides={displayAttachments.map((item) => ({
+                  src:
+                    item.Type === "image"
+                      ? item.MediaUrl
+                      : "../src/assets/filenotfound.svg",
+                }))}
+                index={index}
+              ></ImageWithLightBox>
             ))}
           </div>
         </div>

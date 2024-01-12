@@ -1,14 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../src/hook/useAuth";
 import Signup from "./Signup";
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
-  console.log(from);
+  // const location = useLocation();
+  // const from = location.state?.from?.pathname || "/";
+  // console.log(from);
   const auth = useAuth();
 
   const refUsername = useRef();
@@ -18,7 +18,7 @@ const Login = () => {
   useLayoutEffect(() => {
     if (auth.id) {
       setIsLogin(true);
-      navigate(from, { replace: true });
+      navigate(-1, { replace: true });
     }
   }, []);
 
@@ -45,7 +45,7 @@ const Login = () => {
           // errorMessageRef.current.classList.remove("active");
           auth.login(res.data.data.Token);
           setTimeout(() => {
-            navigate(from, { replace: true });
+            navigate("/", { replace: true });
           }, 100);
         } else throw new Error(res.status);
       })

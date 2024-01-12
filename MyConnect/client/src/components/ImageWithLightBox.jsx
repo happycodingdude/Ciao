@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
 
-function ImageWithLightBox({ src, title, className, slides }) {
+function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = (e) => setShowLightbox(true);
 
@@ -14,12 +14,12 @@ function ImageWithLightBox({ src, title, className, slides }) {
       <img
         src={src}
         title={title}
-        onClick={handleShowLightbox}
-        onError={imageOnError}
         className={className}
+        onClick={onClick ?? handleShowLightbox}
+        onError={imageOnError}
       ></img>
       <CustomLightbox
-        reference={{ showLightbox, slides, setShowLightbox }}
+        reference={{ showLightbox, slides, index, setShowLightbox }}
       ></CustomLightbox>
     </>
   );
