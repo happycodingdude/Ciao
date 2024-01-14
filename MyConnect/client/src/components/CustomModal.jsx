@@ -13,12 +13,13 @@ const CustomModal = ({ show, forms, onClose, onSubmit }) => {
       const value = formData.getAll(key);
       formDataObj = {
         ...formDataObj,
-        [key]:
-          value.length <= 1
-            ? value[0].trim().length === 0
-              ? null
-              : value[0]
-            : value,
+        [key]: value,
+        // [key]:
+        //   value.length <= 1
+        //     ? value[0].trim().length === 0
+        //       ? null
+        //       : value[0]
+        //     : value,
       };
     }
 
@@ -48,7 +49,7 @@ const CustomModal = ({ show, forms, onClose, onSubmit }) => {
                         size="lg"
                         type="text"
                         name={item.name}
-                        // value={item.value}
+                        value={item.value}
                       />
                     </>
                   );

@@ -232,7 +232,7 @@ const Information = ({ reference }) => {
             ></input>
             <label
               for="conversation-avatar"
-              className="fa fa-camera absolute right-[40%] top-[-5%] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-gray-500 hover:text-blue-500"
+              className="fa fa-camera absolute right-[40%] top-[-5%] cursor-pointer text-gray-500 hover:text-blue-500"
             ></label>
             <p className="font-bold text-gray-600">
               {reference.conversation?.Title}

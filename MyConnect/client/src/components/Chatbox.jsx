@@ -343,21 +343,9 @@ const Chatbox = ({ reference }) => {
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem] laptop:max-h-[5.5rem]">
-            <div className="relative flex h-full basis-[25%]  items-center">
+            <div className="relative flex h-full basis-[25%] items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
-                  // <div
-                  //   style={{
-                  //     "--image-url": `url('${
-                  //       item.Contact.Avatar ?? "../src/assets/imagenotfound.jpg"
-                  //     }'`,
-                  //   }}
-                  //   className={`absolute aspect-square h-[70%] cursor-pointer rounded-[50%] border-[.2rem] border-white bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center ${
-                  //     i === 0 ? "left-0" : ""
-                  //   } ${i === 1 ? "left-[2rem]" : ""} ${
-                  //     i === 2 ? "left-[4rem]" : ""
-                  //   }`}
-                  // ></div>
                   <ImageWithLightBox
                     src={item.Contact.Avatar ?? ""}
                     className={`absolute aspect-square h-[70%] cursor-pointer rounded-[50%] border-[.2rem] border-white bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center ${
@@ -383,9 +371,10 @@ const Chatbox = ({ reference }) => {
                 }}
               ></AddParticipants>
             </div>
-            <div className="grow text-center">
-              <p className="font-bold text-gray-600">
+            <div className="relative flex max-w-[50%] flex-col items-center">
+              <p className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center font-bold text-gray-600">
                 {reference.conversation?.Title}
+                <UpdateTitle reference={reference}></UpdateTitle>
               </p>
               <p className="text-gray-400">
                 Last seen{" "}
@@ -400,7 +389,6 @@ const Chatbox = ({ reference }) => {
             </div>
             <div className="flex justify-end gap-[1rem]">
               <div className="fa fa-search cursor-not-allowed self-center font-normal text-gray-500"></div>
-              <UpdateTitle reference={reference}></UpdateTitle>
               <div
                 ref={refToggleInformationContainer}
                 onClick={toggleInformationContainer}
