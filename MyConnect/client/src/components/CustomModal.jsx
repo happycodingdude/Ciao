@@ -1,15 +1,31 @@
-import React, { useRef } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, CloseButton, Form, Modal } from "react-bootstrap";
 import Select from "react-select";
 
 const CustomModal = ({ show, forms, onClose, onSubmit }) => {
   const refForm = useRef();
+  const [form, setForm] = useState();
+
+  useEffect(() => {
+    setForm(forms);
+  }, [forms]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((current) => ({
+      ...current,
+      data: current.data.map((item) => {
+        if (item.name === name) item.value = value;
+        return item;
+      }),
+    }));
+  };
 
   const submit = () => {
     const formData = new FormData(refForm.current);
 
     var formDataObj = {};
-    for (const key of forms.data.map((item) => item.name)) {
+    for (const key of form.data.map((item) => item.name)) {
       const value = formData.getAll(key);
       formDataObj = {
         ...formDataObj,
@@ -33,13 +49,17 @@ const CustomModal = ({ show, forms, onClose, onSubmit }) => {
 
   return (
     <Modal show={show} onHide={handleClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>{forms?.title}</Modal.Title>
+      <Modal.Header>
+        <Modal.Title>{form?.title}</Modal.Title>
+        <CloseButton
+          className="close-button"
+          onClick={handleClose}
+        ></CloseButton>
       </Modal.Header>
       <Modal.Body>
         <Form ref={refForm}>
           <Form.Group className="mb-3" controlId="custom-modal">
-            {forms?.data?.map((item) => {
+            {form?.data?.map((item) => {
               switch (item.type) {
                 case "input":
                   return (
@@ -50,6 +70,7 @@ const CustomModal = ({ show, forms, onClose, onSubmit }) => {
                         type="text"
                         name={item.name}
                         value={item.value}
+                        onChange={handleInputChange}
                       />
                     </>
                   );

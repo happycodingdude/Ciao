@@ -74,4 +74,8 @@ body,
       scrollbar-width: none; /* For Firefox */
     }
   }
+
+  .close-button {
+    background-image: var(--bs-btn-close-bg);
+  }
 }

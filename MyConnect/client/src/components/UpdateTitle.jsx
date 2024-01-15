@@ -1,9 +1,10 @@
+import { Tooltip } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
 import useAuth from "../hook/useAuth";
 import CustomModal from "./CustomModal";
 
-export const UpdateTitle = ({ reference }) => {
+const UpdateTitle = ({ reference }) => {
   const auth = useAuth();
 
   const [formData, setFormData] = useState();
@@ -55,10 +56,11 @@ export const UpdateTitle = ({ reference }) => {
 
   return (
     <>
-      <div
+      <Tooltip
         className="fa fa-edit absolute right-[-2rem] top-0 cursor-pointer text-[1.3rem] font-normal text-gray-500 hover:text-blue-500"
+        title="Update title"
         onClick={handleUpdateTitle}
-      ></div>
+      ></Tooltip>
       <CustomModal
         show={show}
         forms={formData}
@@ -68,3 +70,5 @@ export const UpdateTitle = ({ reference }) => {
     </>
   );
 };
+
+export default UpdateTitle;

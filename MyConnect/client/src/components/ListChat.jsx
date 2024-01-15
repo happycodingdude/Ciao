@@ -116,7 +116,7 @@ const ListChat = ({ reference }) => {
   };
 
   return (
-    <div className="flex w-[calc(100%/4)] flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]">
+    <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col [&>*:not(:first-child)]:mt-[1rem] [&>*]:mx-[1rem]">
       <div className="relative">
         <input
           type="text"

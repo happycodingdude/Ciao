@@ -6,8 +6,9 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 import AddParticipants from "./AddParticipants";
+import CustomLabel from "./CustomLabel";
 import ImageWithLightBox from "./ImageWithLightBox";
-import { UpdateTitle } from "./UpdateTitle";
+import UpdateTitle from "./UpdateTitle";
 
 const page = 1;
 const limit = 10;
@@ -20,8 +21,8 @@ const Chatbox = ({ reference }) => {
   const refChatInput = useRef();
   const refChatContent = useRef();
   const refScrollButton = useRef();
-  const refChatboxOption = useRef();
-  const refChatboxOptionMenu = useRef();
+  // const refChatboxOption = useRef();
+  // const refChatboxOptionMenu = useRef();
   const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
 
@@ -372,10 +373,8 @@ const Chatbox = ({ reference }) => {
               ></AddParticipants>
             </div>
             <div className="relative flex max-w-[50%] flex-col items-center">
-              <p className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center font-bold text-gray-600">
-                {reference.conversation?.Title}
-                <UpdateTitle reference={reference}></UpdateTitle>
-              </p>
+              <CustomLabel title={reference.conversation?.Title}></CustomLabel>
+              <UpdateTitle reference={reference}></UpdateTitle>
               <p className="text-gray-400">
                 Last seen{" "}
                 {moment(reference.conversation?.LastSeenTime).format(

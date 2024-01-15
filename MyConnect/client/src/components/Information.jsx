@@ -2,6 +2,7 @@ import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
+import CustomLabel from "./CustomLabel";
 import ImageWithLightBox from "./ImageWithLightBox";
 
 const Information = ({ reference }) => {
@@ -234,9 +235,9 @@ const Information = ({ reference }) => {
               for="conversation-avatar"
               className="fa fa-camera absolute right-[40%] top-[-5%] cursor-pointer text-gray-500 hover:text-blue-500"
             ></label>
-            <p className="font-bold text-gray-600">
-              {reference.conversation?.Title}
-            </p>
+            <div className="w-[50%]">
+              <CustomLabel title={reference.conversation?.Title}></CustomLabel>
+            </div>
             <div className="cursor-pointer text-gray-400">
               {participants?.length} members
             </div>
