@@ -1,6 +1,7 @@
 import moment from "moment";
 import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
+import CustomLabel from "./CustomLabel";
 
 const ListChat = ({ reference }) => {
   console.log("ListChat calling");
@@ -84,7 +85,6 @@ const ListChat = ({ reference }) => {
   }, [chats]);
 
   useEffect(() => {
-    console.log(reference.conversation);
     if (reference.conversation === undefined) return;
     setChats((current) => {
       return current.map((item) => {
@@ -146,21 +146,18 @@ const ListChat = ({ reference }) => {
                 handleSetConversation(item);
               }}
             >
-              {/* <div
-                style={{
-                  "--image-url": `url('${item.Avatar}'`,
-                }}
-                className="aspect-square rounded-[50%] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center laptop:min-w-[5rem] desktop:min-w-[8rem]"
-              ></div> */}
               <img
                 src={item.Avatar ?? ""}
                 onError={imageOnError}
                 className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[6rem]"
               ></img>
-              <div className="grow self-start">
-                <p className="font-bold">{item.Title}</p>
+              <div className="w-[50%] grow self-start">
+                <CustomLabel
+                  className="mr-auto font-bold"
+                  title={item.Title}
+                ></CustomLabel>
                 {item.LastMessageContact == auth.id ? (
-                  <p className="overflow-hidden text-ellipsis ">
+                  <p className="overflow-hidden text-ellipsis">
                     {item.LastMessage === null
                       ? ""
                       : generateContent(item.LastMessage)}

@@ -1,13 +1,19 @@
 import { Tooltip } from "antd";
 import React from "react";
+import UpdateTitle from "./UpdateTitle";
 
-const CustomLabel = ({ title }) => {
+const CustomLabel = ({ title, className, tooltip, update, reference }) => {
   return (
-    <Tooltip title={title}>
-      <p className="w-full overflow-hidden text-ellipsis whitespace-nowrap font-bold text-gray-600">
-        {title}
-      </p>
-    </Tooltip>
+    <div className="flex w-full justify-center gap-[.5rem]">
+      <Tooltip title={tooltip ? title : ""}>
+        <p
+          className={`overflow-hidden text-ellipsis whitespace-nowrap ${className}`}
+        >
+          {title}
+        </p>
+      </Tooltip>
+      {update ? <UpdateTitle reference={reference}></UpdateTitle> : ""}
+    </div>
   );
 };
 

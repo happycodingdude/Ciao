@@ -63,7 +63,6 @@ const Login = () => {
     refLogin.current.classList.add("animate-registration-hide");
     setTimeout(() => {
       refLogin.current.classList.remove("animate-registration-hide");
-      // refLogin.current.classList.toggle("opacity-0");
     }, 1000);
     refSignup.toggleSignup();
   };
@@ -72,7 +71,6 @@ const Login = () => {
     refLogin.current.classList.add("animate-registration-show");
     setTimeout(() => {
       refLogin.current.classList.remove("animate-registration-show");
-      // refLogin.current.classList.toggle("opacity-0");
     }, 1000);
   };
 
@@ -82,43 +80,47 @@ const Login = () => {
         <section className="relative flex h-full justify-center gap-[2rem]">
           <div
             ref={refLogin}
-            className="absolute bottom-0 top-0 z-10 m-auto flex h-[clamp(40rem,80%,50rem)]
-          w-[clamp(30rem,50%,40rem)] flex-col
-          rounded-[1rem] bg-white px-[4rem]
-          py-[2rem]
-          duration-[1s] [&>*:not(:first-child)]:mt-[2rem]"
+            className="absolute bottom-0 top-0 z-10 m-auto flex flex-col rounded-[1rem]
+          bg-white px-[3rem] py-[2rem] shadow-[0_0_20px_-5px_#cc9dff] duration-[1s]
+          laptop:h-[45rem] laptop:w-[30rem]
+          [&>*:not(:first-child)]:mt-[2rem]"
           >
-            <span className="text-center text-3xl font-bold uppercase">
-              login
-            </span>
+            <p className="text-center text-3xl font-semibold uppercase">
+              Login
+            </p>
 
-            <div className="flex flex-col gap-[1rem]">
-              <span className="">Username</span>
+            <div className="flex flex-col gap-[1rem] text-gray-600">
+              <p className="font-bold">Username</p>
               <input
-                className="rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
+                className="rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] focus:outline-none"
                 ref={refUsername}
                 type="text"
                 placeholder="Type your username"
               />
-              <span className="">Password</span>
+              <p className="font-bold">Password</p>
               <input
-                className="rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
+                className="rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] focus:outline-none"
                 type="password"
                 ref={refPassword}
                 placeholder="Type your password"
               />
             </div>
 
-            <a href="#" className="self-end text-blue-500">
-              Forgot password?
-            </a>
-
-            <button
-              className="w-[50%] self-center rounded-[1rem] border-[.2rem] border-gray-400 uppercase"
+            <div
+              className="w-full cursor-pointer self-center rounded-[.4rem] 
+              bg-gradient-to-r from-purple-100 to-purple-200 bg-[size:200%] bg-[position:0%_0%] py-[1rem]
+              text-center font-medium uppercase shadow-[0_3px_3px_-2px_#e4cbff] 
+              transition-all duration-200 
+              hover:bg-[position:100%_100%] hover:shadow-[0_3px_10px_-2px_#e4cbff]"
               onClick={handleLogin}
             >
               Login
-            </button>
+            </div>
+
+            <div className="cursor-pointer self-center text-blue-500">
+              Forgot password?
+            </div>
+
             <div className="flex flex-col items-center">
               <p>Don't have an account?</p>
               <a onClick={toggleSignup} href="#" className="text-blue-500">

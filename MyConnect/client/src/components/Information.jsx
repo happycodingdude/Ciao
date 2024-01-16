@@ -236,7 +236,11 @@ const Information = ({ reference }) => {
               className="fa fa-camera absolute right-[40%] top-[-5%] cursor-pointer text-gray-500 hover:text-blue-500"
             ></label>
             <div className="w-[50%]">
-              <CustomLabel title={reference.conversation?.Title}></CustomLabel>
+              <CustomLabel
+                className="font-bold text-gray-600"
+                title={reference.conversation?.Title}
+                tooltip
+              ></CustomLabel>
             </div>
             <div className="cursor-pointer text-gray-400">
               {participants?.length} members

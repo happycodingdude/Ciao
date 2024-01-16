@@ -9,6 +9,7 @@ const Signup = ({ reference }) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
+    refSignup.current?.classList.toggle("opacity-0");
     refSignup.current?.classList.add("animate-registration-show");
     setTimeout(() => {
       refSignup.current?.classList.remove("animate-registration-show");
@@ -24,6 +25,7 @@ const Signup = ({ reference }) => {
     refSignup.current.classList.add("animate-registration-hide");
     setTimeout(() => {
       refSignup.current.classList.remove("animate-registration-hide");
+      refSignup.current?.classList.toggle("opacity-0");
     }, 1000);
     refSignup.current.classList.toggle("z-20");
     reference.toggleLogin();
@@ -56,43 +58,48 @@ const Signup = ({ reference }) => {
     <>
       <div
         ref={refSignup}
-        className="absolute bottom-0 top-0 m-auto my-auto flex h-[clamp(40rem,80%,50rem)] w-[clamp(30rem,50%,40rem)] flex-col
-   rounded-[1rem] bg-white
-  px-[4rem] py-[2rem] duration-[1s]
-  [&>*:not(:first-child)]:mt-[2rem]"
+        className="absolute bottom-0 top-0 m-auto my-auto flex flex-col rounded-[1rem] bg-white
+        px-[4rem] py-[2rem] opacity-0
+        shadow-[0_0_20px_-5px_#cc9dff] duration-[1s] laptop:h-[48rem]
+        laptop:w-[30rem]
+        [&>*:not(:first-child)]:mt-[2rem]"
       >
-        <span className="text-center text-3xl font-bold uppercase">signup</span>
+        <p className="text-center text-3xl font-semibold uppercase">signup</p>
 
-        <div className="flex flex-col gap-[1rem]">
-          <span className="">Name</span>
+        <div className="flex flex-col gap-[1rem] text-gray-600">
+          <p className="font-bold">Name</p>
           <input
-            className="rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
+            className="rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] focus:outline-none"
             ref={refName}
             type="text"
             placeholder="Type your name"
           />
-          <span className="">Usename</span>
+          <p className="font-bold">Usename</p>
           <input
-            className="rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
+            className="rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] focus:outline-none"
             type="text"
             ref={refUsername}
             placeholder="Type your username"
           />
-          <span className="">Password</span>
+          <p className="font-bold">Password</p>
           <input
-            className="rounded-[.5rem] border-[.1rem] border-gray-400 focus:outline-none"
+            className="rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] focus:outline-none"
             type="password"
             ref={refPassword}
             placeholder="Type your password"
           />
         </div>
 
-        <button
-          className="w-[50%] self-center rounded-[1rem] border-[.2rem] border-gray-400 uppercase"
+        <div
+          className="w-full cursor-pointer self-center rounded-[.4rem] 
+              bg-gradient-to-r from-purple-100 to-purple-200 bg-[size:200%] bg-[position:0%_0%] py-[1rem]
+              text-center font-medium uppercase shadow-[0_3px_3px_-2px_#e4cbff] 
+              transition-all duration-200 
+              hover:bg-[position:100%_100%] hover:shadow-[0_3px_10px_-2px_#e4cbff]"
           onClick={handleSignup}
         >
           sign up
-        </button>
+        </div>
 
         <div
           className="cursor-pointer self-center text-blue-500"

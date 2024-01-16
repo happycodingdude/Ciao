@@ -124,7 +124,6 @@ const Home = () => {
   const registerNotification = (chats) => {
     requestPermission((message) => notifyMessage(chats, message)).then(
       (token) => {
-        console.log(token);
         const cancelToken = axios.CancelToken.source();
         const headers = {
           "Content-Type": "application/json",

@@ -57,7 +57,7 @@ const UpdateTitle = ({ reference }) => {
   return (
     <>
       <Tooltip
-        className="fa fa-edit absolute right-[-2rem] top-0 cursor-pointer text-[1.3rem] font-normal text-gray-500 hover:text-blue-500"
+        className="fa fa-edit cursor-pointer text-[1.3rem] font-normal text-gray-500 hover:text-blue-500"
         title="Update title"
         onClick={handleUpdateTitle}
       ></Tooltip>

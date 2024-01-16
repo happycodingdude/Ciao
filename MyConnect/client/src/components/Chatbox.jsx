@@ -8,7 +8,6 @@ import useAuth from "../hook/useAuth";
 import AddParticipants from "./AddParticipants";
 import CustomLabel from "./CustomLabel";
 import ImageWithLightBox from "./ImageWithLightBox";
-import UpdateTitle from "./UpdateTitle";
 
 const page = 1;
 const limit = 10;
@@ -25,6 +24,7 @@ const Chatbox = ({ reference }) => {
   // const refChatboxOptionMenu = useRef();
   const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
+  const refTitleContainer = useRef();
 
   const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
@@ -295,6 +295,8 @@ const Chatbox = ({ reference }) => {
         "animate-information-hide-arrow",
       );
     }
+    refTitleContainer.current.classList.toggle("max-w-[30rem]");
+    refTitleContainer.current.classList.toggle("max-w-[40rem]");
   };
 
   const chooseFile = (e) => {
@@ -344,7 +346,7 @@ const Chatbox = ({ reference }) => {
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem] laptop:max-h-[5.5rem]">
-            <div className="relative flex h-full basis-[25%] items-center">
+            <div className="relative flex h-full min-w-[20%] items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
                   <ImageWithLightBox
@@ -372,9 +374,17 @@ const Chatbox = ({ reference }) => {
                 }}
               ></AddParticipants>
             </div>
-            <div className="relative flex max-w-[50%] flex-col items-center">
-              <CustomLabel title={reference.conversation?.Title}></CustomLabel>
-              <UpdateTitle reference={reference}></UpdateTitle>
+            <div
+              ref={refTitleContainer}
+              className="relative flex max-w-[30rem] flex-col items-center"
+            >
+              <CustomLabel
+                className="font-bold text-gray-600"
+                title={reference.conversation?.Title}
+                tooltip
+                update
+                reference={reference}
+              ></CustomLabel>
               <p className="text-gray-400">
                 Last seen{" "}
                 {moment(reference.conversation?.LastSeenTime).format(
