@@ -88,20 +88,6 @@ public class ConversationsController : ControllerBase
         }
     }
 
-    // [HttpGet("{id}/messages")]
-    // public IActionResult GetMessages(Guid id)
-    // {
-    //     try
-    //     {
-    //         var response = _unitOfWork.Message.GetByConversationId(id);
-    //         return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>(response).Ok();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return new ResponseModel<IEnumerable<MessageGroupByCreatedTime>>().BadRequest(ex);
-    //     }
-    // }
-
     [HttpGet("{id}/messages")]
     public IActionResult GetMessages(Guid id, int page, int limit)
     {

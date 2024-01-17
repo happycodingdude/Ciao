@@ -13,7 +13,7 @@ const Signout = () => {
     };
     axios
       .post(
-        "api/user/logout",
+        "api/users/logout",
         {},
         {
           cancelToken: cancelToken.token,

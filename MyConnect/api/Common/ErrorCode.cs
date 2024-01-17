@@ -4,5 +4,6 @@ namespace MyConnect.Common
     {
         public const string NotFound = "NotFound";
         public const string WrongPassword = "WrongPassword";
+        public const string UserExists = "UserExists";
     }
 }

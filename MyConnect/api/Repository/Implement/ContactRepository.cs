@@ -17,6 +17,18 @@ namespace MyConnect.Repository
             _configuration = configuration;
         }
 
+        public void Signup(Contact model)
+        {
+            // Check username
+            var entity = _dbSet.FirstOrDefault(q => q.Username == model.Username.Trim());
+            if (entity != null)
+                throw new Exception(ErrorCode.UserExists);
+
+            model.Password = Hash.Encrypt(model.Password);
+            _dbSet.Add(model);
+            _context.SaveChanges();
+        }
+
         public LoginResponse Login(LoginRequest model)
         {
             // Check username

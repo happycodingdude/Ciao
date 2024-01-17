@@ -5,15 +5,29 @@ using MyConnect.UOW;
 namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class UsersController : ControllerBase
 {
     private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
 
-    public UserController(IConfiguration configuration, IUnitOfWork unitOfWork)
+    public UsersController(IConfiguration configuration, IUnitOfWork unitOfWork)
     {
         _configuration = configuration;
         _unitOfWork = unitOfWork;
+    }
+
+    [HttpPost("signup")]
+    public IActionResult Signup(Contact model)
+    {
+        try
+        {
+            _unitOfWork.Contact.Signup(model);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Contact>().BadRequest(ex);
+        }
     }
 
     [HttpPost("login")]

@@ -25,6 +25,7 @@ namespace MyConnect.Model
             this.error = error;
         }
 
+        // Default method
         public override void ExecuteResult(ActionContext context)
         {
             var response = context.HttpContext.Response;
@@ -43,7 +44,7 @@ namespace MyConnect.Model
         public ResponseModel<T> BadRequest(Exception exception)
         {
             code = HttpStatusCode.BadRequest;
-            this.error = JsonConvert.SerializeObject(exception);
+            this.error = exception.Message;
 
             // Additional data in some case
             if (exception.Data.Count != 0)

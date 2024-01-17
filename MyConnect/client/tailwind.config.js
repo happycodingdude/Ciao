@@ -105,24 +105,24 @@ export default {
 
         "registration-show": {
           "0%": {
-            transform: "translateX(-800px) rotateY(30deg) scale(0)",
+            transform: "translateX(-80rem) rotateY(30deg) scale(0)",
             "transform-origin": "-100% 50%",
             opacity: 0,
           },
           "100%": {
             transform: "translateX(0) rotateY(0) scale(1)",
-            "transform-origin": "1800px 50%",
+            "transform-origin": "240rem 50%",
             opacity: 1,
           },
         },
         "registration-hide": {
           "0%": {
             transform: "translateX(0) rotateY(0) scale(1)",
-            "transform-origin": "-1800px 50%",
+            "transform-origin": "-220rem 50%",
             opacity: 1,
           },
           "100%": {
-            transform: "translateX(1000px) rotateY(-30deg) scale(0)",
+            transform: "translateX(100rem) rotateY(-30deg) scale(0)",
             "transform-origin": "-100% 50%",
             opacity: 0,
           },
@@ -246,8 +246,8 @@ export default {
         // "login-show": "login-show 1s linear 1",
         // "signup-hide": "signup-hide 1s linear 1",
         // "signup-show": "signup-show 1s linear 1",
-        "registration-show": "registration-show 1s linear 1",
-        "registration-hide": "registration-hide 1s linear 1",
+        "registration-show": "registration-show 1s linear 1 both",
+        "registration-hide": "registration-hide 1s linear 1 both",
         "information-hide": "information-hide .5s both",
         "information-show": "information-show .5s both",
         "information-hide-arrow": "information-hide-arrow .5s both",

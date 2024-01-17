@@ -9,12 +9,8 @@ const Signup = ({ reference }) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
-    refSignup.current?.classList.toggle("opacity-0");
+    refSignup.current.classList.remove("animate-registration-hide");
     refSignup.current?.classList.add("animate-registration-show");
-    setTimeout(() => {
-      refSignup.current?.classList.remove("animate-registration-show");
-    }, 1000);
-    refSignup.current?.classList.toggle("z-20");
   };
 
   useEffect(() => {
@@ -22,12 +18,8 @@ const Signup = ({ reference }) => {
   }, [toggleSignup]);
 
   const backToLogin = () => {
+    refSignup.current.classList.remove("animate-registration-show");
     refSignup.current.classList.add("animate-registration-hide");
-    setTimeout(() => {
-      refSignup.current.classList.remove("animate-registration-hide");
-      refSignup.current?.classList.toggle("opacity-0");
-    }, 1000);
-    refSignup.current.classList.toggle("z-20");
     reference.toggleLogin();
   };
 
@@ -41,7 +33,7 @@ const Signup = ({ reference }) => {
       Password: refPassword.current.value,
     });
     axios
-      .post("api/contacts", body, { headers: headers })
+      .post("api/users/signup", body, { headers: headers })
       .then((res) => {
         if (res.status === 200) {
           setTimeout(() => {
@@ -58,10 +50,9 @@ const Signup = ({ reference }) => {
     <>
       <div
         ref={refSignup}
-        className="absolute bottom-0 top-0 m-auto my-auto flex flex-col rounded-[1rem] bg-white
-        px-[4rem] py-[2rem] opacity-0
-        shadow-[0_0_20px_-5px_#cc9dff] duration-[1s] laptop:h-[48rem]
-        laptop:w-[30rem]
+        className="absolute bottom-0 top-0 m-auto my-auto flex flex-col rounded-[1rem] bg-white px-[4rem]
+        py-[2rem] shadow-[0_0_20px_-5px_#cc9dff] duration-[1s] 
+        laptop:h-[48rem] laptop:w-[40rem] laptop:translate-x-[-100rem]
         [&>*:not(:first-child)]:mt-[2rem]"
       >
         <p className="text-center text-3xl font-semibold uppercase">signup</p>
@@ -74,7 +65,7 @@ const Signup = ({ reference }) => {
             type="text"
             placeholder="Type your name"
           />
-          <p className="font-bold">Usename</p>
+          <p className="font-bold">Username</p>
           <input
             className="rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] focus:outline-none"
             type="text"

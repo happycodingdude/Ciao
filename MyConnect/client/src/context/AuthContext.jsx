@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         Authorization: "Bearer " + token,
       };
       axios
-        .get("api/user/authenticate", {
+        .get("api/users/authenticate", {
           cancelToken: cancelToken.token,
           headers: headers,
         })
