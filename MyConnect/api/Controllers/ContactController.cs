@@ -49,7 +49,7 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            model.Password = Hash.Encrypt(model.Password);
+            model.Password = Hash.Encrypt(model.Password ?? "");
             _unitOfWork.Contact.Add(model);
             _unitOfWork.Save();
             return new ResponseModel<Contact>(model).Ok();

@@ -52,7 +52,7 @@ const Signup = ({ reference }) => {
         ref={refSignup}
         className="absolute bottom-0 top-0 m-auto my-auto flex flex-col rounded-[1rem] bg-white px-[4rem]
         py-[2rem] shadow-[0_0_20px_-5px_#cc9dff] duration-[1s] 
-        laptop:h-[48rem] laptop:w-[40rem] laptop:translate-x-[-100rem]
+        laptop:h-[48rem] laptop:w-[40rem] laptop:translate-x-[100rem]
         [&>*:not(:first-child)]:mt-[2rem]"
       >
         <p className="text-center text-3xl font-semibold uppercase">signup</p>

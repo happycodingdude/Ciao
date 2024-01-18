@@ -79,11 +79,27 @@ body,
     background-image: var(--bs-btn-close-bg);
   }
 
-  .input-focus-placeholder {
+  /* .input-focus-placeholder {
     @apply !translate-y-[-150%] !scale-[.9] !bg-white !text-purple-400;
   }
 
   .input-focus {
     @apply !border-purple-400 !shadow-[0_0_10px_-2px_#e4cbff];
+  } */
+
+  .input-focus {
+    @apply !border-b-purple-400;
+  }
+
+  .input-focus-placeholder {
+    @apply !translate-y-[-170%] !scale-[.9] !bg-white !text-purple-400;
+  }
+
+  .input-focus-border {
+    @apply !w-full;
+  }
+
+  .error-show {
+    @apply !scale-x-100;
   }
 }

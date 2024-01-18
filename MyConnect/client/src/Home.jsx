@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import Attachment from "./components/Attachment";
 import Chatbox from "./components/Chatbox";
+import Header from "./components/Header";
 import Information from "./components/Information";
 import ListChat from "./components/ListChat";
 import { requestPermission } from "./components/Notification";
@@ -188,51 +189,54 @@ const Home = () => {
   // };
 
   return (
-    <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
-      <Signout />
-      <ListChat
-        reference={{
-          conversation,
-          refListChat,
-          contacts,
-          setConversation,
-          notifyMessage,
-        }}
-      />
-      {conversation == undefined ? (
-        ""
-      ) : (
-        <>
-          <Chatbox
-            reference={{
-              conversation,
-              refChatbox,
-              refInformation,
-              contacts,
-              setConversation,
-              toggleInformationContainer,
-            }}
-          />
-          <div
-            ref={refInformationContainer}
-            className="relative flex-1 origin-right overflow-hidden"
-          >
-            <Information
+    <>
+      <Header />
+      <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:mx-[1rem] [&>*:not(:first-child)]:mb-[1rem] [&>*:not(:first-child)]:mt-[2rem]">
+        <Signout />
+        <ListChat
+          reference={{
+            conversation,
+            refListChat,
+            contacts,
+            setConversation,
+            notifyMessage,
+          }}
+        />
+        {conversation == undefined ? (
+          ""
+        ) : (
+          <>
+            <Chatbox
               reference={{
                 conversation,
+                refChatbox,
                 refInformation,
-                refAttachment,
+                contacts,
                 setConversation,
-                removeInListChat,
+                toggleInformationContainer,
               }}
             />
-            <Attachment
-              reference={{ conversation, refInformation, refAttachment }}
-            />
-          </div>
-        </>
-      )}
-    </section>
+            <div
+              ref={refInformationContainer}
+              className="relative flex-1 origin-right overflow-hidden"
+            >
+              <Information
+                reference={{
+                  conversation,
+                  refInformation,
+                  refAttachment,
+                  setConversation,
+                  removeInListChat,
+                }}
+              />
+              <Attachment
+                reference={{ conversation, refInformation, refAttachment }}
+              />
+            </div>
+          </>
+        )}
+      </section>
+    </>
   );
 };
 

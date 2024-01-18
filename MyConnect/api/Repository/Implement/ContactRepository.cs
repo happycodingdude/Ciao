@@ -37,7 +37,7 @@ namespace MyConnect.Repository
                 throw new Exception(ErrorCode.NotFound);
 
             // Check password          
-            if (!entity.Password.Equals(Hash.Encrypt(model.Password)))
+            if (!entity.Password.Equals(Hash.Encrypt(model.Password ?? "")))
                 throw new Exception(ErrorCode.WrongPassword);
 
             entity.Login();

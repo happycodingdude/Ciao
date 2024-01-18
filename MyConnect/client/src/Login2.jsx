@@ -1,11 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../src/hook/useAuth";
 import Signup from "./Signup";
-import CustomInput from "./components/common/CustomInput";
+import useAuth from "./hook/useAuth";
 
-const Login = () => {
+const Login2 = () => {
   console.log("Login calling");
   const navigate = useNavigate();
   const auth = useAuth();
@@ -31,26 +30,22 @@ const Login = () => {
   const refPasswordError = useRef();
   const [passwordErr, setPasswordErr] = useState("");
 
-  const [userName, setUsername] = useState(null);
-  const [password, setPassword] = useState(null);
-
-  const [errorUsername, setErrorUsername] = useState();
-  const [errorPassword, setErrorPassword] = useState();
-
   const refPhUsername = useRef();
   const refPhPassword = useRef();
   const refBorderUsername = useRef();
   const refBorderPassword = useRef();
 
   const handleLogin = () => {
-    if (userName === "" && password === "") return;
+    const username = refUsername.current.value;
+    const password = refPassword.current.value;
+    if (username === "" && password === "") return;
 
     const headers = {
       "Content-Type": "application/json",
     };
     const body = JSON.stringify({
-      Username: userName,
-      Password: password,
+      Username: refUsername.current.value,
+      Password: refPassword.current.value,
     });
     axios
       .post("api/users/login", body, { headers: headers })
@@ -65,9 +60,11 @@ const Login = () => {
       .catch((err) => {
         console.log(err);
         if (err.response.data.error === "WrongPassword") {
-          setErrorPassword("Wrong password");
+          toggleError("Wrong password", setPasswordErr, refPasswordError);
+          toggleError("", setUsernameErr, refUsernameError);
         } else if (err.response.data.error === "NotFound") {
-          setErrorUsername("User not found");
+          toggleError("User not found", setUsernameErr, refUsernameError);
+          toggleError("", setPasswordErr, refPasswordError);
         }
       });
   };
@@ -136,16 +133,68 @@ const Login = () => {
 
               <div className="flex flex-col">
                 <div className="flex flex-col gap-[3rem] text-gray-600">
-                  <CustomInput
-                    label="Username"
-                    error={errorUsername}
-                    onChange={setUsername}
-                  ></CustomInput>
-                  <CustomInput
-                    label="Password"
-                    error={errorPassword}
-                    onChange={setPassword}
-                  ></CustomInput>
+                  <div className="relative">
+                    <input
+                      className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] 
+                  outline-none transition-all duration-200"
+                      ref={refUsername}
+                      type="text"
+                      onChange={handleInputChange}
+                      onFocus={(e) =>
+                        handleFocus(e, refPhUsername, refBorderUsername, true)
+                      }
+                      onBlur={(e) =>
+                        handleFocus(e, refPhUsername, refBorderUsername)
+                      }
+                    />
+                    <div
+                      ref={refBorderUsername}
+                      className="absolute bottom-[1%] h-[.1rem] w-0 bg-purple-400 transition-all duration-200"
+                    ></div>
+                    <p
+                      ref={refPhUsername}
+                      className="pointer-events-none absolute left-[3%] top-[50%] z-10 origin-left translate-y-[-50%] text-gray-400 transition-all duration-200"
+                    >
+                      Username
+                    </p>
+                    <p
+                      ref={refUsernameError}
+                      className="pointer-events-none absolute right-[3%] top-[50%] origin-right translate-y-[-50%] scale-x-0 overflow-hidden text-red-500 transition-all duration-200"
+                    >
+                      {usernameErr}
+                    </p>
+                  </div>
+                  <div className="relative">
+                    <input
+                      className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] 
+                  outline-none transition-all duration-200"
+                      ref={refPassword}
+                      type="text"
+                      onChange={handleInputChange}
+                      onFocus={(e) =>
+                        handleFocus(e, refPhPassword, refBorderPassword, true)
+                      }
+                      onBlur={(e) =>
+                        handleFocus(e, refPhPassword, refBorderPassword)
+                      }
+                    />
+                    <div
+                      ref={refBorderPassword}
+                      className="absolute bottom-[1%] h-[.1rem] w-0 bg-purple-400 transition-all duration-200"
+                    ></div>
+                    <p
+                      ref={refPhPassword}
+                      className="pointer-events-none absolute left-[3%] top-[50%] z-10 origin-left translate-y-[-50%] text-gray-400 transition-all duration-200"
+                    >
+                      Password
+                    </p>
+                    <p
+                      ref={refPasswordError}
+                      className="pointer-events-none absolute right-[3%] top-[50%] origin-right translate-y-[-50%] scale-x-0 overflow-hidden text-red-500 transition-all duration-200"
+                    >
+                      {passwordErr}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="mt-[1rem] cursor-pointer self-end text-gray-400 hover:text-gray-500">
@@ -184,4 +233,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login2;
