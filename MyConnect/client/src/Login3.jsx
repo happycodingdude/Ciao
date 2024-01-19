@@ -1,11 +1,11 @@
 import axios from "axios";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../src/hook/useAuth";
 import Signup from "./Signup";
 import CustomInput from "./components/common/CustomInput";
+import useAuth from "./hook/useAuth";
 
-const Login = () => {
+const Login3 = () => {
   console.log("Login calling");
 
   const navigate = useNavigate();
@@ -156,4 +156,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login3;

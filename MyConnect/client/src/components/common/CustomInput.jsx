@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from "react";
 
-const CustomInput = ({ label, error, onChange }) => {
-  const refInput = useRef("");
+const CustomInput = ({ type, value, label, error, onChange }) => {
+  const refInput = useRef();
   const refPlaceHolder = useRef();
   const refBorder = useRef();
   const refError = useRef();
 
-  const handleInputChange = () => {
-    onChange(refInput.current.value);
+  const handleInputChange = (e) => {
+    onChange(e.target.value);
   };
 
   const handleFocus = (e, focus) => {
@@ -23,18 +23,34 @@ const CustomInput = ({ label, error, onChange }) => {
     }
   };
 
+  const toggleError = (error) => {
+    if (error === "") {
+      refError.current.classList.remove("scale-x-100");
+      refError.current.classList.add("scale-x-0");
+    } else {
+      refError.current.classList.remove("scale-x-0");
+      refError.current.classList.add("scale-x-100");
+    }
+  };
+
   useEffect(() => {
-    refError.current.classList.remove("scale-x-0");
-    refError.current.classList.add("scale-x-100");
+    toggleError(error);
   }, [error]);
+
+  useEffect(() => {
+    if (value !== "") return;
+    refInput.current.classList.remove("input-focus");
+    refPlaceHolder.current.classList.remove("input-focus-placeholder");
+    refBorder.current.classList.remove("input-focus-border");
+  }, [value]);
 
   return (
     <div className="relative">
       <input
-        className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] 
-outline-none transition-all duration-200"
+        className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] outline-none transition-all duration-200"
+        type={type}
         ref={refInput}
-        type="text"
+        value={value}
         onChange={handleInputChange}
         onFocus={(e) => handleFocus(e, true)}
         onBlur={(e) => handleFocus(e)}

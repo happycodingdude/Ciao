@@ -410,27 +410,33 @@ const Chatbox = ({ reference }) => {
             className="hide-scrollbar my-[2rem] flex w-full flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
           >
             {messages?.map((message) => (
-              <div className="flex items-center gap-[2rem]">
-                <ImageWithLightBox
-                  src={
-                    reference.contacts.find(
-                      (item) => item.Id == message.ContactId,
-                    ).Avatar ?? ""
-                  }
-                  className="aspect-square cursor-pointer self-start rounded-[50%] laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)] 
+              <div
+                className={`flex gap-[2rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+              >
+                <div className="relative laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)]">
+                  <ImageWithLightBox
+                    src={
+                      reference.contacts.find(
+                        (item) => item.Id == message.ContactId,
+                      ).Avatar ?? ""
+                    }
+                    className="aspect-square w-full cursor-pointer self-start rounded-[50%]
                           desktop:w-[calc(100%/20)]"
-                  slides={[
-                    {
-                      src:
-                        reference.contacts.find(
-                          (item) => item.Id == message.ContactId,
-                        ).Avatar ?? "",
-                    },
-                  ]}
-                  onClick={showProfile}
-                ></ImageWithLightBox>
+                    slides={[
+                      {
+                        src:
+                          reference.contacts.find(
+                            (item) => item.Id == message.ContactId,
+                          ).Avatar ?? "",
+                      },
+                    ]}
+                    onClick={showProfile}
+                  ></ImageWithLightBox>
+                </div>
                 <div className="flex w-[90%] flex-col">
-                  <div className="flex items-center gap-[1rem]">
+                  <div
+                    className={`flex items-center gap-[1rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+                  >
                     <h1 className="font-semibold">
                       {message.ContactId === auth.id
                         ? "You"
@@ -441,9 +447,7 @@ const Chatbox = ({ reference }) => {
                     {participants?.find(
                       (item) => item.ContactId === message.ContactId,
                     )?.IsModerator ? (
-                      <div className="rounded-[.8rem] bg-orange-400 px-[.5rem] py-[.1rem] text-[var(--text-morderator-color)]">
-                        Moderator
-                      </div>
+                      <div className="fa fa-crown rounded-[.8rem] text-orange-400"></div>
                     ) : (
                       ""
                     )}
@@ -453,13 +457,15 @@ const Chatbox = ({ reference }) => {
                         ? moment(message.CreatedTime).format("HH:mm")
                         : moment(message.CreatedTime).format("DD/MM HH:mm")}
                     </p>
-                    <img
+                    {/* <img
                       src="../src/img/double-check.svg"
                       className="w-[2rem]"
-                    ></img>
+                    ></img> */}
                   </div>
                   {message.Type === "text" ? (
-                    <div className="break-words text-gray-400">
+                    <div
+                      className={`break-words text-gray-400 ${message.ContactId === auth.id ? "text-right" : ""}`}
+                    >
                       {generateContent(message.Content)}
                     </div>
                   ) : (
