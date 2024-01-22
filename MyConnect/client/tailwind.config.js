@@ -18,6 +18,8 @@ export default {
       xl: ["24px", "32px"],
       "2xl": ["28px", { lineHeight: "36px", fontWeight: "bold" }],
       "3xl": ["32px", { lineHeight: "40px", fontWeight: "bold" }],
+      "4xl": ["36px", { lineHeight: "44px", fontWeight: "bold" }],
+      "5xl": ["40px", { lineHeight: "48px", fontWeight: "bold" }],
     },
     extend: {
       keyframes: {

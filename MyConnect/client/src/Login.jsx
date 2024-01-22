@@ -19,20 +19,30 @@ const Login = () => {
     }
   }, []);
 
+  const refBgContainer = useRef();
+  const refLoginContainer = useRef();
   const refLogin = useRef();
   const refSignup = useRef();
 
   const toggleSignup = () => {
     // refLogin.current.classList.remove("animate-registration-show");
     // refLogin.current.classList.add("animate-registration-hide");
-    refLogin.current?.classList.toggle("opacity-0");
+    refBgContainer.current?.classList.toggle("left-[40%]");
+    refBgContainer.current?.classList.toggle("rounded-r-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-r-0");
+    refBgContainer.current?.classList.toggle("rounded-l-[10rem]");
+    refLoginContainer.current?.classList.toggle("opacity-0");
+    refLogin.current?.classList.toggle("translate-x-[-150%]");
     refSignup.toggleSignup();
   };
 
   const toggleLogin = () => {
-    // refLogin.current.classList.remove("animate-registration-hide");
-    // refLogin.current.classList.add("animate-registration-show");
-    refLogin.current?.classList.toggle("opacity-0");
+    refBgContainer.current?.classList.toggle("left-[40%]");
+    refBgContainer.current?.classList.toggle("rounded-r-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-r-0");
+    refBgContainer.current?.classList.toggle("rounded-l-[10rem]");
+    refLoginContainer.current?.classList.toggle("opacity-0");
+    refLogin.current?.classList.toggle("translate-x-[-150%]");
     reset();
   };
 
@@ -82,19 +92,20 @@ const Login = () => {
   return (
     <div className="flex w-full flex-col bg-white text-[clamp(1rem,1.2vw,2rem)]">
       {!isLogin ? (
-        <section className="flex h-full w-full">
-          <div className="grow rounded-r-[5rem] bg-red-300"></div>
-          <div className="relative flex w-[40%] justify-center bg-white">
+        <section className="relative flex h-full w-full transition-all duration-1000">
+          <div
+            ref={refBgContainer}
+            className="absolute left-0 z-10 h-full w-[60%] grow rounded-r-[10rem] bg-red-300 transition-all duration-1000"
+          ></div>
+          <div
+            ref={refLoginContainer}
+            className="absolute right-0 flex h-full w-[40%] justify-center overflow-hidden bg-white transition-all duration-1000"
+          >
             <div
               ref={refLogin}
-              className="m-auto flex h-[70%] w-[70%] flex-col gap-[15%] rounded-[1rem] bg-white duration-[1s]"
+              className="m-auto flex h-[70%] w-[70%]  flex-col gap-[15%] bg-white duration-[1s]"
             >
-              <div className="flex flex-col">
-                <p className="text-2xl font-semibold text-gray-600">
-                  Welcome back
-                </p>
-                <p className="text-base text-gray-400">Have a nice day!</p>
-              </div>
+              <p className="text-5xl text-gray-600">Sign in</p>
 
               <div className="flex flex-col">
                 <div className="flex flex-col gap-[3rem] text-gray-600">
@@ -146,8 +157,8 @@ const Login = () => {
                 </div>
               </div>
             </div>
-            <Signup reference={{ refSignup, toggleLogin }}></Signup>
           </div>
+          <Signup reference={{ refSignup, toggleLogin }}></Signup>
         </section>
       ) : (
         ""

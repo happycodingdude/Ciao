@@ -2,15 +2,15 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import CustomInput from "./components/common/CustomInput";
 
-const Signup = ({ reference }) => {
-  const refSignupContainer = useRef();
+const Signup1 = ({ reference }) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
     // refSignup.current.classList.remove("animate-registration-hide");
     // refSignup.current?.classList.add("animate-registration-show");
-    refSignupContainer.current?.classList.toggle("opacity-0");
-    refSignup.current?.classList.toggle("translate-x-[150%]");
+    refSignup.current?.classList.toggle("scale-100");
+    refSignup.current?.classList.toggle("z-10");
+    refSignup.current?.classList.toggle("opacity-100");
     reset();
   };
 
@@ -19,8 +19,9 @@ const Signup = ({ reference }) => {
   }, [toggleSignup]);
 
   const backToLogin = () => {
-    refSignupContainer.current?.classList.toggle("opacity-0");
-    refSignup.current?.classList.toggle("translate-x-[150%]");
+    refSignup.current?.classList.toggle("scale-100");
+    refSignup.current?.classList.toggle("z-10");
+    refSignup.current?.classList.toggle("opacity-100");
     reference.toggleLogin();
   };
 
@@ -64,15 +65,12 @@ const Signup = ({ reference }) => {
   };
 
   return (
-    <div
-      ref={refSignupContainer}
-      className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-white opacity-0 transition-all duration-1000"
-    >
+    <>
       <div
         ref={refSignup}
-        className="m-auto flex h-[70%] w-[70%] translate-x-[150%] flex-col gap-[15%] bg-white transition-all duration-1000"
+        className="absolute bottom-0 top-0 m-auto flex h-[70%] w-[70%] origin-[75%_92%] scale-0 flex-col gap-[15%] rounded-[1rem] bg-white duration-[.2s]"
       >
-        <p className="text-5xl text-gray-600">Create account</p>
+        <p className="text-2xl font-semibold text-gray-600">Hello, friend!</p>
 
         <div className="flex flex-col">
           <div className="flex flex-col gap-[3rem] text-gray-600">
@@ -128,8 +126,8 @@ const Signup = ({ reference }) => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default Signup;
+export default Signup1;
