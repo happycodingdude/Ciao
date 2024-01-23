@@ -56,10 +56,8 @@ const Header = () => {
   return (
     <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-white">
       {/* Phone, Tablet */}
-      <div className=" flex items-center justify-between laptop:hidden">
-        <a href="#" className="fa fa-arrow-left">
-          &ensp;Chat
-        </a>
+      <div className="flex cursor-pointer items-center justify-between laptop:hidden">
+        <div className="fa fa-arrow-left">&ensp;Chat</div>
         <div className="text-center">
           <p className="font-bold">{auth.display}</p>
           <p className="text-blue-500">Online</p>
@@ -70,17 +68,12 @@ const Header = () => {
             <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-400"></div>
             <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-400"></div>
           </div>
-          <a
-            href="#"
-            className="aspect-square w-[3rem] rounded-[50%] border-[.2rem] border-gray-400"
-          ></a>
+          <div className="aspect-square w-[3rem] cursor-pointer rounded-[50%] border-[.2rem] border-gray-400"></div>
         </div>
       </div>
       {/* Laptop, Desktop */}
       <div className=" flex grow items-center justify-between">
-        <a href="#" className="font-bold">
-          MyConnect
-        </a>
+        <div className="cursor-pointer font-bold">MyConnect</div>
         {auth.id ? (
           <div className="flex items-center gap-[5rem]">
             <div className="flex items-center gap-[1rem]">

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-const CustomInput = ({ type, value, label, error, onChange }) => {
+const CustomInput = ({ type, value, label, error, onChange, onKeyDown }) => {
   const refInput = useRef();
   const refPlaceHolder = useRef();
   const refBorder = useRef();
@@ -40,6 +40,7 @@ const CustomInput = ({ type, value, label, error, onChange }) => {
   useEffect(() => {
     if (value !== "") return;
     refInput.current.classList.remove("input-focus");
+    refInput.current.blur();
     refPlaceHolder.current.classList.remove("input-focus-placeholder");
     refBorder.current.classList.remove("input-focus-border");
   }, [value]);
@@ -54,6 +55,7 @@ const CustomInput = ({ type, value, label, error, onChange }) => {
         onChange={handleInputChange}
         onFocus={(e) => handleFocus(e, true)}
         onBlur={(e) => handleFocus(e)}
+        onKeyDown={onKeyDown}
       />
       <div
         ref={refBorder}

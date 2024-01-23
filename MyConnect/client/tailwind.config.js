@@ -11,15 +11,35 @@ export default {
       desktop: "1281px",
       "lg-desktop": "1536px",
     },
+    // fontSize: {
+    //   sm: ["14px", "20px"],
+    //   base: ["16px", "24px"],
+    //   lg: ["20px", "28px"],
+    //   xl: ["24px", "32px"],
+    //   "2xl": ["28px", { lineHeight: "36px", fontWeight: "bold" }],
+    //   "3xl": ["32px", { lineHeight: "40px", fontWeight: "bold" }],
+    //   "4xl": ["36px", { lineHeight: "44px", fontWeight: "bold" }],
+    //   "5xl": ["40px", { lineHeight: "48px", fontWeight: "bold" }],
+    //   "6xl": ["43px", { lineHeight: "52px", fontWeight: "bold" }],
+    //   "7xl": ["48px", { lineHeight: "56px", fontWeight: "bold" }],
+    //   "8xl": ["52px", { lineHeight: "60px", fontWeight: "bold" }],
+    //   "9xl": ["56px", { lineHeight: "64px", fontWeight: "bold" }],
+    //   "10xl": ["60px", { lineHeight: "68px", fontWeight: "bold" }],
+    // },
     fontSize: {
-      sm: ["14px", "20px"],
-      base: ["16px", "24px"],
-      lg: ["20px", "28px"],
-      xl: ["24px", "32px"],
-      "2xl": ["28px", { lineHeight: "36px", fontWeight: "bold" }],
-      "3xl": ["32px", { lineHeight: "40px", fontWeight: "bold" }],
-      "4xl": ["36px", { lineHeight: "44px", fontWeight: "bold" }],
-      "5xl": ["40px", { lineHeight: "48px", fontWeight: "bold" }],
+      sm: "1.4rem",
+      base: "1.6rem",
+      lg: "2rem",
+      xl: "2.4rem",
+      "2xl": ["2.8rem", { fontWeight: "bold" }],
+      "3xl": ["3.2rem", { fontWeight: "bold" }],
+      "4xl": ["3.6rem", { fontWeight: "bold" }],
+      "5xl": ["4.0rem", { fontWeight: "bold" }],
+      "6xl": ["4.3rem", { fontWeight: "bold" }],
+      "7xl": ["4.8rem", { fontWeight: "bold" }],
+      "8xl": ["5.2rem", { fontWeight: "bold" }],
+      "9xl": ["5.6rem", { fontWeight: "bold" }],
+      "10xl": ["6rem", { fontWeight: "bold" }],
     },
     extend: {
       keyframes: {
@@ -104,6 +124,24 @@ export default {
         //     opacity: 0,
         //   },
         // },
+
+        "show-signup": {
+          "0%": {
+            transform: "translateX(-50%)",
+          },
+          "10%": {
+            transform: "translateX(-200%)",
+            opacity: 0,
+          },
+          "60%": {
+            transform: "translateX(250%)",
+            opacity: 0,
+          },
+          "100%": {
+            transform: "translateX(100%)",
+            opacity: 1,
+          },
+        },
 
         "registration-show": {
           "0%": {
@@ -257,6 +295,7 @@ export default {
         logo: "logo 2s infinite",
         "flip-scale-down-vertical": "flip-scale-down-vertical .5s both",
         "flip-scale-up-vertical": "flip-scale-up-vertical .5s both",
+        "show-signup": "show-signup 15s both infinite",
       },
     },
   },

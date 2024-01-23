@@ -341,7 +341,7 @@ const Chatbox = ({ reference }) => {
         <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
-            className="fa fa-arrow-down absolute bottom-[1rem] right-[1rem] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
+            className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
                       rounded-[50%] bg-gray-300 font-normal text-gray-500"
             onClick={scrollChatContentToBottom}
           ></div>
@@ -432,6 +432,13 @@ const Chatbox = ({ reference }) => {
                     ]}
                     onClick={showProfile}
                   ></ImageWithLightBox>
+                  {participants?.find(
+                    (item) => item.ContactId === message.ContactId,
+                  )?.IsModerator ? (
+                    <div className="fa fa-crown pointer-events-none absolute right-[-20%] top-[-20%] rotate-[20deg] rounded-[50%] bg-white p-[.2rem] text-orange-400"></div>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="flex w-[90%] flex-col">
                   <div
@@ -444,13 +451,6 @@ const Chatbox = ({ reference }) => {
                             (item) => item.Id == message.ContactId,
                           ).Name}
                     </h1>
-                    {participants?.find(
-                      (item) => item.ContactId === message.ContactId,
-                    )?.IsModerator ? (
-                      <div className="fa fa-crown rounded-[.8rem] text-orange-400"></div>
-                    ) : (
-                      ""
-                    )}
                     <p className="text-blue-400">
                       {moment(message.CreatedTime).format("DD/MM/YYYY") ===
                       moment().format("DD/MM/YYYY")

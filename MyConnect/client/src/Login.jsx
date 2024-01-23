@@ -20,29 +20,49 @@ const Login = () => {
   }, []);
 
   const refBgContainer = useRef();
+  const refBgSignUpLabelContainer = useRef();
+  const refBgSignInLabelContainer = useRef();
   const refLoginContainer = useRef();
   const refLogin = useRef();
   const refSignup = useRef();
 
   const toggleSignup = () => {
-    // refLogin.current.classList.remove("animate-registration-show");
-    // refLogin.current.classList.add("animate-registration-hide");
+    // Animate background container
     refBgContainer.current?.classList.toggle("left-[40%]");
-    refBgContainer.current?.classList.toggle("rounded-r-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-br-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-tr-[20rem]");
     refBgContainer.current?.classList.toggle("rounded-r-0");
-    refBgContainer.current?.classList.toggle("rounded-l-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-bl-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-tl-[20rem]");
+    // Animate background text
+    refBgSignUpLabelContainer.current?.classList.toggle("translate-x-[-200%]");
+    refBgSignUpLabelContainer.current?.classList.toggle("opacity-0");
+    refBgSignInLabelContainer.current?.classList.toggle("translate-x-[-150%]");
+    refBgSignInLabelContainer.current?.classList.toggle("opacity-0");
+    // Animate form
     refLoginContainer.current?.classList.toggle("opacity-0");
     refLogin.current?.classList.toggle("translate-x-[-150%]");
     refSignup.toggleSignup();
   };
 
   const toggleLogin = () => {
+    // Animate background container
     refBgContainer.current?.classList.toggle("left-[40%]");
-    refBgContainer.current?.classList.toggle("rounded-r-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-br-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-tr-[20rem]");
     refBgContainer.current?.classList.toggle("rounded-r-0");
-    refBgContainer.current?.classList.toggle("rounded-l-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-bl-[10rem]");
+    refBgContainer.current?.classList.toggle("rounded-tl-[20rem]");
+    // Animate background text
+    refBgSignUpLabelContainer.current?.classList.toggle("translate-x-[-200%]");
+    refBgSignUpLabelContainer.current?.classList.toggle("opacity-0");
+    refBgSignInLabelContainer.current?.classList.toggle("translate-x-[-150%]");
+    refBgSignInLabelContainer.current?.classList.toggle("opacity-0");
+    // Animate form
     refLoginContainer.current?.classList.toggle("opacity-0");
     refLogin.current?.classList.toggle("translate-x-[-150%]");
+    refSignup.toggleLogin();
+    // Reset form value
     reset();
   };
 
@@ -89,21 +109,27 @@ const Login = () => {
     setErrorPassword("");
   };
 
+  const handlePressKey = (e) => {
+    if (e.keyCode == 13) {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="flex w-full flex-col bg-white text-[clamp(1rem,1.2vw,2rem)]">
       {!isLogin ? (
-        <section className="relative flex h-full w-full transition-all duration-1000">
+        <section className="relative flex h-full w-full transition-all duration-500">
           <div
             ref={refBgContainer}
-            className="absolute left-0 z-10 h-full w-[60%] grow rounded-r-[10rem] bg-red-300 transition-all duration-1000"
+            className="absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] rounded-tr-[20rem] bg-red-300 transition-all duration-500"
           ></div>
           <div
             ref={refLoginContainer}
-            className="absolute right-0 flex h-full w-[40%] justify-center overflow-hidden bg-white transition-all duration-1000"
+            className="absolute right-0 flex h-full w-[40%] justify-center overflow-hidden bg-white transition-all duration-500"
           >
             <div
               ref={refLogin}
-              className="m-auto flex h-[70%] w-[70%]  flex-col gap-[15%] bg-white duration-[1s]"
+              className="m-auto flex h-[70%] w-[70%] flex-col gap-[15%] bg-white duration-500"
             >
               <p className="text-5xl text-gray-600">Sign in</p>
 
@@ -118,6 +144,7 @@ const Login = () => {
                       setUsername(text);
                       if (text === "") setErrorUsername("");
                     }}
+                    onKeyDown={handlePressKey}
                   ></CustomInput>
                   <CustomInput
                     type="password"
@@ -128,6 +155,7 @@ const Login = () => {
                       setPassword(text);
                       if (text === "") setErrorPassword("");
                     }}
+                    onKeyDown={handlePressKey}
                   ></CustomInput>
                 </div>
 
@@ -139,14 +167,14 @@ const Login = () => {
                   className="mt-[2rem] w-full cursor-pointer self-center rounded-[.4rem] bg-gradient-to-r 
               from-purple-300 to-purple-400 bg-[size:200%] bg-[position:0%_0%] py-[1rem] text-center
               font-medium text-white shadow-[0_3px_3px_-2px_#d3adfb] 
-              transition-all duration-200 
+              transition-all duration-500 
               hover:bg-[position:100%_100%] hover:shadow-[0_3px_10px_-2px_#cea1fd]"
                   onClick={handleLogin}
                 >
                   Sign in
                 </div>
 
-                <div className="mt-[2rem] flex items-center justify-center gap-[1rem]">
+                {/* <div className="mt-[2rem] flex items-center justify-center gap-[1rem]">
                   <p className="text-gray-400">Don't have an account?</p>
                   <div
                     onClick={toggleSignup}
@@ -154,11 +182,36 @@ const Login = () => {
                   >
                     Sign Up
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
           <Signup reference={{ refSignup, toggleLogin }}></Signup>
+
+          <div
+            ref={refBgSignUpLabelContainer}
+            className="absolute left-[10%] top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-[2rem] text-center text-white transition-all duration-500"
+          >
+            <p className="text-7xl">Hello, friend</p>
+            <div
+              onClick={toggleSignup}
+              className="cursor-pointer rounded-[1rem] border-[.2rem] border-white px-[5rem] py-[.5rem] text-2xl transition-all duration-500 hover:bg-[rgba(255,145,145,0.41)] hover:shadow-[0_3px_10px_-2px_white]"
+            >
+              Sign up
+            </div>
+          </div>
+          <div
+            ref={refBgSignInLabelContainer}
+            className="absolute right-[-30%] top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-[2rem] text-center text-white opacity-0 transition-all duration-500"
+          >
+            <p className="text-7xl">Welcome back</p>
+            <div
+              onClick={toggleLogin}
+              className="cursor-pointer rounded-[1rem] border-[.2rem] border-white px-[5rem] py-[.5rem] text-2xl transition-all duration-500 hover:bg-[rgba(255,145,145,0.41)] hover:shadow-[0_3px_10px_-2px_white]"
+            >
+              Sign in
+            </div>
+          </div>
         </section>
       ) : (
         ""
