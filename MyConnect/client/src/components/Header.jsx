@@ -54,7 +54,7 @@ const Header = () => {
   };
 
   return (
-    <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-white">
+    <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-white px-[1rem]">
       {/* Phone, Tablet */}
       <div className="flex cursor-pointer items-center justify-between laptop:hidden">
         <div className="fa fa-arrow-left">&ensp;Chat</div>

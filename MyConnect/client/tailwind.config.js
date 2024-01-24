@@ -27,6 +27,7 @@ export default {
     //   "10xl": ["60px", { lineHeight: "68px", fontWeight: "bold" }],
     // },
     fontSize: {
+      xs: "1.2rem",
       sm: "1.4rem",
       base: "1.6rem",
       lg: "2rem",
@@ -175,6 +176,7 @@ export default {
           "100%": {
             "flex-grow": "0",
             opacity: 0,
+            "margin-right": 0,
           },
         },
         "information-show": {

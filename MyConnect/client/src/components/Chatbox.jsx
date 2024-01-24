@@ -336,7 +336,7 @@ const Chatbox = ({ reference }) => {
     <>
       <div
         ref={refChatboxContainer}
-        className="flex flex-1 grow-[2] flex-col items-center gap-[1rem]"
+        className="mx-0 flex flex-1 grow-[2] flex-col items-center gap-[1rem]"
       >
         <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
@@ -411,17 +411,16 @@ const Chatbox = ({ reference }) => {
           >
             {messages?.map((message) => (
               <div
-                className={`flex gap-[2rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+                className={`flex items-end gap-[1rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
               >
-                <div className="relative laptop:w-[clamp(3.5rem,calc(100%/15),4.5rem)]">
+                <div className="relative laptop:w-[clamp(3rem,5%,4rem)]">
                   <ImageWithLightBox
                     src={
                       reference.contacts.find(
                         (item) => item.Id == message.ContactId,
                       ).Avatar ?? ""
                     }
-                    className="aspect-square w-full cursor-pointer self-start rounded-[50%]
-                          desktop:w-[calc(100%/20)]"
+                    className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
                     slides={[
                       {
                         src:
@@ -440,18 +439,25 @@ const Chatbox = ({ reference }) => {
                     ""
                   )}
                 </div>
-                <div className="flex w-[90%] flex-col">
+                <div
+                  className={`flex flex-col ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
+                >
                   <div
-                    className={`flex items-center gap-[1rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+                    className={`text-xs flex items-center gap-[1rem] text-gray-400 ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
                   >
-                    <h1 className="font-semibold">
-                      {message.ContactId === auth.id
-                        ? "You"
-                        : reference.contacts.find(
+                    {message.ContactId === auth.id ? (
+                      ""
+                    ) : (
+                      <p>
+                        {
+                          reference.contacts.find(
                             (item) => item.Id == message.ContactId,
-                          ).Name}
-                    </h1>
-                    <p className="text-blue-400">
+                          ).Name
+                        }
+                      </p>
+                    )}
+
+                    <p>
                       {moment(message.CreatedTime).format("DD/MM/YYYY") ===
                       moment().format("DD/MM/YYYY")
                         ? moment(message.CreatedTime).format("HH:mm")
@@ -464,7 +470,7 @@ const Chatbox = ({ reference }) => {
                   </div>
                   {message.Type === "text" ? (
                     <div
-                      className={`break-words text-gray-400 ${message.ContactId === auth.id ? "text-right" : ""}`}
+                      className={`break-words bg-purple-200 p-[.7rem] text-gray-700 ${message.ContactId === auth.id ? "rounded-l-[1rem] rounded-tr-[1rem] text-right" : "rounded-r-[1rem] rounded-tl-[1rem]"}`}
                     >
                       {generateContent(message.Content)}
                     </div>
