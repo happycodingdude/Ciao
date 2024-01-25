@@ -85,7 +85,7 @@ const Attachment = ({ reference }) => {
       ref={refAttachment}
       className="absolute top-0 flex h-full w-full flex-col rounded-[1rem] bg-white"
     >
-      <div className="flex max-h-[5.5rem] basis-full items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
+      <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <div
           className="fa fa-arrow-left flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
           onClick={showInformation}
@@ -97,25 +97,25 @@ const Attachment = ({ reference }) => {
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
         </div>
       </div>
-      <div className="flex border-b-[.1rem] border-b-gray-300">
+      <div className="flex">
         <div
           ref={refAttachmentImage}
           onClick={(event) => toggleAttachmentActive(event, "image")}
-          className="attachment-active relative grow cursor-pointer py-[1rem] text-center font-bold text-gray-600"
+          className="attachment-active relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-gray-600"
         >
           Images
         </div>
         <div
           ref={refAttachmentFile}
           onClick={(event) => toggleAttachmentActive(event, "file")}
-          className="relative grow cursor-pointer py-[1rem] text-center font-bold text-gray-600"
+          className="relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-gray-600"
         >
           Files
         </div>
       </div>
       <div
         ref={refScrollAttachment}
-        className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-gray-200 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+        className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
         {displayAttachments?.map((date) => (
           <div className="flex flex-col gap-[2rem]">

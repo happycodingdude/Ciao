@@ -2,6 +2,7 @@ import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
 import useAuth from "../hook/useAuth";
+import ImageWithLightBox from "./ImageWithLightBox";
 
 const Header = () => {
   const auth = useAuth();
@@ -53,6 +54,10 @@ const Header = () => {
     };
   };
 
+  const showProfile = () => {
+    console.log("showProfile calling");
+  };
+
   return (
     <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-white px-[1rem]">
       {/* Phone, Tablet */}
@@ -60,7 +65,7 @@ const Header = () => {
         <div className="fa fa-arrow-left">&ensp;Chat</div>
         <div className="text-center">
           <p className="font-bold">{auth.display}</p>
-          <p className="text-blue-500">Online</p>
+          <p className="text-purple-200">Online</p>
         </div>
         <div className="flex gap-[3rem]">
           <div className="flex items-center gap-[.3rem]">
@@ -77,11 +82,11 @@ const Header = () => {
         {auth.id ? (
           <div className="flex items-center gap-[5rem]">
             <div className="flex items-center gap-[1rem]">
-              <div
+              {/* <div
                 style={{
-                  "--image-url": `url('${avatar}'`,
+                  "--image-url": `url(${avatar})`,
                 }}
-                className="relative aspect-square w-[3rem] rounded-[50%] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
+                className="cursor-poiter relative aspect-square w-[3rem] rounded-[50%] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
               >
                 <input
                   multiple
@@ -95,10 +100,34 @@ const Header = () => {
                   for="avatar"
                   className="fa fa-camera absolute bottom-[-10%] right-0 aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-gray-500 hover:text-blue-500"
                 ></label>
+              </div> */}
+              <div className="relative">
+                <ImageWithLightBox
+                  src={avatar ?? ""}
+                  className="aspect-square w-[3rem] cursor-pointer rounded-[50%]"
+                  slides={[
+                    {
+                      src: avatar ?? "",
+                    },
+                  ]}
+                  onClick={showProfile}
+                ></ImageWithLightBox>
+                <input
+                  multiple
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  className="hidden"
+                  id="customer-avatar"
+                  onChange={updateAvatar}
+                ></input>
+                <label
+                  for="customer-avatar"
+                  className="fa fa-camera absolute bottom-[-20%] right-[-30%] aspect-square cursor-pointer rounded-[50%] bg-white p-[.2rem] text-gray-500 hover:text-purple-400"
+                ></label>
               </div>
               <div className="text-left">
                 <p className="font-medium text-gray-600">{auth.display}</p>
-                <p className="text-base text-blue-500">Online</p>
+                <p className="text-base text-purple-500">Online</p>
               </div>
             </div>
             <div

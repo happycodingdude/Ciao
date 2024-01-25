@@ -140,7 +140,7 @@ const ListChat = ({ reference }) => {
               ref={(element) => {
                 refChatItem.current[i] = element;
               }}
-              className="chat-item group flex cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] p-[1rem] hover:bg-blue-500 
+              className="chat-item group flex cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] p-[1rem] hover:bg-purple-400 
                                 hover:text-white laptop:h-[8rem]"
               onClick={() => {
                 handleSetConversation(item);
@@ -186,10 +186,10 @@ const ListChat = ({ reference }) => {
                   ""
                 ) : (
                   <p
-                    className="flex aspect-square w-[3rem] items-center justify-center rounded-[50%] bg-blue-500 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
+                    className="flex aspect-square w-[3rem] items-center justify-center rounded-[50%] bg-purple-400 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
                                                 font-bold text-slate-50
-                                                group-hover:bg-white group-hover:text-blue-500
-                                                group-[.item-active]:bg-white group-[.item-active]:text-blue-500"
+                                                group-hover:bg-white group-hover:text-purple-400
+                                                group-[.item-active]:bg-white group-[.item-active]:text-purple-400"
                   >
                     {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
                   </p>

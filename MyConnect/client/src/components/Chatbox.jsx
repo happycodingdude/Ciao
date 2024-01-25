@@ -338,14 +338,14 @@ const Chatbox = ({ reference }) => {
         ref={refChatboxContainer}
         className="mx-0 flex flex-1 grow-[2] flex-col items-center gap-[1rem]"
       >
-        <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
+        <div className="relative flex w-full flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
             className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
                       rounded-[50%] bg-gray-300 font-normal text-gray-500"
             onClick={scrollChatContentToBottom}
           ></div>
-          <div className="flex items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem] laptop:max-h-[5.5rem]">
+          <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
             <div className="relative flex h-full min-w-[20%] items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
@@ -376,10 +376,10 @@ const Chatbox = ({ reference }) => {
             </div>
             <div
               ref={refTitleContainer}
-              className="relative flex max-w-[30rem] flex-col items-center"
+              className="relative flex max-w-[30rem] grow flex-col items-center"
             >
               <CustomLabel
-                className="font-bold text-gray-600"
+                className="text-md font-bold text-gray-600"
                 title={reference.conversation?.Title}
                 tooltip
                 update
@@ -395,6 +395,24 @@ const Chatbox = ({ reference }) => {
                       "DD/MM HH:mm",
                     )}
               </p>
+              {/* <div className="text-gray-400">
+                Last seen{" "}
+                {moment(reference.conversation?.LastSeenTime).format(
+                  "DD/MM/YYYY",
+                ) === moment().format("DD/MM/YYYY")
+                  ? moment(reference.conversation?.LastSeenTime).fromNow()
+                  : moment(reference.conversation?.LastSeenTime).format(
+                      "DD/MM",
+                    )}
+                <span className="inline-block h-full w-[.5rem] rounded-[50%] bg-red-500"></span>
+                {moment(reference.conversation?.LastSeenTime).format(
+                  "DD/MM/YYYY",
+                ) === moment().format("DD/MM/YYYY")
+                  ? moment(reference.conversation?.LastSeenTime).fromNow()
+                  : moment(reference.conversation?.LastSeenTime).format(
+                      "HH:mm",
+                    )}
+              </div> */}
             </div>
             <div className="flex justify-end gap-[1rem]">
               <div className="fa fa-search cursor-not-allowed self-center font-normal text-gray-500"></div>
@@ -407,7 +425,7 @@ const Chatbox = ({ reference }) => {
           </div>
           <div
             ref={refChatContent}
-            className="hide-scrollbar my-[2rem] flex w-full flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+            className="hide-scrollbar my-[2rem] flex h-[50rem] flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
           >
             {messages?.map((message) => (
               <div
@@ -434,7 +452,9 @@ const Chatbox = ({ reference }) => {
                   {participants?.find(
                     (item) => item.ContactId === message.ContactId,
                   )?.IsModerator ? (
-                    <div className="fa fa-crown pointer-events-none absolute right-[-20%] top-[-20%] rotate-[20deg] rounded-[50%] bg-white p-[.2rem] text-orange-400"></div>
+                    <div
+                      className={`fa fa-crown pointer-events-none absolute top-[-40%] rounded-[50%] bg-white p-[.2rem] text-orange-400 ${message.ContactId === auth.id ? "right-[-30%]  rotate-[20deg]" : "left-[-30%] rotate-[-20deg]"}`}
+                    ></div>
                   ) : (
                     ""
                   )}
@@ -443,7 +463,7 @@ const Chatbox = ({ reference }) => {
                   className={`flex flex-col ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`text-xs flex items-center gap-[1rem] text-gray-400 ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+                    className={`flex items-center gap-[1rem] text-xs text-gray-400 ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
                   >
                     {message.ContactId === auth.id ? (
                       ""
@@ -504,7 +524,7 @@ const Chatbox = ({ reference }) => {
             ))}
           </div>
         </div>
-        <div className="flex w-full  items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
+        <div className="flex w-full items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
           <div className="flex grow items-center justify-evenly">
             <input
               multiple

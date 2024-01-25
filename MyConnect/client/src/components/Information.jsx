@@ -3,6 +3,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 import CustomLabel from "./CustomLabel";
+import DeleteConfirmation from "./DeleteConfirmation";
 import ImageWithLightBox from "./ImageWithLightBox";
 
 const Information = ({ reference }) => {
@@ -57,14 +58,21 @@ const Information = ({ reference }) => {
   };
 
   const toggleNotification = (e) => {
-    const checked = e.target.checked;
+    // setIsNotifying(!isNotifying);
+    // e.target.classList.toggle("fa-bell");
+    // e.target.classList.toggle("text-purple-500");
+    // e.target.classList.toggle("bg-purple-100");
+    // e.target.classList.toggle("fa-bell-slash");
+    // e.target.classList.toggle("text-purple-800");
+    // e.target.classList.toggle("bg-purple-200");
+    const checked = !isNotifying;
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
       Authorization: "Bearer " + auth.token,
     };
     const selected = participants.find((item) => item.ContactId === auth.id);
-    selected.IsNotifying = e.target.checked;
+    selected.IsNotifying = checked;
     axios
       .put(`api/participants`, selected, {
         cancelToken: cancelToken.token,
@@ -88,40 +96,33 @@ const Information = ({ reference }) => {
   }, [isNotifying]);
 
   const deleteChat = () => {
-    if (confirm("Delete this chat?") === true) {
-      const cancelToken = axios.CancelToken.source();
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + auth.token,
-      };
-      const selected = participants.find((item) => item.ContactId === auth.id);
-      selected.IsDeleted = true;
-      axios
-        .put(
-          `api/conversations/${reference.conversation?.Id}/participants`,
-          selected,
-          {
-            cancelToken: cancelToken.token,
-            headers: headers,
-          },
-        )
-        .then((res) => {
-          if (res.status !== 200) throw new Error(res.status);
-          reference.removeInListChat(res.data.data.ConversationId);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    const selected = participants.find((item) => item.ContactId === auth.id);
+    selected.IsDeleted = true;
+    axios
+      .put(
+        `api/conversations/${reference.conversation?.Id}/participants`,
+        selected,
+        {
+          cancelToken: cancelToken.token,
+          headers: headers,
+        },
+      )
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+        reference.removeInListChat(res.data.data.ConversationId);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
-      return () => {
-        cancelToken.cancel();
-      };
-    }
-  };
-
-  const imageOnError = (e) => {
-    e.target.onerror = null;
-    e.target.src = "../src/assets/imagenotfound.jpg";
+    return () => {
+      cancelToken.cancel();
+    };
   };
 
   const updateAvatar = async (e) => {
@@ -202,16 +203,16 @@ const Information = ({ reference }) => {
       ref={refInformation}
       className="relative z-10 flex h-full flex-col rounded-[1rem] bg-white"
     >
-      <div className="flex max-h-[5.5rem] basis-full items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
-        <p className="font-bold text-gray-600">Contact Information</p>
+      <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
+        <p className="font-bold text-gray-600">Information</p>
         <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
         </div>
       </div>
-      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth  [&>*]:border-b-gray-300 [&>*]:p-[2rem]">
-        <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
+      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:p-[1rem]">
+        <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             <ImageWithLightBox
               src={reference.conversation?.Avatar ?? ""}
@@ -233,7 +234,7 @@ const Information = ({ reference }) => {
             ></input>
             <label
               for="conversation-avatar"
-              className="fa fa-camera absolute right-[40%] top-[-5%] cursor-pointer text-gray-500 hover:text-blue-500"
+              className="fa fa-camera absolute right-[38%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-purple-400"
             ></label>
             <div className="w-[50%]">
               <CustomLabel
@@ -246,12 +247,20 @@ const Information = ({ reference }) => {
               {participants?.length} members
             </div>
           </div>
+          {/* <div className="flex w-full justify-evenly">
+            <div className="fa fa-phone flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-purple-400"></div>
+            <div className="fa fa-video flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-purple-400"></div>
+          </div> */}
           <div className="flex w-full justify-evenly">
-            <div className="fa fa-phone flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-blue-500"></div>
-            <div className="fa fa-video flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-blue-500"></div>
+            <div
+              onClick={toggleNotification}
+              className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%]  font-normal 
+              ${isNotifying ? "fa-bell bg-purple-100 text-purple-500" : "fa-bell-slash bg-purple-200 text-purple-800"}`}
+            ></div>
+            {/* <div className="fa fa-video flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-purple-100 font-normal text-gray-400"></div> */}
           </div>
         </div>
-        <div className="flex flex-col gap-[1rem] border-b-[.1rem]">
+        <div className="flex flex-col gap-[1rem]">
           <div className="flex justify-between">
             <label className="font-bold text-gray-600">Attachments</label>
             <div
@@ -278,7 +287,7 @@ const Information = ({ reference }) => {
             ))}
           </div>
         </div>
-        <div className="flex justify-between border-b-[.1rem]">
+        {/* <div className="flex justify-between border-b-[.1rem]">
           <label className="fa fa-bell font-normal text-gray-500">
             &ensp;Notification
           </label>
@@ -309,19 +318,18 @@ const Information = ({ reference }) => {
                         before:border-gray-400
                         before:bg-white
                         before:duration-[.3s]
-                        peer-checked:bg-blue-500
+                        peer-checked:bg-purple-400
                         before:peer-checked:translate-x-[100%]
-                        before:peer-checked:border-blue-500
+                        before:peer-checked:border-purple-400
                         laptop:before:peer-checked:translate-x-[110%]"
             ></label>
           </div>
-        </div>
-        <div
-          onClick={deleteChat}
-          className="fa fa-trash cursor-pointer font-normal text-red-500"
-        >
-          &ensp;Delete chat
-        </div>
+        </div> */}
+        <DeleteConfirmation
+          title="Delete chat"
+          message="Are you sure want to delete this chat?"
+          onSubmit={deleteChat}
+        ></DeleteConfirmation>
       </div>
     </div>
   );
