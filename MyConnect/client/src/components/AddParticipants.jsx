@@ -1,4 +1,4 @@
-import { Tooltip } from "antd";
+// import { Tooltip } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
 import useAuth from "../hook/useAuth";
@@ -92,11 +92,15 @@ const AddParticipants = ({ reference }) => {
   };
   return (
     <>
-      <Tooltip
+      {/* <Tooltip
         className="fa fa-plus absolute left-[9rem] flex aspect-square h-[70%] cursor-pointer items-center justify-center rounded-[50%] border-[.2rem] border-dashed border-gray-500 text-[130%] font-normal text-gray-500"
         title="Add member"
         onClick={handleAddParticipant}
-      ></Tooltip>
+      ></Tooltip> */}
+      <div
+        onClick={handleAddParticipant}
+        className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-purple-100 text-base font-normal text-purple-500`}
+      ></div>
       <CustomModal
         show={show}
         forms={formData}

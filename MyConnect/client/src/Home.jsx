@@ -189,7 +189,7 @@ const Home = () => {
   // };
 
   return (
-    <div className="flex w-full flex-col bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1rem,1.2vw,2rem)]">
+    <div className="flex w-full flex-col bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
       <Header />
       <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[1rem] [&>*:not(:first-child)]:mb-[1rem]">
         <Signout />

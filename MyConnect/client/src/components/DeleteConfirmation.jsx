@@ -23,7 +23,7 @@ const DeleteConfirmation = ({ title, message, onSubmit }) => {
     <>
       <div
         onClick={handleOpen}
-        className="fa fa-trash cursor-pointer text-base font-normal text-red-500"
+        className="fa fa-trash cursor-pointer font-normal text-red-500 laptop:text-md desktop:text-lg"
       >
         &ensp;{title}
       </div>

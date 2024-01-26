@@ -51,11 +51,6 @@ body,
     transition: all 2s;
   }
 
-  .attachment-active {
-    @apply before:absolute before:bottom-0 before:left-0 before:right-0 before:m-auto
-    before:h-[.2rem] before:w-[80%] before:bg-purple-400;
-  }
-
   .mention-input {
     border-radius: 0;
     border: none !important;

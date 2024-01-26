@@ -59,7 +59,7 @@ const Header = () => {
   };
 
   return (
-    <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] bg-white px-[1rem]">
+    <section className="sticky top-0 z-[2] flex h-[clamp(5rem,6vh,7rem)] shrink-0 bg-white px-[1rem]">
       {/* Phone, Tablet */}
       <div className="flex cursor-pointer items-center justify-between laptop:hidden">
         <div className="fa fa-arrow-left">&ensp;Chat</div>
@@ -77,7 +77,7 @@ const Header = () => {
         </div>
       </div>
       {/* Laptop, Desktop */}
-      <div className=" flex grow items-center justify-between">
+      <div className="flex grow items-center justify-between">
         <div className="cursor-pointer font-bold">MyConnect</div>
         {auth.id ? (
           <div className="flex items-center gap-[5rem]">
@@ -127,7 +127,7 @@ const Header = () => {
               </div>
               <div className="text-left">
                 <p className="font-medium text-gray-600">{auth.display}</p>
-                <p className="text-base text-purple-500">Online</p>
+                {/* <p className="text-base text-purple-500">Online</p> */}
               </div>
             </div>
             <div

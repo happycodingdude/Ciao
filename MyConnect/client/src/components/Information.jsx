@@ -2,6 +2,7 @@ import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
+import AddParticipants from "./AddParticipants";
 import CustomLabel from "./CustomLabel";
 import DeleteConfirmation from "./DeleteConfirmation";
 import ImageWithLightBox from "./ImageWithLightBox";
@@ -58,13 +59,6 @@ const Information = ({ reference }) => {
   };
 
   const toggleNotification = (e) => {
-    // setIsNotifying(!isNotifying);
-    // e.target.classList.toggle("fa-bell");
-    // e.target.classList.toggle("text-purple-500");
-    // e.target.classList.toggle("bg-purple-100");
-    // e.target.classList.toggle("fa-bell-slash");
-    // e.target.classList.toggle("text-purple-800");
-    // e.target.classList.toggle("bg-purple-200");
     const checked = !isNotifying;
     const cancelToken = axios.CancelToken.source();
     const headers = {
@@ -216,7 +210,8 @@ const Information = ({ reference }) => {
           <div className="relative flex flex-col items-center gap-[.5rem]">
             <ImageWithLightBox
               src={reference.conversation?.Avatar ?? ""}
-              className="aspect-square w-[20%] cursor-pointer rounded-[50%]"
+              // className="aspect-square w-[20%] cursor-pointer rounded-[50%]"
+              className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               slides={[
                 {
                   src: reference.conversation?.Avatar ?? "",
@@ -236,7 +231,7 @@ const Information = ({ reference }) => {
               for="conversation-avatar"
               className="fa fa-camera absolute right-[38%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-purple-400"
             ></label>
-            <div className="w-[50%]">
+            <div className="laptop:w-[50%] desktop:w-[70%]">
               <CustomLabel
                 className="font-bold text-gray-600"
                 title={reference.conversation?.Title}
@@ -251,13 +246,22 @@ const Information = ({ reference }) => {
             <div className="fa fa-phone flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-purple-400"></div>
             <div className="fa fa-video flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-purple-400"></div>
           </div> */}
-          <div className="flex w-full justify-evenly">
+          <div className="flex w-full justify-center gap-[2rem]">
             <div
               onClick={toggleNotification}
-              className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%]  font-normal 
+              className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal 
               ${isNotifying ? "fa-bell bg-purple-100 text-purple-500" : "fa-bell-slash bg-purple-200 text-purple-800"}`}
             ></div>
-            {/* <div className="fa fa-video flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-purple-100 font-normal text-gray-400"></div> */}
+            {/* <div
+              // onClick={toggleNotification}
+              className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-purple-100 text-base font-normal text-purple-500`}
+            ></div> */}
+            <AddParticipants
+              reference={{
+                participants,
+                conversation: reference.conversation,
+              }}
+            ></AddParticipants>
           </div>
         </div>
         <div className="flex flex-col gap-[1rem]">

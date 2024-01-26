@@ -5,7 +5,7 @@ import parse from "html-react-parser";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
-import AddParticipants from "./AddParticipants";
+// import AddParticipants from "./AddParticipants";
 import CustomLabel from "./CustomLabel";
 import ImageWithLightBox from "./ImageWithLightBox";
 
@@ -295,8 +295,8 @@ const Chatbox = ({ reference }) => {
         "animate-information-hide-arrow",
       );
     }
-    refTitleContainer.current.classList.toggle("max-w-[30rem]");
-    refTitleContainer.current.classList.toggle("max-w-[40rem]");
+    // refTitleContainer.current.classList.toggle("max-w-[30rem]");
+    // refTitleContainer.current.classList.toggle("max-w-[40rem]");
   };
 
   const chooseFile = (e) => {
@@ -338,7 +338,7 @@ const Chatbox = ({ reference }) => {
         ref={refChatboxContainer}
         className="mx-0 flex flex-1 grow-[2] flex-col items-center gap-[1rem]"
       >
-        <div className="relative flex w-full flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
+        <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
             className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
@@ -346,7 +346,7 @@ const Chatbox = ({ reference }) => {
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
-            <div className="relative flex h-full min-w-[20%] items-center">
+            {/* <div className="relative flex h-full min-w-[20%] items-center">
               {participants?.map((item, i) =>
                 i < 3 ? (
                   <ImageWithLightBox
@@ -373,29 +373,41 @@ const Chatbox = ({ reference }) => {
                   conversation: reference.conversation,
                 }}
               ></AddParticipants>
-            </div>
-            <div
-              ref={refTitleContainer}
-              className="relative flex max-w-[30rem] grow flex-col items-center"
-            >
-              <CustomLabel
-                className="text-md font-bold text-gray-600"
-                title={reference.conversation?.Title}
-                tooltip
-                update
-                reference={reference}
-              ></CustomLabel>
-              <p className="text-gray-400">
-                Last seen{" "}
-                {moment(reference.conversation?.LastSeenTime).format(
-                  "DD/MM/YYYY",
-                ) === moment().format("DD/MM/YYYY")
-                  ? moment(reference.conversation?.LastSeenTime).fromNow()
-                  : moment(reference.conversation?.LastSeenTime).format(
-                      "DD/MM HH:mm",
-                    )}
-              </p>
-              {/* <div className="text-gray-400">
+            </div> */}
+            <div className="flex items-center gap-[1rem]">
+              <ImageWithLightBox
+                src={reference.conversation?.Avatar ?? ""}
+                // className="aspect-square w-[clamp(4rem,8%,5rem)] cursor-pointer rounded-[50%]"
+                className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+                slides={[
+                  {
+                    src: reference.conversation?.Avatar ?? "",
+                  },
+                ]}
+                onClick={showProfile}
+              ></ImageWithLightBox>
+              <div
+                ref={refTitleContainer}
+                className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
+              >
+                <CustomLabel
+                  className="text-lg font-semibold text-gray-600"
+                  title={reference.conversation?.Title}
+                  tooltip
+                  update
+                  reference={reference}
+                ></CustomLabel>
+                <p className="text-gray-400">
+                  Last seen{" "}
+                  {moment(reference.conversation?.LastSeenTime).format(
+                    "DD/MM/YYYY",
+                  ) === moment().format("DD/MM/YYYY")
+                    ? moment(reference.conversation?.LastSeenTime).fromNow()
+                    : moment(reference.conversation?.LastSeenTime).format(
+                        "DD/MM HH:mm",
+                      )}
+                </p>
+                {/* <div className="text-gray-400">
                 Last seen{" "}
                 {moment(reference.conversation?.LastSeenTime).format(
                   "DD/MM/YYYY",
@@ -413,6 +425,7 @@ const Chatbox = ({ reference }) => {
                       "HH:mm",
                     )}
               </div> */}
+              </div>
             </div>
             <div className="flex justify-end gap-[1rem]">
               <div className="fa fa-search cursor-not-allowed self-center font-normal text-gray-500"></div>
@@ -425,13 +438,13 @@ const Chatbox = ({ reference }) => {
           </div>
           <div
             ref={refChatContent}
-            className="hide-scrollbar my-[2rem] flex h-[50rem] flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+            className="hide-scrollbar my-[2rem] flex flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
           >
             {messages?.map((message) => (
               <div
                 className={`flex items-end gap-[1rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
               >
-                <div className="relative laptop:w-[clamp(3rem,5%,4rem)]">
+                <div className="relative w-[3rem]">
                   <ImageWithLightBox
                     src={
                       reference.contacts.find(
@@ -460,7 +473,7 @@ const Chatbox = ({ reference }) => {
                   )}
                 </div>
                 <div
-                  className={`flex flex-col ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
+                  className={`flex w-[clamp(40rem,70%,50rem)] flex-col ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
                 >
                   <div
                     className={`flex items-center gap-[1rem] text-xs text-gray-400 ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
@@ -496,11 +509,11 @@ const Chatbox = ({ reference }) => {
                     </div>
                   ) : (
                     <div
-                      className={`grid gap-[1rem] ${
+                      className={`grid w-full gap-[1rem] ${
                         message.Type === "media" &&
                         message.Attachments.length === 1
-                          ? "grid-cols-[50%]"
-                          : "grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
+                          ? `grid-cols-[70%] ${message.ContactId === auth.id ? "justify-end" : ""}`
+                          : "grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]"
                       }  break-words text-gray-400`}
                     >
                       {message.Attachments.map((item, index) => (
@@ -561,8 +574,7 @@ const Chatbox = ({ reference }) => {
                 files.length === 1
                   ? "grid-cols-[50%]"
                   : "laptop:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] desktop:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
-              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] 
-          py-[.5rem] 
+              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 p-[1rem]            
           laptop:w-[clamp(40rem,75%,70rem)]         
           desktop:w-[clamp(70rem,75%,120rem)]`}
             >
@@ -585,7 +597,7 @@ const Chatbox = ({ reference }) => {
                   <span
                     data-key={item.name}
                     onClick={removeFile}
-                    className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-red-500 hover:text-blue-500"
+                    className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-red-500 hover:text-red-400"
                     title="Clear image"
                   ></span>
                 </div>

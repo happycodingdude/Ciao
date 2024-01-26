@@ -7,18 +7,13 @@ const Attachment = ({ reference }) => {
 
   const refAttachment = useRef();
   const refScrollAttachment = useRef();
-  const refAttachmentImage = useRef();
-  const refAttachmentFile = useRef();
-  const [allAttachments, setAllAttachments] = useState();
+
+  const [attachmentToggle, setAttachmentToggle] = useState("");
+  const [attachments, setAttachments] = useState();
   const [displayAttachments, setDisplayAttachments] = useState();
 
-  const imageOnError = (e) => {
-    e.target.onerror = null;
-    e.target.src = "../src/assets/imagenotfound.jpg";
-  };
-
   const showAttachment = (attachments) => {
-    setAllAttachments(attachments);
+    setAttachments(attachments);
     setDisplayAttachments(() => {
       const cloned = attachments.map((item) => {
         return Object.assign({}, item);
@@ -49,6 +44,7 @@ const Attachment = ({ reference }) => {
   const hideAttachment = () => {
     refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
     refAttachment.current.classList.add("animate-flip-scale-down-vertical");
+    setAttachmentToggle("");
   };
 
   const showInformation = () => {
@@ -61,23 +57,18 @@ const Attachment = ({ reference }) => {
   }, [reference.conversation]);
 
   const toggleAttachmentActive = (e, type) => {
-    if (!e.target.classList.contains("attachment-active")) {
-      refAttachmentImage.current.classList.toggle("attachment-active");
-      refAttachmentFile.current.classList.toggle("attachment-active");
-
-      setDisplayAttachments(() => {
-        const cloned = allAttachments.map((item) => {
-          return Object.assign({}, item);
-        });
-        const newAttachments = cloned?.map((date) => {
-          date.Attachments = date.Attachments.filter(
-            (item) => item.Type === type,
-          );
-          if (date.Attachments.length !== 0) return date;
-        });
-        return newAttachments.filter((item) => item !== undefined);
+    setDisplayAttachments(() => {
+      const cloned = attachments.map((item) => {
+        return Object.assign({}, item);
       });
-    }
+      const newAttachments = cloned?.map((date) => {
+        date.Attachments = date.Attachments.filter(
+          (item) => item.Type === type,
+        );
+        if (date.Attachments.length !== 0) return date;
+      });
+      return newAttachments.filter((item) => item !== undefined);
+    });
   };
 
   return (
@@ -97,21 +88,38 @@ const Attachment = ({ reference }) => {
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
         </div>
       </div>
-      <div className="flex">
+      <div className="relative flex">
         <div
-          ref={refAttachmentImage}
           onClick={(event) => toggleAttachmentActive(event, "image")}
-          className="attachment-active relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-gray-600"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-gray-600"
         >
           Images
+          <input
+            type="radio"
+            name="radio-attachment"
+            className="image-checked absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+            onChange={() => setAttachmentToggle("image")}
+            checked={attachmentToggle === "image"}
+          ></input>
         </div>
         <div
-          ref={refAttachmentFile}
           onClick={(event) => toggleAttachmentActive(event, "file")}
-          className="relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-gray-600"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-gray-600"
         >
           Files
+          <input
+            type="radio"
+            name="radio-attachment"
+            className="file-checked absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+            onChange={() => setAttachmentToggle("file")}
+            checked={attachmentToggle === "file"}
+          ></input>
         </div>
+        <div className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-purple-400 transition-all duration-200 peer-has-[.file-checked:checked]:translate-x-[calc(100%+2rem)] peer-has-[.image-checked:checked]:translate-x-0"></div>
+        {/* <div
+          ref={refAttachmentSlider}
+          className="absolute bottom-0 h-[.2rem] w-[50%] translate-x-0 bg-purple-400 transition-all duration-1000"
+        ></div> */}
       </div>
       <div
         ref={refScrollAttachment}

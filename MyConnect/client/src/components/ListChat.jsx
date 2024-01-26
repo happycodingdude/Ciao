@@ -2,6 +2,7 @@ import moment from "moment";
 import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../hook/useAuth";
 import CustomLabel from "./CustomLabel";
+import ImageWithLightBox from "./ImageWithLightBox";
 
 const ListChat = ({ reference }) => {
   console.log("ListChat calling");
@@ -146,11 +147,21 @@ const ListChat = ({ reference }) => {
                 handleSetConversation(item);
               }}
             >
-              <img
+              {/* <img
                 src={item.Avatar ?? ""}
                 onError={imageOnError}
                 className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[6rem]"
-              ></img>
+              ></img> */}
+              <ImageWithLightBox
+                src={item.Avatar ?? ""}
+                // className="pointer-events-none aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[6rem]"
+                className="pointer-events-none aspect-square w-[4rem] rounded-[50%]"
+                slides={[
+                  {
+                    src: item.Avatar ?? "",
+                  },
+                ]}
+              ></ImageWithLightBox>
               <div className="w-[50%] grow self-start">
                 <CustomLabel
                   className="mr-auto font-bold"
