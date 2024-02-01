@@ -4,10 +4,10 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import parse from "html-react-parser";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import useAuth from "../hook/useAuth";
-// import AddParticipants from "./AddParticipants";
-import CustomLabel from "./CustomLabel";
-import ImageWithLightBox from "./ImageWithLightBox";
+import useAuth from "../../hook/useAuth";
+import UpdateTitle from "../chat/UpdateTitle";
+import CustomLabel from "../common/CustomLabel";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 
 const page = 1;
 const limit = 10;
@@ -226,7 +226,9 @@ const Chatbox = ({ reference }) => {
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
 
-        form.resetFields();
+        // form.resetFields();
+        form.setFieldValue("mentions", "");
+        refChatInput.current.textarea.focus();
         setFiles([]);
         setMessages([...messages, res.data.data]);
 
@@ -336,48 +338,19 @@ const Chatbox = ({ reference }) => {
     <>
       <div
         ref={refChatboxContainer}
-        className="mx-0 flex flex-1 grow-[2] flex-col items-center gap-[1rem]"
+        className="mx-0 flex flex-1 grow-[2] flex-col items-center gap-[.1rem]"
       >
-        <div className="relative flex w-full grow flex-col overflow-hidden rounded-[1rem] bg-white [&>*]:px-[2rem]">
+        <div className="relative flex w-full grow flex-col overflow-hidden bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
-            className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center
+            className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center justify-center
                       rounded-[50%] bg-gray-300 font-normal text-gray-500"
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
-            {/* <div className="relative flex h-full min-w-[20%] items-center">
-              {participants?.map((item, i) =>
-                i < 3 ? (
-                  <ImageWithLightBox
-                    src={item.Contact.Avatar ?? ""}
-                    className={`absolute aspect-square h-[70%] cursor-pointer rounded-[50%] border-[.2rem] border-white bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center ${
-                      i === 0 ? "left-0" : ""
-                    } ${i === 1 ? "left-[2rem]" : ""} ${
-                      i === 2 ? "left-[4rem]" : ""
-                    }`}
-                    slides={[
-                      {
-                        src: item.Contact.Avatar ?? "",
-                      },
-                    ]}
-                    onClick={showProfile}
-                  ></ImageWithLightBox>
-                ) : (
-                  ""
-                ),
-              )}
-              <AddParticipants
-                reference={{
-                  participants,
-                  conversation: reference.conversation,
-                }}
-              ></AddParticipants>
-            </div> */}
             <div className="flex items-center gap-[1rem]">
               <ImageWithLightBox
                 src={reference.conversation?.Avatar ?? ""}
-                // className="aspect-square w-[clamp(4rem,8%,5rem)] cursor-pointer rounded-[50%]"
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 slides={[
                   {
@@ -390,41 +363,29 @@ const Chatbox = ({ reference }) => {
                 ref={refTitleContainer}
                 className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
               >
-                <CustomLabel
-                  className="text-lg font-semibold text-gray-600"
-                  title={reference.conversation?.Title}
-                  tooltip
-                  update
-                  reference={reference}
-                ></CustomLabel>
+                <div className="flex w-full gap-[.5rem]">
+                  <CustomLabel
+                    className="text-start text-lg font-semibold text-gray-600"
+                    title={reference.conversation?.Title}
+                    tooltip
+                  ></CustomLabel>
+                  <UpdateTitle reference={reference}></UpdateTitle>
+                </div>
                 <p className="text-gray-400">
-                  Last seen{" "}
-                  {moment(reference.conversation?.LastSeenTime).format(
-                    "DD/MM/YYYY",
-                  ) === moment().format("DD/MM/YYYY")
-                    ? moment(reference.conversation?.LastSeenTime).fromNow()
-                    : moment(reference.conversation?.LastSeenTime).format(
-                        "DD/MM HH:mm",
-                      )}
+                  {reference.conversation?.LastSeenTime === null
+                    ? "Offline"
+                    : `Last seen ${
+                        moment(reference.conversation?.LastSeenTime).format(
+                          "DD/MM/YYYY",
+                        ) === moment().format("DD/MM/YYYY")
+                          ? moment(
+                              reference.conversation?.LastSeenTime,
+                            ).fromNow()
+                          : moment(reference.conversation?.LastSeenTime).format(
+                              "DD/MM HH:mm",
+                            )
+                      }`}
                 </p>
-                {/* <div className="text-gray-400">
-                Last seen{" "}
-                {moment(reference.conversation?.LastSeenTime).format(
-                  "DD/MM/YYYY",
-                ) === moment().format("DD/MM/YYYY")
-                  ? moment(reference.conversation?.LastSeenTime).fromNow()
-                  : moment(reference.conversation?.LastSeenTime).format(
-                      "DD/MM",
-                    )}
-                <span className="inline-block h-full w-[.5rem] rounded-[50%] bg-red-500"></span>
-                {moment(reference.conversation?.LastSeenTime).format(
-                  "DD/MM/YYYY",
-                ) === moment().format("DD/MM/YYYY")
-                  ? moment(reference.conversation?.LastSeenTime).fromNow()
-                  : moment(reference.conversation?.LastSeenTime).format(
-                      "HH:mm",
-                    )}
-              </div> */}
               </div>
             </div>
             <div className="flex justify-end gap-[1rem]">
@@ -473,7 +434,7 @@ const Chatbox = ({ reference }) => {
                   )}
                 </div>
                 <div
-                  className={`flex w-[clamp(40rem,70%,50rem)] flex-col ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
+                  className={`flex flex-col laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
                 >
                   <div
                     className={`flex items-center gap-[1rem] text-xs text-gray-400 ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
@@ -503,7 +464,7 @@ const Chatbox = ({ reference }) => {
                   </div>
                   {message.Type === "text" ? (
                     <div
-                      className={`break-words bg-purple-200 p-[.7rem] text-gray-700 ${message.ContactId === auth.id ? "rounded-l-[1rem] rounded-tr-[1rem] text-right" : "rounded-r-[1rem] rounded-tl-[1rem]"}`}
+                      className={`break-all bg-gradient-to-r from-purple-100 to-blue-100 px-[1.5rem] py-[.7rem] text-gray-600 ${message.ContactId === auth.id ? "rounded-l-[1rem] rounded-tr-[1rem]" : "rounded-r-[1rem] rounded-tl-[1rem]"}`}
                     >
                       {generateContent(message.Content)}
                     </div>
@@ -512,9 +473,9 @@ const Chatbox = ({ reference }) => {
                       className={`grid w-full gap-[1rem] ${
                         message.Type === "media" &&
                         message.Attachments.length === 1
-                          ? `grid-cols-[70%] ${message.ContactId === auth.id ? "justify-end" : ""}`
-                          : "grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]"
-                      }  break-words text-gray-400`}
+                          ? `grid-cols-[80%] ${message.ContactId === auth.id ? "justify-end" : ""}`
+                          : "grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]"
+                      } text-gray-400`}
                     >
                       {message.Attachments.map((item, index) => (
                         <ImageWithLightBox
@@ -537,7 +498,7 @@ const Chatbox = ({ reference }) => {
             ))}
           </div>
         </div>
-        <div className="flex w-full items-center justify-evenly rounded-[1rem] bg-white py-[.5rem]">
+        <div className="flex w-full items-center justify-evenly bg-white py-[.5rem]">
           <div className="flex grow items-center justify-evenly">
             <input
               multiple
@@ -615,13 +576,6 @@ const Chatbox = ({ reference }) => {
                   ></Mentions>
                 </Form.Item>
               </Form>
-              {/* <input
-                ref={refChatInput}
-                type="text"
-                placeholder="Write some text"
-                className="w-full rounded-[.8rem] border-[.1rem] border-gray-300 px-[1rem] py-[.5rem] focus:outline-none"
-                onKeyDown={handlePressKey}
-              ></input> */}
             </div>
           )}
           <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">

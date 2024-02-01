@@ -10,4 +10,13 @@ namespace MyConnect.Model
         public Conversation? Conversation { get; set; }
         public Contact? Contact { get; set; }
     }
+
+    public class ParticipantNoReference : BaseModel
+    {
+        public bool IsDeleted { get; set; }
+        public bool IsModerator { get; set; }
+        public bool IsNotifying { get; set; }
+        public Guid ConversationId { get; set; }
+        public Guid ContactId { get; set; }
+    }
 }

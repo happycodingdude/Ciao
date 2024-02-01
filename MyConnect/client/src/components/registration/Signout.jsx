@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import useAuth from "../hook/useAuth";
+import useAuth from "../../hook/useAuth";
 
 const Signout = () => {
   const auth = useAuth();

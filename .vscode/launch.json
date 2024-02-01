@@ -9,7 +9,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/MyConnect/api/bin/Debug/net7.0/MyConnect.dll",
+      "program": "${workspaceFolder}/MyConnect/api/bin/Debug/net8.0/MyConnect.dll",
       "args": [],
       "cwd": "${workspaceFolder}/MyConnect/api",
       "stopAtEntry": false,

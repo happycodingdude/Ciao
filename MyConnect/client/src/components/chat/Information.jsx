@@ -1,11 +1,11 @@
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
-import useAuth from "../hook/useAuth";
+import useAuth from "../../hook/useAuth";
+import CustomLabel from "../common/CustomLabel";
+import DeleteConfirmation from "../common/DeleteConfirmation";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 import AddParticipants from "./AddParticipants";
-import CustomLabel from "./CustomLabel";
-import DeleteConfirmation from "./DeleteConfirmation";
-import ImageWithLightBox from "./ImageWithLightBox";
 
 const Information = ({ reference }) => {
   console.log("Information calling");
@@ -195,7 +195,7 @@ const Information = ({ reference }) => {
   return (
     <div
       ref={refInformation}
-      className="relative z-10 flex h-full flex-col rounded-[1rem] bg-white"
+      className="relative z-10 flex h-full flex-col bg-white"
     >
       <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <p className="font-bold text-gray-600">Information</p>
@@ -231,31 +231,21 @@ const Information = ({ reference }) => {
               for="conversation-avatar"
               className="fa fa-camera absolute right-[38%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-purple-400"
             ></label>
-            <div className="laptop:w-[50%] desktop:w-[70%]">
-              <CustomLabel
-                className="font-bold text-gray-600"
-                title={reference.conversation?.Title}
-                tooltip
-              ></CustomLabel>
-            </div>
+            <CustomLabel
+              className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
+              title={reference.conversation?.Title}
+              tooltip
+            ></CustomLabel>
             <div className="cursor-pointer text-gray-400">
               {participants?.length} members
             </div>
           </div>
-          {/* <div className="flex w-full justify-evenly">
-            <div className="fa fa-phone flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-purple-400"></div>
-            <div className="fa fa-video flex aspect-[4/1.5] w-[10rem] cursor-not-allowed items-center justify-center rounded-[1rem] border-[.1rem] border-gray-400 font-normal text-purple-400"></div>
-          </div> */}
           <div className="flex w-full justify-center gap-[2rem]">
             <div
               onClick={toggleNotification}
-              className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal 
+              className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal hover:bg-purple-200 
               ${isNotifying ? "fa-bell bg-purple-100 text-purple-500" : "fa-bell-slash bg-purple-200 text-purple-800"}`}
             ></div>
-            {/* <div
-              // onClick={toggleNotification}
-              className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-purple-100 text-base font-normal text-purple-500`}
-            ></div> */}
             <AddParticipants
               reference={{
                 participants,
@@ -267,12 +257,16 @@ const Information = ({ reference }) => {
         <div className="flex flex-col gap-[1rem]">
           <div className="flex justify-between">
             <label className="font-bold text-gray-600">Attachments</label>
-            <div
-              onClick={showAllAttachment}
-              className="cursor-pointer text-blue-500"
-            >
-              See all
-            </div>
+            {displayAttachments?.length !== 0 ? (
+              <div
+                onClick={showAllAttachment}
+                className="cursor-pointer text-blue-500"
+              >
+                See all
+              </div>
+            ) : (
+              ""
+            )}
           </div>
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
             {displayAttachments?.map((item, index) => (

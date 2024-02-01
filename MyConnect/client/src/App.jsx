@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import RequireAuth from "../src/context/RequireAuth";
 import "./App.css";
-import Home from "./Home";
-import Login from "./Login";
+import Home from "./components/chat/Home";
+import Login from "./components/registration/Login";
 
 function App() {
   return (

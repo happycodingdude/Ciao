@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MyConnect.Model
 {
     public class Contact : BaseModel
     {
         public string? Name { get; set; }
         public string? Username { get; set; }
+        [MinLength(6)]
         public string? Password { get; set; }
         public string? Avatar { get; set; }
         public bool IsOnline { get; set; }

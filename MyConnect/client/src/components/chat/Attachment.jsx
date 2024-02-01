@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import ImageWithLightBox from "./ImageWithLightBox";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 
 const Attachment = ({ reference }) => {
   console.log("Attachment calling");
@@ -74,7 +74,7 @@ const Attachment = ({ reference }) => {
   return (
     <div
       ref={refAttachment}
-      className="absolute top-0 flex h-full w-full flex-col rounded-[1rem] bg-white"
+      className="absolute top-0 flex h-full w-full flex-col bg-white"
     >
       <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <div

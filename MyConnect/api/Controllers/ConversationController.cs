@@ -11,11 +11,13 @@ public class ConversationsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IParticipantService _participantService;
+    private readonly IConversationService _conversationService;
 
-    public ConversationsController(IUnitOfWork unitOfWork, IParticipantService participantService)
+    public ConversationsController(IUnitOfWork unitOfWork, IParticipantService participantService, IConversationService conversationService)
     {
         _unitOfWork = unitOfWork;
         _participantService = participantService;
+        _conversationService = conversationService;
     }
 
     [HttpGet]
@@ -117,12 +119,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add(Conversation model)
+    public async Task<IActionResult> CreateGroupChat(Conversation model)
     {
         try
         {
-            _unitOfWork.Conversation.Add(model);
-            _unitOfWork.Save();
+            var response = await _conversationService.CreateGroupChatAndNotify(model);
             return new ResponseModel<Conversation>(model).Ok();
         }
         catch (Exception ex)

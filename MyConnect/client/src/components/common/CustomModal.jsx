@@ -1,10 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, CloseButton, Form, Modal } from "react-bootstrap";
+import { useForm } from "react-hook-form";
 import Select from "react-select";
 
 const CustomModal = ({ show, forms, onClose, onSubmit }) => {
+  // console.log(forms);
   const refForm = useRef();
   const [form, setForm] = useState();
+  const {
+    register,
+    trigger,
+    formState: { errors },
+  } = useForm();
 
   useEffect(() => {
     setForm(forms);
@@ -44,6 +51,7 @@ const CustomModal = ({ show, forms, onClose, onSubmit }) => {
   };
 
   const handleClose = () => {
+    setForm([]);
     onClose();
   };
 
@@ -87,6 +95,7 @@ const CustomModal = ({ show, forms, onClose, onSubmit }) => {
                         // value={selectedOptions}
                         name={item.name}
                         options={item.options}
+                        required
                       />
                     </>
                   );

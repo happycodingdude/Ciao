@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hook/useAuth";
+import CustomInput from "../common/CustomInput";
 import Signup from "./Signup";
-import CustomInput from "./components/common/CustomInput";
-import useAuth from "./hook/useAuth";
 
 const Login3 = () => {
   console.log("Login calling");

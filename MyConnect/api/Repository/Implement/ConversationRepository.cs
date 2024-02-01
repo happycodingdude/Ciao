@@ -30,6 +30,7 @@ namespace MyConnect.Repository
             var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var conversation in conversations)
             {
+                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
                 conversation.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == conversation.Id && q.ContactId != contactId && q.Status == "received");
 
                 var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == conversation.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
@@ -55,8 +56,7 @@ namespace MyConnect.Repository
                 .Where(q => q.ConversationId == conversation.Id && q.ContactId == contactId && q.Status == "seen" && q.SeenTime.HasValue)
                 .OrderByDescending(q => q.CreatedTime)
                 .FirstOrDefault()?
-                .SeenTime ?? DateTime.Now;
-                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
+                .SeenTime;                
             }
             return conversations;
         }

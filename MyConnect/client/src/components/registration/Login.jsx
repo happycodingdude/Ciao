@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../src/hook/useAuth";
+import useAuth from "../../hook/useAuth";
+import CustomInput from "../common/CustomInput";
 import Signup from "./Signup";
-import CustomInput from "./components/common/CustomInput";
 
 const Login = () => {
   console.log("Login calling");
@@ -88,7 +88,7 @@ const Login = () => {
         auth.login(res.data.data.Token);
         setTimeout(() => {
           navigate("/", { replace: true });
-        }, 100);
+        }, 300);
       })
       .catch((err) => {
         console.log(err);
@@ -159,7 +159,7 @@ const Login = () => {
                   ></CustomInput>
                 </div>
 
-                <div className="mt-[1rem] cursor-pointer self-end text-gray-400 hover:text-gray-500">
+                <div className="mt-[1rem] cursor-not-allowed self-end text-gray-400 hover:text-gray-500">
                   Forgot password?
                 </div>
 

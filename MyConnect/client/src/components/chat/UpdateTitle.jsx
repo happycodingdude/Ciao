@@ -1,8 +1,8 @@
 import { Tooltip } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
-import useAuth from "../hook/useAuth";
-import CustomModal from "./CustomModal";
+import useAuth from "../../hook/useAuth";
+import CustomModal from "../common/CustomModal";
 
 const UpdateTitle = ({ reference }) => {
   const auth = useAuth();

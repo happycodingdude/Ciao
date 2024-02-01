@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
-import useAuth from "../hook/useAuth";
+import useAuth from "../../hook/useAuth";
 import ImageWithLightBox from "./ImageWithLightBox";
 
 const Header = () => {
@@ -82,25 +82,6 @@ const Header = () => {
         {auth.id ? (
           <div className="flex items-center gap-[5rem]">
             <div className="flex items-center gap-[1rem]">
-              {/* <div
-                style={{
-                  "--image-url": `url(${avatar})`,
-                }}
-                className="cursor-poiter relative aspect-square w-[3rem] rounded-[50%] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center"
-              >
-                <input
-                  multiple
-                  type="file"
-                  accept="image/png, image/jpeg"
-                  className="hidden"
-                  id="avatar"
-                  onChange={updateAvatar}
-                ></input>
-                <label
-                  for="avatar"
-                  className="fa fa-camera absolute bottom-[-10%] right-0 aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-gray-500 hover:text-blue-500"
-                ></label>
-              </div> */}
               <div className="relative">
                 <ImageWithLightBox
                   src={avatar ?? ""}
@@ -125,10 +106,7 @@ const Header = () => {
                   className="fa fa-camera absolute bottom-[-20%] right-[-30%] aspect-square cursor-pointer rounded-[50%] bg-white p-[.2rem] text-gray-500 hover:text-purple-400"
                 ></label>
               </div>
-              <div className="text-left">
-                <p className="font-medium text-gray-600">{auth.display}</p>
-                {/* <p className="text-base text-purple-500">Online</p> */}
-              </div>
+              <p className="font-medium text-gray-600">{auth.display}</p>
             </div>
             <div
               className="fa fa-arrow-down group relative flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] bg-gray-300 font-normal

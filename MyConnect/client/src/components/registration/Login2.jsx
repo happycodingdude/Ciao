@@ -1,10 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hook/useAuth";
 import Signup from "./Signup";
-import useAuth from "./hook/useAuth";
 
-const Login1 = () => {
+const Login2 = () => {
   console.log("Login calling");
   const navigate = useNavigate();
   const auth = useAuth();
@@ -32,6 +32,8 @@ const Login1 = () => {
 
   const refPhUsername = useRef();
   const refPhPassword = useRef();
+  const refBorderUsername = useRef();
+  const refBorderPassword = useRef();
 
   const handleLogin = () => {
     const username = refUsername.current.value;
@@ -87,14 +89,16 @@ const Login1 = () => {
     }
   };
 
-  const handleFocus = (e, ref, focus) => {
+  const handleFocus = (e, refPH, refBorder, focus) => {
     if (e.target.value !== "") return;
     if (focus === true) {
       e.target.classList.add("input-focus");
-      ref.current.classList.add("input-focus-placeholder");
+      refPH.current.classList.add("input-focus-placeholder");
+      refBorder.current.classList.add("input-focus-border");
     } else {
       e.target.classList.remove("input-focus");
-      ref.current.classList.remove("input-focus-placeholder");
+      refPH.current.classList.remove("input-focus-placeholder");
+      refBorder.current.classList.remove("input-focus-border");
     }
   };
 
@@ -128,20 +132,28 @@ const Login1 = () => {
               </div>
 
               <div className="flex flex-col">
-                <div className="flex flex-col gap-[2rem] text-gray-600">
+                <div className="flex flex-col gap-[3rem] text-gray-600">
                   <div className="relative">
                     <input
-                      className="focus w-full rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] 
+                      className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] 
                   outline-none transition-all duration-200"
                       ref={refUsername}
                       type="text"
                       onChange={handleInputChange}
-                      onFocus={(e) => handleFocus(e, refPhUsername, true)}
-                      onBlur={(e) => handleFocus(e, refPhUsername)}
+                      onFocus={(e) =>
+                        handleFocus(e, refPhUsername, refBorderUsername, true)
+                      }
+                      onBlur={(e) =>
+                        handleFocus(e, refPhUsername, refBorderUsername)
+                      }
                     />
+                    <div
+                      ref={refBorderUsername}
+                      className="absolute bottom-[1%] h-[.1rem] w-0 bg-purple-400 transition-all duration-200"
+                    ></div>
                     <p
                       ref={refPhUsername}
-                      className="pointer-events-none absolute left-[3%] top-[50%] z-10 origin-left translate-y-[-50%] px-[.5rem] text-gray-400 transition-all duration-200"
+                      className="pointer-events-none absolute left-[3%] top-[50%] z-10 origin-left translate-y-[-50%] text-gray-400 transition-all duration-200"
                     >
                       Username
                     </p>
@@ -154,17 +166,25 @@ const Login1 = () => {
                   </div>
                   <div className="relative">
                     <input
-                      className="focus w-full rounded-[.4rem] border-[.1rem] border-gray-300 px-[1rem] py-[1rem] 
+                      className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] 
                   outline-none transition-all duration-200"
                       ref={refPassword}
                       type="text"
                       onChange={handleInputChange}
-                      onFocus={(e) => handleFocus(e, refPhPassword, true)}
-                      onBlur={(e) => handleFocus(e, refPhPassword)}
+                      onFocus={(e) =>
+                        handleFocus(e, refPhPassword, refBorderPassword, true)
+                      }
+                      onBlur={(e) =>
+                        handleFocus(e, refPhPassword, refBorderPassword)
+                      }
                     />
+                    <div
+                      ref={refBorderPassword}
+                      className="absolute bottom-[1%] h-[.1rem] w-0 bg-purple-400 transition-all duration-200"
+                    ></div>
                     <p
                       ref={refPhPassword}
-                      className="pointer-events-none absolute left-[3%] top-[50%] z-10 origin-left translate-y-[-50%] px-[.5rem] text-gray-400 transition-all duration-200"
+                      className="pointer-events-none absolute left-[3%] top-[50%] z-10 origin-left translate-y-[-50%] text-gray-400 transition-all duration-200"
                     >
                       Password
                     </p>
@@ -213,4 +233,4 @@ const Login1 = () => {
   );
 };
 
-export default Login1;
+export default Login2;

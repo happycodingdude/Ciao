@@ -1,13 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import Attachment from "./components/Attachment";
-import Chatbox from "./components/Chatbox";
-import Header from "./components/Header";
-import Information from "./components/Information";
-import ListChat from "./components/ListChat";
-import { requestPermission } from "./components/Notification";
-import Signout from "./components/Signout";
-import useAuth from "./hook/useAuth";
+import useAuth from "../../hook/useAuth";
+import Header from "../common/Header";
+import { requestPermission } from "../common/Notification";
+import Signout from "../registration/Signout";
+import Attachment from "./Attachment";
+import Chatbox from "./Chatbox";
+import Information from "./Information";
+import ListChat from "./ListChat";
 
 const Home = () => {
   const auth = useAuth();
@@ -60,6 +60,17 @@ const Home = () => {
               console.log(err);
             });
         }
+        break;
+      case "NewConversation":
+        const cancelToken = axios.CancelToken.source();
+        getAllChats(cancelToken)
+          .then((res) => {
+            if (res.status !== 200) throw new Error(res.status);
+            refListChat.newChat(res.data.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
         break;
       default:
         break;
@@ -191,7 +202,8 @@ const Home = () => {
   return (
     <div className="flex w-full flex-col bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
       <Header />
-      <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[1rem] [&>*:not(:first-child)]:mb-[1rem]">
+      {/* <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[1rem] [&>*:not(:first-child)]:mb-[1rem]"> */}
+      <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[.1rem]">
         <Signout />
         <ListChat
           reference={{

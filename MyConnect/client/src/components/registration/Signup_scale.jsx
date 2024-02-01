@@ -1,28 +1,29 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import CustomInput from "./components/common/CustomInput";
+import CustomInput from "../common/CustomInput";
 
-const Signup = ({ reference }) => {
-  const refSignupContainer = useRef();
+const Signup1 = ({ reference }) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
     // refSignup.current.classList.remove("animate-registration-hide");
     // refSignup.current?.classList.add("animate-registration-show");
-    refSignupContainer.current?.classList.toggle("opacity-0");
-    refSignup.current?.classList.toggle("translate-x-[150%]");
+    refSignup.current?.classList.toggle("scale-100");
+    refSignup.current?.classList.toggle("z-10");
+    refSignup.current?.classList.toggle("opacity-100");
     reset();
-  };
-
-  const backToLogin = () => {
-    refSignupContainer.current?.classList.toggle("opacity-0");
-    refSignup.current?.classList.toggle("translate-x-[150%]");
   };
 
   useEffect(() => {
     reference.refSignup.toggleSignup = toggleSignup;
-    reference.refSignup.toggleLogin = backToLogin;
   }, [toggleSignup]);
+
+  const backToLogin = () => {
+    refSignup.current?.classList.toggle("scale-100");
+    refSignup.current?.classList.toggle("z-10");
+    refSignup.current?.classList.toggle("opacity-100");
+    reference.toggleLogin();
+  };
 
   const [name, setName] = useState("");
   const [userName, setUsername] = useState("");
@@ -64,15 +65,12 @@ const Signup = ({ reference }) => {
   };
 
   return (
-    <div
-      ref={refSignupContainer}
-      className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-white opacity-0 transition-all duration-500"
-    >
+    <>
       <div
         ref={refSignup}
-        className="m-auto flex h-[70%] w-[70%] translate-x-[150%] flex-col gap-[15%] bg-white transition-all duration-500"
+        className="absolute bottom-0 top-0 m-auto flex h-[70%] w-[70%] origin-[75%_92%] scale-0 flex-col gap-[15%] rounded-[1rem] bg-white duration-[.2s]"
       >
-        <p className="text-5xl text-gray-600">Create account</p>
+        <p className="text-2xl font-semibold text-gray-600">Hello, friend!</p>
 
         <div className="flex flex-col">
           <div className="flex flex-col gap-[3rem] text-gray-600">
@@ -104,7 +102,7 @@ const Signup = ({ reference }) => {
             className="mt-[4rem] w-full cursor-pointer self-center rounded-[.4rem] bg-gradient-to-r 
             from-purple-300 to-purple-400 bg-[size:200%] bg-[position:0%_0%] py-[1rem] text-center
             font-medium text-white shadow-[0_3px_3px_-2px_#d3adfb] 
-            transition-all duration-500 
+            transition-all duration-200 
             hover:bg-[position:100%_100%] hover:shadow-[0_3px_10px_-2px_#cea1fd]"
             onClick={handleSignup}
           >
@@ -117,7 +115,7 @@ const Signup = ({ reference }) => {
           >
             Back to login
           </div> */}
-          {/* <div className="mt-[2rem] flex items-center justify-center gap-[.5rem]">
+          <div className="mt-[2rem] flex items-center justify-center gap-[.5rem]">
             <p className="text-gray-400">Or</p>
             <div
               onClick={backToLogin}
@@ -125,11 +123,11 @@ const Signup = ({ reference }) => {
             >
               Login
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default Signup;
+export default Signup1;

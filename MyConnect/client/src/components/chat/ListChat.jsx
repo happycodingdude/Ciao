@@ -1,8 +1,9 @@
 import moment from "moment";
 import React, { memo, useEffect, useRef, useState } from "react";
-import useAuth from "../hook/useAuth";
-import CustomLabel from "./CustomLabel";
-import ImageWithLightBox from "./ImageWithLightBox";
+import useAuth from "../../hook/useAuth";
+import CustomLabel from "../common/CustomLabel";
+import ImageWithLightBox from "../common/ImageWithLightBox";
+import CreateGroupChat from "./CreateGroupChat";
 
 const ListChat = ({ reference }) => {
   console.log("ListChat calling");
@@ -13,21 +14,24 @@ const ListChat = ({ reference }) => {
   const refChatsScroll = useRef();
 
   const [chats, setChats] = useState();
+  const [activeItem, setActiveItem] = useState();
 
   const unfocusChat = () => {
-    refChatItem.current.map((ref) => {
-      ref.classList.remove("item-active");
-    });
+    // refChatItem.current.map((ref) => {
+    //   ref.classList.remove("item-active");
+    // });
+    setActiveItem("");
   };
 
   const focusChat = (item) => {
-    refChatItem.current.map((ref) => {
-      if (ref.dataset.key === item.Id) {
-        ref.classList.add("item-active");
-      } else {
-        ref.classList.remove("item-active");
-      }
-    });
+    setActiveItem(item.Id);
+    // refChatItem.current.map((ref) => {
+    //   if (ref.dataset.key === item.Id) {
+    //     ref.classList.add("item-active");
+    //   } else {
+    //     ref.classList.remove("item-active");
+    //   }
+    // });
   };
 
   const handleSetConversation = (item) => {
@@ -50,14 +54,14 @@ const ListChat = ({ reference }) => {
     else refChatsScroll.current.classList.remove("hidden");
 
     reference.refListChat.setChats = (chats) => {
-      var focus = refChatItem.current.find((ref) =>
-        ref.classList.contains("item-active"),
-      );
-      if (focus == undefined) setChats(chats);
+      // var focus = refChatItem.current.find((ref) =>
+      //   ref.classList.contains("item-active"),
+      // );
+      if (activeItem === undefined || activeItem === "") setChats(chats);
       else {
         setChats((current) => {
           return current.map((item) => {
-            if (item.Id !== focus.dataset.key) return item;
+            if (item.Id !== activeItem) return item;
             item.UnSeenMessages = 0;
             return item;
           });
@@ -69,6 +73,9 @@ const ListChat = ({ reference }) => {
       setChats(remainChats);
       reference.setConversation(undefined);
       unfocusChat();
+    };
+    reference.refListChat.newChat = (chats) => {
+      setChats(chats);
     };
 
     // listenNotification((message) => {
@@ -117,23 +124,31 @@ const ListChat = ({ reference }) => {
   };
 
   return (
-    <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col [&>*:not(:first-child)]:mt-[1rem]">
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Search"
-          className="w-full rounded-[.5rem] p-[1rem] focus:outline-none"
-        ></input>
-        <i className="fa fa-search absolute bottom-0 right-[0] top-0 flex w-[15%] items-center justify-center rounded-r-[.5rem] bg-gray-200 font-normal text-gray-400"></i>
+    <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-white">
+      {/* <div className="flex h-full w-full flex-col rounded-2xl bg-white"> */}
+      <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-gray-300 px-[2rem]">
+        <div className="flex h-[50%] grow">
+          <i className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[#e7e7e7] pl-[1rem] font-normal text-gray-500"></i>
+          <input
+            type="text"
+            placeholder="Search"
+            className="w-full rounded-r-[.5rem] bg-[#e7e7e7] p-[1rem] focus:outline-none"
+          ></input>
+        </div>
+        <div className="flex h-[50%] gap-[.5rem] [&>*]:px-[.5rem]">
+          <div className="fa fa-user-plus flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal transition-all duration-200 hover:bg-[#e7e7e7]"></div>
+          <CreateGroupChat></CreateGroupChat>
+        </div>
       </div>
       <div className="flex h-full flex-col overflow-hidden">
-        <div className="flex h-[clamp(5rem,10vh,7rem)] items-center justify-between">
+        {/* <div className="flex h-[clamp(5rem,10vh,7rem)] items-center justify-between">
           <label className="text-gray-400">Friends</label>
           <div className="fa fa-arrow-up cursor-pointer text-lg font-normal text-gray-500"></div>
-        </div>
+        </div> */}
         <div
           ref={refChats}
-          className="hide-scrollbar flex h-[clamp(50%,50vh,60%)] flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+          // className="hide-scrollbar flex h-[clamp(50%,50vh,60%)] flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+          className="hide-scrollbar flex flex-col gap-[.5rem] overflow-y-scroll scroll-smooth pt-[1rem] laptop:h-[30rem] desktop:h-[50rem] [&>*]:mx-[1rem]"
         >
           {chats?.map((item, i) => (
             <div
@@ -141,8 +156,9 @@ const ListChat = ({ reference }) => {
               ref={(element) => {
                 refChatItem.current[i] = element;
               }}
-              className="chat-item group flex cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] p-[1rem] hover:bg-purple-400 
-                                hover:text-white laptop:h-[8rem]"
+              // className="chat-item group flex cursor-pointer items-center gap-[1rem] overflow-hidden rounded-2xl p-[1rem] hover:bg-white
+              //                   hover:text-white laptop:h-[8rem]"
+              className={`${activeItem === item.Id ? "item-active" : ""} chat-item group flex shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-2xl px-[1rem] py-[1.2rem] hover:bg-[#f8f8f8]`}
               onClick={() => {
                 handleSetConversation(item);
               }}
@@ -150,12 +166,12 @@ const ListChat = ({ reference }) => {
               {/* <img
                 src={item.Avatar ?? ""}
                 onError={imageOnError}
-                className="aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[6rem]"
+                className="aspect-square rounded-full laptop:max-w-[5rem] desktop:max-w-[6rem]"
               ></img> */}
               <ImageWithLightBox
                 src={item.Avatar ?? ""}
-                // className="pointer-events-none aspect-square rounded-[50%] laptop:max-w-[5rem] desktop:max-w-[6rem]"
-                className="pointer-events-none aspect-square w-[4rem] rounded-[50%]"
+                // className="pointer-events-none aspect-square rounded-full laptop:max-w-[5rem] desktop:max-w-[6rem]"
+                className="pointer-events-none aspect-square w-[4rem] rounded-full"
                 slides={[
                   {
                     src: item.Avatar ?? "",
@@ -168,11 +184,18 @@ const ListChat = ({ reference }) => {
                   title={item.Title}
                 ></CustomLabel>
                 {item.LastMessageContact == auth.id ? (
-                  <p className="overflow-hidden text-ellipsis">
-                    {item.LastMessage === null
-                      ? ""
-                      : generateContent(item.LastMessage)}
-                  </p>
+                  // <p className="overflow-hidden text-ellipsis">
+                  //   {item.LastMessage === null
+                  //     ? ""
+                  //     : generateContent(item.LastMessage)}
+                  // </p>
+                  <CustomLabel
+                    title={
+                      item.LastMessage === null
+                        ? ""
+                        : generateContent(item.LastMessage)
+                    }
+                  ></CustomLabel>
                 ) : (
                   <p
                     className={`overflow-hidden text-ellipsis ${
@@ -185,22 +208,26 @@ const ListChat = ({ reference }) => {
                   </p>
                 )}
               </div>
-              <div className="flex flex-col items-end gap-[.5rem] self-start laptop:min-w-[5rem]">
-                <p className="font-thin text-gray-950 group-hover:text-white group-[.item-active]:text-white">
-                  {moment(item.LastMessageTime).format("DD/MM/YYYY") ===
-                  moment().format("DD/MM/YYYY")
-                    ? moment(item.LastMessageTime).format("HH:mm")
-                    : moment(item.LastMessageTime).format("DD/MM HH:mm")}
+              <div className="flex shrink-0 flex-col items-end gap-[.5rem] self-start laptop:min-w-[5rem]">
+                {/* <p className="font-thin text-gray-950 group-hover:text-white group-[.item-active]:text-white"> */}
+                <p className="font-thin text-gray-950">
+                  {item.LastMessageTime === null
+                    ? ""
+                    : moment(item.LastMessageTime).format("DD/MM/YYYY") ===
+                        moment().format("DD/MM/YYYY")
+                      ? moment(item.LastMessageTime).fromNow()
+                      : moment(item.LastMessageTime).format("DD/MM HH:mm")}
                 </p>
                 {item.LastMessageContact == auth.id ||
                 item.UnSeenMessages == 0 ? (
                   ""
                 ) : (
                   <p
-                    className="flex aspect-square w-[3rem] items-center justify-center rounded-[50%] bg-purple-400 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
-                                                font-bold text-slate-50
-                                                group-hover:bg-white group-hover:text-purple-400
-                                                group-[.item-active]:bg-white group-[.item-active]:text-purple-400"
+                    // className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-gray-100 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
+                    //                             font-bold text-slate-50
+                    //                             group-hover:bg-white group-hover:text-gray-100
+                    //                             group-[.item-active]:bg-white group-[.item-active]:text-gray-100"
+                    className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-blue-100 text-center text-[clamp(1.2rem,1.3vw,1.4rem)] font-medium text-gray-500"
                   >
                     {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
                   </p>
@@ -217,12 +244,13 @@ const ListChat = ({ reference }) => {
         >
           <div
             className="fa fa-arrow-down flex aspect-square w-[3rem] cursor-pointer items-center justify-center
-                        rounded-[50%] bg-gray-300 font-normal text-gray-500"
+                        rounded-full bg-gray-300 font-normal text-gray-500"
             onClick={scrollListChatToBottom}
           ></div>
         </div>
       </div>
     </div>
+    // </div>
   );
 };
 
