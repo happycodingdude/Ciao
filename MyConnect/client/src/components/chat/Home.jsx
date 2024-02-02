@@ -1,9 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../../hook/useAuth";
-import Header from "../common/Header";
 import { requestPermission } from "../common/Notification";
-import Signout from "../registration/Signout";
+import SideBar from "../common/Sidebar";
 import Attachment from "./Attachment";
 import Chatbox from "./Chatbox";
 import Information from "./Information";
@@ -200,11 +199,11 @@ const Home = () => {
   // };
 
   return (
-    <div className="flex w-full flex-col bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
-      <Header />
+    <div className="flex w-full bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
+      <SideBar />
       {/* <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[1rem] [&>*:not(:first-child)]:mb-[1rem]"> */}
-      <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[.1rem]">
-        <Signout />
+      <section className="relative flex grow overflow-hidden">
+        {/* <Signout /> */}
         <ListChat
           reference={{
             conversation,

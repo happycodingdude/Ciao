@@ -199,13 +199,13 @@ const Information = ({ reference }) => {
     >
       <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <p className="font-bold text-gray-600">Information</p>
-        <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
+        {/* <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-        </div>
+        </div> */}
       </div>
-      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:p-[1rem]">
+      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:p-[1rem]">
         <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             <ImageWithLightBox
@@ -229,7 +229,7 @@ const Information = ({ reference }) => {
             ></input>
             <label
               for="conversation-avatar"
-              className="fa fa-camera absolute right-[38%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-purple-400"
+              className="fa fa-camera absolute right-[40%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-purple-400"
             ></label>
             <CustomLabel
               className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"

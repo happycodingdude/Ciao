@@ -37,9 +37,9 @@ const Signout = () => {
   return (
     <div
       onClick={logout}
-      className="fa fa-sign-out absolute bottom-[5%] left-[2%] cursor-pointer text-lg font-light text-gray-400"
+      className="fa fa-sign-out cursor-pointer font-light text-gray-400"
     >
-      &ensp;Sign Out
+      &ensp;Sign out
     </div>
   );
 };

@@ -76,17 +76,17 @@ const Attachment = ({ reference }) => {
       ref={refAttachment}
       className="absolute top-0 flex h-full w-full flex-col bg-white"
     >
-      <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
+      <div className="relative flex h-[7rem] shrink-0 items-center justify-center border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <div
-          className="fa fa-arrow-left flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
+          className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
           onClick={showInformation}
         ></div>
         <p className="font-bold text-gray-600">Attachments</p>
-        <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
+        {/* <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
           <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-        </div>
+        </div> */}
       </div>
       <div className="relative flex">
         <div

@@ -188,17 +188,16 @@ const Chatbox = ({ reference }) => {
   };
 
   const sendMessage = async () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
     var body = {
       ContactId: auth.id,
       ConversationId: reference.conversation.Id,
     };
     if (files.length === 0) {
-      if (refChatInput.current.textarea.value === "") return;
+      if (refChatInput.current.textarea.value === "") {
+        form.setFieldValue("mentions", "");
+        refChatInput.current.textarea.focus();
+        return;
+      }
       body = {
         ...body,
         Type: "text",
@@ -218,6 +217,11 @@ const Chatbox = ({ reference }) => {
         }),
       };
     }
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
     axios
       .post(`api/messages/send`, body, {
         cancelToken: cancelToken.token,
@@ -226,10 +230,12 @@ const Chatbox = ({ reference }) => {
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
 
-        // form.resetFields();
-        form.setFieldValue("mentions", "");
-        refChatInput.current.textarea.focus();
-        setFiles([]);
+        if (files.length === 0) {
+          form.setFieldValue("mentions", "");
+          refChatInput.current.textarea.focus();
+        } else {
+          setFiles([]);
+        }
         setMessages([...messages, res.data.data]);
 
         setTimeout(() => {
@@ -338,13 +344,13 @@ const Chatbox = ({ reference }) => {
     <>
       <div
         ref={refChatboxContainer}
-        className="mx-0 flex flex-1 grow-[2] flex-col items-center gap-[.1rem]"
+        className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
       >
         <div className="relative flex w-full grow flex-col overflow-hidden bg-white [&>*]:px-[2rem]">
           <div
             ref={refScrollButton}
             className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center justify-center
-                      rounded-[50%] bg-gray-300 font-normal text-gray-500"
+                      rounded-[50%] bg-[#f0f0f0] font-normal text-gray-500 hover:bg-[#dadada]"
             onClick={scrollChatContentToBottom}
           ></div>
           <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
@@ -389,7 +395,7 @@ const Chatbox = ({ reference }) => {
               </div>
             </div>
             <div className="flex justify-end gap-[1rem]">
-              <div className="fa fa-search cursor-not-allowed self-center font-normal text-gray-500"></div>
+              {/* <div className="fa fa-search cursor-not-allowed self-center font-normal text-gray-500"></div> */}
               <div
                 ref={refToggleInformationContainer}
                 onClick={toggleInformationContainer}
@@ -469,19 +475,22 @@ const Chatbox = ({ reference }) => {
                       {generateContent(message.Content)}
                     </div>
                   ) : (
+                    // <div
+                    //   className={`grid w-full justify-end gap-[1rem] ${
+                    //     message.Type === "media" &&
+                    //     message.Attachments.length === 1
+                    //       ? `grid-cols-[80%] ${message.ContactId === auth.id ? "justify-end" : ""}`
+                    //       : // : "grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
+                    //         "grid-flow-dense grid-cols-[repeat(3,minmax(15rem,1fr))]"
+                    //   } text-gray-400`}
                     <div
-                      className={`grid w-full gap-[1rem] ${
-                        message.Type === "media" &&
-                        message.Attachments.length === 1
-                          ? `grid-cols-[80%] ${message.ContactId === auth.id ? "justify-end" : ""}`
-                          : "grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]"
-                      } text-gray-400`}
+                      className={`flex w-full flex-wrap ${message.ContactId === auth.id ? "justify-end" : ""} gap-[1rem] text-gray-400`}
                     >
                       {message.Attachments.map((item, index) => (
                         <ImageWithLightBox
                           src={item.MediaUrl}
                           title={item.MediaName?.split(".")[0]}
-                          className="my-auto cursor-pointer rounded-2xl"
+                          className="my-auto max-w-[45%] cursor-pointer rounded-2xl"
                           slides={message.Attachments.map((item) => ({
                             src:
                               item.Type === "image"
@@ -498,8 +507,8 @@ const Chatbox = ({ reference }) => {
             ))}
           </div>
         </div>
-        <div className="flex w-full items-center justify-evenly bg-white py-[.5rem]">
-          <div className="flex grow items-center justify-evenly">
+        <div className="flex w-full items-center justify-center bg-white px-[2rem] py-[.5rem]">
+          <div className="flex max-w-[10rem] grow items-center justify-evenly">
             <input
               multiple
               type="file"
@@ -565,7 +574,7 @@ const Chatbox = ({ reference }) => {
               ))}
             </div>
           ) : (
-            <div className="grow-[2]">
+            <div className="relative max-w-[50rem] grow">
               <Form form={form}>
                 <Form.Item name="mentions" className="mb-0">
                   <Mentions
@@ -576,16 +585,16 @@ const Chatbox = ({ reference }) => {
                   ></Mentions>
                 </Form.Item>
               </Form>
+              <div className="absolute right-0 top-0 flex h-full grow items-center justify-center">
+                <Tooltip title="Send">
+                  <div
+                    className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] text-blue-500"
+                    onClick={sendMessage}
+                  ></div>
+                </Tooltip>
+              </div>
             </div>
           )}
-          <div className="flex h-full grow items-center justify-center laptop:max-h-[3.5rem] desktop:max-h-[4.5rem]">
-            <Tooltip title="Send">
-              <div
-                className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] bg-blue-500 text-[90%] font-normal text-white"
-                onClick={sendMessage}
-              ></div>
-            </Tooltip>
-          </div>
         </div>
       </div>
     </>

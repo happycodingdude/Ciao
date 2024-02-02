@@ -60,7 +60,9 @@ body,
       outline: unset !important;
     }
     textarea {
-      border-bottom: 0.1rem gray solid;
+      border: 0.2rem rgb(226, 226, 226) solid;
+      border-radius: 1rem;
+      padding: 0.7rem 4rem 0.7rem 2rem;
       overflow-y: scroll;
 
       &::-webkit-scrollbar {
