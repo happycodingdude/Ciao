@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -9,11 +10,15 @@ public class UsersController : ControllerBase
 {
     private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserService _userService;
 
-    public UsersController(IConfiguration configuration, IUnitOfWork unitOfWork)
+    public UsersController(IConfiguration configuration,
+     IUnitOfWork unitOfWork,
+    IUserService userService)
     {
         _configuration = configuration;
         _unitOfWork = unitOfWork;
+        _userService = userService;
     }
 
     [HttpPost("signup")]
@@ -50,7 +55,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            _unitOfWork.Contact.Logout();
+            _userService.Logout();
             return Ok();
         }
         catch (Exception ex)

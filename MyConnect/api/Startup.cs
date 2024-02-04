@@ -57,6 +57,7 @@ namespace MyConnect
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationService, ConversationService>();
+            services.AddScoped<IUserService, UserService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -16,5 +16,13 @@ namespace MyConnect.Repository
             .Where(q => q.ConversationId == id && !q.IsDeleted)
             .ToList();
         }
+
+        public IEnumerable<string> GetContactIdByConversationId(Guid id)
+        {
+            return _dbSet            
+            .Where(q => q.ConversationId == id)
+            .Select(q => q.ContactId.ToString())
+            .ToList();
+        }
     }
 }

@@ -23,12 +23,13 @@ namespace MyConnect.Implement
         public async Task<IEnumerable<Participant>> AddParticipantAndNotify(List<Participant> model)
         {
             _unitOfWork.Participant.AddRange(model);
-            _unitOfWork.Save();
-            foreach (var connection in _notificationService.Connections)
+            _unitOfWork.Save();            
+            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.FirstOrDefault().ConversationId))
             {
+                var connection = _notificationService.GetConnection(contact);
                 var notification = new FirebaseNotification
                 {
-                    to = connection.Value,
+                    to = connection,
                     data = new Notification(NotificationEvent.AddMember, model)
                 };
                 await _firebaseFunction.Notify(notification);
@@ -40,11 +41,12 @@ namespace MyConnect.Implement
         {
             _unitOfWork.Participant.Update(model);
             _unitOfWork.Save();
-            foreach (var connection in _notificationService.Connections)
+            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             {
+                var connection = _notificationService.GetConnection(contact);
                 var notification = new FirebaseNotification
                 {
-                    to = connection.Value,
+                    to = connection,
                     data = new Notification(NotificationEvent.RemoveChat, model)
                 };
                 await _firebaseFunction.Notify(notification);

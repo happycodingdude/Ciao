@@ -1,23 +1,35 @@
 using MyConnect.Interface;
 using MyConnect.Model;
+using StackExchange.Redis;
 
 namespace MyConnect.Implement
 {
+    public static class RedisCLient{
+
+            private static readonly ConnectionMultiplexer redis;
+            public static readonly IDatabase db;
+
+            static RedisCLient(){
+                redis = ConnectionMultiplexer.Connect("localhost");
+             db = redis.GetDatabase();
+            }
+    }
+
     public class NotificationService : INotificationService
     {
-        private static Dictionary<Guid, string> connections = new Dictionary<Guid, string>();
-
-        public Dictionary<Guid, string> Connections
+        public string GetConnection(string id)
         {
-            get
-            {
-                return connections;
-            }
+            return RedisCLient.db.StringGet($"connection-{id}");
         }
 
-        public void RegisterToken(RegisterConnection param)
+        public void RegisterConnection(RegisterConnection param)
         {
-            connections[param.Id] = param.Token;
+            RedisCLient.db.StringSet($"connection-{param.Id}", param.Token);
+        }
+
+        public void RemoveConnection(string id)
+        {
+            RedisCLient.db.KeyDelete($"connection-{id}");
         }
     }
 }

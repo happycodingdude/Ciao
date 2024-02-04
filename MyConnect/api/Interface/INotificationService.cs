@@ -4,7 +4,8 @@ namespace MyConnect.Interface
 {
     public interface INotificationService
     {
-        Dictionary<Guid, string> Connections { get; }
-        void RegisterToken(RegisterConnection param);
+        string GetConnection(string id);
+        void RegisterConnection(RegisterConnection param);
+        void RemoveConnection(string id);
     }
 }

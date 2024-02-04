@@ -20,7 +20,7 @@ public class NotificationController : ControllerBase
     {
         try
         {
-            _notificationService.RegisterToken(param);
+            _notificationService.RegisterConnection(param);
             return Ok();
         }
         catch (Exception ex)

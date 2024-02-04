@@ -32,11 +32,12 @@ namespace MyConnect.Implement
             _unitOfWork.Save();
 
             var notify = _mapper.Map<Message, MessageToNotify>(model);
-            foreach (var connection in _notificationService.Connections)
+            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             {
+                var connection = _notificationService.GetConnection(contact);
                 var notification = new FirebaseNotification
                 {
-                    to = connection.Value,
+                    to = connection,
                     data = new Notification(NotificationEvent.NewMessage, notify)
                 };
                 await _firebaseFunction.Notify(notification);
