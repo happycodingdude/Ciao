@@ -35,11 +35,16 @@ const Signout = () => {
   };
 
   return (
-    <div
-      onClick={logout}
-      className="fa fa-sign-out cursor-pointer font-light text-gray-400"
-    >
-      &ensp;Sign out
+    // <div
+    //   onClick={logout}
+    //   className="fa fa-sign-out cursor-pointer font-light text-gray-400 hover:bg-[#f0f0f0]"
+    // >
+    //   &ensp;Sign out
+    // </div>
+
+    <div onClick={logout} className="flex items-center hover:bg-[#f0f0f0]">
+      <div className="fa fa-sign-out w-[2rem] cursor-pointer font-light text-gray-400"></div>
+      <p className="">Sign out</p>
     </div>
   );
 };

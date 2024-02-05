@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
-using MyConnect.UOW;
 
 namespace MyConnect.Controllers;
 [ApiController]
@@ -9,15 +8,11 @@ namespace MyConnect.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IConfiguration _configuration;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserService _userService;
 
-    public UsersController(IConfiguration configuration,
-     IUnitOfWork unitOfWork,
-    IUserService userService)
+    public UsersController(IConfiguration configuration, IUserService userService)
     {
         _configuration = configuration;
-        _unitOfWork = unitOfWork;
         _userService = userService;
     }
 
@@ -26,7 +21,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            _unitOfWork.Contact.Signup(model);
+            _userService.Signup(model);
             return Ok();
         }
         catch (Exception ex)
@@ -40,7 +35,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Contact.Login(model);
+            var response = _userService.Login(model);
             return new ResponseModel<LoginResponse>(response).Ok();
         }
         catch (Exception ex)
@@ -70,7 +65,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Contact.ValidateToken();
+            var response = _userService.ValidateToken();
             return new ResponseModel<Contact>(response).Ok();
         }
         catch (Exception ex)

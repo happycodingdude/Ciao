@@ -2,7 +2,8 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../../hook/useAuth";
 import { requestPermission } from "../common/Notification";
-import SideBar from "../common/Sidebar";
+import Profile from "../sidebar/Profile";
+import SideBar from "../sidebar/SideBar";
 import Attachment from "./Attachment";
 import Chatbox from "./Chatbox";
 import Information from "./Information";
@@ -191,19 +192,11 @@ const Home = () => {
     else hideInformationContainer();
   };
 
-  // const toggleInformationContainer = () => {
-  //   // refInformationContainer.current.classList.toggle("grow-0");
-  //   // refInformationContainer.current.classList.toggle("opacity-0");
-  //   // refInformationContainer.current.classList.toggle("scale-0");
-  //   refInformationContainer.current.classList.toggle("information-toggle");
-  // };
-
   return (
     <div className="flex w-full bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
+      <Profile />
       <SideBar />
-      {/* <section className="relative flex grow overflow-hidden [&>*:not(:first-child)]:m-[1rem] [&>*:not(:first-child)]:mb-[1rem]"> */}
       <section className="relative flex grow overflow-hidden">
-        {/* <Signout /> */}
         <ListChat
           reference={{
             conversation,

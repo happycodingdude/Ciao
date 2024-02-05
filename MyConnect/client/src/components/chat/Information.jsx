@@ -6,6 +6,7 @@ import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import AddParticipants from "./AddParticipants";
+import ToggleNotification from "./ToggleNotification";
 
 const Information = ({ reference }) => {
   console.log("Information calling");
@@ -14,7 +15,6 @@ const Information = ({ reference }) => {
   const [participants, setParticipants] = useState();
   const [attachments, setAttachments] = useState();
   const [displayAttachments, setDisplayAttachments] = useState();
-  const [isNotifying, setIsNotifying] = useState(false);
 
   const refInformation = useRef();
 
@@ -57,37 +57,6 @@ const Information = ({ reference }) => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
     refInformation.current.classList.remove("animate-flip-scale-down-vertical");
   };
-
-  const toggleNotification = (e) => {
-    const checked = !isNotifying;
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    const selected = participants.find((item) => item.ContactId === auth.id);
-    selected.IsNotifying = checked;
-    axios
-      .put(`api/participants`, selected, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        setIsNotifying(checked);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
-  };
-
-  useEffect(() => {
-    localStorage.setItem("notification", isNotifying);
-  }, [isNotifying]);
 
   const deleteChat = () => {
     const cancelToken = axios.CancelToken.source();
@@ -172,9 +141,6 @@ const Information = ({ reference }) => {
 
     reference.refInformation.setParticipants = (data) => {
       setParticipants(data);
-      setIsNotifying(
-        data.find((item) => item.ContactId === auth.id)?.IsNotifying,
-      );
     };
   }, []);
 
@@ -241,17 +207,17 @@ const Information = ({ reference }) => {
             </div>
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            <div
-              onClick={toggleNotification}
-              className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal hover:bg-purple-200 
-              ${isNotifying ? "fa-bell bg-purple-100 text-purple-500" : "fa-bell-slash bg-purple-200 text-purple-800"}`}
-            ></div>
+            <ToggleNotification
+              reference={{
+                participants,
+              }}
+            />
             <AddParticipants
               reference={{
                 participants,
                 conversation: reference.conversation,
               }}
-            ></AddParticipants>
+            />
           </div>
         </div>
         <div className="flex flex-col gap-[1rem]">
@@ -285,44 +251,6 @@ const Information = ({ reference }) => {
             ))}
           </div>
         </div>
-        {/* <div className="flex justify-between border-b-[.1rem]">
-          <label className="fa fa-bell font-normal text-gray-500">
-            &ensp;Notification
-          </label>
-          <div className="relative">
-            <input
-              type="checkbox"
-              id="checkbox"
-              className="peer absolute opacity-0"
-              checked={isNotifying}
-              onChange={toggleNotification}
-            ></input>
-            <label
-              for="checkbox"
-              className="
-                        relative                
-                        block h-[100%]
-                        w-[clamp(3rem,2.5vw,4rem)]
-                        cursor-pointer
-                        rounded-[5rem]
-                        bg-gray-400
-                        duration-[.3s]
-                        before:absolute
-                        before:z-[2]
-                        before:aspect-square
-                        before:h-full
-                        before:rounded-[50%]
-                        before:border-[.2rem]
-                        before:border-gray-400
-                        before:bg-white
-                        before:duration-[.3s]
-                        peer-checked:bg-purple-400
-                        before:peer-checked:translate-x-[100%]
-                        before:peer-checked:border-purple-400
-                        laptop:before:peer-checked:translate-x-[110%]"
-            ></label>
-          </div>
-        </div> */}
         <DeleteConfirmation
           title="Delete chat"
           message="Are you sure want to delete this chat?"

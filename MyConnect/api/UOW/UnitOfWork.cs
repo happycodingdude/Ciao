@@ -10,7 +10,7 @@ namespace MyConnect.UOW
         public UnitOfWork(CoreContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IMapper _mapper)
         {
             _context = context;
-            Contact = new ContactRepository(_context, httpContextAccessor, configuration);
+            Contact = new ContactRepository(_context);
             Conversation = new ConversationRepository(_context, _mapper, httpContextAccessor);
             Message = new MessageRepository(_context, _mapper, httpContextAccessor);
             Participant = new ParticipantRepository(_context);

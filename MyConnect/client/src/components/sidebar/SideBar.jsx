@@ -2,8 +2,8 @@ import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hook/useAuth";
-import Signout from "../registration/Signout";
-import ImageWithLightBox from "./ImageWithLightBox";
+import ImageWithLightBox from "../common/ImageWithLightBox";
+import Signout from "./Signout";
 
 const SideBar = () => {
   const auth = useAuth();
@@ -111,8 +111,8 @@ const SideBar = () => {
           </div>
           <div className="fa fa-cog group relative cursor-pointer text-xl font-thin text-gray-500">
             <div
-              className="fixed bottom-[6%] left-[4%] z-[1000] flex origin-bottom-left scale-0 flex-col rounded-r-2xl rounded-tl-2xl bg-white py-[1rem] font-sans text-base shadow-[0_0_20px_1px_#dbdbdb] duration-200
-              group-hover:scale-100 [&>*]:px-[2rem] [&>*]:py-[1rem] [&>*]:hover:bg-[#f0f0f0]"
+              className="fixed bottom-[6%] left-[4%] z-[1000] flex origin-bottom-left scale-0 flex-col rounded-r-2xl rounded-tl-2xl bg-white py-[1rem] text-base shadow-[0_0_20px_1px_#dbdbdb] duration-200
+              group-hover:scale-100 [&>*]:px-[2rem] [&>*]:py-[1rem]"
             >
               <Signout />
             </div>

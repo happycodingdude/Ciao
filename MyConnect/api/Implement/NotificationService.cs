@@ -4,15 +4,16 @@ using StackExchange.Redis;
 
 namespace MyConnect.Implement
 {
-    public static class RedisCLient{
+    public static class RedisCLient
+    {
+        private static readonly ConnectionMultiplexer redis;
+        public static readonly IDatabase db;
 
-            private static readonly ConnectionMultiplexer redis;
-            public static readonly IDatabase db;
-
-            static RedisCLient(){
-                redis = ConnectionMultiplexer.Connect("localhost");
-             db = redis.GetDatabase();
-            }
+        static RedisCLient()
+        {
+            redis = ConnectionMultiplexer.Connect("localhost");
+            db = redis.GetDatabase();
+        }
     }
 
     public class NotificationService : INotificationService
