@@ -33,8 +33,8 @@ const Signup = ({ reference }) => {
 
   const handleSignup = () => {
     if (userName === "" || password === "") return;
-    if(password.length < 6){
-      setErrorPassword('Password min characters is 6');
+    if (password.length < 6) {
+      setErrorPassword("Password min characters is 6");
       return;
     }
     const headers = {
@@ -85,13 +85,11 @@ const Signup = ({ reference }) => {
             <CustomInput
               type="text"
               label="Name"
-              value={name}
               onChange={setName}
             ></CustomInput>
             <CustomInput
               type="text"
               label="Username"
-              value={userName}
               error={errorUsername}
               onChange={(text) => {
                 setUsername(text);
@@ -101,12 +99,11 @@ const Signup = ({ reference }) => {
             <CustomInput
               type="password"
               label="Password"
-              value={password}
               error={errorPassword}
               onChange={(text) => {
                 setPassword(text);
                 if (text === "") setErrorPassword("");
-              }}              
+              }}
             ></CustomInput>
           </div>
 

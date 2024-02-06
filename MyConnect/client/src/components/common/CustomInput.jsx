@@ -7,6 +7,7 @@ const CustomInput = ({ type, value, label, error, onChange, onKeyDown }) => {
   const refError = useRef();
 
   const handleInputChange = (e) => {
+    if (onChange === undefined) return;
     onChange(e.target.value);
   };
 

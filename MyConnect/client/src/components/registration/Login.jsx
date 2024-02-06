@@ -138,7 +138,6 @@ const Login = () => {
                   <CustomInput
                     type="text"
                     label="Username"
-                    value={userName}
                     error={errorUsername}
                     onChange={(text) => {
                       setUsername(text);
@@ -149,7 +148,6 @@ const Login = () => {
                   <CustomInput
                     type="password"
                     label="Password"
-                    value={password}
                     error={errorPassword}
                     onChange={(text) => {
                       setPassword(text);
