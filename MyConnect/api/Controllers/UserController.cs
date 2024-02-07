@@ -73,4 +73,18 @@ public class UsersController : ControllerBase
             return new ResponseModel<Contact>().BadRequest(ex);
         }
     }
+
+    [HttpPost("forgot")]
+    public IActionResult ForgotPassword(ForgotPassword model)
+    {
+        try
+        {
+            _userService.ForgotPassword(model);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Contact>().BadRequest(ex);
+        }
+    }
 }

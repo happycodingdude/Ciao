@@ -14,7 +14,7 @@ function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
       <img
         src={src}
         title={title}
-        className={className}
+        className={className ?? ""}
         onClick={onClick ?? handleShowLightbox}
         onError={imageOnError}
       ></img>

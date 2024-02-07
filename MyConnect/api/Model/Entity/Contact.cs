@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MyConnect.Common;
 
 namespace MyConnect.Model
 {
@@ -24,6 +25,14 @@ namespace MyConnect.Model
         {
             IsOnline = false;
             LastLogout = DateTime.Now;
+        }
+
+        public void EncryptPassword(){
+            Password = Hash.Encrypt(Password);
+        }
+
+        public void DecryptPassword(){
+            Password = Hash.Decrypt(Password);
         }
     }
 

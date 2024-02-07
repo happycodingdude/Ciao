@@ -41,15 +41,15 @@ const CustomInput = ({ type, value, label, error, onChange, onKeyDown }) => {
   useEffect(() => {
     if (value !== "") return;
     refInput.current.classList.remove("input-focus");
-    refInput.current.blur();
-    refPlaceHolder.current.classList.remove("input-focus-placeholder");
-    refBorder.current.classList.remove("input-focus-border");
+    // refInput.current.blur();
+    // refPlaceHolder.current.classList.remove("input-focus-placeholder");
+    // refBorder.current.classList.remove("input-focus-border");
   }, [value]);
 
   return (
     <div className="relative">
       <input
-        className="focus w-full border-[.1rem] border-white !border-b-gray-300 px-[1rem] py-[1rem] outline-none transition-all duration-200"
+        className="focus w-full border-[.1rem] border-white !border-b-gray-300 p-[1rem] outline-none transition-all duration-200"
         type={type}
         ref={refInput}
         value={value}

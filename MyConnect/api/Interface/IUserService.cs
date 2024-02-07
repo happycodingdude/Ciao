@@ -8,5 +8,6 @@ namespace MyConnect.Interface
         LoginResponse Login(LoginRequest model);
         void Logout();
         Contact ValidateToken();
+        void ForgotPassword(ForgotPassword model);
     }
 }

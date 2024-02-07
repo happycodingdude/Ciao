@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
 const Signup = ({ reference }) => {
@@ -7,8 +8,6 @@ const Signup = ({ reference }) => {
   const refSignup = useRef();
 
   const toggleSignup = () => {
-    // refSignup.current.classList.remove("animate-registration-hide");
-    // refSignup.current?.classList.add("animate-registration-show");
     refSignupContainer.current?.classList.toggle("opacity-0");
     refSignup.current?.classList.toggle("translate-x-[150%]");
     reset();
@@ -17,7 +16,6 @@ const Signup = ({ reference }) => {
   const toggleLogin = () => {
     refSignupContainer.current?.classList.toggle("opacity-0");
     refSignup.current?.classList.toggle("translate-x-[150%]");
-    // reference.toggleLogin();
   };
 
   useEffect(() => {
@@ -26,13 +24,13 @@ const Signup = ({ reference }) => {
   }, [toggleSignup]);
 
   const [name, setName] = useState("");
-  const [userName, setUsername] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorUsername, setErrorUsername] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
 
   const handleSignup = () => {
-    if (userName === "" || password === "") return;
+    if (username === "" || password === "") return;
     if (password.length < 6) {
       setErrorPassword("Password min characters is 6");
       return;
@@ -42,7 +40,7 @@ const Signup = ({ reference }) => {
     };
     const body = JSON.stringify({
       Name: name,
-      Username: userName,
+      Username: username,
       Password: password,
     });
     axios
@@ -85,11 +83,13 @@ const Signup = ({ reference }) => {
             <CustomInput
               type="text"
               label="Name"
+              value={name}
               onChange={setName}
             ></CustomInput>
             <CustomInput
               type="text"
               label="Username"
+              value={username}
               error={errorUsername}
               onChange={(text) => {
                 setUsername(text);
@@ -99,6 +99,7 @@ const Signup = ({ reference }) => {
             <CustomInput
               type="password"
               label="Password"
+              value={password}
               error={errorPassword}
               onChange={(text) => {
                 setPassword(text);
@@ -107,32 +108,11 @@ const Signup = ({ reference }) => {
             ></CustomInput>
           </div>
 
-          <div
-            className="mt-[4rem] w-full cursor-pointer self-center rounded-[.4rem] bg-gradient-to-r 
-            from-purple-300 to-purple-400 bg-[size:200%] bg-[position:0%_0%] py-[1rem] text-center
-            font-medium text-white shadow-[0_3px_3px_-2px_#d3adfb] 
-            transition-all duration-500 
-            hover:bg-[position:100%_100%] hover:shadow-[0_3px_10px_-2px_#cea1fd]"
+          <CustomButton
+            title="Sign up"
+            className="mt-[4rem]"
             onClick={handleSignup}
-          >
-            Sign up
-          </div>
-
-          {/* <div
-            className="mt-[2rem] cursor-pointer self-center text-purple-400 hover:text-purple-500"
-            onClick={backToLogin}
-          >
-            Back to login
-          </div> */}
-          {/* <div className="mt-[2rem] flex items-center justify-center gap-[.5rem]">
-            <p className="text-gray-400">Or</p>
-            <div
-              onClick={backToLogin}
-              className="cursor-pointer text-purple-400 hover:text-purple-500"
-            >
-              Login
-            </div>
-          </div> */}
+          />
         </div>
       </div>
     </div>

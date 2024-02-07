@@ -71,7 +71,21 @@ namespace MyConnect.Implement
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var id = JwtToken.ExtractToken(token);
+            var entity = _unitOfWork.Contact.GetById(id);
+            entity.DecryptPassword();
             return _unitOfWork.Contact.GetById(id);
+        }
+
+        public void ForgotPassword(ForgotPassword model)
+        {
+            // Check username
+            var entity = _unitOfWork.Contact.GetAll().FirstOrDefault(q => q.Username == model.Username);
+            if (entity == null)
+                throw new Exception(ErrorCode.NotFound);
+            
+            entity.Password = Hash.Encrypt(model.Password);
+            _unitOfWork.Contact.Update(entity);
+            _unitOfWork.Save();
         }
     }
 }

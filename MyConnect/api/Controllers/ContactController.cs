@@ -65,6 +65,7 @@ public class ContactsController : ControllerBase
     {
         try
         {
+            model.EncryptPassword();
             _unitOfWork.Contact.Update(model);
             _unitOfWork.Save();
             return new ResponseModel<Contact>(model).Ok();

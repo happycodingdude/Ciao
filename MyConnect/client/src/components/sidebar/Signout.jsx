@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 import useAuth from "../../hook/useAuth";
 
-const Signout = () => {
+const Signout = ({ className }) => {
   const auth = useAuth();
 
   const logout = () => {
@@ -35,15 +35,11 @@ const Signout = () => {
   };
 
   return (
-    // <div
-    //   onClick={logout}
-    //   className="fa fa-sign-out cursor-pointer font-light text-gray-400 hover:bg-[#f0f0f0]"
-    // >
-    //   &ensp;Sign out
-    // </div>
-
-    <div onClick={logout} className="flex items-center hover:bg-[#f0f0f0]">
-      <div className="fa fa-sign-out w-[2rem] cursor-pointer font-light text-gray-400"></div>
+    <div
+      onClick={logout}
+      className={`${className ?? ""} flex cursor-pointer items-center`}
+    >
+      <div className="fa fa-sign-out w-[2rem] cursor-pointer font-light"></div>
       <p className="">Sign out</p>
     </div>
   );

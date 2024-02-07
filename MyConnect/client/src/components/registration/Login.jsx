@@ -2,7 +2,9 @@ import axios from "axios";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hook/useAuth";
+import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
+import ForgotPassword from "./ForgotPassword";
 import Signup from "./Signup";
 
 const Login = () => {
@@ -23,8 +25,10 @@ const Login = () => {
   const refBgSignUpLabelContainer = useRef();
   const refBgSignInLabelContainer = useRef();
   const refLoginContainer = useRef();
+  const refLoginWrapper = useRef();
   const refLogin = useRef();
   const refSignup = useRef();
+  const refForgotPassword = useRef();
 
   const toggleSignup = () => {
     // Animate background container
@@ -41,7 +45,7 @@ const Login = () => {
     refBgSignInLabelContainer.current?.classList.toggle("opacity-0");
     // Animate form
     refLoginContainer.current?.classList.toggle("opacity-0");
-    refLogin.current?.classList.toggle("translate-x-[-150%]");
+    refLoginWrapper.current?.classList.toggle("translate-x-[-150%]");
     refSignup.toggleSignup();
   };
 
@@ -60,25 +64,25 @@ const Login = () => {
     refBgSignInLabelContainer.current?.classList.toggle("opacity-0");
     // Animate form
     refLoginContainer.current?.classList.toggle("opacity-0");
-    refLogin.current?.classList.toggle("translate-x-[-150%]");
+    refLoginWrapper.current?.classList.toggle("translate-x-[-150%]");
     refSignup.toggleLogin();
     // Reset form value
     reset();
   };
 
-  const [userName, setUsername] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorUsername, setErrorUsername] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
 
   const handleLogin = () => {
-    if (userName === "" && password === "") return;
+    if (username === "" && password === "") return;
 
     const headers = {
       "Content-Type": "application/json",
     };
     const body = JSON.stringify({
-      Username: userName,
+      Username: username,
       Password: password,
     });
     axios
@@ -115,6 +119,11 @@ const Login = () => {
     }
   };
 
+  const switchLoginFromForgotPassword = () => {
+    refLoginWrapper.current.setAttribute("data-state", "show");
+    reset();
+  };
+
   return (
     <div className="flex w-full flex-col bg-white text-[clamp(1rem,1.2vw,2rem)]">
       {!isLogin ? (
@@ -128,59 +137,71 @@ const Login = () => {
             className="absolute right-0 flex h-full w-[40%] justify-center overflow-hidden bg-white transition-all duration-500"
           >
             <div
-              ref={refLogin}
-              className="m-auto flex h-[70%] w-[70%] flex-col gap-[15%] bg-white duration-500"
+              ref={refLoginWrapper}
+              data-state="show"
+              className="flex h-full w-[70%] flex-col transition-all duration-500 data-[state=hide]:translate-y-[-100%] data-[state=show]:translate-y-0"
             >
-              <p className="text-5xl text-gray-600">Sign in</p>
-
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-[3rem] text-gray-600">
-                  <CustomInput
-                    type="text"
-                    label="Username"
-                    error={errorUsername}
-                    onChange={(text) => {
-                      setUsername(text);
-                      if (text === "") setErrorUsername("");
-                    }}
-                    onKeyDown={handlePressKey}
-                  ></CustomInput>
-                  <CustomInput
-                    type="password"
-                    label="Password"
-                    error={errorPassword}
-                    onChange={(text) => {
-                      setPassword(text);
-                      if (text === "") setErrorPassword("");
-                    }}
-                    onKeyDown={handlePressKey}
-                  ></CustomInput>
-                </div>
-
-                <div className="mt-[1rem] cursor-not-allowed self-end text-gray-400 hover:text-gray-500">
-                  Forgot password?
-                </div>
-
+              <div className="flex h-full w-full shrink-0 flex-col">
                 <div
-                  className="mt-[2rem] w-full cursor-pointer self-center rounded-[.4rem] bg-gradient-to-r 
-              from-purple-300 to-purple-400 bg-[size:200%] bg-[position:0%_0%] py-[1rem] text-center
-              font-medium text-white shadow-[0_3px_3px_-2px_#d3adfb] 
-              transition-all duration-500 
-              hover:bg-[position:100%_100%] hover:shadow-[0_3px_10px_-2px_#cea1fd]"
-                  onClick={handleLogin}
+                  ref={refLogin}
+                  className="my-auto flex w-full flex-col gap-[5rem] bg-white duration-500"
                 >
-                  Sign in
-                </div>
+                  <p className="text-5xl text-gray-600">Sign in</p>
 
-                {/* <div className="mt-[2rem] flex items-center justify-center gap-[1rem]">
-                  <p className="text-gray-400">Don't have an account?</p>
-                  <div
-                    onClick={toggleSignup}
-                    className="cursor-pointer text-purple-400 hover:text-purple-500"
-                  >
-                    Sign Up
+                  <div className="flex flex-col">
+                    <div className="flex flex-col gap-[3rem] text-gray-600">
+                      <CustomInput
+                        type="text"
+                        label="Username"
+                        value={username}
+                        error={errorUsername}
+                        onChange={(text) => {
+                          setUsername(text);
+                          if (text === "") setErrorUsername("");
+                        }}
+                        onKeyDown={handlePressKey}
+                      ></CustomInput>
+                      <CustomInput
+                        type="password"
+                        label="Password"
+                        value={password}
+                        error={errorPassword}
+                        onChange={(text) => {
+                          setPassword(text);
+                          if (text === "") setErrorPassword("");
+                        }}
+                        onKeyDown={handlePressKey}
+                      ></CustomInput>
+                    </div>
+
+                    <div
+                      className="mt-[1rem] cursor-pointer self-end text-gray-400 hover:text-gray-500"
+                      onClick={() => {
+                        refForgotPassword.reset();
+                        refLoginWrapper.current.setAttribute(
+                          "data-state",
+                          "hide",
+                        );
+                      }}
+                    >
+                      Forgot password?
+                    </div>
+
+                    <CustomButton
+                      title="Sign in"
+                      className="mt-[2rem]"
+                      onClick={handleLogin}
+                    />
                   </div>
-                </div> */}
+                </div>
+              </div>
+              <div className="flex h-full w-full shrink-0 flex-col">
+                <ForgotPassword
+                  reference={{
+                    refForgotPassword,
+                    switchLoginFromForgotPassword,
+                  }}
+                />
               </div>
             </div>
           </div>
