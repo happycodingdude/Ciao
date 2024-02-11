@@ -44,7 +44,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPost("Logout")]
+    [HttpPost("logout")]
     [MyAuthorizeAttribute("Authorization")]
     public IActionResult Logout()
     {
@@ -66,6 +66,7 @@ public class UsersController : ControllerBase
         try
         {
             var response = _userService.ValidateToken();
+            response.DecryptPassword();
             return new ResponseModel<Contact>(response).Ok();
         }
         catch (Exception ex)

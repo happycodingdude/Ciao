@@ -115,10 +115,10 @@ const Attachment = ({ reference }) => {
             checked={attachmentToggle === "file"}
           ></input>
         </div>
-        <div className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-purple-400 transition-all duration-200 peer-has-[.file-checked:checked]:translate-x-[calc(100%+2rem)] peer-has-[.image-checked:checked]:translate-x-0"></div>
+        <div className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-pink-400 transition-all duration-200 peer-has-[.file-checked:checked]:translate-x-[calc(100%+2rem)] peer-has-[.image-checked:checked]:translate-x-0"></div>
         {/* <div
           ref={refAttachmentSlider}
-          className="absolute bottom-0 h-[.2rem] w-[50%] translate-x-0 bg-purple-400 transition-all duration-1000"
+          className="absolute bottom-0 h-[.2rem] w-[50%] translate-x-0 bg-pink-400 transition-all duration-1000"
         ></div> */}
       </div>
       <div

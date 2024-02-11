@@ -25,7 +25,7 @@ const CreateGroupChat = () => {
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         setFormData({
-          title: "Create group",
+          title: "Create group chat",
           data: [
             {
               label: "Title",

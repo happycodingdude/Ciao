@@ -9,7 +9,7 @@
 [data-theme="light"] {
   --bg-color: white;
   --text-color: black;
-  --box-shadow-color: purple;
+  --box-shadow-color: pink;
   --nav-bg-color: #f5f5f5;
   --darkmode-toggle-bd-color: black;
   --text-morderator-color: white;
@@ -44,7 +44,7 @@ body,
   }
 
   .item-active {
-    @apply bg-purple-200 hover:!bg-purple-200;
+    @apply bg-pink-200 hover:!bg-pink-200;
   }
 
   .grid-transition {
@@ -74,26 +74,6 @@ body,
 
   .close-button {
     background-image: var(--bs-btn-close-bg);
-  }
-
-  /* .input-focus-placeholder {
-    @apply !translate-y-[-150%] !scale-[.9] !bg-white !text-purple-400;
-  }
-
-  .input-focus {
-    @apply !border-purple-400 !shadow-[0_0_10px_-2px_#e4cbff];
-  } */
-
-  .input-focus {
-    @apply !border-b-purple-400;
-  }
-
-  .input-focus-placeholder {
-    @apply !translate-y-[-170%] !scale-[.9] !bg-white !text-purple-400;
-  }
-
-  .input-focus-border {
-    @apply !w-full;
   }
 
   .error-show {

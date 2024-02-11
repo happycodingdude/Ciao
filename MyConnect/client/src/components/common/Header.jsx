@@ -65,7 +65,7 @@ const Header = () => {
         <div className="fa fa-arrow-left">&ensp;Chat</div>
         <div className="text-center">
           <p className="font-bold">{auth.display}</p>
-          <p className="text-purple-200">Online</p>
+          <p className="text-pink-200">Online</p>
         </div>
         <div className="flex gap-[3rem]">
           <div className="flex items-center gap-[.3rem]">
@@ -103,7 +103,7 @@ const Header = () => {
                 ></input>
                 <label
                   for="customer-avatar"
-                  className="fa fa-camera absolute bottom-[-20%] right-[-30%] aspect-square cursor-pointer rounded-[50%] bg-white p-[.2rem] text-gray-500 hover:text-purple-400"
+                  className="fa fa-camera absolute bottom-[-20%] right-[-30%] aspect-square cursor-pointer rounded-[50%] bg-white p-[.2rem] text-gray-500 hover:text-pink-400"
                 ></label>
               </div>
               <p className="font-medium text-gray-600">{auth.display}</p>

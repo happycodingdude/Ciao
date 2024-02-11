@@ -99,7 +99,7 @@ const AddParticipants = ({ reference }) => {
       ></Tooltip> */}
       <div
         onClick={handleAddParticipant}
-        className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-purple-100 text-base font-normal text-purple-500 hover:bg-purple-200`}
+        className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-pink-100 text-base font-normal text-pink-500 hover:bg-pink-200`}
       ></div>
       <CustomModal
         show={show}

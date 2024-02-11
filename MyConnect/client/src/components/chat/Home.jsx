@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../../hook/useAuth";
 import { requestPermission } from "../common/Notification";
-import Profile from "../profile/Profile";
 import SideBar from "../sidebar/SideBar";
 import Attachment from "./Attachment";
 import Chatbox from "./Chatbox";
@@ -20,7 +19,6 @@ const Home = () => {
   const refInformationContainer = useRef();
   const refInformation = useRef();
   const refAttachment = useRef();
-  const refProfileContainer = useRef();
 
   const notifyMessage = (chats, message) => {
     console.log(message);
@@ -194,9 +192,9 @@ const Home = () => {
   };
 
   return (
-    <div className="relative w-full">
-      <div className="absolute flex h-full w-full bg-gradient-to-r from-purple-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
-        <SideBar reference={{ refProfileContainer }} />
+    <div id="home" className="relative w-full">
+      <div className="absolute flex h-full w-full bg-gradient-to-r from-pink-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
+        <SideBar />
         <section className="relative flex grow overflow-hidden">
           <ListChat
             reference={{
@@ -241,14 +239,6 @@ const Home = () => {
             </>
           )}
         </section>
-      </div>
-      <div
-        ref={refProfileContainer}
-        data-state="hide"
-        className="absolute h-full w-full bg-[#0000009c] 
-        data-[state=hide]:scale-0 data-[state=show]:scale-100"
-      >
-        <Profile reference={{ refProfileContainer }} />
       </div>
     </div>
   );

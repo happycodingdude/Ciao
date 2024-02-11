@@ -8,6 +8,8 @@ import useAuth from "../../hook/useAuth";
 import UpdateTitle from "../chat/UpdateTitle";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import ProfilePortal from "../common/ProfilePortal";
+import UserProfile from "../profile/UserProfile";
 
 const page = 1;
 const limit = 10;
@@ -336,9 +338,30 @@ const Chatbox = ({ reference }) => {
     return text;
   };
 
-  const showProfile = () => {
-    console.log("showProfile calling");
-  };
+  const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState();
+
+  // The close listener
+  const closeProfile = useCallback((e) => {
+    if (
+      e.keyCode === 27 ||
+      Array.from(e.target.classList).some(
+        (item) => item === "profile-container",
+      )
+    )
+      setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", closeProfile, true);
+    window.addEventListener("click", closeProfile, true);
+    return () => {
+      window.addEventListener("keydown", closeProfile, true);
+      window.addEventListener("click", closeProfile, true);
+    };
+  }, [closeProfile]);
+
+  const showUserProfile = (id) => {};
 
   return (
     <>
@@ -363,8 +386,8 @@ const Chatbox = ({ reference }) => {
                     src: reference.conversation?.Avatar ?? "",
                   },
                 ]}
-                onClick={showProfile}
-              ></ImageWithLightBox>
+                onClick={() => {}}
+              />
               <div
                 ref={refTitleContainer}
                 className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
@@ -374,8 +397,8 @@ const Chatbox = ({ reference }) => {
                     className="text-start text-lg font-semibold text-gray-600"
                     title={reference.conversation?.Title}
                     tooltip
-                  ></CustomLabel>
-                  <UpdateTitle reference={reference}></UpdateTitle>
+                  />
+                  <UpdateTitle reference={reference} />
                 </div>
                 <p className="text-gray-400">
                   {reference.conversation?.LastSeenTime === null
@@ -427,8 +450,11 @@ const Chatbox = ({ reference }) => {
                           ).Avatar ?? "",
                       },
                     ]}
-                    onClick={showProfile}
-                  ></ImageWithLightBox>
+                    onClick={() => {
+                      setUserId(message.ContactId);
+                      setOpen(true);
+                    }}
+                  />
                   {participants?.find(
                     (item) => item.ContactId === message.ContactId,
                   )?.IsModerator ? (
@@ -470,7 +496,7 @@ const Chatbox = ({ reference }) => {
                   </div>
                   {message.Type === "text" ? (
                     <div
-                      className={`break-all bg-gradient-to-r from-purple-100 to-blue-100 px-[1.5rem] py-[.7rem] text-gray-600 ${message.ContactId === auth.id ? "rounded-l-[1rem] rounded-tr-[1rem]" : "rounded-r-[1rem] rounded-tl-[1rem]"}`}
+                      className={`break-all bg-gradient-to-r from-pink-100 to-blue-100 px-[1.5rem] py-[.7rem] text-gray-600 ${message.ContactId === auth.id ? "rounded-l-[1rem] rounded-tr-[1rem]" : "rounded-r-[1rem] rounded-tl-[1rem]"}`}
                     >
                       {generateContent(message.Content)}
                     </div>
@@ -505,6 +531,10 @@ const Chatbox = ({ reference }) => {
                 </div>
               </div>
             ))}
+
+            <ProfilePortal open={open}>
+              <UserProfile id={userId} onclose={() => setOpen(false)} />
+            </ProfilePortal>
           </div>
         </div>
         <div className="flex w-full items-center justify-center bg-white px-[2rem] py-[.5rem]">
@@ -539,40 +569,50 @@ const Chatbox = ({ reference }) => {
             </Tooltip>
           </div>
           {files.length !== 0 ? (
-            <div
-              className={`${
-                files.length === 1
-                  ? "grid-cols-[50%]"
-                  : "laptop:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] desktop:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
-              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 p-[1rem]            
+            <>
+              <div
+                className={`${
+                  files.length === 1
+                    ? "grid-cols-[50%]"
+                    : "laptop:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] desktop:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
+                } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 p-[1rem]            
           laptop:w-[clamp(40rem,75%,70rem)]         
           desktop:w-[clamp(70rem,75%,120rem)]`}
-            >
-              {files.map((item) => (
-                <div
-                  style={{
-                    "--image-url": [
-                      "doc",
-                      "docx",
-                      "xls",
-                      "xlsx",
-                      "pdf",
-                    ].includes(item.name.split(".")[1])
-                      ? "url('../src/assets/imagenotfound.jpg')"
-                      : `url('${URL.createObjectURL(item)}'`,
-                  }}
-                  className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}
-                  title={item.name.split(".")[0]}
-                >
-                  <span
-                    data-key={item.name}
-                    onClick={removeFile}
-                    className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-red-500 hover:text-red-400"
-                    title="Clear image"
-                  ></span>
-                </div>
-              ))}
-            </div>
+              >
+                {files.map((item) => (
+                  <div
+                    style={{
+                      "--image-url": [
+                        "doc",
+                        "docx",
+                        "xls",
+                        "xlsx",
+                        "pdf",
+                      ].includes(item.name.split(".")[1])
+                        ? "url('../src/assets/imagenotfound.jpg')"
+                        : `url('${URL.createObjectURL(item)}'`,
+                    }}
+                    className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}
+                    title={item.name.split(".")[0]}
+                  >
+                    <span
+                      data-key={item.name}
+                      onClick={removeFile}
+                      className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-red-500 hover:text-red-400"
+                      title="Clear image"
+                    ></span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex grow">
+                <Tooltip title="Send">
+                  <div
+                    className="fa fa-paper-plane m-auto flex aspect-square cursor-pointer items-center justify-center rounded-[.8rem] text-blue-500"
+                    onClick={sendMessage}
+                  ></div>
+                </Tooltip>
+              </div>
+            </>
           ) : (
             <div className="relative max-w-[50rem] grow">
               <Form form={form}>

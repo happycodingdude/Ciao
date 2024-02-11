@@ -16,12 +16,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
-
-  // <BrowserRouter>
-  //   <AuthProvider>
-  //     <Routes>
-  //       <Route path="/*" element={<App />} />
-  //     </Routes>
-  //   </AuthProvider>
-  // </BrowserRouter>,
 );

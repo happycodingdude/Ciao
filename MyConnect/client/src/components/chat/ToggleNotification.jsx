@@ -46,8 +46,8 @@ const ToggleNotification = ({ reference }) => {
   return (
     <div
       onClick={toggleNotification}
-      className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal hover:bg-purple-200 
-              ${isNotifying ? "fa-bell bg-purple-100 text-purple-500" : "fa-bell-slash bg-purple-200 text-purple-800"}`}
+      className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal hover:bg-pink-200 
+              ${isNotifying ? "fa-bell bg-pink-100 text-pink-500" : "fa-bell-slash bg-pink-200 text-pink-800"}`}
     ></div>
   );
 };

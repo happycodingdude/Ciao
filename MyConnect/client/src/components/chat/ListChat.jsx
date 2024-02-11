@@ -155,7 +155,7 @@ const ListChat = ({ reference }) => {
         </div>
         <div className="flex h-[50%] gap-[.5rem] [&>*]:px-[.5rem]">
           <div className="fa fa-user-plus flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal transition-all duration-200 hover:bg-[#e7e7e7]"></div>
-          <CreateGroupChat></CreateGroupChat>
+          <CreateGroupChat />
         </div>
       </div>
       {/* <div className="flex h-[clamp(5rem,10vh,7rem)] items-center justify-between">

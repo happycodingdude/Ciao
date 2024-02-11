@@ -71,8 +71,6 @@ namespace MyConnect.Implement
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var id = JwtToken.ExtractToken(token);
-            var entity = _unitOfWork.Contact.GetById(id);
-            entity.DecryptPassword();
             return _unitOfWork.Contact.GetById(id);
         }
 

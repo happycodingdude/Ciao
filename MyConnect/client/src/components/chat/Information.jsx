@@ -195,7 +195,7 @@ const Information = ({ reference }) => {
             ></input>
             <label
               for="conversation-avatar"
-              className="fa fa-camera absolute right-[40%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-purple-400"
+              className="fa fa-camera absolute right-[40%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-pink-400"
             ></label>
             <CustomLabel
               className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"

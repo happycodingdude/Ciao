@@ -7,20 +7,22 @@ import CustomButton from "../common/CustomButton";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import MediaPicker from "../common/MediaPicker";
 
-const EditProfile = ({ reference }) => {
+const EditProfile = ({ refEditProfile, hideProfile, showSetting }) => {
   const auth = useAuth();
 
   const [profile, setProfile] = useState();
   const [file, setFile] = useState();
+  const [showPassword, setShowPassword] = useState(false);
 
   const reset = () => {
     setProfile(auth.user);
     setFile(undefined);
+    setShowPassword(false);
   };
 
   useEffect(() => {
     reset();
-    reference.refEditProfile.reset = reset;
+    refEditProfile.reset = reset;
   }, [auth.user]);
 
   const chooseAvatar = (e) => {
@@ -68,7 +70,7 @@ const EditProfile = ({ reference }) => {
       })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        reference.showSetting();
+        showSetting();
         auth.setUser(res.data.data);
       })
       .catch((err) => {
@@ -81,14 +83,11 @@ const EditProfile = ({ reference }) => {
   };
 
   return (
-    <div className="flex w-full shrink-0 flex-col items-center gap-[5rem] bg-white p-[2rem] pb-[3rem] transition-all duration-500 ">
+    <div className="flex w-full shrink-0 flex-col items-center gap-[3rem] bg-white p-[2rem] pb-[3rem] transition-all duration-500 ">
       <div className="flex w-full items-center justify-between">
         <div
           className="fa fa-arrow-left cursor-pointer text-md font-normal"
-          onClick={() => {
-            reference.showSetting();
-            // auth.setUser(auth.user);
-          }}
+          onClick={showSetting}
         ></div>
         <p className="text-xl font-medium  leading-10 text-gray-600">
           Edit profile
@@ -96,16 +95,20 @@ const EditProfile = ({ reference }) => {
         <CloseOutlined
           className="flex cursor-pointer items-start text-lg"
           onClick={() => {
-            reference.hideProfile();
-            reference.showSetting();
+            onclose();
+            showSetting();
           }}
         />
       </div>
       <div className="relative ">
         <ImageWithLightBox
-          src={profile?.Avatar}
-          className="m-auto aspect-square w-[30%] rounded-[50%]"
-          onClick={() => {}}
+          src={profile?.Avatar ?? ""}
+          className="m-auto aspect-square w-[30%] cursor-pointer rounded-[50%]"
+          slides={[
+            {
+              src: profile?.Avatar ?? "",
+            },
+          ]}
         />
         <MediaPicker
           className="absolute bottom-0 left-[57%] text-lg"
@@ -128,14 +131,21 @@ const EditProfile = ({ reference }) => {
         </div>
         <div className="flex flex-col gap-[1rem]">
           <p className="font-medium">Password</p>
-          <input
-            value={profile?.Password}
-            className="w-full rounded-3xl border-[.1rem] border-white px-[2rem] py-[1rem] shadow-[0px_0px_20px_-3px_#dbdbdb] outline-none transition-all duration-200"
-            type="password"
-            onChange={(e) => {
-              setProfile({ ...profile, Password: e.target.value });
-            }}
-          />
+          <div className="relative">
+            <input
+              value={profile?.Password}
+              className="w-full rounded-3xl border-[.1rem] border-white py-[1rem] pl-[2rem] pr-[5rem] shadow-[0px_0px_20px_-3px_#dbdbdb] outline-none transition-all duration-200"
+              type={showPassword ? "text" : "password"}
+              onChange={(e) => {
+                setProfile({ ...profile, Password: e.target.value });
+              }}
+            />
+            <div
+              onClick={() => setShowPassword(!showPassword)}
+              className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center hover:text-pink-600
+              ${showPassword ? "fa-eye text-pink-400" : "fa-eye-slash text-pink-400"}`}
+            ></div>
+          </div>
         </div>
       </div>
       <CustomButton title="Save" className="!w-[60%]" onClick={updateProfile} />

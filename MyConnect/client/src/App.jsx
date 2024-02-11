@@ -1,13 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import RequireAuth from "../src/context/RequireAuth";
 import "./App.css";
+import Authentication from "./components/authentication/Authentication";
 import Home from "./components/chat/Home";
-import Login from "./components/registration/Login";
 
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/authen" element={<Authentication />} />
       <Route element={<RequireAuth />}>
         <Route path="/" element={<Home />} />
       </Route>

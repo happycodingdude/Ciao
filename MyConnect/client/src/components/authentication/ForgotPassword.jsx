@@ -4,14 +4,27 @@ import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
 const ForgotPassword = ({ reference }) => {
+  console.log("ForgotPassword calling");
+
   const refForgotPassword = useRef();
 
+  const reset = () => {
+    setUsername("");
+    setPassword("");
+    setErrorUsername("");
+    setErrorPassword("");
+    refUsername.current.reset();
+    refPassword.current.reset();
+  };
+
+  const refUsername = useRef();
+  const refPassword = useRef();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorUsername, setErrorUsername] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
 
-  const handleResetPassword = () => {
+  const resetPassword = () => {
     if (username === "" || password === "") return;
     if (password.length < 6) {
       setErrorPassword("Password min characters is 6");
@@ -28,7 +41,9 @@ const ForgotPassword = ({ reference }) => {
       .post("api/users/forgot", body, { headers: headers })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        reference.switchLoginFromForgotPassword();
+        setTimeout(() => {
+          reference.switchLoginFromForgotPassword();
+        }, 300);
       })
       .catch((err) => {
         console.log(err);
@@ -36,13 +51,6 @@ const ForgotPassword = ({ reference }) => {
           setErrorUsername("User exists");
         }
       });
-  };
-
-  const reset = () => {
-    setUsername("");
-    setPassword("");
-    setErrorUsername("");
-    setErrorPassword("");
   };
 
   useEffect(() => {
@@ -58,6 +66,7 @@ const ForgotPassword = ({ reference }) => {
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
+          ref={refUsername}
           type="text"
           label="Username"
           value={username}
@@ -68,6 +77,7 @@ const ForgotPassword = ({ reference }) => {
           }}
         ></CustomInput>
         <CustomInput
+          ref={refPassword}
           type="password"
           label="New password"
           value={password}
@@ -79,7 +89,7 @@ const ForgotPassword = ({ reference }) => {
         ></CustomInput>
       </div>
       <div className="flex flex-col gap-[1rem]">
-        <CustomButton title="Reset" onClick={handleResetPassword} />
+        <CustomButton title="Reset" onClick={resetPassword} />
         <div
           className="cursor-pointer text-gray-400 hover:text-gray-500"
           onClick={reference.switchLoginFromForgotPassword}

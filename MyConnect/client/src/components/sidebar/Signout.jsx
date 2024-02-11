@@ -40,7 +40,7 @@ const Signout = ({ className }) => {
       className={`${className ?? ""} flex cursor-pointer items-center`}
     >
       <div className="fa fa-sign-out w-[2rem] cursor-pointer font-light"></div>
-      <p className="">Sign out</p>
+      <p>Sign out</p>
     </div>
   );
 };

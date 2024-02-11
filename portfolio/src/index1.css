@@ -25,13 +25,12 @@
   --bottom-margin: 0.5rem;
   --bottom-margin-2: 1rem;
   --line-height: 1.7rem;
-  --transition-duration: .5s;
-
+  --transition-duration: 0.5s;
 
   /* Global variables */
   /* --bg-color: white;
   --text-color: black;
-  --box-shadow-color: purple;
+  --box-shadow-color: pink;
   --nav-bg-color: #f5f5f5;
   --darkmode-toggle-bd-color: black;
 
@@ -113,7 +112,7 @@ body {
   font-family: var(--font-family);
   color: var(--text-color);
   background-color: var(--bg-color);
-  transition: background .5s;
+  transition: background 0.5s;
 }
 
 h2 {
