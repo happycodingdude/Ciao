@@ -27,6 +27,7 @@ namespace MyConnect.Repository
             modelBuilder.ApplyConfiguration(new ScheduleEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ScheduleContactEntityConfiguration());
             modelBuilder.ApplyConfiguration(new AttachmentEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new FriendEntityConfiguration());
         }
 
         public DbSet<Contact>? Contacts { get; set; }
@@ -35,5 +36,6 @@ namespace MyConnect.Repository
         public DbSet<Participant>? Participants { get; set; }
         public DbSet<Schedule>? Schedules { get; set; }
         public DbSet<ScheduleContact>? ScheduleContacts { get; set; }
+        public DbSet<Friend>? Friends { get; set; }
     }
 }

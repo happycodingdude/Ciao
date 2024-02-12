@@ -5,15 +5,15 @@ using MyConnect.Model;
 namespace MyConnect.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class AuthController : ControllerBase
 {
     private readonly IConfiguration _configuration;
-    private readonly IUserService _userService;
+    private readonly IAuthService _authService;
 
-    public UsersController(IConfiguration configuration, IUserService userService)
+    public AuthController(IConfiguration configuration, IAuthService authService)
     {
         _configuration = configuration;
-        _userService = userService;
+        _authService = authService;
     }
 
     [HttpPost("signup")]
@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            _userService.Signup(model);
+            _authService.Signup(model);
             return Ok();
         }
         catch (Exception ex)
@@ -35,7 +35,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var response = _userService.Login(model);
+            var response = _authService.Login(model);
             return new ResponseModel<LoginResponse>(response).Ok();
         }
         catch (Exception ex)
@@ -50,7 +50,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            _userService.Logout();
+            _authService.Logout();
             return Ok();
         }
         catch (Exception ex)
@@ -65,7 +65,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var response = _userService.ValidateToken();
+            var response = _authService.ValidateToken();
             response.DecryptPassword();
             return new ResponseModel<Contact>(response).Ok();
         }
@@ -80,7 +80,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            _userService.ForgotPassword(model);
+            _authService.ForgotPassword(model);
             return Ok();
         }
         catch (Exception ex)

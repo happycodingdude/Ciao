@@ -1,16 +1,13 @@
 import React from "react";
 import Signout from "../sidebar/Signout";
 
-const ProfileSettingMenu = ({ onClick }) => {
+const ProfileSettingMenu = () => {
   return (
-    <div className="flex flex-col gap-[2rem]">
-      <div className="flex justify-between">
-        <div className="flex cursor-pointer items-center" onClick={onClick}>
-          <div className="fa fa-user w-[2rem] font-normal text-gray-400"></div>
-          <p>Edit profile</p>
-        </div>
-        <div className="fa fa-arrow-right font-light text-gray-400"></div>
-      </div>
+    <div
+      className="flex w-full flex-col gap-[2rem]
+    [&>*]:rounded-3xl [&>*]:border-t-[.1rem] [&>*]:border-pink-200
+    [&>*]:px-4 [&>*]:py-2 [&>*]:shadow-[0px_2px_3px_#f9a8d4]"
+    >
       <Signout className="text-red-500" />
     </div>
   );

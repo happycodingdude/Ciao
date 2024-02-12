@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import useAuth from "../../hook/useAuth";
+import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
-import ProfilePortal from "../common/ProfilePortal";
 import Profile from "../profile/Profile";
 
 const SideBar = () => {
@@ -45,9 +45,9 @@ const SideBar = () => {
                 ]}
                 onClick={() => setOpen(true)}
               />
-              <ProfilePortal open={open}>
+              <BackgroundPortal open={open}>
                 <Profile onclose={() => setOpen(false)} />
-              </ProfilePortal>
+              </BackgroundPortal>
             </div>
             <CustomLabel
               className="w-full font-medium text-gray-600"

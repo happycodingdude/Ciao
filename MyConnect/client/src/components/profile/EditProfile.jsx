@@ -1,131 +1,32 @@
-import { CloseOutlined } from "@ant-design/icons";
-import axios from "axios";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import React, { useState } from "react";
 import CustomButton from "../common/CustomButton";
-import ImageWithLightBox from "../common/ImageWithLightBox";
-import MediaPicker from "../common/MediaPicker";
 
-const EditProfile = ({ refEditProfile, hideProfile, showSetting }) => {
-  const auth = useAuth();
-
-  const [profile, setProfile] = useState();
-  const [file, setFile] = useState();
+const EditProfile = ({ profile, onChange, onSave }) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const reset = () => {
-    setProfile(auth.user);
-    setFile(undefined);
-    setShowPassword(false);
-  };
-
-  useEffect(() => {
-    reset();
-    refEditProfile.reset = reset;
-  }, [auth.user]);
-
-  const chooseAvatar = (e) => {
-    const chosenFiles = Array.from(e.target.files);
-    if (chosenFiles.length === 0) return;
-
-    setProfile({
-      ...profile,
-      Avatar: URL.createObjectURL(e.target.files?.[0]),
-    });
-    setFile(e.target.files?.[0]);
-    e.target.value = null;
-  };
-
-  const updateProfile = async () => {
-    var url = "";
-    if (file === undefined) {
-      url = profile.Avatar;
-    } else {
-      // Create a root reference
-      const storage = getStorage();
-      url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
-        (snapshot) => {
-          return getDownloadURL(snapshot.ref).then((url) => {
-            return url;
-          });
-        },
-      );
-    }
-
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    const body = {
-      ...profile,
-      Name: profile.Name,
-      Avatar: url,
-    };
-    axios
-      .put(`api/contacts`, body, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        showSetting();
-        auth.setUser(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
-  };
-
   return (
-    <div className="flex w-full shrink-0 flex-col items-center gap-[3rem] bg-white p-[2rem] pb-[3rem] transition-all duration-500 ">
-      <div className="flex w-full items-center justify-between">
-        <div
-          className="fa fa-arrow-left cursor-pointer text-md font-normal"
-          onClick={showSetting}
-        ></div>
+    <div
+      className="flex h-[calc(100%-5rem)] w-[50%] flex-col items-center 
+      justify-evenly gap-[3rem]     
+      transition-all duration-500 "
+    >
+      {/* <div className="flex w-full items-center justify-between">
         <p className="text-xl font-medium  leading-10 text-gray-600">
           Edit profile
         </p>
-        <CloseOutlined
-          className="flex cursor-pointer items-start text-lg"
-          onClick={() => {
-            onclose();
-            showSetting();
-          }}
-        />
-      </div>
-      <div className="relative ">
-        <ImageWithLightBox
-          src={profile?.Avatar ?? ""}
-          className="m-auto aspect-square w-[30%] cursor-pointer rounded-[50%]"
-          slides={[
-            {
-              src: profile?.Avatar ?? "",
-            },
-          ]}
-        />
-        <MediaPicker
-          className="absolute bottom-0 left-[57%] text-lg"
-          accept="image/png, image/jpeg"
-          id="customer-avatar"
-          onChange={chooseAvatar}
-        />
-      </div>
-      <div className="flex w-[80%] flex-col gap-[2rem]">
+      </div> */}
+      <div className="flex w-full flex-col gap-[2rem]">
         <div className="flex flex-col gap-[1rem]">
           <p className="font-medium">Name</p>
           <input
             value={profile?.Name}
-            className="w-full rounded-3xl border-[.1rem] border-white px-[2rem] py-[1rem] shadow-[0px_0px_20px_-3px_#dbdbdb] outline-none transition-all duration-200"
+            className="rounded-3xl border-t-[.1rem] border-pink-200 
+            px-4 py-2 text-inherit
+            shadow-[0px_2px_3px_#f9a8d4] outline-none 
+            transition-all duration-200"
             type="text"
             onChange={(e) => {
-              setProfile({ ...profile, Name: e.target.value });
+              onChange({ ...profile, Name: e.target.value });
             }}
           />
         </div>
@@ -134,10 +35,16 @@ const EditProfile = ({ refEditProfile, hideProfile, showSetting }) => {
           <div className="relative">
             <input
               value={profile?.Password}
-              className="w-full rounded-3xl border-[.1rem] border-white py-[1rem] pl-[2rem] pr-[5rem] shadow-[0px_0px_20px_-3px_#dbdbdb] outline-none transition-all duration-200"
+              className="w-full rounded-3xl border-t-[.1rem] border-pink-200 
+              px-4 py-2 text-inherit
+              shadow-[0px_2px_3px_#f9a8d4] outline-none 
+              transition-all duration-200"
               type={showPassword ? "text" : "password"}
               onChange={(e) => {
-                setProfile({ ...profile, Password: e.target.value });
+                onChange({
+                  ...profile,
+                  Password: e.target.value,
+                });
               }}
             />
             <div
@@ -148,7 +55,11 @@ const EditProfile = ({ refEditProfile, hideProfile, showSetting }) => {
           </div>
         </div>
       </div>
-      <CustomButton title="Save" className="!w-[60%]" onClick={updateProfile} />
+      <CustomButton
+        title="Save changes"
+        className="h-[10%] !w-[60%]"
+        onClick={onSave}
+      />
     </div>
   );
 };

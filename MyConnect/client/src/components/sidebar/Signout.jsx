@@ -13,7 +13,7 @@ const Signout = ({ className }) => {
     };
     axios
       .post(
-        "api/users/logout",
+        "api/auth/logout",
         {},
         {
           cancelToken: cancelToken.token,
@@ -39,8 +39,9 @@ const Signout = ({ className }) => {
       onClick={logout}
       className={`${className ?? ""} flex cursor-pointer items-center`}
     >
-      <div className="fa fa-sign-out w-[2rem] cursor-pointer font-light"></div>
-      <p>Sign out</p>
+      <div className="fa fa-sign-out w-full cursor-pointer font-light leading-8">
+        <span className="ml-2">Sign out</span>
+      </div>
     </div>
   );
 };

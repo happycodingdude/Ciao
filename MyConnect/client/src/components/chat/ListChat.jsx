@@ -3,6 +3,7 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import useAuth from "../../hook/useAuth";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import AddFriend from "../friend/AddFriend";
 import CreateGroupChat from "./CreateGroupChat";
 
 const ListChat = ({ reference }) => {
@@ -154,7 +155,7 @@ const ListChat = ({ reference }) => {
           ></input>
         </div>
         <div className="flex h-[50%] gap-[.5rem] [&>*]:px-[.5rem]">
-          <div className="fa fa-user-plus flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal transition-all duration-200 hover:bg-[#e7e7e7]"></div>
+          <AddFriend />
           <CreateGroupChat />
         </div>
       </div>

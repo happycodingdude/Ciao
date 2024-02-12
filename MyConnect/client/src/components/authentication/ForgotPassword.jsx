@@ -38,7 +38,7 @@ const ForgotPassword = ({ reference }) => {
       Password: password,
     });
     axios
-      .post("api/users/forgot", body, { headers: headers })
+      .post("api/auth/forgot", body, { headers: headers })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         setTimeout(() => {

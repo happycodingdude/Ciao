@@ -6,9 +6,9 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../../hook/useAuth";
 import UpdateTitle from "../chat/UpdateTitle";
+import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
-import ProfilePortal from "../common/ProfilePortal";
 import UserProfile from "../profile/UserProfile";
 
 const page = 1;
@@ -434,7 +434,9 @@ const Chatbox = ({ reference }) => {
               <div
                 className={`flex items-end gap-[1rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
               >
-                <div className="relative w-[3rem]">
+                {
+                  message.ContactId !== auth.id
+                  ?(<div className="relative w-[3rem]">
                   <ImageWithLightBox
                     src={
                       reference.contacts.find(
@@ -455,7 +457,7 @@ const Chatbox = ({ reference }) => {
                       setOpen(true);
                     }}
                   />
-                  {participants?.find(
+                  {/* {participants?.find(
                     (item) => item.ContactId === message.ContactId,
                   )?.IsModerator ? (
                     <div
@@ -463,8 +465,10 @@ const Chatbox = ({ reference }) => {
                     ></div>
                   ) : (
                     ""
-                  )}
-                </div>
+                  )} */}
+                </div>)
+                  :''
+                }                
                 <div
                   className={`flex flex-col laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
                 >
@@ -531,10 +535,9 @@ const Chatbox = ({ reference }) => {
                 </div>
               </div>
             ))}
-
-            <ProfilePortal open={open}>
+            <BackgroundPortal open={open}>
               <UserProfile id={userId} onclose={() => setOpen(false)} />
-            </ProfilePortal>
+            </BackgroundPortal>
           </div>
         </div>
         <div className="flex w-full items-center justify-center bg-white px-[2rem] py-[.5rem]">

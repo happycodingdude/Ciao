@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using MyConnect.Common;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -49,7 +48,7 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            model.Password = Hash.Encrypt(model.Password ?? "");
+            model.EncryptPassword();
             _unitOfWork.Contact.Add(model);
             _unitOfWork.Save();
             return new ResponseModel<Contact>(model).Ok();

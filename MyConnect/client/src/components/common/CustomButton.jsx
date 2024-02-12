@@ -10,7 +10,7 @@ const CustomButton = ({ title, className, onClick, processing }) => {
     <div
       ref={refButton}
       data-process={processing ? "true" : "false"}
-      className={`${className ?? ""} mx-auto h-[4.5rem] w-full cursor-pointer rounded-[.4rem] bg-gradient-to-r 
+      className={`${className ?? ""} mx-auto flex h-[4.5rem] w-full cursor-pointer items-center rounded-[.4rem] bg-gradient-to-r 
               from-pink-300 to-pink-400 bg-[size:200%] bg-[position:0%_0%] py-[1rem] text-center
               font-medium text-white shadow-[0_3px_3px_-2px_#d3adfb] 
               transition-all duration-300 
@@ -19,7 +19,11 @@ const CustomButton = ({ title, className, onClick, processing }) => {
               data-[process=true]:rounded-[50%]`}
       onClick={handleClick}
     >
-      {processing ? <div className="fa fa-spinner fa-spin"></div> : title}
+      {processing ? (
+        <div className="fa fa-spinner fa-spin"></div>
+      ) : (
+        <span className="mx-auto">{title}</span>
+      )}
     </div>
   );
 };

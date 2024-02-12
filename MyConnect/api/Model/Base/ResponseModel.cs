@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Configuration;
 using Newtonsoft.Json;
 
 namespace MyConnect.Model
@@ -20,6 +21,12 @@ namespace MyConnect.Model
             this.data = data;
         }
 
+        // public ResponseModel(T? data, bool isFull)
+        // {
+        //     this.data = data;
+        //     this.isFull = isFull;
+        // }
+
         public ResponseModel(string error)
         {
             this.error = error;
@@ -30,6 +37,9 @@ namespace MyConnect.Model
         {
             var response = context.HttpContext.Response;
             response.StatusCode = (int)code;
+            var header = context.HttpContext.Request.Headers["Data"];
+            if (header == "full")
+                jsonSetting.ContractResolver = new IgnoreJsonAttributesResolver();
             var json = JsonConvert.SerializeObject(this, jsonSetting);
             response.ContentType = "application/json";
             response.WriteAsync(json);

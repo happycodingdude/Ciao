@@ -2,7 +2,7 @@ using MyConnect.Model;
 
 namespace MyConnect.Interface
 {
-    public interface IUserService
+    public interface IAuthService
     {
         void Signup(Contact model);
         LoginResponse Login(LoginRequest model);

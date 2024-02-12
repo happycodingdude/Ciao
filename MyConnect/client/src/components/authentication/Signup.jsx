@@ -60,7 +60,7 @@ const Signup = ({ reference }) => {
       Password: password,
     });
     axios
-      .post("api/users/signup", body, { headers: headers })
+      .post("api/auth/signup", body, { headers: headers })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         setTimeout(() => {

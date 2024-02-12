@@ -9,7 +9,7 @@
 [data-theme="light"] {
   --bg-color: white;
   --text-color: black;
-  --box-shadow-color: pink;
+  --box-shadow-color: #ffc0cb;
   --nav-bg-color: #f5f5f5;
   --darkmode-toggle-bd-color: black;
   --text-morderator-color: white;

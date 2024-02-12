@@ -9,6 +9,7 @@ using MyConnect.RestApi;
 using MyConnect.Interface;
 using MyConnect.Implement;
 using Newtonsoft.Json;
+using MyConnect.Configuration;
 
 namespace MyConnect
 {
@@ -26,7 +27,12 @@ namespace MyConnect
             Console.WriteLine("ConfigureServices running");
             services.AddDistributedMemoryCache();
             services.AddSession();
-            services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            services.AddControllers()
+            .AddNewtonsoftJson(opt =>
+            {
+                opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
+            });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
@@ -57,7 +63,7 @@ namespace MyConnect
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationService, ConversationService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

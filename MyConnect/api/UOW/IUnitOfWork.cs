@@ -11,6 +11,7 @@ namespace MyConnect.UOW
         IScheduleRepository Schedule { get; }
         IScheduleContactRepository ScheduleContact { get; }
         IAttachmentRepository Attachment { get; }
+        IFriendRepository Friend { get; }
         void Save();
     }
 }

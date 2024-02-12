@@ -6,14 +6,14 @@ using MyConnect.UOW;
 
 namespace MyConnect.Implement
 {
-    public class UserService : IUserService
+    public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _configuration;
 
-        public UserService(IUnitOfWork unitOfWork,
+        public AuthService(IUnitOfWork unitOfWork,
         IHttpContextAccessor httpContextAccessor,
         INotificationService notificationService,
         IConfiguration configuration)
@@ -71,7 +71,7 @@ namespace MyConnect.Implement
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var id = JwtToken.ExtractToken(token);
-            return _unitOfWork.Contact.GetById(id);
+            return _unitOfWork.Contact.GetById(id);                        
         }
 
         public void ForgotPassword(ForgotPassword model)
@@ -80,7 +80,7 @@ namespace MyConnect.Implement
             var entity = _unitOfWork.Contact.GetAll().FirstOrDefault(q => q.Username == model.Username);
             if (entity == null)
                 throw new Exception(ErrorCode.NotFound);
-            
+
             entity.Password = Hash.Encrypt(model.Password);
             _unitOfWork.Contact.Update(entity);
             _unitOfWork.Save();

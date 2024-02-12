@@ -65,7 +65,7 @@ const Login = ({ reference }) => {
       Password: password,
     });
     axios
-      .post("api/users/login", body, { headers: headers })
+      .post("api/auth/login", body, { headers: headers })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
         auth.login(res.data.data.Token);

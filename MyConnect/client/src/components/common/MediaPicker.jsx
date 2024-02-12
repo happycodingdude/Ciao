@@ -13,7 +13,7 @@ const MediaPicker = ({ className, multiple, accept, id, onChange }) => {
       ></input>
       <label
         for={id}
-        className={`${className ?? ""} fa fa-camera aspect-square cursor-pointer rounded-[50%] bg-white p-[.3rem] text-gray-500 hover:text-pink-400`}
+        className={`${className ?? ""} fa fa-camera aspect-square cursor-pointer rounded-[50%] bg-white text-pink-300 hover:text-pink-400`}
       ></label>
     </>
   );
