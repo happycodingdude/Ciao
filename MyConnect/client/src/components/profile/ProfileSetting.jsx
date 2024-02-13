@@ -1,15 +1,16 @@
 import React from "react";
-import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import MediaPicker from "../common/MediaPicker";
 import ProfileSettingMenu from "./ProfileSettingMenu";
 
 const ProfileSetting = ({ profile, onchange }) => {
   return (
-    <div className="flex h-[calc(100%-5rem)] w-[50%] flex-col items-center justify-evenly">
+    <div className="flex w-[50%] flex-col items-center justify-evenly">
       <div className="relative flex justify-center">
-        <ImageWithLightBox
+        <ImageWithLightBoxWithBorderAndShadow
           src={profile?.Avatar ?? ""}
-          className="aspect-square w-[70%] cursor-pointer rounded-[50%]"
+          className="aspect-square w-[70%] cursor-pointer rounded-[50%] 
+          border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
           slides={[
             {
               src: profile?.Avatar ?? "",
@@ -17,7 +18,7 @@ const ProfileSetting = ({ profile, onchange }) => {
           ]}
         />
         <MediaPicker
-          className="absolute left-[25%] top-[-3%] text-xl"
+          className="absolute left-[20%] top-[-5%] text-xl"
           accept="image/png, image/jpeg"
           id="customer-avatar"
           onChange={onchange}

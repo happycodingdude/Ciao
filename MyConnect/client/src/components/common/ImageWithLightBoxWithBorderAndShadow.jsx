@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
 
-function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
+function ImageWithLightBoxWithBorderAndShadow({
+  src,
+  title,
+  className,
+  slides,
+  index,
+  onClick,
+}) {
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = (e) => setShowLightbox(true);
 
@@ -14,7 +21,9 @@ function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
       <img
         src={src}
         title={title}
-        className={`${className} `}
+        className={`${className} border-l-[.2rem]
+        border-r-[.2rem] border-t-[.2rem] border-pink-300 p-1
+        shadow-[0px_10px_20px_-7px_gray]`}
         onClick={onClick ?? handleShowLightbox}
         onError={imageOnError}
       ></img>
@@ -25,4 +34,4 @@ function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
   );
 }
 
-export default ImageWithLightBox;
+export default ImageWithLightBoxWithBorderAndShadow;

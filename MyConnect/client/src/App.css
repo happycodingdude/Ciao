@@ -44,7 +44,7 @@ body,
   }
 
   .item-active {
-    @apply bg-pink-200 hover:!bg-pink-200;
+    @apply bg-gradient-to-r from-pink-400 to-pink-200 text-white;
   }
 
   .grid-transition {
@@ -60,7 +60,7 @@ body,
       outline: unset !important;
     }
     textarea {
-      border: 0.2rem rgb(226, 226, 226) solid;
+      border: 0.2rem #ffb7df solid;
       border-radius: 1rem;
       padding: 0.7rem 4rem 0.7rem 2rem;
       overflow-y: scroll;

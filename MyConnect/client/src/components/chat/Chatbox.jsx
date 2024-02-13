@@ -9,6 +9,7 @@ import UpdateTitle from "../chat/UpdateTitle";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import UserProfile from "../profile/UserProfile";
 
 const page = 1;
@@ -378,7 +379,7 @@ const Chatbox = ({ reference }) => {
           ></div>
           <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
             <div className="flex items-center gap-[1rem]">
-              <ImageWithLightBox
+              <ImageWithLightBoxWithBorderAndShadow
                 src={reference.conversation?.Avatar ?? ""}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 slides={[
@@ -400,7 +401,7 @@ const Chatbox = ({ reference }) => {
                   />
                   <UpdateTitle reference={reference} />
                 </div>
-                <p className="text-gray-400">
+                {/* <p className="text-gray-400">
                   {reference.conversation?.LastSeenTime === null
                     ? "Offline"
                     : `Last seen ${
@@ -414,7 +415,8 @@ const Chatbox = ({ reference }) => {
                               "DD/MM HH:mm",
                             )
                       }`}
-                </p>
+                </p> */}
+                <p>{participants?.length} members</p>
               </div>
             </div>
             <div className="flex justify-end gap-[1rem]">
@@ -422,42 +424,46 @@ const Chatbox = ({ reference }) => {
               <div
                 ref={refToggleInformationContainer}
                 onClick={toggleInformationContainer}
-                className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
+                className="fa fa-arrow-right flex aspect-square w-[3rem] 
+                cursor-pointer items-center justify-center rounded-[1rem] 
+                text-lg font-normal text-gray-500"
               ></div>
             </div>
           </div>
           <div
             ref={refChatContent}
-            className="hide-scrollbar my-[2rem] flex flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+            className="hide-scrollbar my-[2rem] flex flex-col gap-[2rem] 
+            overflow-y-scroll scroll-smooth"
           >
             {messages?.map((message) => (
               <div
-                className={`flex items-end gap-[1rem] ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+                className={`flex items-end gap-[1rem] 
+                ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
               >
-                {
-                  message.ContactId !== auth.id
-                  ?(<div className="relative w-[3rem]">
-                  <ImageWithLightBox
-                    src={
-                      reference.contacts.find(
-                        (item) => item.Id == message.ContactId,
-                      ).Avatar ?? ""
-                    }
-                    className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
-                    slides={[
-                      {
-                        src:
-                          reference.contacts.find(
-                            (item) => item.Id == message.ContactId,
-                          ).Avatar ?? "",
-                      },
-                    ]}
-                    onClick={() => {
-                      setUserId(message.ContactId);
-                      setOpen(true);
-                    }}
-                  />
-                  {/* {participants?.find(
+                {message.ContactId !== auth.id ? (
+                  <div className="relative w-[3rem]">
+                    <ImageWithLightBoxWithBorderAndShadow
+                      src={
+                        reference.contacts.find(
+                          (item) => item.Id == message.ContactId,
+                        ).Avatar ?? ""
+                      }
+                      className="aspect-square w-full cursor-pointer self-start 
+                      rounded-[50%]"
+                      slides={[
+                        {
+                          src:
+                            reference.contacts.find(
+                              (item) => item.Id == message.ContactId,
+                            ).Avatar ?? "",
+                        },
+                      ]}
+                      onClick={() => {
+                        setUserId(message.ContactId);
+                        setOpen(true);
+                      }}
+                    />
+                    {/* {participants?.find(
                     (item) => item.ContactId === message.ContactId,
                   )?.IsModerator ? (
                     <div
@@ -466,14 +472,18 @@ const Chatbox = ({ reference }) => {
                   ) : (
                     ""
                   )} */}
-                </div>)
-                  :''
-                }                
+                  </div>
+                ) : (
+                  ""
+                )}
                 <div
-                  className={`flex flex-col laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
+                  className={`flex flex-col laptop:w-[clamp(40rem,70%,50rem)] 
+                  desktop:w-[clamp(40rem,70%,80rem)] 
+                  ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`flex items-center gap-[1rem] text-xs text-gray-400 ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
+                    className={`flex items-center gap-[1rem] text-xs text-gray-400 
+                    ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
                   >
                     {message.ContactId === auth.id ? (
                       ""
@@ -493,26 +503,20 @@ const Chatbox = ({ reference }) => {
                         ? moment(message.CreatedTime).format("HH:mm")
                         : moment(message.CreatedTime).format("DD/MM HH:mm")}
                     </p>
-                    {/* <img
-                      src="../src/img/double-check.svg"
-                      className="w-[2rem]"
-                    ></img> */}
                   </div>
                   {message.Type === "text" ? (
                     <div
-                      className={`break-all bg-gradient-to-r from-pink-100 to-blue-100 px-[1.5rem] py-[.7rem] text-gray-600 ${message.ContactId === auth.id ? "rounded-l-[1rem] rounded-tr-[1rem]" : "rounded-r-[1rem] rounded-tl-[1rem]"}`}
+                      className={`bg-gradient-radial-to-bc break-all rounded-[3rem] from-white 
+                      to-pink-400 px-[1.5rem] py-[.7rem] text-white`}
+                      // ${
+                      //   message.ContactId === auth.id
+                      //     ? "rounded-l-[1rem] rounded-tr-[1rem]"
+                      //     : "rounded-r-[1rem] rounded-tl-[1rem]"
+                      // }`}
                     >
                       {generateContent(message.Content)}
                     </div>
                   ) : (
-                    // <div
-                    //   className={`grid w-full justify-end gap-[1rem] ${
-                    //     message.Type === "media" &&
-                    //     message.Attachments.length === 1
-                    //       ? `grid-cols-[80%] ${message.ContactId === auth.id ? "justify-end" : ""}`
-                    //       : // : "grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
-                    //         "grid-flow-dense grid-cols-[repeat(3,minmax(15rem,1fr))]"
-                    //   } text-gray-400`}
                     <div
                       className={`flex w-full flex-wrap ${message.ContactId === auth.id ? "justify-end" : ""} gap-[1rem] text-gray-400`}
                     >
@@ -535,8 +539,13 @@ const Chatbox = ({ reference }) => {
                 </div>
               </div>
             ))}
-            <BackgroundPortal open={open}>
-              <UserProfile id={userId} onclose={() => setOpen(false)} />
+            <BackgroundPortal
+              className="aspect-video !w-[35%]"
+              open={open}
+              title="Profile"
+              onClose={() => setOpen(false)}
+            >
+              <UserProfile id={userId} onClose={() => setOpen(false)} />
             </BackgroundPortal>
           </div>
         </div>
@@ -610,7 +619,9 @@ const Chatbox = ({ reference }) => {
               <div className="flex grow">
                 <Tooltip title="Send">
                   <div
-                    className="fa fa-paper-plane m-auto flex aspect-square cursor-pointer items-center justify-center rounded-[.8rem] text-blue-500"
+                    className="fa fa-paper-plane m-auto flex aspect-square 
+                    cursor-pointer items-center justify-center 
+                    rounded-[.8rem] text-pink-500"
                     onClick={sendMessage}
                   ></div>
                 </Tooltip>
@@ -628,10 +639,15 @@ const Chatbox = ({ reference }) => {
                   ></Mentions>
                 </Form.Item>
               </Form>
-              <div className="absolute right-0 top-0 flex h-full grow items-center justify-center">
+              <div
+                className="absolute right-0 top-0 flex h-full grow 
+              items-center justify-center"
+              >
                 <Tooltip title="Send">
                   <div
-                    className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] text-blue-500"
+                    className="fa fa-paper-plane flex aspect-square h-full 
+                    cursor-pointer items-center justify-center rounded-[.8rem] 
+                    text-pink-500"
                     onClick={sendMessage}
                   ></div>
                 </Tooltip>

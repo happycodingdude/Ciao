@@ -1,4 +1,3 @@
-import { CloseOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
@@ -6,7 +5,7 @@ import useAuth from "../../hook/useAuth";
 import EditProfile from "./EditProfile";
 import ProfileSetting from "./ProfileSetting";
 
-const Profile = ({ onclose }) => {
+const Profile = () => {
   const auth = useAuth();
   const [profile, setProfile] = useState();
   const [file, setFile] = useState();
@@ -93,18 +92,9 @@ const Profile = ({ onclose }) => {
 
   return (
     <div
-      className="flex h-full w-full flex-wrap
-      bg-white font-sans text-base 
-      transition-all duration-500             
-      [&>*:not(:first-child)]:px-16 [&>*]:p-8"
+      className="flex w-full grow bg-white text-base transition-all
+      duration-500 [&>*]:px-16"
     >
-      <div className="bg-gradient-radial-to-bc inline-flex h-[5rem] w-full items-center justify-between from-white to-pink-300 text-white">
-        <p className="text-base font-medium leading-10 ">Edit Profile</p>
-        <CloseOutlined
-          className="flex cursor-pointer items-start text-base"
-          onClick={onclose}
-        />
-      </div>
       <ProfileSetting profile={profile} onchange={chooseAvatar} />
       <EditProfile
         profile={profile}

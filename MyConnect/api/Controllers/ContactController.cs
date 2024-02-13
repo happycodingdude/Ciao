@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -9,10 +10,12 @@ namespace MyConnect.Controllers;
 public class ContactsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IContactService _contactService;
 
-    public ContactsController(IUnitOfWork unitOfWork)
+    public ContactsController(IUnitOfWork unitOfWork, IContactService contactService)
     {
         _unitOfWork = unitOfWork;
+        _contactService = contactService;
     }
 
     [HttpGet]
@@ -40,6 +43,20 @@ public class ContactsController : ControllerBase
         catch (Exception ex)
         {
             return new ResponseModel<Contact>().BadRequest(ex);
+        }
+    }
+
+    [HttpGet("{id}/friends/{fid}")]
+    public IActionResult Get(Guid id, Guid fid)
+    {
+        try
+        {
+            var response = _unitOfWork.Friend.GetAll().FirstOrDefault(q => q.ContactId2 == fid);
+            return new ResponseModel<Friend>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Friend>().BadRequest(ex);
         }
     }
 

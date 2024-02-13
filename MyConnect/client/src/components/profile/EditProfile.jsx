@@ -6,7 +6,7 @@ const EditProfile = ({ profile, onChange, onSave }) => {
 
   return (
     <div
-      className="flex h-[calc(100%-5rem)] w-[50%] flex-col items-center 
+      className="flex w-[50%] flex-col items-center 
       justify-evenly gap-[3rem]     
       transition-all duration-500 "
     >

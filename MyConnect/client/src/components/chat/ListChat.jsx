@@ -127,11 +127,6 @@ const ListChat = ({ reference }) => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
   };
 
-  const imageOnError = (e) => {
-    e.target.onerror = null;
-    e.target.src = "../src/assets/imagenotfound.jpg";
-  };
-
   const generateContent = (text) => {
     if (reference.contacts.some((item) => text.includes(`@${item.Id}`))) {
       reference.contacts.map((item) => {
@@ -144,7 +139,6 @@ const ListChat = ({ reference }) => {
 
   return (
     <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-white shadow-[7px_0px_10px_-5px_#dbdbdb_inset]">
-      {/* <div className="flex h-full w-full flex-col rounded-2xl bg-white"> */}
       <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-gray-300 px-[2rem]">
         <div className="flex h-[50%] grow">
           <i className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[#f0f0f0] pl-[1rem] font-normal text-gray-500"></i>
@@ -159,14 +153,9 @@ const ListChat = ({ reference }) => {
           <CreateGroupChat />
         </div>
       </div>
-      {/* <div className="flex h-[clamp(5rem,10vh,7rem)] items-center justify-between">
-          <label className="text-gray-400">Friends</label>
-          <div className="fa fa-arrow-up cursor-pointer text-lg font-normal text-gray-500"></div>
-        </div> */}
       <div
         ref={refChats}
-        // className="hide-scrollbar flex h-[clamp(50%,50vh,60%)] flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
-        className="hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
+        className="hide-scrollbar flex grow flex-col gap-4 overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
         {chats?.map((item, i) => (
           <div
@@ -174,39 +163,31 @@ const ListChat = ({ reference }) => {
             ref={(element) => {
               refChatItem.current[i] = element;
             }}
-            // className="chat-item group flex cursor-pointer items-center gap-[1rem] overflow-hidden rounded-2xl p-[1rem] hover:bg-white
-            //                   hover:text-white laptop:h-[8rem]"
-            className={`${activeItem === item.Id ? "item-active" : ""} chat-item group flex shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-2xl px-[1rem] py-[1.2rem] hover:bg-[#f8f8f8]`}
+            className={`${activeItem === item.Id ? "item-active" : ""} 
+            chat-item group relative flex h-[5.5rem] shrink-0 cursor-pointer
+            items-center rounded-l-[3rem] rounded-r-[2rem]
+            bg-pink-100 pl-28 pr-4 hover:bg-pink-200`}
             onClick={() => {
               handleSetConversation(item);
             }}
           >
-            {/* <img
-                src={item.Avatar ?? ""}
-                onError={imageOnError}
-                className="aspect-square rounded-full laptop:max-w-[5rem] desktop:max-w-[6rem]"
-              ></img> */}
             <ImageWithLightBox
               src={item.Avatar ?? ""}
-              // className="pointer-events-none aspect-square rounded-full laptop:max-w-[5rem] desktop:max-w-[6rem]"
-              className="pointer-events-none aspect-square w-[4rem] rounded-full"
+              className={`pointer-events-none absolute left-0
+              aspect-square w-[6rem] rounded-full
+              border-[.2rem] ${activeItem === item.Id ? "border-pink-400" : "border-pink-200"} `}
               slides={[
                 {
                   src: item.Avatar ?? "",
                 },
               ]}
-            ></ImageWithLightBox>
-            <div className="w-[50%] grow self-start">
+            />
+            <div className="h-full w-[50%] grow pt-2">
               <CustomLabel
                 className="mr-auto font-bold"
                 title={item.Title}
               ></CustomLabel>
               {item.LastMessageContact == auth.id ? (
-                // <p className="overflow-hidden text-ellipsis">
-                //   {item.LastMessage === null
-                //     ? ""
-                //     : generateContent(item.LastMessage)}
-                // </p>
                 <CustomLabel
                   title={
                     item.LastMessage === null
@@ -217,7 +198,7 @@ const ListChat = ({ reference }) => {
               ) : (
                 <p
                   className={`overflow-hidden text-ellipsis ${
-                    item.UnSeenMessages > 0 ? "font-bold text-red-400" : ""
+                    item.UnSeenMessages > 0 ? "font-bold text-pink-400" : ""
                   } `}
                 >
                   {item.LastMessage === null
@@ -226,9 +207,12 @@ const ListChat = ({ reference }) => {
                 </p>
               )}
             </div>
-            <div className="flex shrink-0 flex-col items-end gap-[.5rem] self-start laptop:min-w-[5rem]">
-              {/* <p className="font-thin text-gray-950 group-hover:text-white group-[.item-active]:text-white"> */}
-              <p className="font-thin text-gray-950">
+            <div
+              className="flex h-full shrink-0 flex-col 
+            items-end gap-[.5rem] self-start
+            pt-2 laptop:min-w-[5rem]"
+            >
+              <p className="">
                 {item.LastMessageTime === null
                   ? ""
                   : moment(item.LastMessageTime).format("DD/MM/YYYY") ===
@@ -241,11 +225,8 @@ const ListChat = ({ reference }) => {
                 ""
               ) : (
                 <p
-                  // className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-gray-100 text-center text-[clamp(1.2rem,1.3vw,1.4rem)]
-                  //                             font-bold text-slate-50
-                  //                             group-hover:bg-white group-hover:text-gray-100
-                  //                             group-[.item-active]:bg-white group-[.item-active]:text-gray-100"
-                  className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-blue-100 text-center text-[clamp(1.2rem,1.3vw,1.4rem)] font-medium text-gray-500"
+                  className="flex aspect-square w-[2rem] items-center 
+                justify-center rounded-full bg-pink-300 text-center"
                 >
                   {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
                 </p>
@@ -256,9 +237,6 @@ const ListChat = ({ reference }) => {
       </div>
       <div
         ref={refChatsScroll}
-        // className="my-[.5rem]  flex hidden items-center text-center text-gray-400
-        //                             before:mr-[2rem] before:h-[.1rem] before:grow before:bg-gray-400
-        //                             after:ml-[2rem] after:h-[.1rem] after:grow after:bg-gray-400"
         className="mx-auto my-[.5rem] flex hidden items-center text-center text-gray-400"
       >
         <div

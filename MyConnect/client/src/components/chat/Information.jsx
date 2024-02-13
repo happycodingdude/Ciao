@@ -5,6 +5,8 @@ import useAuth from "../../hook/useAuth";
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import MediaPicker from "../common/MediaPicker";
 import AddParticipants from "./AddParticipants";
 import ToggleNotification from "./ToggleNotification";
 
@@ -174,9 +176,8 @@ const Information = ({ reference }) => {
       <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:p-[1rem]">
         <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
-            <ImageWithLightBox
+            <ImageWithLightBoxWithBorderAndShadow
               src={reference.conversation?.Avatar ?? ""}
-              // className="aspect-square w-[20%] cursor-pointer rounded-[50%]"
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               slides={[
                 {
@@ -184,24 +185,18 @@ const Information = ({ reference }) => {
                 },
               ]}
               onClick={showProfile}
-            ></ImageWithLightBox>
-            <input
-              multiple
-              type="file"
+            />
+            <MediaPicker
+              className="absolute left-[42%] top-[-10%]"
               accept="image/png, image/jpeg"
-              className="hidden"
-              id="conversation-avatar"
+              id="customer-avatar"
               onChange={updateAvatar}
-            ></input>
-            <label
-              for="conversation-avatar"
-              className="fa fa-camera absolute right-[40%] top-[-10%] cursor-pointer p-[.2rem] text-gray-500 hover:text-pink-400"
-            ></label>
+            />
             <CustomLabel
               className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
               title={reference.conversation?.Title}
               tooltip
-            ></CustomLabel>
+            />
             <div className="cursor-pointer text-gray-400">
               {participants?.length} members
             </div>

@@ -64,6 +64,7 @@ namespace MyConnect
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IContactService, ContactService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
