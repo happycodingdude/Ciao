@@ -77,7 +77,41 @@ const ProfileSetting = ({ id, onClose }) => {
   };
 
   const chat = () => {
-    onClose();
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    const body = {
+      Participants: [
+        {
+          ContactId: auth.id,
+          IsNotifying: true,
+          IsModerator: true,
+        },
+        {
+          ContactId: profile.Id,
+          IsNotifying: true,
+        },
+      ],
+    };
+
+    axios
+      .post(`api/conversations`, body, {
+        cancelToken: cancelToken.token,
+        headers: headers,
+      })
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+        onClose();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => {
+      cancelToken.cancel();
+    };
   };
 
   return (

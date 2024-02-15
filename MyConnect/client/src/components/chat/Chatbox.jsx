@@ -362,8 +362,6 @@ const Chatbox = ({ reference }) => {
     };
   }, [closeProfile]);
 
-  const showUserProfile = (id) => {};
-
   return (
     <>
       <div
@@ -393,14 +391,29 @@ const Chatbox = ({ reference }) => {
                 ref={refTitleContainer}
                 className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
               >
-                <div className="flex w-full gap-[.5rem]">
+                {reference.conversation?.IsGroup ? (
+                  <>
+                    <div className="flex w-full gap-[.5rem]">
+                      <CustomLabel
+                        className="text-start text-lg font-bold text-gray-600"
+                        title={reference.conversation.Title}
+                        tooltip
+                      />
+                      <UpdateTitle reference={reference} />
+                    </div>
+                    <p>{participants?.length} members</p>
+                  </>
+                ) : (
                   <CustomLabel
-                    className="text-start text-lg font-semibold text-gray-600"
-                    title={reference.conversation?.Title}
-                    tooltip
+                    className="text-start text-lg font-bold text-gray-600"
+                    title={
+                      participants?.find(
+                        (item) => item.ContactId !== auth.user.Id,
+                      ).Contact.Name
+                    }
                   />
-                  <UpdateTitle reference={reference} />
-                </div>
+                )}
+
                 {/* <p className="text-gray-400">
                   {reference.conversation?.LastSeenTime === null
                     ? "Offline"
@@ -416,7 +429,6 @@ const Chatbox = ({ reference }) => {
                             )
                       }`}
                 </p> */}
-                <p>{participants?.length} members</p>
               </div>
             </div>
             <div className="flex justify-end gap-[1rem]">
@@ -506,7 +518,7 @@ const Chatbox = ({ reference }) => {
                   </div>
                   {message.Type === "text" ? (
                     <div
-                      className={`bg-gradient-radial-to-bc break-all rounded-[3rem] from-white 
+                      className={`break-all rounded-[3rem] bg-gradient-radial-to-bc from-white 
                       to-pink-400 px-[1.5rem] py-[.7rem] text-white`}
                       // ${
                       //   message.ContactId === auth.id
@@ -573,7 +585,7 @@ const Chatbox = ({ reference }) => {
               id="choose-file"
               onChange={chooseFile}
             ></input>
-            <Tooltip title="Choose image">
+            <Tooltip title="Choose file">
               <label
                 for="choose-file"
                 className="fa fa-file cursor-pointer font-normal text-gray-500"

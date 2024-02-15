@@ -18,5 +18,6 @@ namespace MyConnect.Model
         public bool IsNotifying { get; set; }
         public Guid ConversationId { get; set; }
         public Guid ContactId { get; set; }
+        public ContactNoReference? Contact { get; set; }
     }
 }

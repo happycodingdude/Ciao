@@ -59,7 +59,7 @@ const UpdateTitle = ({ reference }) => {
       <Tooltip
         className="fa fa-edit h-full cursor-pointer
         text-pink-300 hover:text-pink-400"
-        title="Update title"
+        title="Change title"
         onClick={handleUpdateTitle}
       ></Tooltip>
       <CustomModal

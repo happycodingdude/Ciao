@@ -186,20 +186,32 @@ const Information = ({ reference }) => {
               ]}
               onClick={showProfile}
             />
-            <MediaPicker
-              className="absolute left-[42%] top-[-10%]"
-              accept="image/png, image/jpeg"
-              id="customer-avatar"
-              onChange={updateAvatar}
-            />
-            <CustomLabel
-              className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
-              title={reference.conversation?.Title}
-              tooltip
-            />
-            <div className="cursor-pointer text-gray-400">
-              {participants?.length} members
-            </div>
+            {reference.conversation.IsGroup ? (
+              <>
+                <MediaPicker
+                  className="absolute left-[42%] top-[-10%]"
+                  accept="image/png, image/jpeg"
+                  id="customer-avatar"
+                  onChange={updateAvatar}
+                />
+                <CustomLabel
+                  className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
+                  title={reference.conversation?.Title}
+                  tooltip
+                />
+                <div className="cursor-pointer text-gray-400">
+                  {participants?.length} members
+                </div>
+              </>
+            ) : (
+              <CustomLabel
+                className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
+                title={
+                  participants?.find((item) => item.ContactId !== auth.user.Id)
+                    .Contact.Name
+                }
+              />
+            )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
             <ToggleNotification
@@ -207,12 +219,16 @@ const Information = ({ reference }) => {
                 participants,
               }}
             />
-            <AddParticipants
-              reference={{
-                participants,
-                conversation: reference.conversation,
-              }}
-            />
+            {reference.conversation.IsGroup ? (
+              <AddParticipants
+                reference={{
+                  participants,
+                  conversation: reference.conversation,
+                }}
+              />
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-[1rem]">

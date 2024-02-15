@@ -18,21 +18,11 @@ const ListChat = ({ reference }) => {
   const [activeItem, setActiveItem] = useState();
 
   const unfocusChat = () => {
-    // refChatItem.current.map((ref) => {
-    //   ref.classList.remove("item-active");
-    // });
     setActiveItem("");
   };
 
   const focusChat = (item) => {
     setActiveItem(item.Id);
-    // refChatItem.current.map((ref) => {
-    //   if (ref.dataset.key === item.Id) {
-    //     ref.classList.add("item-active");
-    //   } else {
-    //     ref.classList.remove("item-active");
-    //   }
-    // });
   };
 
   const handleSetConversation = (item) => {
@@ -55,9 +45,6 @@ const ListChat = ({ reference }) => {
     else refChatsScroll.current.classList.remove("hidden");
 
     reference.refListChat.setChats = (chats) => {
-      // var focus = refChatItem.current.find((ref) =>
-      //   ref.classList.contains("item-active"),
-      // );
       if (activeItem === undefined || activeItem === "") setChats(chats);
       else {
         setChats((current) => {
@@ -91,6 +78,7 @@ const ListChat = ({ reference }) => {
     //       break;
     //   }
     // });
+
     moment.locale("en", {
       relativeTime: {
         future: "in %s",
@@ -164,18 +152,16 @@ const ListChat = ({ reference }) => {
               refChatItem.current[i] = element;
             }}
             className={`${activeItem === item.Id ? "item-active" : ""} 
-            chat-item group relative flex h-[5.5rem] shrink-0 cursor-pointer
-            items-center rounded-l-[3rem] rounded-r-[2rem]
-            bg-pink-100 pl-28 pr-4 hover:bg-pink-200`}
+            chat-item group flex h-[6rem] shrink-0 cursor-pointer
+            items-center gap-[1rem] rounded-2xl
+            bg-pink-100 pl-2 pr-4 hover:bg-pink-200`}
             onClick={() => {
               handleSetConversation(item);
             }}
           >
             <ImageWithLightBox
               src={item.Avatar ?? ""}
-              className={`pointer-events-none absolute left-0
-              aspect-square w-[6rem] rounded-full
-              border-[.2rem] ${activeItem === item.Id ? "border-pink-400" : "border-pink-200"} `}
+              className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-5px_#f472b6]`}
               slides={[
                 {
                   src: item.Avatar ?? "",
@@ -183,10 +169,22 @@ const ListChat = ({ reference }) => {
               ]}
             />
             <div className="h-full w-[50%] grow pt-2">
-              <CustomLabel
-                className="mr-auto font-bold"
-                title={item.Title}
-              ></CustomLabel>
+              {item.IsGroup ? (
+                <CustomLabel
+                  className={`mr-auto ${item.UnSeenMessages > 0 ? "font-bold" : ""} `}
+                  title={item.Title}
+                />
+              ) : (
+                <CustomLabel
+                  className={`mr-auto ${item.UnSeenMessages > 0 ? "font-bold" : ""} `}
+                  title={
+                    item.Participants.find(
+                      (item) => item.ContactId !== auth.user.Id,
+                    ).Contact.Name
+                  }
+                />
+              )}
+
               {item.LastMessageContact == auth.id ? (
                 <CustomLabel
                   title={
@@ -194,7 +192,7 @@ const ListChat = ({ reference }) => {
                       ? ""
                       : generateContent(item.LastMessage)
                   }
-                ></CustomLabel>
+                />
               ) : (
                 <p
                   className={`overflow-hidden text-ellipsis ${
@@ -210,15 +208,12 @@ const ListChat = ({ reference }) => {
             <div
               className="flex h-full shrink-0 flex-col 
             items-end gap-[.5rem] self-start
-            pt-2 laptop:min-w-[5rem]"
+            pt-2 laptop:min-w-[4rem]"
             >
               <p className="">
                 {item.LastMessageTime === null
                   ? ""
-                  : moment(item.LastMessageTime).format("DD/MM/YYYY") ===
-                      moment().format("DD/MM/YYYY")
-                    ? moment(item.LastMessageTime).fromNow()
-                    : moment(item.LastMessageTime).format("DD/MM HH:mm")}
+                  : moment(item.LastMessageTime).fromNow()}
               </p>
               {item.LastMessageContact == auth.id ||
               item.UnSeenMessages == 0 ? (

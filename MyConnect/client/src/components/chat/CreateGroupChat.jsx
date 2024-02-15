@@ -11,7 +11,7 @@ const CreateGroupChat = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
-  const handleCreateGroupChat = () => {
+  const openCreateGroupChat = () => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
@@ -33,8 +33,8 @@ const CreateGroupChat = () => {
               type: "input",
             },
             {
-              label: "Friends",
-              name: "Friends",
+              label: "Members",
+              name: "Members",
               type: "multiple",
               options: res.data.data
                 .filter((item) => item.Id !== auth.id)
@@ -56,7 +56,6 @@ const CreateGroupChat = () => {
   };
 
   const createGroupChat = (data) => {
-    console.log(data);
     // handleClose();
     const cancelToken = axios.CancelToken.source();
     const headers = {
@@ -65,6 +64,7 @@ const CreateGroupChat = () => {
     };
     const body = {
       Title: data.Title[0],
+      IsGroup: true,
       Participants: [
         {
           ContactId: auth.id,
@@ -75,14 +75,13 @@ const CreateGroupChat = () => {
     };
     body.Participants = [
       ...body.Participants,
-      ...data.Friends.filter((item) => item !== "").map((item) => {
+      ...data.Members.filter((item) => item !== "").map((item) => {
         return {
           ContactId: item,
           IsNotifying: true,
         };
       }),
     ];
-    console.log(body);
     axios
       .post(`api/conversations`, body, {
         cancelToken: cancelToken.token,
@@ -99,10 +98,11 @@ const CreateGroupChat = () => {
       cancelToken.cancel();
     };
   };
+
   return (
     <>
       <div
-        onClick={handleCreateGroupChat}
+        onClick={openCreateGroupChat}
         className="fa fa-users flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal transition-all duration-200 hover:bg-[#e7e7e7]"
       ></div>
       <CustomModal

@@ -13,6 +13,7 @@ namespace MyConnect.Configuration
             CreateMap<Message, MessageToNotify>().ReverseMap();
             CreateMap<Message, MessageNoReference>().ReverseMap();
             CreateMap<Attachment, AttachmentNoReference>().ReverseMap();
+            CreateMap<Contact, ContactNoReference>().ReverseMap();
         }
     }
 }

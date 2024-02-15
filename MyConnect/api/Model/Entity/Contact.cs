@@ -42,4 +42,17 @@ namespace MyConnect.Model
             Password = Hash.Decrypt(Password);
         }
     }
+
+    public class ContactNoReference : BaseModel
+    {
+        public string? Name { get; set; }
+        [JsonIgnore]
+        public string? Username { get; set; }        
+        [JsonIgnore]
+        public string? Password { get; set; }
+        public string? Avatar { get; set; }
+        public bool IsOnline { get; set; }
+        [JsonIgnore]
+        public DateTime? LastLogout { get; set; }
+    }
 }

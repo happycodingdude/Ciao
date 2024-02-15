@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MyConnect.Authentication;
 using MyConnect.Model;
 
@@ -23,15 +24,20 @@ namespace MyConnect.Repository
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var contactId = JwtToken.ExtractToken(token);
 
-            var entity = _dbSet
+            var entity = _dbSet                        
             .Where(q => q.Participants.Any(w => w.ContactId == contactId && !w.IsDeleted))
-            .OrderByDescending(q => q.UpdatedTime)
+            .OrderByDescending(q => q.UpdatedTime)            
             .ToList();
             var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var conversation in conversations)
             {
                 conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
                 conversation.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == conversation.Id && q.ContactId != contactId && q.Status == "received");
+                var participants = participantDbSet
+                .Include(q => q.Contact)
+                .Where(q => q.ConversationId == conversation.Id && !q.IsDeleted)
+                .ToList();
+                conversation.Participants = _mapper.Map<List<Participant>, List<ParticipantNoReference>>(participants);
 
                 var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == conversation.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
                 if (lastMessageEntity == null) continue;
