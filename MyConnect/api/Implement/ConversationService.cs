@@ -24,7 +24,7 @@ namespace MyConnect.Implement
             _mapper = mapper;
         }
 
-        public async Task<Conversation> CreateGroupChatAndNotify(Conversation model)
+        public async Task<Conversation> CreateConversationAndNotify(Conversation model)
         {
             _unitOfWork.Conversation.Add(model);
             _unitOfWork.Save();

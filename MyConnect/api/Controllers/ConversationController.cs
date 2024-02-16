@@ -119,11 +119,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateGroupChat(Conversation model)
+    public async Task<IActionResult> CreateConversation(Conversation model)
     {
         try
         {
-            var response = await _conversationService.CreateGroupChatAndNotify(model);
+            var response = await _conversationService.CreateConversationAndNotify(model);
             return new ResponseModel<Conversation>(model).Ok();
         }
         catch (Exception ex)

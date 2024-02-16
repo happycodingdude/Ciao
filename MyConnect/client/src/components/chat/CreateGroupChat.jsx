@@ -56,7 +56,6 @@ const CreateGroupChat = () => {
   };
 
   const createGroupChat = (data) => {
-    // handleClose();
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",

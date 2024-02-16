@@ -1,12 +1,14 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
 import useAuth from "../../hook/useAuth";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 
-const ProfileSetting = ({ id, onClose }) => {
+const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
+  const auth = useAuth();
   const [profile, setProfile] = useState();
   const [status, setStatus] = useState();
-  const auth = useAuth();
+  const friendRequest = useRef();
 
   useEffect(() => {
     const cancelToken = axios.CancelToken.source();
@@ -35,8 +37,8 @@ const ProfileSetting = ({ id, onClose }) => {
       })
       .then((res) => {
         if (res.status !== 200) throw new Error(res.status);
-        if (res.data.data === null) setStatus("new");
-        else setStatus(res.data.data.Status);
+        friendRequest.current = res.data.data;
+        setStatus(res.data.data.Status);
       })
       .catch((err) => {
         console.log(err);
@@ -76,7 +78,29 @@ const ProfileSetting = ({ id, onClose }) => {
     };
   };
 
+  const checkConversation = async (cancelToken) => {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    return axios.get("api/participants", {
+      cancelToken: cancelToken.token,
+      headers: headers,
+    });
+  };
+
   const chat = () => {
+    const chat = checkExistChat(
+      friendRequest.current.ContactId1 === auth.user.Id
+        ? friendRequest.current.ContactId2
+        : friendRequest.current.ContactId1,
+    );
+    if (chat !== undefined) {
+      document.querySelector(`[data-key='${chat.Id}']`).click();
+      onClose();
+      return;
+    }
+
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
@@ -98,6 +122,56 @@ const ProfileSetting = ({ id, onClose }) => {
 
     axios
       .post(`api/conversations`, body, {
+        cancelToken: cancelToken.token,
+        headers: headers,
+      })
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+        onClose();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => {
+      cancelToken.cancel();
+    };
+  };
+
+  const acceptFriendRequest = () => {
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    friendRequest.current.Status = "friend";
+    friendRequest.current.AcceptTime = moment().format("YYYY/MM/DD HH:mm:ss");
+    axios
+      .put(`api/friends`, friendRequest.current, {
+        cancelToken: cancelToken.token,
+        headers: headers,
+      })
+      .then((res) => {
+        if (res.status !== 200) throw new Error(res.status);
+        onClose();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => {
+      cancelToken.cancel();
+    };
+  };
+
+  const cancelFriendRequest = () => {
+    const cancelToken = axios.CancelToken.source();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    };
+    axios
+      .delete(`api/friends/${friendRequest.current.Id}`, {
         cancelToken: cancelToken.token,
         headers: headers,
       })
@@ -136,21 +210,34 @@ const ProfileSetting = ({ id, onClose }) => {
           <p>{profile?.Name}</p>
         </div>
         <div className="inline-flex w-full gap-8">
-          {status === "new" ? (
-            <div
-              onClick={addFriend}
-              className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
-            >
-              Add friend
-            </div>
-          ) : (
-            <div
-              // onClick={addFriend}
-              className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
-            >
-              Request sent
-            </div>
-          )}
+          {
+            {
+              new: (
+                <div
+                  onClick={addFriend}
+                  className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
+                >
+                  Add friend
+                </div>
+              ),
+              request_received: (
+                <div
+                  onClick={acceptFriendRequest}
+                  className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
+                >
+                  Accept
+                </div>
+              ),
+              request_sent: (
+                <div
+                  onClick={cancelFriendRequest}
+                  className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
+                >
+                  Cancel
+                </div>
+              ),
+            }[status]
+          }
 
           <div
             onClick={chat}
@@ -165,4 +252,4 @@ const ProfileSetting = ({ id, onClose }) => {
   );
 };
 
-export default ProfileSetting;
+export default UserProfileSetting;

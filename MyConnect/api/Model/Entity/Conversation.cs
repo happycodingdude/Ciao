@@ -13,8 +13,9 @@ namespace MyConnect.Model
     public class ConversationToNotify : BaseModel
     {
         public string? Title { get; set; }
-        public string? Avatar { get; set; }
         public DateTime? DeletedTime { get; set; }
+        public string? Avatar { get; set; }
+        public bool IsGroup { get; set; }
         public ICollection<ParticipantNoReference>? Participants { get; set; }
     }
 

@@ -6,5 +6,6 @@ namespace MyConnect.Interface
     {
         Task<IEnumerable<Participant>> AddParticipantAndNotify(List<Participant> model);
         Task<Participant> RemoveChatAndNotify(Participant model);
+        bool CheckExistConversation(Guid id, Guid fid);
     }
 }

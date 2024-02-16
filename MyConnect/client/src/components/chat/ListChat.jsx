@@ -62,8 +62,16 @@ const ListChat = ({ reference }) => {
       reference.setConversation(undefined);
       unfocusChat();
     };
-    reference.refListChat.newChat = (chats) => {
+    reference.refListChat.newChat = (chats, focus, chat) => {
       setChats(chats);
+      if (focus) handleSetConversation(chat);
+    };
+    reference.refListChat.checkExistChat = (id) => {
+      return chats.find(
+        (chat) =>
+          chat.IsGroup === false &&
+          chat.Participants.some((item) => item.ContactId === id),
+      );
     };
 
     // listenNotification((message) => {
@@ -148,6 +156,13 @@ const ListChat = ({ reference }) => {
         {chats?.map((item, i) => (
           <div
             data-key={item.Id}
+            data-user={
+              !item.IsGroup
+                ? item.Participants.find(
+                    (item) => item.ContactId !== auth.user.Id,
+                  ).ContactId
+                : ""
+            }
             ref={(element) => {
               refChatItem.current[i] = element;
             }}

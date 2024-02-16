@@ -10,12 +10,12 @@ namespace MyConnect.Controllers;
 public class ContactsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IContactService _contactService;
+    private readonly IFriendService _friendService;
 
-    public ContactsController(IUnitOfWork unitOfWork, IContactService contactService)
+    public ContactsController(IUnitOfWork unitOfWork, IFriendService friendService)
     {
         _unitOfWork = unitOfWork;
-        _contactService = contactService;
+        _friendService = friendService;
     }
 
     [HttpGet]
@@ -51,7 +51,7 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Friend.GetAll().FirstOrDefault(q => q.ContactId2 == fid);
+            var response = _friendService.GetByIds(id, fid);
             return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)

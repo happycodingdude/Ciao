@@ -53,5 +53,13 @@ namespace MyConnect.Implement
             }
             return model;
         }
+
+        public bool CheckExistConversation(Guid id, Guid fid)
+        {
+            var result = _unitOfWork.Participant.GetAll()
+            .GroupBy(q => q.ConversationId)
+            .Any(q => q.Any(w => w.ContactId == id) &&  q.Any(w => w.ContactId == fid));
+            return result;
+        }
     }
 }

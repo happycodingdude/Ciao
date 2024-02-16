@@ -65,7 +65,11 @@ const Home = () => {
         getAllChats(cancelToken)
           .then((res) => {
             if (res.status !== 200) throw new Error(res.status);
-            refListChat.newChat(res.data.data);
+            refListChat.newChat(
+              res.data.data,
+              !messageData.IsGroup,
+              messageData,
+            );
           })
           .catch((err) => {
             console.log(err);
@@ -191,6 +195,10 @@ const Home = () => {
     else hideInformationContainer();
   };
 
+  const checkExistChat = (id) => {
+    return refListChat.checkExistChat(id);
+  };
+
   return (
     <div id="home" className="relative w-full">
       <div className="absolute flex h-full w-full bg-gradient-to-r from-pink-100 to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
@@ -215,8 +223,8 @@ const Home = () => {
                   refChatbox,
                   refInformation,
                   contacts,
-                  setConversation,
                   toggleInformationContainer,
+                  checkExistChat,
                 }}
               />
               <div

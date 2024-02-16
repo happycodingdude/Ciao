@@ -4,6 +4,6 @@ namespace MyConnect.Interface
 {
     public interface IConversationService
     {
-        Task<Conversation> CreateGroupChatAndNotify(Conversation model);
+        Task<Conversation> CreateConversationAndNotify(Conversation model);
     }
 }

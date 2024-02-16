@@ -23,8 +23,6 @@ const Chatbox = ({ reference }) => {
   const refChatInput = useRef();
   const refChatContent = useRef();
   const refScrollButton = useRef();
-  // const refChatboxOption = useRef();
-  // const refChatboxOptionMenu = useRef();
   const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
   const refTitleContainer = useRef();
@@ -444,8 +442,8 @@ const Chatbox = ({ reference }) => {
           </div>
           <div
             ref={refChatContent}
-            className="hide-scrollbar my-[2rem] flex flex-col gap-[2rem] 
-            overflow-y-scroll scroll-smooth"
+            className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll
+            scroll-smooth bg-gradient-to-b from-white to-pink-50 pb-4"
           >
             {messages?.map((message) => (
               <div
@@ -557,11 +555,15 @@ const Chatbox = ({ reference }) => {
               title="Profile"
               onClose={() => setOpen(false)}
             >
-              <UserProfile id={userId} onClose={() => setOpen(false)} />
+              <UserProfile
+                id={userId}
+                onClose={() => setOpen(false)}
+                checkExistChat={reference.checkExistChat}
+              />
             </BackgroundPortal>
           </div>
         </div>
-        <div className="flex w-full items-center justify-center bg-white px-[2rem] py-[.5rem]">
+        <div className="flex w-full items-center justify-center bg-white px-8 py-3">
           <div className="flex max-w-[10rem] grow items-center justify-evenly">
             <input
               multiple

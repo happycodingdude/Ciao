@@ -32,6 +32,20 @@ public class ParticipantsController : ControllerBase
         }
     }
 
+    [HttpGet("{id}/check/{fid}")]
+    public IActionResult Get(Guid id, Guid fid)
+    {
+        try
+        {
+            var response = _participantService.CheckExistConversation(id, fid);
+            return new ResponseModel<bool>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<bool>().BadRequest(ex);
+        }
+    }
+
     [HttpGet("{id}")]
     public IActionResult Get(Guid id)
     {
