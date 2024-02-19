@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
@@ -67,22 +66,22 @@ const Home = () => {
     }
   };
 
-  const getAllChats = (cancelToken) => {
-    return HttpRequest("get", "api/conversations", cancelToken, auth.token);
+  const getAllChats = (controller) => {
+    return HttpRequest("get", "api/conversations", auth.token, controller);
   };
 
-  const getAllContact = (cancelToken) => {
-    return HttpRequest("get", "api/contacts", cancelToken, auth.token);
+  const getAllContact = (controller) => {
+    return HttpRequest("get", "api/contacts", auth.token, controller);
   };
 
   useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-    getAllChats(cancelToken).then((res) => {
+    const controller = new AbortController();
+    getAllChats(controller).then((res) => {
       refListChat.setChats(res);
-      registerNotification(res);
+      registerNotification(res, controller);
     });
 
-    getAllContact(cancelToken).then((res) => {
+    getAllContact(controller).then((res) => {
       setContacts(res);
     });
 
@@ -98,18 +97,25 @@ const Home = () => {
     //   }
     // });
     return () => {
-      cancelToken.cancel();
+      controller.abort();
     };
   }, []);
 
-  const registerNotification = (chats) => {
+  const registerNotification = (chats, controller) => {
     requestPermission((message) => notifyMessage(chats, message)).then(
       (token) => {
+        console.log(token);
         const body = {
           Id: auth.id,
           Token: token,
         };
-        HttpRequest("post", "api/notification/register", auth.token, body);
+        HttpRequest(
+          "post",
+          "api/notification/register",
+          auth.token,
+          controller,
+          body,
+        );
       },
     );
   };

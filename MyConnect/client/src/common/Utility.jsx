@@ -14,22 +14,16 @@ export const RequireAuth = () => {
   );
 };
 
-export const HttpRequest = async (
-  method,
-  url,
-  token,
-  cancelToken,
-  body = null,
-) => {
-  return await axios({
+export const HttpRequest = (method, url, token, controller, data = null) => {
+  return axios({
     method: method,
     url: url,
-    data: body,
+    data: data,
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + token,
     },
-    cancelToken: cancelToken,
+    signal: controller.signal,
   })
     .then((res) => {
       if (res.status !== 200) throw new Error(res.status);
