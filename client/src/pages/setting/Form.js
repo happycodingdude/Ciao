@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';
-import useAuth from '../../hooks/useAuth.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import usePagingView from '../../hooks/usePagingView.js';
 
 const Form = () => {

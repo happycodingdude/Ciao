@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 
 const Signout = ({ className }) => {
   const auth = useAuth();
@@ -9,7 +9,7 @@ const Signout = ({ className }) => {
     const cancelToken = axios.CancelToken.source();
     const headers = {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + localStorage.getItem("token"),
+      Authorization: "Bearer " + auth.token,
     };
     axios
       .post(

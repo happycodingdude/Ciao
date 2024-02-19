@@ -1,7 +1,7 @@
 // import { Tooltip } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import CustomModal from "../common/CustomModal";
 
 const AddParticipants = ({ reference }) => {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
@@ -208,7 +208,7 @@ const Information = ({ reference }) => {
                 className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
                 title={
                   participants?.find((item) => item.ContactId !== auth.user.Id)
-                    .Contact.Name
+                    ?.Contact.Name
                 }
               />
             )}

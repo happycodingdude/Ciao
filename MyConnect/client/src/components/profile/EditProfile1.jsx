@@ -2,7 +2,7 @@ import { CloseOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/useAuth";
 import CustomButton from "../common/CustomButton";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import MediaPicker from "../common/MediaPicker";

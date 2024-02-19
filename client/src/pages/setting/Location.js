@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { SliderData } from '../../assets/SliderData.js';
 import CustomModal from '../../components/CustomModal.js';
 import NavBar from '../../components/NavBar.js';
-import useAuth from '../../hooks/useAuth.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import usePagingView from '../../hooks/usePagingView.js';
 
 const Location = () => {

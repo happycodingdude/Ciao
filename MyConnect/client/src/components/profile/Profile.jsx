@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import EditProfile from "./EditProfile";
 import ProfileSetting from "./ProfileSetting";
 

@@ -24,9 +24,9 @@ namespace MyConnect.Repository
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var contactId = JwtToken.ExtractToken(token);
 
-            var entity = _dbSet                        
+            var entity = _dbSet
             .Where(q => q.Participants.Any(w => w.ContactId == contactId && !w.IsDeleted))
-            .OrderByDescending(q => q.UpdatedTime)            
+            .OrderByDescending(q => q.UpdatedTime)
             .ToList();
             var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var conversation in conversations)
@@ -35,7 +35,8 @@ namespace MyConnect.Repository
                 conversation.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == conversation.Id && q.ContactId != contactId && q.Status == "received");
                 var participants = participantDbSet
                 .Include(q => q.Contact)
-                .Where(q => q.ConversationId == conversation.Id && !q.IsDeleted)
+                .Where(q => q.ConversationId == conversation.Id &&
+                ((q.Conversation.IsGroup && !q.IsDeleted) || !q.Conversation.IsGroup))
                 .ToList();
                 conversation.Participants = _mapper.Map<List<Participant>, List<ParticipantNoReference>>(participants);
 
@@ -62,7 +63,7 @@ namespace MyConnect.Repository
                 .Where(q => q.ConversationId == conversation.Id && q.ContactId == contactId && q.Status == "seen" && q.SeenTime.HasValue)
                 .OrderByDescending(q => q.CreatedTime)
                 .FirstOrDefault()?
-                .SeenTime;                
+                .SeenTime;
             }
             return conversations;
         }

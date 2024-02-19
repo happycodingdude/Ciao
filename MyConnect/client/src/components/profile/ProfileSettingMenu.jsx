@@ -1,5 +1,5 @@
 import React from "react";
-import Signout from "../sidebar/Signout";
+import Signout from "../authentication/Signout";
 
 const ProfileSettingMenu = () => {
   return (

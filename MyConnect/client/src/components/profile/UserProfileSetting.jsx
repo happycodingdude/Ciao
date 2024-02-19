@@ -1,7 +1,7 @@
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 
 const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
@@ -191,9 +191,9 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
   return (
     <div
       className="flex w-full grow flex-col bg-white p-[2rem] pb-[3rem] 
-     [&>*:not(:first-child)]:my-[1rem] [&>*:not(:first-child)]:rounded-3xl 
-     [&>*:not(:first-child)]:bg-white [&>*:not(:first-child)]:p-[2rem]
-     [&>*:not(:first-child)]:shadow-[0px_0px_20px_-3px_#dbdbdb]"
+      [&>*:not(:first-child)]:my-[1rem] [&>*:not(:first-child)]:rounded-3xl 
+      [&>*:not(:first-child)]:bg-white [&>*:not(:first-child)]:p-[2rem]
+      [&>*:not(:first-child)]:shadow-[0px_0px_20px_-3px_#dbdbdb]"
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-8">
         <ImageWithLightBoxWithBorderAndShadow
@@ -209,7 +209,7 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
         <div className="flex flex-col">
           <p>{profile?.Name}</p>
         </div>
-        <div className="inline-flex w-full gap-8">
+        <div className={`inline-flex w-full justify-center gap-8`}>
           {
             {
               new: (
@@ -241,7 +241,7 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
 
           <div
             onClick={chat}
-            className="w-1/2 cursor-pointer rounded-xl bg-pink-100 px-[1rem] py-[.5rem] text-center text-pink-500 hover:bg-pink-200"
+            className={`w-1/2 cursor-pointer rounded-xl bg-pink-100 px-[1rem] py-[.5rem] text-center text-pink-500 hover:bg-pink-200`}
           >
             Chat
           </div>

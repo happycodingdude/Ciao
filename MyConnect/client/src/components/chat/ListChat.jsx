@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { memo, useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import AddFriend from "../friend/AddFriend";
@@ -160,7 +160,7 @@ const ListChat = ({ reference }) => {
               !item.IsGroup
                 ? item.Participants.find(
                     (item) => item.ContactId !== auth.user.Id,
-                  ).ContactId
+                  )?.ContactId
                 : ""
             }
             ref={(element) => {
@@ -195,7 +195,7 @@ const ListChat = ({ reference }) => {
                   title={
                     item.Participants.find(
                       (item) => item.ContactId !== auth.user.Id,
-                    ).Contact.Name
+                    )?.Contact.Name
                   }
                 />
               )}

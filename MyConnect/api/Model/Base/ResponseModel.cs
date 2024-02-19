@@ -5,31 +5,22 @@ using Newtonsoft.Json;
 
 namespace MyConnect.Model
 {
-    public class ResponseModel<T> : ActionResult where T : class
+    public class ResponseModel<T> : ActionResult
     {
         [JsonIgnore]
         public HttpStatusCode code { get; private set; }
-        public string? error { get; private set; }
-        public T? data { get; private set; }
-        private static readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
+        public string error { get; private set; }
+        public T data { get; private set; }
+        private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
 
-        public ResponseModel(T? data = null)
+        public ResponseModel() { }
+
+        public ResponseModel(T data)
         {
             this.data = data;
-        }
-
-        // public ResponseModel(T? data, bool isFull)
-        // {
-        //     this.data = data;
-        //     this.isFull = isFull;
-        // }
-
-        public ResponseModel(string error)
-        {
-            this.error = error;
         }
 
         // Default method
@@ -57,8 +48,8 @@ namespace MyConnect.Model
             this.error = exception.Message;
 
             // Additional data in some case
-            if (exception.Data.Count != 0)
-                data = exception.Data["Data"] as T;
+            // if (exception.Data.Count != 0)
+            //     data = exception.Data["Data"] as T;
 
             return this;
         }

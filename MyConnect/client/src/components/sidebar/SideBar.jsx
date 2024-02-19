@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import Profile from "../profile/Profile";

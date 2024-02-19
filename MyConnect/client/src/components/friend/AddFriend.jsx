@@ -1,6 +1,6 @@
 // import { Tooltip } from "antd";
 import React, { useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ListFriend from "./ListFriend";
 

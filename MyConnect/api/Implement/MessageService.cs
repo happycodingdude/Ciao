@@ -29,6 +29,12 @@ namespace MyConnect.Implement
             _unitOfWork.Message.Add(model);
             var entity = _unitOfWork.Conversation.GetById(model.ConversationId);
             _unitOfWork.Conversation.Update(entity);
+            var participants = _unitOfWork.Participant.GetByConversationId(model.ConversationId);
+            foreach (var participant in participants.Where(q => q.IsDeleted))
+            {
+                participant.IsDeleted = false;
+                _unitOfWork.Participant.Update(participant);
+            }
             _unitOfWork.Save();
 
             var notify = _mapper.Map<Message, MessageToNotify>(model);

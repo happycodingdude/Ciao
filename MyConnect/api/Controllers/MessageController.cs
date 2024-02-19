@@ -92,11 +92,11 @@ public class MessagesController : ControllerBase
     }
 
     [HttpPost("send")]
-    public IActionResult SaveAndNotifyMessage(Message model)
+    public async Task<IActionResult> SaveAndNotifyMessage(Message model)
     {
         try
         {
-            _messageService.SaveAndNotifyMessage(model);
+            await _messageService.SaveAndNotifyMessage(model);
             return new ResponseModel<Message>(model).Ok();
         }
         catch (Exception ex)

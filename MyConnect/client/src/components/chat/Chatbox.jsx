@@ -4,7 +4,8 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import parse from "html-react-parser";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { HttpRequest } from "../../common/Utility";
+import { useAuth } from "../../hook/CustomHooks";
 import UpdateTitle from "../chat/UpdateTitle";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
@@ -66,6 +67,12 @@ const Chatbox = ({ reference }) => {
 
   useEffect(() => {
     if (!reference.conversation) return;
+
+    HttpRequest(
+      "get",
+      `api/conversations/${reference.conversation?.Id}/messages?page=${page}&limit=${limit}`,
+      auth.token,
+    ).then((res) => console.log("mess: ", res));
 
     setFiles([]);
 
@@ -407,7 +414,7 @@ const Chatbox = ({ reference }) => {
                     title={
                       participants?.find(
                         (item) => item.ContactId !== auth.user.Id,
-                      ).Contact.Name
+                      )?.Contact.Name
                     }
                   />
                 )}

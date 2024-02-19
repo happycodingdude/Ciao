@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { HttpRequest } from "../../common/Utility";
+import { useAuth } from "../../hook/CustomHooks";
 import { requestPermission } from "../common/Notification";
 import SideBar from "../sidebar/SideBar";
 import Attachment from "./Attachment";
@@ -49,74 +50,40 @@ const Home = () => {
         if (isFocusChat) {
           refChatbox.setParticipants();
         } else {
-          const cancelToken = axios.CancelToken.source();
-          getAllChats(cancelToken)
-            .then((res) => {
-              if (res.status !== 200) throw new Error(res.status);
-              refListChat.setChats(res.data.data);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          getAllChats().then((res) => {
+            if (res.status !== 200) throw new Error(res.status);
+            refListChat.setChats(res);
+          });
         }
         break;
       case "NewConversation":
-        const cancelToken = axios.CancelToken.source();
-        getAllChats(cancelToken)
-          .then((res) => {
-            if (res.status !== 200) throw new Error(res.status);
-            refListChat.newChat(
-              res.data.data,
-              !messageData.IsGroup,
-              messageData,
-            );
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        getAllChats().then((res) => {
+          if (res.status !== 200) throw new Error(res.status);
+          refListChat.newChat(res, !messageData.IsGroup, messageData);
+        });
         break;
       default:
         break;
     }
   };
 
-  const getAllChats = async (cancelToken) => {
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    return axios.get("api/conversations", {
-      cancelToken: cancelToken.token,
-      headers: headers,
-    });
+  const getAllChats = (cancelToken) => {
+    return HttpRequest("get", "api/conversations", cancelToken, auth.token);
   };
 
-  const getAllContact = async (cancelToken) => {
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    return axios.get("api/contacts", {
-      cancelToken: cancelToken.token,
-      headers: headers,
-    });
+  const getAllContact = (cancelToken) => {
+    return HttpRequest("get", "api/contacts", cancelToken, auth.token);
   };
 
   useEffect(() => {
     const cancelToken = axios.CancelToken.source();
-    getAllChats(cancelToken)
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        refListChat.setChats(res.data.data);
-        registerNotification(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    getAllChats(cancelToken).then((res) => {
+      refListChat.setChats(res);
+      registerNotification(res);
+    });
 
     getAllContact(cancelToken).then((res) => {
-      if (res.status !== 200) throw new Error(res.status);
-      setContacts(res.data.data);
+      setContacts(res);
     });
 
     // listenNotification((message) => {
@@ -130,7 +97,6 @@ const Home = () => {
     //       break;
     //   }
     // });
-
     return () => {
       cancelToken.cancel();
     };
@@ -139,30 +105,11 @@ const Home = () => {
   const registerNotification = (chats) => {
     requestPermission((message) => notifyMessage(chats, message)).then(
       (token) => {
-        const cancelToken = axios.CancelToken.source();
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + auth.token,
-        };
         const body = {
           Id: auth.id,
           Token: token,
         };
-        axios
-          .post(`api/notification/register`, body, {
-            cancelToken: cancelToken.token,
-            headers: headers,
-          })
-          .then((res) => {
-            if (res.status !== 200) throw new Error(res.status);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-
-        return () => {
-          cancelToken.cancel();
-        };
+        HttpRequest("post", "api/notification/register", auth.token, body);
       },
     );
   };

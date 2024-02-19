@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import RequireAuth from "../src/context/RequireAuth";
 import "./App.css";
+import { RequireAuth } from "./common/Utility";
 import Authentication from "./components/authentication/Authentication";
 import Home from "./components/chat/Home";
 

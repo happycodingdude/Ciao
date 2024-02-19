@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/Login.css';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import useLogin from '../../hooks/useLogin.js';
 
 const Login = () => {

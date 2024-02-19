@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
+import { useAuth } from "../../hook/useAuth";
 import EditProfile from "./EditProfile1";
 import ProfileSetting from "./ProfileSetting1";
 

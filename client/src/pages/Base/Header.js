@@ -1,6 +1,6 @@
 import React, { memo, useLayoutEffect, useState } from 'react';
 import '../../../src/assets/Header.css';
-import useAuth from '../../hooks/useAuth.js';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const Header = (props) => {
     console.log('Header rendering');
