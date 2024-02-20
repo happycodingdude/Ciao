@@ -54,7 +54,7 @@ const Home = () => {
             url: "api/conversations",
             token: auth.token,
           }).then((res) => {
-            if (res.status !== 200) throw new Error(res.status);
+            if (!res) return;
             refListChat.setChats(res);
           });
         }
@@ -65,7 +65,7 @@ const Home = () => {
           url: "api/conversations",
           token: auth.token,
         }).then((res) => {
-          if (res.status !== 200) throw new Error(res.status);
+          if (!res) return;
           refListChat.newChat(res, !messageData.IsGroup, messageData);
         });
         break;

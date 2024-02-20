@@ -63,7 +63,6 @@ const Signup = ({ reference }) => {
     };
     HttpRequest(config)
       .then((res) => {
-        if (!res) return;
         setTimeout(() => {
           reference.toggleLogin();
         }, 100);

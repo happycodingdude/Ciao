@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import "setimmediate";
 import "./App.css";
 import { RequireAuth } from "./common/Utility";
 import Authentication from "./components/authentication/Authentication";

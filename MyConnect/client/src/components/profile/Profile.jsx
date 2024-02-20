@@ -67,7 +67,7 @@ const Profile = () => {
     };
     HttpRequest(config).then((res) => {
       if (!res) return;
-      auth.setUser(res.data.data);
+      auth.setUser(res);
     });
   };
 

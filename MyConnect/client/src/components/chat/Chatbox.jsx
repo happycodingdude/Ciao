@@ -1,4 +1,4 @@
-import { Form, Mentions, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import UserProfile from "../profile/UserProfile";
+import ChatInput from "./ChatInput";
 
 const page = 1;
 const limit = 10;
@@ -19,7 +20,6 @@ const Chatbox = ({ reference }) => {
   if (!reference.conversation) return;
   const auth = useAuth();
 
-  const [form] = Form.useForm();
   const refChatInput = useRef();
   const refChatContent = useRef();
   const refScrollButton = useRef();
@@ -30,7 +30,7 @@ const Chatbox = ({ reference }) => {
   const [files, setFiles] = useState([]);
   const [participants, setParticipants] = useState();
   const [messages, setMessages] = useState();
-  const [suggestion, setSuggestion] = useState();
+  const [suggestion, setSuggestion] = useState([]);
 
   const initParticipantAndSuggestion = (data) => {
     if (!data) return;
@@ -39,9 +39,9 @@ const Chatbox = ({ reference }) => {
       .filter((item) => item.ContactId !== auth.id)
       .map((item) => {
         return {
-          key: item.Contact.Id,
-          value: item.Contact.Id,
-          label: item.Contact.Name,
+          name: item.Contact.Name,
+          avatar: item.Contact.Avatar,
+          userId: item.Contact.Id,
         };
       });
     setSuggestion(suggestion);
@@ -179,21 +179,16 @@ const Chatbox = ({ reference }) => {
     );
   };
 
-  const sendMessage = async () => {
+  const sendMessage = async (text) => {
     var body = {
       ContactId: auth.id,
       ConversationId: reference.conversation.Id,
     };
     if (files.length === 0) {
-      if (refChatInput.current.textarea.value === "") {
-        form.setFieldValue("mentions", "");
-        refChatInput.current.textarea.focus();
-        return;
-      }
       body = {
         ...body,
         Type: "text",
-        Content: refChatInput.current.textarea.value,
+        Content: text,
       };
     } else {
       body = {
@@ -215,12 +210,7 @@ const Chatbox = ({ reference }) => {
       token: auth.token,
       data: body,
     }).then((res) => {
-      if (files.length === 0) {
-        form.setFieldValue("mentions", "");
-        refChatInput.current.textarea.focus();
-      } else {
-        setFiles([]);
-      }
+      setFiles([]);
       setMessages([...messages, res]);
 
       setTimeout(() => {
@@ -240,6 +230,15 @@ const Chatbox = ({ reference }) => {
     // else if (e.keyCode == 9) {
     //   e.preventDefault();
     // }
+  };
+
+  const selectMention = (option) => {
+    console.log(option);
+  };
+
+  const searchMention = (text, prefix) => {
+    console.log(text);
+    console.log(prefix);
   };
 
   const scrollChatContentToBottom = () => {
@@ -535,31 +534,7 @@ const Chatbox = ({ reference }) => {
             </div>
           </>
         ) : (
-          <div className="relative max-w-[50rem] grow">
-            <Form form={form}>
-              <Form.Item name="mentions" className="mb-0">
-                <Mentions
-                  ref={refChatInput}
-                  className="mention-input"
-                  options={suggestion}
-                  onKeyDown={pressKey}
-                ></Mentions>
-              </Form.Item>
-            </Form>
-            <div
-              className="absolute right-0 top-0 flex h-full grow 
-              items-center justify-center"
-            >
-              <Tooltip title="Send">
-                <div
-                  className="fa fa-paper-plane flex aspect-square h-full 
-                    cursor-pointer items-center justify-center rounded-[.8rem] 
-                    text-pink-500"
-                  onClick={sendMessage}
-                ></div>
-              </Tooltip>
-            </div>
-          </div>
+          <ChatInput mentions={suggestion} onClick={sendMessage} />
         )}
       </div>
     </div>
