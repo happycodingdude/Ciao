@@ -23,14 +23,14 @@ namespace MyConnect.Implement
             return RedisCLient.db.StringGet($"connection-{id}");
         }
 
-        public void RegisterConnection(RegisterConnection param)
+        public bool RegisterConnection(RegisterConnection param)
         {
-            RedisCLient.db.StringSet($"connection-{param.Id}", param.Token);
+            return RedisCLient.db.StringSet($"connection-{param.Id}", param.Token);
         }
 
-        public void RemoveConnection(string id)
+        public bool RemoveConnection(string id)
         {
-            RedisCLient.db.KeyDelete($"connection-{id}");
+            return RedisCLient.db.KeyDelete($"connection-{id}");
         }
     }
 }

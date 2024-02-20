@@ -14,3 +14,13 @@ export const useLocalStorage = (key) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
+
+export const useEventListener = (event, callback, element = window) => {
+  if (!element || !element.addEventListener) return;
+  useEffect(() => {
+    element.addEventListener(event, callback);
+    return () => {
+      element.removeEventListener(event, callback);
+    };
+  }, [event, callback, element]);
+};

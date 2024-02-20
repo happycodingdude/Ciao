@@ -1,5 +1,5 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
@@ -30,25 +30,24 @@ const ForgotPassword = ({ reference }) => {
       setErrorPassword("Password min characters is 6");
       return;
     }
-    const headers = {
-      "Content-Type": "application/json",
+
+    const config = {
+      method: "post",
+      url: "api/auth/forgot",
+      data: {
+        Username: username,
+        Password: password,
+      },
     };
-    const body = JSON.stringify({
-      Username: username,
-      Password: password,
-    });
-    axios
-      .post("api/auth/forgot", body, { headers: headers })
+    HttpRequest(config)
       .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
         setTimeout(() => {
           reference.switchLoginFromForgotPassword();
         }, 300);
       })
       .catch((err) => {
-        console.log(err);
-        if (err.response.data.error === "UserExists") {
-          setErrorUsername("User exists");
+        if (err.response.data.error === "NotFound") {
+          setErrorUsername("User not found");
         }
       });
   };

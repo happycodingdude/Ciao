@@ -1,6 +1,6 @@
-import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 import EditProfile from "./EditProfile";
 import ProfileSetting from "./ProfileSetting";
@@ -11,27 +11,20 @@ const Profile = () => {
   const [file, setFile] = useState();
 
   useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-      Data: "full",
+    const controller = new AbortController();
+    const config = {
+      method: "get",
+      url: "api/auth/authenticate",
+      token: auth.token,
+      header: { Data: "full" },
+      controller: controller,
     };
-    axios
-      .get("api/auth/authenticate", {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        setProfile(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
+    HttpRequest(config).then((res) => {
+      if (!res) return;
+      setProfile(res);
+    });
     return () => {
-      cancelToken.cancel();
+      controller.abort();
     };
   }, [auth.token]);
 
@@ -63,31 +56,19 @@ const Profile = () => {
       );
     }
 
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
+    const config = {
+      method: "put",
+      url: "api/contacts",
+      token: auth.token,
+      data: {
+        ...profile,
+        Avatar: url,
+      },
     };
-    const body = {
-      ...profile,
-      Avatar: url,
-    };
-    axios
-      .put(`api/contacts`, body, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        auth.setUser(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest(config).then((res) => {
+      if (!res) return;
+      auth.setUser(res.data.data);
+    });
   };
 
   return (

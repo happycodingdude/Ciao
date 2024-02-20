@@ -82,11 +82,6 @@ const Attachment = ({ reference }) => {
           onClick={showInformation}
         ></div>
         <p className="font-bold text-gray-600">Attachments</p>
-        {/* <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
-          <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-          <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-          <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-        </div> */}
       </div>
       <div className="relative flex">
         <div
@@ -116,10 +111,6 @@ const Attachment = ({ reference }) => {
           ></input>
         </div>
         <div className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-pink-400 transition-all duration-200 peer-has-[.file-checked:checked]:translate-x-[calc(100%+2rem)] peer-has-[.image-checked:checked]:translate-x-0"></div>
-        {/* <div
-          ref={refAttachmentSlider}
-          className="absolute bottom-0 h-[.2rem] w-[50%] translate-x-0 bg-pink-400 transition-all duration-1000"
-        ></div> */}
       </div>
       <div
         ref={refScrollAttachment}
@@ -143,7 +134,7 @@ const Attachment = ({ reference }) => {
                         : "../src/assets/filenotfound.svg",
                   }))}
                   index={index}
-                ></ImageWithLightBox>
+                />
               ))}
             </div>
           </div>

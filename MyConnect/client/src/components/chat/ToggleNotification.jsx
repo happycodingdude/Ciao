@@ -1,6 +1,6 @@
 // import { Tooltip } from "antd";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 
 const ToggleNotification = ({ reference }) => {
@@ -16,31 +16,20 @@ const ToggleNotification = ({ reference }) => {
 
   const toggleNotification = (e) => {
     const checked = !isNotifying;
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
     const selected = reference.participants.find(
       (item) => item.ContactId === auth.id,
     );
     selected.IsNotifying = checked;
-    axios
-      .put(`api/participants`, selected, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        setIsNotifying(checked);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
 
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest({
+      method: "put",
+      url: `api/participants`,
+      token: auth.token,
+      data: selected,
+    }).then((res) => {
+      if (!res) return;
+      setIsNotifying(checked);
+    });
   };
 
   return (

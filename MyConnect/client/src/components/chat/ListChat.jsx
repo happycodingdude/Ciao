@@ -1,5 +1,6 @@
 import moment from "moment";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { GenerateContent } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
@@ -123,16 +124,6 @@ const ListChat = ({ reference }) => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
   };
 
-  const generateContent = (text) => {
-    if (reference.contacts.some((item) => text.includes(`@${item.Id}`))) {
-      reference.contacts.map((item) => {
-        text = text.replace(`@${item.Id}`, `${item.Name}`);
-      });
-      return text;
-    }
-    return text;
-  };
-
   return (
     <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-white shadow-[7px_0px_10px_-5px_#dbdbdb_inset]">
       <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-gray-300 px-[2rem]">
@@ -177,11 +168,6 @@ const ListChat = ({ reference }) => {
             <ImageWithLightBox
               src={item.Avatar ?? ""}
               className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-5px_#f472b6]`}
-              slides={[
-                {
-                  src: item.Avatar ?? "",
-                },
-              ]}
             />
             <div className="h-full w-[50%] grow pt-2">
               {item.IsGroup ? (
@@ -205,7 +191,7 @@ const ListChat = ({ reference }) => {
                   title={
                     item.LastMessage === null
                       ? ""
-                      : generateContent(item.LastMessage)
+                      : GenerateContent(reference.contacts, item.LastMessage)
                   }
                 />
               ) : (
@@ -216,7 +202,7 @@ const ListChat = ({ reference }) => {
                 >
                   {item.LastMessage === null
                     ? ""
-                    : generateContent(item.LastMessage)}
+                    : GenerateContent(reference.contacts, item.LastMessage)}
                 </p>
               )}
             </div>
@@ -256,8 +242,7 @@ const ListChat = ({ reference }) => {
         ></div>
       </div>
     </div>
-    // </div>
   );
 };
 
-export default memo(ListChat);
+export default ListChat;

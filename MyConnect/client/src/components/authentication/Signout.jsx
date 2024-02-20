@@ -1,37 +1,19 @@
-import axios from "axios";
 import React from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 
 const Signout = ({ className }) => {
   const auth = useAuth();
 
   const logout = () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
+    const config = {
+      method: "post",
+      url: "api/auth/logout",
+      token: auth.token,
     };
-    axios
-      .post(
-        "api/auth/logout",
-        {},
-        {
-          cancelToken: cancelToken.token,
-          headers: headers,
-        },
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          auth.logout();
-        } else throw new Error(res.status);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest(config).then((res) => {
+      auth.logout();
+    });
   };
 
   return (

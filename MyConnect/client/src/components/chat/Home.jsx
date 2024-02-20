@@ -49,14 +49,22 @@ const Home = () => {
         if (isFocusChat) {
           refChatbox.setParticipants();
         } else {
-          getAllChats().then((res) => {
+          HttpRequest({
+            method: "get",
+            url: "api/conversations",
+            token: auth.token,
+          }).then((res) => {
             if (res.status !== 200) throw new Error(res.status);
             refListChat.setChats(res);
           });
         }
         break;
       case "NewConversation":
-        getAllChats().then((res) => {
+        HttpRequest({
+          method: "get",
+          url: "api/conversations",
+          token: auth.token,
+        }).then((res) => {
           if (res.status !== 200) throw new Error(res.status);
           refListChat.newChat(res, !messageData.IsGroup, messageData);
         });
@@ -66,22 +74,27 @@ const Home = () => {
     }
   };
 
-  const getAllChats = (controller) => {
-    return HttpRequest("get", "api/conversations", auth.token, controller);
-  };
-
-  const getAllContact = (controller) => {
-    return HttpRequest("get", "api/contacts", auth.token, controller);
-  };
-
   useEffect(() => {
     const controller = new AbortController();
-    getAllChats(controller).then((res) => {
+
+    HttpRequest({
+      method: "get",
+      url: "api/conversations",
+      token: auth.token,
+      controller: controller,
+    }).then((res) => {
+      if (!res) return;
       refListChat.setChats(res);
-      registerNotification(res, controller);
+      registerNotification(res);
     });
 
-    getAllContact(controller).then((res) => {
+    HttpRequest({
+      method: "get",
+      url: "api/contacts",
+      token: auth.token,
+      controller: controller,
+    }).then((res) => {
+      if (!res) return;
       setContacts(res);
     });
 
@@ -101,21 +114,18 @@ const Home = () => {
     };
   }, []);
 
-  const registerNotification = (chats, controller) => {
+  const registerNotification = (chats) => {
     requestPermission((message) => notifyMessage(chats, message)).then(
       (token) => {
-        console.log(token);
-        const body = {
-          Id: auth.id,
-          Token: token,
-        };
-        HttpRequest(
-          "post",
-          "api/notification/register",
-          auth.token,
-          controller,
-          body,
-        );
+        HttpRequest({
+          method: "post",
+          url: "api/notification/register",
+          token: auth.token,
+          data: {
+            Id: auth.id,
+            Token: token,
+          },
+        });
       },
     );
   };

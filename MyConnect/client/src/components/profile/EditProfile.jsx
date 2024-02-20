@@ -10,11 +10,6 @@ const EditProfile = ({ profile, onChange, onSave }) => {
       justify-evenly gap-[3rem]     
       transition-all duration-500 "
     >
-      {/* <div className="flex w-full items-center justify-between">
-        <p className="text-xl font-medium  leading-10 text-gray-600">
-          Edit profile
-        </p>
-      </div> */}
       <div className="flex w-full flex-col gap-[2rem]">
         <div className="flex flex-col gap-[1rem]">
           <p className="font-medium">Name</p>

@@ -1,5 +1,5 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
@@ -51,24 +51,24 @@ const Signup = ({ reference }) => {
       setErrorPassword("Password min characters is 6");
       return;
     }
-    const headers = {
-      "Content-Type": "application/json",
+
+    const config = {
+      method: "post",
+      url: "api/auth/signup",
+      data: {
+        Name: name,
+        Username: username,
+        Password: password,
+      },
     };
-    const body = JSON.stringify({
-      Name: name,
-      Username: username,
-      Password: password,
-    });
-    axios
-      .post("api/auth/signup", body, { headers: headers })
+    HttpRequest(config)
       .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
+        if (!res) return;
         setTimeout(() => {
           reference.toggleLogin();
         }, 100);
       })
       .catch((err) => {
-        console.log(err);
         if (err.response.data.error === "UserExists") {
           setErrorUsername("User exists");
         }
@@ -94,7 +94,7 @@ const Signup = ({ reference }) => {
               label="Name"
               value={name}
               onChange={setName}
-            ></CustomInput>
+            />
             <CustomInput
               ref={refUsername}
               type="text"
@@ -105,7 +105,7 @@ const Signup = ({ reference }) => {
                 setUsername(text);
                 if (text === "") setErrorUsername("");
               }}
-            ></CustomInput>
+            />
             <CustomInput
               ref={refPassword}
               type="password"
@@ -116,7 +116,7 @@ const Signup = ({ reference }) => {
                 setPassword(text);
                 if (text === "") setErrorPassword("");
               }}
-            ></CustomInput>
+            />
           </div>
 
           <CustomButton

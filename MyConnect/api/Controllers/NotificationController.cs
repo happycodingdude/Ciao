@@ -20,12 +20,12 @@ public class NotificationController : ControllerBase
     {
         try
         {
-            _notificationService.RegisterConnection(param);
-            return Ok();
+            var response = _notificationService.RegisterConnection(param);
+            return new ResponseModel<bool>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<bool>().BadRequest(ex);
         }
     }
 }

@@ -1,6 +1,6 @@
-import axios from "axios";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
@@ -23,35 +23,27 @@ const Information = ({ reference }) => {
   useEffect(() => {
     if (!reference.conversation) return;
 
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-
-    axios
-      .get(`api/conversations/${reference.conversation?.Id}/attachments`, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        if (res.data.data.length !== 0) {
-          setAttachments(res.data.data);
-          setDisplayAttachments(res.data.data[0].Attachments.slice(0, 8));
-        } else {
-          setAttachments([]);
-          setDisplayAttachments([]);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const controller = new AbortController();
+    HttpRequest({
+      method: "get",
+      url: `api/conversations/${reference.conversation?.Id}/attachments`,
+      token: auth.token,
+      controller: controller,
+    }).then((res) => {
+      if (!res) return;
+      if (res.length !== 0) {
+        setAttachments(res);
+        setDisplayAttachments(res[0].Attachments.slice(0, 8));
+      } else {
+        setAttachments([]);
+        setDisplayAttachments([]);
+      }
+    });
 
     reset();
 
     return () => {
-      cancelToken.cancel();
+      controller.abort();
     };
   }, [reference.conversation.Id]);
 
@@ -61,39 +53,23 @@ const Information = ({ reference }) => {
   };
 
   const deleteChat = () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
     const selected = participants.find((item) => item.ContactId === auth.id);
     selected.IsDeleted = true;
-    axios
-      .put(
-        `api/conversations/${reference.conversation?.Id}/participants`,
-        selected,
-        {
-          cancelToken: cancelToken.token,
-          headers: headers,
-        },
-      )
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        reference.removeInListChat(res.data.data.ConversationId);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest({
+      method: "put",
+      url: `api/conversations/${reference.conversation?.Id}/participants`,
+      token: auth.token,
+      data: selected,
+    }).then((res) => {
+      if (!res) return;
+      reference.removeInListChat(res.ConversationId);
+    });
   };
 
   const updateAvatar = async (e) => {
-    const file = e.target.files[0];
     // Create a root reference
     const storage = getStorage();
+    const file = e.target.files[0];
     const url = await uploadBytes(
       ref(storage, `avatar/${file.name}`),
       file,
@@ -104,33 +80,19 @@ const Information = ({ reference }) => {
     });
     reference.conversation.Avatar = url;
 
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    axios
-      .put(
-        `api/conversations/${reference.conversation.Id}/avatars`,
-        { Avatar: url },
-        {
-          cancelToken: cancelToken.token,
-          headers: headers,
-        },
-      )
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        reference.setConversation({ ...reference.conversation });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    HttpRequest({
+      method: "put",
+      url: `api/conversations/${reference.conversation.Id}/avatars`,
+      token: auth.token,
+      data: {
+        Avatar: url,
+      },
+    }).then((res) => {
+      if (!res) return;
+      reference.setConversation({ ...reference.conversation });
+    });
 
     e.target.value = null;
-
-    return () => {
-      cancelToken.cancel();
-    };
   };
 
   useEffect(() => {
@@ -156,10 +118,6 @@ const Information = ({ reference }) => {
     reference.refAttachment.showAttachment(attachments);
   };
 
-  const showProfile = () => {
-    console.log("showProfile calling");
-  };
-
   return (
     <div
       ref={refInformation}
@@ -167,11 +125,6 @@ const Information = ({ reference }) => {
     >
       <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <p className="font-bold text-gray-600">Information</p>
-        {/* <div className="flex h-1/2 cursor-not-allowed items-center gap-[.3rem]">
-          <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-          <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-          <div className="aspect-square w-[.5rem] rounded-[50%] bg-gray-500"></div>
-        </div> */}
       </div>
       <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:p-[1rem]">
         <div className="flex flex-col gap-[1rem]">
@@ -179,12 +132,7 @@ const Information = ({ reference }) => {
             <ImageWithLightBoxWithBorderAndShadow
               src={reference.conversation?.Avatar ?? ""}
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-              slides={[
-                {
-                  src: reference.conversation?.Avatar ?? "",
-                },
-              ]}
-              onClick={showProfile}
+              onClick={() => {}}
             />
             {reference.conversation.IsGroup ? (
               <>
@@ -258,7 +206,7 @@ const Information = ({ reference }) => {
                       : "../src/assets/filenotfound.svg",
                 }))}
                 index={index}
-              ></ImageWithLightBox>
+              />
             ))}
           </div>
         </div>
@@ -266,7 +214,7 @@ const Information = ({ reference }) => {
           title="Delete chat"
           message="Are you sure want to delete this chat?"
           onSubmit={deleteChat}
-        ></DeleteConfirmation>
+        />
       </div>
     </div>
   );

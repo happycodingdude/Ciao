@@ -5,7 +5,7 @@ namespace MyConnect.Interface
     public interface INotificationService
     {
         string GetConnection(string id);
-        void RegisterConnection(RegisterConnection param);
-        void RemoveConnection(string id);
+        bool RegisterConnection(RegisterConnection param);
+        bool RemoveConnection(string id);
     }
 }

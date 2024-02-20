@@ -24,10 +24,6 @@ const ProfileSetting = ({ profile, onchange }) => {
           onChange={onchange}
         />
       </div>
-      {/* <div className="flex flex-col">
-          <p className="text-md">{profile?.Name}</p>
-          <p className="text-sm text-gray-400">{profile?.Username}</p>
-        </div> */}
       <ProfileSettingMenu />
     </div>
   );

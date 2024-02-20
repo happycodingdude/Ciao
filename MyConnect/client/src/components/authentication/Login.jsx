@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -57,24 +57,23 @@ const Login = ({ reference }) => {
     if (username === "" && password === "") return;
     // setProcessing(true);
 
-    const headers = {
-      "Content-Type": "application/json",
+    const config = {
+      method: "post",
+      url: "api/auth/login",
+      data: {
+        Username: username,
+        Password: password,
+      },
     };
-    const body = JSON.stringify({
-      Username: username,
-      Password: password,
-    });
-    axios
-      .post("api/auth/login", body, { headers: headers })
+    HttpRequest(config)
       .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        auth.login(res.data.data.Token);
+        if (!res) return;
+        auth.login(res.Token);
         setTimeout(() => {
           navigate("/", { replace: true });
         }, 500);
       })
       .catch((err) => {
-        console.log(err);
         if (err.response.data.error === "WrongPassword") {
           setErrorPassword("Wrong password");
           setErrorUsername("");
@@ -126,7 +125,7 @@ const Login = ({ reference }) => {
                     if (text === "") setErrorUsername("");
                   }}
                   onKeyDown={handlePressKey}
-                ></CustomInput>
+                />
                 <CustomInput
                   ref={refPassword}
                   type="password"
@@ -138,7 +137,7 @@ const Login = ({ reference }) => {
                     if (text === "") setErrorPassword("");
                   }}
                   onKeyDown={handlePressKey}
-                ></CustomInput>
+                />
               </div>
 
               <div
