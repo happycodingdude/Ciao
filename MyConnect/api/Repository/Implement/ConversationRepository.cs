@@ -25,13 +25,14 @@ namespace MyConnect.Repository
             var contactId = JwtToken.ExtractToken(token);
 
             var entity = _dbSet
-            .Where(q => q.Participants.Any(w => w.ContactId == contactId && !w.IsDeleted))
+            .Where(q => q.Participants.Any(w => w.ContactId == contactId))
             .OrderByDescending(q => q.UpdatedTime)
             .ToList();
             var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var conversation in conversations)
             {
-                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId && !q.IsDeleted).IsNotifying;
+                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId &&
+                ((q.Conversation.IsGroup && !q.IsDeleted) || !q.Conversation.IsGroup)).IsNotifying;
                 conversation.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == conversation.Id && q.ContactId != contactId && q.Status == "received");
                 var participants = participantDbSet
                 .Include(q => q.Contact)

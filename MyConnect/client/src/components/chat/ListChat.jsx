@@ -126,7 +126,7 @@ const ListChat = ({ reference }) => {
 
   return (
     <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-white shadow-[7px_0px_10px_-5px_#dbdbdb_inset]">
-      <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-gray-300 px-[2rem]">
+      <div className="h-[7rem]] flex shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-gray-300 px-[2rem]">
         <div className="flex h-[50%] grow">
           <i className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[#f0f0f0] pl-[1rem] font-normal text-gray-500"></i>
           <input
@@ -142,7 +142,7 @@ const ListChat = ({ reference }) => {
       </div>
       <div
         ref={refChats}
-        className="hide-scrollbar flex grow flex-col gap-4 overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
+        className="hide-scrollbar flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
         {chats?.map((item, i) => (
           <div
@@ -157,10 +157,8 @@ const ListChat = ({ reference }) => {
             ref={(element) => {
               refChatItem.current[i] = element;
             }}
-            className={`${activeItem === item.Id ? "item-active" : ""} 
-            chat-item group flex h-[6rem] shrink-0 cursor-pointer
-            items-center gap-[1rem] rounded-2xl
-            bg-pink-100 pl-2 pr-4 hover:bg-pink-200`}
+            className={`${activeItem === item.Id ? "bg-gradient-to-r from-pink-400 to-pink-200 text-white [&_.chat-content]:text-[#ffffffcb]" : ""} 
+            chat-item group flex shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] bg-pink-100 py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-pink-200`}
             onClick={() => {
               handleSetConversation(item);
             }}
@@ -169,49 +167,34 @@ const ListChat = ({ reference }) => {
               src={item.Avatar ?? ""}
               className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-5px_#f472b6]`}
             />
-            <div className="h-full w-[50%] grow pt-2">
-              {item.IsGroup ? (
-                <CustomLabel
-                  className={`mr-auto ${item.UnSeenMessages > 0 ? "font-bold" : ""} `}
-                  title={item.Title}
-                />
-              ) : (
-                <CustomLabel
-                  className={`mr-auto ${item.UnSeenMessages > 0 ? "font-bold" : ""} `}
-                  title={
-                    item.Participants.find(
-                      (item) => item.ContactId !== auth.user.Id,
-                    )?.Contact.Name
-                  }
-                />
-              )}
-
-              {item.LastMessageContact == auth.id ? (
-                <CustomLabel
-                  title={
-                    item.LastMessage === null
-                      ? ""
-                      : GenerateContent(reference.contacts, item.LastMessage)
-                  }
-                />
-              ) : (
-                <p
-                  className={`overflow-hidden text-ellipsis ${
-                    item.UnSeenMessages > 0 ? "font-bold text-pink-400" : ""
-                  } `}
-                >
-                  {item.LastMessage === null
+            <div className={`flex h-full w-1/2 grow flex-col justify-evenly`}>
+              <CustomLabel
+                className={`${item.UnSeenMessages > 0 ? "font-bold" : "font-medium"} `}
+                title={
+                  item.IsGroup
+                    ? item.Title
+                    : item.Participants.find(
+                        (item) => item.ContactId !== auth.user.Id,
+                      )?.Contact.Name
+                }
+              />
+              <CustomLabel
+                className={`chat-content ${
+                  item.LastMessageContact !== auth.id && item.UnSeenMessages > 0
+                    ? "font-bold text-pink-400"
+                    : "font-medium text-[#0000007c]"
+                }`}
+                title={
+                  item.LastMessage === null
                     ? ""
-                    : GenerateContent(reference.contacts, item.LastMessage)}
-                </p>
-              )}
+                    : GenerateContent(reference.contacts, item.LastMessage)
+                }
+              />
             </div>
             <div
-              className="flex h-full shrink-0 flex-col 
-            items-end gap-[.5rem] self-start
-            pt-2 laptop:min-w-[4rem]"
+              className={`flex h-full shrink-0 flex-col items-end ${item.UnSeenMessages > 0 ? "justify-evenly" : ""} laptop:min-w-[4rem]`}
             >
-              <p className="">
+              <p>
                 {item.LastMessageTime === null
                   ? ""
                   : moment(item.LastMessageTime).fromNow()}
@@ -220,12 +203,9 @@ const ListChat = ({ reference }) => {
               item.UnSeenMessages == 0 ? (
                 ""
               ) : (
-                <p
-                  className="flex aspect-square w-[2rem] items-center 
-                justify-center rounded-full bg-pink-300 text-center"
-                >
+                <div className="flex aspect-square w-[2rem] items-center justify-center rounded-full bg-pink-300 text-center leading-8">
                   {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
-                </p>
+                </div>
               )}
             </div>
           </div>

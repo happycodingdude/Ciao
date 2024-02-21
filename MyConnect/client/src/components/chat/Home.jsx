@@ -84,7 +84,13 @@ const Home = () => {
       controller: controller,
     }).then((res) => {
       if (!res) return;
-      refListChat.setChats(res);
+      const filterChats = res.filter((item) =>
+        item.Participants.some(
+          (participant) =>
+            participant.ContactId === auth.id && !participant.IsDeleted,
+        ),
+      );
+      refListChat.setChats(filterChats);
       registerNotification(res);
     });
 

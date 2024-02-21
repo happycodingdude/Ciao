@@ -27,17 +27,17 @@ namespace MyConnect.Repository
             .Take(limit)
             .ToList();
 
-            SeenAll();
+            SeenAll(id);
 
             return _mapper.Map<List<Message>, List<MessageNoReference>>(messages);
         }
 
-        private void SeenAll()
+        private void SeenAll(Guid id)
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var id = JwtToken.ExtractToken(token);
+            var contactId = JwtToken.ExtractToken(token);
 
-            var unseenMessages = _dbSet.Where(q => q.ContactId != id && q.Status == "received");
+            var unseenMessages = _dbSet.Where(q => q.ConversationId == id && q.ContactId != contactId && q.Status == "received");
             foreach (var message in unseenMessages)
             {
                 message.Status = "seen";

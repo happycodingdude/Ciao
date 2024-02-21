@@ -43,10 +43,6 @@ body,
     scrollbar-width: none; /* For Firefox */
   }
 
-  .item-active {
-    @apply bg-gradient-to-r from-pink-400 to-pink-200 text-white;
-  }
-
   .grid-transition {
     transition: all 2s;
   }

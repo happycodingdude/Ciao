@@ -1,6 +1,6 @@
-import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 
@@ -11,181 +11,113 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
   const friendRequest = useRef();
 
   useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-
-    axios
-      .get(`api/contacts/${id}`, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        setProfile(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    axios
-      .get(`api/contacts/${auth.user.Id}/friends/${id}`, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        friendRequest.current = res.data.data;
-        setStatus(res.data.data.Status);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const controller = new AbortController();
+    HttpRequest({
+      method: "get",
+      url: `api/contacts/${id}`,
+      token: auth.token,
+      controller: controller,
+    }).then((res) => {
+      if (!res) return;
+      setProfile(res);
+    });
+    HttpRequest({
+      method: "get",
+      url: `api/contacts/${auth.user.Id}/friends/${id}`,
+      token: auth.token,
+      controller: controller,
+    }).then((res) => {
+      if (!res) return;
+      friendRequest.current = res;
+      setStatus(res.Status);
+    });
 
     return () => {
-      cancelToken.cancel();
+      controller.abort();
     };
   }, [id]);
 
   const addFriend = () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    const body = {
-      ContactId1: auth.user.Id,
-      ContactId2: profile.Id,
-      Status: "request",
-    };
-    axios
-      .post(`api/friends`, body, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        onClose();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest({
+      method: "post",
+      url: `api/friends`,
+      token: auth.token,
+      data: {
+        ContactId1: auth.user.Id,
+        ContactId2: profile.Id,
+        Status: "request",
+      },
+    }).then((res) => {
+      onClose();
+    });
   };
 
-  const checkConversation = async (cancelToken) => {
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    return axios.get("api/participants", {
-      cancelToken: cancelToken.token,
-      headers: headers,
+  const checkConversation = () => {
+    return HttpRequest({
+      method: "get",
+      url: `api/conversations`,
+      token: auth.token,
+    }).then((res) => {
+      if (!res) return [];
+      return res;
     });
   };
 
   const chat = () => {
-    const chat = checkExistChat(
-      friendRequest.current.ContactId1 === auth.user.Id
-        ? friendRequest.current.ContactId2
-        : friendRequest.current.ContactId1,
-    );
+    const chat = checkExistChat(profile.Id);
     if (chat !== undefined) {
       document.querySelector(`[data-key='${chat.Id}']`).click();
       onClose();
       return;
     }
 
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    const body = {
-      Participants: [
-        {
-          ContactId: auth.id,
-          IsNotifying: true,
-          IsModerator: true,
-        },
-        {
-          ContactId: profile.Id,
-          IsNotifying: true,
-        },
-      ],
-    };
+    checkConversation().then((res) => {
+      console.log(res);
+    });
 
-    axios
-      .post(`api/conversations`, body, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        onClose();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    // HttpRequest({
+    //   method: "post",
+    //   url: `api/conversations`,
+    //   token: auth.token,
+    //   data: {
+    //     Participants: [
+    //       {
+    //         ContactId: auth.id,
+    //         IsNotifying: true,
+    //         IsModerator: true,
+    //       },
+    //       {
+    //         ContactId: profile.Id,
+    //         IsNotifying: true,
+    //       },
+    //     ],
+    //   },
+    // }).then((res) => {
+    //   onClose();
+    // });
   };
 
   const acceptFriendRequest = () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
     friendRequest.current.Status = "friend";
     friendRequest.current.AcceptTime = moment().format("YYYY/MM/DD HH:mm:ss");
-    axios
-      .put(`api/friends`, friendRequest.current, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        onClose();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest({
+      method: "put",
+      url: `api/friends`,
+      token: auth.token,
+      data: friendRequest.current,
+    }).then((res) => {
+      onClose();
+    });
   };
 
   const cancelFriendRequest = () => {
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    axios
-      .delete(`api/friends/${friendRequest.current.Id}`, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        onClose();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest({
+      method: "delete",
+      url: `api/friends/${friendRequest.current.Id}`,
+      token: auth.token,
+    }).then((res) => {
+      onClose();
+    });
   };
 
   return (
@@ -225,7 +157,7 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
                   onClick={acceptFriendRequest}
                   className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
                 >
-                  Accept
+                  Accept friend request
                 </div>
               ),
               request_sent: (
@@ -233,7 +165,7 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
                   onClick={cancelFriendRequest}
                   className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
                 >
-                  Cancel
+                  Cancel friend request
                 </div>
               ),
             }[status]
