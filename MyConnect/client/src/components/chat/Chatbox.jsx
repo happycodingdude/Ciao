@@ -13,7 +13,7 @@ import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
 
 const page = 1;
-const limit = 10;
+const limit = 20;
 
 const Chatbox = ({ reference }) => {
   console.log("Chatbox calling");
@@ -181,28 +181,31 @@ const Chatbox = ({ reference }) => {
   };
 
   const sendMessage = async (text) => {
-    var body = {
+    let body = {
       ContactId: auth.id,
       ConversationId: reference.conversation.Id,
     };
     if (files.length === 0) {
+      if (text === "") return;
       body = {
         ...body,
         Type: "text",
         Content: text,
       };
     } else {
+      const uploaded = await uploadFile().then((uploads) => {
+        return uploads.map((item) => ({
+          Type: item.type,
+          MediaUrl: item.url,
+          MediaName: item.name,
+          MediaSize: item.size,
+        }));
+      });
       body = {
         ...body,
         Type: "media",
-        Attachments: await uploadFile().then((uploads) => {
-          return uploads.map((item) => ({
-            Type: item.type,
-            MediaUrl: item.url,
-            MediaName: item.name,
-            MediaSize: item.size,
-          }));
-        }),
+        Attachments: uploaded,
+        Content: uploaded.map((item) => item.MediaName).join(","),
       };
     }
     HttpRequest({
@@ -218,28 +221,6 @@ const Chatbox = ({ reference }) => {
         refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
       }, 500);
     });
-  };
-
-  const pressKey = (e) => {
-    // Press Shift + Enter to generate new line
-    if (e.keyCode == 13 && !e.shiftKey) {
-      e.preventDefault();
-      if (refChatInput.current.textarea.value === "") return;
-      sendMessage();
-    }
-    // Press tab to choose
-    // else if (e.keyCode == 9) {
-    //   e.preventDefault();
-    // }
-  };
-
-  const selectMention = (option) => {
-    console.log(option);
-  };
-
-  const searchMention = (text, prefix) => {
-    console.log(text);
-    console.log(prefix);
   };
 
   const scrollChatContentToBottom = () => {
@@ -380,8 +361,7 @@ const Chatbox = ({ reference }) => {
                 ""
               )}
               <div
-                className={`flex flex-col laptop:w-[clamp(40rem,70%,50rem)] 
-                  desktop:w-[clamp(40rem,70%,80rem)] 
+                className={`flex flex-col gap-[.3rem] laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
                   ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
               >
                 <div

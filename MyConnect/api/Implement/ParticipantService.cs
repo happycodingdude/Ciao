@@ -47,8 +47,10 @@ namespace MyConnect.Implement
         public async Task<Participant> EditParticipantAndNotify(Participant model)
         {
             _unitOfWork.Participant.Update(model);
-            _unitOfWork.Save();
             var conversation = _unitOfWork.Conversation.GetById(model.ConversationId);
+            conversation.UpdatedTime = DateTime.Now;
+            _unitOfWork.Conversation.Update(conversation);
+            _unitOfWork.Save();            
             var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
             foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             {
@@ -66,9 +68,6 @@ namespace MyConnect.Implement
         public async Task<Participant> RemoveChatAndNotify(Participant model)
         {
             _unitOfWork.Participant.Update(model);
-            var conversation = _unitOfWork.Conversation.GetById(model.ConversationId);
-            conversation.UpdatedTime = DateTime.Now;
-            _unitOfWork.Conversation.Update(conversation);
             _unitOfWork.Save();
             // foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             // {

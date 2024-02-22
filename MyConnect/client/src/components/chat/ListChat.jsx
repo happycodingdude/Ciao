@@ -167,7 +167,7 @@ const ListChat = ({ reference }) => {
               src={item.Avatar ?? ""}
               className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-5px_#f472b6]`}
             />
-            <div className={`flex h-full w-1/2 grow flex-col justify-evenly`}>
+            <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
                 className={`${item.UnSeenMessages > 0 ? "font-bold" : "font-medium"} `}
                 title={

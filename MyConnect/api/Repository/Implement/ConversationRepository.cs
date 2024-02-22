@@ -44,7 +44,8 @@ namespace MyConnect.Repository
                 var lastMessageEntity = messageDbSet.Where(q => q.ConversationId == conversation.Id).OrderByDescending(q => q.CreatedTime).FirstOrDefault();
                 if (lastMessageEntity == null) continue;
                 conversation.LastMessageId = lastMessageEntity.Id;
-                conversation.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
+                // conversation.LastMessage = lastMessageEntity.Type == "text" ? lastMessageEntity.Content : "";
+                conversation.LastMessage = lastMessageEntity.Content;
 
                 // if (lastMessageEntity.Type == "text")
                 // {

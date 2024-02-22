@@ -8,7 +8,7 @@ const Attachment = ({ reference }) => {
   const refAttachment = useRef();
   const refScrollAttachment = useRef();
 
-  const [attachmentToggle, setAttachmentToggle] = useState("");
+  const [attachmentToggle, setAttachmentToggle] = useState("image");
   const [attachments, setAttachments] = useState();
   const [displayAttachments, setDisplayAttachments] = useState();
 
@@ -78,7 +78,8 @@ const Attachment = ({ reference }) => {
     >
       <div className="relative flex h-[7rem] shrink-0 items-center justify-center border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
         <div
-          className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] text-lg font-normal text-gray-500"
+          className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-[1rem] 
+          text-lg font-normal text-gray-500"
           onClick={showInformation}
         ></div>
         <p className="font-bold text-gray-600">Attachments</p>
@@ -110,7 +111,11 @@ const Attachment = ({ reference }) => {
             checked={attachmentToggle === "file"}
           ></input>
         </div>
-        <div className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-pink-400 transition-all duration-200 peer-has-[.file-checked:checked]:translate-x-[calc(100%+2rem)] peer-has-[.image-checked:checked]:translate-x-0"></div>
+        <div
+          data-tab={attachmentToggle}
+          className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-pink-400 
+        transition-all duration-200 data-[tab=file]:translate-x-[calc(100%+2rem)] data-[tab=image]:translate-x-0"
+        ></div>
       </div>
       <div
         ref={refScrollAttachment}

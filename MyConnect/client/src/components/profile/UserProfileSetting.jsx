@@ -72,17 +72,25 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
           (item) =>
             (participantArr = [...participantArr, ...item.Participants]),
         );
-      const selected = participantArr.find(
-        (item) =>
-          item.ContactId === auth.user.Id || item.ContactId === profile.Id,
-      );
-      if (selected) {
-        selected.IsDeleted = false;
+      const selectedConversation = res
+        .filter((item) => !item.IsGroup)
+        .filter((item) =>
+          item.Participants.some((item) => item.ContactId === auth.user.Id),
+        )
+        .find((item) =>
+          item.Participants.some((item) => item.ContactId === profile.Id),
+        );
+      console.log(selectedConversation);
+      if (selectedConversation) {
+        let selectedParticipant = selectedConversation.Participants.find(
+          (item) => item.ContactId === auth.user.Id,
+        );
+        selectedParticipant.IsDeleted = false;
         HttpRequest({
           method: "put",
-          url: `api/conversations/${selected.ConversationId}/participants`,
+          url: `api/conversations/${selectedConversation.Id}/participants`,
           token: auth.token,
-          data: selected,
+          data: selectedParticipant,
         }).then((res) => {
           onClose();
         });
