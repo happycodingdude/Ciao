@@ -41,10 +41,11 @@ const Home = () => {
           refChatbox.newMessage(messageData);
         break;
       case "AddMember":
-      case "RemoveChat":
         const listChat = Array.from(document.querySelectorAll(".chat-item"));
-        const isFocusChat = listChat.some((item) =>
-          item.classList.contains("item-active"),
+        const isFocusChat = listChat.some(
+          (item) =>
+            item.dataset.key === messageData.Id &&
+            item.classList.contains("item-active"),
         );
         if (isFocusChat) {
           refChatbox.setParticipants();
@@ -55,7 +56,7 @@ const Home = () => {
             token: auth.token,
           }).then((res) => {
             if (!res) return;
-            refListChat.setChats(res);
+            refListChat.newChat(res, true);
           });
         }
         break;
@@ -66,7 +67,7 @@ const Home = () => {
           token: auth.token,
         }).then((res) => {
           if (!res) return;
-          refListChat.newChat(res, !messageData.IsGroup, messageData);
+          refListChat.newChat(res, messageData);
         });
         break;
       default:

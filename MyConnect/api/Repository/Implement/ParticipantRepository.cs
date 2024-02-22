@@ -12,7 +12,7 @@ namespace MyConnect.Repository
         public IEnumerable<Participant> GetByConversationId(Guid id)
         {
             return _dbSet
-            .Where(q => q.ConversationId == id && ((q.Conversation.IsGroup && !q.IsDeleted) || !q.Conversation.IsGroup))
+            .Where(q => q.ConversationId == id)
             .ToList();
         }
 
@@ -20,7 +20,7 @@ namespace MyConnect.Repository
         {
             return _dbSet
             .Include(q => q.Contact)
-            .Where(q => q.ConversationId == id && ((q.Conversation.IsGroup && !q.IsDeleted) || !q.Conversation.IsGroup))
+            .Where(q => q.ConversationId == id)
             .ToList();
         }
 

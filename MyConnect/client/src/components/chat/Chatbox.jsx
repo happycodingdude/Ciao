@@ -34,6 +34,7 @@ const Chatbox = ({ reference }) => {
 
   const initParticipantAndSuggestion = (data) => {
     if (!data) return;
+    // data = data.filter((item) => !item.IsDeleted);
     setParticipants(data);
     const suggestion = data
       .filter((item) => item.ContactId !== auth.id)

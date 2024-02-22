@@ -52,17 +52,6 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
     });
   };
 
-  const checkConversation = () => {
-    return HttpRequest({
-      method: "get",
-      url: `api/conversations`,
-      token: auth.token,
-    }).then((res) => {
-      if (!res) return [];
-      return res;
-    });
-  };
-
   const chat = () => {
     const chat = checkExistChat(profile.Id);
     if (chat !== undefined) {
@@ -71,30 +60,56 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
       return;
     }
 
-    checkConversation().then((res) => {
-      console.log(res);
+    HttpRequest({
+      method: "get",
+      url: `api/conversations`,
+      token: auth.token,
+    }).then((res) => {
+      let participantArr = [];
+      res
+        .filter((item) => !item.IsGroup)
+        .map(
+          (item) =>
+            (participantArr = [...participantArr, ...item.Participants]),
+        );
+      const selected = participantArr.find(
+        (item) =>
+          item.ContactId === auth.user.Id || item.ContactId === profile.Id,
+      );
+      if (selected) {
+        selected.IsDeleted = false;
+        HttpRequest({
+          method: "put",
+          url: `api/conversations/${selected.ConversationId}/participants`,
+          token: auth.token,
+          data: selected,
+        }).then((res) => {
+          onClose();
+        });
+      } else {
+        const body = {
+          Participants: [
+            {
+              ContactId: auth.user.Id,
+              IsNotifying: true,
+              IsModerator: true,
+            },
+            {
+              ContactId: profile.Id,
+              IsNotifying: true,
+            },
+          ],
+        };
+        HttpRequest({
+          method: "post",
+          url: `api/conversations`,
+          token: auth.token,
+          data: body,
+        }).then((res) => {
+          onClose();
+        });
+      }
     });
-
-    // HttpRequest({
-    //   method: "post",
-    //   url: `api/conversations`,
-    //   token: auth.token,
-    //   data: {
-    //     Participants: [
-    //       {
-    //         ContactId: auth.id,
-    //         IsNotifying: true,
-    //         IsModerator: true,
-    //       },
-    //       {
-    //         ContactId: profile.Id,
-    //         IsNotifying: true,
-    //       },
-    //     ],
-    //   },
-    // }).then((res) => {
-    //   onClose();
-    // });
   };
 
   const acceptFriendRequest = () => {

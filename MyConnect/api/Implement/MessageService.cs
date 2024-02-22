@@ -29,6 +29,7 @@ namespace MyConnect.Implement
             _unitOfWork.Message.Add(model);
             var entity = _unitOfWork.Conversation.GetById(model.ConversationId);
             _unitOfWork.Conversation.Update(entity);
+            // When a message sent, all members of that group will be having that group conversation back
             var participants = _unitOfWork.Participant.GetByConversationId(model.ConversationId);
             foreach (var participant in participants.Where(q => q.IsDeleted))
             {

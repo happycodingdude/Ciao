@@ -31,13 +31,13 @@ namespace MyConnect.Repository
             var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var conversation in conversations)
             {
-                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId &&
-                ((q.Conversation.IsGroup && !q.IsDeleted) || !q.Conversation.IsGroup)).IsNotifying;
+                conversation.IsNotifying = participantDbSet.FirstOrDefault(q => q.ConversationId == conversation.Id && q.ContactId == contactId).IsNotifying;
+
                 conversation.UnSeenMessages = messageDbSet.Count(q => q.ConversationId == conversation.Id && q.ContactId != contactId && q.Status == "received");
+
                 var participants = participantDbSet
                 .Include(q => q.Contact)
-                .Where(q => q.ConversationId == conversation.Id &&
-                ((q.Conversation.IsGroup && !q.IsDeleted) || !q.Conversation.IsGroup))
+                .Where(q => q.ConversationId == conversation.Id)
                 .ToList();
                 conversation.Participants = _mapper.Map<List<Participant>, List<ParticipantNoReference>>(participants);
 

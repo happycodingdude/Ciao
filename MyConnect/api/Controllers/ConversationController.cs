@@ -63,11 +63,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost("{id}/participants")]
-    public async Task<IActionResult> AddParticipant(List<Participant> model)
+    public async Task<IActionResult> AddParticipant(Guid id, List<Participant> model)
     {
         try
         {
-            var response = await _participantService.AddParticipantAndNotify(model);
+            var response = await _participantService.AddParticipantAndNotify(id, model);
             return new ResponseModel<List<Participant>>(model).Ok();
         }
         catch (Exception ex)
@@ -77,6 +77,20 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPut("{id}/participants")]
+    public async Task<IActionResult> EditParticipant(Participant model)
+    {
+        try
+        {
+            var response = await _participantService.EditParticipantAndNotify(model);
+            return new ResponseModel<Participant>(model).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<Participant>().BadRequest(ex);
+        }
+    }
+
+    [HttpDelete("{id}/participants")]
     public async Task<IActionResult> RemoveChat(Participant model)
     {
         try

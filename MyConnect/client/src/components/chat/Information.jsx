@@ -56,7 +56,7 @@ const Information = ({ reference }) => {
     const selected = participants.find((item) => item.ContactId === auth.id);
     selected.IsDeleted = true;
     HttpRequest({
-      method: "put",
+      method: "delete",
       url: `api/conversations/${reference.conversation?.Id}/participants`,
       token: auth.token,
       data: selected,

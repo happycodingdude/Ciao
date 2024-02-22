@@ -32,12 +32,12 @@ public class ParticipantsController : ControllerBase
         }
     }
 
-    [HttpGet("{id}/check/{fid}")]
-    public IActionResult Get(Guid id, Guid fid)
+    [HttpGet("{id}/check/{friendId}")]
+    public IActionResult CheckFriend(Guid id, Guid friendId)
     {
         try
         {
-            var response = _participantService.CheckExistConversation(id, fid);
+            var response = _participantService.CheckExistConversation(id, friendId);
             return new ResponseModel<bool>(response).Ok();
         }
         catch (Exception ex)
