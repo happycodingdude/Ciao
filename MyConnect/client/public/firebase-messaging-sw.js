@@ -33,3 +33,8 @@ messaging.onBackgroundMessage((payload) => {
     clients.forEach((client) => client.postMessage(payload));
   });
 });
+
+// self.addEventListener("activate", (event) => {
+//   clients.claim();
+//   console.log("Activated!");
+// });

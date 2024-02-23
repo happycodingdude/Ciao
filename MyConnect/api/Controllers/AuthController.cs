@@ -50,12 +50,12 @@ public class AuthController : ControllerBase
     {
         try
         {
-            _authService.Logout();
-            return Ok();
+            var response = _authService.Logout();
+            return new ResponseModel<bool>(response).Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            return new ResponseModel<bool>().BadRequest(ex);
         }
     }
 

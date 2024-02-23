@@ -6,7 +6,7 @@ namespace MyConnect.Interface
     {
         void Signup(Contact model);
         LoginResponse Login(LoginRequest model);
-        void Logout();
+        bool Logout();
         Contact ValidateToken();
         void ForgotPassword(ForgotPassword model);
     }

@@ -75,6 +75,18 @@ const Home = () => {
     }
   };
 
+  const registerConnection = (token) => {
+    HttpRequest({
+      method: "post",
+      url: "api/notification/register",
+      token: auth.token,
+      data: {
+        Id: auth.id,
+        Token: token,
+      },
+    });
+  };
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -92,7 +104,9 @@ const Home = () => {
         ),
       );
       refListChat.setChats(filterChats);
-      registerNotification(res);
+      requestPermission(registerConnection, (message) =>
+        notifyMessage(res, message),
+      );
     });
 
     HttpRequest({
@@ -120,22 +134,6 @@ const Home = () => {
       controller.abort();
     };
   }, []);
-
-  const registerNotification = (chats) => {
-    requestPermission((message) => notifyMessage(chats, message)).then(
-      (token) => {
-        HttpRequest({
-          method: "post",
-          url: "api/notification/register",
-          token: auth.token,
-          data: {
-            Id: auth.id,
-            Token: token,
-          },
-        });
-      },
-    );
-  };
 
   const removeInListChat = (id) => {
     refListChat.removeChat(id);

@@ -42,6 +42,7 @@ namespace MyConnect.Implement
             foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             {
                 var connection = _notificationService.GetConnection(contact);
+                if (string.IsNullOrEmpty(connection)) continue;
                 var notification = new FirebaseNotification
                 {
                     to = connection,

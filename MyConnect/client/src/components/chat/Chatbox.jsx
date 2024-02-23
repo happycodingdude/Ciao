@@ -20,7 +20,7 @@ const Chatbox = ({ reference }) => {
   if (!reference.conversation) return;
   const auth = useAuth();
 
-  const refChatInput = useRef();
+  // const refChatInput = useRef();
   const refChatContent = useRef();
   const refScrollButton = useRef();
   const refToggleInformationContainer = useRef();
@@ -208,19 +208,24 @@ const Chatbox = ({ reference }) => {
         Content: uploaded.map((item) => item.MediaName).join(","),
       };
     }
+    setMessages([...messages, body]);
+    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     HttpRequest({
       method: "post",
       url: `api/messages/send`,
       token: auth.token,
       data: body,
-    }).then((res) => {
-      setFiles([]);
-      setMessages([...messages, res]);
+    })
+      .then((res) => {
+        setFiles([]);
+      })
+      .catch((err) => {
+        removeLastItem();
+      });
+  };
 
-      setTimeout(() => {
-        refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-      }, 500);
-    });
+  const removeLastItem = () => {
+    setMessages((prevMessages) => prevMessages.slice(0, -1));
   };
 
   const scrollChatContentToBottom = () => {

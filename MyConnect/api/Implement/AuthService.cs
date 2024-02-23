@@ -58,20 +58,20 @@ namespace MyConnect.Implement
             return response;
         }
 
-        public void Logout()
+        public bool Logout()
         {
             var contact = ValidateToken();
             contact.Logout();
             _unitOfWork.Contact.Update(contact);
             _unitOfWork.Save();
-            _notificationService.RemoveConnection(contact.Id.ToString());
+            return _notificationService.RemoveConnection(contact.Id.ToString());
         }
 
         public Contact ValidateToken()
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var id = JwtToken.ExtractToken(token);
-            return _unitOfWork.Contact.GetById(id);                        
+            return _unitOfWork.Contact.GetById(id);
         }
 
         public void ForgotPassword(ForgotPassword model)

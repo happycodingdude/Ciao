@@ -15,17 +15,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export const requestPermission = async (notifyMessage) => {
-  // const serviceWorkerRegistration = await navigator.serviceWorker.register(
-  //   "../src/components/firebase-messaging-sw.jsx",
-  // );
-
-  return await Notification.requestPermission().then((permission) => {
+export const requestPermission = (registerConnection, notifyMessage) => {
+  Notification.requestPermission().then((permission) => {
     if (permission == "granted") {
       return getToken(messaging, {
         vapidKey:
           "BM0h2oAh38_Q1ra_BvhpventqyMPRuUJ8Fwseh0IaVuXPfepULakLtaUZHdnVk5sMVCSF4nrvfGNPg0yitS4HBM",
-        // serviceWorkerRegistration,
       })
         .then((token) => {
           if (token) {
@@ -35,7 +30,7 @@ export const requestPermission = async (notifyMessage) => {
               notifyMessage(payload.data);
             });
 
-            return token;
+            registerConnection(token);
           } else console.log("Token failed");
         })
         .catch((err) => {
@@ -43,6 +38,17 @@ export const requestPermission = async (notifyMessage) => {
         });
     }
   });
+};
+
+export const registerSW = () => {
+  const sw = navigator.serviceWorker;
+  if (sw) {
+    return sw
+      .register("/firebase-messaging-sw.js", {
+        scope: "firebase-cloud-messaging-push-scope", // mandatory value
+      })
+      .then(sw.ready);
+  }
 };
 
 // export const listenNotification = (action) => {
