@@ -1,8 +1,6 @@
 // import { Tooltip } from "antd";
 import React, { useState } from "react";
 import { useAuth } from "../../hook/CustomHooks";
-import BackgroundPortal from "../common/BackgroundPortal";
-import ListFriend from "./ListFriend";
 
 const AddFriend = () => {
   const auth = useAuth();
@@ -11,11 +9,12 @@ const AddFriend = () => {
     <>
       <div
         onClick={() => setOpen(true)}
-        className="fa fa-user-plus flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal transition-all duration-200 hover:bg-[#e7e7e7]"
+        className="fa fa-user-plus flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal 
+        transition-all duration-200 hover:bg-[var(--search-bg-color)] "
       ></div>
-      <BackgroundPortal open={open}>
+      {/* <BackgroundPortal open={open}>
         <ListFriend onclose={() => setOpen(false)} />
-      </BackgroundPortal>
+      </BackgroundPortal> */}
     </>
   );
 };

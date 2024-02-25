@@ -143,8 +143,8 @@ const EditProfile1 = ({ refEditProfile, profile, onclose, onBack }) => {
             />
             <div
               onClick={() => setShowPassword(!showPassword)}
-              className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center hover:text-pink-600
-              ${showPassword ? "fa-eye text-pink-400" : "fa-eye-slash text-pink-400"}`}
+              className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center text-[var(--main-color)]
+              hover:text-pink-600 ${showPassword ? "fa-eye" : "fa-eye-slash"}`}
             ></div>
           </div>
         </div>

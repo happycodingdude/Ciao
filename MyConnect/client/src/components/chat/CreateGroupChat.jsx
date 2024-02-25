@@ -73,7 +73,8 @@ const CreateGroupChat = () => {
     <>
       <div
         onClick={openCreateGroupChat}
-        className="fa fa-users flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal transition-all duration-200 hover:bg-[#e7e7e7]"
+        className="fa fa-users flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal 
+        transition-all duration-200 hover:bg-[var(--search-bg-color)] "
       ></div>
       <CustomModal
         show={show}

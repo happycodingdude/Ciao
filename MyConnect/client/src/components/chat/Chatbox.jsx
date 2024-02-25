@@ -285,14 +285,14 @@ const Chatbox = ({ reference }) => {
       ref={refChatboxContainer}
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
-      <div className="relative flex w-full grow flex-col overflow-hidden bg-white [&>*]:px-[2rem]">
+      <div className="relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*]:px-[2rem]">
         <div
           ref={refScrollButton}
-          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center justify-center
-                      rounded-[50%] bg-[#f0f0f0] font-normal text-gray-500 hover:bg-[#dadada]"
+          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] hidden aspect-square w-[3rem] cursor-pointer items-center 
+          justify-center rounded-[50%] bg-[var(--main-color-normal)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
           onClick={scrollChatContentToBottom}
         ></div>
-        <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 py-[.5rem]">
+        <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem]">
           <div className="flex items-center gap-[1rem]">
             <ImageWithLightBoxWithBorderAndShadow
               src={reference.conversation?.Avatar ?? ""}
@@ -307,7 +307,7 @@ const Chatbox = ({ reference }) => {
                 <>
                   <div className="flex w-full gap-[.5rem]">
                     <CustomLabel
-                      className="text-start text-lg font-bold text-gray-600"
+                      className="text-start text-lg font-bold"
                       title={reference.conversation.Title}
                       tooltip
                     />
@@ -317,7 +317,7 @@ const Chatbox = ({ reference }) => {
                 </>
               ) : (
                 <CustomLabel
-                  className="text-start text-lg font-bold text-gray-600"
+                  className="text-start text-lg font-bold"
                   title={
                     participants?.find(
                       (item) => item.ContactId !== auth.user.Id,
@@ -331,16 +331,15 @@ const Chatbox = ({ reference }) => {
             <div
               ref={refToggleInformationContainer}
               onClick={toggleInformationContainer}
-              className="fa fa-arrow-right flex aspect-square w-[3rem] 
-                cursor-pointer items-center justify-center rounded-[1rem] 
-                text-lg font-normal text-gray-500"
+              className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
+              rounded-[1rem] text-lg font-normal"
             ></div>
           </div>
         </div>
         <div
           ref={refChatContent}
-          className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll
-            scroll-smooth bg-gradient-to-b from-white to-pink-50 pb-4"
+          className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll scroll-smooth 
+          bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
         >
           {messages?.map((message) => (
             <div
@@ -370,7 +369,7 @@ const Chatbox = ({ reference }) => {
                   ${message.ContactId === auth.id ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`flex items-center gap-[1rem] text-xs text-gray-400 
+                  className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-blur)]
                     ${message.ContactId === auth.id ? "flex-row-reverse" : ""}`}
                 >
                   {message.ContactId === auth.id ? (
@@ -394,8 +393,8 @@ const Chatbox = ({ reference }) => {
                 </div>
                 {message.Type === "text" ? (
                   <div
-                    className={`break-all rounded-[3rem] bg-gradient-radial-to-bc from-white 
-                      to-pink-400 px-[1.5rem] py-[.7rem] text-white`}
+                    className="break-all rounded-[3rem] bg-gradient-radial-to-bc from-[var(--sub-color)] to-[var(--main-color)] 
+                    px-[1.5rem] py-[.7rem] text-[var(--text-sub-color)]"
                     // ${
                     //   message.ContactId === auth.id
                     //     ? "rounded-l-[1rem] rounded-tr-[1rem]"
@@ -406,7 +405,7 @@ const Chatbox = ({ reference }) => {
                   </div>
                 ) : (
                   <div
-                    className={`flex w-full flex-wrap ${message.ContactId === auth.id ? "justify-end" : ""} gap-[1rem] text-gray-400`}
+                    className={`flex w-full flex-wrap ${message.ContactId === auth.id ? "justify-end" : ""} gap-[1rem]`}
                   >
                     {message.Attachments.map((item, index) => (
                       <ImageWithLightBox
@@ -441,7 +440,7 @@ const Chatbox = ({ reference }) => {
           </BackgroundPortal>
         </div>
       </div>
-      <div className="flex w-full items-center justify-center bg-white px-8 py-3">
+      <div className="flex w-full items-center justify-center bg-[var(--bg-color)] px-8 py-3">
         <div className="flex max-w-[10rem] grow items-center justify-evenly">
           <input
             multiple
@@ -454,7 +453,7 @@ const Chatbox = ({ reference }) => {
           <Tooltip title="Choose image">
             <label
               for="choose-image"
-              className="fa fa-image cursor-pointer font-normal text-gray-500"
+              className="fa fa-image cursor-pointer font-normal"
             ></label>
           </Tooltip>
           <input
@@ -468,7 +467,7 @@ const Chatbox = ({ reference }) => {
           <Tooltip title="Choose file">
             <label
               for="choose-file"
-              className="fa fa-file cursor-pointer font-normal text-gray-500"
+              className="fa fa-file cursor-pointer font-normal"
             ></label>
           </Tooltip>
         </div>
@@ -479,9 +478,8 @@ const Chatbox = ({ reference }) => {
                 files.length === 1
                   ? "grid-cols-[50%]"
                   : "laptop:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] desktop:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
-              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.1rem] border-gray-300 p-[1rem]            
-          laptop:w-[clamp(40rem,75%,70rem)]         
-          desktop:w-[clamp(70rem,75%,120rem)]`}
+              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.2rem] 
+              border-[var(--main-color-normal)] p-[.5rem] laptop:w-[clamp(40rem,75%,70rem)] desktop:w-[clamp(70rem,75%,120rem)]`}
             >
               {files.map((item) => (
                 <div
@@ -502,7 +500,8 @@ const Chatbox = ({ reference }) => {
                   <span
                     data-key={item.name}
                     onClick={removeFile}
-                    className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] bg-white text-red-500 hover:text-red-400"
+                    className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] 
+                    bg-white text-[var(--danger-text-color)] hover:text-[var(--danger-text-color-normal)]"
                     title="Clear image"
                   ></span>
                 </div>
@@ -511,9 +510,8 @@ const Chatbox = ({ reference }) => {
             <div className="flex grow">
               <Tooltip title="Send">
                 <div
-                  className="fa fa-paper-plane m-auto flex aspect-square 
-                    cursor-pointer items-center justify-center 
-                    rounded-[.8rem] text-pink-500"
+                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
+                  text-[var(--main-color-medium)]"
                   onClick={sendMessage}
                 ></div>
               </Tooltip>

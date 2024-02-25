@@ -37,18 +37,6 @@ const ChatInput = ({ mentions, onClick }) => {
     const raw = convertToRaw(contentState);
     return raw.blocks[0].text;
   };
-  // const getMentioned = () => {
-  //   const contentState = editorState.getCurrentContent();
-  //   const raw = convertToRaw(contentState);
-  //   let mentionedUsers = [];
-  //   for (let key in raw.entityMap) {
-  //     const ent = raw.entityMap[key];
-  //     if (ent.type === "mention") {
-  //       mentionedUsers.push(ent.data.mention);
-  //     }
-  //   }
-  //   return mentionedUsers;
-  // };
 
   const callToAction = () => {
     onClick(getContent());
@@ -67,8 +55,8 @@ const ChatInput = ({ mentions, onClick }) => {
   };
 
   return (
-    <div className="relative max-w-[50rem] grow">
-      <div className="rounded-2xl border-2 border-pink-300 py-2 pl-4 pr-16">
+    <div className="relative max-h-[10rem] max-w-[50rem] grow">
+      <div className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16">
         <Editor
           ref={editorRef}
           editorKey={"editor"}
@@ -87,15 +75,11 @@ const ChatInput = ({ mentions, onClick }) => {
           }}
         />
       </div>
-      <div
-        className="absolute right-0 top-0 flex h-full grow 
-              items-center justify-center"
-      >
+      <div className="absolute right-0 top-0 flex h-full grow items-center justify-center">
         <Tooltip title="Send">
           <div
-            className="fa fa-paper-plane flex aspect-square h-full 
-                    cursor-pointer items-center justify-center rounded-[.8rem] 
-                    text-pink-500"
+            className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
+            text-[var(--main-color-medium)]"
             onClick={callToAction}
           ></div>
         </Tooltip>

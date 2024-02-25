@@ -1,4 +1,3 @@
-// import { Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
@@ -35,8 +34,12 @@ const ToggleNotification = ({ reference }) => {
   return (
     <div
       onClick={toggleNotification}
-      className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal hover:bg-pink-200 
-              ${isNotifying ? "fa-bell bg-pink-100 text-pink-500" : "fa-bell-slash bg-pink-200 text-pink-800"}`}
+      className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal       
+      ${
+        isNotifying
+          ? "fa-bell bg-[var(--main-color-thin)] text-[var(--main-color-medium)] hover:bg-[var(--main-color-light)]"
+          : "fa-bell-slash bg-[var(--main-color-light)] text-[var(--main-color-extrabold)]"
+      }`}
     ></div>
   );
 };

@@ -121,12 +121,18 @@ const Information = ({ reference }) => {
   return (
     <div
       ref={refInformation}
-      className="relative z-10 flex h-full flex-col bg-white"
+      className="relative z-10 flex h-full flex-col bg-[var(--bg-color)]"
     >
-      <div className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-gray-300 px-[2rem] py-[.5rem]">
-        <p className="font-bold text-gray-600">Information</p>
+      <div
+        className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] 
+        px-[2rem] py-[.5rem]"
+      >
+        <p className="font-bold">Information</p>
       </div>
-      <div className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-blue-100 [&>*]:p-[1rem]">
+      <div
+        className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
+      [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]"
+      >
         <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             <ImageWithLightBoxWithBorderAndShadow
@@ -143,17 +149,17 @@ const Information = ({ reference }) => {
                   onChange={updateAvatar}
                 />
                 <CustomLabel
-                  className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
+                  className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
                   title={reference.conversation?.Title}
                   tooltip
                 />
-                <div className="cursor-pointer text-gray-400">
+                <div className="cursor-pointer text-[var(--text-main-color-blur)]">
                   {participants?.length} members
                 </div>
               </>
             ) : (
               <CustomLabel
-                className="font-bold text-gray-600 laptop:max-w-[50%] desktop:max-w-[70%]"
+                className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
                 title={
                   participants?.find((item) => item.ContactId !== auth.user.Id)
                     ?.Contact.Name
@@ -181,11 +187,11 @@ const Information = ({ reference }) => {
         </div>
         <div className="flex flex-col gap-[1rem]">
           <div className="flex justify-between">
-            <label className="font-bold text-gray-600">Attachments</label>
+            <label className="font-bold">Attachments</label>
             {displayAttachments?.length !== 0 ? (
               <div
                 onClick={showAllAttachment}
-                className="cursor-pointer text-blue-500"
+                className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-bold)]"
               >
                 See all
               </div>

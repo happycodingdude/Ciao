@@ -57,17 +57,16 @@ const UpdateTitle = ({ reference }) => {
   return (
     <>
       <Tooltip
-        className="fa fa-edit h-full cursor-pointer
-        text-pink-300 hover:text-pink-400"
+        className="fa fa-edit h-full cursor-pointer text-[var(--main-color-normal)] hover:text-[var(--main-color)]"
         title="Change title"
         onClick={handleUpdateTitle}
-      ></Tooltip>
+      />
       <CustomModal
         show={show}
         forms={formData}
         onClose={handleClose}
         onSubmit={updateTitle}
-      ></CustomModal>
+      />
     </>
   );
 };

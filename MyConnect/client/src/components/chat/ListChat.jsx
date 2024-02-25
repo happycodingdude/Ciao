@@ -125,14 +125,17 @@ const ListChat = ({ reference }) => {
   };
 
   return (
-    <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-white shadow-[7px_0px_10px_-5px_#dbdbdb_inset]">
-      <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-gray-300 px-[2rem]">
+    <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-[var(--bg-color)] shadow-[5px_0px_10px_-10px_var(--shadow-color)_inset]">
+      <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-[var(--border-color)] px-[2rem]">
         <div className="flex h-[50%] grow">
-          <i className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[#f0f0f0] pl-[1rem] font-normal text-gray-500"></i>
+          <i
+            className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[var(--search-bg-color)] pl-[1rem] 
+          font-normal text-[var(--icon-text-color)]"
+          ></i>
           <input
             type="text"
             placeholder="Search"
-            className="w-full rounded-r-[.5rem] bg-[#f0f0f0] p-[1rem] focus:outline-none"
+            className="w-full rounded-r-[.5rem] bg-[var(--search-bg-color)] p-[1rem] focus:outline-none"
           ></input>
         </div>
         <div className="flex h-[50%] gap-[.5rem] [&>*]:px-[.5rem]">
@@ -157,15 +160,21 @@ const ListChat = ({ reference }) => {
             ref={(element) => {
               refChatItem.current[i] = element;
             }}
-            className={`${activeItem === item.Id ? "item-active bg-gradient-to-r from-pink-400 to-pink-200 text-white [&_.chat-content]:text-[#ffffffcb]" : ""} 
-            chat-item group flex shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] bg-pink-100 py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-pink-200`}
+            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] 
+            bg-[var(--main-color-thin)] py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-[var(--main-color-light)]
+            ${
+              activeItem === item.Id
+                ? `item-active bg-gradient-to-r from-[var(--main-color)] to-[var(--main-color-light)] text-[var(--text-sub-color)] 
+                [&_.chat-content]:text-[var(--text-sub-color-blur)]`
+                : ""
+            } `}
             onClick={() => {
               handleSetConversation(item);
             }}
           >
             <ImageWithLightBox
               src={item.Avatar ?? ""}
-              className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-5px_#f472b6]`}
+              className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
             />
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
@@ -181,8 +190,8 @@ const ListChat = ({ reference }) => {
               <CustomLabel
                 className={`chat-content ${
                   item.LastMessageContact !== auth.id && item.UnSeenMessages > 0
-                    ? "font-bold text-pink-400"
-                    : "font-medium text-[#0000007c]"
+                    ? "font-bold text-[var(--main-color)]"
+                    : "font-medium text-[var(--text-main-color-blur)]"
                 }`}
                 title={
                   item.LastMessage === null
@@ -203,7 +212,10 @@ const ListChat = ({ reference }) => {
               item.UnSeenMessages == 0 ? (
                 ""
               ) : (
-                <div className="flex aspect-square w-[2rem] items-center justify-center rounded-full bg-pink-300 text-center leading-8">
+                <div
+                  className="flex aspect-square w-[2.25rem] items-center justify-center rounded-full bg-[var(--main-color-normal)] 
+                  text-center text-xs leading-9"
+                >
                   {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
                 </div>
               )}
@@ -213,11 +225,11 @@ const ListChat = ({ reference }) => {
       </div>
       <div
         ref={refChatsScroll}
-        className="mx-auto my-[.5rem] flex hidden items-center text-center text-gray-400"
+        className="mx-auto my-[.5rem] hidden items-center text-center"
       >
         <div
-          className="fa fa-arrow-down flex aspect-square w-[3rem] cursor-pointer items-center justify-center
-                        rounded-full bg-[#f0f0f0] font-normal text-gray-500 hover:bg-[#dadada]"
+          className="fa fa-arrow-down flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-full 
+          bg-[var(--main-color-normal)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
           onClick={scrollListChatToBottom}
         ></div>
       </div>

@@ -72,10 +72,7 @@ const Profile = () => {
   };
 
   return (
-    <div
-      className="flex w-full grow bg-white text-base transition-all
-      duration-500 [&>*]:px-16"
-    >
+    <div className="flex w-full grow bg-[var(--bg-color)] text-base transition-all duration-500 [&>*]:px-16">
       <ProfileSetting profile={profile} onchange={chooseAvatar} />
       <EditProfile
         profile={profile}

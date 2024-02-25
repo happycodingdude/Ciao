@@ -77,16 +77,16 @@ const Signup = ({ reference }) => {
   return (
     <div
       ref={refSignupContainer}
-      className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-white opacity-0 transition-all duration-500"
+      className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-[var(--bg-color)] opacity-0 transition-all duration-500"
     >
       <div
         ref={refSignup}
-        className="m-auto flex max-h-[80%] w-[70%] translate-x-[150%] flex-col gap-[5rem] bg-white transition-all duration-500"
+        className="m-auto flex max-h-[80%] w-[70%] translate-x-[150%] flex-col gap-[5rem] bg-[var(--bg-color)] transition-all duration-500"
       >
-        <p className="text-5xl text-gray-600">Create account</p>
+        <p className="text-5xl">Create account</p>
 
         <div className="flex flex-col gap-[5rem]">
-          <div className="flex flex-col gap-[3rem] text-gray-600">
+          <div className="flex flex-col gap-[3rem]">
             <CustomInput
               ref={refName}
               type="text"
@@ -118,11 +118,7 @@ const Signup = ({ reference }) => {
             />
           </div>
 
-          <CustomButton
-            title="Sign up"
-            // className="mt-[4rem]"
-            onClick={signup}
-          />
+          <CustomButton title="Sign up" onClick={signup} />
         </div>
       </div>
     </div>

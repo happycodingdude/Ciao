@@ -22,7 +22,7 @@ const SideBar = () => {
   useEventListener("click", closeProfile);
 
   return (
-    <section className="max-w-[7%] shrink-0 bg-white">
+    <section className="max-w-[7%] shrink-0 bg-[var(--bg-color)]">
       {auth.id ? (
         <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
           <ImageWithLightBoxWithBorderAndShadow
@@ -39,7 +39,7 @@ const SideBar = () => {
           </BackgroundPortal>
           <div
             onClick={() => setOpen(true)}
-            className="fa fa-cog cursor-pointer text-xl font-thin text-gray-500"
+            className="fa fa-cog cursor-pointer text-xl font-thin"
           ></div>
         </div>
       ) : (

@@ -19,7 +19,7 @@ const Signout = ({ className }) => {
   return (
     <div
       onClick={logout}
-      className={`${className ?? ""} flex cursor-pointer items-center`}
+      className={`${className ?? ""} flex cursor-pointer items-center text-[var(--danger-text-color)]`}
     >
       <div className="fa fa-sign-out w-full cursor-pointer font-light leading-8">
         <span className="ml-2">Sign out</span>

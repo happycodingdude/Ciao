@@ -20,7 +20,7 @@ function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
       ></img>
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}
-      ></CustomLightbox>
+      />
     </>
   );
 }

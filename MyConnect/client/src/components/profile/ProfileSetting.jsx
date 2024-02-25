@@ -9,8 +9,7 @@ const ProfileSetting = ({ profile, onchange }) => {
       <div className="relative flex justify-center">
         <ImageWithLightBoxWithBorderAndShadow
           src={profile?.Avatar ?? ""}
-          className="aspect-square w-[70%] cursor-pointer rounded-[50%] 
-          border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
+          className="aspect-square w-[70%] cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
           slides={[
             {
               src: profile?.Avatar ?? "",

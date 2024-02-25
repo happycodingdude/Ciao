@@ -2,6 +2,7 @@ import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
+import CustomButton from "../common/CustomButton";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 
 const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
@@ -144,17 +145,11 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
   };
 
   return (
-    <div
-      className="flex w-full grow flex-col bg-white p-[2rem] pb-[3rem] 
-      [&>*:not(:first-child)]:my-[1rem] [&>*:not(:first-child)]:rounded-3xl 
-      [&>*:not(:first-child)]:bg-white [&>*:not(:first-child)]:p-[2rem]
-      [&>*:not(:first-child)]:shadow-[0px_0px_20px_-3px_#dbdbdb]"
-    >
+    <div className="flex w-full grow flex-col bg-[var(--bg-color)] p-[2rem] pb-[3rem]">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-8">
         <ImageWithLightBoxWithBorderAndShadow
           src={profile?.Avatar ?? ""}
-          className="aspect-square w-[25%] cursor-pointer rounded-[50%] 
-          border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
+          className="aspect-square w-[25%] cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
           slides={[
             {
               src: profile?.Avatar ?? "",
@@ -168,38 +163,54 @@ const UserProfileSetting = ({ id, onClose, checkExistChat }) => {
           {
             {
               new: (
-                <div
+                // <div
+                //   onClick={addFriend}
+                //   className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
+                // >
+                //   Add friend
+                // </div>
+                <CustomButton
+                  title="Add friend"
+                  className="!w-1/2"
                   onClick={addFriend}
-                  className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
-                >
-                  Add friend
-                </div>
+                />
               ),
               request_received: (
-                <div
+                // <div
+                //   onClick={acceptFriendRequest}
+                //   className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
+                // >
+                //   Accept friend request
+                // </div>
+                <CustomButton
+                  title="Accept friend request"
+                  className="!w-1/2"
                   onClick={acceptFriendRequest}
-                  className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
-                >
-                  Accept friend request
-                </div>
+                />
               ),
               request_sent: (
-                <div
+                // <div
+                //   onClick={cancelFriendRequest}
+                //   className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
+                // >
+                //   Cancel friend request
+                // </div>
+                <CustomButton
+                  title="Cancel friend request"
+                  className="!w-1/2"
                   onClick={cancelFriendRequest}
-                  className="w-1/2 cursor-pointer rounded-xl bg-[#f0f0f0] px-[1rem] py-[.5rem] text-center hover:bg-[#dadada]"
-                >
-                  Cancel friend request
-                </div>
+                />
               ),
             }[status]
           }
 
-          <div
+          {/* <div
             onClick={chat}
             className={`w-1/2 cursor-pointer rounded-xl bg-pink-100 px-[1rem] py-[.5rem] text-center text-pink-500 hover:bg-pink-200`}
           >
             Chat
-          </div>
+          </div> */}
+          <CustomButton title="Chat" className="!w-1/2" onClick={chat} />
         </div>
       </div>
       {/* <UserProfileSettingMenu /> */}

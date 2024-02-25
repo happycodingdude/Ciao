@@ -59,9 +59,9 @@ const ForgotPassword = ({ reference }) => {
   return (
     <div
       ref={refForgotPassword}
-      className="m-auto flex w-full flex-col gap-[5rem] bg-white duration-500"
+      className="m-auto flex w-full flex-col gap-[5rem] bg-[var(--bg-color)] duration-500"
     >
-      <p className="text-5xl text-gray-600">Reset</p>
+      <p className="text-5xl">Reset</p>
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
@@ -90,7 +90,7 @@ const ForgotPassword = ({ reference }) => {
       <div className="flex flex-col gap-[1rem]">
         <CustomButton title="Reset" onClick={resetPassword} />
         <div
-          className="cursor-pointer text-gray-400 hover:text-gray-500"
+          className="cursor-pointer text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
           onClick={reference.switchLoginFromForgotPassword}
         >
           Back to login

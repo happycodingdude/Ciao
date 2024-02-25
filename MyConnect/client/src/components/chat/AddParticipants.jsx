@@ -1,4 +1,3 @@
-// import { Tooltip } from "antd";
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
@@ -61,7 +60,8 @@ const AddParticipants = ({ reference }) => {
     <>
       <div
         onClick={handleAddParticipant}
-        className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] bg-pink-100 text-base font-normal text-pink-500 hover:bg-pink-200`}
+        className={`fa fa-user-plus flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] 
+        bg-[var(--main-color-thin)] text-base font-normal text-[var(--main-color-medium)] hover:bg-[var(--main-color-light)]`}
       ></div>
       <CustomModal
         show={show}

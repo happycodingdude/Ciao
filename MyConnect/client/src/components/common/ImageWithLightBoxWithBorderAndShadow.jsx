@@ -21,9 +21,8 @@ function ImageWithLightBoxWithBorderAndShadow({
       <img
         src={src}
         title={title}
-        className={`${className} border-l-[.2rem]
-        border-r-[.2rem] border-t-[.2rem] border-pink-300 p-1
-        shadow-[0px_10px_20px_-7px_gray]`}
+        className={`${className} border-l-[.2rem] border-r-[.2rem] border-t-[.2rem] border-[var(--main-color-normal)] p-1 
+        shadow-[0px_10px_20px_-7px_var(--shadow-color)]`}
         onClick={onClick ?? handleShowLightbox}
         onError={imageOnError}
       ></img>
