@@ -60,6 +60,20 @@ public class ContactsController : ControllerBase
         }
     }
 
+    [HttpGet("{id}/friends")]
+    public IActionResult GetAllFriend(Guid id)
+    {
+        try
+        {
+            var response = _friendService.GetAllFriend(id);
+            return new ResponseModel<IEnumerable<GetAllFriend>>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<IEnumerable<GetAllFriend>>().BadRequest(ex);
+        }
+    }
+
     [HttpPost]
     public IActionResult Add(Contact model)
     {

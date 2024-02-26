@@ -1,7 +1,12 @@
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import {
+  useAuth,
+  useDeleteChat,
+  useFetchAttachments,
+  useFetchParticipants,
+} from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
@@ -10,61 +15,52 @@ import MediaPicker from "../common/MediaPicker";
 import AddParticipants from "./AddParticipants";
 import ToggleNotification from "./ToggleNotification";
 
-const Information = ({ reference }) => {
+const Information = (props) => {
+  const {
+    conversation,
+    // participants,
+    refAttachment,
+    setConversation,
+    removeInListChat,
+  } = props;
+  if (!conversation) return;
+
   console.log("Information calling");
+  // const [participants, setParticipants] = useState();
+
   const auth = useAuth();
-
-  const [participants, setParticipants] = useState();
-  const [attachments, setAttachments] = useState();
-  const [displayAttachments, setDisplayAttachments] = useState();
-
-  const refInformation = useRef();
+  const { participants } = useFetchParticipants();
+  const { attachments, displayAttachments, reFetch } = useFetchAttachments();
+  const { deleteChat } = useDeleteChat();
 
   useEffect(() => {
-    if (!reference.conversation) return;
-
-    const controller = new AbortController();
-    HttpRequest({
-      method: "get",
-      url: `api/conversations/${reference.conversation?.Id}/attachments`,
-      token: auth.token,
-      controller: controller,
-    }).then((res) => {
-      if (!res) return;
-      if (res.length !== 0) {
-        setAttachments(res);
-        setDisplayAttachments(res[0].Attachments.slice(0, 8));
-      } else {
-        setAttachments([]);
-        setDisplayAttachments([]);
-      }
-    });
-
-    reset();
-
-    return () => {
-      controller.abort();
+    refInformation.showInformation = () => {
+      refInformation.current.classList.remove(
+        "animate-flip-scale-down-vertical",
+      );
+      refInformation.current.classList.add("animate-flip-scale-up-vertical");
     };
-  }, [reference.conversation.Id]);
+
+    // refInformation.setParticipants = (data) => {
+    //   setParticipants(data);
+    // };
+  }, []);
+
+  const refInformation = useRef();
 
   const reset = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
     refInformation.current.classList.remove("animate-flip-scale-down-vertical");
   };
 
-  const deleteChat = () => {
-    const selected = participants.find((item) => item.ContactId === auth.id);
-    selected.IsDeleted = true;
-    HttpRequest({
-      method: "delete",
-      url: `api/conversations/${reference.conversation?.Id}/participants`,
-      token: auth.token,
-      data: selected,
-    }).then((res) => {
-      if (!res) return;
-      reference.removeInListChat(res.ConversationId);
-    });
-  };
+  useEffect(() => {
+    const controller = new AbortController();
+    reFetch(conversation.Id, controller);
+    reset();
+    return () => {
+      controller.abort();
+    };
+  }, [conversation.Id]);
 
   const updateAvatar = async (e) => {
     // Create a root reference
@@ -78,35 +74,22 @@ const Information = ({ reference }) => {
         return url;
       });
     });
-    reference.conversation.Avatar = url;
+    conversation.Avatar = url;
 
     HttpRequest({
       method: "put",
-      url: `api/conversations/${reference.conversation.Id}/avatars`,
+      url: `api/conversations/${conversation.Id}/avatars`,
       token: auth.token,
       data: {
         Avatar: url,
       },
     }).then((res) => {
       if (!res) return;
-      reference.setConversation({ ...reference.conversation });
+      setConversation({ ...conversation });
     });
 
     e.target.value = null;
   };
-
-  useEffect(() => {
-    reference.refInformation.showInformation = () => {
-      refInformation.current.classList.remove(
-        "animate-flip-scale-down-vertical",
-      );
-      refInformation.current.classList.add("animate-flip-scale-up-vertical");
-    };
-
-    reference.refInformation.setParticipants = (data) => {
-      setParticipants(data);
-    };
-  }, []);
 
   const hideInformation = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
@@ -115,7 +98,7 @@ const Information = ({ reference }) => {
 
   const showAllAttachment = () => {
     hideInformation();
-    reference.refAttachment.showAttachment(attachments);
+    refAttachment.showAttachment(attachments);
   };
 
   return (
@@ -136,11 +119,11 @@ const Information = ({ reference }) => {
         <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             <ImageWithLightBoxWithBorderAndShadow
-              src={reference.conversation?.Avatar ?? ""}
+              src={conversation.Avatar ?? ""}
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               onClick={() => {}}
             />
-            {reference.conversation.IsGroup ? (
+            {conversation.IsGroup ? (
               <>
                 <MediaPicker
                   className="absolute left-[42%] top-[-10%]"
@@ -150,7 +133,7 @@ const Information = ({ reference }) => {
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={reference.conversation?.Title}
+                  title={conversation.Title}
                   tooltip
                 />
                 <div className="cursor-pointer text-[var(--text-main-color-blur)]">
@@ -168,17 +151,11 @@ const Information = ({ reference }) => {
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            <ToggleNotification
-              reference={{
-                participants,
-              }}
-            />
-            {reference.conversation.IsGroup ? (
+            <ToggleNotification participants={participants} />
+            {conversation.IsGroup ? (
               <AddParticipants
-                reference={{
-                  participants,
-                  conversation: reference.conversation,
-                }}
+                participants={participants}
+                conversation={conversation}
               />
             ) : (
               ""
@@ -219,7 +196,11 @@ const Information = ({ reference }) => {
         <DeleteConfirmation
           title="Delete chat"
           message="Are you sure want to delete this chat?"
-          onSubmit={deleteChat}
+          onSubmit={() => {
+            deleteChat(conversation.Id, participants).then(
+              removeInListChat(conversation.Id),
+            );
+          }}
         />
       </div>
     </div>

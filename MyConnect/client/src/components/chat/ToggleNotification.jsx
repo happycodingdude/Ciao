@@ -2,22 +2,20 @@ import React, { useEffect, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 
-const ToggleNotification = ({ reference }) => {
+const ToggleNotification = (props) => {
+  const { participants } = props;
   const auth = useAuth();
   const [isNotifying, setIsNotifying] = useState(false);
 
   useEffect(() => {
     setIsNotifying(
-      reference.participants?.find((item) => item.ContactId === auth.id)
-        .IsNotifying,
+      participants?.find((item) => item.ContactId === auth.id).IsNotifying,
     );
-  }, [reference.participants]);
+  }, [participants]);
 
   const toggleNotification = (e) => {
     const checked = !isNotifying;
-    const selected = reference.participants.find(
-      (item) => item.ContactId === auth.id,
-    );
+    const selected = participants?.find((item) => item.ContactId === auth.id);
     selected.IsNotifying = checked;
 
     HttpRequest({

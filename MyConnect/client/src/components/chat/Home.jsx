@@ -200,13 +200,10 @@ const Home = () => {
                 className="relative flex-1 origin-right overflow-hidden"
               >
                 <Information
-                  reference={{
-                    conversation,
-                    refInformation,
-                    refAttachment,
-                    setConversation,
-                    removeInListChat,
-                  }}
+                  conversation={conversation}
+                  refAttachment={refAttachment}
+                  setConversation={(val) => setConversation(val)}
+                  removeInListChat={(val) => removeInListChat(val)}
                 />
                 <Attachment
                   reference={{ conversation, refInformation, refAttachment }}

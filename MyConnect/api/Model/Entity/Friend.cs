@@ -9,4 +9,11 @@ namespace MyConnect.Model
         public Contact? Contact1 { get; set; }
         public Contact? Contact2 { get; set; }
     }
+
+    public class GetAllFriend
+    {
+        public Guid Id { get; set; }
+        public Guid ContactId { get; set; }
+        public string ContactName { get; set; }
+    }
 }

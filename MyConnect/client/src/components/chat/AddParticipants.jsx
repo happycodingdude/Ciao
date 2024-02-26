@@ -1,24 +1,21 @@
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchFriends } from "../../hook/CustomHooks";
 import CustomModal from "../common/CustomModal";
 
-const AddParticipants = ({ reference }) => {
+const AddParticipants = (props) => {
+  const { participants, conversation } = props;
   const auth = useAuth();
+  const { load } = useFetchFriends();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
   const handleAddParticipant = () => {
-    HttpRequest({
-      method: "get",
-      url: `api/contacts`,
-      token: auth.token,
-    }).then((res) => {
-      if (!res) return;
+    load().then((res) => {
       setFormData({
-        title: "Add member",
+        title: "Create group chat",
         data: [
           {
             label: "Members",
@@ -27,7 +24,7 @@ const AddParticipants = ({ reference }) => {
             options: res
               .filter(
                 (item) =>
-                  !reference.participants.some(
+                  !participants.some(
                     (participant) => participant.ContactId === item.Id,
                   ),
               )
@@ -45,11 +42,11 @@ const AddParticipants = ({ reference }) => {
     handleClose();
     HttpRequest({
       method: "post",
-      url: `api/conversations/${reference.conversation?.Id}/participants`,
+      url: `api/conversations/${conversation?.Id}/participants`,
       token: auth.token,
       data: data.Members.map((item) => {
         return {
-          ConversationId: reference.conversation.Id,
+          ConversationId: conversation.Id,
           ContactId: item,
           IsNotifying: true,
         };

@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { GenerateContent } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchParticipants } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import AddFriend from "../friend/AddFriend";
@@ -10,6 +10,7 @@ import CreateGroupChat from "./CreateGroupChat";
 const ListChat = ({ reference }) => {
   console.log("ListChat calling");
   const auth = useAuth();
+  const participantsFetch = useFetchParticipants();
 
   const refChatItem = useRef([]);
   const refChats = useRef();
@@ -27,6 +28,7 @@ const ListChat = ({ reference }) => {
   };
 
   const handleSetConversation = (item) => {
+    participantsFetch.reFetch(item.Id);
     reference.setConversation(item);
     focusChat(item);
     setChats((current) => {

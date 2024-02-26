@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchFriends } from "../../hook/CustomHooks";
 import CustomModal from "../common/CustomModal";
 
 const CreateGroupChat = () => {
   const auth = useAuth();
+  const { load } = useFetchFriends();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
   const openCreateGroupChat = () => {
-    HttpRequest({
-      method: "get",
-      url: `api/contacts`,
-      token: auth.token,
-    }).then((res) => {
-      if (!res) return;
+    load().then((res) => {
       setFormData({
         title: "Create group chat",
         data: [
@@ -26,13 +22,13 @@ const CreateGroupChat = () => {
             type: "input",
           },
           {
-            label: "Members",
-            name: "Members",
+            label: "Friends",
+            name: "Friends",
             type: "multiple",
             options: res
               .filter((item) => item.Id !== auth.id)
               .map((item) => {
-                return { label: item.Name, value: item.Id };
+                return { label: item.ContactName, value: item.ContactId };
               }),
           },
         ],
@@ -53,7 +49,7 @@ const CreateGroupChat = () => {
             IsModerator: true,
           },
         ],
-        ...data.Members.filter((item) => item !== "").map((item) => {
+        ...data.Friends.filter((item) => item !== "").map((item) => {
           return {
             ContactId: item,
             IsNotifying: true,

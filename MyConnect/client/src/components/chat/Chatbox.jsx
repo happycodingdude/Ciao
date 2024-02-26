@@ -47,7 +47,7 @@ const Chatbox = ({ reference }) => {
       });
     setSuggestion(suggestion);
 
-    reference.refInformation.setParticipants(data);
+    // reference.refInformation.setParticipants(data);
   };
 
   useEffect(() => {
