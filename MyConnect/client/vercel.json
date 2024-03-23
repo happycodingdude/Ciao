@@ -5,8 +5,8 @@
       "destination": "https://7ba1-2402-800-631d-733c-696e-5399-7a67-6e64.ngrok-free.app/api/:path*"
     },
     {
-      "source": "/assets/:path*",
-      "destination": "/images/:path*"
+      "source": "/assets/images",
+      "destination": "/images"
     }
   ]
 }
