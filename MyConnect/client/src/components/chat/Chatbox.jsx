@@ -32,13 +32,14 @@ const Chatbox = (props) => {
   const { messages, removeLastItem, addNewItem } = useFetchMessages();
   const { selected } = useFetchConversations();
   const { reFetch: reFetchAttachments } = useFetchAttachments();
-  const { friends, profile, request, reFetchRequest } = useFetchFriends();
+  const { profile, request, reFetchRequest } = useFetchFriends();
 
   const refChatContent = useRef();
   const refScrollButton = useRef();
   const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
   const refTitleContainer = useRef();
+  const refChatInput = useRef();
 
   const [files, setFiles] = useState([]);
 
@@ -145,11 +146,11 @@ const Chatbox = (props) => {
       ConversationId: selected.Id,
     };
     if (files.length === 0) {
-      if (text === "") return;
+      if (text === "" && refChatInput.current.value === "") return;
       body = {
         ...body,
         Type: "text",
-        Content: text,
+        Content: refChatInput.current.value,
       };
     } else {
       const uploaded = await uploadFile().then((uploads) => {
@@ -169,6 +170,7 @@ const Chatbox = (props) => {
     }
     addNewItem(body);
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    refChatInput.current.value = "";
     HttpRequest({
       method: "post",
       url: `api/messages/send`,
@@ -182,6 +184,12 @@ const Chatbox = (props) => {
       .catch((err) => {
         removeLastItem();
       });
+  };
+
+  const onKeyDown = (e) => {
+    if (e.keyCode == 13 && !e.shiftKey) {
+      sendMessage();
+    }
   };
 
   const scrollChatContentToBottom = () => {
@@ -581,8 +589,25 @@ const Chatbox = (props) => {
               </Tooltip>
             </div>
           </>
-        ) : (
+        ) : selected?.IsGroup ? (
           <ChatInput onClick={sendMessage} />
+        ) : (
+          <div className="relative max-h-[10rem] max-w-[50rem] grow">
+            <input
+              ref={refChatInput}
+              className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16 outline-none"
+              onKeyDown={onKeyDown}
+            />
+            <div className="absolute right-0 top-0 flex h-full grow items-center justify-center">
+              <Tooltip title="Send">
+                <div
+                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
+            text-[var(--main-color-medium)]"
+                  onClick={sendMessage}
+                ></div>
+              </Tooltip>
+            </div>
+          </div>
         )}
       </div>
     </div>
