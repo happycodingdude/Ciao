@@ -4,6 +4,6 @@ namespace MyConnect.Repository
 {
     public interface IConversationRepository : IRepository<Conversation>
     {
-        IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages();
+        IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages(int page, int limit);
     }
 }

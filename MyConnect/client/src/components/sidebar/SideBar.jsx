@@ -1,12 +1,22 @@
 import React, { useCallback, useState } from "react";
-import { useAuth, useEventListener } from "../../hook/CustomHooks";
+import {
+  useAuth,
+  useEventListener,
+  useFetchProfile,
+} from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import Profile from "../profile/Profile";
 
 const SideBar = () => {
   const auth = useAuth();
+  const { reFetch } = useFetchProfile();
   const [open, setOpen] = useState(false);
+
+  const openProfile = () => {
+    reFetch();
+    setOpen(true);
+  };
 
   // Event listener
   const closeProfile = useCallback((e) => {
@@ -28,17 +38,17 @@ const SideBar = () => {
           <ImageWithLightBoxWithBorderAndShadow
             src={auth.user?.Avatar ?? ""}
             className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
-            onClick={() => setOpen(true)}
+            onClick={openProfile}
           />
           <BackgroundPortal
             open={open}
             title="Edit Profile"
             onClose={() => setOpen(false)}
           >
-            <Profile />
+            <Profile onClose={() => setOpen(false)} />
           </BackgroundPortal>
           <div
-            onClick={() => setOpen(true)}
+            onClick={openProfile}
             className="fa fa-cog cursor-pointer text-xl font-thin"
           ></div>
         </div>

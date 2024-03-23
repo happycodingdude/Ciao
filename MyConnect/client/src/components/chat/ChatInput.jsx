@@ -5,9 +5,12 @@ import createMentionPlugin, {
 import "@draft-js-plugins/mention/lib/plugin.css";
 import { Tooltip } from "antd";
 import { EditorState, convertToRaw, getDefaultKeyBinding } from "draft-js";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useFetchParticipants } from "../../hook/CustomHooks";
 
-const ChatInput = ({ mentions, onClick }) => {
+const ChatInput = (props) => {
+  const { onClick } = props;
+  const { mentions } = useFetchParticipants();
   const editorRef = useRef();
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty(),
@@ -31,6 +34,9 @@ const ChatInput = ({ mentions, onClick }) => {
     },
     [mentions],
   );
+  useEffect(() => {
+    setSuggestions(mentions);
+  }, [mentions]);
 
   const getContent = () => {
     const contentState = editorState.getCurrentContent();

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import CustomButton from "../common/CustomButton";
 
-const EditProfile = ({ profile, onChange, onSave }) => {
+const EditProfile = (props) => {
+  const { profile, onChange, onSave } = props;
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="flex w-[50%] flex-col items-center justify-evenly gap-[3rem] transition-all duration-500">
+    <div className="flex w-[50%] flex-col items-center justify-between gap-[3rem] transition-all duration-500">
       <div className="flex w-full flex-col gap-[2rem]">
         <div className="flex flex-col gap-[1rem]">
           <p className="font-medium">Name</p>

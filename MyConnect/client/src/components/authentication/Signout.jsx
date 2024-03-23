@@ -6,12 +6,11 @@ const Signout = ({ className }) => {
   const auth = useAuth();
 
   const logout = () => {
-    const config = {
+    HttpRequest({
       method: "post",
       url: "api/auth/logout",
       token: auth.token,
-    };
-    HttpRequest(config).then((res) => {
+    }).then((res) => {
       auth.logout();
     });
   };

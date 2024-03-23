@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchParticipants } from "../../hook/CustomHooks";
 
-const ToggleNotification = (props) => {
-  const { participants } = props;
+const ToggleNotification = () => {
   const auth = useAuth();
   const [isNotifying, setIsNotifying] = useState(false);
+  const { participants } = useFetchParticipants();
 
   useEffect(() => {
     setIsNotifying(
@@ -32,7 +32,7 @@ const ToggleNotification = (props) => {
   return (
     <div
       onClick={toggleNotification}
-      className={`fa flex aspect-square w-[15%] cursor-pointer items-center justify-center rounded-[50%] text-base font-normal       
+      className={`fa flex aspect-square w-[13%] cursor-pointer items-center justify-center rounded-[50%] text-sm font-normal       
       ${
         isNotifying
           ? "fa-bell bg-[var(--main-color-thin)] text-[var(--main-color-medium)] hover:bg-[var(--main-color-light)]"

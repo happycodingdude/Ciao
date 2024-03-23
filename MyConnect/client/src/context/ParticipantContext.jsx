@@ -1,29 +1,50 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { HttpRequest } from "../common/Utility";
+import { useAuth } from "../hook/CustomHooks";
 
 const ParticipantContext = createContext({});
 
-export const ParticipantProvider = () => {
+export const ParticipantProvider = ({ children }) => {
   console.log("ParticipantProvider rendering");
+
   const auth = useAuth();
   const [participants, setParticipants] = useState();
-  const getParticipants = useCallback((id, controller) => {
-    HttpRequest({
-      method: "get",
-      url: `api/conversations/${id}/participants`,
-      token: auth.token,
-      // controller: controller,
-    }).then((res) => {
-      setParticipants(res);
-    });
-  }, []);
+  const [mentions, setMentions] = useState();
+
+  const getParticipants = useCallback(
+    (id, controller) => {
+      HttpRequest({
+        method: "get",
+        url: `api/conversations/${id}/participants`,
+        token: auth.token,
+      }).then((res) => {
+        setParticipants(res);
+      });
+    },
+    [auth.token],
+  );
+
   useEffect(() => {
-    getParticipants();
-  }, [getParticipants]);
+    const updatedMentions = participants
+      ?.filter((item) => item.ContactId !== auth.id)
+      .map((item) => {
+        return {
+          name: item.Contact.Name,
+          avatar: item.Contact.Avatar,
+          userId: item.Contact.Id,
+        };
+      });
+    setMentions(updatedMentions);
+  }, [participants]);
 
   return (
     <ParticipantContext.Provider
-      value={{ participants, reFetch: getParticipants }}
+      value={{
+        participants,
+        setParticipants,
+        mentions,
+        reFetch: getParticipants,
+      }}
     >
       {children}
     </ParticipantContext.Provider>

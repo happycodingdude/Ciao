@@ -5,6 +5,7 @@ import {
   useAuth,
   useDeleteChat,
   useFetchAttachments,
+  useFetchConversations,
   useFetchParticipants,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
@@ -16,34 +17,23 @@ import AddParticipants from "./AddParticipants";
 import ToggleNotification from "./ToggleNotification";
 
 const Information = (props) => {
-  const {
-    conversation,
-    // participants,
-    refAttachment,
-    setConversation,
-    removeInListChat,
-  } = props;
-  if (!conversation) return;
-
   console.log("Information calling");
-  // const [participants, setParticipants] = useState();
+  const { refAttachment, refInformationExposed } = props;
 
   const auth = useAuth();
+  const { selected, setSelected } = useFetchConversations();
   const { participants } = useFetchParticipants();
-  const { attachments, displayAttachments, reFetch } = useFetchAttachments();
+  const { displayAttachments } = useFetchAttachments();
   const { deleteChat } = useDeleteChat();
+  const { removeConversation } = useFetchConversations();
 
   useEffect(() => {
-    refInformation.showInformation = () => {
+    refInformationExposed.showInformation = () => {
       refInformation.current.classList.remove(
         "animate-flip-scale-down-vertical",
       );
       refInformation.current.classList.add("animate-flip-scale-up-vertical");
     };
-
-    // refInformation.setParticipants = (data) => {
-    //   setParticipants(data);
-    // };
   }, []);
 
   const refInformation = useRef();
@@ -54,13 +44,8 @@ const Information = (props) => {
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    reFetch(conversation.Id, controller);
     reset();
-    return () => {
-      controller.abort();
-    };
-  }, [conversation.Id]);
+  }, [selected.Id]);
 
   const updateAvatar = async (e) => {
     // Create a root reference
@@ -74,18 +59,17 @@ const Information = (props) => {
         return url;
       });
     });
-    conversation.Avatar = url;
+    selected.Avatar = url;
 
     HttpRequest({
       method: "put",
-      url: `api/conversations/${conversation.Id}/avatars`,
+      url: `api/conversations/${selected.Id}/avatars`,
       token: auth.token,
       data: {
         Avatar: url,
       },
     }).then((res) => {
-      if (!res) return;
-      setConversation({ ...conversation });
+      setSelected((current) => ({ ...current, Avatar: url }));
     });
 
     e.target.value = null;
@@ -98,7 +82,7 @@ const Information = (props) => {
 
   const showAllAttachment = () => {
     hideInformation();
-    refAttachment.showAttachment(attachments);
+    refAttachment.showAttachment();
   };
 
   return (
@@ -119,11 +103,11 @@ const Information = (props) => {
         <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             <ImageWithLightBoxWithBorderAndShadow
-              src={conversation.Avatar ?? ""}
+              src={selected.Avatar ?? ""}
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               onClick={() => {}}
             />
-            {conversation.IsGroup ? (
+            {selected.IsGroup ? (
               <>
                 <MediaPicker
                   className="absolute left-[42%] top-[-10%]"
@@ -133,7 +117,7 @@ const Information = (props) => {
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={conversation.Title}
+                  title={selected.Title}
                   tooltip
                 />
                 <div className="cursor-pointer text-[var(--text-main-color-blur)]">
@@ -151,15 +135,8 @@ const Information = (props) => {
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            <ToggleNotification participants={participants} />
-            {conversation.IsGroup ? (
-              <AddParticipants
-                participants={participants}
-                conversation={conversation}
-              />
-            ) : (
-              ""
-            )}
+            <ToggleNotification />
+            {selected.IsGroup ? <AddParticipants /> : ""}
           </div>
         </div>
         <div className="flex flex-col gap-[1rem]">
@@ -197,9 +174,10 @@ const Information = (props) => {
           title="Delete chat"
           message="Are you sure want to delete this chat?"
           onSubmit={() => {
-            deleteChat(conversation.Id, participants).then(
-              removeInListChat(conversation.Id),
-            );
+            deleteChat(selected.Id, participants).then(() => {
+              removeConversation(selected.Id);
+              setSelected(undefined);
+            });
           }}
         />
       </div>

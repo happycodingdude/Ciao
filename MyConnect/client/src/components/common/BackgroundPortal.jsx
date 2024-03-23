@@ -15,7 +15,7 @@ const BackgroundPortal = ({ children, open, title, onClose, className }) => {
     >
       <div
         data-state={`${open} ? 'show : 'hide'`}
-        className={`${className} fixed left-[50%] top-[50%] z-[1001] m-auto flex aspect-[3/2] w-[50%] translate-x-[-50%] translate-y-[-50%] 
+        className={`${className} fixed left-[50%] top-[50%] z-[1000] flex w-[50%] translate-x-[-50%] translate-y-[-50%] 
         flex-col overflow-hidden rounded-2xl transition-all duration-500 data-[state=hide]:scale-0 data-[state=show]:scale-100`}
       >
         <PortalHeader title={title} onClose={onClose} />

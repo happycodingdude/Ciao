@@ -21,11 +21,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public IActionResult Get(int page, int limit)
     {
         try
         {
-            var response = _unitOfWork.Conversation.GetAllWithUnseenMesages();
+            var response = _unitOfWork.Conversation.GetAllWithUnseenMesages(page, limit);
             return new ResponseModel<IEnumerable<ConversationWithTotalUnseen>>(response).Ok();
         }
         catch (Exception ex)

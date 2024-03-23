@@ -1,6 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { AttachmentProvider } from "../../context/AttachmentContext";
+import { ConversationProvider } from "../../context/ConversationContext";
+import { FriendProvider } from "../../context/FriendContext";
+import { MessageProvider } from "../../context/MessageContext";
+import { ParticipantProvider } from "../../context/ParticipantContext";
+import { ProfileProvider } from "../../context/ProfileContext";
+import {
+  useAuth,
+  useFetchConversations,
+  useFetchFriends,
+  useFetchParticipants,
+} from "../../hook/CustomHooks";
 import { requestPermission } from "../common/Notification";
 import SideBar from "../sidebar/SideBar";
 import Attachment from "./Attachment";
@@ -8,10 +19,30 @@ import Chatbox from "./Chatbox";
 import Information from "./Information";
 import ListChat from "./ListChat";
 
-const Home = () => {
-  const auth = useAuth();
+export const HomeContainer = () => {
+  return (
+    <ProfileProvider>
+      <FriendProvider>
+        <ConversationProvider>
+          <MessageProvider>
+            <ParticipantProvider>
+              <AttachmentProvider>
+                <Home></Home>
+              </AttachmentProvider>
+            </ParticipantProvider>
+          </MessageProvider>
+        </ConversationProvider>
+      </FriendProvider>
+    </ProfileProvider>
+  );
+};
 
-  const [conversation, setConversation] = useState();
+export const Home = () => {
+  const auth = useAuth();
+  const { selected, reFetch: reFetchConversations } = useFetchConversations();
+  const { reFetch: reFetchParticipants } = useFetchParticipants();
+  const { reFetchFriends } = useFetchFriends();
+
   const [contacts, setContacts] = useState();
 
   const refListChat = useRef();
@@ -20,60 +51,40 @@ const Home = () => {
   const refInformation = useRef();
   const refAttachment = useRef();
 
-  const notifyMessage = (chats, message) => {
-    console.log(message);
-    const messageData = JSON.parse(message.data);
-    switch (message.event) {
-      case "NewMessage":
-        var newChats = chats.map((item) => {
-          if (item.Id !== messageData.ConversationId || !item.IsNotifying)
-            return item;
-          item.UnSeenMessages++;
-          item.LastMessageId = messageData.Id;
-          item.LastMessage = messageData.Content;
-          item.LastMessageTime = messageData.CreatedTime;
-          item.LastMessageContact = messageData.ContactId;
-          return item;
-        });
-        refListChat.setChats(newChats);
-
-        if (messageData.ContactId !== auth.id)
-          refChatbox.newMessage(messageData);
-        break;
-      case "AddMember":
-        const listChat = Array.from(document.querySelectorAll(".chat-item"));
-        const isFocusChat = listChat.some(
-          (item) =>
-            item.dataset.key === messageData.Id &&
-            item.classList.contains("item-active"),
-        );
-        if (isFocusChat) {
-          refChatbox.setParticipants();
-        } else {
-          HttpRequest({
-            method: "get",
-            url: "api/conversations",
-            token: auth.token,
-          }).then((res) => {
-            if (!res) return;
-            refListChat.newChat(res, true);
-          });
-        }
-        break;
-      case "NewConversation":
-        HttpRequest({
-          method: "get",
-          url: "api/conversations",
-          token: auth.token,
-        }).then((res) => {
-          if (!res) return;
-          refListChat.newChat(res, messageData);
-        });
-        break;
-      default:
-        break;
-    }
-  };
+  const notifyMessage = useCallback(
+    (message) => {
+      console.log(message);
+      const messageData = JSON.parse(message.data);
+      switch (message.event) {
+        case "NewMessage":
+          refListChat.newMessage(messageData);
+          if (
+            messageData.ContactId !== auth.id &&
+            messageData.ConversationId === selected?.Id
+          )
+            refChatbox.newMessage(messageData);
+          break;
+        case "AddMember":
+          const listChat = Array.from(document.querySelectorAll(".chat-item"));
+          const oldChat = listChat.find(
+            (item) => item.dataset.key === messageData.Id,
+          );
+          // Old chat
+          if (oldChat) {
+            // And focused
+            if (oldChat.classList.contains("item-active"))
+              reFetchParticipants(messageData.Id);
+          } else reFetchConversations();
+          break;
+        case "NewConversation":
+          reFetchConversations();
+          break;
+        default:
+          break;
+      }
+    },
+    [selected],
+  );
 
   const registerConnection = (token) => {
     HttpRequest({
@@ -90,24 +101,7 @@ const Home = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    HttpRequest({
-      method: "get",
-      url: "api/conversations",
-      token: auth.token,
-      controller: controller,
-    }).then((res) => {
-      if (!res) return;
-      const filterChats = res.filter((item) =>
-        item.Participants.some(
-          (participant) =>
-            participant.ContactId === auth.id && !participant.IsDeleted,
-        ),
-      );
-      refListChat.setChats(filterChats);
-      requestPermission(registerConnection, (message) =>
-        notifyMessage(res, message),
-      );
-    });
+    reFetchFriends(controller);
 
     HttpRequest({
       method: "get",
@@ -117,6 +111,7 @@ const Home = () => {
     }).then((res) => {
       if (!res) return;
       setContacts(res);
+      requestPermission(registerConnection, notifyMessage);
     });
 
     // listenNotification((message) => {
@@ -133,7 +128,7 @@ const Home = () => {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [notifyMessage]);
 
   const removeInListChat = (id) => {
     refListChat.removeChat(id);
@@ -163,58 +158,43 @@ const Home = () => {
     else hideInformationContainer();
   };
 
-  const checkExistChat = (id) => {
-    return refListChat.checkExistChat(id);
-  };
-
   return (
     <div id="home" className="relative w-full">
       <div className="absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
         <SideBar />
         <section className="relative flex grow overflow-hidden">
           <ListChat
-            reference={{
-              conversation,
-              refListChat,
-              contacts,
-              setConversation,
-              notifyMessage,
-            }}
+            refListChat={refListChat}
+            contacts={contacts}
+            notifyMessage={(chats, message) => notifyMessage(chats, message)}
           />
-          {conversation == undefined ? (
-            ""
-          ) : (
+          {selected ? (
             <>
               <Chatbox
-                reference={{
-                  conversation,
-                  refChatbox,
-                  refInformation,
-                  contacts,
-                  toggleInformationContainer,
-                  checkExistChat,
-                }}
+                contacts={contacts}
+                refChatbox={refChatbox}
+                toggleInformation={toggleInformationContainer}
               />
               <div
                 ref={refInformationContainer}
                 className="relative flex-1 origin-right overflow-hidden"
               >
                 <Information
-                  conversation={conversation}
                   refAttachment={refAttachment}
-                  setConversation={(val) => setConversation(val)}
+                  refInformationExposed={refInformation}
                   removeInListChat={(val) => removeInListChat(val)}
                 />
                 <Attachment
-                  reference={{ conversation, refInformation, refAttachment }}
+                  refInformation={refInformation}
+                  refAttachmentExposed={refAttachment}
                 />
               </div>
             </>
+          ) : (
+            ""
           )}
         </section>
       </div>
     </div>
   );
 };
-
-export default Home;

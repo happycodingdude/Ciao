@@ -3,24 +3,37 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { GenerateContent, HttpRequest } from "../../common/Utility";
-import { useAuth, useEventListener } from "../../hook/CustomHooks";
+import {
+  useAuth,
+  useEventListener,
+  useFetchAttachments,
+  useFetchConversations,
+  useFetchFriends,
+  useFetchMessages,
+  useFetchParticipants,
+} from "../../hook/CustomHooks";
 import UpdateTitle from "../chat/UpdateTitle";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import AcceptButton from "../friend/AcceptButton";
+import AddButton from "../friend/AddButton";
+import CancelButton from "../friend/CancelButton";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
 
-const page = 1;
-const limit = 20;
-
-const Chatbox = ({ reference }) => {
+const Chatbox = (props) => {
   console.log("Chatbox calling");
-  if (!reference.conversation) return;
-  const auth = useAuth();
+  const { contacts, refChatbox, toggleInformation } = props;
 
-  // const refChatInput = useRef();
+  const auth = useAuth();
+  const { participants } = useFetchParticipants();
+  const { messages, removeLastItem, addNewItem } = useFetchMessages();
+  const { selected } = useFetchConversations();
+  const { reFetch: reFetchAttachments } = useFetchAttachments();
+  const { friends, profile, request, reFetchRequest } = useFetchFriends();
+
   const refChatContent = useRef();
   const refScrollButton = useRef();
   const refToggleInformationContainer = useRef();
@@ -28,66 +41,12 @@ const Chatbox = ({ reference }) => {
   const refTitleContainer = useRef();
 
   const [files, setFiles] = useState([]);
-  const [participants, setParticipants] = useState();
-  const [messages, setMessages] = useState();
-  const [suggestion, setSuggestion] = useState([]);
-
-  const initParticipantAndSuggestion = (data) => {
-    if (!data) return;
-    // data = data.filter((item) => !item.IsDeleted);
-    setParticipants(data);
-    const suggestion = data
-      .filter((item) => item.ContactId !== auth.id)
-      .map((item) => {
-        return {
-          name: item.Contact.Name,
-          avatar: item.Contact.Avatar,
-          userId: item.Contact.Id,
-        };
-      });
-    setSuggestion(suggestion);
-
-    // reference.refInformation.setParticipants(data);
-  };
 
   useEffect(() => {
     setFiles([]);
+  }, []);
 
-    const controller = new AbortController();
-    HttpRequest({
-      method: "get",
-      url: `api/conversations/${reference.conversation.Id}/messages?page=${page}&limit=${limit}`,
-      token: auth.token,
-      controller: controller,
-    }).then((res) => {
-      if (!res) return;
-      refChatContent.current.scrollTop = 0;
-      setMessages(res.reverse());
-    });
-    HttpRequest({
-      method: "get",
-      url: `api/conversations/${reference.conversation.Id}/participants`,
-      token: auth.token,
-      controller: controller,
-    }).then(initParticipantAndSuggestion);
-
-    return () => {
-      controller.abort();
-    };
-  }, [reference.conversation.Id]);
-
-  useEffect(() => {
-    reference.refChatbox.setParticipants = () => {
-      HttpRequest({
-        method: "get",
-        url: `api/conversations/${reference.conversation.Id}/participants`,
-        token: auth.token,
-      }).then(initParticipantAndSuggestion);
-    };
-    reference.refChatbox.newMessage = (message) => {
-      setMessages([...messages, message]);
-    };
-  }, [initParticipantAndSuggestion, setMessages]);
+  refChatbox.newMessage = addNewItem;
 
   useEffect(() => {
     // listenNotification((message) => {
@@ -119,10 +78,10 @@ const Chatbox = ({ reference }) => {
     //   }
     // });
 
-    // refChatContent.current.classList.add("scroll-smooth");
-    setTimeout(() => {
-      refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-    }, 500);
+    // setTimeout(() => {
+    //   refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    // }, 500);
+    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
   }, [messages]);
 
   const chooseFile = (e) => {
@@ -183,7 +142,7 @@ const Chatbox = ({ reference }) => {
   const sendMessage = async (text) => {
     let body = {
       ContactId: auth.id,
-      ConversationId: reference.conversation.Id,
+      ConversationId: selected.Id,
     };
     if (files.length === 0) {
       if (text === "") return;
@@ -208,7 +167,7 @@ const Chatbox = ({ reference }) => {
         Content: uploaded.map((item) => item.MediaName).join(","),
       };
     }
-    setMessages([...messages, body]);
+    addNewItem(body);
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     HttpRequest({
       method: "post",
@@ -218,14 +177,11 @@ const Chatbox = ({ reference }) => {
     })
       .then((res) => {
         setFiles([]);
+        reFetchAttachments(selected.Id);
       })
       .catch((err) => {
         removeLastItem();
       });
-  };
-
-  const removeLastItem = () => {
-    setMessages((prevMessages) => prevMessages.slice(0, -1));
   };
 
   const scrollChatContentToBottom = () => {
@@ -233,7 +189,7 @@ const Chatbox = ({ reference }) => {
   };
 
   const toggleInformationContainer = () => {
-    reference.toggleInformationContainer();
+    toggleInformation();
     if (
       refToggleInformationContainer.current.classList.contains(
         "animate-information-hide-arrow",
@@ -267,6 +223,7 @@ const Chatbox = ({ reference }) => {
       refScrollButton.current.classList.remove("hidden");
     else refScrollButton.current.classList.add("hidden");
   }, []);
+
   useEventListener("scroll", handleScroll);
   const closeProfile = useCallback((e) => {
     if (
@@ -294,36 +251,149 @@ const Chatbox = ({ reference }) => {
         ></div>
         <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem]">
           <div className="flex items-center gap-[1rem]">
-            <ImageWithLightBoxWithBorderAndShadow
-              src={reference.conversation?.Avatar ?? ""}
-              className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-              onClick={() => {}}
-            />
+            {selected?.IsGroup ? (
+              <ImageWithLightBoxWithBorderAndShadow
+                src={selected?.Avatar ?? ""}
+                className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+                onClick={() => {}}
+              />
+            ) : (
+              <ImageWithLightBoxWithBorderAndShadow
+                src={selected?.Avatar ?? ""}
+                className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+                onClick={() => {
+                  setUserId(
+                    participants?.find(
+                      (item) => item.ContactId !== auth.user.Id,
+                    )?.ContactId,
+                  );
+                  setOpen(true);
+                }}
+              />
+            )}
+
             <div
               ref={refTitleContainer}
               className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
             >
-              {reference.conversation?.IsGroup ? (
+              {selected?.IsGroup ? (
                 <>
                   <div className="flex w-full gap-[.5rem]">
                     <CustomLabel
                       className="text-start text-lg font-bold"
-                      title={reference.conversation.Title}
+                      title={selected?.Title}
                       tooltip
                     />
-                    <UpdateTitle reference={reference} />
+                    <UpdateTitle />
                   </div>
                   <p>{participants?.length} members</p>
                 </>
               ) : (
-                <CustomLabel
-                  className="text-start text-lg font-bold"
-                  title={
-                    participants?.find(
-                      (item) => item.ContactId !== auth.user.Id,
-                    )?.Contact.Name
+                <>
+                  <CustomLabel
+                    className="text-start text-lg font-bold"
+                    title={
+                      participants?.find(
+                        (item) => item.ContactId !== auth.user.Id,
+                      )?.Contact.Name
+                    }
+                  />
+                  {/* {friends.some(
+                    (item) =>
+                      item.ContactId ===
+                      participants?.find(
+                        (item) => item.ContactId !== auth.user.Id,
+                      )?.ContactId,
+                  ) ? (
+                    <p>friend</p>
+                  ) : (
+                    {
+                      new: (
+                        <AddButton
+                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                          id={profile?.Id}
+                          onClose={() =>
+                            reFetchRequest(
+                              participants?.find(
+                                (item) => item.ContactId !== auth.user.Id,
+                              )?.ContactId,
+                            )
+                          }
+                        />
+                      ),
+                      request_received: (
+                        <AcceptButton
+                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                          request={request}
+                          onClose={() =>
+                            reFetchRequest(
+                              participants?.find(
+                                (item) => item.ContactId !== auth.user.Id,
+                              )?.ContactId,
+                            )
+                          }
+                        />
+                      ),
+                      request_sent: (
+                        <CancelButton
+                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                          id={request?.Id}
+                          onClose={() =>
+                            reFetchRequest(
+                              participants?.find(
+                                (item) => item.ContactId !== auth.user.Id,
+                              )?.ContactId,
+                            )
+                          }
+                        />
+                      ),
+                    }[request?.Status]
+                  )} */}
+                  {
+                    {
+                      new: (
+                        <AddButton
+                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                          id={profile?.Id}
+                          onClose={() =>
+                            reFetchRequest(
+                              participants?.find(
+                                (item) => item.ContactId !== auth.user.Id,
+                              )?.ContactId,
+                            )
+                          }
+                        />
+                      ),
+                      request_received: (
+                        <AcceptButton
+                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                          request={request}
+                          onClose={() =>
+                            reFetchRequest(
+                              participants?.find(
+                                (item) => item.ContactId !== auth.user.Id,
+                              )?.ContactId,
+                            )
+                          }
+                        />
+                      ),
+                      request_sent: (
+                        <CancelButton
+                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                          id={request?.Id}
+                          onClose={() =>
+                            reFetchRequest(
+                              participants?.find(
+                                (item) => item.ContactId !== auth.user.Id,
+                              )?.ContactId,
+                            )
+                          }
+                        />
+                      ),
+                      friend: <p>Friend</p>,
+                    }[request?.Status]
                   }
-                />
+                </>
               )}
             </div>
           </div>
@@ -350,9 +420,8 @@ const Chatbox = ({ reference }) => {
                 <div className="relative w-[3rem]">
                   <ImageWithLightBoxWithBorderAndShadow
                     src={
-                      reference.contacts.find(
-                        (item) => item.Id == message.ContactId,
-                      ).Avatar ?? ""
+                      contacts.find((item) => item.Id == message.ContactId)
+                        .Avatar ?? ""
                     }
                     className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
                     onClick={() => {
@@ -377,9 +446,8 @@ const Chatbox = ({ reference }) => {
                   ) : (
                     <p>
                       {
-                        reference.contacts.find(
-                          (item) => item.Id == message.ContactId,
-                        ).Name
+                        contacts.find((item) => item.Id == message.ContactId)
+                          .Name
                       }
                     </p>
                   )}
@@ -401,7 +469,7 @@ const Chatbox = ({ reference }) => {
                     //     : "rounded-r-[1rem] rounded-tl-[1rem]"
                     // }`}
                   >
-                    {GenerateContent(reference.contacts, message.Content)}
+                    {GenerateContent(contacts, message.Content)}
                   </div>
                 ) : (
                   <div
@@ -427,16 +495,12 @@ const Chatbox = ({ reference }) => {
             </div>
           ))}
           <BackgroundPortal
-            className="aspect-video !w-[35%]"
+            className="!w-[35%]"
             open={open}
             title="Profile"
             onClose={() => setOpen(false)}
           >
-            <UserProfile
-              id={userId}
-              onClose={() => setOpen(false)}
-              checkExistChat={reference.checkExistChat}
-            />
+            <UserProfile id={userId} onClose={() => setOpen(false)} />
           </BackgroundPortal>
         </div>
       </div>
@@ -518,7 +582,7 @@ const Chatbox = ({ reference }) => {
             </div>
           </>
         ) : (
-          <ChatInput mentions={suggestion} onClick={sendMessage} />
+          <ChatInput onClick={sendMessage} />
         )}
       </div>
     </div>

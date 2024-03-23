@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import { RequireAuth } from "./common/Utility";
 import Authentication from "./components/authentication/Authentication";
-import Home from "./components/chat/Home";
+import { HomeContainer } from "./components/chat/Home";
 import { registerSW } from "./components/common/Notification";
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
     <Routes>
       <Route path="/authen" element={<Authentication />} />
       <Route element={<RequireAuth />}>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomeContainer />} />
       </Route>
     </Routes>
   );

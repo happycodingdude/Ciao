@@ -5,36 +5,34 @@ import CustomModal from "../common/CustomModal";
 
 const CreateGroupChat = () => {
   const auth = useAuth();
-  const { load } = useFetchFriends();
+  const { friends } = useFetchFriends();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
   const openCreateGroupChat = () => {
-    load().then((res) => {
-      setFormData({
-        title: "Create group chat",
-        data: [
-          {
-            label: "Title",
-            name: "Title",
-            type: "input",
-          },
-          {
-            label: "Friends",
-            name: "Friends",
-            type: "multiple",
-            options: res
-              .filter((item) => item.Id !== auth.id)
-              .map((item) => {
-                return { label: item.ContactName, value: item.ContactId };
-              }),
-          },
-        ],
-      });
-      setShow(true);
+    setFormData({
+      title: "Create group chat",
+      data: [
+        {
+          label: "Title",
+          name: "Title",
+          type: "input",
+        },
+        {
+          label: "Friends",
+          name: "Friends",
+          type: "multiple",
+          options: friends
+            .filter((item) => item.Id !== auth.id)
+            .map((item) => {
+              return { label: item.ContactName, value: item.ContactId };
+            }),
+        },
+      ],
     });
+    setShow(true);
   };
 
   const createGroupChat = (data) => {

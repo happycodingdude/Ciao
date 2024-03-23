@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         return;
       }
-      // setToken(token);
       setDisplay(res.Name);
       setId(res.Id);
       setUser(res);

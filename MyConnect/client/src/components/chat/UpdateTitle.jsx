@@ -1,11 +1,12 @@
 import { Tooltip } from "antd";
-import axios from "axios";
 import React, { useState } from "react";
-import { useAuth } from "../../hook/CustomHooks";
+import { HttpRequest } from "../../common/Utility";
+import { useAuth, useFetchConversations } from "../../hook/CustomHooks";
 import CustomModal from "../common/CustomModal";
 
-const UpdateTitle = ({ reference }) => {
+const UpdateTitle = () => {
   const auth = useAuth();
+  const { selected, setSelected } = useFetchConversations();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
@@ -19,7 +20,7 @@ const UpdateTitle = ({ reference }) => {
           label: "Title",
           name: "Title",
           type: "input",
-          value: reference.conversation.Title,
+          value: selected.Title,
         },
       ],
     });
@@ -27,31 +28,17 @@ const UpdateTitle = ({ reference }) => {
   };
 
   const updateTitle = (data) => {
-    console.log(data);
     if (data.Title === null) return;
-    reference.conversation.Title = data.Title[0];
+    selected.Title = data.Title[0];
 
-    const cancelToken = axios.CancelToken.source();
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + auth.token,
-    };
-    axios
-      .put("api/conversations", reference.conversation, {
-        cancelToken: cancelToken.token,
-        headers: headers,
-      })
-      .then((res) => {
-        if (res.status !== 200) throw new Error(res.status);
-        reference.setConversation({ ...reference.conversation });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return () => {
-      cancelToken.cancel();
-    };
+    HttpRequest({
+      method: "put",
+      url: `api/conversations`,
+      token: auth.token,
+      data: selected,
+    }).then((res) => {
+      setSelected((current) => ({ ...current, Title: data.Title[0] }));
+    });
   };
 
   return (

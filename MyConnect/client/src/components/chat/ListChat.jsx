@@ -1,44 +1,80 @@
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { GenerateContent } from "../../common/Utility";
-import { useAuth, useFetchParticipants } from "../../hook/CustomHooks";
+import {
+  useAuth,
+  useFetchAttachments,
+  useFetchConversations,
+  useFetchFriends,
+  useFetchMessages,
+  useFetchParticipants,
+} from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import AddFriend from "../friend/AddFriend";
 import CreateGroupChat from "./CreateGroupChat";
 
-const ListChat = ({ reference }) => {
+const ListChat = (props) => {
   console.log("ListChat calling");
+  const { refListChat, contacts } = props;
+
   const auth = useAuth();
-  const participantsFetch = useFetchParticipants();
+  const {
+    conversations,
+    selected,
+    reFetch: reFetchConversations,
+    newMessage,
+    clickConversation,
+  } = useFetchConversations();
+  const { reFetch: reFetchMessages } = useFetchMessages();
+  const { reFetch: reFetchParticipants } = useFetchParticipants();
+  const { reFetch: reFetchAttachments } = useFetchAttachments();
+  const { reFetchProfile, reFetchRequest } = useFetchFriends();
 
   const refChatItem = useRef([]);
   const refChats = useRef();
   const refChatsScroll = useRef();
 
-  const [chats, setChats] = useState();
-  const [activeItem, setActiveItem] = useState();
-
-  const unfocusChat = () => {
-    setActiveItem("");
+  const handleSetConversation = (position, item) => {
+    if (item.Id !== selected?.Id) {
+      reFetchMessages(item.Id);
+      reFetchParticipants(item.Id);
+      reFetchAttachments(item.Id);
+      clickConversation(item);
+      refChats.current.scrollTop = position;
+      if (!item.IsGroup) {
+        reFetchProfile(
+          item.Participants.find((item) => item.ContactId !== auth.user.Id)
+            .ContactId,
+        );
+        reFetchRequest(
+          item.Participants.find((item) => item.ContactId !== auth.user.Id)
+            .ContactId,
+        );
+      }
+    }
   };
 
-  const focusChat = (item) => {
-    setActiveItem(item.Id);
-  };
+  // Get all chats when first time render
+  useEffect(() => {
+    const controller = new AbortController();
+    reFetchConversations(controller);
 
-  const handleSetConversation = (item) => {
-    participantsFetch.reFetch(item.Id);
-    reference.setConversation(item);
-    focusChat(item);
-    setChats((current) => {
-      return current.map((chat) => {
-        if (chat.Id !== item.Id) return chat;
-        chat.UnSeenMessages = 0;
-        return chat;
-      });
-    });
-  };
+    // listenNotification((message) => {
+    //   console.log("Home receive message from worker");
+    //   const messageData = JSON.parse(message.data);
+    //   switch (message.event) {
+    //     case "AddMember":
+    //       console.log(messageData);
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // });
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     refChatItem.current = refChatItem.current.filter((item) => item !== null);
@@ -47,35 +83,7 @@ const ListChat = ({ reference }) => {
       refChatsScroll.current.classList.add("hidden");
     else refChatsScroll.current.classList.remove("hidden");
 
-    reference.refListChat.setChats = (chats) => {
-      if (activeItem === undefined || activeItem === "") setChats(chats);
-      else {
-        setChats((current) => {
-          return current.map((item) => {
-            if (item.Id !== activeItem) return item;
-            item.UnSeenMessages = 0;
-            return item;
-          });
-        });
-      }
-    };
-    reference.refListChat.removeChat = (id) => {
-      const remainChats = chats.filter((item) => item.Id !== id);
-      setChats(remainChats);
-      reference.setConversation(undefined);
-      unfocusChat();
-    };
-    reference.refListChat.newChat = (chats, chat) => {
-      setChats(chats);
-      if (!chat.IsGroup) handleSetConversation(chat);
-    };
-    reference.refListChat.checkExistChat = (id) => {
-      return chats.find(
-        (chat) =>
-          chat.IsGroup === false &&
-          chat.Participants.some((item) => item.ContactId === id),
-      );
-    };
+    refListChat.newMessage = newMessage;
 
     // listenNotification((message) => {
     //   console.log("ListChat receive message from worker");
@@ -83,7 +91,7 @@ const ListChat = ({ reference }) => {
     //   switch (message.event) {
     //     case "NewMessage":
     //       if (!chats.some((item) => item.LastMessageId === messageData.Id))
-    //         reference.notifyMessage(chats, messageData);
+    //         notifyMessage(chats, messageData);
     //       break;
     //     default:
     //       break;
@@ -108,19 +116,7 @@ const ListChat = ({ reference }) => {
         yy: "%dY",
       },
     });
-  }, [chats]);
-
-  useEffect(() => {
-    if (reference.conversation === undefined) return;
-    setChats((current) => {
-      return current.map((item) => {
-        if (item.Id !== reference.conversation.Id) return item;
-        item.Title = reference.conversation.Title;
-        item.Avatar = reference.conversation.Avatar;
-        return item;
-      });
-    });
-  }, [reference.conversation]);
+  }, [conversations]);
 
   const scrollListChatToBottom = () => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
@@ -149,7 +145,7 @@ const ListChat = ({ reference }) => {
         ref={refChats}
         className="hide-scrollbar flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
-        {chats?.map((item, i) => (
+        {conversations?.map((item, i) => (
           <div
             data-key={item.Id}
             data-user={
@@ -162,16 +158,16 @@ const ListChat = ({ reference }) => {
             ref={(element) => {
               refChatItem.current[i] = element;
             }}
-            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] 
+            className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] 
             bg-[var(--main-color-thin)] py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-[var(--main-color-light)]
             ${
-              activeItem === item.Id
+              selected?.Id === item.Id
                 ? `item-active bg-gradient-to-r from-[var(--main-color)] to-[var(--main-color-light)] text-[var(--text-sub-color)] 
                 [&_.chat-content]:text-[var(--text-sub-color-blur)]`
                 : ""
             } `}
             onClick={() => {
-              handleSetConversation(item);
+              handleSetConversation(65 * i, item);
             }}
           >
             <ImageWithLightBox
@@ -180,7 +176,7 @@ const ListChat = ({ reference }) => {
             />
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
-                className={`${item.UnSeenMessages > 0 ? "font-bold" : "font-medium"} `}
+                className={`text-base ${item.LastMessageContact !== auth.id && item.UnSeenMessages > 0 ? "font-bold" : ""} `}
                 title={
                   item.IsGroup
                     ? item.Title
@@ -192,25 +188,26 @@ const ListChat = ({ reference }) => {
               <CustomLabel
                 className={`chat-content ${
                   item.LastMessageContact !== auth.id && item.UnSeenMessages > 0
-                    ? "font-bold text-[var(--main-color)]"
-                    : "font-medium text-[var(--text-main-color-blur)]"
+                    ? "font-medium"
+                    : "text-[var(--text-main-color-blur)]"
                 }`}
                 title={
                   item.LastMessage === null
                     ? ""
-                    : GenerateContent(reference.contacts, item.LastMessage)
+                    : GenerateContent(contacts, item.LastMessage)
                 }
               />
             </div>
             <div
-              className={`flex h-full shrink-0 flex-col items-end ${item.UnSeenMessages > 0 ? "justify-evenly" : ""} laptop:min-w-[4rem]`}
+              // className={`flex h-full shrink-0 flex-col items-end ${item.UnSeenMessages > 0 ? "justify-evenly" : ""} laptop:min-w-[4rem]`}
+              className={`flex h-full shrink-0 flex-col items-end laptop:min-w-[4rem]`}
             >
               <p>
                 {item.LastMessageTime === null
                   ? ""
                   : moment(item.LastMessageTime).fromNow()}
               </p>
-              {item.LastMessageContact == auth.id ||
+              {/* {item.LastMessageContact == auth.id ||
               item.UnSeenMessages == 0 ? (
                 ""
               ) : (
@@ -220,7 +217,7 @@ const ListChat = ({ reference }) => {
                 >
                   {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         ))}

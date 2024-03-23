@@ -1,31 +1,25 @@
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useFetchAttachments,
+  useFetchConversations,
+} from "../../hook/CustomHooks";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 
-const Attachment = ({ reference }) => {
+const Attachment = (props) => {
   console.log("Attachment calling");
+  const { refInformation, refAttachmentExposed } = props;
+  const { attachments } = useFetchAttachments();
+  const { selected } = useFetchConversations();
 
   const refAttachment = useRef();
   const refScrollAttachment = useRef();
 
   const [attachmentToggle, setAttachmentToggle] = useState("image");
-  const [attachments, setAttachments] = useState();
   const [displayAttachments, setDisplayAttachments] = useState();
 
-  const showAttachment = (attachments) => {
-    setAttachments(attachments);
-    setDisplayAttachments(() => {
-      const cloned = attachments.map((item) => {
-        return Object.assign({}, item);
-      });
-      return cloned?.map((date) => {
-        date.Attachments = date.Attachments.filter(
-          (item) => item.Type === "image",
-        );
-        if (date.Attachments.length !== 0) return date;
-      });
-    });
-
+  const showAttachment = () => {
+    toggleAttachmentActive("image");
     refAttachment.current.classList.remove("animate-flip-scale-down-vertical");
     refAttachment.current.classList.add("animate-flip-scale-up-vertical");
     refScrollAttachment.current.scrollTop = 0;
@@ -33,43 +27,46 @@ const Attachment = ({ reference }) => {
 
   const reset = () => {
     refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
-    refAttachment.current.classList.remove("animate-flip-scale-down-vertical");
+    refAttachment.current.classList.add("animate-flip-scale-down-vertical");
+    setAttachmentToggle("image");
   };
 
   useEffect(() => {
-    reference.refAttachment.showAttachment = showAttachment;
-    reference.refAttachment.reset = reset;
+    refAttachmentExposed.showAttachment = showAttachment;
   }, [showAttachment, reset]);
 
   const hideAttachment = () => {
     refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
     refAttachment.current.classList.add("animate-flip-scale-down-vertical");
-    setAttachmentToggle("");
+    setAttachmentToggle("image");
   };
 
   const showInformation = () => {
-    reference.refInformation.showInformation();
+    refInformation.showInformation();
     hideAttachment();
   };
 
   useEffect(() => {
     reset();
-  }, [reference.conversation]);
+  }, [selected.Id]);
 
-  const toggleAttachmentActive = (e, type) => {
-    setDisplayAttachments(() => {
+  const toggleAttachmentActive = useCallback(
+    (type) => {
       const cloned = attachments.map((item) => {
         return Object.assign({}, item);
       });
-      const newAttachments = cloned?.map((date) => {
+      const newAttachments = cloned.map((date) => {
         date.Attachments = date.Attachments.filter(
           (item) => item.Type === type,
         );
         if (date.Attachments.length !== 0) return date;
       });
-      return newAttachments.filter((item) => item !== undefined);
-    });
-  };
+      setDisplayAttachments(
+        newAttachments.filter((item) => item !== undefined),
+      );
+    },
+    [attachments],
+  );
 
   return (
     <div
@@ -89,7 +86,7 @@ const Attachment = ({ reference }) => {
       </div>
       <div className="relative flex">
         <div
-          onClick={(event) => toggleAttachmentActive(event, "image")}
+          onClick={() => toggleAttachmentActive("image")}
           className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold"
         >
           Images
@@ -102,7 +99,7 @@ const Attachment = ({ reference }) => {
           ></input>
         </div>
         <div
-          onClick={(event) => toggleAttachmentActive(event, "file")}
+          onClick={() => toggleAttachmentActive("file")}
           className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold"
         >
           Files
@@ -127,7 +124,7 @@ const Attachment = ({ reference }) => {
       >
         {displayAttachments?.map((date) => (
           <div className="flex flex-col gap-[2rem]">
-            <div className="font-bold text-gray-600">
+            <div className="font-bold text-[var(--text-main-color-blur)]">
               {moment(date.Date).format("DD/MM/YYYY")}
             </div>
             <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">

@@ -16,7 +16,7 @@ namespace MyConnect.Repository
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages()
+        public IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages(int page, int limit)
         {
             var messageDbSet = _context.Set<Message>();
             var participantDbSet = _context.Set<Participant>();
@@ -24,10 +24,19 @@ namespace MyConnect.Repository
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var contactId = JwtToken.ExtractToken(token);
 
-            var entity = _dbSet
-            .Where(q => q.Participants.Any(w => w.ContactId == contactId))
-            .OrderByDescending(q => q.UpdatedTime)
-            .ToList();
+            List<Conversation> entity;
+            if (page != 0 && limit != 0)
+                entity = _dbSet
+                .Where(q => q.Participants.Any(w => w.ContactId == contactId))
+                .OrderByDescending(q => q.UpdatedTime)
+                .Skip(limit * (page - 1))
+                .Take(limit)
+                .ToList();
+            else
+                entity = _dbSet
+                .Where(q => q.Participants.Any(w => w.ContactId == contactId))
+                .OrderByDescending(q => q.UpdatedTime)
+                .ToList();
             var conversations = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(entity);
             foreach (var conversation in conversations)
             {

@@ -1,7 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { HttpRequest } from "../common/Utility";
+import AttachmentContext from "../context/AttachmentContext";
 import AuthContext from "../context/AuthContext";
+import ConversationContext from "../context/ConversationContext";
+import FriendContext from "../context/FriendContext";
+import MessageContext from "../context/MessageContext";
 import ParticipantContext from "../context/ParticipantContext";
+import ProfileContext from "../context/ProfileContext";
 
 export const useLocalStorage = (key) => {
   const [value, setValue] = useState(() => {
@@ -29,52 +34,26 @@ export const useEventListener = (event, callback, element = window) => {
 
 export const useFetchParticipants = () => {
   return useContext(ParticipantContext);
-  // const auth = useAuth();
-  // const [participants, setParticipants] = useState();
-  // const getParticipants = useCallback((id, controller) => {
-  //   HttpRequest({
-  //     method: "get",
-  //     url: `api/conversations/${id}/participants`,
-  //     token: auth.token,
-  //     // controller: controller,
-  //   }).then((res) => {
-  //     setParticipants(res);
-  //   });
-  // }, []);
-  // useEffect(() => {
-  //   getParticipants();
-  // }, [getParticipants]);
-  // return { participants, reFetch: getParticipants };
 };
 
-export const useFetchFriends = () => {
-  const auth = useAuth();
-  const load = () => {
-    return HttpRequest({
-      method: "get",
-      url: `api/contacts/${auth.id}/friends`,
-      token: auth.token,
-    });
-  };
-  return { load };
+export const useFetchMessages = () => {
+  return useContext(MessageContext);
+};
+
+export const useFetchConversations = () => {
+  return useContext(ConversationContext);
 };
 
 export const useFetchAttachments = () => {
-  const auth = useAuth();
-  const [attachments, setAttachments] = useState();
-  const [displayAttachments, setDisplayAttachments] = useState();
-  const getAttachments = (id, controller) => {
-    HttpRequest({
-      method: "get",
-      url: `api/conversations/${id}/attachments`,
-      token: auth.token,
-      controller: controller,
-    }).then((res) => {
-      setAttachments(res);
-      setDisplayAttachments(res[0]?.Attachments.slice(0, 8));
-    });
-  };
-  return { attachments, displayAttachments, reFetch: getAttachments };
+  return useContext(AttachmentContext);
+};
+
+export const useFetchProfile = () => {
+  return useContext(ProfileContext);
+};
+
+export const useFetchFriends = () => {
+  return useContext(FriendContext);
 };
 
 export const useDeleteChat = () => {
@@ -84,7 +63,7 @@ export const useDeleteChat = () => {
     selected.IsDeleted = true;
     return HttpRequest({
       method: "delete",
-      url: `api/conversations/${id}/participantsss`,
+      url: `api/conversations/${id}/participants`,
       token: auth.token,
       data: selected,
     });

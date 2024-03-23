@@ -41,7 +41,8 @@ namespace MyConnect.Implement
                 };
                 await _firebaseFunction.Notify(notification);
             }
-            return model;
+            var result = _unitOfWork.Participant.GetByConversationIdIncludeContact(id).Where(q => model.Any(w => w.ContactId == q.ContactId));
+            return result;
         }
 
         public async Task<Participant> EditParticipantAndNotify(Participant model)
@@ -50,7 +51,7 @@ namespace MyConnect.Implement
             var conversation = _unitOfWork.Conversation.GetById(model.ConversationId);
             conversation.UpdatedTime = DateTime.Now;
             _unitOfWork.Conversation.Update(conversation);
-            _unitOfWork.Save();            
+            _unitOfWork.Save();
             var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
             foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             {
