@@ -484,7 +484,7 @@ const Chatbox = (props) => {
                           src:
                             item.Type === "image"
                               ? item.MediaUrl
-                              : "../src/assets/filenotfound.svg",
+                              : "images/filenotfound.svg",
                         }))}
                         index={index}
                       />
@@ -555,7 +555,7 @@ const Chatbox = (props) => {
                       "xlsx",
                       "pdf",
                     ].includes(item.name.split(".")[1])
-                      ? "url('../src/assets/imagenotfound.jpg')"
+                      ? "url('images/imagenotfound.jpg')"
                       : `url('${URL.createObjectURL(item)}'`,
                   }}
                   className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}

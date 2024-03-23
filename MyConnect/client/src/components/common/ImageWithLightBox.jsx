@@ -7,7 +7,7 @@ function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
 
   const imageOnError = (e) => {
     e.target.onerror = null;
-    e.target.src = "../src/assets/imagenotfound.jpg";
+    e.target.src = "images/imagenotfound.jpg";
   };
   return (
     <>

@@ -137,7 +137,7 @@ const Attachment = (props) => {
                     src:
                       item.Type === "image"
                         ? item.MediaUrl
-                        : "../src/assets/filenotfound.svg",
+                        : "images/filenotfound.svg",
                   }))}
                   index={index}
                 />
