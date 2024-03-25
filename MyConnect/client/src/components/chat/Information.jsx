@@ -6,6 +6,7 @@ import {
   useDeleteChat,
   useFetchAttachments,
   useFetchConversations,
+  useFetchFriends,
   useFetchParticipants,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
@@ -21,11 +22,12 @@ const Information = (props) => {
   const { refAttachment, refInformationExposed } = props;
 
   const auth = useAuth();
-  const { selected, setSelected } = useFetchConversations();
+  const { selected, setSelected, setConversations } = useFetchConversations();
   const { participants } = useFetchParticipants();
   const { displayAttachments } = useFetchAttachments();
   const { deleteChat } = useDeleteChat();
   const { removeConversation } = useFetchConversations();
+  const { profile } = useFetchFriends();
 
   useEffect(() => {
     refInformationExposed.showInformation = () => {
@@ -70,6 +72,12 @@ const Information = (props) => {
       },
     }).then((res) => {
       setSelected((current) => ({ ...current, Avatar: url }));
+      setConversations((current) => {
+        return current.map((item) => {
+          if (item.Id === selected.Id) item.Avatar = url;
+          return item;
+        });
+      });
     });
 
     e.target.value = null;
@@ -102,17 +110,22 @@ const Information = (props) => {
       >
         <div className="flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
-            <ImageWithLightBoxWithBorderAndShadow
+            {/* <ImageWithLightBoxWithBorderAndShadow
               src={selected.Avatar ?? ""}
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               onClick={() => {}}
-            />
+            /> */}
             {selected.IsGroup ? (
               <>
+                <ImageWithLightBoxWithBorderAndShadow
+                  src={selected.Avatar ?? ""}
+                  className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+                  onClick={() => {}}
+                />
                 <MediaPicker
                   className="absolute left-[42%] top-[-10%]"
                   accept="image/png, image/jpeg"
-                  id="customer-avatar"
+                  id="conversation-avatar"
                   onChange={updateAvatar}
                 />
                 <CustomLabel
@@ -125,13 +138,17 @@ const Information = (props) => {
                 </div>
               </>
             ) : (
-              <CustomLabel
-                className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                title={
-                  participants?.find((item) => item.ContactId !== auth.user.Id)
-                    ?.Contact.Name
-                }
-              />
+              <>
+                <ImageWithLightBoxWithBorderAndShadow
+                  src={profile?.Avatar ?? ""}
+                  className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+                  onClick={() => {}}
+                />
+                <CustomLabel
+                  className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
+                  title={profile?.Name}
+                />
+              </>
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">

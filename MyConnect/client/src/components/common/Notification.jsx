@@ -15,7 +15,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export const requestPermission = (registerConnection, notifyMessage) => {
+export const requestPermission = (
+  registerConnection,
+  controller,
+  notifyMessage,
+) => {
   Notification.requestPermission().then((permission) => {
     if (permission == "granted") {
       return getToken(messaging, {
@@ -23,6 +27,7 @@ export const requestPermission = (registerConnection, notifyMessage) => {
           "BM0h2oAh38_Q1ra_BvhpventqyMPRuUJ8Fwseh0IaVuXPfepULakLtaUZHdnVk5sMVCSF4nrvfGNPg0yitS4HBM",
       })
         .then((token) => {
+          console.log(token);
           if (token) {
             // Receive message
             onMessage(messaging, (payload) => {
@@ -30,7 +35,7 @@ export const requestPermission = (registerConnection, notifyMessage) => {
               notifyMessage(payload.data);
             });
 
-            registerConnection(token);
+            registerConnection(token, controller);
           } else console.log("Token failed");
         })
         .catch((err) => {

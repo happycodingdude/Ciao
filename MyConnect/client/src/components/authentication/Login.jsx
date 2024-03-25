@@ -10,7 +10,7 @@ const Login = ({ reference }) => {
   console.log("Login calling");
 
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { login } = useAuth();
 
   const refLoginContainer = useRef();
   const refLoginWrapper = useRef();
@@ -57,18 +57,17 @@ const Login = ({ reference }) => {
     if (username === "" && password === "") return;
     // setProcessing(true);
 
-    const config = {
+    HttpRequest({
       method: "post",
       url: "api/auth/login",
       data: {
         Username: username,
         Password: password,
       },
-    };
-    HttpRequest(config)
+    })
       .then((res) => {
         if (!res) return;
-        auth.login(res.Token);
+        login(res.Token);
         setTimeout(() => {
           navigate("/", { replace: true });
         }, 500);

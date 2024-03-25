@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { AttachmentProvider } from "../../context/AttachmentContext";
 import { ConversationProvider } from "../../context/ConversationContext";
@@ -12,6 +12,7 @@ import {
   useFetchFriends,
   useFetchParticipants,
 } from "../../hook/CustomHooks";
+import ErrorBoundary from "../common/ErrorBoundary";
 import { requestPermission } from "../common/Notification";
 import SideBar from "../sidebar/SideBar";
 import Attachment from "./Attachment";
@@ -21,19 +22,21 @@ import ListChat from "./ListChat";
 
 export const HomeContainer = () => {
   return (
-    <ProfileProvider>
-      <FriendProvider>
-        <ConversationProvider>
-          <MessageProvider>
-            <ParticipantProvider>
-              <AttachmentProvider>
-                <Home></Home>
-              </AttachmentProvider>
-            </ParticipantProvider>
-          </MessageProvider>
-        </ConversationProvider>
-      </FriendProvider>
-    </ProfileProvider>
+    <ErrorBoundary>
+      <ProfileProvider>
+        <FriendProvider>
+          <ConversationProvider>
+            <MessageProvider>
+              <ParticipantProvider>
+                <AttachmentProvider>
+                  <Home></Home>
+                </AttachmentProvider>
+              </ParticipantProvider>
+            </MessageProvider>
+          </ConversationProvider>
+        </FriendProvider>
+      </ProfileProvider>
+    </ErrorBoundary>
   );
 };
 
@@ -51,46 +54,38 @@ export const Home = () => {
   const refInformation = useRef();
   const refAttachment = useRef();
 
-  const notifyMessage = useCallback(
-    (message) => {
-      console.log(message);
-      const messageData = JSON.parse(message.data);
-      switch (message.event) {
-        case "NewMessage":
-          refListChat.newMessage(messageData);
-          if (
-            messageData.ContactId !== auth.id &&
-            messageData.ConversationId === selected?.Id
-          )
-            refChatbox.newMessage(messageData);
-          break;
-        case "AddMember":
-          const listChat = Array.from(document.querySelectorAll(".chat-item"));
-          const oldChat = listChat.find(
-            (item) => item.dataset.key === messageData.Id,
-          );
-          // Old chat
-          if (oldChat) {
-            // And focused
-            if (oldChat.classList.contains("item-active"))
-              reFetchParticipants(messageData.Id);
-          } else reFetchConversations();
-          break;
-        case "NewConversation":
-          reFetchConversations();
-          break;
-        default:
-          break;
-      }
-    },
-    [selected],
-  );
+  const notifyMessage = (message) => {
+    console.log(message);
+    const messageData = JSON.parse(message.data);
+    switch (message.event) {
+      case "NewMessage":
+        refListChat.newMessage(messageData);
+        refChatbox.newMessage(messageData);
+        break;
+      case "AddMember":
+        const listChat = Array.from(document.querySelectorAll(".chat-item"));
+        const oldChat = listChat.find(
+          (item) => item.dataset.key === messageData.Id,
+        );
+        // Old chat and is focused
+        if (oldChat && oldChat.classList.contains("item-active"))
+          reFetchParticipants(messageData.Id);
+        else reFetchConversations();
+        break;
+      case "NewConversation":
+        reFetchConversations();
+        break;
+      default:
+        break;
+    }
+  };
 
-  const registerConnection = (token) => {
+  const registerConnection = (token, controller) => {
     HttpRequest({
       method: "post",
       url: "api/notification/register",
       token: auth.token,
+      controller: controller,
       data: {
         Id: auth.id,
         Token: token,
@@ -109,10 +104,9 @@ export const Home = () => {
       token: auth.token,
       controller: controller,
     }).then((res) => {
-      if (!res) return;
       setContacts(res);
-      requestPermission(registerConnection, notifyMessage);
     });
+    requestPermission(registerConnection, controller, notifyMessage);
 
     // listenNotification((message) => {
     //   console.log("Home receive message from worker");
@@ -128,7 +122,7 @@ export const Home = () => {
     return () => {
       controller.abort();
     };
-  }, [notifyMessage]);
+  }, []);
 
   const removeInListChat = (id) => {
     refListChat.removeChat(id);

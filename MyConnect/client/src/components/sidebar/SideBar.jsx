@@ -9,7 +9,7 @@ import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWit
 import Profile from "../profile/Profile";
 
 const SideBar = () => {
-  const auth = useAuth();
+  const { user } = useAuth();
   const { reFetch } = useFetchProfile();
   const [open, setOpen] = useState(false);
 
@@ -32,11 +32,11 @@ const SideBar = () => {
   useEventListener("click", closeProfile);
 
   return (
-    <section className="max-w-[7%] shrink-0 bg-[var(--bg-color)]">
-      {auth.id ? (
+    <section className="w-full max-w-[7%] shrink-0 bg-[var(--bg-color)]">
+      {user ? (
         <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
           <ImageWithLightBoxWithBorderAndShadow
-            src={auth.user?.Avatar ?? ""}
+            src={user?.Avatar ?? ""}
             className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
             onClick={openProfile}
           />

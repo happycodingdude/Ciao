@@ -1,4 +1,5 @@
 import { Tooltip } from "antd";
+import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -34,6 +35,11 @@ const Chatbox = (props) => {
   const { reFetch: reFetchAttachments } = useFetchAttachments();
   const { profile, request, reFetchRequest } = useFetchFriends();
 
+  const [files, setFiles] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState();
+  const [openEmoji, setOpenEmoji] = useState(false);
+
   const refChatContent = useRef();
   const refScrollButton = useRef();
   const refToggleInformationContainer = useRef();
@@ -41,13 +47,17 @@ const Chatbox = (props) => {
   const refTitleContainer = useRef();
   const refChatInput = useRef();
 
-  const [files, setFiles] = useState([]);
-
   useEffect(() => {
     setFiles([]);
   }, []);
 
-  refChatbox.newMessage = addNewItem;
+  refChatbox.newMessage = (messageData) => {
+    if (
+      messageData.ContactId !== auth.id &&
+      messageData.ConversationId === selected?.Id
+    )
+      addNewItem(messageData);
+  };
 
   useEffect(() => {
     // listenNotification((message) => {
@@ -146,11 +156,11 @@ const Chatbox = (props) => {
       ConversationId: selected.Id,
     };
     if (files.length === 0) {
-      if (text === "" && refChatInput.current.value === "") return;
+      if (text === "") return;
       body = {
         ...body,
         Type: "text",
-        Content: refChatInput.current.value,
+        Content: text,
       };
     } else {
       const uploaded = await uploadFile().then((uploads) => {
@@ -168,9 +178,10 @@ const Chatbox = (props) => {
         Content: uploaded.map((item) => item.MediaName).join(","),
       };
     }
+
     addNewItem(body);
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-    refChatInput.current.value = "";
+
     HttpRequest({
       method: "post",
       url: `api/messages/send`,
@@ -179,17 +190,11 @@ const Chatbox = (props) => {
     })
       .then((res) => {
         setFiles([]);
-        reFetchAttachments(selected.Id);
+        if (body.Type === "media") reFetchAttachments(selected.Id);
       })
       .catch((err) => {
         removeLastItem();
       });
-  };
-
-  const onKeyDown = (e) => {
-    if (e.keyCode == 13 && !e.shiftKey) {
-      sendMessage();
-    }
   };
 
   const scrollChatContentToBottom = () => {
@@ -219,9 +224,6 @@ const Chatbox = (props) => {
     }
   };
 
-  const [open, setOpen] = useState(false);
-  const [userId, setUserId] = useState();
-
   // Event listener
   const handleScroll = useCallback(() => {
     if (
@@ -245,6 +247,21 @@ const Chatbox = (props) => {
   useEventListener("keydown", closeProfile);
   useEventListener("click", closeProfile);
 
+  const closeEmoji = useCallback((e) => {
+    const classList = Array.from(e.target.classList);
+    if (
+      classList.some((item) => item === "choose-emoji") ||
+      classList.some((item) => item.includes("epr"))
+    )
+      return;
+    setOpenEmoji(false);
+  }, []);
+  useEventListener("click", closeEmoji);
+
+  const onEmojiClick = (emoji) => {
+    refChatInput.setText(emoji.emoji);
+  };
+
   return (
     <div
       ref={refChatboxContainer}
@@ -267,14 +284,10 @@ const Chatbox = (props) => {
               />
             ) : (
               <ImageWithLightBoxWithBorderAndShadow
-                src={selected?.Avatar ?? ""}
+                src={profile?.Avatar ?? ""}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 onClick={() => {
-                  setUserId(
-                    participants?.find(
-                      (item) => item.ContactId !== auth.user.Id,
-                    )?.ContactId,
-                  );
+                  setUserId(profile?.ContactId);
                   setOpen(true);
                 }}
               />
@@ -300,102 +313,29 @@ const Chatbox = (props) => {
                 <>
                   <CustomLabel
                     className="text-start text-lg font-bold"
-                    title={
-                      participants?.find(
-                        (item) => item.ContactId !== auth.user.Id,
-                      )?.Contact.Name
-                    }
+                    title={profile?.Name}
                   />
-                  {/* {friends.some(
-                    (item) =>
-                      item.ContactId ===
-                      participants?.find(
-                        (item) => item.ContactId !== auth.user.Id,
-                      )?.ContactId,
-                  ) ? (
-                    <p>friend</p>
-                  ) : (
-                    {
-                      new: (
-                        <AddButton
-                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          id={profile?.Id}
-                          onClose={() =>
-                            reFetchRequest(
-                              participants?.find(
-                                (item) => item.ContactId !== auth.user.Id,
-                              )?.ContactId,
-                            )
-                          }
-                        />
-                      ),
-                      request_received: (
-                        <AcceptButton
-                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          request={request}
-                          onClose={() =>
-                            reFetchRequest(
-                              participants?.find(
-                                (item) => item.ContactId !== auth.user.Id,
-                              )?.ContactId,
-                            )
-                          }
-                        />
-                      ),
-                      request_sent: (
-                        <CancelButton
-                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          id={request?.Id}
-                          onClose={() =>
-                            reFetchRequest(
-                              participants?.find(
-                                (item) => item.ContactId !== auth.user.Id,
-                              )?.ContactId,
-                            )
-                          }
-                        />
-                      ),
-                    }[request?.Status]
-                  )} */}
                   {
                     {
                       new: (
                         <AddButton
                           className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
                           id={profile?.Id}
-                          onClose={() =>
-                            reFetchRequest(
-                              participants?.find(
-                                (item) => item.ContactId !== auth.user.Id,
-                              )?.ContactId,
-                            )
-                          }
+                          onClose={() => reFetchRequest(profile?.Id)}
                         />
                       ),
                       request_received: (
                         <AcceptButton
                           className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
                           request={request}
-                          onClose={() =>
-                            reFetchRequest(
-                              participants?.find(
-                                (item) => item.ContactId !== auth.user.Id,
-                              )?.ContactId,
-                            )
-                          }
+                          onClose={() => reFetchRequest(profile?.Id)}
                         />
                       ),
                       request_sent: (
                         <CancelButton
                           className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
                           id={request?.Id}
-                          onClose={() =>
-                            reFetchRequest(
-                              participants?.find(
-                                (item) => item.ContactId !== auth.user.Id,
-                              )?.ContactId,
-                            )
-                          }
+                          onClose={() => reFetchRequest(profile?.Id)}
                         />
                       ),
                       friend: <p>Friend</p>,
@@ -428,7 +368,7 @@ const Chatbox = (props) => {
                 <div className="relative w-[3rem]">
                   <ImageWithLightBoxWithBorderAndShadow
                     src={
-                      contacts.find((item) => item.Id == message.ContactId)
+                      contacts?.find((item) => item.Id == message.ContactId)
                         .Avatar ?? ""
                     }
                     className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
@@ -454,7 +394,7 @@ const Chatbox = (props) => {
                   ) : (
                     <p>
                       {
-                        contacts.find((item) => item.Id == message.ContactId)
+                        contacts?.find((item) => item.Id == message.ContactId)
                           .Name
                       }
                     </p>
@@ -471,11 +411,6 @@ const Chatbox = (props) => {
                   <div
                     className="break-all rounded-[3rem] bg-gradient-radial-to-bc from-[var(--sub-color)] to-[var(--main-color)] 
                     px-[1.5rem] py-[.7rem] text-[var(--text-sub-color)]"
-                    // ${
-                    //   message.ContactId === auth.id
-                    //     ? "rounded-l-[1rem] rounded-tr-[1rem]"
-                    //     : "rounded-r-[1rem] rounded-tl-[1rem]"
-                    // }`}
                   >
                     {GenerateContent(contacts, message.Content)}
                   </div>
@@ -487,7 +422,7 @@ const Chatbox = (props) => {
                       <ImageWithLightBox
                         src={item.MediaUrl}
                         title={item.MediaName?.split(".")[0]}
-                        className="my-auto max-w-[45%] cursor-pointer rounded-2xl"
+                        className="my-auto aspect-square w-[45%] cursor-pointer rounded-2xl"
                         slides={message.Attachments.map((item) => ({
                           src:
                             item.Type === "image"
@@ -542,6 +477,25 @@ const Chatbox = (props) => {
               className="fa fa-file cursor-pointer font-normal"
             ></label>
           </Tooltip>
+          {selected.IsGroup ? (
+            ""
+          ) : (
+            <div className="relative">
+              <Tooltip title="Emoji">
+                <label
+                  className="fa fa-smile choose-emoji cursor-pointer font-normal"
+                  onClick={() => setOpenEmoji(true)}
+                ></label>
+              </Tooltip>
+              <EmojiPicker
+                open={openEmoji}
+                width={300}
+                height={400}
+                className="!absolute !bottom-[3rem] !left-[1rem] !z-[1000]"
+                onEmojiClick={onEmojiClick}
+              />
+            </div>
+          )}
         </div>
         {files.length !== 0 ? (
           <>
@@ -589,25 +543,8 @@ const Chatbox = (props) => {
               </Tooltip>
             </div>
           </>
-        ) : selected?.IsGroup ? (
-          <ChatInput onClick={sendMessage} />
         ) : (
-          <div className="relative max-h-[10rem] max-w-[50rem] grow">
-            <input
-              ref={refChatInput}
-              className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16 outline-none"
-              onKeyDown={onKeyDown}
-            />
-            <div className="absolute right-0 top-0 flex h-full grow items-center justify-center">
-              <Tooltip title="Send">
-                <div
-                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
-            text-[var(--main-color-medium)]"
-                  onClick={sendMessage}
-                ></div>
-              </Tooltip>
-            </div>
-          </div>
+          <ChatInput send={sendMessage} refChatInputExpose={refChatInput} />
         )}
       </div>
     </div>

@@ -8,11 +8,11 @@ const Authentication = () => {
   console.log("Login calling");
 
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { id } = useAuth();
 
   const [isLogin, setIsLogin] = useState(false);
   useLayoutEffect(() => {
-    if (auth.id) {
+    if (id) {
       setIsLogin(true);
       navigate(-1, { replace: true });
     }

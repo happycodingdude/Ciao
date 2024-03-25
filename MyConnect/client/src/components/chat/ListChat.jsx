@@ -42,16 +42,27 @@ const ListChat = (props) => {
       reFetchAttachments(item.Id);
       clickConversation(item);
       refChats.current.scrollTop = position;
-      if (!item.IsGroup) {
-        reFetchProfile(
-          item.Participants.find((item) => item.ContactId !== auth.user.Id)
-            .ContactId,
-        );
-        reFetchRequest(
-          item.Participants.find((item) => item.ContactId !== auth.user.Id)
-            .ContactId,
-        );
-      }
+      reFetchProfile(
+        item.Participants.find((item) => item.ContactId !== auth.user.Id)
+          .ContactId,
+      );
+      reFetchRequest(
+        item.Participants.find((item) => item.ContactId !== auth.user.Id)
+          .ContactId,
+      );
+      // if (!item.IsGroup) {
+      //   reFetchProfile(
+      //     item.Participants.find((item) => item.ContactId !== auth.user.Id)
+      //       .ContactId,
+      //   );
+      //   reFetchRequest(
+      //     item.Participants.find((item) => item.ContactId !== auth.user.Id)
+      //       .ContactId,
+      //   );
+      // }
+      // else {
+      //   reFetchParticipants(item.Id);
+      // }
     }
   };
 
@@ -170,10 +181,21 @@ const ListChat = (props) => {
               handleSetConversation(65 * i, item);
             }}
           >
-            <ImageWithLightBox
-              src={item.Avatar ?? ""}
-              className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
-            />
+            {item.IsGroup ? (
+              <ImageWithLightBox
+                src={item.Avatar ?? ""}
+                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+              />
+            ) : (
+              <ImageWithLightBox
+                src={
+                  item.Participants.find(
+                    (item) => item.ContactId !== auth.user.Id,
+                  )?.Contact.Avatar ?? ""
+                }
+                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+              />
+            )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
                 className={`text-base ${item.LastMessageContact !== auth.id && item.UnSeenMessages > 0 ? "font-bold" : ""} `}

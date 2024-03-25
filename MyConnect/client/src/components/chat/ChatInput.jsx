@@ -6,12 +6,19 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import { Tooltip } from "antd";
 import { EditorState, convertToRaw, getDefaultKeyBinding } from "draft-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useFetchParticipants } from "../../hook/CustomHooks";
+import {
+  useFetchConversations,
+  useFetchParticipants,
+} from "../../hook/CustomHooks";
 
 const ChatInput = (props) => {
-  const { onClick } = props;
+  const { send, refChatInputExpose } = props;
   const { mentions } = useFetchParticipants();
+  const { selected } = useFetchConversations();
+
   const editorRef = useRef();
+  const [directText, setDirectText] = useState("");
+
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty(),
   );
@@ -34,9 +41,16 @@ const ChatInput = (props) => {
     },
     [mentions],
   );
+
   useEffect(() => {
     setSuggestions(mentions);
   }, [mentions]);
+
+  useEffect(() => {
+    refChatInputExpose.setText = (text) => {
+      setDirectText((current) => (current += text));
+    };
+  }, []);
 
   const getContent = () => {
     const contentState = editorState.getCurrentContent();
@@ -44,12 +58,25 @@ const ChatInput = (props) => {
     return raw.blocks[0].text;
   };
 
-  const callToAction = () => {
-    onClick(getContent());
+  const groupChat = () => {
+    send(getContent());
     setEditorState(EditorState.createEmpty());
     setTimeout(() => {
       editorRef.current.focus();
     }, 200);
+  };
+
+  const directChat = () => {
+    send(directText);
+    setDirectText("");
+    setTimeout(() => {
+      editorRef.current.focus();
+    }, 200);
+  };
+
+  const callToAction = () => {
+    if (selected.IsGroup) groupChat();
+    else directChat();
   };
 
   const keyBindingFn = (e) => {
@@ -62,30 +89,39 @@ const ChatInput = (props) => {
 
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
-      <div className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16">
-        <Editor
+      {selected.IsGroup ? (
+        <div className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16">
+          <Editor
+            ref={editorRef}
+            editorKey={"editor"}
+            editorState={editorState}
+            onChange={setEditorState}
+            plugins={plugins}
+            keyBindingFn={keyBindingFn}
+          />
+          <MentionSuggestions
+            open={open}
+            onOpenChange={onOpenChange}
+            suggestions={suggestions}
+            onSearchChange={onSearchChange}
+            onAddMention={() => {
+              // get the mention object selected
+            }}
+          />
+        </div>
+      ) : (
+        <input
           ref={editorRef}
-          editorKey={"editor"}
-          editorState={editorState}
-          onChange={setEditorState}
-          plugins={plugins}
-          keyBindingFn={keyBindingFn}
+          value={directText}
+          onChange={(e) => setDirectText(e.target.value)}
+          className="w-full rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16 outline-none"
+          onKeyDown={keyBindingFn}
         />
-        <MentionSuggestions
-          open={open}
-          onOpenChange={onOpenChange}
-          suggestions={suggestions}
-          onSearchChange={onSearchChange}
-          onAddMention={() => {
-            // get the mention object selected
-          }}
-        />
-      </div>
-      <div className="absolute right-0 top-0 flex h-full grow items-center justify-center">
+      )}
+      <div className="absolute right-[1%] top-0 flex h-full grow cursor-pointer items-center justify-center">
         <Tooltip title="Send">
           <div
-            className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
-            text-[var(--main-color-medium)]"
+            className="fa fa-paper-plane flex aspect-square h-full items-center justify-center rounded-[.8rem] text-[var(--main-color-medium)]"
             onClick={callToAction}
           ></div>
         </Tooltip>

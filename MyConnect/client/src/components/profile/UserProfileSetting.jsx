@@ -14,7 +14,7 @@ import CancelButton from "../friend/CancelButton";
 const UserProfileSetting = (props) => {
   const { id, onClose } = props;
   const auth = useAuth();
-  const { checkExist } = useFetchConversations();
+  const { checkExist, reFetch: reFetchConversations } = useFetchConversations();
   const { request, profile, reFetchProfile, reFetchRequest } =
     useFetchFriends();
 
@@ -69,8 +69,9 @@ const UserProfileSetting = (props) => {
           token: auth.token,
           data: selectedParticipant,
         }).then((res) => {
+          // reFetchConversations();
+          // document.querySelector(`[data-key='${res.ConversationId}']`).click();
           onClose();
-          document.querySelector(`[data-key='${res.Id}']`).click();
         });
         // Ko tồn tại hội thoại giữa 2 contact thì tạo mới
       } else {
@@ -95,7 +96,7 @@ const UserProfileSetting = (props) => {
           data: body,
         }).then((res) => {
           onClose();
-          document.querySelector(`[data-key='${res.Id}']`).click();
+          // document.querySelector(`[data-key='${res.Id}']`).click();
         });
       }
     });
@@ -122,13 +123,13 @@ const UserProfileSetting = (props) => {
               new: (
                 <AddButton
                   id={profile?.Id}
-                  className="w-1/3"
+                  className="!w-1/3"
                   onClose={onClose}
                 />
               ),
               request_received: (
                 <AcceptButton
-                  className="w-1/3"
+                  className="!w-1/3"
                   request={request}
                   onClose={onClose}
                 />
@@ -136,13 +137,17 @@ const UserProfileSetting = (props) => {
               request_sent: (
                 <CancelButton
                   id={request?.Id}
-                  className="w-1/3"
+                  className="!w-1/3"
                   onClose={onClose}
                 />
               ),
             }[request?.Status]
           }
-          <CustomButton title="Chat" className="w-1/3" onClick={chat} />
+          <CustomButton
+            title="Chat"
+            className={`${request?.Status === "friend" ? "!w-1/2" : "!w-1/3"} `}
+            onClick={chat}
+          />
         </div>
       </div>
     </div>
