@@ -19,6 +19,11 @@ namespace MyConnect.Repository
             return _context.Set<T>().ToList();
         }
 
+        public virtual IEnumerable<T> GetAll(int page, int limit)
+        {
+            return _context.Set<T>().Skip(limit * (page - 1)).Take(limit).ToList();
+        }
+
         public virtual T GetById(Guid id)
         {
             return _context.Set<T>().Find(id);

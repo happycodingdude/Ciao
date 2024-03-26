@@ -4,7 +4,12 @@ namespace MyConnect.Model
     {
         public const string NewMessage = "NewMessage";
         public const string AddMember = "AddMember";
-        // public const string RemoveChat = "RemoveChat";
         public const string NewConversation = "NewConversation";
+        public const string NewFriendRequest = "NewFriendRequest";
+    }
+
+    public class NotificationSourceType
+    {
+        public const string FriendRequest = "friend_request";
     }
 }

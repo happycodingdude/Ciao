@@ -91,11 +91,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpDelete("{id}/participants")]
-    public async Task<IActionResult> RemoveChat(Participant model)
+    public IActionResult RemoveChat(Participant model)
     {
         try
         {
-            var response = await _participantService.RemoveChatAndNotify(model);
+            var response = _participantService.RemoveChat(model);
             return new ResponseModel<Participant>(model).Ok();
         }
         catch (Exception ex)

@@ -6,12 +6,12 @@ namespace MyConnect.Model
         public string? Token { get; set; }
     }
 
-    public class Notification
+    public class CustomNotification
     {
         public string @event { get; set; }
         public object data { get; set; }
 
-        public Notification(string @event, object data)
+        public CustomNotification(string @event, object data)
         {
             this.@event = @event;
             this.data = data;

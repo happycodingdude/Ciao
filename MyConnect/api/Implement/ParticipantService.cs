@@ -37,7 +37,7 @@ namespace MyConnect.Implement
                 var notification = new FirebaseNotification
                 {
                     to = connection,
-                    data = new Notification(NotificationEvent.AddMember, new { Id = id })
+                    data = new CustomNotification(NotificationEvent.AddMember, new { Id = id })
                 };
                 await _firebaseFunction.Notify(notification);
             }
@@ -59,27 +59,17 @@ namespace MyConnect.Implement
                 var notification = new FirebaseNotification
                 {
                     to = connection,
-                    data = new Notification(NotificationEvent.NewConversation, notify)
+                    data = new CustomNotification(NotificationEvent.NewConversation, notify)
                 };
                 await _firebaseFunction.Notify(notification);
             }
             return model;
         }
 
-        public async Task<Participant> RemoveChatAndNotify(Participant model)
+        public Participant RemoveChat(Participant model)
         {
             _unitOfWork.Participant.Update(model);
             _unitOfWork.Save();
-            // foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
-            // {
-            //     var connection = _notificationService.GetConnection(contact);
-            //     var notification = new FirebaseNotification
-            //     {
-            //         to = connection,
-            //         data = new Notification(NotificationEvent.RemoveChat, model)
-            //     };
-            //     await _firebaseFunction.Notify(notification);
-            // }
             return model;
         }
 

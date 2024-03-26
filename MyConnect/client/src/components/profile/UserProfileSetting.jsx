@@ -117,7 +117,7 @@ const UserProfileSetting = (props) => {
         <div className="flex flex-col">
           <p>{profile?.Name}</p>
         </div>
-        <div className="inline-flex w-full">
+        <div className="flex w-full">
           {
             {
               new: (

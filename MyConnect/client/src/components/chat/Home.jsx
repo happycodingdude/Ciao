@@ -4,12 +4,14 @@ import { AttachmentProvider } from "../../context/AttachmentContext";
 import { ConversationProvider } from "../../context/ConversationContext";
 import { FriendProvider } from "../../context/FriendContext";
 import { MessageProvider } from "../../context/MessageContext";
+import { NotificationProvider } from "../../context/NotificationContext";
 import { ParticipantProvider } from "../../context/ParticipantContext";
 import { ProfileProvider } from "../../context/ProfileContext";
 import {
   useAuth,
   useFetchConversations,
   useFetchFriends,
+  useFetchNotifications,
   useFetchParticipants,
 } from "../../hook/CustomHooks";
 import ErrorBoundary from "../common/ErrorBoundary";
@@ -23,19 +25,21 @@ import ListChat from "./ListChat";
 export const HomeContainer = () => {
   return (
     <ErrorBoundary>
-      <ProfileProvider>
-        <FriendProvider>
-          <ConversationProvider>
-            <MessageProvider>
-              <ParticipantProvider>
-                <AttachmentProvider>
-                  <Home></Home>
-                </AttachmentProvider>
-              </ParticipantProvider>
-            </MessageProvider>
-          </ConversationProvider>
-        </FriendProvider>
-      </ProfileProvider>
+      <NotificationProvider>
+        <ProfileProvider>
+          <FriendProvider>
+            <ConversationProvider>
+              <MessageProvider>
+                <ParticipantProvider>
+                  <AttachmentProvider>
+                    <Home></Home>
+                  </AttachmentProvider>
+                </ParticipantProvider>
+              </MessageProvider>
+            </ConversationProvider>
+          </FriendProvider>
+        </ProfileProvider>
+      </NotificationProvider>
     </ErrorBoundary>
   );
 };
@@ -45,6 +49,7 @@ export const Home = () => {
   const { selected, reFetch: reFetchConversations } = useFetchConversations();
   const { reFetch: reFetchParticipants } = useFetchParticipants();
   const { reFetchFriends } = useFetchFriends();
+  const { reFetchNotifications } = useFetchNotifications();
 
   const [contacts, setContacts] = useState();
 
@@ -75,6 +80,9 @@ export const Home = () => {
       case "NewConversation":
         reFetchConversations();
         break;
+      case "NewFriendRequest":
+        reFetchNotifications();
+        break;
       default:
         break;
     }
@@ -83,7 +91,7 @@ export const Home = () => {
   const registerConnection = (token, controller) => {
     HttpRequest({
       method: "post",
-      url: "api/notification/register",
+      url: "api/notifications/register",
       token: auth.token,
       controller: controller,
       data: {

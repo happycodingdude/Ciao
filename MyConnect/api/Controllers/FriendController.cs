@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -9,10 +10,12 @@ namespace MyConnect.Controllers;
 public class FriendsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IFriendService _service;
 
-    public FriendsController(IUnitOfWork unitOfWork)
+    public FriendsController(IUnitOfWork unitOfWork, IFriendService service)
     {
         _unitOfWork = unitOfWork;
+        _service = service;
     }
 
     [HttpGet]
@@ -44,12 +47,11 @@ public class FriendsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add(Friend model)
+    public IActionResult Add(Friend model, bool includeNotify)
     {
         try
         {
-            _unitOfWork.Friend.Add(model);
-            _unitOfWork.Save();
+            _service.AddAndNotify(model, includeNotify);
             return new ResponseModel<Friend>(model).Ok();
         }
         catch (Exception ex)

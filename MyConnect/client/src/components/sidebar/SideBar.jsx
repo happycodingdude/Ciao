@@ -7,6 +7,7 @@ import {
 import BackgroundPortal from "../common/BackgroundPortal";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import Profile from "../profile/Profile";
+import Notification from "./Notification";
 
 const SideBar = () => {
   const { user } = useAuth();
@@ -47,10 +48,13 @@ const SideBar = () => {
           >
             <Profile onClose={() => setOpen(false)} />
           </BackgroundPortal>
-          <div
-            onClick={openProfile}
-            className="fa fa-cog cursor-pointer text-xl font-thin"
-          ></div>
+          <div className="flex flex-col gap-[3rem]">
+            <Notification />
+            <div
+              onClick={openProfile}
+              className="fa fa-cog cursor-pointer text-xl font-thin"
+            ></div>
+          </div>
         </div>
       ) : (
         ""

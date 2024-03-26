@@ -18,6 +18,7 @@ namespace MyConnect.UOW
             ScheduleContact = new ScheduleContactRepository(_context);
             Attachment = new AttachmentRepository(_context);
             Friend = new FriendRepository(_context);
+            Notification = new NotificationRepository(_context);
         }
 
         public IContactRepository Contact { get; private set; }
@@ -28,6 +29,7 @@ namespace MyConnect.UOW
         public IScheduleContactRepository ScheduleContact { get; private set; }
         public IAttachmentRepository Attachment { get; private set; }
         public IFriendRepository Friend { get; private set; }
+        public INotificationRepository Notification { get; private set; }
 
         public void Save()
         {

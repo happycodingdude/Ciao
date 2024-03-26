@@ -5,6 +5,7 @@ import AuthContext from "../context/AuthContext";
 import ConversationContext from "../context/ConversationContext";
 import FriendContext from "../context/FriendContext";
 import MessageContext from "../context/MessageContext";
+import NotificationContext from "../context/NotificationContext";
 import ParticipantContext from "../context/ParticipantContext";
 import ProfileContext from "../context/ProfileContext";
 
@@ -54,6 +55,10 @@ export const useFetchProfile = () => {
 
 export const useFetchFriends = () => {
   return useContext(FriendContext);
+};
+
+export const useFetchNotifications = () => {
+  return useContext(NotificationContext);
 };
 
 export const useDeleteChat = () => {

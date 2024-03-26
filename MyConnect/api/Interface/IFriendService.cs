@@ -6,5 +6,6 @@ namespace MyConnect.Interface
     {
         Friend GetByIds(Guid id, Guid fid);
         IEnumerable<GetAllFriend> GetAllFriend(Guid id);
+        Task<Friend> AddAndNotify(Friend model, bool includeNotify);
     }
 }

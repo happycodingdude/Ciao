@@ -10,7 +10,7 @@ const AddButton = (props) => {
   const addFriend = () => {
     HttpRequest({
       method: "post",
-      url: `api/friends`,
+      url: `api/friends?includeNotify=true`,
       token: auth.token,
       data: {
         ContactId1: auth.user.Id,
