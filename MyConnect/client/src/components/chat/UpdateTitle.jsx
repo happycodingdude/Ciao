@@ -6,7 +6,7 @@ import CustomModal from "../common/CustomModal";
 
 const UpdateTitle = () => {
   const auth = useAuth();
-  const { selected, setSelected } = useFetchConversations();
+  const { selected, setSelected, setConversations } = useFetchConversations();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
@@ -29,15 +29,26 @@ const UpdateTitle = () => {
 
   const updateTitle = (data) => {
     if (data.Title === null) return;
-    selected.Title = data.Title[0];
-
+    const body = [
+      {
+        op: "replace",
+        path: "Title",
+        value: data.Title[0],
+      },
+    ];
     HttpRequest({
-      method: "put",
-      url: `api/conversations`,
+      method: "patch",
+      url: `api/conversations/${selected.Id}`,
       token: auth.token,
-      data: selected,
+      data: body,
     }).then((res) => {
       setSelected((current) => ({ ...current, Title: data.Title[0] }));
+      setConversations((current) => {
+        return current.map((item) => {
+          if (item.Id === selected.Id) item.Title = data.Title[0];
+          return item;
+        });
+      });
     });
   };
 

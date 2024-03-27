@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
@@ -90,29 +91,14 @@ public class ContactsController : ControllerBase
         }
     }
 
-    [HttpPut]
-    public IActionResult Edit(Contact model)
-    {
-        try
-        {
-            model.EncryptPassword();
-            _unitOfWork.Contact.Update(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Contact>(model).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Contact>().BadRequest(ex);
-        }
-    }
-
-    [HttpPut("{id}/avatars")]
-    public IActionResult Edit(Guid id, Contact model)
+    [HttpPatch("{id}")]
+    public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
         {
             var entity = _unitOfWork.Contact.GetById(id);
-            entity.Avatar = model.Avatar;
+            patch.ApplyTo(entity);
+            entity.EncryptPassword();
             _unitOfWork.Contact.Update(entity);
             _unitOfWork.Save();
             return new ResponseModel<Contact>(entity).Ok();

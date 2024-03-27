@@ -3,6 +3,7 @@ using MyConnect.Model;
 using MyConnect.RestApi;
 using AutoMapper;
 using MyConnect.UOW;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace MyConnect.Implement
 {
@@ -45,15 +46,19 @@ namespace MyConnect.Implement
             return result;
         }
 
-        public async Task<Participant> EditParticipantAndNotify(Participant model)
+        public async Task<Participant> EditParticipantAndNotify(Guid id, JsonPatchDocument patch)
         {
-            _unitOfWork.Participant.Update(model);
-            var conversation = _unitOfWork.Conversation.GetById(model.ConversationId);
+            var entity = _unitOfWork.Participant.GetById(id);
+            patch.ApplyTo(entity);
+            _unitOfWork.Participant.Update(entity);
+
+            var conversation = _unitOfWork.Conversation.GetById(entity.ConversationId);
             conversation.UpdatedTime = DateTime.Now;
             _unitOfWork.Conversation.Update(conversation);
             _unitOfWork.Save();
+
             var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
-            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
+            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(entity.ConversationId))
             {
                 var connection = _notificationService.GetConnection(contact);
                 var notification = new FirebaseNotification
@@ -63,7 +68,7 @@ namespace MyConnect.Implement
                 };
                 await _firebaseFunction.Notify(notification);
             }
-            return model;
+            return entity;
         }
 
         public Participant RemoveChat(Participant model)

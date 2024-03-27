@@ -22,14 +22,14 @@ const SideBar = () => {
   // Event listener
   const closeProfile = useCallback((e) => {
     if (
-      e.keyCode === 27 ||
+      // e.keyCode === 27 ||
       Array.from(e.target.classList).some(
         (item) => item === "profile-container",
       )
     )
       setOpen(false);
   }, []);
-  useEventListener("keydown", closeProfile);
+  // useEventListener("keydown", closeProfile);
   useEventListener("click", closeProfile);
 
   return (

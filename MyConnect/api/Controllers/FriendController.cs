@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
@@ -60,14 +61,16 @@ public class FriendsController : ControllerBase
         }
     }
 
-    [HttpPut]
-    public IActionResult Edit(Friend model)
+    [HttpPatch("{id}")]
+    public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
         {
-            _unitOfWork.Friend.Update(model);
+            var entity = _unitOfWork.Friend.GetById(id);
+            patch.ApplyTo(entity);
+            _unitOfWork.Friend.Update(entity);
             _unitOfWork.Save();
-            return new ResponseModel<Friend>(model).Ok();
+            return new ResponseModel<Friend>(entity).Ok();
         }
         catch (Exception ex)
         {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
@@ -75,14 +76,16 @@ public class ParticipantsController : ControllerBase
         }
     }
 
-    [HttpPut]
-    public IActionResult Edit(Participant model)
+    [HttpPatch("{id}")]
+    public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
         {
-            _unitOfWork.Participant.Update(model);
+            var entity = _unitOfWork.Participant.GetById(id);
+            patch.ApplyTo(entity);
+            _unitOfWork.Participant.Update(entity);
             _unitOfWork.Save();
-            return new ResponseModel<Participant>(model).Ok();
+            return new ResponseModel<Participant>(entity).Ok();
         }
         catch (Exception ex)
         {

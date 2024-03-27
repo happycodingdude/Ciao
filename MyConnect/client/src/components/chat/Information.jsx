@@ -61,15 +61,19 @@ const Information = (props) => {
         return url;
       });
     });
-    selected.Avatar = url;
+    const body = [
+      {
+        op: "replace",
+        path: "Avatar",
+        value: url,
+      },
+    ];
 
     HttpRequest({
-      method: "put",
-      url: `api/conversations/${selected.Id}/avatars`,
+      method: "patch",
+      url: `api/conversations/${selected.Id}`,
       token: auth.token,
-      data: {
-        Avatar: url,
-      },
+      data: body,
     }).then((res) => {
       setSelected((current) => ({ ...current, Avatar: url }));
       setConversations((current) => {
@@ -152,8 +156,14 @@ const Information = (props) => {
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            <ToggleNotification />
-            {selected.IsGroup ? <AddParticipants /> : ""}
+            {selected.IsGroup ? (
+              <>
+                <ToggleNotification />
+                <AddParticipants />
+              </>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-[1rem]">

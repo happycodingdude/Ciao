@@ -16,13 +16,19 @@ const ToggleNotification = () => {
   const toggleNotification = (e) => {
     const checked = !isNotifying;
     const selected = participants?.find((item) => item.ContactId === auth.id);
-    selected.IsNotifying = checked;
+    const body = [
+      {
+        op: "replace",
+        path: "IsNotifying",
+        value: checked,
+      },
+    ];
 
     HttpRequest({
-      method: "put",
-      url: `api/participants`,
+      method: "patch",
+      url: `api/participants/${selected.Id}`,
       token: auth.token,
-      data: selected,
+      data: body,
     }).then((res) => {
       if (!res) return;
       setIsNotifying(checked);

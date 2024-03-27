@@ -18,7 +18,7 @@ namespace MyConnect.UOW
             ScheduleContact = new ScheduleContactRepository(_context);
             Attachment = new AttachmentRepository(_context);
             Friend = new FriendRepository(_context);
-            Notification = new NotificationRepository(_context);
+            Notification = new NotificationRepository(_context, httpContextAccessor);
         }
 
         public IContactRepository Contact { get; private set; }

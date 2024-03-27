@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
@@ -76,13 +77,13 @@ public class ConversationsController : ControllerBase
         }
     }
 
-    [HttpPut("{id}/participants")]
-    public async Task<IActionResult> EditParticipant(Participant model)
+    [HttpPatch("{id}/participants/{participantId}")]
+    public async Task<IActionResult> EditParticipant(Guid participantId, JsonPatchDocument patch)
     {
         try
         {
-            var response = await _participantService.EditParticipantAndNotify(model);
-            return new ResponseModel<Participant>(model).Ok();
+            var response = await _participantService.EditParticipantAndNotify(participantId, patch);
+            return new ResponseModel<Participant>(response).Ok();
         }
         catch (Exception ex)
         {
@@ -146,28 +147,13 @@ public class ConversationsController : ControllerBase
         }
     }
 
-    [HttpPut]
-    public IActionResult Edit(Conversation model)
-    {
-        try
-        {
-            _unitOfWork.Conversation.Update(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Conversation>(model).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Conversation>().BadRequest(ex);
-        }
-    }
-
-    [HttpPut("{id}/avatars")]
-    public IActionResult Edit(Guid id, Conversation model)
+    [HttpPatch("{id}")]
+    public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
         {
             var entity = _unitOfWork.Conversation.GetById(id);
-            entity.Avatar = model.Avatar;
+            patch.ApplyTo(entity);
             _unitOfWork.Conversation.Update(entity);
             _unitOfWork.Save();
             return new ResponseModel<Conversation>(entity).Ok();
@@ -178,18 +164,18 @@ public class ConversationsController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
-    {
-        try
-        {
-            _unitOfWork.Conversation.Delete(id);
-            _unitOfWork.Save();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Conversation>().BadRequest(ex);
-        }
-    }
+    // [HttpDelete("{id}")]
+    // public IActionResult Delete(Guid id)
+    // {
+    //     try
+    //     {
+    //         _unitOfWork.Conversation.Delete(id);
+    //         _unitOfWork.Save();
+    //         return Ok();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return new ResponseModel<Conversation>().BadRequest(ex);
+    //     }
+    // }
 }

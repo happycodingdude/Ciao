@@ -13,23 +13,23 @@ export const NotificationProvider = ({ children }) => {
   const auth = useAuth();
   const [notifications, setNotifications] = useState();
 
-  const getNotifications = useCallback(
-    (controller = new AbortController()) => {
-      HttpRequest({
-        method: "get",
-        url: `api/notifications?page=${page}&limit=${limit}`,
-        token: auth.token,
-        controller: controller,
-      }).then((res) => {
-        setNotifications(res);
-      });
-    },
-    [auth.token],
-  );
+  const getNotifications = useCallback(() => {
+    HttpRequest({
+      method: "get",
+      url: `api/notifications?page=${page}&limit=${limit}`,
+      token: auth.token,
+    }).then((res) => {
+      setNotifications(res);
+    });
+  }, [auth.token]);
 
   return (
     <NotificationContext.Provider
-      value={{ notifications, reFetchNotifications: getNotifications }}
+      value={{
+        notifications,
+        setNotifications,
+        reFetchNotifications: getNotifications,
+      }}
     >
       {children}
     </NotificationContext.Provider>

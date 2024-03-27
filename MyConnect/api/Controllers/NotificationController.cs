@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
@@ -61,14 +62,16 @@ public class NotificationsController : ControllerBase
         }
     }
 
-    [HttpPut]
-    public IActionResult Edit(Notification model)
+    [HttpPatch("{id}")]
+    public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
         {
-            _unitOfWork.Notification.Update(model);
+            var entity = _unitOfWork.Notification.GetById(id);
+            patch.ApplyTo(entity);
+            _unitOfWork.Notification.Update(entity);
             _unitOfWork.Save();
-            return new ResponseModel<Notification>(model).Ok();
+            return new ResponseModel<Notification>(entity).Ok();
         }
         catch (Exception ex)
         {

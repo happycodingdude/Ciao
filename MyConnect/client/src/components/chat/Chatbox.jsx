@@ -237,14 +237,14 @@ const Chatbox = (props) => {
   useEventListener("scroll", handleScroll);
   const closeProfile = useCallback((e) => {
     if (
-      e.keyCode === 27 ||
+      // e.keyCode === 27 ||
       Array.from(e.target.classList).some(
         (item) => item === "profile-container",
       )
     )
       setOpen(false);
   }, []);
-  useEventListener("keydown", closeProfile);
+  // useEventListener("keydown", closeProfile);
   useEventListener("click", closeProfile);
 
   const closeEmoji = useCallback((e) => {
@@ -286,10 +286,15 @@ const Chatbox = (props) => {
               <ImageWithLightBoxWithBorderAndShadow
                 src={profile?.Avatar ?? ""}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-                onClick={() => {
-                  setUserId(profile?.ContactId);
-                  setOpen(true);
-                }}
+                // onClick={() => {
+                //   setUserId(profile?.Id);
+                //   setOpen(true);
+                // }}
+                slides={[
+                  {
+                    src: profile?.Avatar ?? "",
+                  },
+                ]}
               />
             )}
 

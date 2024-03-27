@@ -162,7 +162,7 @@ export const Home = () => {
 
   return (
     <div id="home" className="relative w-full">
-      <div className="absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
+      <div className="home-container absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
         <SideBar />
         <section className="relative flex grow overflow-hidden">
           <ListChat

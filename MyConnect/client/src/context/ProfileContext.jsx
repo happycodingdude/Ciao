@@ -50,15 +50,28 @@ export const ProfileProvider = ({ children }) => {
         },
       );
     }
-
-    HttpRequest({
-      method: "put",
-      url: "api/contacts",
-      token: auth.token,
-      data: {
-        ...profile,
-        Avatar: url,
+    const body = [
+      {
+        op: "replace",
+        path: "Avatar",
+        value: url,
       },
+      {
+        op: "replace",
+        path: "Name",
+        value: profile.Name,
+      },
+      {
+        op: "replace",
+        path: "Password",
+        value: profile.Password,
+      },
+    ];
+    HttpRequest({
+      method: "patch",
+      url: `api/contacts/${profile.Id}`,
+      token: auth.token,
+      data: body,
     }).then((res) => {
       auth.setUser(res);
       onClose();

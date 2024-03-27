@@ -38,31 +38,22 @@ const ListChat = (props) => {
   const handleSetConversation = (position, item) => {
     if (item.Id !== selected?.Id) {
       reFetchMessages(item.Id);
-      reFetchParticipants(item.Id);
+      // reFetchParticipants(item.Id);
       reFetchAttachments(item.Id);
       clickConversation(item);
       refChats.current.scrollTop = position;
-      reFetchProfile(
-        item.Participants.find((item) => item.ContactId !== auth.user.Id)
-          .ContactId,
-      );
-      reFetchRequest(
-        item.Participants.find((item) => item.ContactId !== auth.user.Id)
-          .ContactId,
-      );
-      // if (!item.IsGroup) {
-      //   reFetchProfile(
-      //     item.Participants.find((item) => item.ContactId !== auth.user.Id)
-      //       .ContactId,
-      //   );
-      //   reFetchRequest(
-      //     item.Participants.find((item) => item.ContactId !== auth.user.Id)
-      //       .ContactId,
-      //   );
-      // }
-      // else {
-      //   reFetchParticipants(item.Id);
-      // }
+      if (!item.IsGroup) {
+        reFetchProfile(
+          item.Participants.find((item) => item.ContactId !== auth.user.Id)
+            .ContactId,
+        );
+        reFetchRequest(
+          item.Participants.find((item) => item.ContactId !== auth.user.Id)
+            .ContactId,
+        );
+      } else {
+        reFetchParticipants(item.Id);
+      }
     }
   };
 

@@ -59,15 +59,21 @@ const UserProfileSetting = (props) => {
       // Tìm hội thoại đã có trước đó nhưng đã delete
       // Bật lại hội thoại
       if (selectedConversation) {
-        let selectedParticipant = selectedConversation.Participants.find(
+        const selectedParticipant = selectedConversation.Participants.find(
           (item) => item.ContactId === auth.user.Id,
         );
-        selectedParticipant.IsDeleted = false;
+        const body = [
+          {
+            op: "replace",
+            path: "IsDeleted",
+            value: false,
+          },
+        ];
         HttpRequest({
-          method: "put",
-          url: `api/conversations/${selectedConversation.Id}/participants`,
+          method: "patch",
+          url: `api/conversations/${selectedConversation.Id}/participants/${selectedParticipant.Id}`,
           token: auth.token,
-          data: selectedParticipant,
+          data: body,
         }).then((res) => {
           // reFetchConversations();
           // document.querySelector(`[data-key='${res.ConversationId}']`).click();
@@ -124,21 +130,30 @@ const UserProfileSetting = (props) => {
                 <AddButton
                   id={profile?.Id}
                   className="!w-1/3"
-                  onClose={onClose}
+                  onClose={() => {
+                    reFetchRequest(id);
+                    onClose();
+                  }}
                 />
               ),
               request_received: (
                 <AcceptButton
                   className="!w-1/3"
                   request={request}
-                  onClose={onClose}
+                  onClose={() => {
+                    reFetchRequest(id);
+                    onClose();
+                  }}
                 />
               ),
               request_sent: (
                 <CancelButton
                   id={request?.Id}
                   className="!w-1/3"
-                  onClose={onClose}
+                  onClose={() => {
+                    reFetchRequest(id);
+                    onClose();
+                  }}
                 />
               ),
             }[request?.Status]

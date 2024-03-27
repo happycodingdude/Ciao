@@ -9,13 +9,23 @@ const AcceptButton = (props) => {
   const auth = useAuth();
 
   const acceptFriendRequest = () => {
-    request.Status = "friend";
-    request.AcceptTime = moment().format("YYYY/MM/DD HH:mm:ss");
+    const body = [
+      {
+        op: "replace",
+        path: "Status",
+        value: "friend",
+      },
+      {
+        op: "replace",
+        path: "AcceptTime",
+        value: moment().format("YYYY/MM/DD HH:mm:ss"),
+      },
+    ];
     HttpRequest({
-      method: "put",
-      url: `api/friends`,
+      method: "patch",
+      url: `api/friends/${request.Id}`,
       token: auth.token,
-      data: request,
+      data: body,
     }).then((res) => {
       onClose();
     });

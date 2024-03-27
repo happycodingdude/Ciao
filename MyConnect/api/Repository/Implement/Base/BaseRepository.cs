@@ -21,7 +21,7 @@ namespace MyConnect.Repository
 
         public virtual IEnumerable<T> GetAll(int page, int limit)
         {
-            return _context.Set<T>().Skip(limit * (page - 1)).Take(limit).ToList();
+            return _context.Set<T>().OrderByDescending(q => q.CreatedTime).Skip(limit * (page - 1)).Take(limit).ToList();
         }
 
         public virtual T GetById(Guid id)
