@@ -16,4 +16,10 @@ namespace MyConnect.Model
         public Guid ContactId { get; set; }
         public string ContactName { get; set; }
     }
+
+    public class FriendToNotify
+    {
+        public Guid? RequestId { get; set; }
+        public Guid? ContactId { get; set; } // Support client to refetch friend request when cancel request
+    }
 }

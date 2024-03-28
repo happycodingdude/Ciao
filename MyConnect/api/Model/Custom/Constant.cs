@@ -6,6 +6,7 @@ namespace MyConnect.Model
         public const string AddMember = "AddMember";
         public const string NewConversation = "NewConversation";
         public const string NewFriendRequest = "NewFriendRequest";
+        public const string NewNotification = "NewNotification";
     }
 
     public class NotificationSourceType

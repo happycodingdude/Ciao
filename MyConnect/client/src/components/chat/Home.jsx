@@ -48,8 +48,9 @@ export const Home = () => {
   const auth = useAuth();
   const { selected, reFetch: reFetchConversations } = useFetchConversations();
   const { reFetch: reFetchParticipants } = useFetchParticipants();
-  const { reFetchFriends } = useFetchFriends();
-  const { reFetchNotifications } = useFetchNotifications();
+  const { reFetchRequest, reFetchRequestById, reFetchFriends } =
+    useFetchFriends();
+  const { setNotifications } = useFetchNotifications();
 
   const [contacts, setContacts] = useState();
 
@@ -81,7 +82,14 @@ export const Home = () => {
         reFetchConversations();
         break;
       case "NewFriendRequest":
-        reFetchNotifications();
+        if (messageData.RequestId === null)
+          reFetchRequest(messageData.ContactId);
+        else reFetchRequestById(messageData.RequestId);
+        break;
+      case "NewNotification":
+        setNotifications((current) => {
+          if (current !== undefined) return [...current, messageData];
+        });
         break;
       default:
         break;

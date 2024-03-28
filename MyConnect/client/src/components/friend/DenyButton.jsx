@@ -4,8 +4,8 @@ import { HttpRequest } from "../../common/Utility";
 import { useAuth } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 
-const AcceptButton = (props) => {
-  const { request, onClose, className, title } = props;
+const DenyButton = (props) => {
+  const { request, onClose, className } = props;
   const auth = useAuth();
 
   const acceptFriendRequest = () => {
@@ -31,13 +31,7 @@ const AcceptButton = (props) => {
     });
   };
 
-  return (
-    <CustomButton
-      title={title ?? "Accept request"}
-      className={className}
-      onClick={acceptFriendRequest}
-    />
-  );
+  return <CustomButton title="Deny" className={className} onClick={() => {}} />;
 };
 
-export default AcceptButton;
+export default DenyButton;

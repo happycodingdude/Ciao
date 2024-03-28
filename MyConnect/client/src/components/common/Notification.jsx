@@ -27,7 +27,7 @@ export const requestPermission = (
           "BM0h2oAh38_Q1ra_BvhpventqyMPRuUJ8Fwseh0IaVuXPfepULakLtaUZHdnVk5sMVCSF4nrvfGNPg0yitS4HBM",
       })
         .then((token) => {
-          console.log(token);
+          // console.log(token);
           if (token) {
             // Receive message
             onMessage(messaging, (payload) => {

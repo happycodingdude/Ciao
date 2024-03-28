@@ -54,6 +54,19 @@ export const FriendProvider = ({ children }) => {
     [auth.id, auth.token],
   );
 
+  const getRequestById = useCallback(
+    (id) => {
+      HttpRequest({
+        method: "get",
+        url: `api/friends/${id}`,
+        token: auth.token,
+      }).then((res) => {
+        setRequest(res);
+      });
+    },
+    [auth.token],
+  );
+
   return (
     <FriendContext.Provider
       value={{
@@ -63,6 +76,7 @@ export const FriendProvider = ({ children }) => {
         reFetchFriends: getFriends,
         reFetchProfile: getFriendProfile,
         reFetchRequest: getRequest,
+        reFetchRequestById: getRequestById,
       }}
     >
       {children}

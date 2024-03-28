@@ -7,8 +7,8 @@ namespace MyConnect.Repository
 {
     public class MessageRepository : BaseRepository<Message>, IMessageRepository
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public MessageRepository(CoreContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context)
         {
@@ -20,7 +20,6 @@ namespace MyConnect.Repository
         {
             var messages = _dbSet
             .Include(q => q.Attachments)
-            // .Include(q => q.Contact)
             .Where(q => q.ConversationId == id)
             .OrderByDescending(q => q.CreatedTime)
             .Skip(limit * (page - 1))

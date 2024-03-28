@@ -62,7 +62,7 @@ public class NotificationsController : ControllerBase
         }
     }
 
-    [HttpPatch("{id}")]
+    [HttpPatch("{id:guid}")]
     public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
@@ -76,6 +76,35 @@ public class NotificationsController : ControllerBase
         catch (Exception ex)
         {
             return new ResponseModel<Notification>().BadRequest(ex);
+        }
+    }
+
+    [HttpPatch("bulk_edit")]
+    public IActionResult BulkEdit(List<PatchRequest<Notification>> patchs)
+    {
+        try
+        {
+            var response = new List<PatchResponse>();
+            foreach (var patch in patchs)
+            {
+                var entity = _unitOfWork.Notification.GetById(patch.Id);
+                if (entity == null)
+                {
+                    response.Add(new PatchResponse(entity.Id, "object not found"));
+                }
+                else
+                {
+                    patch.PatchDocument.ApplyTo(entity);
+                    _unitOfWork.Notification.Update(entity);
+                    response.Add(new PatchResponse(entity.Id, "success"));
+                }
+            }
+            _unitOfWork.Save();
+            return new ResponseModel<List<PatchResponse>>(response).Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ResponseModel<List<PatchResponse>>().BadRequest(ex);
         }
     }
 

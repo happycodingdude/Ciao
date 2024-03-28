@@ -52,7 +52,7 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            var response = _friendService.GetByIds(id, fid);
+            var response = _friendService.GetByTwoContactId(id, fid);
             return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)

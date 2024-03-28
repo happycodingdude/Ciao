@@ -10,7 +10,7 @@ const limit = 20;
 export const MessageProvider = ({ children }) => {
   console.log("MessageProvider rendering");
 
-  const auth = useAuth();
+  const { token } = useAuth();
   const [messages, setMessages] = useState();
 
   const getMessages = useCallback(
@@ -18,12 +18,12 @@ export const MessageProvider = ({ children }) => {
       HttpRequest({
         method: "get",
         url: `api/conversations/${id}/messages?page=${page}&limit=${limit}`,
-        token: auth.token,
+        token: token,
       }).then((res) => {
         setMessages(res.reverse());
       });
     },
-    [auth.token],
+    [token],
   );
 
   const removeLastItem = useCallback(() => {
@@ -32,8 +32,8 @@ export const MessageProvider = ({ children }) => {
   }, [messages]);
 
   const addNewItem = useCallback(
-    (newItem) => {
-      setMessages([...messages, newItem]);
+    (item) => {
+      setMessages([...messages, item]);
     },
     [messages],
   );

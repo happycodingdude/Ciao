@@ -6,11 +6,6 @@ namespace MyConnect.Repository
     {
         public AttachmentRepository(CoreContext context) : base(context) { }
 
-        public void Add(Model.Attachment entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<AttachmentGroupByCreatedTime> GetByConversationId(Guid id)
         {
             var attachments = _dbSet

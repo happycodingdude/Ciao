@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.RestApi;
@@ -21,11 +22,9 @@ namespace MyConnect.Implement
             _mapper = mapper;
         }
 
-        public Friend GetByIds(Guid id, Guid fid)
+        public Friend GetByTwoContactId(Guid id, Guid fid)
         {
-            var friend = _unitOfWork.Friend
-            .GetAll()
-            .FirstOrDefault(q => (q.ContactId1 == id && q.ContactId2 == fid) || (q.ContactId1 == fid && q.ContactId2 == id));
+            var friend = _unitOfWork.Friend.GetByTwoContactId(id, fid);
 
             if (friend == null)
                 friend = new Friend { Status = "new" };
@@ -59,26 +58,78 @@ namespace MyConnect.Implement
             _unitOfWork.Save();
             if (includeNotify)
             {
+                var connection = _notificationService.GetConnection(model.ContactId2.ToString());
+
+                // Send updated request to client
+                var request = new FriendToNotify
+                {
+                    RequestId = model.Id
+                };
+                await Notify(connection, request);
+
+                // Save notification
                 var contact = _unitOfWork.Contact.GetById(model.ContactId1);
-                var noti = new Notification
+                var notiEntity = new Notification
                 {
                     SourceType = NotificationSourceType.FriendRequest,
                     Content = $"{contact.Name} send you a request",
                     ContactId = model.ContactId2
                 };
-                _unitOfWork.Notification.Add(noti);
+                _unitOfWork.Notification.Add(notiEntity);
                 _unitOfWork.Save();
-
-                var notify = _mapper.Map<Notification, NotificationToNotify>(noti);
-                var connection = _notificationService.GetConnection(model.ContactId2.ToString());
-                var notification = new FirebaseNotification
-                {
-                    to = connection,
-                    data = new CustomNotification(NotificationEvent.NewFriendRequest, notify)
-                };
-                await _firebaseFunction.Notify(notification);
+                // Send new notification to client
+                var notify = _mapper.Map<Notification, NotificationToNotify>(notiEntity);
+                await _notificationService.Notify(new string[1] { connection }, notify);
             }
             return model;
+        }
+
+        public async Task<Friend> UpdateAndNotify(Guid id, JsonPatchDocument patch, bool includeNotify)
+        {
+            var entity = _unitOfWork.Friend.GetById(id);
+            patch.ApplyTo(entity);
+            _unitOfWork.Friend.Update(entity);
+            _unitOfWork.Save();
+            if (includeNotify)
+            {
+                var connection = _notificationService.GetConnection(entity.ContactId1.ToString());
+
+                // Send updated request to client
+                var request = new FriendToNotify
+                {
+                    RequestId = id
+                };
+                await Notify(connection, request);
+            }
+            return entity;
+        }
+
+        public async Task DeleteAndNotify(Guid id, bool includeNotify)
+        {
+            var entity = _unitOfWork.Friend.GetById(id);
+            _unitOfWork.Friend.Delete(id);
+            _unitOfWork.Save();
+            if (includeNotify)
+            {
+                var connection = _notificationService.GetConnection(entity.ContactId2.ToString());
+
+                // Send updated request to client
+                var request = new FriendToNotify
+                {
+                    ContactId = entity.ContactId1
+                };
+                await Notify(connection, request);
+            }
+        }
+
+        private async Task Notify(string connection, FriendToNotify data)
+        {
+            var notification = new FirebaseNotification
+            {
+                to = connection,
+                data = new CustomNotification(NotificationEvent.NewFriendRequest, data)
+            };
+            await _firebaseFunction.Notify(notification);
         }
     }
 }

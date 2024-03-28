@@ -10,7 +10,7 @@ const CancelButton = (props) => {
   const cancelFriendRequest = () => {
     HttpRequest({
       method: "delete",
-      url: `api/friends/${id}`,
+      url: `api/friends/${id}?includeNotify=true`,
       token: auth.token,
     }).then((res) => {
       onClose();

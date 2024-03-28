@@ -10,18 +10,18 @@ const limit = 10;
 export const NotificationProvider = ({ children }) => {
   console.log("NotificationProvider rendering");
 
-  const auth = useAuth();
+  const { token } = useAuth();
   const [notifications, setNotifications] = useState();
 
   const getNotifications = useCallback(() => {
     HttpRequest({
       method: "get",
       url: `api/notifications?page=${page}&limit=${limit}`,
-      token: auth.token,
+      token: token,
     }).then((res) => {
       setNotifications(res);
     });
-  }, [auth.token]);
+  }, [token]);
 
   return (
     <NotificationContext.Provider

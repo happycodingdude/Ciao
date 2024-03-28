@@ -48,12 +48,12 @@ public class FriendsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add(Friend model, bool includeNotify)
+    public async Task<IActionResult> AddAsync(Friend model, bool includeNotify)
     {
         try
         {
-            _service.AddAndNotify(model, includeNotify);
-            return new ResponseModel<Friend>(model).Ok();
+            var response = await _service.AddAndNotify(model, includeNotify);
+            return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)
         {
@@ -62,15 +62,12 @@ public class FriendsController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public IActionResult Edit(Guid id, JsonPatchDocument patch)
+    public async Task<IActionResult> EditAsync(Guid id, JsonPatchDocument patch, bool includeNotify)
     {
         try
         {
-            var entity = _unitOfWork.Friend.GetById(id);
-            patch.ApplyTo(entity);
-            _unitOfWork.Friend.Update(entity);
-            _unitOfWork.Save();
-            return new ResponseModel<Friend>(entity).Ok();
+            var response = await _service.UpdateAndNotify(id, patch, includeNotify);
+            return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)
         {
@@ -79,12 +76,11 @@ public class FriendsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id, bool includeNotify)
     {
         try
         {
-            _unitOfWork.Friend.Delete(id);
-            _unitOfWork.Save();
+            await _service.DeleteAndNotify(id, includeNotify);
             return Ok();
         }
         catch (Exception ex)
