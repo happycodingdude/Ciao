@@ -71,15 +71,19 @@ namespace MyConnect.Implement
                 var contact = _unitOfWork.Contact.GetById(model.ContactId1);
                 var notiEntity = new Notification
                 {
+                    SourceId = model.Id,
                     SourceType = NotificationSourceType.FriendRequest,
                     Content = $"{contact.Name} send you a request",
                     ContactId = model.ContactId2
                 };
                 _unitOfWork.Notification.Add(notiEntity);
                 _unitOfWork.Save();
+
                 // Send new notification to client
-                var notify = _mapper.Map<Notification, NotificationToNotify>(notiEntity);
-                await _notificationService.Notify(new string[1] { connection }, notify);
+                var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint<Friend>>(notiEntity);
+                constraintDto.SourceData = model;
+                var dto = _mapper.Map<NotificationTypeConstraint<Friend>, NotificationDto>(constraintDto);
+                await _notificationService.Notify(new string[1] { connection }, dto);
             }
             return model;
         }
@@ -100,6 +104,9 @@ namespace MyConnect.Implement
                     RequestId = id
                 };
                 await Notify(connection, request);
+
+                // Send new notification to client
+                await _notificationService.Notify(new string[1] { connection });
             }
             return entity;
         }
@@ -119,6 +126,9 @@ namespace MyConnect.Implement
                     ContactId = entity.ContactId1
                 };
                 await Notify(connection, request);
+
+                // Send new notification to client
+                await _notificationService.Notify(new string[1] { connection });
             }
         }
 
@@ -127,7 +137,7 @@ namespace MyConnect.Implement
             var notification = new FirebaseNotification
             {
                 to = connection,
-                data = new CustomNotification(NotificationEvent.NewFriendRequest, data)
+                data = new CustomNotification<FriendToNotify>(NotificationEvent.NewFriendRequest, data)
             };
             await _firebaseFunction.Notify(notification);
         }

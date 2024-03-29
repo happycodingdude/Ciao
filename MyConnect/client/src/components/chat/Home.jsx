@@ -50,7 +50,7 @@ export const Home = () => {
   const { reFetch: reFetchParticipants } = useFetchParticipants();
   const { reFetchRequest, reFetchRequestById, reFetchFriends } =
     useFetchFriends();
-  const { setNotifications } = useFetchNotifications();
+  const { reFetchNotifications } = useFetchNotifications();
 
   const [contacts, setContacts] = useState();
 
@@ -62,7 +62,8 @@ export const Home = () => {
 
   const notifyMessage = (message) => {
     console.log(message);
-    const messageData = JSON.parse(message.data);
+    const messageData =
+      message.data === undefined ? undefined : JSON.parse(message.data);
     switch (message.event) {
       case "NewMessage":
         refListChat.newMessage(messageData);
@@ -87,9 +88,10 @@ export const Home = () => {
         else reFetchRequestById(messageData.RequestId);
         break;
       case "NewNotification":
-        setNotifications((current) => {
-          if (current !== undefined) return [...current, messageData];
-        });
+        // setNotifications((current) => {
+        //   if (current !== undefined) return [...current, messageData];
+        // });
+        reFetchNotifications();
         break;
       default:
         break;

@@ -24,12 +24,12 @@ public class NotificationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Notification.GetAll(page, limit);
-            return new ResponseModel<IEnumerable<Notification>>(response).Ok();
+            var response = _notificationService.GetAll(page, limit);
+            return new ResponseModel<IEnumerable<NotificationDto>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Notification>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<NotificationDto>>().BadRequest(ex);
         }
     }
 

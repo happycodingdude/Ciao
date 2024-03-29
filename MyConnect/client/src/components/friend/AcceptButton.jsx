@@ -1,12 +1,13 @@
 import moment from "moment";
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchNotifications } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 
 const AcceptButton = (props) => {
-  const { request, onClose, className, title } = props;
+  const { id, onClose, className, title } = props;
   const auth = useAuth();
+  const { reFetchNotifications } = useFetchNotifications();
 
   const acceptFriendRequest = () => {
     const body = [
@@ -23,10 +24,11 @@ const AcceptButton = (props) => {
     ];
     HttpRequest({
       method: "patch",
-      url: `api/friends/${request.Id}?includeNotify=true`,
+      url: `api/friends/${id}?includeNotify=true`,
       token: auth.token,
       data: body,
     }).then((res) => {
+      reFetchNotifications();
       onClose();
     });
   };

@@ -11,6 +11,7 @@ namespace MyConnect.Repository
             builder.ToTable("Notification");
             builder.HasKey(q => q.Id);
             builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            builder.Property(q => q.SourceId).IsRequired();
             builder.Property(q => q.SourceType).IsRequired().HasMaxLength(20);
             builder.Property(q => q.Content).IsRequired();
             builder.Property(q => q.Read).IsRequired();

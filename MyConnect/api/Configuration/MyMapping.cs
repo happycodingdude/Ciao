@@ -14,7 +14,8 @@ namespace MyConnect.Configuration
             CreateMap<Message, MessageNoReference>().ReverseMap();
             CreateMap<Attachment, AttachmentNoReference>().ReverseMap();
             CreateMap<Contact, ContactNoReference>().ReverseMap();
-            CreateMap<Notification, NotificationToNotify>().ReverseMap();
+            CreateMap<Notification, NotificationTypeConstraint<Friend>>().ReverseMap();
+            CreateMap<NotificationDto, NotificationTypeConstraint<Friend>>().ReverseMap();
         }
     }
 }

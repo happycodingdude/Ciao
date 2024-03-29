@@ -7,9 +7,7 @@ import {
 } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
-import AcceptButton from "../friend/AcceptButton";
-import AddButton from "../friend/AddButton";
-import CancelButton from "../friend/CancelButton";
+import FriendRequestButton from "../friend/FriendRequestButton";
 
 const UserProfileSetting = (props) => {
   const { id, onClose } = props;
@@ -124,7 +122,11 @@ const UserProfileSetting = (props) => {
           <p>{profile?.Name}</p>
         </div>
         <div className="flex w-full">
-          {
+          <FriendRequestButton
+            className="!w-1/3"
+            onClose={() => reFetchRequest(profile?.Id)}
+          />
+          {/* {
             {
               new: (
                 <AddButton
@@ -139,7 +141,7 @@ const UserProfileSetting = (props) => {
               request_received: (
                 <AcceptButton
                   className="!w-1/3"
-                  request={request}
+                  id={request?.Id}
                   onClose={() => {
                     reFetchRequest(id);
                     onClose();
@@ -157,7 +159,7 @@ const UserProfileSetting = (props) => {
                 />
               ),
             }[request?.Status]
-          }
+          } */}
           <CustomButton
             title="Chat"
             className={`${request?.Status === "friend" ? "!w-1/2" : "!w-1/3"} `}

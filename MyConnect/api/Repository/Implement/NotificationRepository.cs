@@ -16,8 +16,7 @@ namespace MyConnect.Repository
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var id = JwtToken.ExtractToken(token);
-            var data = _dbSet.Where(q => q.ContactId == id).OrderByDescending(q => q.CreatedTime).Skip(limit * (page - 1)).Take(limit).ToList();
-            return data;
+            return _dbSet.Where(q => q.ContactId == id).OrderByDescending(q => q.CreatedTime).Skip(limit * (page - 1)).Take(limit).ToList();
         }
     }
 }

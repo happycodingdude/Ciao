@@ -18,9 +18,7 @@ import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
-import AcceptButton from "../friend/AcceptButton";
-import AddButton from "../friend/AddButton";
-import CancelButton from "../friend/CancelButton";
+import FriendRequestButton from "../friend/FriendRequestButton";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
 
@@ -320,7 +318,11 @@ const Chatbox = (props) => {
                     className="text-start text-lg font-bold"
                     title={profile?.Name}
                   />
-                  {
+                  <FriendRequestButton
+                    className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                    onClose={() => reFetchRequest(profile?.Id)}
+                  />
+                  {/* {
                     {
                       new: (
                         <AddButton
@@ -332,7 +334,7 @@ const Chatbox = (props) => {
                       request_received: (
                         <AcceptButton
                           className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          request={request}
+                          id={request?.Id}
                           onClose={() => reFetchRequest(profile?.Id)}
                         />
                       ),
@@ -343,9 +345,9 @@ const Chatbox = (props) => {
                           onClose={() => reFetchRequest(profile?.Id)}
                         />
                       ),
-                      friend: <p>Friend</p>,
+                      friend: "",
                     }[request?.Status]
-                  }
+                  } */}
                 </>
               )}
             </div>

@@ -18,7 +18,7 @@ const CustomButton = ({ title, className, onClick, processing }) => {
       {processing ? (
         <div className="fa fa-spinner fa-spin"></div>
       ) : (
-        <span className="mx-auto">{title}</span>
+        <span className="button-title mx-auto">{title}</span>
       )}
     </div>
   );

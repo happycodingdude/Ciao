@@ -36,7 +36,7 @@ namespace MyConnect.Implement
                 var notification = new FirebaseNotification
                 {
                     to = connection,
-                    data = new CustomNotification(NotificationEvent.NewConversation, notify)
+                    data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
                 };
                 await _firebaseFunction.Notify(notification);
             }

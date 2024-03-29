@@ -23,8 +23,8 @@ const AddParticipants = () => {
       title: "Add members",
       data: [
         {
-          label: "Members",
-          name: "Members",
+          label: "Friends",
+          name: "Friends",
           type: "multiple",
           options: friends
             .filter(
@@ -48,7 +48,7 @@ const AddParticipants = () => {
       method: "post",
       url: `api/conversations/${selected.Id}/participants`,
       token: auth.token,
-      data: data.Members.map((item) => {
+      data: data.Friends.map((item) => {
         return {
           ConversationId: selected.Id,
           ContactId: item,
