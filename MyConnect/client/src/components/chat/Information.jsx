@@ -146,7 +146,11 @@ const Information = (props) => {
                 <ImageWithLightBoxWithBorderAndShadow
                   src={profile?.Avatar ?? ""}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-                  onClick={() => {}}
+                  slides={[
+                    {
+                      src: profile?.Avatar ?? "",
+                    },
+                  ]}
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"

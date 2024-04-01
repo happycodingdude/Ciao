@@ -7,8 +7,7 @@ namespace MyConnect.Model
 {
     public class ResponseModel<T> : ActionResult
     {
-        [JsonIgnore]
-        public HttpStatusCode code { get; private set; }
+        private HttpStatusCode code { get; set; }
         public string error { get; private set; }
         public T data { get; private set; }
         private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings

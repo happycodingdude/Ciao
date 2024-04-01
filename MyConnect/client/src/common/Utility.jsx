@@ -46,10 +46,10 @@ export const HttpRequest = ({
 };
 
 export const GenerateContent = (contacts, text) => {
-  if (contacts.some((item) => text.includes(`@${item.Id}`))) {
+  if (contacts?.some((item) => text.includes(`@${item.ContactId}`))) {
     contacts.map((item) => {
       text = text.replace(
-        `@${item.Id}`,
+        `@${item.ContactId}`,
         `<span className="text-blue-400 cursor-pointer">${item.Name}</span>`,
       );
     });

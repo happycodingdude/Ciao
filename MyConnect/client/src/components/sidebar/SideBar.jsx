@@ -4,9 +4,8 @@ import {
   useEventListener,
   useFetchProfile,
 } from "../../hook/CustomHooks";
-import BackgroundPortal from "../common/BackgroundPortal";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
-import Profile from "../profile/Profile";
+import ProfileIcon from "../profile-new/ProfileIcon";
 import Notification from "./Notification";
 
 const SideBar = () => {
@@ -36,22 +35,30 @@ const SideBar = () => {
     <section className="w-full max-w-[7%] shrink-0 bg-[var(--bg-color)]">
       {user ? (
         <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
-          <ImageWithLightBoxWithBorderAndShadow
-            src={user?.Avatar ?? ""}
-            className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
-            onClick={openProfile}
-          />
-          <BackgroundPortal
+          <div className="flex w-full flex-col items-center gap-[3rem]">
+            <ImageWithLightBoxWithBorderAndShadow
+              src={user?.Avatar ?? ""}
+              className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
+              // onClick={openProfile}
+              slides={[
+                {
+                  src: user?.Avatar ?? "",
+                },
+              ]}
+            />
+            <ProfileIcon />
+          </div>
+          {/* <BackgroundPortal
             open={open}
             title="Edit Profile"
             onClose={() => setOpen(false)}
           >
             <Profile onClose={() => setOpen(false)} />
-          </BackgroundPortal>
+          </BackgroundPortal> */}
           <div className="flex flex-col gap-[3rem]">
             <Notification />
             <div
-              onClick={openProfile}
+              // onClick={openProfile}
               className="fa fa-cog cursor-pointer text-xl font-thin"
             ></div>
           </div>

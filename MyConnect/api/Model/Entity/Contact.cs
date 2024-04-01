@@ -6,13 +6,16 @@ namespace MyConnect.Model
 {
     public class Contact : BaseModel
     {
+        [Required]
         public string? Name { get; set; }
         [JsonIgnore]
+        [Required]
         public string? Username { get; set; }
         [MinLength(6)]
         [JsonIgnore]
         public string? Password { get; set; }
         public string? Avatar { get; set; }
+        public string? Bio { get; set; }
         public bool IsOnline { get; set; }
         [JsonIgnore]
         public DateTime? LastLogout { get; set; }
@@ -47,7 +50,7 @@ namespace MyConnect.Model
     {
         public string? Name { get; set; }
         [JsonIgnore]
-        public string? Username { get; set; }        
+        public string? Username { get; set; }
         [JsonIgnore]
         public string? Password { get; set; }
         public string? Avatar { get; set; }

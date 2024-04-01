@@ -3,7 +3,7 @@ import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { GenerateContent, HttpRequest } from "../../common/Utility";
+import { HttpRequest } from "../../common/Utility";
 import {
   useAuth,
   useEventListener,
@@ -24,7 +24,7 @@ import ChatInput from "./ChatInput";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
-  const { contacts, refChatbox, toggleInformation } = props;
+  const { refChatbox, toggleInformation } = props;
 
   const auth = useAuth();
   const { participants } = useFetchParticipants();
@@ -322,32 +322,6 @@ const Chatbox = (props) => {
                     className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
                     onClose={() => reFetchRequest(profile?.Id)}
                   />
-                  {/* {
-                    {
-                      new: (
-                        <AddButton
-                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          id={profile?.Id}
-                          onClose={() => reFetchRequest(profile?.Id)}
-                        />
-                      ),
-                      request_received: (
-                        <AcceptButton
-                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          id={request?.Id}
-                          onClose={() => reFetchRequest(profile?.Id)}
-                        />
-                      ),
-                      request_sent: (
-                        <CancelButton
-                          className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
-                          id={request?.Id}
-                          onClose={() => reFetchRequest(profile?.Id)}
-                        />
-                      ),
-                      friend: "",
-                    }[request?.Status]
-                  } */}
                 </>
               )}
             </div>
@@ -373,17 +347,30 @@ const Chatbox = (props) => {
             >
               {message.ContactId !== auth.id ? (
                 <div className="relative w-[3rem]">
-                  <ImageWithLightBoxWithBorderAndShadow
-                    src={
-                      contacts?.find((item) => item.Id == message.ContactId)
-                        .Avatar ?? ""
-                    }
-                    className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
-                    onClick={() => {
-                      setUserId(message.ContactId);
-                      setOpen(true);
-                    }}
-                  />
+                  {selected?.IsGroup ? (
+                    <ImageWithLightBoxWithBorderAndShadow
+                      src={
+                        participants?.find(
+                          (item) => item.ContactId == message.ContactId,
+                        )?.Contact.Avatar ?? ""
+                      }
+                      className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
+                      onClick={() => {
+                        setUserId(message.ContactId);
+                        setOpen(true);
+                      }}
+                    />
+                  ) : (
+                    <ImageWithLightBoxWithBorderAndShadow
+                      src={profile?.Avatar ?? ""}
+                      className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
+                      slides={[
+                        {
+                          src: profile?.Avatar ?? "",
+                        },
+                      ]}
+                    />
+                  )}
                 </div>
               ) : (
                 ""
@@ -401,8 +388,9 @@ const Chatbox = (props) => {
                   ) : (
                     <p>
                       {
-                        contacts?.find((item) => item.Id == message.ContactId)
-                          .Name
+                        participants?.find(
+                          (item) => item.ContactId == message.ContactId,
+                        )?.Contact.Name
                       }
                     </p>
                   )}
@@ -419,7 +407,8 @@ const Chatbox = (props) => {
                     className="break-all rounded-[3rem] bg-gradient-radial-to-bc from-[var(--sub-color)] to-[var(--main-color)] 
                     px-[1.5rem] py-[.7rem] text-[var(--text-sub-color)]"
                   >
-                    {GenerateContent(contacts, message.Content)}
+                    {/* {GenerateContent(participants, message.Content)} */}
+                    {message.Content}
                   </div>
                 ) : (
                   <div

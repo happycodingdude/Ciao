@@ -124,42 +124,11 @@ const UserProfileSetting = (props) => {
         <div className="flex w-full">
           <FriendRequestButton
             className="!w-1/3"
-            onClose={() => reFetchRequest(profile?.Id)}
+            onClose={() => {
+              onClose();
+              reFetchRequest(profile?.Id);
+            }}
           />
-          {/* {
-            {
-              new: (
-                <AddButton
-                  id={profile?.Id}
-                  className="!w-1/3"
-                  onClose={() => {
-                    reFetchRequest(id);
-                    onClose();
-                  }}
-                />
-              ),
-              request_received: (
-                <AcceptButton
-                  className="!w-1/3"
-                  id={request?.Id}
-                  onClose={() => {
-                    reFetchRequest(id);
-                    onClose();
-                  }}
-                />
-              ),
-              request_sent: (
-                <CancelButton
-                  id={request?.Id}
-                  className="!w-1/3"
-                  onClose={() => {
-                    reFetchRequest(id);
-                    onClose();
-                  }}
-                />
-              ),
-            }[request?.Status]
-          } */}
           <CustomButton
             title="Chat"
             className={`${request?.Status === "friend" ? "!w-1/2" : "!w-1/3"} `}

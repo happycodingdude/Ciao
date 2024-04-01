@@ -1,6 +1,5 @@
 import moment from "moment";
 import React, { useEffect, useRef } from "react";
-import { GenerateContent } from "../../common/Utility";
 import {
   useAuth,
   useFetchAttachments,
@@ -38,7 +37,7 @@ const ListChat = (props) => {
   const handleSetConversation = (position, item) => {
     if (item.Id !== selected?.Id) {
       reFetchMessages(item.Id);
-      // reFetchParticipants(item.Id);
+      reFetchParticipants(item.Id);
       reFetchAttachments(item.Id);
       clickConversation(item);
       refChats.current.scrollTop = position;
@@ -51,8 +50,6 @@ const ListChat = (props) => {
           item.Participants.find((item) => item.ContactId !== auth.user.Id)
             .ContactId,
         );
-      } else {
-        reFetchParticipants(item.Id);
       }
     }
   };
@@ -204,11 +201,12 @@ const ListChat = (props) => {
                     ? "font-medium"
                     : "text-[var(--text-main-color-blur)]"
                 }`}
-                title={
-                  item.LastMessage === null
-                    ? ""
-                    : GenerateContent(contacts, item.LastMessage)
-                }
+                // title={
+                //   item.LastMessage === null
+                //     ? ""
+                //     : GenerateContent(contacts, item.LastMessage)
+                // }
+                title={item.LastMessage}
               />
             </div>
             <div
