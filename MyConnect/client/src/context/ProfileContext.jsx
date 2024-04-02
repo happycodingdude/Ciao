@@ -12,16 +12,20 @@ export const ProfileProvider = ({ children }) => {
   const [profile, setProfile] = useState();
   const [file, setFile] = useState();
 
-  const getProfiles = useCallback(() => {
-    HttpRequest({
-      method: "get",
-      url: "api/auth/authenticate",
-      token: auth.token,
-      header: { Data: "full" },
-    }).then((res) => {
-      setProfile(res);
-    });
-  }, [auth.token]);
+  const getProfiles = useCallback(
+    (controller = new AbortController()) => {
+      HttpRequest({
+        method: "get",
+        url: "api/auth/authenticate",
+        token: auth.token,
+        header: { Data: "full" },
+        controller: controller,
+      }).then((res) => {
+        setProfile(res);
+      });
+    },
+    [auth.token],
+  );
 
   const chooseAvatar = (e) => {
     const chosenFiles = Array.from(e.target.files);
@@ -35,7 +39,7 @@ export const ProfileProvider = ({ children }) => {
     e.target.value = null;
   };
 
-  const updateProfile = async (onClose) => {
+  const updateProfile = async () => {
     var url = "";
     if (file === undefined) {
       url = profile.Avatar;
@@ -63,8 +67,8 @@ export const ProfileProvider = ({ children }) => {
       },
       {
         op: "replace",
-        path: "Password",
-        value: profile.Password,
+        path: "Bio",
+        value: profile.Bio,
       },
     ];
     HttpRequest({
@@ -74,7 +78,7 @@ export const ProfileProvider = ({ children }) => {
       data: body,
     }).then((res) => {
       auth.setUser(res);
-      onClose();
+      // onClose();
     });
   };
 

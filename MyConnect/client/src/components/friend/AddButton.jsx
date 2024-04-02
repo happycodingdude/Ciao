@@ -24,8 +24,8 @@ const AddButton = (props) => {
 
   return (
     <CustomButton
-      title="Add friend"
-      className={className}
+      title="Add"
+      className={`${className ?? ""} fa fa-user-plus`}
       onClick={addFriend}
     />
   );

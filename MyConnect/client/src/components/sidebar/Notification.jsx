@@ -147,19 +147,9 @@ const Notification = () => {
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">
                   <AcceptButton
-                    title="Accept"
-                    className="notification-body !m-0 text-xs laptop:h-[2rem] laptop:w-[5rem]"
+                    className="notification-body !m-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
                     id={notification.SourceId}
                     onClose={() => {
-                      // if (profile === undefined) return;
-                      // setNotifications((current) => {
-                      //   return current.map((item) => {
-                      //     if (item.Id === notification.Id)
-                      //       item.SourceData.Status = "friend";
-                      //     return item;
-                      //   });
-                      // });
-
                       reFetchNotifications();
                       reFetchRequest(profile?.Id);
                     }}

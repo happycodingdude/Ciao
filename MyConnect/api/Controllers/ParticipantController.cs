@@ -77,15 +77,16 @@ public class ParticipantsController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public IActionResult Edit(Guid id, JsonPatchDocument patch)
+    public async Task<IActionResult> EditAsync(Guid id, JsonPatchDocument patch, bool includeNotify)
     {
         try
         {
-            var entity = _unitOfWork.Participant.GetById(id);
-            patch.ApplyTo(entity);
-            _unitOfWork.Participant.Update(entity);
-            _unitOfWork.Save();
-            return new ResponseModel<Participant>(entity).Ok();
+            var response = await _participantService.EditParticipantAndNotify(id, patch, includeNotify);
+            // var entity = _unitOfWork.Participant.GetById(id);
+            // patch.ApplyTo(entity);
+            // _unitOfWork.Participant.Update(entity);
+            // _unitOfWork.Save();
+            return new ResponseModel<Participant>(response).Ok();
         }
         catch (Exception ex)
         {

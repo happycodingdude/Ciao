@@ -64,7 +64,7 @@ export const ConversationProvider = ({ children }) => {
         return chat;
       });
       setConversations(updatedConversations);
-      setSelected(conversation);
+      // setSelected(conversation);
     },
     [conversations],
   );

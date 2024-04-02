@@ -1,4 +1,5 @@
 using AutoMapper;
+using MyConnect.Authentication;
 using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.RestApi;
@@ -12,33 +13,41 @@ namespace MyConnect.Implement
         private readonly IFirebaseFunction _firebaseFunction;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ConversationService(IUnitOfWork unitOfWork,
         IFirebaseFunction firebaseFunction,
         INotificationService notificationService,
-        IMapper mapper)
+        IMapper mapper,
+        IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _firebaseFunction = firebaseFunction;
             _notificationService = notificationService;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<Conversation> CreateConversationAndNotify(Conversation model)
+        public async Task<Conversation> CreateConversationAndNotify(Conversation model, bool includeNotify)
         {
             _unitOfWork.Conversation.Add(model);
             _unitOfWork.Save();
 
-            var notify = _mapper.Map<Conversation, ConversationToNotify>(model);
-            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.Id))
+            if (includeNotify)
             {
-                var connection = _notificationService.GetConnection(contact);
-                var notification = new FirebaseNotification
+                var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+                var id = JwtToken.ExtractToken(token);
+                var notify = _mapper.Map<Conversation, ConversationToNotify>(model);
+                foreach (var contact in model.Participants.Where(q => q.ContactId != id).Select(q => q.ContactId.ToString()))
                 {
-                    to = connection,
-                    data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
-                };
-                await _firebaseFunction.Notify(notification);
+                    var connection = _notificationService.GetConnection(contact);
+                    var notification = new FirebaseNotification
+                    {
+                        to = connection,
+                        data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
+                    };
+                    await _firebaseFunction.Notify(notification);
+                }
             }
             return model;
         }

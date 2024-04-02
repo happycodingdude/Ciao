@@ -98,7 +98,7 @@ public class ContactsController : ControllerBase
         {
             var entity = _unitOfWork.Contact.GetById(id);
             patch.ApplyTo(entity);
-            entity.EncryptPassword();
+            // entity.EncryptPassword();
             _unitOfWork.Contact.Update(entity);
             _unitOfWork.Save();
             return new ResponseModel<Contact>(entity).Ok();

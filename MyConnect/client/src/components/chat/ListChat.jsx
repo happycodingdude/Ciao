@@ -10,17 +10,17 @@ import {
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
-import AddFriend from "../friend/AddFriend";
 import CreateGroupChat from "./CreateGroupChat";
 
 const ListChat = (props) => {
   console.log("ListChat calling");
-  const { refListChat, contacts } = props;
+  const { refListChat } = props;
 
   const auth = useAuth();
   const {
     conversations,
     selected,
+    setSelected,
     reFetch: reFetchConversations,
     newMessage,
     clickConversation,
@@ -34,25 +34,48 @@ const ListChat = (props) => {
   const refChats = useRef();
   const refChatsScroll = useRef();
 
+  // const handleSetConversation = (position, item) => {
+  //   if (item.Id !== selected?.Id) {
+  //     reFetchMessages(item.Id);
+  //     reFetchParticipants(item.Id);
+  //     reFetchAttachments(item.Id);
+  //     clickConversation(item);
+  //     refChats.current.scrollTop = position;
+  //     if (!item.IsGroup) {
+  //       reFetchProfile(
+  //         item.Participants.find((item) => item.ContactId !== auth.user.Id)
+  //           .ContactId,
+  //       );
+  //       reFetchRequest(
+  //         item.Participants.find((item) => item.ContactId !== auth.user.Id)
+  //           .ContactId,
+  //       );
+  //     }
+  //   }
+  // };
+
   const handleSetConversation = (position, item) => {
-    if (item.Id !== selected?.Id) {
-      reFetchMessages(item.Id);
-      reFetchParticipants(item.Id);
-      reFetchAttachments(item.Id);
-      clickConversation(item);
-      refChats.current.scrollTop = position;
-      if (!item.IsGroup) {
-        reFetchProfile(
-          item.Participants.find((item) => item.ContactId !== auth.user.Id)
-            .ContactId,
-        );
-        reFetchRequest(
-          item.Participants.find((item) => item.ContactId !== auth.user.Id)
-            .ContactId,
-        );
-      }
-    }
+    setSelected(item);
   };
+
+  useEffect(() => {
+    if (selected === undefined) return;
+    reFetchMessages(selected.Id);
+    reFetchParticipants(selected.Id);
+    reFetchAttachments(selected.Id);
+    // clickConversation(selected);
+    // refChats.current.scrollTop = position;
+    if (!selected.IsGroup) {
+      reFetchProfile(
+        selected.Participants.find((item) => item.ContactId !== auth.user.Id)
+          .ContactId,
+      );
+      reFetchRequest(
+        selected.Participants.find((item) => item.ContactId !== auth.user.Id)
+          .ContactId,
+      );
+    }
+  }, [selected?.Id]);
 
   // Get all chats when first time render
   useEffect(() => {
@@ -136,7 +159,7 @@ const ListChat = (props) => {
           ></input>
         </div>
         <div className="flex h-[50%] gap-[.5rem] [&>*]:px-[.5rem]">
-          <AddFriend />
+          {/* <AddFriend /> */}
           <CreateGroupChat />
         </div>
       </div>

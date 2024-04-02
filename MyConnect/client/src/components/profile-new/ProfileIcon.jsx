@@ -1,18 +1,10 @@
-import { useFetchProfile } from "../../hook/CustomHooks";
-
 const ProfileIcon = (props) => {
-  const { onClose } = props;
-  const { reFetch } = useFetchProfile();
-
-  const openProfile = () => {
-    reFetch();
-    // setOpen(true);
-  };
+  const { show, focus } = props;
 
   return (
     <div
-      className="fa fa-user notification-trigger relative cursor-pointer text-xl font-thin"
-      onClick={openProfile}
+      className={`${focus ? "text-[var(--main-color)]" : ""} fa fa-user cursor-pointer text-xl font-thin`}
+      onClick={show}
     ></div>
   );
 };

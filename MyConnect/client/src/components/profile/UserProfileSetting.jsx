@@ -12,7 +12,11 @@ import FriendRequestButton from "../friend/FriendRequestButton";
 const UserProfileSetting = (props) => {
   const { id, onClose } = props;
   const auth = useAuth();
-  const { checkExist, reFetch: reFetchConversations } = useFetchConversations();
+  const {
+    checkExist,
+    reFetch: reFetchConversations,
+    setSelected,
+  } = useFetchConversations();
   const { request, profile, reFetchProfile, reFetchRequest } =
     useFetchFriends();
 
@@ -29,8 +33,7 @@ const UserProfileSetting = (props) => {
   const chat = () => {
     const chat = checkExist(profile.Id);
     if (chat !== undefined) {
-      document.querySelector(`[data-key='${chat.Id}']`).click();
-      onClose();
+      setConversationAndClose(chat);
       return;
     }
 
@@ -67,15 +70,14 @@ const UserProfileSetting = (props) => {
             value: false,
           },
         ];
-        HttpRequest({
+        return HttpRequest({
           method: "patch",
-          url: `api/conversations/${selectedConversation.Id}/participants/${selectedParticipant.Id}`,
+          url: `api/participants/${selectedParticipant.Id}`,
           token: auth.token,
           data: body,
         }).then((res) => {
-          // reFetchConversations();
-          // document.querySelector(`[data-key='${res.ConversationId}']`).click();
-          onClose();
+          reFetchConversations();
+          setConversationAndClose(selectedConversation);
         });
         // Ko tồn tại hội thoại giữa 2 contact thì tạo mới
       } else {
@@ -99,16 +101,21 @@ const UserProfileSetting = (props) => {
           token: auth.token,
           data: body,
         }).then((res) => {
-          onClose();
-          // document.querySelector(`[data-key='${res.Id}']`).click();
+          reFetchConversations();
+          setConversationAndClose(res);
         });
       }
     });
   };
 
+  const setConversationAndClose = (conversation) => {
+    setSelected(conversation);
+    onClose();
+  };
+
   return (
-    <div className="flex w-full flex-col bg-[var(--bg-color)] p-[2rem] pb-[3rem]">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-8">
+    <div className="flex w-full flex-col bg-[var(--bg-color)] p-[2rem]">
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-12">
         <ImageWithLightBoxWithBorderAndShadow
           src={profile?.Avatar ?? ""}
           className="aspect-square w-[20%] cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
@@ -119,11 +126,12 @@ const UserProfileSetting = (props) => {
           ]}
         />
         <div className="flex flex-col">
-          <p>{profile?.Name}</p>
+          <p className="text-lg font-bold">{profile?.Name}</p>
+          <p className="text-[var(--text-main-color-blur)]">{profile?.Bio}</p>
         </div>
         <div className="flex w-full">
           <FriendRequestButton
-            className="!w-1/3"
+            className="fa fa-user-plus !w-1/3"
             onClose={() => {
               onClose();
               reFetchRequest(profile?.Id);

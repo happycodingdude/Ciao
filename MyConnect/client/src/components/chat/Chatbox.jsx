@@ -319,7 +319,7 @@ const Chatbox = (props) => {
                     title={profile?.Name}
                   />
                   <FriendRequestButton
-                    className="!ml-0 text-xs laptop:h-[2rem] laptop:w-[10rem]"
+                    className="fa fa-user-plus !ml-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
                     onClose={() => reFetchRequest(profile?.Id)}
                   />
                 </>

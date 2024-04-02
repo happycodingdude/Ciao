@@ -1,6 +1,5 @@
 import React from "react";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
-import MediaPicker from "../common/MediaPicker";
 import ProfileSettingMenu from "./ProfileSettingMenu";
 
 const ProfileSetting = (props) => {
@@ -17,12 +16,12 @@ const ProfileSetting = (props) => {
             },
           ]}
         />
-        <MediaPicker
+        {/* <MediaPicker
           className="absolute left-[20%] top-[-5%] text-xl"
           accept="image/png, image/jpeg"
           id="customer-avatar"
           onChange={onchange}
-        />
+        /> */}
       </div>
       <ProfileSettingMenu />
     </div>

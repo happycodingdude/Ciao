@@ -19,8 +19,8 @@ const CancelButton = (props) => {
 
   return (
     <CustomButton
-      title="Cancel request"
-      className={className}
+      title="Cancel"
+      className={`${className ?? ""} fa fa-user-plus`}
       onClick={cancelFriendRequest}
     />
   );

@@ -63,14 +63,20 @@ export const useFetchNotifications = () => {
 
 export const useDeleteChat = () => {
   const auth = useAuth();
-  const deleteChat = (id, participants) => {
+  const deleteChat = (participants) => {
     const selected = participants.find((item) => item.ContactId === auth.id);
-    selected.IsDeleted = true;
+    const body = [
+      {
+        op: "replace",
+        path: "IsDeleted",
+        value: true,
+      },
+    ];
     return HttpRequest({
-      method: "delete",
-      url: `api/conversations/${id}/participants`,
+      method: "patch",
+      url: `api/participants/${selected.Id}`,
       token: auth.token,
-      data: selected,
+      data: body,
     });
   };
   return { deleteChat };

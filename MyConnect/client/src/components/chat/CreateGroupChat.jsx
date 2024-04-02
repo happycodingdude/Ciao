@@ -1,11 +1,21 @@
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth, useFetchFriends } from "../../hook/CustomHooks";
+import {
+  useAuth,
+  useFetchConversations,
+  useFetchFriends,
+} from "../../hook/CustomHooks";
 import CustomModal from "../common/CustomModal";
 
 const CreateGroupChat = () => {
   const auth = useAuth();
   const { friends } = useFetchFriends();
+  const {
+    reFetch: reFetchConversations,
+    conversations,
+    setConversations,
+    setSelected,
+  } = useFetchConversations();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
@@ -57,9 +67,14 @@ const CreateGroupChat = () => {
     };
     HttpRequest({
       method: "post",
-      url: `api/conversations`,
+      url: `api/conversations?includeNotify=true`,
       token: auth.token,
       data: body,
+    }).then((res) => {
+      // reFetchConversations();
+      // console.log(conversations);
+      // console.log(conversations.splice(1, 0, res));
+      setSelected(res);
     });
   };
 

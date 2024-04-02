@@ -205,7 +205,7 @@ const Information = (props) => {
           title="Delete chat"
           message="Are you sure want to delete this chat?"
           onSubmit={() => {
-            deleteChat(selected.Id, participants).then(() => {
+            deleteChat(participants).then(() => {
               removeConversation(selected.Id);
               setSelected(undefined);
             });

@@ -46,27 +46,30 @@ namespace MyConnect.Implement
             return result;
         }
 
-        public async Task<Participant> EditParticipantAndNotify(Guid id, JsonPatchDocument patch)
+        public async Task<Participant> EditParticipantAndNotify(Guid id, JsonPatchDocument patch, bool includeNotify)
         {
             var entity = _unitOfWork.Participant.GetById(id);
             patch.ApplyTo(entity);
             _unitOfWork.Participant.Update(entity);
 
             var conversation = _unitOfWork.Conversation.GetById(entity.ConversationId);
-            conversation.UpdatedTime = DateTime.Now;
-            _unitOfWork.Conversation.Update(conversation);
+            // conversation.UpdatedTime = DateTime.Now;
+            // _unitOfWork.Conversation.Update(conversation);
             _unitOfWork.Save();
 
-            var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
-            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(entity.ConversationId))
+            if (includeNotify)
             {
-                var connection = _notificationService.GetConnection(contact);
-                var notification = new FirebaseNotification
+                var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
+                foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(entity.ConversationId))
                 {
-                    to = connection,
-                    data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
-                };
-                await _firebaseFunction.Notify(notification);
+                    var connection = _notificationService.GetConnection(contact);
+                    var notification = new FirebaseNotification
+                    {
+                        to = connection,
+                        data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
+                    };
+                    await _firebaseFunction.Notify(notification);
+                }
             }
             return entity;
         }

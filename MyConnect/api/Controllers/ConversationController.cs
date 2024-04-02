@@ -77,33 +77,33 @@ public class ConversationsController : ControllerBase
         }
     }
 
-    [HttpPatch("{id}/participants/{participantId}")]
-    public async Task<IActionResult> EditParticipant(Guid participantId, JsonPatchDocument patch)
-    {
-        try
-        {
-            var response = await _participantService.EditParticipantAndNotify(participantId, patch);
-            return new ResponseModel<Participant>(response).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Participant>().BadRequest(ex);
-        }
-    }
+    // [HttpPatch("{id}/participants/{participantId}")]
+    // public async Task<IActionResult> EditParticipant(Guid participantId, JsonPatchDocument patch)
+    // {
+    //     try
+    //     {
+    //         var response = await _participantService.EditParticipantAndNotify(participantId, patch);
+    //         return new ResponseModel<Participant>(response).Ok();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return new ResponseModel<Participant>().BadRequest(ex);
+    //     }
+    // }
 
-    [HttpDelete("{id}/participants")]
-    public IActionResult RemoveChat(Participant model)
-    {
-        try
-        {
-            var response = _participantService.RemoveChat(model);
-            return new ResponseModel<Participant>(model).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Participant>().BadRequest(ex);
-        }
-    }
+    // [HttpDelete("{id}/participants")]
+    // public IActionResult RemoveChat(Participant model)
+    // {
+    //     try
+    //     {
+    //         var response = _participantService.RemoveChat(model);
+    //         return new ResponseModel<Participant>(model).Ok();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return new ResponseModel<Participant>().BadRequest(ex);
+    //     }
+    // }
 
     [HttpGet("{id}/messages")]
     public IActionResult GetMessages(Guid id, int page, int limit)
@@ -134,11 +134,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateConversation(Conversation model)
+    public async Task<IActionResult> CreateConversation(Conversation model, bool includeNotify)
     {
         try
         {
-            var response = await _conversationService.CreateConversationAndNotify(model);
+            var response = await _conversationService.CreateConversationAndNotify(model, includeNotify);
             return new ResponseModel<Conversation>(model).Ok();
         }
         catch (Exception ex)

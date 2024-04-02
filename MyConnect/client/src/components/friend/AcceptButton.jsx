@@ -35,8 +35,8 @@ const AcceptButton = (props) => {
 
   return (
     <CustomButton
-      title={title ?? "Accept request"}
-      className={className}
+      title="Accept"
+      className={`${className ?? ""}`}
       onClick={acceptFriendRequest}
     />
   );
