@@ -93,5 +93,26 @@ namespace MyConnect.Implement
             }
             return dtos;
         }
+
+        public List<PatchResponse> BulkEdit(List<PatchRequest<Notification>> patchs)
+        {
+            var response = new List<PatchResponse>();
+            foreach (var patch in patchs)
+            {
+                var entity = _unitOfWork.Notification.GetById(patch.Id);
+                if (entity == null)
+                {
+                    response.Add(new PatchResponse(entity.Id, "object not found"));
+                }
+                else
+                {
+                    patch.PatchDocument.ApplyTo(entity);
+                    _unitOfWork.Notification.Update(entity);
+                    response.Add(new PatchResponse(entity.Id, "success"));
+                }
+            }
+            _unitOfWork.Save();
+            return response;
+        }
     }
 }

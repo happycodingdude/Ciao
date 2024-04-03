@@ -1,11 +1,13 @@
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchFriends } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 
 const CancelButton = (props) => {
   const { id, onClose, className } = props;
+
   const auth = useAuth();
+  const { reFetchRequest } = useFetchFriends();
 
   const cancelFriendRequest = () => {
     HttpRequest({
@@ -13,6 +15,7 @@ const CancelButton = (props) => {
       url: `api/friends/${id}?includeNotify=true`,
       token: auth.token,
     }).then((res) => {
+      reFetchRequest(auth.id);
       onClose();
     });
   };

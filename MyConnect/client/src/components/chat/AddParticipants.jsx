@@ -11,7 +11,7 @@ import CustomModal from "../common/CustomModal";
 const AddParticipants = () => {
   const auth = useAuth();
   const { selected } = useFetchConversations();
-  const { participants } = useFetchParticipants();
+  const { participants, reFetch: reFetchParticipants } = useFetchParticipants();
   const { friends } = useFetchFriends();
 
   const [formData, setFormData] = useState();
@@ -46,7 +46,7 @@ const AddParticipants = () => {
     handleClose();
     HttpRequest({
       method: "post",
-      url: `api/conversations/${selected.Id}/participants`,
+      url: `api/conversations/${selected.Id}/participants?includeNotify=true`,
       token: auth.token,
       data: data.Friends.map((item) => {
         return {
@@ -55,10 +55,9 @@ const AddParticipants = () => {
           IsNotifying: true,
         };
       }),
+    }).then((res) => {
+      reFetchParticipants(selected.Id);
     });
-    // .then((res) => {
-    //   setParticipants((current) => [...current, ...res]);
-    // });
   };
   return (
     <>

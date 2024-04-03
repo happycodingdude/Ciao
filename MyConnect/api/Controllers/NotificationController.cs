@@ -62,7 +62,7 @@ public class NotificationsController : ControllerBase
         }
     }
 
-    [HttpPatch("{id:guid}")]
+    [HttpPatch("{id}")]
     public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
@@ -84,42 +84,12 @@ public class NotificationsController : ControllerBase
     {
         try
         {
-            var response = new List<PatchResponse>();
-            foreach (var patch in patchs)
-            {
-                var entity = _unitOfWork.Notification.GetById(patch.Id);
-                if (entity == null)
-                {
-                    response.Add(new PatchResponse(entity.Id, "object not found"));
-                }
-                else
-                {
-                    patch.PatchDocument.ApplyTo(entity);
-                    _unitOfWork.Notification.Update(entity);
-                    response.Add(new PatchResponse(entity.Id, "success"));
-                }
-            }
-            _unitOfWork.Save();
+            var response = _notificationService.BulkEdit(patchs);
             return new ResponseModel<List<PatchResponse>>(response).Ok();
         }
         catch (Exception ex)
         {
             return new ResponseModel<List<PatchResponse>>().BadRequest(ex);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
-    {
-        try
-        {
-            _unitOfWork.Notification.Delete(id);
-            _unitOfWork.Save();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Notification>().BadRequest(ex);
         }
     }
 

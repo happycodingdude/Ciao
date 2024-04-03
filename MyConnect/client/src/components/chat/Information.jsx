@@ -15,7 +15,6 @@ import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import MediaPicker from "../common/MediaPicker";
 import AddParticipants from "./AddParticipants";
-import ToggleNotification from "./ToggleNotification";
 
 const Information = (props) => {
   console.log("Information calling");
@@ -162,7 +161,7 @@ const Information = (props) => {
           <div className="flex w-full justify-center gap-[2rem]">
             {selected.IsGroup ? (
               <>
-                <ToggleNotification />
+                {/* <ToggleNotification /> */}
                 <AddParticipants />
               </>
             ) : (

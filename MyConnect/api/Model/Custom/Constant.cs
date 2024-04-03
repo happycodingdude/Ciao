@@ -6,6 +6,8 @@ namespace MyConnect.Model
         public const string AddMember = "AddMember";
         public const string NewConversation = "NewConversation";
         public const string NewFriendRequest = "NewFriendRequest";
+        public const string AcceptFriendRequest = "AcceptFriendRequest";
+        public const string CancelFriendRequest = "CancelFriendRequest";
         public const string NewNotification = "NewNotification";
     }
 

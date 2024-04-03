@@ -87,6 +87,13 @@ export const ConversationProvider = ({ children }) => {
     [conversations],
   );
 
+  const addNewItem = useCallback(
+    (item) => {
+      conversations.splice(0, 0, item);
+    },
+    [conversations],
+  );
+
   return (
     <ConversationContext.Provider
       value={{
@@ -99,6 +106,7 @@ export const ConversationProvider = ({ children }) => {
         clickConversation,
         removeConversation,
         checkExist,
+        addNewItem,
       }}
     >
       {children}

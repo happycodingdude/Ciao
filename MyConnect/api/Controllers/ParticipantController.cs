@@ -81,27 +81,8 @@ public class ParticipantsController : ControllerBase
     {
         try
         {
-            var response = await _participantService.EditParticipantAndNotify(id, patch, includeNotify);
-            // var entity = _unitOfWork.Participant.GetById(id);
-            // patch.ApplyTo(entity);
-            // _unitOfWork.Participant.Update(entity);
-            // _unitOfWork.Save();
+            var response = await _participantService.EditAsync(id, patch, includeNotify);
             return new ResponseModel<Participant>(response).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Participant>().BadRequest(ex);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
-    {
-        try
-        {
-            _unitOfWork.Participant.Delete(id);
-            _unitOfWork.Save();
-            return Ok();
         }
         catch (Exception ex)
         {

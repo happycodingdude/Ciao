@@ -47,12 +47,12 @@ public class ContactsController : ControllerBase
         }
     }
 
-    [HttpGet("{id}/friends/{fid}")]
-    public IActionResult Get(Guid id, Guid fid)
+    [HttpGet("{id}/friends/{friendId}")]
+    public IActionResult Get(Guid id, Guid friendId)
     {
         try
         {
-            var response = _friendService.GetByTwoContactId(id, fid);
+            var response = _friendService.GetByTwoContactId(id, friendId);
             return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)
@@ -62,11 +62,11 @@ public class ContactsController : ControllerBase
     }
 
     [HttpGet("{id}/friends")]
-    public IActionResult GetAllFriend(Guid id)
+    public IActionResult GetAllFriendByContactId(Guid id)
     {
         try
         {
-            var response = _friendService.GetAllFriend(id);
+            var response = _friendService.GetAllFriendByContactId(id);
             return new ResponseModel<IEnumerable<GetAllFriend>>(response).Ok();
         }
         catch (Exception ex)

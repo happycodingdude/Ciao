@@ -11,6 +11,7 @@ import {
   useFetchConversations,
   useFetchFriends,
   useFetchMessages,
+  useFetchNotifications,
   useFetchParticipants,
 } from "../../hook/CustomHooks";
 import UpdateTitle from "../chat/UpdateTitle";
@@ -31,7 +32,8 @@ const Chatbox = (props) => {
   const { messages, removeLastItem, addNewItem } = useFetchMessages();
   const { selected } = useFetchConversations();
   const { reFetch: reFetchAttachments } = useFetchAttachments();
-  const { profile, request, reFetchRequest } = useFetchFriends();
+  const { profile } = useFetchFriends();
+  const { reFetchNotifications } = useFetchNotifications();
 
   const [files, setFiles] = useState([]);
   const [open, setOpen] = useState(false);
@@ -320,7 +322,7 @@ const Chatbox = (props) => {
                   />
                   <FriendRequestButton
                     className="fa fa-user-plus !ml-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
-                    onClose={() => reFetchRequest(profile?.Id)}
+                    onClose={() => {}}
                   />
                 </>
               )}

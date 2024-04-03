@@ -1,13 +1,14 @@
 import moment from "moment";
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth, useFetchNotifications } from "../../hook/CustomHooks";
+import { useAuth, useFetchFriends } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 
 const AcceptButton = (props) => {
-  const { id, onClose, className, title } = props;
+  const { id, onClose, className } = props;
+
   const auth = useAuth();
-  const { reFetchNotifications } = useFetchNotifications();
+  const { reFetchFriends, reFetchRequestById } = useFetchFriends();
 
   const acceptFriendRequest = () => {
     const body = [
@@ -28,7 +29,8 @@ const AcceptButton = (props) => {
       token: auth.token,
       data: body,
     }).then((res) => {
-      reFetchNotifications();
+      reFetchRequestById(id);
+      reFetchFriends();
       onClose();
     });
   };

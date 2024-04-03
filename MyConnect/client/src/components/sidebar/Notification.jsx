@@ -3,7 +3,6 @@ import { HttpRequest } from "../../common/Utility";
 import {
   useAuth,
   useEventListener,
-  useFetchFriends,
   useFetchNotifications,
 } from "../../hook/CustomHooks";
 import AcceptButton from "../friend/AcceptButton";
@@ -12,15 +11,16 @@ const Notification = () => {
   const { token } = useAuth();
   const { notifications, setNotifications, reFetchNotifications } =
     useFetchNotifications();
-  const { profile, request, reFetchRequest } = useFetchFriends();
 
   const refNotification = useRef();
+  const refNotificationBody = useRef();
   const [loaded, setLoaded] = useState(false);
 
   const showNotification = useCallback(() => {
     if (!loaded) {
       reFetchNotifications();
       setLoaded(true);
+      refNotificationBody.current.scrollTop = 0;
     }
     refNotification.current.setAttribute("data-state", "show");
   }, [loaded]);
@@ -28,13 +28,9 @@ const Notification = () => {
   // Event listener
   const hideNotificationOnClick = useCallback((e) => {
     if (
-      Array.from(e.target.classList).some(
-        (item) => item === "notification-trigger",
-      ) ||
-      Array.from(e.target.classList).some(
-        (item) => item === "notification-body",
-      ) ||
-      Array.from(e.target.classList).some((item) => item === "button-title")
+      Array.from(e.target.classList).includes("notification-trigger") ||
+      Array.from(e.target.classList).includes("notification-body") ||
+      Array.from(e.target.classList).includes("button-title")
     )
       return;
     refNotification.current.setAttribute("data-state", "hide");
@@ -49,8 +45,11 @@ const Notification = () => {
   }, []);
   useEventListener("keydown", hideNotificationOnKey);
 
-  const read = (notification) => {
+  const read = (e, notification) => {
     if (notification.Read) return;
+    const isClickOnButton =
+      Array.from(e.target.classList).includes("button-title") ||
+      Array.from(e.target.classList).includes("accept-button");
     const body = [
       {
         op: "replace",
@@ -68,6 +67,7 @@ const Notification = () => {
       setNotifications((current) => {
         return current.map((item) => {
           if (item.Id === notification.Id) item.Read = true;
+          if (isClickOnButton) item.SourceData = null;
           return item;
         });
       });
@@ -76,18 +76,20 @@ const Notification = () => {
 
   const readAll = () => {
     if (notifications.some((item) => !item.Read)) {
-      const body = notifications.map((item) => {
-        return {
-          Id: item.Id,
-          PatchDocument: [
-            {
-              op: "replace",
-              path: "Read",
-              value: true,
-            },
-          ],
-        };
-      });
+      const body = notifications
+        .filter((item) => !item.Read)
+        .map((item) => {
+          return {
+            Id: item.Id,
+            PatchDocument: [
+              {
+                op: "replace",
+                path: "Read",
+                value: true,
+              },
+            ],
+          };
+        });
       HttpRequest({
         method: "patch",
         url: `api/notifications/bulk_edit`,
@@ -126,11 +128,14 @@ const Notification = () => {
             Mark all as read
           </div>
         </div>
-        <div className="notification-body hide-scrollbar flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth [&>*]:p-4">
+        <div
+          ref={refNotificationBody}
+          className="notification-body hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth [&>*]:p-4"
+        >
           {notifications?.map((notification) => (
             <div
-              className="border-b-[var(--border-color) flex cursor-pointer flex-wrap items-center justify-between gap-y-2 border-b-[.1rem] hover:bg-[var(--main-color-thin)]"
-              onClick={() => read(notification)}
+              className="notification-body border-b-[var(--border-color) flex cursor-pointer flex-wrap items-center justify-between gap-y-2 border-b-[.1rem] hover:bg-[var(--main-color-thin)]"
+              onClick={(e) => read(e, notification)}
             >
               <div className="notification-body py-2 font-normal">
                 {notification.Content}
@@ -147,12 +152,9 @@ const Notification = () => {
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">
                   <AcceptButton
-                    className="notification-body !m-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
+                    className="notification-body accept-button !m-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
                     id={notification.SourceId}
-                    onClose={() => {
-                      reFetchNotifications();
-                      reFetchRequest(profile?.Id);
-                    }}
+                    onClose={() => {}}
                   />
                 </div>
               )}

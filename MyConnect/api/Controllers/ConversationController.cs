@@ -64,11 +64,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost("{id}/participants")]
-    public async Task<IActionResult> AddParticipant(Guid id, List<Participant> model)
+    public async Task<IActionResult> AddParticipantAsync(Guid id, List<Participant> model, bool includeNotify)
     {
         try
         {
-            var response = await _participantService.AddParticipantAndNotify(id, model);
+            var response = await _participantService.AddAsync(id, model, includeNotify);
             return new ResponseModel<List<Participant>>(model).Ok();
         }
         catch (Exception ex)
@@ -77,40 +77,12 @@ public class ConversationsController : ControllerBase
         }
     }
 
-    // [HttpPatch("{id}/participants/{participantId}")]
-    // public async Task<IActionResult> EditParticipant(Guid participantId, JsonPatchDocument patch)
-    // {
-    //     try
-    //     {
-    //         var response = await _participantService.EditParticipantAndNotify(participantId, patch);
-    //         return new ResponseModel<Participant>(response).Ok();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return new ResponseModel<Participant>().BadRequest(ex);
-    //     }
-    // }
-
-    // [HttpDelete("{id}/participants")]
-    // public IActionResult RemoveChat(Participant model)
-    // {
-    //     try
-    //     {
-    //         var response = _participantService.RemoveChat(model);
-    //         return new ResponseModel<Participant>(model).Ok();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return new ResponseModel<Participant>().BadRequest(ex);
-    //     }
-    // }
-
     [HttpGet("{id}/messages")]
     public IActionResult GetMessages(Guid id, int page, int limit)
     {
         try
         {
-            var response = _unitOfWork.Message.GetWithPaging(id, page, limit);
+            var response = _unitOfWork.Message.GetByConversationIdWithPaging(id, page, limit);
             return new ResponseModel<IEnumerable<MessageNoReference>>(response).Ok();
         }
         catch (Exception ex)
@@ -125,20 +97,20 @@ public class ConversationsController : ControllerBase
         try
         {
             var response = _unitOfWork.Attachment.GetByConversationId(id);
-            return new ResponseModel<IEnumerable<Model.AttachmentGroupByCreatedTime>>(response).Ok();
+            return new ResponseModel<IEnumerable<AttachmentGroupByCreatedTime>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Model.AttachmentGroupByCreatedTime>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<AttachmentGroupByCreatedTime>>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateConversation(Conversation model, bool includeNotify)
+    public async Task<IActionResult> CreateAsync(Conversation model, bool includeNotify)
     {
         try
         {
-            var response = await _conversationService.CreateConversationAndNotify(model, includeNotify);
+            var response = await _conversationService.CreateAsync(model, includeNotify);
             return new ResponseModel<Conversation>(model).Ok();
         }
         catch (Exception ex)
@@ -163,19 +135,4 @@ public class ConversationsController : ControllerBase
             return new ResponseModel<Conversation>().BadRequest(ex);
         }
     }
-
-    // [HttpDelete("{id}")]
-    // public IActionResult Delete(Guid id)
-    // {
-    //     try
-    //     {
-    //         _unitOfWork.Conversation.Delete(id);
-    //         _unitOfWork.Save();
-    //         return Ok();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return new ResponseModel<Conversation>().BadRequest(ex);
-    //     }
-    // }
 }

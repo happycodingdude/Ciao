@@ -1,11 +1,13 @@
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useAuth, useFetchFriends } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 
 const AddButton = (props) => {
   const { id, onClose, className } = props;
+
   const auth = useAuth();
+  const { reFetchRequestById } = useFetchFriends();
 
   const addFriend = () => {
     HttpRequest({
@@ -18,6 +20,7 @@ const AddButton = (props) => {
         Status: "request",
       },
     }).then((res) => {
+      reFetchRequestById(res.Id);
       onClose();
     });
   };

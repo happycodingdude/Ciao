@@ -4,6 +4,7 @@ using MyConnect.RestApi;
 using AutoMapper;
 using MyConnect.UOW;
 using Microsoft.AspNetCore.JsonPatch;
+using MyConnect.Authentication;
 
 namespace MyConnect.Implement
 {
@@ -13,40 +14,49 @@ namespace MyConnect.Implement
         private readonly IFirebaseFunction _firebaseFunction;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ParticipantService(IUnitOfWork unitOfWork,
         IFirebaseFunction firebaseFunction,
         INotificationService notificationService,
-        IMapper mapper)
+        IMapper mapper,
+        IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _firebaseFunction = firebaseFunction;
             _notificationService = notificationService;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<Participant>> AddParticipantAndNotify(Guid id, List<Participant> model)
+        public async Task<IEnumerable<Participant>> AddAsync(Guid conversationId, List<Participant> model, bool includeNotify)
         {
-            var participantToDelete = _unitOfWork.Participant.GetByConversationId(id).Where(q => model.Any(w => w.ContactId == q.ContactId));
+            var participantToDelete = _unitOfWork.Participant.GetByConversationId(conversationId).Where(q => model.Any(w => w.ContactId == q.ContactId));
             foreach (var participant in participantToDelete)
                 _unitOfWork.Participant.Delete(participant.Id);
             _unitOfWork.Participant.AddRange(model);
             _unitOfWork.Save();
-            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(id))
+
+            if (includeNotify)
             {
-                var connection = _notificationService.GetConnection(contact);
-                var notification = new FirebaseNotification
+                var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+                var contactId = JwtToken.ExtractToken(token);
+                foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(conversationId).Where(q => q != contactId.ToString()))
                 {
-                    to = connection,
-                    data = new CustomNotification<IdModel>(NotificationEvent.AddMember, new IdModel { Id = id })
-                };
-                await _firebaseFunction.Notify(notification);
+                    var connection = _notificationService.GetConnection(contact);
+                    var notification = new FirebaseNotification
+                    {
+                        to = connection,
+                        data = new CustomNotification<IdModel>(NotificationEvent.AddMember, new IdModel { Id = conversationId })
+                    };
+                    await _firebaseFunction.Notify(notification);
+                }
             }
-            var result = _unitOfWork.Participant.GetByConversationIdIncludeContact(id).Where(q => model.Any(w => w.ContactId == q.ContactId));
+            var result = _unitOfWork.Participant.GetByConversationIdIncludeContact(conversationId).Where(q => model.Any(w => w.ContactId == q.ContactId));
             return result;
         }
 
-        public async Task<Participant> EditParticipantAndNotify(Guid id, JsonPatchDocument patch, bool includeNotify)
+        public async Task<Participant> EditAsync(Guid id, JsonPatchDocument patch, bool includeNotify)
         {
             var entity = _unitOfWork.Participant.GetById(id);
             patch.ApplyTo(entity);
@@ -59,8 +69,10 @@ namespace MyConnect.Implement
 
             if (includeNotify)
             {
+                var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+                var contactId = JwtToken.ExtractToken(token);
                 var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
-                foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(entity.ConversationId))
+                foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(entity.ConversationId).Where(q => q != contactId.ToString()))
                 {
                     var connection = _notificationService.GetConnection(contact);
                     var notification = new FirebaseNotification
@@ -72,13 +84,6 @@ namespace MyConnect.Implement
                 }
             }
             return entity;
-        }
-
-        public Participant RemoveChat(Participant model)
-        {
-            _unitOfWork.Participant.Update(model);
-            _unitOfWork.Save();
-            return model;
         }
 
         public bool CheckExistConversation(Guid id, Guid fid)

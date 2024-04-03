@@ -22,9 +22,9 @@ namespace MyConnect.Implement
             _mapper = mapper;
         }
 
-        public Friend GetByTwoContactId(Guid id, Guid fid)
+        public Friend GetByTwoContactId(Guid id, Guid friendId)
         {
-            var friend = _unitOfWork.Friend.GetByTwoContactId(id, fid);
+            var friend = _unitOfWork.Friend.GetByTwoContactId(id, friendId);
 
             if (friend == null)
                 friend = new Friend { Status = "new" };
@@ -36,12 +36,10 @@ namespace MyConnect.Implement
             return friend;
         }
 
-        public IEnumerable<GetAllFriend> GetAllFriend(Guid id)
+        public IEnumerable<GetAllFriend> GetAllFriendByContactId(Guid id)
         {
             var result = new List<GetAllFriend>();
-            var friends = _unitOfWork.Friend
-            .GetAll()
-            .Where(q => q.Status == "friend" && (q.ContactId1 == id || q.ContactId2 == id));
+            var friends = _unitOfWork.Friend.GetAllByContactId(id).Where(q => q.Status == "friend");
             foreach (var friend in friends)
                 result.Add(new GetAllFriend
                 {
@@ -52,7 +50,7 @@ namespace MyConnect.Implement
             return result;
         }
 
-        public async Task<Friend> AddAndNotify(Friend model, bool includeNotify)
+        public async Task<Friend> AddAsync(Friend model, bool includeNotify)
         {
             _unitOfWork.Friend.Add(model);
             _unitOfWork.Save();
@@ -65,7 +63,7 @@ namespace MyConnect.Implement
                 {
                     RequestId = model.Id
                 };
-                await Notify(connection, request);
+                await Notify(connection, NotificationEvent.NewFriendRequest, request);
 
                 // Save notification
                 var contact = _unitOfWork.Contact.GetById(model.ContactId1);
@@ -88,7 +86,7 @@ namespace MyConnect.Implement
             return model;
         }
 
-        public async Task<Friend> UpdateAndNotify(Guid id, JsonPatchDocument patch, bool includeNotify)
+        public async Task<Friend> UpdateAsync(Guid id, JsonPatchDocument patch, bool includeNotify)
         {
             var entity = _unitOfWork.Friend.GetById(id);
             patch.ApplyTo(entity);
@@ -103,15 +101,15 @@ namespace MyConnect.Implement
                 {
                     RequestId = id
                 };
-                await Notify(connection, request);
+                await Notify(connection, NotificationEvent.AcceptFriendRequest, request);
 
                 // Send new notification to client
-                await _notificationService.Notify(new string[1] { connection });
+                // await _notificationService.Notify(new string[1] { connection });
             }
             return entity;
         }
 
-        public async Task DeleteAndNotify(Guid id, bool includeNotify)
+        public async Task DeleteAsync(Guid id, bool includeNotify)
         {
             var entity = _unitOfWork.Friend.GetById(id);
             _unitOfWork.Friend.Delete(id);
@@ -125,19 +123,19 @@ namespace MyConnect.Implement
                 {
                     ContactId = entity.ContactId1
                 };
-                await Notify(connection, request);
+                await Notify(connection, NotificationEvent.CancelFriendRequest, request);
 
                 // Send new notification to client
                 await _notificationService.Notify(new string[1] { connection });
             }
         }
 
-        private async Task Notify(string connection, FriendToNotify data)
+        private async Task Notify(string connection, string _event, FriendToNotify data)
         {
             var notification = new FirebaseNotification
             {
                 to = connection,
-                data = new CustomNotification<FriendToNotify>(NotificationEvent.NewFriendRequest, data)
+                data = new CustomNotification<FriendToNotify>(_event, data)
             };
             await _firebaseFunction.Notify(notification);
         }

@@ -28,7 +28,7 @@ namespace MyConnect.Implement
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<Conversation> CreateConversationAndNotify(Conversation model, bool includeNotify)
+        public async Task<Conversation> CreateAsync(Conversation model, bool includeNotify)
         {
             _unitOfWork.Conversation.Add(model);
             _unitOfWork.Save();
@@ -36,9 +36,9 @@ namespace MyConnect.Implement
             if (includeNotify)
             {
                 var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-                var id = JwtToken.ExtractToken(token);
+                var contactId = JwtToken.ExtractToken(token);
                 var notify = _mapper.Map<Conversation, ConversationToNotify>(model);
-                foreach (var contact in model.Participants.Where(q => q.ContactId != id).Select(q => q.ContactId.ToString()))
+                foreach (var contact in model.Participants.Where(q => q.ContactId != contactId).Select(q => q.ContactId.ToString()))
                 {
                     var connection = _notificationService.GetConnection(contact);
                     var notification = new FirebaseNotification

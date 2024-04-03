@@ -1,4 +1,5 @@
 using AutoMapper;
+using MyConnect.Authentication;
 using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.RestApi;
@@ -12,19 +13,22 @@ namespace MyConnect.Implement
         private readonly IFirebaseFunction _firebaseFunction;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public MessageService(IUnitOfWork unitOfWork,
         IFirebaseFunction firebaseFunction,
         INotificationService notificationService,
-        IMapper mapper)
+        IMapper mapper,
+        IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _firebaseFunction = firebaseFunction;
             _notificationService = notificationService;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task SaveAndNotifyMessage(Message model)
+        public async Task<Message> SaveAndNotifyMessage(Message model)
         {
             _unitOfWork.Message.Add(model);
             var entity = _unitOfWork.Conversation.GetById(model.ConversationId);
@@ -38,6 +42,8 @@ namespace MyConnect.Implement
             }
             _unitOfWork.Save();
 
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var contactId = JwtToken.ExtractToken(token);
             var notify = _mapper.Map<Message, MessageToNotify>(model);
             foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
             {
@@ -50,6 +56,8 @@ namespace MyConnect.Implement
                 };
                 await _firebaseFunction.Notify(notification);
             }
+
+            return model;
         }
     }
 }

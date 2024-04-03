@@ -18,20 +18,6 @@ public class MessagesController : ControllerBase
         _messageService = messageService;
     }
 
-    [HttpGet]
-    public IActionResult Get()
-    {
-        try
-        {
-            var response = _unitOfWork.Message.GetAll();
-            return new ResponseModel<IEnumerable<Message>>(response).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<IEnumerable<Message>>().BadRequest(ex);
-        }
-    }
-
     [HttpGet("{id}")]
     public IActionResult Get(Guid id)
     {
@@ -76,28 +62,13 @@ public class MessagesController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
-    {
-        try
-        {
-            _unitOfWork.Message.Delete(id);
-            _unitOfWork.Save();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Message>().BadRequest(ex);
-        }
-    }
-
     [HttpPost("send")]
     public async Task<IActionResult> SaveAndNotifyMessage(Message model)
     {
         try
         {
-            await _messageService.SaveAndNotifyMessage(model);
-            return new ResponseModel<Message>(model).Ok();
+            var response = await _messageService.SaveAndNotifyMessage(model);
+            return new ResponseModel<Message>(response).Ok();
         }
         catch (Exception ex)
         {

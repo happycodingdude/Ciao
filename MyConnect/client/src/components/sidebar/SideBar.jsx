@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../hook/CustomHooks";
+import Signout from "../authentication/Signout";
 import ChatIcon from "../chat/ChatIcon";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import ProfileIcon from "../profile-new/ProfileIcon";
@@ -72,10 +73,11 @@ const SideBar = (props) => {
           </BackgroundPortal> */}
           <div className="flex flex-col gap-[3rem]">
             <Notification />
-            <div
+            {/* <div
               // onClick={openProfile}
               className="fa fa-cog cursor-pointer text-xl font-thin"
-            ></div>
+            ></div> */}
+            <Signout className="text-xl font-thin" />
           </div>
         </div>
       ) : (

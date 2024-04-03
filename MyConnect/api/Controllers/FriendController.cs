@@ -52,7 +52,7 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            var response = await _service.AddAndNotify(model, includeNotify);
+            var response = await _service.AddAsync(model, includeNotify);
             return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            var response = await _service.UpdateAndNotify(id, patch, includeNotify);
+            var response = await _service.UpdateAsync(id, patch, includeNotify);
             return new ResponseModel<Friend>(response).Ok();
         }
         catch (Exception ex)
@@ -80,7 +80,7 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            await _service.DeleteAndNotify(id, includeNotify);
+            await _service.DeleteAsync(id, includeNotify);
             return Ok();
         }
         catch (Exception ex)

@@ -12,7 +12,7 @@ export const ParticipantProvider = ({ children }) => {
   const [mentions, setMentions] = useState();
 
   const getParticipants = useCallback(
-    (id, controller) => {
+    (id) => {
       HttpRequest({
         method: "get",
         url: `api/conversations/${id}/participants`,

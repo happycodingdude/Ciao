@@ -78,9 +78,14 @@ export const Home = () => {
         reFetchConversations();
         break;
       case "NewFriendRequest":
-        if (messageData.RequestId === null)
-          reFetchRequest(messageData.ContactId);
-        else reFetchRequestById(messageData.RequestId);
+        reFetchRequestById(messageData.RequestId);
+        break;
+      case "AcceptFriendRequest":
+        reFetchRequestById(messageData.RequestId);
+        reFetchFriends();
+        break;
+      case "CancelFriendRequest":
+        reFetchRequest(messageData.ContactId);
         break;
       case "NewNotification":
         reFetchNotifications();

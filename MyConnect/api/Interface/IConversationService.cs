@@ -4,6 +4,6 @@ namespace MyConnect.Interface
 {
     public interface IConversationService
     {
-        Task<Conversation> CreateConversationAndNotify(Conversation model, bool includeNotify);
+        Task<Conversation> CreateAsync(Conversation model, bool includeNotify);
     }
 }

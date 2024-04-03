@@ -134,7 +134,6 @@ const UserProfileSetting = (props) => {
             className="fa fa-user-plus !w-1/3"
             onClose={() => {
               onClose();
-              reFetchRequest(profile?.Id);
             }}
           />
           <CustomButton

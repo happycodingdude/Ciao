@@ -12,9 +12,14 @@ namespace MyConnect.Repository
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public Friend GetByTwoContactId(Guid id, Guid fid)
+        public IEnumerable<Friend> GetAllByContactId(Guid id)
         {
-            return _dbSet.FirstOrDefault(q => (q.ContactId1 == id && q.ContactId2 == fid) || (q.ContactId1 == fid && q.ContactId2 == id));
+            return _dbSet.Where(q => q.ContactId1 == id || q.ContactId2 == id).ToList();
+        }
+
+        public Friend GetByTwoContactId(Guid id, Guid friendId)
+        {
+            return _dbSet.FirstOrDefault(q => (q.ContactId1 == id && q.ContactId2 == friendId) || (q.ContactId1 == friendId && q.ContactId2 == id));
         }
 
         public override Friend GetById(Guid id)

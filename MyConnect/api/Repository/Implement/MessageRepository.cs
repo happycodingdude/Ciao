@@ -16,7 +16,7 @@ namespace MyConnect.Repository
             _mapper = mapper;
         }
 
-        public IEnumerable<MessageNoReference> GetWithPaging(Guid id, int page, int limit)
+        public IEnumerable<MessageNoReference> GetByConversationIdWithPaging(Guid id, int page, int limit)
         {
             var messages = _dbSet
             .Include(q => q.Attachments)

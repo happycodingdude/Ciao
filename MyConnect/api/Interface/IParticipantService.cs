@@ -5,9 +5,8 @@ namespace MyConnect.Interface
 {
     public interface IParticipantService
     {
-        Task<IEnumerable<Participant>> AddParticipantAndNotify(Guid id, List<Participant> model);
-        Task<Participant> EditParticipantAndNotify(Guid id, JsonPatchDocument patch, bool includeNotify);
-        Participant RemoveChat(Participant model);
+        Task<IEnumerable<Participant>> AddAsync(Guid conversationId, List<Participant> model, bool includeNotify);
+        Task<Participant> EditAsync(Guid id, JsonPatchDocument patch, bool includeNotify);
         bool CheckExistConversation(Guid id, Guid fid);
     }
 }

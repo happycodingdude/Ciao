@@ -2,7 +2,7 @@ using MyConnect.Model;
 
 namespace MyConnect.Interface
 {
-    public interface INotificationService
+    public interface INotificationService : IPatchService<Notification>
     {
         string GetConnection(string id);
         bool RegisterConnection(RegisterConnection param);

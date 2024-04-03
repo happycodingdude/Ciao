@@ -4,6 +4,6 @@ namespace MyConnect.Repository
 {
     public interface IMessageRepository : IRepository<Message>
     {
-        IEnumerable<MessageNoReference> GetWithPaging(Guid id, int page, int limit);
+        IEnumerable<MessageNoReference> GetByConversationIdWithPaging(Guid id, int page, int limit);
     }
 }

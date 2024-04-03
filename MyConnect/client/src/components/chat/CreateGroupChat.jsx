@@ -10,12 +10,8 @@ import CustomModal from "../common/CustomModal";
 const CreateGroupChat = () => {
   const auth = useAuth();
   const { friends } = useFetchFriends();
-  const {
-    reFetch: reFetchConversations,
-    conversations,
-    setConversations,
-    setSelected,
-  } = useFetchConversations();
+  const { setSelected, addNewItem } = useFetchConversations();
+  const { reFetchFriends } = useFetchFriends();
 
   const [formData, setFormData] = useState();
   const [show, setShow] = useState(false);
@@ -71,9 +67,7 @@ const CreateGroupChat = () => {
       token: auth.token,
       data: body,
     }).then((res) => {
-      // reFetchConversations();
-      // console.log(conversations);
-      // console.log(conversations.splice(1, 0, res));
+      addNewItem(res);
       setSelected(res);
     });
   };

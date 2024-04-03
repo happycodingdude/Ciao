@@ -4,6 +4,6 @@ namespace MyConnect.Interface
 {
     public interface IMessageService
     {
-        Task SaveAndNotifyMessage(Message model);
+        Task<Message> SaveAndNotifyMessage(Message model);
     }
 }

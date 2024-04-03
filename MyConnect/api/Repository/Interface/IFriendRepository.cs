@@ -4,6 +4,7 @@ namespace MyConnect.Repository
 {
     public interface IFriendRepository : IRepository<Friend>
     {
-        Friend GetByTwoContactId(Guid id, Guid fid);
+        IEnumerable<Friend> GetAllByContactId(Guid id);
+        Friend GetByTwoContactId(Guid id, Guid friendId);
     }
 }

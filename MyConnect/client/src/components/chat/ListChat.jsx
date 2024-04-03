@@ -34,26 +34,6 @@ const ListChat = (props) => {
   const refChats = useRef();
   const refChatsScroll = useRef();
 
-  // const handleSetConversation = (position, item) => {
-  //   if (item.Id !== selected?.Id) {
-  //     reFetchMessages(item.Id);
-  //     reFetchParticipants(item.Id);
-  //     reFetchAttachments(item.Id);
-  //     clickConversation(item);
-  //     refChats.current.scrollTop = position;
-  //     if (!item.IsGroup) {
-  //       reFetchProfile(
-  //         item.Participants.find((item) => item.ContactId !== auth.user.Id)
-  //           .ContactId,
-  //       );
-  //       reFetchRequest(
-  //         item.Participants.find((item) => item.ContactId !== auth.user.Id)
-  //           .ContactId,
-  //       );
-  //     }
-  //   }
-  // };
-
   const handleSetConversation = (position, item) => {
     setSelected(item);
   };
@@ -63,7 +43,7 @@ const ListChat = (props) => {
     reFetchMessages(selected.Id);
     reFetchParticipants(selected.Id);
     reFetchAttachments(selected.Id);
-    // clickConversation(selected);
+    clickConversation(selected);
     // refChats.current.scrollTop = position;
     if (!selected.IsGroup) {
       reFetchProfile(
