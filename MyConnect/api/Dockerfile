@@ -1,5 +1,5 @@
 # Use the latest .NET Core SDK image as the base
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Set the working directory inside the container
 WORKDIR /source
@@ -20,7 +20,7 @@ RUN dotnet build --configuration Release --no-restore
 RUN dotnet publish --configuration Release --no-build --output /app
 
 # Use the latest .NET Core runtime image as the base for the final image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 # Set the working directory inside the container
 WORKDIR /app
