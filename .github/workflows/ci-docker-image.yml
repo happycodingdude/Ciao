@@ -10,13 +10,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: MyConnect/api
     steps:
       - name: Checkout code
         # Sử dụng action "checkout" để sao copy code từ repository vào máy ảo Ubuntu
         uses: actions/checkout@v2
+        with:
+          sparse-checkout: 'MyConnect/api'
+          sparse-checkout-cone-mode: false
 
       - name: Login to Docker Hub
           # Sử dụng action "docker/login-action" để đăng nhập vào Docker Hub
