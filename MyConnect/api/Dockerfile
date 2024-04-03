@@ -8,7 +8,7 @@ WORKDIR /source
 COPY *.csproj .
 
 # Restore the NuGet packages
-RUN dotnet restore
+RUN dotnet restore "MyConnect/api/MyConnect.csproj"
 
 # Copy the remaining project files to the container's working directory
 COPY . .
