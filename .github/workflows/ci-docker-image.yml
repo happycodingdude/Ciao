@@ -10,6 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./MyConnect/api
     steps:
       - name: Checkout code
         # Sử dụng action "checkout" để sao copy code từ repository vào máy ảo Ubuntu
