@@ -4,8 +4,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 # COPY *.csproj .
-COPY ["api/MyConnect.csproj", "api/"]
-RUN dotnet restore "api/MyConnect.csproj"
+COPY ["MyConnect.csproj", "api/"]
+RUN dotnet restore "MyConnect.csproj"
 COPY . .
 WORKDIR "/source/api"
 RUN dotnet build "MyConnect.csproj" -c Release -o /app/build
