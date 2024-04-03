@@ -27,6 +27,6 @@ jobs:
         # Sử dụng action "docker/build-push-action" để đẩy image lên Docker Hub
         with:
           context: .
-          file: ./MyConnect/Dockerfile
+          file: ./MyConnect/api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/chat-api:latest
