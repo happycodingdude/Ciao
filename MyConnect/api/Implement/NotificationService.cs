@@ -11,10 +11,20 @@ namespace MyConnect.Implement
     {
         private static readonly ConnectionMultiplexer redis;
         public static readonly IDatabase db;
+        public static IConfiguration _configuration;
+
+        public static void Configure(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
 
         static RedisCLient()
         {
-            redis = ConnectionMultiplexer.Connect("localhost");
+            string environment = _configuration["ENVIRONMENT"];
+            if (environment == "production")
+                redis = ConnectionMultiplexer.Connect("redis");
+            else
+                redis = ConnectionMultiplexer.Connect("localhost");
             db = redis.GetDatabase();
         }
     }

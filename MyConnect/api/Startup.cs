@@ -39,7 +39,11 @@ namespace MyConnect
             services
             .AddDbContextPool<CoreContext>(option =>
             {
-                option.UseMySQL(_configuration.GetConnectionString("MyDbContext"));
+                string environment = _configuration["ENVIRONMENT"];
+                if (environment == "production")
+                    option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
+                else
+                    option.UseMySQL(_configuration.GetConnectionString("Db-Dev"));
             });
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
