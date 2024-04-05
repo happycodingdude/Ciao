@@ -7,12 +7,10 @@ namespace MyConnect.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
     private readonly IAuthService _authService;
 
-    public AuthController(IConfiguration configuration, IAuthService authService)
+    public AuthController(IAuthService authService)
     {
-        _configuration = configuration;
         _authService = authService;
     }
 
@@ -45,7 +43,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
-    [MyAuthorizeAttribute("Authorization")]
+    [MyAuthorize("Authorization")]
     public IActionResult Logout()
     {
         try
@@ -60,7 +58,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("authenticate")]
-    [MyAuthorizeAttribute("Authorization")]
+    [MyAuthorize("Authorization")]
     public IActionResult ValidateToken()
     {
         try

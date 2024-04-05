@@ -7,24 +7,26 @@ using StackExchange.Redis;
 
 namespace MyConnect.Implement
 {
-    public static class RedisCLient
+    public class RedisCLient
     {
-        private static readonly ConnectionMultiplexer redis;
-        public static readonly IDatabase db;
-        public static IConfiguration _configuration;
+        private static ConnectionMultiplexer redis;
+        private static IDatabase db;
+
+        public static IDatabase Db
+        {
+            get
+            {
+                return db;
+            }
+        }
 
         public static void Configure(IConfiguration configuration)
         {
-            _configuration = configuration;
-        }
-
-        static RedisCLient()
-        {
-            string environment = _configuration["ENVIRONMENT"];
-            if (environment == "production")
-                redis = ConnectionMultiplexer.Connect("redis");
-            else
+            string environment = configuration["ASPNETCORE_ENVIRONMENT"];
+            if (environment == "Development")
                 redis = ConnectionMultiplexer.Connect("localhost");
+            else
+                redis = ConnectionMultiplexer.Connect("redis");
             db = redis.GetDatabase();
         }
     }
@@ -44,17 +46,17 @@ namespace MyConnect.Implement
 
         public string GetConnection(string id)
         {
-            return RedisCLient.db.StringGet($"connection-{id}");
+            return RedisCLient.Db.StringGet($"connection-{id}");
         }
 
         public bool RegisterConnection(RegisterConnection param)
         {
-            return RedisCLient.db.StringSet($"connection-{param.Id}", param.Token);
+            return RedisCLient.Db.StringSet($"connection-{param.Id}", param.Token);
         }
 
         public bool RemoveConnection(string id)
         {
-            return RedisCLient.db.KeyDelete($"connection-{id}");
+            return RedisCLient.Db.KeyDelete($"connection-{id}");
         }
 
         public async Task Notify(string[] connections)

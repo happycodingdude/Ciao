@@ -39,11 +39,12 @@ namespace MyConnect
             services
             .AddDbContextPool<CoreContext>(option =>
             {
-                string environment = _configuration["ENVIRONMENT"];
-                if (environment == "production")
-                    option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
+                string environment = _configuration["ASPNETCORE_ENVIRONMENT"];
+                // Console.WriteLine(environment);
+                if (environment == "Development")
+                    option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
                 else
-                    option.UseMySQL(_configuration.GetConnectionString("Db-Dev"));
+                    option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
             });
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -69,7 +70,6 @@ namespace MyConnect
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IFriendService, FriendService>();
-            // services.AddScoped(typeof(IPatchService<>), typeof(NotificationService));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -87,13 +87,13 @@ namespace MyConnect
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors();
-            // app.MapControllers();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
 
             DatabaseMigration.Migrate(app);
+            RedisCLient.Configure(_configuration);
         }
 
         private void OnStarted()
