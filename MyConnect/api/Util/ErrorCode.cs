@@ -1,4 +1,4 @@
-namespace MyConnect.Common
+namespace MyConnect.Util
 {
     public class ErrorCode
     {

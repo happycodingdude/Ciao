@@ -1,13 +1,14 @@
 using MyConnect.Model;
+using MyConnect.Repository;
 
 namespace MyConnect.Interface
 {
-    public interface IAuthService
+    public interface IAuthService : IBaseService<Contact, ContactDto>
     {
-        void Signup(Contact model);
+        void Signup(ContactDto model);
         LoginResponse Login(LoginRequest model);
         bool Logout();
-        Contact ValidateToken();
+        ContactDto Validate();
         void ForgotPassword(ForgotPassword model);
     }
 }

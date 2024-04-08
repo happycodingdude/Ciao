@@ -1,6 +1,8 @@
+using MyConnect.Repository;
+
 namespace MyConnect.Model
 {
-    public class Friend : BaseModel
+    public class FriendDto : BaseModel
     {
         public Guid ContactId1 { get; set; }
         public Guid ContactId2 { get; set; }

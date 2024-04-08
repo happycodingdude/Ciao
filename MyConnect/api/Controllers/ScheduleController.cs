@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -8,11 +9,11 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class SchedulesController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IScheduleService _scheduleService;
 
-    public SchedulesController(IUnitOfWork unitOfWork)
+    public SchedulesController(IScheduleService scheduleService)
     {
-        _unitOfWork = unitOfWork;
+        _scheduleService = scheduleService;
     }
 
     [HttpGet]
@@ -20,12 +21,12 @@ public class SchedulesController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Schedule.GetAll();
-            return new ResponseModel<IEnumerable<Schedule>>(response).Ok();
+            var response = _scheduleService.GetAll();
+            return new ResponseModel<IEnumerable<ScheduleDto>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Schedule>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<ScheduleDto>>().BadRequest(ex);
         }
     }
 
@@ -34,42 +35,40 @@ public class SchedulesController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Schedule.GetById(id);
-            return new ResponseModel<Schedule>(response).Ok();
+            var response = _scheduleService.GetById(id);
+            return new ResponseModel<ScheduleDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Schedule>().BadRequest(ex);
+            return new ResponseModel<ScheduleDto>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public IActionResult Add(Schedule model)
+    public IActionResult Add(ScheduleDto model)
     {
         try
         {
-            _unitOfWork.Schedule.Add(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Schedule>(model).Ok();
+            _scheduleService.Add(model);
+            return new ResponseModel<ScheduleDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Schedule>().BadRequest(ex);
+            return new ResponseModel<ScheduleDto>().BadRequest(ex);
         }
     }
 
     [HttpPut]
-    public IActionResult Edit(Schedule model)
+    public IActionResult Edit(ScheduleDto model)
     {
         try
         {
-            _unitOfWork.Schedule.Update(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Schedule>(model).Ok();
+            _scheduleService.Update(model);
+            return new ResponseModel<ScheduleDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Schedule>().BadRequest(ex);
+            return new ResponseModel<ScheduleDto>().BadRequest(ex);
         }
     }
 
@@ -78,13 +77,12 @@ public class SchedulesController : ControllerBase
     {
         try
         {
-            _unitOfWork.Schedule.Delete(id);
-            _unitOfWork.Save();
+            _scheduleService.Delete(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Schedule>().BadRequest(ex);
+            return new ResponseModel<ScheduleDto>().BadRequest(ex);
         }
     }
 }

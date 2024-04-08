@@ -1,6 +1,8 @@
+using MyConnect.Repository;
+
 namespace MyConnect.Model
 {
-    public class Participant : BaseModel
+    public class ParticipantDto : BaseModel
     {
         public bool IsDeleted { get; set; }
         public bool IsModerator { get; set; }

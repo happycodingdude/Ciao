@@ -62,14 +62,30 @@ namespace MyConnect
                 });
             services.AddHttpContextAccessor();
 
+            // Repository
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IParticipantService, ParticipantService>();
-            services.AddScoped<IFirebaseFunction, FirebaseFunction>();
-            services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<IMessageService, MessageService>();
-            services.AddScoped<IConversationService, ConversationService>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IContactRepository, ContactRepository>();
+            services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IFriendRepository, FriendRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IParticipantRepository, ParticipantRepository>();
+            services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
+            services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            // Service
+            services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IAuthService, AuthService>();
+            // services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
+            services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IFriendService, FriendService>();
+            services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IParticipantService, ParticipantService>();
+            services.AddScoped<IScheduleContactService, ScheduleContactService>();
+            services.AddScoped<IScheduleService, ScheduleService>();
+            // Firebase
+            services.AddScoped<IFirebaseFunction, FirebaseFunction>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

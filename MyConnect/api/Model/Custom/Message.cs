@@ -1,6 +1,8 @@
+using MyConnect.Repository;
+
 namespace MyConnect.Model
 {
-    public class Message : BaseModel
+    public class MessageDto : BaseModel
     {
         public string? Type { get; set; }
         public string? Content { get; set; }

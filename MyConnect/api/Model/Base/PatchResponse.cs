@@ -1,19 +1,22 @@
-public class PatchResponse
+namespace MyConnect.Model
 {
-    public Guid Id { get; set; }
-    public bool Status { get; set; }
-    public string Error { get; set; }
-
-    public PatchResponse(Guid id)
+    public class PatchResponse
     {
-        Id = id;
-        Status = true;
-    }
+        public Guid Id { get; set; }
+        public bool Status { get; set; }
+        public string Error { get; set; }
 
-    public PatchResponse(Guid id, string error)
-    {
-        Id = id;
-        Error = error;
-        Status = false;
+        public PatchResponse(Guid id)
+        {
+            Id = id;
+            Status = true;
+        }
+
+        public PatchResponse(Guid id, string error)
+        {
+            Id = id;
+            Error = error;
+            Status = false;
+        }
     }
 }

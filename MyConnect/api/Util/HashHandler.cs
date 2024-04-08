@@ -1,8 +1,8 @@
 using System.Text;
 
-namespace MyConnect.Common
+namespace MyConnect.Util
 {
-    public class Hash
+    public class HashHandler
     {
         public static string Encrypt(string data)
         {

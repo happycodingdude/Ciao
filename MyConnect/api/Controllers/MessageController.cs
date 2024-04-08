@@ -9,12 +9,10 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class MessagesController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IMessageService _messageService;
 
-    public MessagesController(IUnitOfWork unitOfWork, IMessageService messageService)
+    public MessagesController(IMessageService messageService)
     {
-        _unitOfWork = unitOfWork;
         _messageService = messageService;
     }
 
@@ -23,57 +21,55 @@ public class MessagesController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Message.GetById(id);
-            return new ResponseModel<Message>(response).Ok();
+            var response = _messageService.GetById(id);
+            return new ResponseModel<MessageDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Message>().BadRequest(ex);
+            return new ResponseModel<MessageDto>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public IActionResult Add(Message model)
+    public IActionResult Add(MessageDto model)
     {
         try
         {
-            _unitOfWork.Message.Add(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Message>(model).Ok();
+            _messageService.Add(model);
+            return new ResponseModel<MessageDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Message>().BadRequest(ex);
+            return new ResponseModel<MessageDto>().BadRequest(ex);
         }
     }
 
     [HttpPut]
-    public IActionResult Edit(Message model)
+    public IActionResult Edit(MessageDto model)
     {
         try
         {
-            _unitOfWork.Message.Update(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Message>(model).Ok();
+            _messageService.Update(model);
+            return new ResponseModel<MessageDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Message>().BadRequest(ex);
+            return new ResponseModel<MessageDto>().BadRequest(ex);
         }
     }
 
     [HttpPost("send")]
-    public async Task<IActionResult> SaveAndNotifyMessage(Message model)
+    public async Task<IActionResult> SaveAndNotifyMessage(MessageDto model)
     {
         try
         {
             var response = await _messageService.SaveAndNotifyMessage(model);
-            return new ResponseModel<Message>(response).Ok();
+            return new ResponseModel<MessageDto>(response).Ok();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return new ResponseModel<Message>().BadRequest(ex);
+            return new ResponseModel<MessageDto>().BadRequest(ex);
         }
     }
 }

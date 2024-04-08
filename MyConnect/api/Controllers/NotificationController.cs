@@ -11,12 +11,10 @@ namespace MyConnect.Controllers;
 public class NotificationsController : ControllerBase
 {
     private readonly INotificationService _notificationService;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public NotificationsController(INotificationService notificationService, IUnitOfWork unitOfWork)
+    public NotificationsController(INotificationService notificationService)
     {
         _notificationService = notificationService;
-        _unitOfWork = unitOfWork;
     }
 
     [HttpGet]
@@ -38,27 +36,26 @@ public class NotificationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Notification.GetById(id);
-            return new ResponseModel<Notification>(response).Ok();
+            var response = _notificationService.GetById(id);
+            return new ResponseModel<NotificationDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Notification>().BadRequest(ex);
+            return new ResponseModel<NotificationDto>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public IActionResult Add(Notification model)
+    public IActionResult Add(NotificationDto model)
     {
         try
         {
-            _unitOfWork.Notification.Add(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Notification>(model).Ok();
+            _notificationService.Add(model);
+            return new ResponseModel<NotificationDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Notification>().BadRequest(ex);
+            return new ResponseModel<NotificationDto>().BadRequest(ex);
         }
     }
 
@@ -67,24 +64,21 @@ public class NotificationsController : ControllerBase
     {
         try
         {
-            var entity = _unitOfWork.Notification.GetById(id);
-            patch.ApplyTo(entity);
-            _unitOfWork.Notification.Update(entity);
-            _unitOfWork.Save();
-            return new ResponseModel<Notification>(entity).Ok();
+            var response = _notificationService.Patch(id, patch);
+            return new ResponseModel<NotificationDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Notification>().BadRequest(ex);
+            return new ResponseModel<NotificationDto>().BadRequest(ex);
         }
     }
 
     [HttpPatch("bulk_edit")]
-    public IActionResult BulkEdit(List<PatchRequest<Notification>> patchs)
+    public IActionResult BulkEdit(List<PatchRequest<NotificationDto>> patchs)
     {
         try
         {
-            var response = _notificationService.BulkEdit(patchs);
+            var response = _notificationService.BulkUpdate(patchs);
             return new ResponseModel<List<PatchResponse>>(response).Ok();
         }
         catch (Exception ex)

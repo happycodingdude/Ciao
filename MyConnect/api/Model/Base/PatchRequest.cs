@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.JsonPatch;
 
-public class PatchRequest<T> where T : class
+namespace MyConnect.Model
 {
-    public Guid Id { get; set; }
+    public class PatchRequest<T> where T : class
+    {
+        public Guid Id { get; set; }
 
-    public JsonPatchDocument<T> PatchDocument { get; set; }
+        public JsonPatchDocument<T> PatchDocument { get; set; }
+    }
 }

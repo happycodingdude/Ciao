@@ -1,6 +1,8 @@
+using MyConnect.Repository;
+
 namespace MyConnect.Model
 {
-    public class Schedule : BaseModel
+    public class ScheduleDto : BaseModel
     {
         public string? Content { get; set; }
         public DateTime StartDate { get; set; }

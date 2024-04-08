@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
-using MyConnect.UOW;
 
 namespace MyConnect.Controllers;
 [ApiController]
@@ -10,12 +9,12 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class ContactsController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuthService _authService;
     private readonly IFriendService _friendService;
 
-    public ContactsController(IUnitOfWork unitOfWork, IFriendService friendService)
+    public ContactsController(IAuthService authService, IFriendService friendService)
     {
-        _unitOfWork = unitOfWork;
+        _authService = authService;
         _friendService = friendService;
     }
 
@@ -24,12 +23,12 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Contact.GetAll();
-            return new ResponseModel<IEnumerable<Contact>>(response).Ok();
+            var response = _authService.GetAll();
+            return new ResponseModel<IEnumerable<ContactDto>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Contact>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<ContactDto>>().BadRequest(ex);
         }
     }
 
@@ -38,12 +37,12 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Contact.GetById(id);
-            return new ResponseModel<Contact>(response).Ok();
+            var response = _authService.GetById(id);
+            return new ResponseModel<ContactDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Contact>().BadRequest(ex);
+            return new ResponseModel<ContactDto>().BadRequest(ex);
         }
     }
 
@@ -53,11 +52,11 @@ public class ContactsController : ControllerBase
         try
         {
             var response = _friendService.GetByTwoContactId(id, friendId);
-            return new ResponseModel<Friend>(response).Ok();
+            return new ResponseModel<FriendDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Friend>().BadRequest(ex);
+            return new ResponseModel<FriendDto>().BadRequest(ex);
         }
     }
 
@@ -75,37 +74,17 @@ public class ContactsController : ControllerBase
         }
     }
 
-    [HttpPost]
-    public IActionResult Add(Contact model)
-    {
-        try
-        {
-            model.EncryptPassword();
-            _unitOfWork.Contact.Add(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Contact>(model).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<Contact>().BadRequest(ex);
-        }
-    }
-
     [HttpPatch("{id}")]
     public IActionResult Edit(Guid id, JsonPatchDocument patch)
     {
         try
         {
-            var entity = _unitOfWork.Contact.GetById(id);
-            patch.ApplyTo(entity);
-            // entity.EncryptPassword();
-            _unitOfWork.Contact.Update(entity);
-            _unitOfWork.Save();
-            return new ResponseModel<Contact>(entity).Ok();
+            var response = _authService.Patch(id, patch);
+            return new ResponseModel<ContactDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Contact>().BadRequest(ex);
+            return new ResponseModel<ContactDto>().BadRequest(ex);
         }
     }
 
@@ -114,13 +93,12 @@ public class ContactsController : ControllerBase
     {
         try
         {
-            _unitOfWork.Contact.Delete(id);
-            _unitOfWork.Save();
+            _authService.Delete(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Contact>().BadRequest(ex);
+            return new ResponseModel<ContactDto>().BadRequest(ex);
         }
     }
 }

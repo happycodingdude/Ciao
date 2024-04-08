@@ -1,4 +1,4 @@
-namespace MyConnect.Model
+namespace MyConnect.Repository
 {
     public class BaseModel
     {

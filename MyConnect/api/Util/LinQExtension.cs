@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MyConnect.Common
+namespace MyConnect.Util
 {
     public static class LinQExtension
     {

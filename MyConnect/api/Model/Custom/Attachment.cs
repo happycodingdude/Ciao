@@ -1,6 +1,8 @@
+using MyConnect.Repository;
+
 namespace MyConnect.Model
 {
-    public class Attachment : BaseModel
+    public class AttachmentDto : BaseModel
     {
         public string? Type { get; set; }
         public string? MediaName { get; set; }

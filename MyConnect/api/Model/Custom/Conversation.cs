@@ -1,6 +1,8 @@
+using MyConnect.Repository;
+
 namespace MyConnect.Model
 {
-    public class Conversation : BaseModel
+    public class ConversationDto : BaseModel
     {
         public string? Title { get; set; }
         public DateTime? DeletedTime { get; set; }

@@ -1,89 +1,102 @@
+using AutoMapper;
 using MyConnect.Authentication;
-using MyConnect.Common;
 using MyConnect.Interface;
 using MyConnect.Model;
+using MyConnect.Repository;
 using MyConnect.UOW;
+using MyConnect.Util;
 
 namespace MyConnect.Implement
 {
-    public class AuthService : IAuthService
+    public class AuthService : BaseService<Contact, ContactDto>, IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public AuthService(IUnitOfWork unitOfWork,
+        public AuthService(IContactRepository repo,
+        IUnitOfWork unitOfWork,
         IHttpContextAccessor httpContextAccessor,
         INotificationService notificationService,
-        IConfiguration configuration)
+        IMapper mapper,
+        IConfiguration configuration) : base(repo, unitOfWork, mapper)
         {
             _unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
+            _mapper = mapper;
             _configuration = configuration;
         }
 
-        public void Signup(Contact model)
+        public void Signup(ContactDto model)
         {
             // Check username
-            var entity = _unitOfWork.Contact.GetAll().FirstOrDefault(q => q.Username == model.Username.Trim());
+            var entity = _unitOfWork.Contact.DbSet.FirstOrDefault(q => q.Username == model.Username.Trim());
             if (entity != null)
                 throw new Exception(ErrorCode.UserExists);
 
-            model.Password = Hash.Encrypt(model.Password);
-            _unitOfWork.Contact.Add(model);
-            _unitOfWork.Save();
+            model.EncryptPassword();
+            Add(model);
         }
 
         public LoginResponse Login(LoginRequest model)
         {
             // Check username
-            var entity = _unitOfWork.Contact.GetAll().FirstOrDefault(q => q.Username == model.Username);
-            if (entity == null)
+            var contact = _unitOfWork.Contact.DbSet.FirstOrDefault(q => q.Username == model.Username);
+            if (contact == null)
                 throw new Exception(ErrorCode.NotFound);
 
             // Check password          
-            if (!entity.Password.Equals(Hash.Encrypt(model.Password ?? "")))
+            if (!contact.Password.Equals(HashHandler.Encrypt(model.Password ?? "")))
                 throw new Exception(ErrorCode.WrongPassword);
 
-            entity.Login();
+            var dto = _mapper.Map<Contact, ContactDto>(contact);
+            dto.Login();
+            var entity = _mapper.Map<ContactDto, Contact>(dto);
             _unitOfWork.Contact.Update(entity);
             _unitOfWork.Save();
 
             var response = new LoginResponse
             {
-                Token = JwtToken.GenerateToken(_configuration["Jwt:Key"], entity)
+                Token = JwtToken.GenerateToken(_configuration["Jwt:Key"], entity.Id.ToString())
             };
             return response;
         }
 
         public bool Logout()
         {
-            var contact = ValidateToken();
+            var contact = ExtractTokenAndGetContact();
             contact.Logout();
-            _unitOfWork.Contact.Update(contact);
-            _unitOfWork.Save();
+            Update(contact);
             return _notificationService.RemoveConnection(contact.Id.ToString());
         }
 
-        public Contact ValidateToken()
+        public ContactDto Validate()
         {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var id = JwtToken.ExtractToken(token);
-            return _unitOfWork.Contact.GetById(id);
+            var contact = ExtractTokenAndGetContact();
+            contact.DecryptPassword();
+            return contact;
         }
 
         public void ForgotPassword(ForgotPassword model)
         {
             // Check username
-            var entity = _unitOfWork.Contact.GetAll().FirstOrDefault(q => q.Username == model.Username);
+            var entity = _unitOfWork.Contact.DbSet.FirstOrDefault(q => q.Username == model.Username);
             if (entity == null)
                 throw new Exception(ErrorCode.NotFound);
 
-            entity.Password = Hash.Encrypt(model.Password);
+            entity.Password = HashHandler.Encrypt(model.Password);
             _unitOfWork.Contact.Update(entity);
             _unitOfWork.Save();
+        }
+
+        private ContactDto ExtractTokenAndGetContact()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var id = JwtToken.ExtractToken(token);
+            return GetById(id);
         }
     }
 }

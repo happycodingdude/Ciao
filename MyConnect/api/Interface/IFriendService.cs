@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.JsonPatch;
 using MyConnect.Model;
+using MyConnect.Repository;
 
 namespace MyConnect.Interface
 {
-    public interface IFriendService
+    public interface IFriendService : IBaseService<Friend, FriendDto>
     {
-        Friend GetByTwoContactId(Guid id, Guid friendId);
+        FriendDto GetByTwoContactId(Guid id, Guid friendId);
         IEnumerable<GetAllFriend> GetAllFriendByContactId(Guid id);
-        Task<Friend> AddAsync(Friend model, bool includeNotify);
-        Task<Friend> UpdateAsync(Guid id, JsonPatchDocument patch, bool includeNotify);
+        Task<FriendDto> AddAsync(FriendDto model, bool includeNotify);
+        Task<FriendDto> UpdateAsync(Guid id, JsonPatchDocument patch, bool includeNotify);
         Task DeleteAsync(Guid id, bool includeNotify);
     }
 }

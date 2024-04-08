@@ -10,15 +10,20 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class ConversationsController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IParticipantService _participantService;
     private readonly IConversationService _conversationService;
+    private readonly IParticipantService _participantService;
+    private readonly IMessageService _messageService;
+    private readonly IAttachmentService _attachmentService;
 
-    public ConversationsController(IUnitOfWork unitOfWork, IParticipantService participantService, IConversationService conversationService)
+    public ConversationsController(IConversationService conversationService,
+    IParticipantService participantService,
+    IMessageService messageService,
+    IAttachmentService attachmentService)
     {
-        _unitOfWork = unitOfWork;
-        _participantService = participantService;
         _conversationService = conversationService;
+        _participantService = participantService;
+        _messageService = messageService;
+        _attachmentService = attachmentService;
     }
 
     [HttpGet]
@@ -26,7 +31,7 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Conversation.GetAllWithUnseenMesages(page, limit);
+            var response = _conversationService.GetAllWithUnseenMesages(page, limit);
             return new ResponseModel<IEnumerable<ConversationWithTotalUnseen>>(response).Ok();
         }
         catch (Exception ex)
@@ -40,12 +45,12 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Conversation.GetById(id);
-            return new ResponseModel<Conversation>(response).Ok();
+            var response = _conversationService.GetById(id);
+            return new ResponseModel<ConversationDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Conversation>().BadRequest(ex);
+            return new ResponseModel<ConversationDto>().BadRequest(ex);
         }
     }
 
@@ -54,26 +59,26 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Participant.GetByConversationIdIncludeContact(id);
-            return new ResponseModel<IEnumerable<Participant>>(response).Ok();
+            var response = _participantService.GetByConversationIdIncludeContact(id);
+            return new ResponseModel<IEnumerable<ParticipantDto>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participant>().BadRequest(ex);
+            return new ResponseModel<ParticipantDto>().BadRequest(ex);
         }
     }
 
     [HttpPost("{id}/participants")]
-    public async Task<IActionResult> AddParticipantAsync(Guid id, List<Participant> model, bool includeNotify)
+    public async Task<IActionResult> AddParticipantAsync(Guid id, List<ParticipantDto> model, bool includeNotify)
     {
         try
         {
             var response = await _participantService.AddAsync(id, model, includeNotify);
-            return new ResponseModel<List<Participant>>(model).Ok();
+            return new ResponseModel<List<ParticipantDto>>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<List<Participant>>().BadRequest(ex);
+            return new ResponseModel<List<ParticipantDto>>().BadRequest(ex);
         }
     }
 
@@ -82,7 +87,7 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Message.GetByConversationIdWithPaging(id, page, limit);
+            var response = _messageService.GetByConversationIdWithPaging(id, page, limit);
             return new ResponseModel<IEnumerable<MessageNoReference>>(response).Ok();
         }
         catch (Exception ex)
@@ -96,7 +101,7 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Attachment.GetByConversationId(id);
+            var response = _attachmentService.GetByConversationId(id);
             return new ResponseModel<IEnumerable<AttachmentGroupByCreatedTime>>(response).Ok();
         }
         catch (Exception ex)
@@ -106,16 +111,16 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(Conversation model, bool includeNotify)
+    public async Task<IActionResult> CreateAsync(ConversationDto model, bool includeNotify)
     {
         try
         {
             var response = await _conversationService.CreateAsync(model, includeNotify);
-            return new ResponseModel<Conversation>(model).Ok();
+            return new ResponseModel<ConversationDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Conversation>().BadRequest(ex);
+            return new ResponseModel<ConversationDto>().BadRequest(ex);
         }
     }
 
@@ -124,15 +129,12 @@ public class ConversationsController : ControllerBase
     {
         try
         {
-            var entity = _unitOfWork.Conversation.GetById(id);
-            patch.ApplyTo(entity);
-            _unitOfWork.Conversation.Update(entity);
-            _unitOfWork.Save();
-            return new ResponseModel<Conversation>(entity).Ok();
+            var response = _conversationService.Patch(id, patch);
+            return new ResponseModel<ConversationDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Conversation>().BadRequest(ex);
+            return new ResponseModel<ConversationDto>().BadRequest(ex);
         }
     }
 }

@@ -10,27 +10,11 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class ParticipantsController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IParticipantService _participantService;
 
-    public ParticipantsController(IUnitOfWork unitOfWork, IParticipantService participantService)
+    public ParticipantsController(IParticipantService participantService)
     {
-        _unitOfWork = unitOfWork;
         _participantService = participantService;
-    }
-
-    [HttpGet]
-    public IActionResult Get()
-    {
-        try
-        {
-            var response = _unitOfWork.Participant.GetAll();
-            return new ResponseModel<IEnumerable<Participant>>(response).Ok();
-        }
-        catch (Exception ex)
-        {
-            return new ResponseModel<IEnumerable<Participant>>().BadRequest(ex);
-        }
     }
 
     [HttpGet("{id}/check/{friendId}")]
@@ -52,27 +36,26 @@ public class ParticipantsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Participant.GetById(id);
-            return new ResponseModel<Participant>(response).Ok();
+            var response = _participantService.GetById(id);
+            return new ResponseModel<ParticipantDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participant>().BadRequest(ex);
+            return new ResponseModel<ParticipantDto>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public IActionResult Add(Participant model)
+    public IActionResult Add(ParticipantDto model)
     {
         try
         {
-            _unitOfWork.Participant.Add(model);
-            _unitOfWork.Save();
-            return new ResponseModel<Participant>(model).Ok();
+            _participantService.Add(model);
+            return new ResponseModel<ParticipantDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participant>().BadRequest(ex);
+            return new ResponseModel<ParticipantDto>().BadRequest(ex);
         }
     }
 
@@ -82,11 +65,11 @@ public class ParticipantsController : ControllerBase
         try
         {
             var response = await _participantService.EditAsync(id, patch, includeNotify);
-            return new ResponseModel<Participant>(response).Ok();
+            return new ResponseModel<ParticipantDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Participant>().BadRequest(ex);
+            return new ResponseModel<ParticipantDto>().BadRequest(ex);
         }
     }
 }

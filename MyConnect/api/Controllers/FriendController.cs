@@ -10,13 +10,11 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class FriendsController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IFriendService _service;
+    private readonly IFriendService _friendService;
 
-    public FriendsController(IUnitOfWork unitOfWork, IFriendService service)
+    public FriendsController(IFriendService friendService)
     {
-        _unitOfWork = unitOfWork;
-        _service = service;
+        _friendService = friendService;
     }
 
     [HttpGet]
@@ -24,12 +22,12 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Friend.GetAll();
-            return new ResponseModel<IEnumerable<Friend>>(response).Ok();
+            var response = _friendService.GetAll();
+            return new ResponseModel<IEnumerable<FriendDto>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<Friend>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<FriendDto>>().BadRequest(ex);
         }
     }
 
@@ -38,26 +36,26 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.Friend.GetById(id);
-            return new ResponseModel<Friend>(response).Ok();
+            var response = _friendService.GetById(id);
+            return new ResponseModel<FriendDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Friend>().BadRequest(ex);
+            return new ResponseModel<FriendDto>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAsync(Friend model, bool includeNotify)
+    public async Task<IActionResult> AddAsync(FriendDto model, bool includeNotify)
     {
         try
         {
-            var response = await _service.AddAsync(model, includeNotify);
-            return new ResponseModel<Friend>(response).Ok();
+            var response = await _friendService.AddAsync(model, includeNotify);
+            return new ResponseModel<FriendDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Friend>().BadRequest(ex);
+            return new ResponseModel<FriendDto>().BadRequest(ex);
         }
     }
 
@@ -66,12 +64,12 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            var response = await _service.UpdateAsync(id, patch, includeNotify);
-            return new ResponseModel<Friend>(response).Ok();
+            var response = await _friendService.UpdateAsync(id, patch, includeNotify);
+            return new ResponseModel<FriendDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Friend>().BadRequest(ex);
+            return new ResponseModel<FriendDto>().BadRequest(ex);
         }
     }
 
@@ -80,12 +78,12 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            await _service.DeleteAsync(id, includeNotify);
+            await _friendService.DeleteAsync(id, includeNotify);
             return Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Friend>().BadRequest(ex);
+            return new ResponseModel<FriendDto>().BadRequest(ex);
         }
     }
 }

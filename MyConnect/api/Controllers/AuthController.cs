@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("signup")]
-    public IActionResult Signup(Contact model)
+    public IActionResult Signup(ContactDto model)
     {
         try
         {
@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Contact>().BadRequest(ex);
+            return new ResponseModel<ContactDto>().BadRequest(ex);
         }
     }
 
@@ -63,13 +63,12 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var response = _authService.ValidateToken();
-            response.DecryptPassword();
-            return new ResponseModel<Contact>(response).Ok();
+            var response = _authService.Validate();
+            return new ResponseModel<ContactDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Contact>().BadRequest(ex);
+            return new ResponseModel<ContactDto>().BadRequest(ex);
         }
     }
 
@@ -83,7 +82,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new ResponseModel<Contact>().BadRequest(ex);
+            return new ResponseModel<ContactDto>().BadRequest(ex);
         }
     }
 }

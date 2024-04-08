@@ -1,4 +1,3 @@
-using AutoMapper;
 using MyConnect.Repository;
 
 namespace MyConnect.UOW
@@ -7,18 +6,18 @@ namespace MyConnect.UOW
     {
         private readonly CoreContext _context;
 
-        public UnitOfWork(CoreContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IMapper _mapper)
+        public UnitOfWork(CoreContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             Contact = new ContactRepository(_context);
-            Conversation = new ConversationRepository(_context, _mapper, httpContextAccessor);
-            Message = new MessageRepository(_context, _mapper, httpContextAccessor);
+            Conversation = new ConversationRepository(_context);
+            Message = new MessageRepository(_context);
             Participant = new ParticipantRepository(_context);
             Schedule = new ScheduleRepository(_context);
             ScheduleContact = new ScheduleContactRepository(_context);
             Attachment = new AttachmentRepository(_context);
-            Friend = new FriendRepository(_context, httpContextAccessor);
-            Notification = new NotificationRepository(_context, httpContextAccessor);
+            Friend = new FriendRepository(_context);
+            Notification = new NotificationRepository(_context);
         }
 
         public IContactRepository Contact { get; private set; }

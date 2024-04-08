@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyConnect.Interface;
 using MyConnect.Model;
 using MyConnect.UOW;
 
@@ -8,11 +9,11 @@ namespace MyConnect.Controllers;
 [MyAuthorize("Authorization")]
 public class ScheduleContactsController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IScheduleContactService _scheduleContactService;
 
-    public ScheduleContactsController(IUnitOfWork unitOfWork)
+    public ScheduleContactsController(IScheduleContactService scheduleContactService)
     {
-        _unitOfWork = unitOfWork;
+        _scheduleContactService = scheduleContactService;
     }
 
     [HttpGet]
@@ -20,12 +21,12 @@ public class ScheduleContactsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.ScheduleContact.GetAll();
-            return new ResponseModel<IEnumerable<ScheduleContact>>(response).Ok();
+            var response = _scheduleContactService.GetAll();
+            return new ResponseModel<IEnumerable<ScheduleContactDto>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<ScheduleContact>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<ScheduleContactDto>>().BadRequest(ex);
         }
     }
 
@@ -34,42 +35,40 @@ public class ScheduleContactsController : ControllerBase
     {
         try
         {
-            var response = _unitOfWork.ScheduleContact.GetById(id);
-            return new ResponseModel<ScheduleContact>(response).Ok();
+            var response = _scheduleContactService.GetById(id);
+            return new ResponseModel<ScheduleContactDto>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<ScheduleContact>().BadRequest(ex);
+            return new ResponseModel<ScheduleContactDto>().BadRequest(ex);
         }
     }
 
     [HttpPost]
-    public IActionResult Add(ScheduleContact model)
+    public IActionResult Add(ScheduleContactDto model)
     {
         try
         {
-            _unitOfWork.ScheduleContact.Add(model);
-            _unitOfWork.Save();
-            return new ResponseModel<ScheduleContact>(model).Ok();
+            _scheduleContactService.Add(model);
+            return new ResponseModel<ScheduleContactDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<ScheduleContact>().BadRequest(ex);
+            return new ResponseModel<ScheduleContactDto>().BadRequest(ex);
         }
     }
 
     [HttpPut]
-    public IActionResult Edit(ScheduleContact model)
+    public IActionResult Edit(ScheduleContactDto model)
     {
         try
         {
-            _unitOfWork.ScheduleContact.Update(model);
-            _unitOfWork.Save();
-            return new ResponseModel<ScheduleContact>(model).Ok();
+            _scheduleContactService.Update(model);
+            return new ResponseModel<ScheduleContactDto>(model).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<ScheduleContact>().BadRequest(ex);
+            return new ResponseModel<ScheduleContactDto>().BadRequest(ex);
         }
     }
 
@@ -78,13 +77,12 @@ public class ScheduleContactsController : ControllerBase
     {
         try
         {
-            _unitOfWork.ScheduleContact.Delete(id);
-            _unitOfWork.Save();
+            _scheduleContactService.Delete(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<ScheduleContact>().BadRequest(ex);
+            return new ResponseModel<ScheduleContactDto>().BadRequest(ex);
         }
     }
 }

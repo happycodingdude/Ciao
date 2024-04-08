@@ -1,8 +1,4 @@
-using MyConnect.Model;
-
 namespace MyConnect.Repository
 {
-    public interface IScheduleRepository : IRepository<Schedule>
-    {
-    }
+    public interface IScheduleRepository : IRepository<Schedule> { }
 }

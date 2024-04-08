@@ -1,5 +1,3 @@
-using MyConnect.Model;
-
 namespace MyConnect.Repository
 {
     public class ScheduleContactRepository : BaseRepository<ScheduleContact>, IScheduleContactRepository

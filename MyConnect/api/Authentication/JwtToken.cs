@@ -2,13 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using MyConnect.Model;
 
 namespace MyConnect.Authentication
 {
     public class JwtToken
     {
-        public static string GenerateToken(string secretKey, Contact user)
+        public static string GenerateToken(string secretKey, string userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secretKey);
@@ -17,7 +16,7 @@ namespace MyConnect.Authentication
                 Subject = new ClaimsIdentity(new[]
                 {
                     //new Claim(ClaimTypes.Role, "admin"),
-                    new Claim("id", user.Id.ToString()),
+                    new Claim("id", userId),
                 }),
                 Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

@@ -1,40 +1,43 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MyConnect.Authentication;
 using MyConnect.Interface;
 using MyConnect.Model;
+using MyConnect.Repository;
 using MyConnect.RestApi;
 using MyConnect.UOW;
+using MyConnect.Util;
 
 namespace MyConnect.Implement
 {
-    public class MessageService : IMessageService
+    public class MessageService : BaseService<Message, MessageDto>, IMessageService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IFirebaseFunction _firebaseFunction;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public MessageService(IUnitOfWork unitOfWork,
-        IFirebaseFunction firebaseFunction,
+        public MessageService(IMessageRepository repo,
+        IUnitOfWork unitOfWork,
         INotificationService notificationService,
         IMapper mapper,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor) : base(repo, unitOfWork, mapper)
         {
             _unitOfWork = unitOfWork;
-            _firebaseFunction = firebaseFunction;
             _notificationService = notificationService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<Message> SaveAndNotifyMessage(Message model)
+        public async Task<MessageDto> SaveAndNotifyMessage(MessageDto model)
         {
-            _unitOfWork.Message.Add(model);
-            var entity = _unitOfWork.Conversation.GetById(model.ConversationId);
-            _unitOfWork.Conversation.Update(entity);
+            var entity = _mapper.Map<MessageDto, Message>(model);
+            _unitOfWork.Message.Add(entity);
+
+            var conversation = _unitOfWork.Conversation.GetById(model.ConversationId);
+            _unitOfWork.Conversation.Update(conversation);
             // When a message sent, all members of that group will be having that group conversation back
-            var participants = _unitOfWork.Participant.GetByConversationId(model.ConversationId);
+            var participants = _unitOfWork.Participant.DbSet.Where(q => q.ConversationId == model.ConversationId).ToList();
             foreach (var participant in participants.Where(q => q.IsDeleted))
             {
                 participant.IsDeleted = false;
@@ -44,20 +47,49 @@ namespace MyConnect.Implement
 
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var contactId = JwtToken.ExtractToken(token);
-            var notify = _mapper.Map<Message, MessageToNotify>(model);
-            foreach (var contact in _unitOfWork.Participant.GetContactIdByConversationId(model.ConversationId))
+            var notify = _mapper.Map<MessageDto, MessageToNotify>(model);
+            foreach (var contact in participants.Select(q => q.ContactId.ToString()))
             {
                 var connection = _notificationService.GetConnection(contact);
-                if (string.IsNullOrEmpty(connection)) continue;
                 var notification = new FirebaseNotification
                 {
                     to = connection,
                     data = new CustomNotification<MessageToNotify>(NotificationEvent.NewMessage, notify)
                 };
-                await _firebaseFunction.Notify(notification);
+                await _notificationService.Notify(NotificationEvent.NewMessage, connection, notify);
             }
 
             return model;
+        }
+
+        public IEnumerable<MessageNoReference> GetByConversationIdWithPaging(Guid id, int page, int limit)
+        {
+            var messages = _unitOfWork.Message.DbSet
+            .Include(q => q.Attachments)
+            .Where(q => q.ConversationId == id)
+            .OrderByDescending(q => q.CreatedTime)
+            .Skip(limit * (page - 1))
+            .Take(limit)
+            .ToList();
+
+            SeenAll(id);
+
+            return _mapper.Map<List<Message>, List<MessageNoReference>>(messages);
+        }
+
+        private void SeenAll(Guid id)
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var contactId = JwtToken.ExtractToken(token);
+
+            var unseenMessages = _unitOfWork.Message.DbSet.Where(q => q.ConversationId == id && q.ContactId != contactId && q.Status == "received");
+            foreach (var message in unseenMessages)
+            {
+                message.Status = "seen";
+                message.SeenTime = DateTime.Now;
+                _unitOfWork.Message.Update(message);
+            }
+            _unitOfWork.Save();
         }
     }
 }

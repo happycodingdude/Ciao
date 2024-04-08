@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using MyConnect.Common;
+using MyConnect.Repository;
+using MyConnect.Util;
 using Newtonsoft.Json;
 
 namespace MyConnect.Model
 {
-    public class Contact : BaseModel
+    public class ContactDto : BaseModel
     {
         [Required]
         public string? Name { get; set; }
@@ -37,12 +38,12 @@ namespace MyConnect.Model
 
         public void EncryptPassword()
         {
-            Password = Hash.Encrypt(Password);
+            Password = HashHandler.Encrypt(Password);
         }
 
         public void DecryptPassword()
         {
-            Password = Hash.Decrypt(Password);
+            Password = HashHandler.Decrypt(Password);
         }
     }
 

@@ -1,9 +1,11 @@
 using MyConnect.Model;
+using MyConnect.Repository;
 
 namespace MyConnect.Interface
 {
-    public interface IConversationService
+    public interface IConversationService : IBaseService<Conversation, ConversationDto>
     {
-        Task<Conversation> CreateAsync(Conversation model, bool includeNotify);
+        IEnumerable<ConversationWithTotalUnseen> GetAllWithUnseenMesages(int page, int limit);
+        Task<ConversationDto> CreateAsync(ConversationDto model, bool includeNotify);
     }
 }
