@@ -10,7 +10,8 @@ namespace MyConnect.Repository
         public BaseRepository(CoreContext context)
         {
             _context = context;
-            DbSet = context.Set<T>();
+            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            DbSet = _context.Set<T>();
         }
 
         public virtual IEnumerable<T> GetAll()
