@@ -10,6 +10,10 @@ using MyConnect.Interface;
 using MyConnect.Implement;
 using Newtonsoft.Json;
 using MyConnect.Configuration;
+using Microsoft.AspNetCore.Diagnostics;
+using MyConnect.Middleware;
+using Microsoft.AspNetCore.Authorization;
+using MyConnect.Authentication;
 
 namespace MyConnect
 {
@@ -62,6 +66,20 @@ namespace MyConnect
                 });
             services.AddHttpContextAccessor();
 
+            // Authorization
+            services.AddSingleton<IAuthorizationHandler, TokenAuthorizeHandle>();
+            services.AddAuthorization(option =>
+            {
+                option.AddPolicy("TokenRequired", policy =>
+                {
+                    policy.AddRequirements(new TokenAuthorizeRequirement());
+                });
+            });
+
+            // Exception handler
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddProblemDetails();
+
             // Repository
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -76,7 +94,6 @@ namespace MyConnect
             // Service
             services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IAuthService, AuthService>();
-            // services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IFriendService, FriendService>();
             services.AddScoped<IMessageService, MessageService>();
@@ -88,6 +105,7 @@ namespace MyConnect
             services.AddScoped<IFirebaseFunction, FirebaseFunction>();
         }
 
+        // public void Configure(WebApplication app, IWebHostEnvironment env)
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             Console.WriteLine("Configure running");
@@ -98,15 +116,16 @@ namespace MyConnect
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseExceptionHandler();
             }
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            // app.UseEndpoints(endpoints =>
+            // {
+            //     endpoints.MapControllers();
+            // });
 
             DatabaseMigration.Migrate(app);
             RedisCLient.Configure(_configuration);

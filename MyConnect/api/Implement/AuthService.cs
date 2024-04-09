@@ -94,9 +94,10 @@ namespace MyConnect.Implement
 
         private ContactDto ExtractTokenAndGetContact()
         {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var id = JwtToken.ExtractToken(token);
-            return GetById(id);
+            // var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            // var id = JwtToken.ExtractToken(token);
+            var id = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            return GetById(Guid.Parse(id));
         }
     }
 }

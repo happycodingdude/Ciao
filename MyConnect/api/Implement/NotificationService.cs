@@ -64,9 +64,9 @@ namespace MyConnect.Implement
             await _firebaseFunction.Notify(notification);
         }
 
-        public override IEnumerable<NotificationDto> GetAll(int page, int limit)
+        public IEnumerable<NotificationTypeConstraint> GetAllNotification(int page, int limit)
         {
-            var result = new List<NotificationDto>();
+            var result = new List<NotificationTypeConstraint>();
 
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var id = JwtToken.ExtractToken(token);
@@ -76,10 +76,10 @@ namespace MyConnect.Implement
                 switch (entity.SourceType)
                 {
                     case NotificationSourceType.FriendRequest:
-                        var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint<Friend>>(entity);
-                        constraintDto.SourceData = _unitOfWork.Friend.GetById(constraintDto.SourceId);
-                        var dto = _mapper.Map<NotificationTypeConstraint<Friend>, NotificationDto>(constraintDto);
-                        result.Add(dto);
+                        var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(entity);
+                        var friend = _unitOfWork.Friend.GetById(constraintDto.SourceId);
+                        constraintDto.AddSourceData<FriendDto>(_mapper.Map<Friend, FriendDto>(friend));
+                        result.Add(constraintDto);
                         break;
                     default:
                         break;

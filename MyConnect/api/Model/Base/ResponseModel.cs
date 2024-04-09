@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 
 namespace MyConnect.Model
 {
-    public class ResponseModel<T> : ActionResult
+    public class ResponseModel1<T> : IResult
     {
-        private HttpStatusCode code { get; set; }
+        public HttpStatusCode code { get; private set; }
         public string error { get; private set; }
         public T data { get; private set; }
         private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings
@@ -15,33 +15,20 @@ namespace MyConnect.Model
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
 
-        public ResponseModel() { }
+        public ResponseModel1() { }
 
-        public ResponseModel(T data)
+        public ResponseModel1(T data)
         {
             this.data = data;
         }
 
-        // Default method
-        public override void ExecuteResult(ActionContext context)
-        {
-            var response = context.HttpContext.Response;
-            response.StatusCode = (int)code;
-            var header = context.HttpContext.Request.Headers["Data"];
-            if (header == "full")
-                jsonSetting.ContractResolver = new IgnoreJsonAttributesResolver();
-            var json = JsonConvert.SerializeObject(this, jsonSetting);
-            response.ContentType = "application/json";
-            response.WriteAsync(json);
-        }
-
-        public ResponseModel<T> Ok()
+        public ResponseModel1<T> Ok()
         {
             code = HttpStatusCode.OK;
             return this;
         }
 
-        public ResponseModel<T> BadRequest(Exception exception)
+        public ResponseModel1<T> BadRequest(Exception exception)
         {
             code = HttpStatusCode.BadRequest;
             this.error = exception.Message;
@@ -51,6 +38,18 @@ namespace MyConnect.Model
             //     data = exception.Data["Data"] as T;
 
             return this;
+        }
+
+        public Task ExecuteAsync(HttpContext httpContext)
+        {
+            var response = httpContext.Response;
+            response.StatusCode = (int)code;
+            var header = httpContext.Request.Headers["Data"];
+            if (header == "full")
+                jsonSetting.ContractResolver = new IgnoreJsonAttributesResolver();
+            var json = JsonConvert.SerializeObject(this, jsonSetting);
+            response.ContentType = "application/json";
+            return response.WriteAsync(json);
         }
     }
 }

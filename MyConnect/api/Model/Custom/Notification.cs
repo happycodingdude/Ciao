@@ -12,15 +12,20 @@ namespace MyConnect.Model
         public Contact? Contact { get; set; }
     }
 
-    public class NotificationTypeConstraint<T> where T : class
+    public class NotificationTypeConstraint
     {
         public Guid Id { get; set; }
         public Guid SourceId { get; set; }
-        public T SourceData { get; set; }
-        public object SourceType { get; set; }
+        public object SourceData { get; set; }
+        public string SourceType { get; set; }
         public string Content { get; set; }
         public bool Read { get; set; }
         public Guid ContactId { get; set; }
+
+        public void AddSourceData<T>(T source)
+        {
+            SourceData = source;
+        }
     }
 
     public class RegisterConnection
@@ -32,7 +37,7 @@ namespace MyConnect.Model
     public class CustomNotification<T> where T : class
     {
         public string @event { get; set; }
-        public object data { get; set; }
+        public T data { get; set; }
 
         public CustomNotification(string @event, T data)
         {

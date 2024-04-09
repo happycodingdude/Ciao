@@ -10,5 +10,6 @@ namespace MyConnect.Interface
         bool RemoveConnection(string id);
         Task Notify(string _event, string connection);
         Task Notify<T>(string _event, string connection, T data) where T : class;
+        IEnumerable<NotificationTypeConstraint> GetAllNotification(int page, int limit);
     }
 }

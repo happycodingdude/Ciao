@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MyConnect.Interface;
 using MyConnect.Model;
-using MyConnect.UOW;
 
 namespace MyConnect.Controllers;
 [ApiController]
@@ -22,12 +21,12 @@ public class NotificationsController : ControllerBase
     {
         try
         {
-            var response = _notificationService.GetAll(page, limit);
-            return new ResponseModel<IEnumerable<NotificationDto>>(response).Ok();
+            var response = _notificationService.GetAllNotification(page, limit);
+            return new ResponseModel<IEnumerable<NotificationTypeConstraint>>(response).Ok();
         }
         catch (Exception ex)
         {
-            return new ResponseModel<IEnumerable<NotificationDto>>().BadRequest(ex);
+            return new ResponseModel<IEnumerable<NotificationTypeConstraint>>().BadRequest(ex);
         }
     }
 

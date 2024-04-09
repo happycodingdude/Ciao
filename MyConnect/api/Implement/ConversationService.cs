@@ -95,7 +95,7 @@ namespace MyConnect.Implement
                         to = connection,
                         data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
                     };
-                    await _notificationService.Notify(NotificationEvent.NewConversation, connection, notify);
+                    await _notificationService.Notify<ConversationToNotify>(NotificationEvent.NewConversation, connection, notify);
                 }
             }
             return model;

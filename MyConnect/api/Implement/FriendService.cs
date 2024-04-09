@@ -78,56 +78,55 @@ namespace MyConnect.Implement
 
         public async Task<FriendDto> AddAsync(FriendDto model, bool includeNotify)
         {
-            Add(model);
+            var created = Add(model);
 
             if (includeNotify)
             {
-                var connection = _notificationService.GetConnection(model.ContactId2.ToString());
+                var connection = _notificationService.GetConnection(created.ContactId2.ToString());
 
                 // Send updated request to client
                 var request = new FriendToNotify
                 {
-                    RequestId = model.Id
+                    RequestId = created.Id
                 };
-                await _notificationService.Notify(NotificationEvent.NewFriendRequest, connection, request);
+                await _notificationService.Notify<FriendToNotify>(NotificationEvent.NewFriendRequest, connection, request);
 
                 // Save notification
-                var contact = _unitOfWork.Contact.GetById(model.ContactId1);
+                var contact = _unitOfWork.Contact.GetById(created.ContactId1);
                 var notiEntity = new Notification
                 {
-                    SourceId = model.Id,
+                    SourceId = created.Id,
                     SourceType = NotificationSourceType.FriendRequest,
                     Content = $"{contact.Name} send you a request",
-                    ContactId = model.ContactId2
+                    ContactId = created.ContactId2
                 };
                 _unitOfWork.Notification.Add(notiEntity);
                 _unitOfWork.Save();
 
                 // Send new notification to client
-                var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint<FriendDto>>(notiEntity);
-                constraintDto.SourceData = model;
-                var dto = _mapper.Map<NotificationTypeConstraint<FriendDto>, NotificationDto>(constraintDto);
-                await _notificationService.Notify(NotificationEvent.NewNotification, connection, dto);
+                var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
+                constraintDto.AddSourceData<FriendDto>(created);
+                await _notificationService.Notify<NotificationTypeConstraint>(NotificationEvent.NewNotification, connection, constraintDto);
             }
-            return model;
+            return created;
         }
 
         public async Task<FriendDto> UpdateAsync(Guid id, JsonPatchDocument patch, bool includeNotify)
         {
-            var result = Patch(id, patch);
+            var updated = Patch(id, patch);
 
             if (includeNotify)
             {
-                var connection = _notificationService.GetConnection(result.ContactId1.ToString());
+                var connection = _notificationService.GetConnection(updated.ContactId1.ToString());
 
                 // Send updated request to client
                 var request = new FriendToNotify
                 {
                     RequestId = id
                 };
-                await _notificationService.Notify(NotificationEvent.AcceptFriendRequest, connection, request);
+                await _notificationService.Notify<FriendToNotify>(NotificationEvent.AcceptFriendRequest, connection, request);
             }
-            return result;
+            return updated;
         }
 
         public async Task DeleteAsync(Guid id, bool includeNotify)
@@ -143,7 +142,7 @@ namespace MyConnect.Implement
                 {
                     ContactId = entity.ContactId1
                 };
-                await _notificationService.Notify(NotificationEvent.CancelFriendRequest, connection, request);
+                await _notificationService.Notify<FriendToNotify>(NotificationEvent.CancelFriendRequest, connection, request);
 
                 // Send new notification to client                
                 await _notificationService.Notify(NotificationEvent.NewNotification, connection);
