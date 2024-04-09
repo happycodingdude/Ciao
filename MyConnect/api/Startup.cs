@@ -40,31 +40,33 @@ namespace MyConnect
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
-            services
-            .AddDbContextPool<CoreContext>(option =>
-            {
-                string environment = _configuration["ASPNETCORE_ENVIRONMENT"];
-                // Console.WriteLine(environment);
-                if (environment == "Development")
-                    option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
-                else
-                    option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
-            });
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"])),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ClockSkew = TimeSpan.Zero
-                    };
-                });
             services.AddHttpContextAccessor();
+            // services
+            // .AddDbContextPool<CoreContext>(option =>
+            // {
+            //     string environment = _configuration["ASPNETCORE_ENVIRONMENT"];
+            //     // Console.WriteLine(environment);
+            //     if (environment == "Development")
+            //         option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
+            //     else
+            //         option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
+            // });
+            services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)            
+            .AddJwtBearer(options =>
+            {
+                // options.RequireHttpsMetadata = false;
+                // options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"])),
+                    // ValidateIssuer = false,
+                    // ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    // ClockSkew = TimeSpan.Zero
+                };
+            });
 
             // Authorization
             services.AddSingleton<IAuthorizationHandler, TokenAuthorizeHandle>();

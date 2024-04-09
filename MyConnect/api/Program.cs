@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using MyConnect;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,4 +16,5 @@ var app = builder.Build();
 
 startup.Configure(app, builder.Environment);
 MinimalAPI.Configure(app);
+
 app.Run();

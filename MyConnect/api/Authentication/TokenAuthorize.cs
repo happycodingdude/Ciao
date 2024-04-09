@@ -4,8 +4,6 @@ namespace MyConnect.Authentication
 {
     public class TokenAuthorizeRequirement : IAuthorizationRequirement
     {
-        public TokenAuthorizeRequirement()
-        {
-        }
+        public TokenAuthorizeRequirement(){}
     }
 }
