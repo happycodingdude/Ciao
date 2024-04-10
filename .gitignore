@@ -1,93 +1,93 @@
-/coreapi/*.swp
-/coreapi/*.*~
-/coreapi/project.lock.json
-/coreapi/.DS_Store
-/coreapi/*.pyc
-/coreapi/nupkg/
+/MyConnect/Authentication.API/*.swp
+/MyConnect/Authentication.API/*.*~
+/MyConnect/Authentication.API/project.lock.json
+/MyConnect/Authentication.API/.DS_Store
+/MyConnect/Authentication.API/*.pyc
+/MyConnect/Authentication.API/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/coreapi/.idea/
+/MyConnect/Authentication.API/.idea/
 
 # Visual Studio
-/coreapi/.vs/
+/MyConnect/Authentication.API/.vs/
 
 # Fleet
-/coreapi/.fleet/
+/MyConnect/Authentication.API/.fleet/
 
 # Code Rush
-/coreapi/.cr/
+/MyConnect/Authentication.API/.cr/
 
 # User-specific files
-/coreapi/*.suo
-/coreapi/*.user
-/coreapi/*.userosscache
-/coreapi/*.sln.docstates
+/MyConnect/Authentication.API/*.suo
+/MyConnect/Authentication.API/*.user
+/MyConnect/Authentication.API/*.userosscache
+/MyConnect/Authentication.API/*.sln.docstates
 
 # Build results
-/coreapi/[Dd]ebug/
-/coreapi/[Dd]ebugPublic/
-/coreapi/[Rr]elease/
-/coreapi/[Rr]eleases/
-/coreapi/x64/
-/coreapi/x86/
-/coreapi/build/
-/coreapi/bld/
-/coreapi/[Bb]in/
-/coreapi/[Oo]bj/
-/coreapi/[Oo]ut/
-/coreapi/msbuild.log
-/coreapi/msbuild.err
-/coreapi/msbuild.wrn
+/MyConnect/Authentication.API/[Dd]ebug/
+/MyConnect/Authentication.API/[Dd]ebugPublic/
+/MyConnect/Authentication.API/[Rr]elease/
+/MyConnect/Authentication.API/[Rr]eleases/
+/MyConnect/Authentication.API/x64/
+/MyConnect/Authentication.API/x86/
+/MyConnect/Authentication.API/build/
+/MyConnect/Authentication.API/bld/
+/MyConnect/Authentication.API/[Bb]in/
+/MyConnect/Authentication.API/[Oo]bj/
+/MyConnect/Authentication.API/[Oo]ut/
+/MyConnect/Authentication.API/msbuild.log
+/MyConnect/Authentication.API/msbuild.err
+/MyConnect/Authentication.API/msbuild.wrn
 
 
 
 
-/MyConnect/api/*.swp
-/MyConnect/api/*.*~
-/MyConnect/api/project.lock.json
-/MyConnect/api/.DS_Store
-/MyConnect/api/*.pyc
-/MyConnect/api/nupkg/
+/MyConnect/Chat.API/*.swp
+/MyConnect/Chat.API/*.*~
+/MyConnect/Chat.API/project.lock.json
+/MyConnect/Chat.API/.DS_Store
+/MyConnect/Chat.API/*.pyc
+/MyConnect/Chat.API/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/api/.idea/
+/MyConnect/Chat.API/.idea/
 
 # Visual Studio
-/MyConnect/api/.vs/
+/MyConnect/Chat.API/.vs/
 
 # Fleet
-/MyConnect/api/.fleet/
+/MyConnect/Chat.API/.fleet/
 
 # Code Rush
-/MyConnect/api/.cr/
+/MyConnect/Chat.API/.cr/
 
 # User-specific files
-/MyConnect/api/*.suo
-/MyConnect/api/*.user
-/MyConnect/api/*.userosscache
-/MyConnect/api/*.sln.docstates
+/MyConnect/Chat.API/*.suo
+/MyConnect/Chat.API/*.user
+/MyConnect/Chat.API/*.userosscache
+/MyConnect/Chat.API/*.sln.docstates
 
 # Build results
-/MyConnect/api/[Dd]ebug/
-/MyConnect/api/[Dd]ebugPublic/
-/MyConnect/api/[Rr]elease/
-/MyConnect/api/[Rr]eleases/
-/MyConnect/api/x64/
-/MyConnect/api/x86/
-/MyConnect/api/build/
-/MyConnect/api/bld/
-/MyConnect/api/[Bb]in/
-/MyConnect/api/[Oo]bj/
-/MyConnect/api/[Oo]ut/
-/MyConnect/api/msbuild.log
-/MyConnect/api/msbuild.err
-/MyConnect/api/msbuild.wrn
+/MyConnect/Chat.API/[Dd]ebug/
+/MyConnect/Chat.API/[Dd]ebugPublic/
+/MyConnect/Chat.API/[Rr]elease/
+/MyConnect/Chat.API/[Rr]eleases/
+/MyConnect/Chat.API/x64/
+/MyConnect/Chat.API/x86/
+/MyConnect/Chat.API/build/
+/MyConnect/Chat.API/bld/
+/MyConnect/Chat.API/[Bb]in/
+/MyConnect/Chat.API/[Oo]bj/
+/MyConnect/Chat.API/[Oo]ut/
+/MyConnect/Chat.API/msbuild.log
+/MyConnect/Chat.API/msbuild.err
+/MyConnect/Chat.API/msbuild.wrn
 
 
 # Test
