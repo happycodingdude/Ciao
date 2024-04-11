@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace MyConnect.Authentication
+namespace Chat.API.Authentication
 {
     public class AllUserRequirement : IAuthorizationRequirement
     {

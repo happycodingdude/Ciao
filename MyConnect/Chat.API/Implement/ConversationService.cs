@@ -34,8 +34,8 @@ namespace MyConnect.Implement
             var messageDbSet = _unitOfWork.Message.DbSet;
             var participantDbSet = _unitOfWork.Participant.DbSet;
 
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var contactId = JwtToken.ExtractToken(token);
+            Guid.TryParse(_httpContextAccessor.HttpContext.Session.GetString("UserId"), out var contactId);
+            Console.WriteLine(contactId);
 
             List<Conversation> entity;
             if (page != 0 && limit != 0)

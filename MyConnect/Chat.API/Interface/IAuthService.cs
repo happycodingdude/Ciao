@@ -5,10 +5,7 @@ namespace MyConnect.Interface
 {
     public interface IAuthService : IBaseService<Contact, ContactDto>
     {
-        void Signup(ContactDto model);
-        LoginResponse Login(LoginRequest model);
-        bool Logout();
-        ContactDto Validate();
-        void ForgotPassword(ForgotPassword model);
+        Task SignupAsync(SignupRequest model);
+        Task<LoginResponse> Login(LoginRequest model);
     }
 }

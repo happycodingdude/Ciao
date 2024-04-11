@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Identity;
-using MyConnect;
+using Chat.API;
+using Chat.API.MinimalAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 

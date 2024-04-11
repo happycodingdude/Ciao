@@ -1,12 +1,7 @@
 using System.Security.Claims;
-using System.Text;
-using Authentication.API.Context;
-using Authentication.API.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,43 +13,23 @@ var configuration = new ConfigurationBuilder()
             .AddCommandLine(args)
             .Build();
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add common service
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add Authentication
-// builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
-// .AddJwtBearer(options =>
-//             {
-//                 options.TokenValidationParameters = new TokenValidationParameters
-//                 {
-//                     ValidIssuer = configuration["Jwt:Issuer"],
-//                     ValidAudience = configuration["Jwt:Issuer"],
-//                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Key"])),
-//                     ValidateIssuer = true,
-//                     ValidateAudience = true,
-//                     ValidateLifetime = true,
-//                     ValidateIssuerSigningKey = true,
-//                 };
-//             });
 builder.Services.AddAuthentication()
-            // .AddCookie(IdentityConstants.ApplicationScheme)
-            .AddBearerToken(IdentityConstants.BearerScheme);
+.AddBearerToken(IdentityConstants.BearerScheme);
 // Add Authorization
-builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthorization();
 // Config Dbcontext
 builder.Services.AddDbContext<AppDbContext>(x => x.UseMySQL(configuration.GetConnectionString("Db-Development")));
-builder.Services
-// .AddIdentityApiEndpoints<AppUser>()
-.AddIdentityCore<AppUser>()
+builder.Services.AddIdentityCore<AppUser>()
 .AddEntityFrameworkStores<AppDbContext>()
+.AddClaimsPrincipalFactory<AppClaimsFactory>()
 .AddApiEndpoints();
 
 var app = builder.Build();
-
-// app.UseAuthorization();
-app.MapIdentityApi<AppUser>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -64,19 +39,30 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/", (ClaimsPrincipal user) => $"Hello {user.Identity.Name}")
+app.MapGroup("/api/auth").MapIdentityApi<AppUser>();
+
+app.MapGet("/", (ClaimsPrincipal user) =>
+{
+    return Results.Ok(user.Claims.FirstOrDefault(q => q.Type == "UserId")?.Value);
+})
 .RequireAuthorization();
 
-// app.MapPost("/logout", async (HttpContext context) =>
-// {
-//     await context.SignOutAsync(IdentityConstants.BearerScheme);
-//     return Results.Ok();
-// }).RequireAuthorization();
-app.MapPost("/logout", async (SignInManager<AppUser> manager) =>
-{
-    await manager.SignOutAsync().ConfigureAwait(false);
-    return Results.Ok();
-}).RequireAuthorization();
-
 app.Run();
+
+class AppUser : IdentityUser { }
+class AppDbContext : IdentityDbContext<AppUser> { public AppDbContext(DbContextOptions options) : base(options) { } }
+class AppClaimsFactory : IUserClaimsPrincipalFactory<AppUser>
+{
+    public Task<ClaimsPrincipal> CreateAsync(AppUser user)
+    {
+        var claims = new Claim[] {
+            new Claim("UserId", user.Id),
+        };
+        var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        return Task.FromResult(claimsPrincipal);
+    }
+}

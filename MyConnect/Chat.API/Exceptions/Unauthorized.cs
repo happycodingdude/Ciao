@@ -1,7 +1,4 @@
-namespace MyConnect.Exceptions
+namespace Chat.API.Exceptions
 {
-    public class UnauthorizedException : Exception
-    {
-
-    }
+    public class UnauthorizedException : Exception { }
 }

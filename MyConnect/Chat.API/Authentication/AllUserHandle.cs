@@ -1,36 +1,36 @@
+using Chat.API.Exceptions;
+using Chat.API.Util;
 using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
 
-namespace MyConnect.Authentication
+namespace Chat.API.Authentication
 {
     public class AllUserHandle : AuthorizationHandler<AllUserRequirement>
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AllUserHandle(IHttpContextAccessor httpContextAccessor)
         {
-            this.httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AllUserRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AllUserRequirement requirement)
         {
             try
             {
-                // Extract token from bearer
-                // var bearer = httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-                // var token = bearer.ToString().Split(' ')[1];
-                // var id = JwtToken.ExtractToken(token);
-                // httpContextAccessor.HttpContext.Session.SetString("userId", id.ToString());
+                var authorization = _httpContextAccessor.HttpContext.Request.Headers.Authorization;
+                var token = authorization.ToString().Split(' ')[1];
+                var validatedRes = await StaticHttpClient.AddToken(token).GetAsync("");
+                validatedRes.EnsureSuccessStatusCode();
+
+                var userId = await validatedRes.Content.ReadAsStringAsync();
+                _httpContextAccessor.HttpContext.Session.SetString("UserId", JsonConvert.DeserializeObject<string>(userId));
 
                 context.Succeed(requirement);
-
-                Console.WriteLine("HandleRequirementAsync try");
-                return Task.CompletedTask;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("HandleRequirementAsync catch");
-                // context.Fail();
-                return Task.CompletedTask;
+                throw new UnauthorizedException();
             }
         }
     }

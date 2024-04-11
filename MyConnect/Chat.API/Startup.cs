@@ -1,22 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using MyConnect.Repository;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using MyConnect.UOW;
 using MyDockerWebAPI.RestApi;
 using MyConnect.RestApi;
 using MyConnect.Interface;
 using MyConnect.Implement;
-using Newtonsoft.Json;
 using MyConnect.Configuration;
-using Microsoft.AspNetCore.Diagnostics;
-using MyConnect.Middleware;
 using Microsoft.AspNetCore.Authorization;
-using MyConnect.Authentication;
-using Microsoft.AspNetCore.Identity;
+using Chat.API.Middleware;
+using Chat.API.Authentication;
 
-namespace MyConnect
+namespace Chat.API
 {
     public class Startup
     {
@@ -32,12 +26,12 @@ namespace MyConnect
             Console.WriteLine("ConfigureServices running");
             services.AddDistributedMemoryCache();
             services.AddSession();
-            services.AddControllers()
-            .AddNewtonsoftJson(opt =>
-            {
-                opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
-            });
+            services.AddControllers();
+            // .AddNewtonsoftJson(opt =>
+            // {
+            //     opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //     opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
+            // });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
@@ -50,24 +44,9 @@ namespace MyConnect
                 else
                     option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
             });
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = _configuration["Jwt:Issuer"],
-                    ValidAudience = _configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"])),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                };
-            });
+
+            // Authentication
+            services.AddAuthentication();
 
             // Authorization
             services.AddSingleton<IAuthorizationHandler, AllUserHandle>();
@@ -75,13 +54,13 @@ namespace MyConnect
             {
                 option.AddPolicy("AllUser", policy =>
                 {
-                    policy.RequireAuthenticatedUser();
                     policy.AddRequirements(new AllUserRequirement());
                 });
             });
 
             // Exception handler
-            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddExceptionHandler<BadRequestExceptionHandler>();
+            services.AddExceptionHandler<UnauthorizedExceptionHandler>();
             services.AddProblemDetails();
 
             // Repository
@@ -125,14 +104,14 @@ namespace MyConnect
             app.UseSession();
             app.UseCors();
 
-            // app.UseAuthentication();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             // app.UseEndpoints(endpoints =>
             // {
             //     endpoints.MapControllers();
             // });
-            app.UseEndpoints(e => { });
+            // app.UseEndpoints(e => { });
 
             DatabaseMigration.Migrate(app);
             RedisCLient.Configure(_configuration);
