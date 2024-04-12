@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.JsonPatch;
-using MyConnect.Model;
+using Chat.API.Model;
 
-namespace MyConnect.Interface
+namespace Chat.API.Interface
 {
     public interface IBaseService<T, V> where V : class
     {

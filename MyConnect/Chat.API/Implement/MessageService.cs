@@ -1,14 +1,14 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MyConnect.Authentication;
-using MyConnect.Interface;
-using MyConnect.Model;
-using MyConnect.Repository;
-using MyConnect.RestApi;
-using MyConnect.UOW;
-using MyConnect.Util;
+using Chat.API.Authentication;
+using Chat.API.Interface;
+using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.RestApi;
+using Chat.API.UOW;
+using Chat.API.Util;
 
-namespace MyConnect.Implement
+namespace Chat.API.Implement
 {
     public class MessageService : BaseService<Message, MessageDto>, IMessageService
     {
@@ -54,9 +54,9 @@ namespace MyConnect.Implement
                 var notification = new FirebaseNotification
                 {
                     to = connection,
-                    data = new CustomNotification<MessageToNotify>(NotificationEvent.NewMessage, notify)
+                    data = new CustomNotification<MessageToNotify>(Constants.NotificationEvent_NewMessage, notify)
                 };
-                await _notificationService.Notify<MessageToNotify>(NotificationEvent.NewMessage, connection, notify);
+                await _notificationService.Notify<MessageToNotify>(Constants.NotificationEvent_NewMessage, connection, notify);
             }
 
             return model;

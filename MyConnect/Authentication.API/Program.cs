@@ -26,7 +26,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(x => x.UseMySQL(configuration.GetConnectionString("Db-Development")));
 builder.Services.AddIdentityCore<AppUser>()
 .AddEntityFrameworkStores<AppDbContext>()
-.AddClaimsPrincipalFactory<AppClaimsFactory>()
+// .AddClaimsPrincipalFactory<AppClaimsFactory>()
 .AddApiEndpoints();
 
 var app = builder.Build();
@@ -44,25 +44,47 @@ app.UseAuthorization();
 
 app.MapGroup("/api/auth").MapIdentityApi<AppUser>();
 
-app.MapGet("/", (ClaimsPrincipal user) =>
+app.MapGet("/", async (UserManager<AppUser> userManager, ClaimsPrincipal model) =>
 {
-    return Results.Ok(user.Claims.FirstOrDefault(q => q.Type == "UserId")?.Value);
+    return await userManager.GetUserAsync(model);
 })
 .RequireAuthorization();
+app.MapGroup("/api/auth").MapPost("/signup", async (UserManager<AppUser> userManager, SignupRequest model) =>
+{
+    var user = new AppUser
+    {
+        Email = model.Email,
+        UserName = model.Email,
+        PasswordHash = model.Password
+    };
+    var result = await userManager.CreateAsync(user, user.PasswordHash);
+    if (result.Succeeded)
+    {
+        var created = await userManager.GetUserIdAsync(user);
+        return Results.Ok(created);
+    }
+    return Results.BadRequest(result);
+});
 
 app.Run();
 
 class AppUser : IdentityUser { }
 class AppDbContext : IdentityDbContext<AppUser> { public AppDbContext(DbContextOptions options) : base(options) { } }
-class AppClaimsFactory : IUserClaimsPrincipalFactory<AppUser>
+// class AppClaimsFactory : IUserClaimsPrincipalFactory<AppUser>
+// {
+//     public Task<ClaimsPrincipal> CreateAsync(AppUser user)
+//     {
+//         var claims = new Claim[] {
+//             new Claim("UserId", user.Id),
+//         };
+//         var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
+//         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+//         return Task.FromResult(claimsPrincipal);
+//     }
+// }
+
+class SignupRequest
 {
-    public Task<ClaimsPrincipal> CreateAsync(AppUser user)
-    {
-        var claims = new Claim[] {
-            new Claim("UserId", user.Id),
-        };
-        var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        return Task.FromResult(claimsPrincipal);
-    }
+    public string Email { get; set; }
+    public string Password { get; set; }
 }

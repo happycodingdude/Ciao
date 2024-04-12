@@ -1,6 +1,6 @@
-using MyConnect.Repository;
+using Chat.API.Repository;
 
-namespace MyConnect.Model
+namespace Chat.API.Model
 {
     public class FriendDto : BaseModel
     {

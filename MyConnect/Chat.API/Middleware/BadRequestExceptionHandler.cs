@@ -1,6 +1,6 @@
 using Chat.API.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
-using MyConnect.Model;
+using Chat.API.Model;
 
 namespace Chat.API.Middleware
 {

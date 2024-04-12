@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyConnect.Model;
+using Chat.API.Model;
 
-namespace MyConnect.Repository
+namespace Chat.API.Repository
 {
     public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notification>
     {

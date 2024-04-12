@@ -1,9 +1,9 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using MyConnect.Configuration;
+using Chat.API.Configuration;
 using Newtonsoft.Json;
 
-namespace MyConnect.Model
+namespace Chat.API.Model
 {
     public class ResponseModel1<T> : IResult
     {

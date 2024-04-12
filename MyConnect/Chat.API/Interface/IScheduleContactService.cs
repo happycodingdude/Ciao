@@ -1,7 +1,7 @@
-using MyConnect.Model;
-using MyConnect.Repository;
+using Chat.API.Model;
+using Chat.API.Repository;
 
-namespace MyConnect.Interface
+namespace Chat.API.Interface
 {
     public interface IScheduleContactService : IBaseService<ScheduleContact, ScheduleContactDto>
     {

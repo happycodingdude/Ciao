@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using MyConnect;
-using MyConnect.Controllers;
-using MyConnect.Model;
-using MyConnect.UOW;
+using Chat.API.Controllers;
+using Chat.API.Model;
+using Chat.API.UOW;
 using Newtonsoft.Json;
 
 namespace ApiTest;

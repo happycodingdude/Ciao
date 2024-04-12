@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace MyConnect.Repository
+namespace Chat.API.Repository
 {
     public static class DatabaseMigration
     {

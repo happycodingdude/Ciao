@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace MyConnect.Authentication
+namespace Chat.API.Authentication
 {
     public static class KeyGenerator
     {

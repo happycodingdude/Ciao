@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MyConnect.Util
+namespace Chat.API.Util
 {
     public static class LinQExtension
     {

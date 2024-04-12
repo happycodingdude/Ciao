@@ -10,4 +10,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 # EXPOSE 8080
 WORKDIR /app
 COPY --from=build /app .
-ENTRYPOINT ["dotnet", "MyConnect.dll"]
+ENTRYPOINT ["dotnet", "Chat.API.dll"]

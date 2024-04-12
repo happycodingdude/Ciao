@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MyConnect.Model;
+using Chat.API.Model;
 
-namespace MyConnect.Repository
+namespace Chat.API.Repository
 {
     public class CoreContext : DbContext
     {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.JsonPatch;
 
-namespace MyConnect.Model
+namespace Chat.API.Model
 {
     public class PatchRequest<T> where T : class
     {

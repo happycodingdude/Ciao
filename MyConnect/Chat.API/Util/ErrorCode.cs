@@ -1,4 +1,4 @@
-namespace MyConnect.Util
+namespace Chat.API.Util
 {
     public class ErrorCode
     {

@@ -1,4 +1,4 @@
-namespace MyConnect.Authentication
+namespace Chat.API.Authentication
 {
     public class JwtToken
     {

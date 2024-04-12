@@ -1,6 +1,6 @@
 using StackExchange.Redis;
 
-namespace MyConnect.Configuration
+namespace Chat.API.Configuration
 {
     public class RedisCLient
     {

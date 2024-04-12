@@ -1,8 +1,8 @@
 using AutoMapper;
-using MyConnect.Model;
-using MyConnect.Repository;
+using Chat.API.Model;
+using Chat.API.Repository;
 
-namespace MyConnect.Configuration
+namespace Chat.API.Configuration
 {
     public class MyMapping : Profile
     {

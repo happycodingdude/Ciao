@@ -1,14 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using MyConnect.Repository;
-using MyConnect.UOW;
+using Chat.API.Repository;
+using Chat.API.UOW;
 using MyDockerWebAPI.RestApi;
-using MyConnect.RestApi;
-using MyConnect.Interface;
-using MyConnect.Implement;
-using MyConnect.Configuration;
+using Chat.API.RestApi;
+using Chat.API.Interface;
+using Chat.API.Implement;
+using Chat.API.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Chat.API.Middleware;
 using Chat.API.Authentication;
+using Chat.API.Interface;
+using Chat.API.Implement;
 
 namespace Chat.API
 {

@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace MyConnect.Configuration
+namespace Chat.API.Configuration
 {
     public class IgnoreJsonAttributesResolver : DefaultContractResolver
     {

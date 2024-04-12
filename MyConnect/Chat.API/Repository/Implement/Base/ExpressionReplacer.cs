@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MyConnect.Repository
+namespace Chat.API.Repository
 {
     public class ExpressionReplacer : ExpressionVisitor
     {

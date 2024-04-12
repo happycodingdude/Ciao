@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyConnect.Repository;
+using Chat.API.Repository;
 
 #nullable disable
 
-namespace MyConnect.Migrations
+namespace Chat.API.Migrations
 {
     [DbContext(typeof(CoreContext))]
     [Migration("20240216075116_AlterColumn_Friend_Status")]
@@ -22,7 +22,7 @@ namespace MyConnect.Migrations
                 .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("MyConnect.Model.Attachment", b =>
+            modelBuilder.Entity("Chat.API.Model.Attachment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Attachment", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Contact", b =>
+            modelBuilder.Entity("Chat.API.Model.Contact", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +104,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Contact", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Conversation", b =>
+            modelBuilder.Entity("Chat.API.Model.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -139,7 +139,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Conversation", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Friend", b =>
+            modelBuilder.Entity("Chat.API.Model.Friend", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,7 +175,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Friend", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Message", b =>
+            modelBuilder.Entity("Chat.API.Model.Message", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -228,7 +228,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Message", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Participant", b =>
+            modelBuilder.Entity("Chat.API.Model.Participant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,7 +266,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Participant", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Schedule", b =>
+            modelBuilder.Entity("Chat.API.Model.Schedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,7 +299,7 @@ namespace MyConnect.Migrations
                     b.ToTable("Schedule", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.ScheduleContact", b =>
+            modelBuilder.Entity("Chat.API.Model.ScheduleContact", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -332,9 +332,9 @@ namespace MyConnect.Migrations
                     b.ToTable("ScheduleContact", (string)null);
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Attachment", b =>
+            modelBuilder.Entity("Chat.API.Model.Attachment", b =>
                 {
-                    b.HasOne("MyConnect.Model.Message", "Message")
+                    b.HasOne("Chat.API.Model.Message", "Message")
                         .WithMany("Attachments")
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -343,15 +343,15 @@ namespace MyConnect.Migrations
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Friend", b =>
+            modelBuilder.Entity("Chat.API.Model.Friend", b =>
                 {
-                    b.HasOne("MyConnect.Model.Contact", "Contact1")
+                    b.HasOne("Chat.API.Model.Contact", "Contact1")
                         .WithMany()
                         .HasForeignKey("ContactId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyConnect.Model.Contact", "Contact2")
+                    b.HasOne("Chat.API.Model.Contact", "Contact2")
                         .WithMany()
                         .HasForeignKey("ContactId2")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -362,15 +362,15 @@ namespace MyConnect.Migrations
                     b.Navigation("Contact2");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Message", b =>
+            modelBuilder.Entity("Chat.API.Model.Message", b =>
                 {
-                    b.HasOne("MyConnect.Model.Contact", "Contact")
+                    b.HasOne("Chat.API.Model.Contact", "Contact")
                         .WithMany("Messages")
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyConnect.Model.Conversation", "Conversation")
+                    b.HasOne("Chat.API.Model.Conversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -381,15 +381,15 @@ namespace MyConnect.Migrations
                     b.Navigation("Conversation");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Participant", b =>
+            modelBuilder.Entity("Chat.API.Model.Participant", b =>
                 {
-                    b.HasOne("MyConnect.Model.Contact", "Contact")
+                    b.HasOne("Chat.API.Model.Contact", "Contact")
                         .WithMany("Participants")
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyConnect.Model.Conversation", "Conversation")
+                    b.HasOne("Chat.API.Model.Conversation", "Conversation")
                         .WithMany("Participants")
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -400,15 +400,15 @@ namespace MyConnect.Migrations
                     b.Navigation("Conversation");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.ScheduleContact", b =>
+            modelBuilder.Entity("Chat.API.Model.ScheduleContact", b =>
                 {
-                    b.HasOne("MyConnect.Model.Contact", "Contact")
+                    b.HasOne("Chat.API.Model.Contact", "Contact")
                         .WithMany("ScheduleContacts")
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyConnect.Model.Schedule", "Schedule")
+                    b.HasOne("Chat.API.Model.Schedule", "Schedule")
                         .WithMany("ScheduleContacts")
                         .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -419,7 +419,7 @@ namespace MyConnect.Migrations
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Contact", b =>
+            modelBuilder.Entity("Chat.API.Model.Contact", b =>
                 {
                     b.Navigation("Messages");
 
@@ -428,19 +428,19 @@ namespace MyConnect.Migrations
                     b.Navigation("ScheduleContacts");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Conversation", b =>
+            modelBuilder.Entity("Chat.API.Model.Conversation", b =>
                 {
                     b.Navigation("Messages");
 
                     b.Navigation("Participants");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Message", b =>
+            modelBuilder.Entity("Chat.API.Model.Message", b =>
                 {
                     b.Navigation("Attachments");
                 });
 
-            modelBuilder.Entity("MyConnect.Model.Schedule", b =>
+            modelBuilder.Entity("Chat.API.Model.Schedule", b =>
                 {
                     b.Navigation("ScheduleContacts");
                 });

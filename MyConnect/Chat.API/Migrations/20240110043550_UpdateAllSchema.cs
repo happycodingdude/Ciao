@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace MyConnect.Migrations
+namespace Chat.API.Migrations
 {
     /// <inheritdoc />
     public partial class UpdateAllSchema : Migration

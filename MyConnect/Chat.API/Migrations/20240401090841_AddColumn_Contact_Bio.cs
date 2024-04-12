@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace MyConnect.Migrations
+namespace Chat.API.Migrations
 {
     /// <inheritdoc />
     public partial class AddColumn_Contact_Bio : Migration

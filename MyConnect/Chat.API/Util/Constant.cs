@@ -1,32 +1,26 @@
-namespace MyConnect.Util
+namespace Chat.API.Util
 {
-    public class UserRole
+    public partial class Constants
     {
-        public const string Admin = "admin";
-        public const string User = "user";
+        public const string SubmissionStatus_Draft = "draft";
+        public const string SubmissionStatus_Confirm = "confirm";
+        public const string SubmissionStatus_Approve = "approve";
+        public const string SubmissionStatus_Reject = "reject";
     }
 
-    public static class SubmissionStatus
+    public partial class Constants
     {
-        public const string Draft = "draft";
-        public const string Confirm = "confirm";
-        public const string Approve = "approve";
-        public const string Reject = "reject";
+        public const string NotificationEvent_NewMessage = "NewMessage";
+        public const string NotificationEvent_AddMember = "AddMember";
+        public const string NotificationEvent_NewConversation = "NewConversation";
+        public const string NotificationEvent_NewFriendRequest = "NewFriendRequest";
+        public const string NotificationEvent_AcceptFriendRequest = "AcceptFriendRequest";
+        public const string NotificationEvent_CancelFriendRequest = "CancelFriendRequest";
+        public const string NotificationEvent_NewNotification = "NewNotification";
     }
 
-    public class NotificationEvent
+    public partial class Constants
     {
-        public const string NewMessage = "NewMessage";
-        public const string AddMember = "AddMember";
-        public const string NewConversation = "NewConversation";
-        public const string NewFriendRequest = "NewFriendRequest";
-        public const string AcceptFriendRequest = "AcceptFriendRequest";
-        public const string CancelFriendRequest = "CancelFriendRequest";
-        public const string NewNotification = "NewNotification";
-    }
-
-    public class NotificationSourceType
-    {
-        public const string FriendRequest = "friend_request";
+        public const string NotificationSourceType_FriendRequest = "friend_request";
     }
 }

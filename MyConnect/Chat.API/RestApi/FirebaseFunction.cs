@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using MyConnect.RestApi;
+using Chat.API.RestApi;
 using Newtonsoft.Json;
 
 namespace MyDockerWebAPI.RestApi

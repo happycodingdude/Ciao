@@ -1,14 +1,14 @@
 using AutoMapper;
-using MyConnect.Authentication;
-using MyConnect.Configuration;
-using MyConnect.Interface;
-using MyConnect.Model;
-using MyConnect.Repository;
-using MyConnect.RestApi;
-using MyConnect.UOW;
-using MyConnect.Util;
+using Chat.API.Authentication;
+using Chat.API.Configuration;
+using Chat.API.Interface;
+using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.RestApi;
+using Chat.API.UOW;
+using Chat.API.Util;
 
-namespace MyConnect.Implement
+namespace Chat.API.Implement
 {
     public class NotificationService : BaseService<Notification, NotificationDto>, INotificationService
     {
@@ -75,7 +75,7 @@ namespace MyConnect.Implement
             {
                 switch (entity.SourceType)
                 {
-                    case NotificationSourceType.FriendRequest:
+                    case Constants.NotificationSourceType_FriendRequest:
                         var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(entity);
                         var friend = _unitOfWork.Friend.GetById(constraintDto.SourceId);
                         constraintDto.AddSourceData<FriendDto>(_mapper.Map<Friend, FriendDto>(friend));

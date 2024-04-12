@@ -1,14 +1,14 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MyConnect.Authentication;
-using MyConnect.Interface;
-using MyConnect.Model;
-using MyConnect.Repository;
-using MyConnect.RestApi;
-using MyConnect.UOW;
-using MyConnect.Util;
+using Chat.API.Authentication;
+using Chat.API.Interface;
+using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.RestApi;
+using Chat.API.UOW;
+using Chat.API.Util;
 
-namespace MyConnect.Implement
+namespace Chat.API.Implement
 {
     public class ConversationService : BaseService<Conversation, ConversationDto>, IConversationService
     {
@@ -33,9 +33,7 @@ namespace MyConnect.Implement
         {
             var messageDbSet = _unitOfWork.Message.DbSet;
             var participantDbSet = _unitOfWork.Participant.DbSet;
-
             Guid.TryParse(_httpContextAccessor.HttpContext.Session.GetString("UserId"), out var contactId);
-            Console.WriteLine(contactId);
 
             List<Conversation> entity;
             if (page != 0 && limit != 0)
@@ -93,9 +91,9 @@ namespace MyConnect.Implement
                     var notification = new FirebaseNotification
                     {
                         to = connection,
-                        data = new CustomNotification<ConversationToNotify>(NotificationEvent.NewConversation, notify)
+                        data = new CustomNotification<ConversationToNotify>(Constants.NotificationEvent_NewConversation, notify)
                     };
-                    await _notificationService.Notify<ConversationToNotify>(NotificationEvent.NewConversation, connection, notify);
+                    await _notificationService.Notify<ConversationToNotify>(Constants.NotificationEvent_NewConversation, connection, notify);
                 }
             }
             return model;

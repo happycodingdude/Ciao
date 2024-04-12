@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyConnect.Model;
+using Chat.API.Model;
 
-namespace MyConnect.Repository
+namespace Chat.API.Repository
 {
     public class ContactEntityConfiguration : IEntityTypeConfiguration<Contact>
     {
@@ -14,8 +14,8 @@ namespace MyConnect.Repository
             builder.Property(q => q.Name).IsRequired().HasMaxLength(100);
             builder.Property(q => q.Bio).HasMaxLength(250);
             builder.Property(q => q.Avatar).HasMaxLength(500);
-            builder.Property(q => q.Username).IsRequired().HasMaxLength(50);
-            builder.Property(q => q.Password).IsRequired().HasMaxLength(50);
+            // builder.Property(q => q.Username).IsRequired().HasMaxLength(50);
+            // builder.Property(q => q.Password).IsRequired().HasMaxLength(50);
             builder.Property(q => q.IsOnline).IsRequired();
         }
     }

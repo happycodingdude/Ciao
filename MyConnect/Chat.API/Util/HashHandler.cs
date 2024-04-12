@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace MyConnect.Util
+namespace Chat.API.Util
 {
     public class HashHandler
     {

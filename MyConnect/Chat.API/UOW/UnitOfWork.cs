@@ -1,6 +1,6 @@
-using MyConnect.Repository;
+using Chat.API.Repository;
 
-namespace MyConnect.UOW
+namespace Chat.API.UOW
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {

@@ -1,4 +1,4 @@
-﻿namespace MyConnect.RestApi
+﻿namespace Chat.API.RestApi
 {
     public interface IFirebaseFunction
     {

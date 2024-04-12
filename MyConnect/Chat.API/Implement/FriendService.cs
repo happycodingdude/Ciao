@@ -1,14 +1,14 @@
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
-using MyConnect.Authentication;
-using MyConnect.Interface;
-using MyConnect.Model;
-using MyConnect.Repository;
-using MyConnect.RestApi;
-using MyConnect.UOW;
-using MyConnect.Util;
+using Chat.API.Authentication;
+using Chat.API.Interface;
+using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.RestApi;
+using Chat.API.UOW;
+using Chat.API.Util;
 
-namespace MyConnect.Implement
+namespace Chat.API.Implement
 {
     public class FriendService : BaseService<Friend, FriendDto>, IFriendService
     {
@@ -89,14 +89,14 @@ namespace MyConnect.Implement
                 {
                     RequestId = created.Id
                 };
-                await _notificationService.Notify<FriendToNotify>(NotificationEvent.NewFriendRequest, connection, request);
+                await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_NewFriendRequest, connection, request);
 
                 // Save notification
                 var contact = _unitOfWork.Contact.GetById(created.ContactId1);
                 var notiEntity = new Notification
                 {
                     SourceId = created.Id,
-                    SourceType = NotificationSourceType.FriendRequest,
+                    SourceType = Constants.NotificationSourceType_FriendRequest,
                     Content = $"{contact.Name} send you a request",
                     ContactId = created.ContactId2
                 };
@@ -106,7 +106,7 @@ namespace MyConnect.Implement
                 // Send new notification to client
                 var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
                 constraintDto.AddSourceData<FriendDto>(created);
-                await _notificationService.Notify<NotificationTypeConstraint>(NotificationEvent.NewNotification, connection, constraintDto);
+                await _notificationService.Notify<NotificationTypeConstraint>(Constants.NotificationEvent_NewNotification, connection, constraintDto);
             }
             return created;
         }
@@ -124,7 +124,7 @@ namespace MyConnect.Implement
                 {
                     RequestId = id
                 };
-                await _notificationService.Notify<FriendToNotify>(NotificationEvent.AcceptFriendRequest, connection, request);
+                await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_AcceptFriendRequest, connection, request);
             }
             return updated;
         }
@@ -142,10 +142,10 @@ namespace MyConnect.Implement
                 {
                     ContactId = entity.ContactId1
                 };
-                await _notificationService.Notify<FriendToNotify>(NotificationEvent.CancelFriendRequest, connection, request);
+                await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_CancelFriendRequest, connection, request);
 
                 // Send new notification to client                
-                await _notificationService.Notify(NotificationEvent.NewNotification, connection);
+                await _notificationService.Notify(Constants.NotificationEvent_NewNotification, connection);
             }
         }
     }

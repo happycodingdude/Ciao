@@ -1,11 +1,11 @@
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
-using MyConnect.Interface;
-using MyConnect.Model;
-using MyConnect.Repository;
-using MyConnect.UOW;
+using Chat.API.Interface;
+using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.UOW;
 
-namespace MyConnect.Implement
+namespace Chat.API.Implement
 {
     public class BaseService<T, V> : IBaseService<T, V> where T : BaseModel where V : class
     {

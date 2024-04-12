@@ -1,4 +1,4 @@
-namespace MyConnect.Repository
+namespace Chat.API.Repository
 {
     public class ScheduleContact : BaseModel
     {

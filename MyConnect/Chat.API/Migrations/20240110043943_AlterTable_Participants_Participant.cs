@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace MyConnect.Migrations
+namespace Chat.API.Migrations
 {
     /// <inheritdoc />
     public partial class AlterTable_Participants_Participant : Migration

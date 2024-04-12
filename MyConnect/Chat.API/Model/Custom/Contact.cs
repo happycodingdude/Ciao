@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using MyConnect.Repository;
-using MyConnect.Util;
+using Chat.API.Repository;
+using Chat.API.Util;
 using Newtonsoft.Json;
 
-namespace MyConnect.Model
+namespace Chat.API.Model
 {
     public class ContactDto : BaseModel
     {

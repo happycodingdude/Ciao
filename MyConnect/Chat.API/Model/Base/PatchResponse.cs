@@ -1,4 +1,4 @@
-namespace MyConnect.Model
+namespace Chat.API.Model
 {
     public class PatchResponse
     {

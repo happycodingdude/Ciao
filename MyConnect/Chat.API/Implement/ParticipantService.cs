@@ -1,15 +1,15 @@
-using MyConnect.Interface;
-using MyConnect.Model;
-using MyConnect.RestApi;
+using Chat.API.Interface;
+using Chat.API.Model;
+using Chat.API.RestApi;
 using AutoMapper;
-using MyConnect.UOW;
+using Chat.API.UOW;
 using Microsoft.AspNetCore.JsonPatch;
-using MyConnect.Authentication;
-using MyConnect.Repository;
+using Chat.API.Authentication;
+using Chat.API.Repository;
 using Microsoft.EntityFrameworkCore;
-using MyConnect.Util;
+using Chat.API.Util;
 
-namespace MyConnect.Implement
+namespace Chat.API.Implement
 {
     public class ParticipantService : BaseService<Participant, ParticipantDto>, IParticipantService
     {
@@ -48,7 +48,7 @@ namespace MyConnect.Implement
                 foreach (var contact in allParticipants.Select(q => q.ContactId.ToString()).Where(q => q != contactId.ToString()))
                 {
                     var connection = _notificationService.GetConnection(contact);
-                    await _notificationService.Notify<IdModel>(NotificationEvent.AddMember, connection, new IdModel { Id = conversationId });
+                    await _notificationService.Notify<IdModel>(Constants.NotificationEvent_AddMember, connection, new IdModel { Id = conversationId });
                 }
             }
             var result = _unitOfWork.Participant.DbSet.Include(q => q.Contact).Where(q => q.ConversationId == conversationId && model.Any(w => w.ContactId == q.ContactId)).ToList();
@@ -72,7 +72,7 @@ namespace MyConnect.Implement
                 foreach (var contact in _unitOfWork.Participant.DbSet.Where(q => q.ConversationId == entity.ConversationId && q.ContactId != contactId).Select(q => q.ContactId.ToString()))
                 {
                     var connection = _notificationService.GetConnection(contact);
-                    await _notificationService.Notify<ConversationToNotify>(NotificationEvent.AddMember, connection, notify);
+                    await _notificationService.Notify<ConversationToNotify>(Constants.NotificationEvent_AddMember, connection, notify);
                 }
             }
             return entity;
