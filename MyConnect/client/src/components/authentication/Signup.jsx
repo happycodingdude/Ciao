@@ -47,14 +47,14 @@ const Signup = ({ reference }) => {
 
   const signup = () => {
     if (username === "" || password === "") return;
-    if (password.length < 6) {
-      setErrorPassword("Password min characters is 6");
-      return;
-    }
+    // if (password.length < 6) {
+    //   setErrorPassword("Password min characters is 6");
+    //   return;
+    // }
 
     const config = {
       method: "post",
-      url: "api/auth/signup",
+      url: "chat/api/auth/signup",
       data: {
         Name: name,
         Username: username,
@@ -68,9 +68,7 @@ const Signup = ({ reference }) => {
         }, 100);
       })
       .catch((err) => {
-        if (err.response.data.error === "UserExists") {
-          setErrorUsername("User exists");
-        }
+        console.log(err);
       });
   };
 

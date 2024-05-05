@@ -1,6 +1,7 @@
 using Chat.API.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Chat.API.Model;
+using Newtonsoft.Json;
 
 namespace Chat.API.Middleware
 {
@@ -11,10 +12,12 @@ namespace Chat.API.Middleware
             Console.WriteLine("BadRequestExceptionHandler calling");
             if (exception is not BadRequestException) return false;
 
-            var response = new ResponseModel1<object>();
-            response.BadRequest(exception);
+            // var response = new ResponseModel1<object>();
+            // response.BadRequest(exception);
             httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync(exception.Message, cancellationToken);
+            // await httpContext.Response.WriteAsJsonAsync(exception.Message, cancellationToken);
             return true;
         }
     }

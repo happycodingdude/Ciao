@@ -59,27 +59,28 @@ const Login = ({ reference }) => {
 
     HttpRequest({
       method: "post",
-      url: "api/auth/login",
+      url: "auth/api/auth/login",
       data: {
-        Username: username,
+        Email: username,
         Password: password,
       },
     })
       .then((res) => {
         if (!res) return;
-        login(res.Token);
-        setTimeout(() => {
-          navigate("/", { replace: true });
-        }, 500);
+        // login(res.Token);
+        // setTimeout(() => {
+        //   navigate("/", { replace: true });
+        // }, 500);
       })
       .catch((err) => {
-        if (err.response.data.error === "WrongPassword") {
-          setErrorPassword("Wrong password");
-          setErrorUsername("");
-        } else if (err.response.data.error === "NotFound") {
-          setErrorUsername("User not found");
-          setErrorPassword("");
-        }
+        // if (err.response.data.error === "WrongPassword") {
+        //   setErrorPassword("Wrong password");
+        //   setErrorUsername("");
+        // } else if (err.response.data.error === "NotFound") {
+        //   setErrorUsername("User not found");
+        //   setErrorPassword("");
+        // }
+        console.log(err);
       });
   };
 

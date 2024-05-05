@@ -7,10 +7,15 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": {
-        target: env.VITE_ASPNETCORE_URL,
+      "/auth/api": {
+        target: env.VITE_ASPNETCORE_AUTHENTICATION_URL,
         changeOrigin: true,
-        rewrite: (path) => path.replace("/api", ""),
+        rewrite: (path) => path.replace("/auth/api", ""),
+      },
+      "/chat/api": {
+        target: env.VITE_ASPNETCORE_CHAT_URL,
+        changeOrigin: true,
+        rewrite: (path) => path.replace("/chat/api", ""),
       },
     },
   },

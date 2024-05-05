@@ -23,12 +23,11 @@ builder.Services.AddAuthentication()
 // Add Authorization
 builder.Services.AddAuthorization();
 // Config Dbcontext
-builder.Services.AddDbContext<AppDbContext>(x => x.UseMySQL(configuration.GetConnectionString("Db-Development")));
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("Db-Development")));
 builder.Services.AddIdentityCore<AppUser>()
 .AddEntityFrameworkStores<AppDbContext>()
 // .AddClaimsPrincipalFactory<AppClaimsFactory>()
 .AddApiEndpoints();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,8 +52,8 @@ app.MapGroup("/api/auth").MapPost("/signup", async (UserManager<AppUser> userMan
 {
     var user = new AppUser
     {
-        Email = model.Email,
-        UserName = model.Email,
+        // Email = model.Username,
+        UserName = model.Username,
         PasswordHash = model.Password
     };
     var result = await userManager.CreateAsync(user, user.PasswordHash);
@@ -85,6 +84,7 @@ class AppDbContext : IdentityDbContext<AppUser> { public AppDbContext(DbContextO
 
 class SignupRequest
 {
-    public string Email { get; set; }
+    public string Name { get; set; }
+    public string Username { get; set; }
     public string Password { get; set; }
 }

@@ -1,5 +1,8 @@
+using AutoMapper;
 using Chat.API.Interface;
 using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.UOW;
 using Chat.API.Util;
 
 namespace Chat.API.MinimalAPI
@@ -9,9 +12,11 @@ namespace Chat.API.MinimalAPI
         public static void ConfigureAuthAPI(WebApplication app)
         {
             app.MapGroup(Constants.ApiRoute_Auth).MapPost("/signup",
-            async (IAuthService authService, SignupRequest model) =>
+            (IMapper mapper, IUnitOfWork unitOfWork, ContactDto model) =>
             {
-                await authService.SignupAsync(model);
+                var entity = mapper.Map<ContactDto, Contact>(model);
+                unitOfWork.Contact.Add(entity);
+                unitOfWork.Save();
                 return Results.Ok();
             });
         }

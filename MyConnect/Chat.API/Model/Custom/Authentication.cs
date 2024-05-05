@@ -1,13 +1,9 @@
 namespace Chat.API.Model
 {
-    public class LoginRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class SignupRequest : LoginRequest
+    public class SignupRequest
     {
         public string Name { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }
