@@ -1,5 +1,8 @@
+using AutoMapper;
 using Chat.API.Interface;
 using Chat.API.Model;
+using Chat.API.Repository;
+using Chat.API.UOW;
 using Chat.API.Util;
 using Microsoft.AspNetCore.JsonPatch;
 
@@ -36,6 +39,15 @@ namespace Chat.API.MinimalAPI
                 var response = authService.Patch(id, patch);
                 return Results.Ok(new ResponseModel<ContactDto>(response));
             }).RequireAuthorization("AllUser");
+
+            app.MapGroup(Constants.ApiRoute_Contact).MapPost("",
+            (IMapper mapper, IUnitOfWork unitOfWork, ContactDto model) =>
+            {
+                var entity = mapper.Map<ContactDto, Contact>(model);
+                unitOfWork.Contact.Add(entity);
+                unitOfWork.Save();
+                return Results.Ok();
+            });
         }
     }
 }

@@ -15,7 +15,6 @@ startup.ConfigureServices(builder.Services);
 var app = builder.Build();
 
 startup.Configure(app, builder.Environment);
-MinimalAPI.ConfigureAuthAPI(app);
 MinimalAPI.ConfigureContactAPI(app);
 MinimalAPI.ConfigureConversationAPI(app);
 MinimalAPI.ConfigureFriendAPI(app);
