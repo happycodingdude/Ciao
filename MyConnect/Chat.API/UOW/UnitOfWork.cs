@@ -6,7 +6,7 @@ namespace Chat.API.UOW
     {
         private readonly CoreContext _context;
 
-        public UnitOfWork(CoreContext context, IHttpContextAccessor httpContextAccessor)
+        public UnitOfWork(CoreContext context)
         {
             _context = context;
             Contact = new ContactRepository(_context);

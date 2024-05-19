@@ -13,7 +13,8 @@ namespace Chat.API.MinimalAPI
             (IConversationService conversationService, int page, int limit) =>
             {
                 var response = conversationService.GetAllWithUnseenMesages(page, limit);
-                return Results.Ok(new ResponseModel<IEnumerable<ConversationWithTotalUnseen>>(response));
+                // return Results.Ok(new ResponseModel<IEnumerable<ConversationWithTotalUnseen>>(response));
+                return Results.Ok(response);
             }).RequireAuthorization("AllUser");
 
             app.MapGroup(Constants.ApiRoute_Conversation).MapGet("/{id}", (IConversationService conversationService, Guid id) =>

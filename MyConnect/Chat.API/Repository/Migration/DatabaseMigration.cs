@@ -9,7 +9,7 @@ namespace Chat.API.Repository
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var context = scope.ServiceProvider.GetService<CoreContext>();
-                context.Database.Migrate();
+                context.Database.EnsureCreated();
             }
         }
     }

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "Chat.API\Chat.API.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication.API", "Authentication.API\Authentication.API.csproj", "{9FD9A990-0595-4203-BA4C-CED5114C73DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{204FC6C6-A573-4C99-9A2F-BC318301A021}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{9FD9A990-0595-4203-BA4C-CED5114C73DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FD9A990-0595-4203-BA4C-CED5114C73DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FD9A990-0595-4203-BA4C-CED5114C73DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

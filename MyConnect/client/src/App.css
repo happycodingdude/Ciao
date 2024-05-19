@@ -6,10 +6,10 @@
   font-size: 62.5%;
   --danger-text-color: #ef4444;
   --danger-text-color-normal: #f87171;
+  --danger-text-color-light: #f99f9f;
 }
 
-[data-theme="light"] 
-{
+[data-theme="light"] {
   --main-color: #f472b6;
   --main-color-extrabold: #be185d;
   --main-color-bold: #db2777;
@@ -21,18 +21,17 @@
   --bg-color: white;
   --text-main-color: black;
   --text-main-color-blur: #0000007c;
-  --text-sub-color: white;  
-  --text-sub-color-blur: #ffffffcb;  
+  --text-sub-color: white;
+  --text-sub-color-blur: #ffffffcb;
   --shadow-color: gray;
   --shadow-color-blur: #80808048;
   --border-color: #d1d5db;
   --icon-text-color: gray;
-  --portal-bg-color:#0000009c;
+  --portal-bg-color: #0000009c;
   --search-bg-color: #f3f4f6;
 }
 
-[data-theme="dark"] 
-{
+[data-theme="dark"] {
   --main-color: #f472b6;
   --main-color-extrabold: #be185d;
   --main-color-bold: #db2777;
@@ -42,14 +41,14 @@
   --main-color-thin: #fce7f3;
   --sub-color: white;
   --bg-color: black;
-  --text-main-color: white;  
+  --text-main-color: white;
   --text-main-color-blur: #ffffffcb;
   --text-sub-color: black;
   --text-sub-color-blur: #0000007c;
   --shadow-color: gray;
   --border-color: #d1d5db;
   --icon-text-color: gray;
-  --portal-bg-color:#0000009c;
+  --portal-bg-color: #0000009c;
   --search-bg-color: #f3f4f6;
 }
 
@@ -69,7 +68,9 @@ body,
     &::-webkit-scrollbar {
       display: none;
     }
-    scrollbar-width: none; /* For Firefox */
+
+    scrollbar-width: none;
+    /* For Firefox */
   }
 
   .grid-transition {
@@ -84,6 +85,7 @@ body,
     &:hover {
       outline: unset !important;
     }
+
     textarea {
       border: 0.2rem #ffb7df solid;
       border-radius: 1rem;
@@ -93,7 +95,9 @@ body,
       &::-webkit-scrollbar {
         display: none;
       }
-      scrollbar-width: none; /* For Firefox */
+
+      scrollbar-width: none;
+      /* For Firefox */
     }
   }
 

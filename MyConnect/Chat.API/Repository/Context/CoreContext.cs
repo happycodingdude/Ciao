@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Chat.API.Model;
 
 namespace Chat.API.Repository
 {

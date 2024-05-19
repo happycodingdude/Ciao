@@ -1,11 +1,3 @@
-using System.Data;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
-using MySql.Data.MySqlClient;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = new ConfigurationBuilder()
@@ -39,7 +31,6 @@ builder.Services.AddHttpClient("Chat", client =>
 });
 
 // Scopes
-builder.Services.AddScoped((_) => new SqlConnectionProvider(configuration.GetConnectionString("Db-Development")));
 
 var app = builder.Build();
 
@@ -55,15 +46,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseDbTransaction();
 
+// Using from Domain project
+RedisCLient.Configure(configuration);
+
 app.MapGroup("/api/auth").MapIdentityApi<AppUser>();
 
-app.MapGet("/", async (UserManager<AppUser> userManager, ClaimsPrincipal model) =>
+app.MapGroup("/api/auth").MapGet("/token",
+async Task<Results<Ok<AppUser>, ProblemHttpResult>>
+(UserManager<AppUser> userManager, ClaimsPrincipal model) =>
 {
-    return await userManager.GetUserAsync(model);
+    var user = await userManager.GetUserAsync(model);
+    return TypedResults.Ok(user);
 }).RequireAuthorization();
 
 app.MapGroup("/api/auth").MapPost("/signup",
-async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory clientFactory) =>
+async Task<Results<Ok, BadRequest<IdentityResult>>>
+(UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory clientFactory) =>
 {
     var user = new AppUser
     {
@@ -81,21 +79,38 @@ async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory
             Name = model.Name
         };
         var client = clientFactory.CreateClient("Chat");
-        Console.WriteLine(client.BaseAddress);
-        var response = await client.PostAsJsonAsync("/api/contactss", contact);
+        var response = await client.PostAsJsonAsync("/api/contacts", contact);
         response.EnsureSuccessStatusCode();
-        return Results.Ok();
+        return TypedResults.Ok();
     }
-    return Results.BadRequest(result);
+    return TypedResults.BadRequest(result);
+});
+// .WithOpenApi(operation => new(operation)
+// {
+//     OperationId = "SignUp",
+//     Tags = new List<OpenApiTag> { new() { Name = "Authen" } },
+//     Description = "signup description",
+//     Summary = "signup summary",
+//     Deprecated = true
+// })
+// .Produces(StatusCodes.Status200OK)
+// .Produces(StatusCodes.Status404NotFound);
+
+app.MapGroup("/api/auth").MapPost("/signin",
+async Task<Results<Ok<SignInResult>, EmptyHttpResult, ProblemHttpResult>>
+(SignInManager<AppUser> signInManager, SignupRequest model) =>
+{
+    signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
+    var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, isPersistent: false, lockoutOnFailure: true);
+    if (!result.Succeeded)
+        return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
+    Console.WriteLine(result.Succeeded);
+    return TypedResults.Empty;
 });
 
 app.Run();
 
-class AppUser : IdentityUser { }
-class AppDbContext : IdentityDbContext<AppUser>
-{
-    public AppDbContext(DbContextOptions options) : base(options) { }
-}
+
 // class AppClaimsFactory : IUserClaimsPrincipalFactory<AppUser>
 // {
 //     public Task<ClaimsPrincipal> CreateAsync(AppUser user)
@@ -109,78 +124,5 @@ class AppDbContext : IdentityDbContext<AppUser>
 //     }
 // }
 
-class SignupRequest
-{
-    public string Name { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-}
 
-class CreateContact
-{
-    public string Id { get; set; }
-    public string Name { get; set; }
-}
 
-public class DbTransactionMiddleware
-{
-    private readonly RequestDelegate _next;
-
-    public DbTransactionMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
-    public async Task Invoke(HttpContext httpContext, SqlConnectionProvider connectionProvider)
-    {
-        Console.WriteLine("DbTransactionMiddleware calling");
-        // For HTTP GET opening transaction is not required
-        if (httpContext.Request.Method.Equals("GET", StringComparison.CurrentCultureIgnoreCase))
-        {
-            await _next(httpContext);
-            return;
-        }
-
-        IDbTransaction transaction = null;
-
-        try
-        {
-            transaction = connectionProvider.CreateTransaction();
-
-            await _next(httpContext);
-
-            Console.WriteLine("transaction Commit");
-            transaction.Rollback();
-        }
-        finally
-        {
-            Console.WriteLine("transaction Dispose");
-            transaction?.Dispose();
-        }
-    }
-}
-
-public class SqlConnectionProvider
-{
-    private readonly IDbConnection _connection;
-    private IDbTransaction _transaction;
-
-    public SqlConnectionProvider(string connectionString)
-    {
-        _connection = new MySqlConnection(connectionString);
-    }
-
-    public IDbConnection GetDbConnection => _connection;
-
-    public IDbTransaction GetTransaction => _transaction;
-
-    public IDbTransaction CreateTransaction()
-    {
-        if (_connection.State == ConnectionState.Closed)
-            _connection.Open();
-
-        _transaction = _connection.BeginTransaction();
-
-        return _transaction;
-    }
-}

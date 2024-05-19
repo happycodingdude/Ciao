@@ -115,7 +115,7 @@ namespace Chat.API
             // });
             // app.UseEndpoints(e => { });
 
-            DatabaseMigration.Migrate(app);
+            // DatabaseMigration.Migrate(app);
             RedisCLient.Configure(_configuration);
         }
 

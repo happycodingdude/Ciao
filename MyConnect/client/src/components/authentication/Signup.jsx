@@ -19,8 +19,8 @@ const Signup = ({ reference }) => {
     setName("");
     setUsername("");
     setPassword("");
-    setErrorUsername("");
-    setErrorPassword("");
+    setErrorUsername(undefined);
+    setErrorPassword(undefined);
     refUsername.current.reset();
     refPassword.current.reset();
     refName.current.reset();
@@ -42,19 +42,15 @@ const Signup = ({ reference }) => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorUsername, setErrorUsername] = useState("");
-  const [errorPassword, setErrorPassword] = useState("");
+  const [errorUsername, setErrorUsername] = useState();
+  const [errorPassword, setErrorPassword] = useState();
 
   const signup = () => {
     if (username === "" || password === "") return;
-    // if (password.length < 6) {
-    //   setErrorPassword("Password min characters is 6");
-    //   return;
-    // }
 
     const config = {
       method: "post",
-      url: "chat/api/auth/signup",
+      url: "api/auth/signup",
       data: {
         Name: name,
         Username: username,
@@ -63,12 +59,20 @@ const Signup = ({ reference }) => {
     };
     HttpRequest(config)
       .then((res) => {
-        setTimeout(() => {
-          reference.toggleLogin();
-        }, 100);
+        reference.toggleLogin();
       })
       .catch((err) => {
-        console.log(err);
+        if(err.errors.some(error => error.code.toLowerCase().includes('password'))){
+          let errMessage = '';
+          err.errors.map(error => errMessage += error.description += '\n');
+          setErrorPassword(errMessage);
+          setErrorUsername(undefined);
+        } else if(err.errors.some(error => error.code.toLowerCase().includes('username'))){
+          let errMessage = '';
+          err.errors.map(error => errMessage += error.description += '\n');
+          setErrorUsername(errMessage);
+          setErrorPassword(undefined);
+        }       
       });
   };
 
@@ -100,7 +104,7 @@ const Signup = ({ reference }) => {
               error={errorUsername}
               onChange={(text) => {
                 setUsername(text);
-                if (text === "") setErrorUsername("");
+                if (text === "") setErrorUsername(undefined);
               }}
             />
             <CustomInput
@@ -111,7 +115,7 @@ const Signup = ({ reference }) => {
               error={errorPassword}
               onChange={(text) => {
                 setPassword(text);
-                if (text === "") setErrorPassword("");
+                if (text === "") setErrorPassword(undefined);
               }}
             />
           </div>

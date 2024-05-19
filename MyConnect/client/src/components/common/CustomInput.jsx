@@ -1,8 +1,9 @@
+import { Tooltip } from "antd";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
-  useRef,
+  useRef
 } from "react";
 
 const CustomInput = forwardRef(
@@ -35,23 +36,12 @@ const CustomInput = forwardRef(
       }
     };
 
-    const toggleError = (error) => {
-      if (error === "") {
-        refError.current.classList.remove("scale-x-100");
-        refError.current.classList.add("scale-x-0");
-      } else {
-        refError.current.classList.remove("scale-x-0");
-        refError.current.classList.add("scale-x-100");
-      }
-    };
-
     useEffect(() => {
-      toggleError(error);
-    }, [error]);
-
-    // useEffect(() => {
-    //   if (value !== "") return;
-    // }, [value]);
+      if(error === undefined)
+        refError.current.setAttribute("data-error", "false");
+      else
+      refError.current.setAttribute("data-error", "true");
+    },[error])
 
     return (
       <div className="relative">
@@ -83,13 +73,17 @@ const CustomInput = forwardRef(
         >
           {label}
         </p>
-        <p
-          ref={refError}
-          className="pointer-events-none absolute right-[3%] top-[50%] origin-right translate-y-[-50%] scale-x-0 overflow-hidden 
-          text-[var(--danger-text-color)] transition-all duration-200"
+        <Tooltip title={error} color="var(--danger-text-color-light)">
+        <div
+        ref={refError}
+        // data-error={error === undefined ? 'false' : 'true'}
+        data-error='false'
+          className={`absolute right-[3%] top-[50%] fa fa-exclamation-triangle text-[var(--danger-text-color)] 
+          data-[error=true]:scale-100 
+          data-[error=false]:scale-0`}
         >
-          {error}
-        </p>
+        </div>
+        </Tooltip>
       </div>
     );
   },

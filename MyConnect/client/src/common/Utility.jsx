@@ -36,12 +36,12 @@ export const HttpRequest = ({
     signal: controller.signal,
   })
     .then((res) => {
-      if (res.status !== 200) throw new Error(res.status);
-      return res.data.data;
+      // if (res.status !== 200) throw new Error(res.status);
+      return res.data;
     })
     .catch((err) => {
       console.log(err);
-      throw err;
+      throw err.response.data;
     });
 };
 

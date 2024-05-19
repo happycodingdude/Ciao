@@ -34,8 +34,7 @@ const Login = ({ reference }) => {
   const reset = () => {
     setUsername("");
     setPassword("");
-    setErrorUsername("");
-    setErrorPassword("");
+    setError(undefined);
     refUsername.current.reset();
     refPassword.current.reset();
   };
@@ -45,28 +44,28 @@ const Login = ({ reference }) => {
     reference.refLogin.toggleLogin = toggleLogin;
   }, [toggleSignup, toggleLogin]);
 
-  const [processing, setProcessing] = useState(false);
+  // const [processing, setProcessing] = useState(false);
   const refUsername = useRef();
   const refPassword = useRef();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorUsername, setErrorUsername] = useState("");
-  const [errorPassword, setErrorPassword] = useState("");
+  const [errorUsername, setErrorUsername] = useState(undefined);
+  const [errorPassword, setErrorPassword] = useState(undefined);
+  const [error, setError] = useState();
 
   const signin = () => {
     if (username === "" && password === "") return;
-    // setProcessing(true);
 
     HttpRequest({
       method: "post",
-      url: "auth/api/auth/login",
+      url: "api/auth/login",
       data: {
         Email: username,
         Password: password,
       },
     })
       .then((res) => {
-        if (!res) return;
+        console.log(res);
         // login(res.Token);
         // setTimeout(() => {
         //   navigate("/", { replace: true });
@@ -80,7 +79,8 @@ const Login = ({ reference }) => {
         //   setErrorUsername("User not found");
         //   setErrorPassword("");
         // }
-        console.log(err);
+        if(err.status === 401)
+          setError('Error');
       });
   };
 
@@ -120,10 +120,10 @@ const Login = ({ reference }) => {
                   type="text"
                   label="Username"
                   value={username}
-                  error={errorUsername}
+                  // error={errorUsername}
                   onChange={(text) => {
                     setUsername(text);
-                    if (text === "") setErrorUsername("");
+                    if (text === "") setErrorUsername(undefined);
                   }}
                   onKeyDown={handlePressKey}
                 />
@@ -132,10 +132,10 @@ const Login = ({ reference }) => {
                   type="password"
                   label="Password"
                   value={password}
-                  error={errorPassword}
+                  // error={errorPassword}
                   onChange={(text) => {
                     setPassword(text);
-                    if (text === "") setErrorPassword("");
+                    if (text === "") setErrorPassword(undefined);
                   }}
                   onKeyDown={handlePressKey}
                 />
@@ -150,12 +150,16 @@ const Login = ({ reference }) => {
               >
                 Forgot password?
               </div>
-
+              <p
+          className={`fa fa-exclamation-triangle
+          text-[var(--danger-text-color)] ${error === undefined ? 'scale-y-0' : 'scale-y-100'} `}
+        >
+        </p>
               <CustomButton
                 title="Sign in"
                 className="mt-[2rem]"
                 onClick={signin}
-                processing={processing}
+                // processing={processing}
               />
             </div>
           </div>
