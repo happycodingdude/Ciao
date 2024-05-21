@@ -1,7 +1,6 @@
-﻿namespace Chat.API.RestApi
+﻿namespace Chat.API.RestApi;
+
+public interface IFirebaseFunction
 {
-    public interface IFirebaseFunction
-    {
-        Task Notify(object data);
-    }
+    Task Notify(object data);
 }

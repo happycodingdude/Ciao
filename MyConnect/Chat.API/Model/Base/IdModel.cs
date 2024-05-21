@@ -1,7 +1,6 @@
-namespace Chat.API.Model
+namespace Chat.API.Model;
+
+public class IdModel
 {
-    public class IdModel
-    {
-        public Guid Id { get; set; }
-    }
+    public Guid Id { get; set; }
 }

@@ -1,4 +1,3 @@
-namespace Chat.API.Repository
-{
-    public interface IConversationRepository : IRepository<Conversation> { }
-}
+namespace Chat.API.Repository;
+
+public interface IConversationRepository : IRepository<Conversation> { }

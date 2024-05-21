@@ -1,7 +1,6 @@
-namespace Chat.API.Repository
+namespace Chat.API.Repository;
+
+public class FriendRepository : BaseRepository<Friend>, IFriendRepository
 {
-    public class FriendRepository : BaseRepository<Friend>, IFriendRepository
-    {
-        public FriendRepository(CoreContext context) : base(context) { }
-    }
+    public FriendRepository(CoreContext context) : base(context) { }
 }

@@ -1,4 +1,3 @@
-namespace Chat.API.Exceptions
-{
-    public class UnauthorizedException : Exception { }
-}
+namespace Chat.API.Exceptions;
+
+public class UnauthorizedException : Exception { }

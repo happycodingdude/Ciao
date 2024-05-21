@@ -1,7 +1,6 @@
-namespace Chat.API.Repository
+namespace Chat.API.Repository;
+
+public class ScheduleContactRepository : BaseRepository<ScheduleContact>, IScheduleContactRepository
 {
-    public class ScheduleContactRepository : BaseRepository<ScheduleContact>, IScheduleContactRepository
-    {
-        public ScheduleContactRepository(CoreContext context) : base(context) { }
-    }
+    public ScheduleContactRepository(CoreContext context) : base(context) { }
 }

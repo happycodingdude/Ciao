@@ -1,22 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Chat.API.Model;
+namespace Chat.API.Repository;
 
-namespace Chat.API.Repository
+public class ContactEntityConfiguration : IEntityTypeConfiguration<Contact>
 {
-    public class ContactEntityConfiguration : IEntityTypeConfiguration<Contact>
+    public void Configure(EntityTypeBuilder<Contact> builder)
     {
-        public void Configure(EntityTypeBuilder<Contact> builder)
-        {
-            builder.ToTable("Contact");
-            builder.HasKey(q => q.Id);
-            builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            builder.Property(q => q.Name).IsRequired().HasMaxLength(100);
-            builder.Property(q => q.Bio).HasMaxLength(250);
-            builder.Property(q => q.Avatar).HasMaxLength(500);
-            // builder.Property(q => q.Username).IsRequired().HasMaxLength(50);
-            // builder.Property(q => q.Password).IsRequired().HasMaxLength(50);
-            builder.Property(q => q.IsOnline).IsRequired();
-        }
+        builder.ToTable("Contact");
+        builder.HasKey(q => q.Id);
+        builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+        builder.Property(q => q.Name).IsRequired().HasMaxLength(100);
+        builder.Property(q => q.Bio).HasMaxLength(250);
+        builder.Property(q => q.Avatar).HasMaxLength(500);
+        // builder.Property(q => q.Username).IsRequired().HasMaxLength(50);
+        // builder.Property(q => q.Password).IsRequired().HasMaxLength(50);
+        builder.Property(q => q.IsOnline).IsRequired();
     }
 }

@@ -1,22 +1,21 @@
-namespace Chat.API.Model
+namespace Chat.API.Model;
+
+public class PatchResponse
 {
-    public class PatchResponse
+    public Guid Id { get; set; }
+    public bool Status { get; set; }
+    public string Error { get; set; }
+
+    public PatchResponse(Guid id)
     {
-        public Guid Id { get; set; }
-        public bool Status { get; set; }
-        public string Error { get; set; }
+        Id = id;
+        Status = true;
+    }
 
-        public PatchResponse(Guid id)
-        {
-            Id = id;
-            Status = true;
-        }
-
-        public PatchResponse(Guid id, string error)
-        {
-            Id = id;
-            Error = error;
-            Status = false;
-        }
+    public PatchResponse(Guid id, string error)
+    {
+        Id = id;
+        Error = error;
+        Status = false;
     }
 }

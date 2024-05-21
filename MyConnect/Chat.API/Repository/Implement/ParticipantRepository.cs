@@ -1,7 +1,6 @@
-namespace Chat.API.Repository
+namespace Chat.API.Repository;
+
+public class ParticipantRepository : BaseRepository<Participant>, IParticipantRepository
 {
-    public class ParticipantRepository : BaseRepository<Participant>, IParticipantRepository
-    {
-        public ParticipantRepository(CoreContext context) : base(context) { }
-    }
+    public ParticipantRepository(CoreContext context) : base(context) { }
 }

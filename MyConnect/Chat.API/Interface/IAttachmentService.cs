@@ -1,10 +1,6 @@
-using Chat.API.Model;
-using Chat.API.Repository;
+namespace Chat.API.Interface;
 
-namespace Chat.API.Interface
+public interface IAttachmentService : IBaseService<Attachment, AttachmentDto>
 {
-    public interface IAttachmentService : IBaseService<Attachment, AttachmentDto>
-    {
-        IEnumerable<AttachmentGroupByCreatedTime> GetByConversationId(Guid id);
-    }
+    IEnumerable<AttachmentGroupByCreatedTime> GetByConversationId(Guid id);
 }

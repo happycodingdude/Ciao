@@ -1,11 +1,7 @@
-using Chat.API.Model;
-using Chat.API.Repository;
+namespace Chat.API.Interface;
 
-namespace Chat.API.Interface
+public interface IMessageService : IBaseService<Message, MessageDto>
 {
-    public interface IMessageService : IBaseService<Message, MessageDto>
-    {
-        Task<MessageDto> SaveAndNotifyMessage(MessageDto model);
-        IEnumerable<MessageNoReference> GetByConversationIdWithPaging(Guid id, int page, int limit);
-    }
+    Task<MessageDto> SaveAndNotifyMessage(MessageDto model);
+    IEnumerable<MessageNoReference> GetByConversationIdWithPaging(Guid id, int page, int limit);
 }

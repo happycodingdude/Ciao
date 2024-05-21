@@ -1,20 +1,16 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+namespace Chat.API.Configuration;
 
-namespace Chat.API.Configuration
+public class IgnoreJsonAttributesResolver : DefaultContractResolver
 {
-    public class IgnoreJsonAttributesResolver : DefaultContractResolver
+    protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
     {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
+        foreach (var prop in props)
         {
-            IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
-            foreach (var prop in props)
-            {
-                prop.Ignored = false;   // Ignore [JsonIgnore]
-                prop.Converter = null;  // Ignore [JsonConverter]
-                prop.PropertyName = prop.UnderlyingName;  // restore original property name
-            }
-            return props;
+            prop.Ignored = false;   // Ignore [JsonIgnore]
+            prop.Converter = null;  // Ignore [JsonConverter]
+            prop.PropertyName = prop.UnderlyingName;  // restore original property name
         }
+        return props;
     }
 }

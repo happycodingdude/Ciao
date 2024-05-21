@@ -1,20 +1,15 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Chat.API.Model;
+namespace Chat.API.Repository;
 
-namespace Chat.API.Repository
+public class ConversationEntityConfiguration : IEntityTypeConfiguration<Conversation>
 {
-    public class ConversationEntityConfiguration : IEntityTypeConfiguration<Conversation>
+    public void Configure(EntityTypeBuilder<Conversation> builder)
     {
-        public void Configure(EntityTypeBuilder<Conversation> builder)
-        {
-            builder.ToTable("Conversation");
-            builder.HasKey(q => q.Id);
-            builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            builder.Property(q => q.UpdatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            builder.Property(q => q.Title).HasMaxLength(250);
-            builder.Property(q => q.Avatar).HasMaxLength(500);
-            builder.Property(q => q.IsGroup).IsRequired();
-        }
+        builder.ToTable("Conversation");
+        builder.HasKey(q => q.Id);
+        builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+        builder.Property(q => q.UpdatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+        builder.Property(q => q.Title).HasMaxLength(250);
+        builder.Property(q => q.Avatar).HasMaxLength(500);
+        builder.Property(q => q.IsGroup).IsRequired();
     }
 }

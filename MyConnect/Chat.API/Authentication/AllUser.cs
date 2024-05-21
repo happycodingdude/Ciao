@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
+namespace Chat.API.Authentication;
 
-namespace Chat.API.Authentication
+public class AllUserRequirement : IAuthorizationRequirement
 {
-    public class AllUserRequirement : IAuthorizationRequirement
-    {
-        public AllUserRequirement() { }
-    }
+    public AllUserRequirement() { }
 }

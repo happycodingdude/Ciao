@@ -4,6 +4,5 @@ global using Microsoft.EntityFrameworkCore;
 global using System.Data;
 global using Microsoft.EntityFrameworkCore.Storage;
 global using Authentication.API;
-global using Microsoft.AspNetCore.Http.HttpResults;
 global using System.Security.Claims;
-global using Domain.Common;
+global using Domain.Constants;

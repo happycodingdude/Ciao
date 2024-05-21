@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-
 public class MyAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
 {
     private readonly string _tokenHeaderName;

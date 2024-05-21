@@ -1,7 +1,6 @@
-namespace Chat.API.Repository
+namespace Chat.API.Repository;
+
+public class AttachmentRepository : BaseRepository<Attachment>, IAttachmentRepository
 {
-    public class AttachmentRepository : BaseRepository<Attachment>, IAttachmentRepository
-    {
-        public AttachmentRepository(CoreContext context) : base(context) { }
-    }
+    public AttachmentRepository(CoreContext context) : base(context) { }
 }

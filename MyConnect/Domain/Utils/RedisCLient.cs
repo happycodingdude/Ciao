@@ -1,6 +1,6 @@
-using StackExchange.Redis;
+namespace Domain.Utils;
 
-namespace Chat.API.Configuration
+public partial class Utils
 {
     public class RedisCLient
     {

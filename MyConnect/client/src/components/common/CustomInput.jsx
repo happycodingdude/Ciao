@@ -1,7 +1,6 @@
 import { Tooltip } from "antd";
 import React, {
   forwardRef,
-  useEffect,
   useImperativeHandle,
   useRef
 } from "react";
@@ -11,7 +10,7 @@ const CustomInput = forwardRef(
     const refInput = useRef();
     const refPlaceHolder = useRef();
     const refBorder = useRef();
-    const refError = useRef();
+    // const refError = useRef();
 
     useImperativeHandle(ref, () => ({
       reset() {
@@ -36,12 +35,12 @@ const CustomInput = forwardRef(
       }
     };
 
-    useEffect(() => {
-      if(error === undefined)
-        refError.current.setAttribute("data-error", "false");
-      else
-      refError.current.setAttribute("data-error", "true");
-    },[error])
+    // useEffect(() => {
+    //   if(error === undefined)
+    //     refError.current?.setAttribute("data-error", "false");
+    //   else
+    //   refError.current?.setAttribute("data-error", "true");
+    // },[error])
 
     return (
       <div className="relative">
@@ -75,12 +74,11 @@ const CustomInput = forwardRef(
         </p>
         <Tooltip title={error} color="var(--danger-text-color-light)">
         <div
-        ref={refError}
+        // ref={refError}
         // data-error={error === undefined ? 'false' : 'true'}
-        data-error='false'
           className={`absolute right-[3%] top-[50%] fa fa-exclamation-triangle text-[var(--danger-text-color)] 
-          data-[error=true]:scale-100 
-          data-[error=false]:scale-0`}
+          ${error === undefined ? 'scale-y-0' : 'scale-y-100'}
+          `}
         >
         </div>
         </Tooltip>

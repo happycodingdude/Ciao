@@ -1,4 +1,3 @@
-namespace Chat.API.Repository
-{
-    public interface IAttachmentRepository : IRepository<Attachment> { }
-}
+namespace Chat.API.Repository;
+
+public interface IAttachmentRepository : IRepository<Attachment> { }

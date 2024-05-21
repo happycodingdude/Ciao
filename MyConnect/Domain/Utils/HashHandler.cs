@@ -1,6 +1,6 @@
-using System.Text;
+namespace Domain.Util;
 
-namespace Chat.API.Util
+public partial class Utils
 {
     public class HashHandler
     {

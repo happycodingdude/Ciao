@@ -1,36 +1,29 @@
-using AutoMapper;
-using Chat.API.Interface;
-using Chat.API.Model;
-using Chat.API.Repository;
-using Chat.API.UOW;
+namespace Chat.API.Implement;
 
-namespace Chat.API.Implement
+public class AttachmentService : BaseService<Attachment, AttachmentDto>, IAttachmentService
 {
-    public class AttachmentService : BaseService<Attachment, AttachmentDto>, IAttachmentService
+    private readonly IUnitOfWork _unitOfWork;
+
+    public AttachmentService(IAttachmentRepository repo,
+    IUnitOfWork unitOfWork,
+    IMapper mapper) : base(repo, unitOfWork, mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public AttachmentService(IAttachmentRepository repo,
-        IUnitOfWork unitOfWork,
-        IMapper mapper) : base(repo, unitOfWork, mapper)
+    public IEnumerable<AttachmentGroupByCreatedTime> GetByConversationId(Guid id)
+    {
+        var attachments = _unitOfWork.Attachment.DbSet
+        .Where(q => q.Message.ConversationId == id)
+        .OrderByDescending(q => q.CreatedTime)
+        .ToList();
+        var groupByCreatedTime = attachments
+        .GroupBy(q => q.CreatedTime.Value.Date)
+        .Select(q => new AttachmentGroupByCreatedTime
         {
-            _unitOfWork = unitOfWork;
-        }
-
-        public IEnumerable<AttachmentGroupByCreatedTime> GetByConversationId(Guid id)
-        {
-            var attachments = _unitOfWork.Attachment.DbSet
-            .Where(q => q.Message.ConversationId == id)
-            .OrderByDescending(q => q.CreatedTime)
-            .ToList();
-            var groupByCreatedTime = attachments
-            .GroupBy(q => q.CreatedTime.Value.Date)
-            .Select(q => new AttachmentGroupByCreatedTime
-            {
-                Date = q.Key.ToString("MM/dd/yyyy"),
-                Attachments = q.ToList()
-            });
-            return groupByCreatedTime;
-        }
+            Date = q.Key.ToString("MM/dd/yyyy"),
+            Attachments = q.ToList()
+        });
+        return groupByCreatedTime;
     }
 }

@@ -1,4 +1,3 @@
-namespace Chat.API.Repository
-{
-    public interface IFriendRepository : IRepository<Friend> { }
-}
+namespace Chat.API.Repository;
+
+public interface IFriendRepository : IRepository<Friend> { }

@@ -1,4 +1,3 @@
-namespace Chat.API.Repository
-{
-    public interface IScheduleContactRepository : IRepository<ScheduleContact> { }
-}
+namespace Chat.API.Repository;
+
+public interface IScheduleContactRepository : IRepository<ScheduleContact> { }

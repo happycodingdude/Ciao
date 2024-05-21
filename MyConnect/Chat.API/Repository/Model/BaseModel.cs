@@ -1,14 +1,13 @@
-namespace Chat.API.Repository
-{
-    public class BaseModel
-    {
-        public Guid Id { get; set; }
-        public DateTime? CreatedTime { get; set; }
-        public DateTime? UpdatedTime { get; set; }
+namespace Chat.API.Repository;
 
-        public void BeforeUpdate()
-        {
-            UpdatedTime = DateTime.Now;
-        }
+public class BaseModel
+{
+    public Guid Id { get; set; }
+    public DateTime? CreatedTime { get; set; }
+    public DateTime? UpdatedTime { get; set; }
+
+    public void BeforeUpdate()
+    {
+        UpdatedTime = DateTime.Now;
     }
 }
