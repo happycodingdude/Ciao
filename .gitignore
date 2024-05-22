@@ -90,6 +90,51 @@
 /MyConnect/Chat.API/msbuild.wrn
 
 
+/MyConnect/Domain/*.swp
+/MyConnect/Domain/*.*~
+/MyConnect/Domain/project.lock.json
+/MyConnect/Domain/.DS_Store
+/MyConnect/Domain/*.pyc
+/MyConnect/Domain/nupkg/
+
+# Visual Studio Code
+#.vscode/
+
+# Rider
+/MyConnect/Domain/.idea/
+
+# Visual Studio
+/MyConnect/Domain/.vs/
+
+# Fleet
+/MyConnect/Domain/.fleet/
+
+# Code Rush
+/MyConnect/Domain/.cr/
+
+# User-specific files
+/MyConnect/Domain/*.suo
+/MyConnect/Domain/*.user
+/MyConnect/Domain/*.userosscache
+/MyConnect/Domain/*.sln.docstates
+
+# Build results
+/MyConnect/Domain/[Dd]ebug/
+/MyConnect/Domain/[Dd]ebugPublic/
+/MyConnect/Domain/[Rr]elease/
+/MyConnect/Domain/[Rr]eleases/
+/MyConnect/Domain/x64/
+/MyConnect/Domain/x86/
+/MyConnect/Domain/build/
+/MyConnect/Domain/bld/
+/MyConnect/Domain/[Bb]in/
+/MyConnect/Domain/[Oo]bj/
+/MyConnect/Domain/[Oo]ut/
+/MyConnect/Domain/msbuild.log
+/MyConnect/Domain/msbuild.err
+/MyConnect/Domain/msbuild.wrn
+
+
 # Test
 /MyConnect/test/[Bb]in/
 /MyConnect/test/[Oo]bj/
