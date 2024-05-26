@@ -16,11 +16,14 @@ export const FriendProvider = ({ children }) => {
     (controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: `api/contacts/${auth.id}/friends`,
+        url: import.meta.env.VITE_ENDPOINT_FRIEND_GETALLBYCONTACTID.replace(
+          "{user-id}",
+          auth.id,
+        ),
         token: auth.token,
         controller: controller,
       }).then((res) => {
-        setFriends(res);
+        setFriends(res.data);
       });
     },
     [auth.id, auth.token],
@@ -30,11 +33,11 @@ export const FriendProvider = ({ children }) => {
     (id, controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: `api/contacts/${id}`,
+        url: import.meta.env.VITE_ENDPOINT_CONTACT_GETBYID.replace("{id}", id),
         token: auth.token,
         controller: controller,
       }).then((res) => {
-        setProfile(res);
+        setProfile(res.data);
       });
     },
     [auth.id, auth.token],
@@ -44,11 +47,14 @@ export const FriendProvider = ({ children }) => {
     (id, controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: `api/contacts/${auth.id}/friends/${id}`,
+        url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYTWOCONTACTID.replace(
+          "{user-id}",
+          auth.id,
+        ).replace("{id}", id),
         token: auth.token,
         controller: controller,
       }).then((res) => {
-        setRequest(res);
+        setRequest(res.data);
       });
     },
     [auth.id, auth.token],
@@ -58,10 +64,13 @@ export const FriendProvider = ({ children }) => {
     (id) => {
       HttpRequest({
         method: "get",
-        url: `api/friends/${id}`,
+        url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYID.replace(
+          "{id}",
+          id,
+        ),
         token: auth.token,
       }).then((res) => {
-        setRequest(res);
+        setRequest(res.data);
       });
     },
     [auth.token],

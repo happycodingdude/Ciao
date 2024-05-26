@@ -4,7 +4,7 @@ public class MyMapping : Profile
 {
     public MyMapping()
     {
-        CreateMap<AttachmentDto, Repository.Attachment>().ReverseMap();
+        CreateMap<AttachmentDto, Attachment>().ReverseMap();
         CreateMap<AttachmentDto, AttachmentNoReference>().ReverseMap();
         CreateMap<ContactDto, Contact>().ReverseMap();
         CreateMap<ContactDto, ContactNoReference>().ReverseMap();

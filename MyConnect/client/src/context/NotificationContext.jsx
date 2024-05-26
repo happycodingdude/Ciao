@@ -16,10 +16,13 @@ export const NotificationProvider = ({ children }) => {
   const getNotifications = useCallback(() => {
     HttpRequest({
       method: "get",
-      url: `api/notifications?page=${page}&limit=${limit}`,
+      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GET.replace(
+        "{page}",
+        page,
+      ).replace("{limit}", limit),
       token: token,
     }).then((res) => {
-      setNotifications(res);
+      setNotifications(res.data);
     });
   }, [token]);
 

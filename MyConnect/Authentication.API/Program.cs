@@ -1,3 +1,4 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = new ConfigurationBuilder()
@@ -15,8 +16,40 @@ builder.Services.AddSwaggerGen();
 // Add Authentication
 builder.Services.AddAuthentication()
 .AddBearerToken(IdentityConstants.BearerScheme);
+
+// builder.Services.AddSingleton<IAuthorizationHandler, TokenHandler>();
+// builder.Services.AddAuthorization(opt =>
+// {
+//     opt.AddPolicy("token", policy =>
+//     {
+//         policy.AddRequirements(new TokenRequirement());
+//     });
+// });
+
+// builder.Services.AddSession(options =>
+// {
+//     options.Cookie.Name = "my-session";
+//     // options.IdleTimeout = TimeSpan.FromSeconds(10);
+//     // options.Cookie.IsEssential = true;
+// });
+// builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+// {
+//     options.Cookie.HttpOnly = true;
+//     options.Cookie.Name = "5m-token";
+//     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+//     options.SlidingExpiration = true;
+//     // options.AccessDeniedPath = "/Forbidden/";
+// });
+// builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme, opt =>
+// {
+//     opt.Cookie.Name = "app-token";
+//     opt.Cookie.HttpOnly = true;
+//     opt.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+// });
+
 // Add Authorization
 builder.Services.AddAuthorization();
+
 // Config Dbcontext
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("Db-Development")));
 builder.Services.AddIdentityCore<AppUser>()
@@ -32,11 +65,15 @@ builder.Services.AddHttpClient(Constants.HttpClient_Chat, client =>
 
 var app = builder.Build();
 
+// Using from Domain project        
+Utils.RedisCLient.Configure(configuration);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    // app.UseExceptionHandler();
 }
 
 app.UseHttpsRedirection();
@@ -44,12 +81,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseDbTransaction();
 
-// Using from Domain project
-// Common.RedisCLient.Configure(configuration);
+app.MapGroup(Constants.ApiRoute_User).MapIdentityApi<AppUser>();
 
-app.MapGroup(Constants.ApiRoute_Auth).MapIdentityApi<AppUser>();
-
-app.MapGroup(Constants.ApiRoute_Auth).MapPost(Constants.ApiEndpoint_SignUp,
+app.MapGroup(Constants.ApiRoute_User).MapPost(Constants.ApiEndpoint_SignUp,
 // async Task<Results<Ok, BadRequest<IdentityResult>>>
 async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory clientFactory) =>
 {
@@ -86,53 +120,59 @@ async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory
 // .Produces(StatusCodes.Status200OK)
 // .Produces(StatusCodes.Status404NotFound);
 
-app.MapGroup(Constants.ApiRoute_Auth).MapGet(Constants.ApiEndpoint_Token,
-// async Task<Results<Ok<AppUser>, ProblemHttpResult>>
+app.MapGroup(Constants.ApiRoute_User).MapPost(Constants.ApiEndpoint_SignIn,
+async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context) =>
+{
+    Stream originalBodyStream = context.Response.Body;
+    using (var ms = new MemoryStream())
+    {
+        context.Response.Body = ms;
+
+        manager.AuthenticationScheme = IdentityConstants.BearerScheme;
+        await manager.PasswordSignInAsync(model.Username, model.Password, false, lockoutOnFailure: true);
+
+        ms.Seek(0, SeekOrigin.Begin);
+        var responseBody = new StreamReader(ms).ReadToEnd();
+        if (string.IsNullOrEmpty(responseBody))
+        {
+            Console.WriteLine("Unauthorized");
+            return Results.Unauthorized();
+        }
+
+        var responseModel = JsonConvert.DeserializeObject<SignInResponse>(responseBody);
+        context.Response.Headers.Append("access_token", responseModel.accessToken);
+
+        // ms.Seek(0, SeekOrigin.Begin);
+        // await ms.CopyToAsync(originalBodyStream);
+
+        // Another way
+        // context.Response.Body = originalBodyStream;
+        // await context.Response.Body.WriteAsync(ms.ToArray());
+    }
+
+    return Results.Empty;
+});
+
+app.MapGroup(Constants.ApiRoute_User).MapGet(Constants.ApiEndpoint_Token,
 async (UserManager<AppUser> userManager, ClaimsPrincipal model) =>
 {
-    Console.WriteLine(model.Identity.Name);
     var user = await userManager.FindByNameAsync(model.Identity.Name);
     return Results.Ok(user);
 }).RequireAuthorization();
 
-// app.MapGroup("/api/auth").MapPost("/signin",
-// // Task<Results<SignIn<SignInHttpResult>, ProblemHttpResult>>
-// async (SignInManager<AppUser> signInManager, SignupRequest model, HttpContext context) =>
-// {
-//     // signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
-//     // var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, isPersistent: false, lockoutOnFailure: true);
-//     // if (!result.Succeeded)
-//     //     return Results.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
-//     // Console.WriteLine(result.Succeeded);
-//     // return Results.Empty;
-//     var claimsPrincipal = new ClaimsPrincipal(
-//           new ClaimsIdentity(
-//             new[] { new Claim(ClaimTypes.Name, model.Username) },
-//             BearerTokenDefaults.AuthenticationScheme  //👈
-//           )
-//         );
-//     // var signinResult = Results.SignIn(claimsPrincipal);
-//     await context.SignInAsync(claimsPrincipal);
-//     // var context = new DefaultHttpContext
-//     // {
-//     //     // RequestServices = new ServiceCollection().AddLogging().BuildServiceProvider(),
-//     //     Response =
-//     //     {
-//     //         // The default response body is Stream.Null which throws away anything that is written to it.
-//     //         Body = new MemoryStream(),
-//     //     },
-//     // };
-//     context.Response.Body = new MemoryStream();
-//     Console.WriteLine(context.Response.Body.Length);
-//     // await signinResult.ExecuteAsync(context);
-//     // // Reset MemoryStream to start so we can read the response.
-//     context.Response.Body.Position = 0;
-//     var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
-//     Console.WriteLine(body);
-//     // _ = context.Response.WriteAsJsonAsync(new SignupRequest { });
-//     // return Results.Extensions.HtmlResponse("Hello world");
-//     return Results.Empty;
-// });
+app.MapGroup(Constants.ApiRoute_User).MapGet(Constants.ApiEndpoint_Signout,
+async (UserManager<AppUser> userManager, ClaimsPrincipal model, HttpContext context) =>
+{
+    // Delete all cookies
+    foreach (var cookie in context.Request.Cookies.Keys)
+        context.Response.Cookies.Delete(cookie);
+
+    // Delete Firebase connection
+    var user = await userManager.FindByNameAsync(model.Identity.Name);
+    Utils.RedisCLient.Db.KeyDelete($"connection-{user.Id}");
+
+    return Results.Ok();
+}).RequireAuthorization();
 
 app.Run();
 
@@ -143,32 +183,11 @@ app.Run();
 //     {
 //         var claims = new Claim[] {
 //             new Claim("UserId", user.Id),
+//             new Claim(ClaimTypes.Name, user.UserName),
 //         };
 //         var claimsIdentity = new ClaimsIdentity(claims, "Bearer");
 //         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 //         return Task.FromResult(claimsPrincipal);
-//     }
-// }
-
-// static class CustomResultExtensions
-// {
-//     public static IResult HtmlResponse(this IResultExtensions extensions, string html)
-//     {
-//         return new CustomHTMLResult(html);
-//     }
-// }
-// class CustomHTMLResult : IResult
-// {
-//     private readonly string _content;
-//     public CustomHTMLResult(string content)
-//     {
-//         _content = content;
-//     }
-//     public async Task ExecuteAsync(HttpContext httpContext)
-//     {
-//         httpContext.Response.ContentType = "application/octet-stream";
-//         httpContext.Response.ContentLength = Encoding.UTF8.GetByteCount(_content);
-//         await httpContext.Response.WriteAsync(_content);
 //     }
 // }
 

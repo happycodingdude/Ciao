@@ -135,6 +135,51 @@
 /MyConnect/Domain/msbuild.wrn
 
 
+/MyConnect/Infrastructure/*.swp
+/MyConnect/Infrastructure/*.*~
+/MyConnect/Infrastructure/project.lock.json
+/MyConnect/Infrastructure/.DS_Store
+/MyConnect/Infrastructure/*.pyc
+/MyConnect/Infrastructure/nupkg/
+
+# Visual Studio Code
+#.vscode/
+
+# Rider
+/MyConnect/Infrastructure/.idea/
+
+# Visual Studio
+/MyConnect/Infrastructure/.vs/
+
+# Fleet
+/MyConnect/Infrastructure/.fleet/
+
+# Code Rush
+/MyConnect/Infrastructure/.cr/
+
+# User-specific files
+/MyConnect/Infrastructure/*.suo
+/MyConnect/Infrastructure/*.user
+/MyConnect/Infrastructure/*.userosscache
+/MyConnect/Infrastructure/*.sln.docstates
+
+# Build results
+/MyConnect/Infrastructure/[Dd]ebug/
+/MyConnect/Infrastructure/[Dd]ebugPublic/
+/MyConnect/Infrastructure/[Rr]elease/
+/MyConnect/Infrastructure/[Rr]eleases/
+/MyConnect/Infrastructure/x64/
+/MyConnect/Infrastructure/x86/
+/MyConnect/Infrastructure/build/
+/MyConnect/Infrastructure/bld/
+/MyConnect/Infrastructure/[Bb]in/
+/MyConnect/Infrastructure/[Oo]bj/
+/MyConnect/Infrastructure/[Oo]ut/
+/MyConnect/Infrastructure/msbuild.log
+/MyConnect/Infrastructure/msbuild.err
+/MyConnect/Infrastructure/msbuild.wrn
+
+
 # Test
 /MyConnect/test/[Bb]in/
 /MyConnect/test/[Oo]bj/

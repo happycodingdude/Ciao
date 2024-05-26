@@ -23,7 +23,10 @@ const DenyButton = (props) => {
     ];
     HttpRequest({
       method: "patch",
-      url: `api/friends/${request.Id}?includeNotify=true`,
+      url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYID_INCLUDENOTIFY.replace(
+        "{id}",
+        request.Id,
+      ),
       token: auth.token,
       data: body,
     }).then((res) => {

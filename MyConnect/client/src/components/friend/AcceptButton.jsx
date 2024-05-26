@@ -25,7 +25,10 @@ const AcceptButton = (props) => {
     ];
     HttpRequest({
       method: "patch",
-      url: `api/friends/${id}?includeNotify=true`,
+      url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYID_INCLUDENOTIFY.replace(
+        "{id}",
+        id,
+      ),
       token: auth.token,
       data: body,
     }).then((res) => {

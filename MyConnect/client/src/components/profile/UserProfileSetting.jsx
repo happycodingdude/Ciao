@@ -43,13 +43,13 @@ const UserProfileSetting = (props) => {
       token: auth.token,
     }).then((res) => {
       let participantArr = [];
-      res
+      res.data
         .filter((item) => !item.IsGroup)
         .map(
           (item) =>
             (participantArr = [...participantArr, ...item.Participants]),
         );
-      const selectedConversation = res
+      const selectedConversation = res.data
         .filter((item) => !item.IsGroup)
         .filter((item) =>
           item.Participants.some((item) => item.ContactId === auth.user.Id),
@@ -72,7 +72,10 @@ const UserProfileSetting = (props) => {
         ];
         return HttpRequest({
           method: "patch",
-          url: `api/participants/${selectedParticipant.Id}`,
+          url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GETBYID.replace(
+            "{id}",
+            selectedParticipant.Id,
+          ),
           token: auth.token,
           data: body,
         }).then((res) => {
@@ -102,7 +105,7 @@ const UserProfileSetting = (props) => {
           data: body,
         }).then((res) => {
           reFetchConversations();
-          setConversationAndClose(res);
+          setConversationAndClose(res.data);
         });
       }
     });

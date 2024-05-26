@@ -8,21 +8,21 @@ public partial class MinimalAPI
         (IParticipantService participantService, Guid id, Guid friendId) =>
         {
             var response = participantService.CheckExistConversation(id, friendId);
-            return Results.Ok(new ResponseModel<bool>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Participant).MapGet("/{id}",
         (IParticipantService participantService, Guid id) =>
         {
             var response = participantService.GetById(id);
-            return Results.Ok(new ResponseModel<ParticipantDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Participant).MapPatch("/{id}",
         async (IParticipantService participantService, Guid id, JsonPatchDocument patch, bool includeNotify) =>
         {
             var response = await participantService.EditAsync(id, patch, includeNotify);
-            return Results.Ok(new ResponseModel<ParticipantDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
     }
 }

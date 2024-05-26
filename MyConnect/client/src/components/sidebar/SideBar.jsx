@@ -40,12 +40,12 @@ const SideBar = (props) => {
         <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
           <div className="flex w-full flex-col items-center gap-[3rem]">
             <ImageWithLightBoxWithBorderAndShadow
-              src={user?.Avatar ?? ""}
+              src={user?.avatar ?? ""}
               className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
               // onClick={openProfile}
               slides={[
                 {
-                  src: user?.Avatar ?? "",
+                  src: user?.avatar ?? "",
                 },
               ]}
             />

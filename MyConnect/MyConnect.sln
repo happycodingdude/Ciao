@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication.API", "Authe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{204FC6C6-A573-4C99-9A2F-BC318301A021}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{A123EB2F-607D-4409-90E2-CC2FDA74E609}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{204FC6C6-A573-4C99-9A2F-BC318301A021}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A123EB2F-607D-4409-90E2-CC2FDA74E609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A123EB2F-607D-4409-90E2-CC2FDA74E609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A123EB2F-607D-4409-90E2-CC2FDA74E609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A123EB2F-607D-4409-90E2-CC2FDA74E609}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

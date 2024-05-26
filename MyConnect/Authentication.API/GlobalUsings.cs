@@ -6,3 +6,7 @@ global using Microsoft.EntityFrameworkCore.Storage;
 global using Authentication.API;
 global using System.Security.Claims;
 global using Domain.Constants;
+global using Newtonsoft.Json;
+global using Domain.Exceptions;
+global using Domain.Utils;
+global using Microsoft.AspNetCore.Authorization;

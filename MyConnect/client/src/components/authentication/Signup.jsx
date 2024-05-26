@@ -3,6 +3,8 @@ import { HttpRequest } from "../../common/Utility";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
+// const env = loadEnv("all", process.cwd());
+
 const Signup = ({ reference }) => {
   console.log("Signup calling");
 
@@ -50,7 +52,7 @@ const Signup = ({ reference }) => {
 
     const config = {
       method: "post",
-      url: "api/auth/signup",
+      url: import.meta.env.VITE_ENDPOINT_SIGNUP,
       data: {
         Name: name,
         Username: username,

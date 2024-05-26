@@ -15,11 +15,11 @@ export const AttachmentProvider = ({ children }) => {
     (id) => {
       HttpRequest({
         method: "get",
-        url: `api/conversations/${id}/attachments`,
+        url: import.meta.env.VITE_ENDPOINT_ATTACHMENT_GET.replace('{id}', id),
         token: auth.token,
       }).then((res) => {
         setAttachments(res);
-        const mergedArr = res.reduce((result, item) => {
+        const mergedArr = res.data.reduce((result, item) => {
           return result.concat(item.Attachments);
         }, []);
         setDisplayAttachments(mergedArr.slice(0, 8));

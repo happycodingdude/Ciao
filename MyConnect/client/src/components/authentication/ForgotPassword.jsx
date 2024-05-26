@@ -11,8 +11,8 @@ const ForgotPassword = ({ reference }) => {
   const reset = () => {
     setUsername("");
     setPassword("");
-    setErrorUsername("");
-    setErrorPassword("");
+    setErrorUsername(undefined);
+    setErrorPassword(undefined);
     refUsername.current.reset();
     refPassword.current.reset();
   };

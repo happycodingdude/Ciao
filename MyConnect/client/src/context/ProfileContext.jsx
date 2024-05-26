@@ -16,12 +16,12 @@ export const ProfileProvider = ({ children }) => {
     (controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: "api/auth/authenticate",
+        url: import.meta.env.VITE_ENDPOINT_INFO,
         token: auth.token,
         header: { Data: "full" },
         controller: controller,
       }).then((res) => {
-        setProfile(res);
+        setProfile(res.data);
       });
     },
     [auth.token],
@@ -33,7 +33,7 @@ export const ProfileProvider = ({ children }) => {
 
     setProfile({
       ...profile,
-      Avatar: URL.createObjectURL(e.target.files?.[0]),
+      avatar: URL.createObjectURL(e.target.files?.[0]),
     });
     setFile(e.target.files?.[0]);
     e.target.value = null;
@@ -42,7 +42,7 @@ export const ProfileProvider = ({ children }) => {
   const updateProfile = async () => {
     var url = "";
     if (file === undefined) {
-      url = profile.Avatar;
+      url = profile.avatar;
     } else {
       // Create a root reference
       const storage = getStorage();
@@ -57,27 +57,30 @@ export const ProfileProvider = ({ children }) => {
     const body = [
       {
         op: "replace",
-        path: "Avatar",
+        path: "avatar",
         value: url,
       },
       {
         op: "replace",
-        path: "Name",
-        value: profile.Name,
+        path: "name",
+        value: profile.name,
       },
       {
         op: "replace",
-        path: "Bio",
-        value: profile.Bio,
+        path: "bio",
+        value: profile.bio,
       },
     ];
     HttpRequest({
       method: "patch",
-      url: `api/contacts/${profile.Id}`,
+      url: import.meta.env.VITE_ENDPOINT_CONTACT_GETBYID.replace(
+        "{id}",
+        profile.id,
+      ),
       token: auth.token,
       data: body,
     }).then((res) => {
-      auth.setUser(res);
+      auth.setUser(res.data);
       // onClose();
     });
   };

@@ -73,8 +73,8 @@ export const useDeleteChat = () => {
       },
     ];
     return HttpRequest({
-      method: "patch",
-      url: `api/participants/${selected.Id}`,
+      method: "patch",      
+      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GETBYID.replace('{id}', selected.Id),
       token: auth.token,
       data: body,
     });

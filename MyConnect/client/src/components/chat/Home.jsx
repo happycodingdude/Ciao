@@ -98,7 +98,7 @@ export const Home = () => {
   const registerConnection = (token, controller) => {
     HttpRequest({
       method: "post",
-      url: "api/notifications/register",
+      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER,
       token: auth.token,
       controller: controller,
       data: {

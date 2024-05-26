@@ -18,11 +18,11 @@ export const ConversationProvider = ({ children }) => {
     (controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: `api/conversations?page=${page}&limit=${limit}`,
+        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET.replace('{page}',page).replace('{limit}',limit),
         token: auth.token,
         controller: controller,
       }).then((res) => {
-        const filterConversations = res.filter((item) =>
+        const filterConversations = res.data.filter((item) =>
           item.Participants.some(
             (participant) =>
               participant.ContactId === auth.id && !participant.IsDeleted,

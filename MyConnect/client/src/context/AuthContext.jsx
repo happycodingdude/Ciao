@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { HttpRequest } from "../common/Utility";
 import { useLocalStorage } from "../hook/CustomHooks";
 
@@ -7,6 +8,7 @@ const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   console.log("AuthProvider rendering");
 
+  const navigate = useNavigate();
   const [token, setToken] = useLocalStorage("token");
   const [display, setDisplay] = useLocalStorage("display");
   const [id, setId] = useLocalStorage("id");
@@ -20,23 +22,28 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     const controller = new AbortController();
-    const config = {
+    HttpRequest({
       method: "get",
-      url: "api/auth/authenticate",
+      url: import.meta.env.VITE_ENDPOINT_INFO,
       token: token,
       controller: controller,
-    };
-    HttpRequest(config).then((res) => {
-      if (!res) return;
-      if (res.response?.status === 401) {
-        console.log("Unauthen");
-        setToken(null);
-        return;
-      }
-      setDisplay(res.Name);
-      setId(res.Id);
-      setUser(res);
-    });
+    })
+      .then((res) => {
+        // if (res.response?.status === 401) {
+        //   console.log("Unauthen");
+        //   setToken(null);
+        //   return;
+        // }
+        setDisplay(res.data.name);
+        setId(res.data.id);
+        setUser(res.data);
+      })
+      .catch((err) => {
+        if (err?.status === 401) {
+          logout();
+          navigate("/authen", { replace: true });
+        }
+      });
 
     return () => {
       controller.abort();

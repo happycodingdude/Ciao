@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HttpRequest } from "../../common/Utility";
@@ -44,43 +45,37 @@ const Login = ({ reference }) => {
     reference.refLogin.toggleLogin = toggleLogin;
   }, [toggleSignup, toggleLogin]);
 
-  // const [processing, setProcessing] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const refUsername = useRef();
   const refPassword = useRef();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorUsername, setErrorUsername] = useState(undefined);
-  const [errorPassword, setErrorPassword] = useState(undefined);
   const [error, setError] = useState();
 
   const signin = () => {
     if (username === "" && password === "") return;
 
+    setProcessing(true);
     HttpRequest({
       method: "post",
-      url: "api/auth/login",
+      url: import.meta.env.VITE_ENDPOINT_LOGIN,
       data: {
-        Email: username,
+        Username: username,
         Password: password,
       },
     })
       .then((res) => {
-        console.log(res);
-        // login(res.Token);
-        // setTimeout(() => {
-        //   navigate("/", { replace: true });
-        // }, 500);
+        // setError(undefined);
+        login(res.headers.access_token);
+        // navigate("/", { replace: true });
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 500);
       })
       .catch((err) => {
-        // if (err.response.data.error === "WrongPassword") {
-        //   setErrorPassword("Wrong password");
-        //   setErrorUsername("");
-        // } else if (err.response.data.error === "NotFound") {
-        //   setErrorUsername("User not found");
-        //   setErrorPassword("");
-        // }
-        if(err.status === 401)
-          setError('Error');
+        setProcessing(false);
+        if (err.status === 401)
+          setError("Username or Password invalid. Try again");
       });
   };
 
@@ -120,10 +115,8 @@ const Login = ({ reference }) => {
                   type="text"
                   label="Username"
                   value={username}
-                  // error={errorUsername}
                   onChange={(text) => {
                     setUsername(text);
-                    if (text === "") setErrorUsername(undefined);
                   }}
                   onKeyDown={handlePressKey}
                 />
@@ -132,10 +125,8 @@ const Login = ({ reference }) => {
                   type="password"
                   label="Password"
                   value={password}
-                  // error={errorPassword}
                   onChange={(text) => {
                     setPassword(text);
-                    if (text === "") setErrorPassword(undefined);
                   }}
                   onKeyDown={handlePressKey}
                 />
@@ -150,16 +141,19 @@ const Login = ({ reference }) => {
               >
                 Forgot password?
               </div>
-              <p
-          className={`fa fa-exclamation-triangle
-          text-[var(--danger-text-color)] ${error === undefined ? 'scale-y-0' : 'scale-y-100'} `}
-        >
-        </p>
+              <div>
+                <Tooltip title={error}>
+                  <div
+                    className={`fa fa-exclamation-triangle
+          text-[var(--danger-text-color)] ${error === undefined ? "scale-y-0" : "scale-y-100"} `}
+                  ></div>
+                </Tooltip>
+              </div>
               <CustomButton
                 title="Sign in"
                 className="mt-[2rem]"
                 onClick={signin}
-                // processing={processing}
+                processing={processing}
               />
             </div>
           </div>

@@ -26,11 +26,13 @@ const ToggleNotification = () => {
 
     HttpRequest({
       method: "patch",
-      url: `api/participants/${selected.Id}`,
+      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GETBYID.replace(
+        "{id}",
+        selected.Id,
+      ),
       token: auth.token,
       data: body,
-    }).then((res) => {
-      if (!res) return;
+    }).then((res) => {      
       setIsNotifying(checked);
     });
   };

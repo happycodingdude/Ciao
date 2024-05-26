@@ -60,7 +60,10 @@ const Notification = () => {
 
     HttpRequest({
       method: "patch",
-      url: `api/notifications/${notification.Id}`,
+      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GETBYID.replace(
+        "{id}",
+        notification.Id,
+      ),
       token: token,
       data: body,
     }).then((res) => {
@@ -92,7 +95,7 @@ const Notification = () => {
         });
       HttpRequest({
         method: "patch",
-        url: `api/notifications/bulk_edit`,
+        url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_BULKEDIT,
         token: token,
         data: body,
       }).then((res) => {

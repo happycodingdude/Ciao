@@ -7,8 +7,8 @@ const Signout = ({ className }) => {
 
   const logout = () => {
     HttpRequest({
-      method: "post",
-      url: "api/auth/logout",
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
       token: auth.token,
     }).then((res) => {
       auth.logout();

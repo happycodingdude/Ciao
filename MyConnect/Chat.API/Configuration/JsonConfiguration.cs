@@ -1,3 +1,5 @@
+
+
 namespace Chat.API.Configuration;
 
 public class IgnoreJsonAttributesResolver : DefaultContractResolver

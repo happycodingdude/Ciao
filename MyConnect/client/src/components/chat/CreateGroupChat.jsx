@@ -63,12 +63,12 @@ const CreateGroupChat = () => {
     };
     HttpRequest({
       method: "post",
-      url: `api/conversations?includeNotify=true`,
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GROUP_ADD,
       token: auth.token,
       data: body,
     }).then((res) => {
-      addNewItem(res);
-      setSelected(res);
+      addNewItem(res.data);
+      setSelected(res.data);
     });
   };
 

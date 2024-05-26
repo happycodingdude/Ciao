@@ -37,11 +37,12 @@ export const HttpRequest = ({
   })
     .then((res) => {
       // if (res.status !== 200) throw new Error(res.status);
-      return res.data;
+      return res;
     })
     .catch((err) => {
       console.log(err);
-      throw err.response.data;
+      throw err.response;
+      // return err;
     });
 };
 

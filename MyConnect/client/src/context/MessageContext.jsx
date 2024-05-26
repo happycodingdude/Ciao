@@ -17,10 +17,10 @@ export const MessageProvider = ({ children }) => {
     (id) => {
       HttpRequest({
         method: "get",
-        url: `api/conversations/${id}/messages?page=${page}&limit=${limit}`,
+        url: import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace('{id}',id).replace('{page}',page).replace('{limit}',limit),
         token: token,
       }).then((res) => {
-        setMessages(res.reverse());
+        setMessages(res.data.reverse());
       });
     },
     [token],

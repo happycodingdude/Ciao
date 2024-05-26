@@ -12,7 +12,7 @@ const AddButton = (props) => {
   const addFriend = () => {
     HttpRequest({
       method: "post",
-      url: `api/friends?includeNotify=true`,
+      url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GET_INCLUDENOTIFY,
       token: auth.token,
       data: {
         ContactId1: auth.user.Id,
@@ -20,7 +20,7 @@ const AddButton = (props) => {
         Status: "request",
       },
     }).then((res) => {
-      reFetchRequestById(res.Id);
+      reFetchRequestById(res.data.Id);
       onClose();
     });
   };

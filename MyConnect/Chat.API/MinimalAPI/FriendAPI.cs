@@ -8,21 +8,21 @@ public partial class MinimalAPI
          (IFriendService friendService, Guid id) =>
         {
             var response = friendService.GetById(id);
-            return Results.Ok(new ResponseModel<FriendDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapPost("/",
         async (IFriendService friendService, FriendDto model, bool includeNotify) =>
         {
             var response = await friendService.AddAsync(model, includeNotify);
-            return Results.Ok(new ResponseModel<FriendDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapPatch("/{id}",
         async (IFriendService friendService, Guid id, JsonPatchDocument patch, bool includeNotify) =>
         {
             var response = await friendService.UpdateAsync(id, patch, includeNotify);
-            return Results.Ok(new ResponseModel<FriendDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapDelete("/{id}",

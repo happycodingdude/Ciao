@@ -1,4 +1,4 @@
-namespace Domain.Util;
+namespace Domain.Utils;
 
 public partial class Utils
 {

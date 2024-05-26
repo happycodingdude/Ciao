@@ -12,7 +12,10 @@ const CancelButton = (props) => {
   const cancelFriendRequest = () => {
     HttpRequest({
       method: "delete",
-      url: `api/friends/${id}?includeNotify=true`,
+      url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYID_INCLUDENOTIFY.replace(
+        "{id}",
+        id,
+      ),
       token: auth.token,
     }).then((res) => {
       reFetchRequest(auth.id);

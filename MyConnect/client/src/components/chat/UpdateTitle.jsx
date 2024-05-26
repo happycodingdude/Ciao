@@ -38,7 +38,10 @@ const UpdateTitle = () => {
     ];
     HttpRequest({
       method: "patch",
-      url: `api/conversations/${selected.Id}`,
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETBYID.replace(
+        "{id}",
+        selected.Id,
+      ),
       token: auth.token,
       data: body,
     }).then((res) => {

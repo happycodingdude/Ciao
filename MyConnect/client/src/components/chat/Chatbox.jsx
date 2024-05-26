@@ -184,7 +184,7 @@ const Chatbox = (props) => {
 
     HttpRequest({
       method: "post",
-      url: `api/messages/send`,
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND,
       token: auth.token,
       data: body,
     })

@@ -8,14 +8,14 @@ public partial class MinimalAPI
         (IMessageService messageService, Guid id) =>
         {
             var response = messageService.GetById(id);
-            return Results.Ok(new ResponseModel<MessageDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Message).MapPost("/send",
         async (IMessageService messageService, MessageDto model) =>
         {
             var response = await messageService.SaveAndNotifyMessage(model);
-            return Results.Ok(new ResponseModel<MessageDto>(response));
+            return Results.Ok(response);
         }).RequireAuthorization("AllUser");
     }
 }

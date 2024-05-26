@@ -46,7 +46,10 @@ const AddParticipants = () => {
     handleClose();
     HttpRequest({
       method: "post",
-      url: `api/conversations/${selected.Id}/participants?includeNotify=true`,
+      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_ADD.replace(
+        "{id}",
+        selected.Id,
+      ),
       token: auth.token,
       data: data.Friends.map((item) => {
         return {

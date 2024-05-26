@@ -15,10 +15,10 @@ export const ParticipantProvider = ({ children }) => {
     (id) => {
       HttpRequest({
         method: "get",
-        url: `api/conversations/${id}/participants`,
+        url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GET.replace('{id}', id),
         token: auth.token,
       }).then((res) => {
-        setParticipants(res);
+        setParticipants(res.data);
       });
     },
     [auth.token],

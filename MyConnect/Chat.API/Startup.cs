@@ -16,12 +16,12 @@ public class Startup
         Console.WriteLine("ConfigureServices running");
         services.AddDistributedMemoryCache();
         services.AddSession();
-        services.AddControllers();
-        // .AddNewtonsoftJson(opt =>
-        // {
-        //     opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-        //     opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
-        // });
+        services.AddControllers()
+        .AddNewtonsoftJson(opt =>
+        {
+            opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
+        });
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
@@ -59,6 +59,17 @@ public class Startup
         services.AddExceptionHandler<UnauthorizedExceptionHandler>();
         services.AddProblemDetails();
 
+        // Service
+        services.AddScoped<IAttachmentService, AttachmentService>();
+        services.AddScoped<IContactService, ContactService>();
+        services.AddScoped<IConversationService, ConversationService>();
+        services.AddScoped<IFriendService, FriendService>();
+        services.AddScoped<IMessageService, MessageService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IParticipantService, ParticipantService>();
+        services.AddScoped<IScheduleContactService, ScheduleContactService>();
+        services.AddScoped<IScheduleService, ScheduleService>();
+
         // Repository
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -70,16 +81,7 @@ public class Startup
         services.AddScoped<IParticipantRepository, ParticipantRepository>();
         services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
-        // Service
-        services.AddScoped<IAttachmentService, AttachmentService>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IConversationService, ConversationService>();
-        services.AddScoped<IFriendService, FriendService>();
-        services.AddScoped<IMessageService, MessageService>();
-        services.AddScoped<INotificationService, NotificationService>();
-        services.AddScoped<IParticipantService, ParticipantService>();
-        services.AddScoped<IScheduleContactService, ScheduleContactService>();
-        services.AddScoped<IScheduleService, ScheduleService>();
+
         // Firebase
         services.AddScoped<IFirebaseFunction, FirebaseFunction>();
     }
@@ -109,7 +111,12 @@ public class Startup
         // });
         // app.UseEndpoints(e => { });
 
-        // DatabaseMigration.Migrate(app);            
+        // DatabaseMigration.Migrate(app);      
+
+
+
+        // Using from Domain project        
+        Utils.RedisCLient.Configure(_configuration);
     }
 
     private void OnStarted()

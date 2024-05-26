@@ -10,6 +10,7 @@ import {
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import AddFriend from "../friend/AddFriend";
 import CreateGroupChat from "./CreateGroupChat";
 
 const ListChat = (props) => {
@@ -139,7 +140,7 @@ const ListChat = (props) => {
           ></input>
         </div>
         <div className="flex h-[50%] gap-[.5rem] [&>*]:px-[.5rem]">
-          {/* <AddFriend /> */}
+          <AddFriend />
           <CreateGroupChat />
         </div>
       </div>

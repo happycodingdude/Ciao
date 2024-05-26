@@ -22,11 +22,11 @@ const ProfileSection = (props) => {
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
         <div className="relative flex w-full">
           <ImageWithLightBoxWithBorderAndShadow
-            src={profile?.Avatar ?? ""}
+            src={profile?.avatar ?? ""}
             className="aspect-square w-[50%] cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
             slides={[
               {
-                src: profile?.Avatar ?? "",
+                src: profile?.avatar ?? "",
               },
             ]}
           />
@@ -40,11 +40,11 @@ const ProfileSection = (props) => {
         <div className="flex flex-col gap-[.5rem]">
           <p className="[var(--shadow-color-blur)]">Name</p>
           <input
-            value={profile?.Name}
-            className="rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-bold outline-none transition-all duration-200"
+            value={profile?.name}
+            className="rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-medium outline-none transition-all duration-200"
             type="text"
             onChange={(e) => {
-              setProfile({ ...profile, Name: e.target.value });
+              setProfile({ ...profile, name: e.target.value });
             }}
           />
         </div>
@@ -52,11 +52,11 @@ const ProfileSection = (props) => {
           <p className="[var(--shadow-color-blur)]">Bio</p>
           <textarea
             rows={4}
-            value={profile?.Bio}
-            className="hide-scrollbar resize-none rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-bold outline-none transition-all duration-200"
+            value={profile?.bio}
+            className="hide-scrollbar resize-none rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-medium outline-none transition-all duration-200"
             type="text"
             onChange={(e) => {
-              setProfile({ ...profile, Bio: e.target.value });
+              setProfile({ ...profile, bio: e.target.value });
             }}
           />
         </div>
