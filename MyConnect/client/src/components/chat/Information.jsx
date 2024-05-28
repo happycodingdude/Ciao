@@ -46,7 +46,7 @@ const Information = (props) => {
 
   useEffect(() => {
     reset();
-  }, [selected.Id]);
+  }, [selected.id]);
 
   const updateAvatar = async (e) => {
     // Create a root reference
@@ -63,7 +63,7 @@ const Information = (props) => {
     const body = [
       {
         op: "replace",
-        path: "Avatar",
+        path: "avatar",
         value: url,
       },
     ];
@@ -72,15 +72,15 @@ const Information = (props) => {
       method: "patch",
       url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETBYID.replace(
         "{id}",
-        selected.Id,
+        selected.id,
       ),
       token: auth.token,
       data: body,
     }).then((res) => {
-      setSelected((current) => ({ ...current, Avatar: url }));
+      setSelected((current) => ({ ...current, avatar: url }));
       setConversations((current) => {
         return current.map((item) => {
-          if (item.Id === selected.Id) item.Avatar = url;
+          if (item.id === selected.id) item.avatar = url;
           return item;
         });
       });
@@ -121,10 +121,10 @@ const Information = (props) => {
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               onClick={() => {}}
             /> */}
-            {selected.IsGroup ? (
+            {selected.isGroup ? (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
-                  src={selected.Avatar ?? ""}
+                  src={selected.avatar ?? ""}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   onClick={() => {}}
                 />
@@ -136,7 +136,7 @@ const Information = (props) => {
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={selected.Title}
+                  title={selected.title}
                   tooltip
                 />
                 <div className="cursor-pointer text-[var(--text-main-color-blur)]">
@@ -146,23 +146,23 @@ const Information = (props) => {
             ) : (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
-                  src={profile?.Avatar ?? ""}
+                  src={profile?.avatar ?? ""}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   slides={[
                     {
-                      src: profile?.Avatar ?? "",
+                      src: profile?.avatar ?? "",
                     },
                   ]}
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={profile?.Name}
+                  title={profile?.name}
                 />
               </>
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            {selected.IsGroup ? (
+            {selected.isGroup ? (
               <>
                 {/* <ToggleNotification /> */}
                 <AddParticipants />
@@ -189,13 +189,13 @@ const Information = (props) => {
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
             {displayAttachments?.map((item, index) => (
               <ImageWithLightBox
-                src={item.MediaUrl}
-                title={item.MediaName?.split(".")[0]}
+                src={item.mediaUrl}
+                title={item.mediaName?.split(".")[0]}
                 className="aspect-square w-full cursor-pointer rounded-2xl"
                 slides={displayAttachments.map((item) => ({
                   src:
-                    item.Type === "image"
-                      ? item.MediaUrl
+                    item.type === "image"
+                      ? item.mediaUrl
                       : "images/filenotfound.svg",
                 }))}
                 index={index}
@@ -208,7 +208,7 @@ const Information = (props) => {
           message="Are you sure want to delete this chat?"
           onSubmit={() => {
             deleteChat(participants).then(() => {
-              removeConversation(selected.Id);
+              removeConversation(selected.id);
               setSelected(undefined);
             });
           }}

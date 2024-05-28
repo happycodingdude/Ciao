@@ -56,10 +56,10 @@ const Attachment = (props) => {
         return Object.assign({}, item);
       });
       const newAttachments = cloned.map((date) => {
-        date.Attachments = date.Attachments.filter(
-          (item) => item.Type === type,
+        date.attachments = date.attachments.filter(
+          (item) => item.type === type,
         );
-        if (date.Attachments.length !== 0) return date;
+        if (date.attachments.length !== 0) return date;
       });
       setDisplayAttachments(
         newAttachments.filter((item) => item !== undefined),
@@ -125,18 +125,18 @@ const Attachment = (props) => {
         {displayAttachments?.map((date) => (
           <div className="flex flex-col gap-[2rem]">
             <div className="font-bold text-[var(--text-main-color-blur)]">
-              {moment(date.Date).format("DD/MM/YYYY")}
+              {moment(date.date).format("DD/MM/YYYY")}
             </div>
             <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
-              {date.Attachments.map((item, index) => (
+              {date.attachments.map((item, index) => (
                 <ImageWithLightBox
-                  src={item.MediaUrl}
-                  title={item.MediaName?.split(".")[0]}
+                  src={item.mediaUrl}
+                  title={item.mediaName?.split(".")[0]}
                   className="aspect-square w-full cursor-pointer rounded-2xl"
-                  slides={date.Attachments.map((item) => ({
+                  slides={date.attachments.map((item) => ({
                     src:
-                      item.Type === "image"
-                        ? item.MediaUrl
+                      item.type === "image"
+                        ? item.mediaUrl
                         : "images/filenotfound.svg",
                   }))}
                   index={index}

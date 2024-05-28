@@ -41,22 +41,22 @@ const ListChat = (props) => {
 
   useEffect(() => {
     if (selected === undefined) return;
-    reFetchMessages(selected.Id);
-    reFetchParticipants(selected.Id);
-    reFetchAttachments(selected.Id);
+    reFetchMessages(selected.id);
+    reFetchParticipants(selected.id);
+    reFetchAttachments(selected.id);
     clickConversation(selected);
     // refChats.current.scrollTop = position;
-    if (!selected.IsGroup) {
+    if (!selected.isGroup) {
       reFetchProfile(
-        selected.Participants.find((item) => item.ContactId !== auth.user.Id)
-          .ContactId,
+        selected.participants.find((item) => item.contactId !== auth.id)
+          .contactId,
       );
       reFetchRequest(
-        selected.Participants.find((item) => item.ContactId !== auth.user.Id)
-          .ContactId,
+        selected.participants.find((item) => item.contactId !== auth.id)
+          .contactId,
       );
     }
-  }, [selected?.Id]);
+  }, [selected?.id]);
 
   // Get all chats when first time render
   useEffect(() => {
@@ -150,12 +150,11 @@ const ListChat = (props) => {
       >
         {conversations?.map((item, i) => (
           <div
-            data-key={item.Id}
+            data-key={item.id}
             data-user={
-              !item.IsGroup
-                ? item.Participants.find(
-                    (item) => item.ContactId !== auth.user.Id,
-                  )?.ContactId
+              !item.isGroup
+                ? item.participants.find((item) => item.contactId !== auth.id)
+                    ?.ContactId
                 : ""
             }
             ref={(element) => {
@@ -164,7 +163,7 @@ const ListChat = (props) => {
             className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] 
             bg-[var(--main-color-thin)] py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-[var(--main-color-light)]
             ${
-              selected?.Id === item.Id
+              selected?.id === item.id
                 ? `item-active bg-gradient-to-r from-[var(--main-color)] to-[var(--main-color-light)] text-[var(--text-sub-color)] 
                 [&_.chat-content]:text-[var(--text-sub-color-blur)]`
                 : ""
@@ -173,64 +172,63 @@ const ListChat = (props) => {
               handleSetConversation(65 * i, item);
             }}
           >
-            {item.IsGroup ? (
+            {item.isGroup ? (
               <ImageWithLightBox
-                src={item.Avatar ?? ""}
+                src={item.avatar ?? ""}
                 className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />
             ) : (
               <ImageWithLightBox
                 src={
-                  item.Participants.find(
-                    (item) => item.ContactId !== auth.user.Id,
-                  )?.Contact.Avatar ?? ""
+                  item.participants.find((item) => item.contactId !== auth.id)
+                    ?.Contact.Avatar ?? ""
                 }
                 className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />
             )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
-                className={`text-base ${item.LastMessageContact !== auth.id && item.UnSeenMessages > 0 ? "font-bold" : ""} `}
+                className={`text-base ${item.lastMessageContact !== auth.id && item.unSeenMessages > 0 ? "font-bold" : ""} `}
                 title={
-                  item.IsGroup
-                    ? item.Title
-                    : item.Participants.find(
-                        (item) => item.ContactId !== auth.user.Id,
+                  item.isGroup
+                    ? item.title
+                    : item.participants.find(
+                        (item) => item.contactId !== auth.id,
                       )?.Contact.Name
                 }
               />
               <CustomLabel
                 className={`chat-content ${
-                  item.LastMessageContact !== auth.id && item.UnSeenMessages > 0
+                  item.lastMessageContact !== auth.id && item.unSeenMessages > 0
                     ? "font-medium"
                     : "text-[var(--text-main-color-blur)]"
                 }`}
                 // title={
-                //   item.LastMessage === null
+                //   item.lastMessage === null
                 //     ? ""
-                //     : GenerateContent(contacts, item.LastMessage)
+                //     : GenerateContent(contacts, item.lastMessage)
                 // }
-                title={item.LastMessage}
+                title={item.lastMessage}
               />
             </div>
             <div
-              // className={`flex h-full shrink-0 flex-col items-end ${item.UnSeenMessages > 0 ? "justify-evenly" : ""} laptop:min-w-[4rem]`}
+              // className={`flex h-full shrink-0 flex-col items-end ${item.unSeenMessages > 0 ? "justify-evenly" : ""} laptop:min-w-[4rem]`}
               className={`flex h-full shrink-0 flex-col items-end laptop:min-w-[4rem]`}
             >
               <p>
-                {item.LastMessageTime === null
+                {item.lastMessageTime === null
                   ? ""
-                  : moment(item.LastMessageTime).fromNow()}
+                  : moment(item.lastMessageTime).fromNow()}
               </p>
-              {/* {item.LastMessageContact == auth.id ||
-              item.UnSeenMessages == 0 ? (
+              {/* {item.lastMessageContact == auth.id ||
+              item.unSeenMessages == 0 ? (
                 ""
               ) : (
                 <div
                   className="flex aspect-square w-[2.25rem] items-center justify-center rounded-full bg-[var(--main-color-normal)] 
                   text-center text-xs leading-9"
                 >
-                  {item.UnSeenMessages > 5 ? "5+" : item.UnSeenMessages}
+                  {item.unSeenMessages > 5 ? "5+" : item.unSeenMessages}
                 </div>
               )} */}
             </div>

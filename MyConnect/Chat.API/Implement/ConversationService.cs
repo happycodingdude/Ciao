@@ -72,10 +72,9 @@ public class ConversationService : BaseService<Conversation, ConversationDto>, I
 
         if (includeNotify)
         {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var contactId = JwtToken.ExtractToken(token);
+            var id = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
             var notify = _mapper.Map<ConversationDto, ConversationToNotify>(model);
-            foreach (var contact in model.Participants.Where(q => q.ContactId != contactId).Select(q => q.ContactId.ToString()))
+            foreach (var contact in model.Participants.Where(q => q.ContactId != id).Select(q => q.ContactId.ToString()))
             {
                 var connection = _notificationService.GetConnection(contact);
                 var notification = new FirebaseNotification

@@ -31,9 +31,9 @@ const CreateGroupChat = () => {
           name: "Friends",
           type: "multiple",
           options: friends
-            .filter((item) => item.Id !== auth.id)
+            .filter((item) => item.id !== auth.id)
             .map((item) => {
-              return { label: item.ContactName, value: item.ContactId };
+              return { label: item.contactName, value: item.contactId };
             }),
         },
       ],
@@ -43,20 +43,20 @@ const CreateGroupChat = () => {
 
   const createGroupChat = (data) => {
     const body = {
-      Title: data.Title[0],
-      IsGroup: true,
-      Participants: [
+      title: data.Title[0],
+      isGroup: true,
+      participants: [
         ...[
           {
-            ContactId: auth.id,
-            IsNotifying: true,
-            IsModerator: true,
+            contactId: auth.id,
+            isNotifying: true,
+            isModerator: true,
           },
         ],
         ...data.Friends.filter((item) => item !== "").map((item) => {
           return {
-            ContactId: item,
-            IsNotifying: true,
+            contactId: item,
+            isNotifying: true,
           };
         }),
       ],

@@ -70,7 +70,7 @@ const Login = ({ reference }) => {
         // navigate("/", { replace: true });
         setTimeout(() => {
           navigate("/", { replace: true });
-        }, 500);
+        }, 700);
       })
       .catch((err) => {
         setProcessing(false);

@@ -18,14 +18,17 @@ export const ConversationProvider = ({ children }) => {
     (controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET.replace('{page}',page).replace('{limit}',limit),
+        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET.replace(
+          "{page}",
+          page,
+        ).replace("{limit}", limit),
         token: auth.token,
         controller: controller,
       }).then((res) => {
         const filterConversations = res.data.filter((item) =>
-          item.Participants.some(
+          item.participants.some(
             (participant) =>
-              participant.ContactId === auth.id && !participant.IsDeleted,
+              participant.contactId === auth.id && !participant.isDeleted,
           ),
         );
         setConversations(filterConversations);
@@ -37,17 +40,17 @@ export const ConversationProvider = ({ children }) => {
   const newMessage = useCallback(
     (message) => {
       // Đã tồn tại hội thoại
-      if (conversations.some((chat) => chat.Id === message.ConversationId)) {
+      if (conversations.some((chat) => chat.Id === message.conversationId)) {
         const updatedConversations = conversations.map((chat) => {
-          if (chat.Id !== message.ConversationId) return chat; // Khác hội thoại
+          if (chat.id !== message.conversationId) return chat; // Khác hội thoại
           const updatedChat = { ...chat };
-          if (updatedChat.Id !== selected?.Id)
-            updatedChat.UnSeenMessages++; // Hội thoại đang ko focus
-          else updatedChat.UnSeenMessages = 0; // Hội thoại đang focus
-          updatedChat.LastMessageId = message.Id;
-          updatedChat.LastMessage = message.Content;
-          updatedChat.LastMessageTime = message.CreatedTime;
-          updatedChat.LastMessageContact = message.ContactId;
+          if (updatedChat.id !== selected?.id)
+            updatedChat.unSeenMessages++; // Hội thoại đang ko focus
+          else updatedChat.unSeenMessages = 0; // Hội thoại đang focus
+          updatedChat.lastMessageId = message.id;
+          updatedChat.lastMessage = message.content;
+          updatedChat.lastMessageTime = message.createdTime;
+          updatedChat.lastMessageContact = message.contactId;
           return updatedChat;
         });
         setConversations(updatedConversations);
@@ -59,8 +62,8 @@ export const ConversationProvider = ({ children }) => {
   const clickConversation = useCallback(
     (conversation) => {
       const updatedConversations = conversations.map((chat) => {
-        if (chat.Id !== conversation.Id) return chat;
-        chat.UnSeenMessages = 0;
+        if (chat.id !== conversation.id) return chat;
+        chat.unSeenMessages = 0;
         return chat;
       });
       setConversations(updatedConversations);
@@ -71,7 +74,7 @@ export const ConversationProvider = ({ children }) => {
 
   const removeConversation = useCallback(
     (id) => {
-      setConversations(conversations.filter((item) => item.Id !== id));
+      setConversations(conversations.filter((item) => item.id !== id));
     },
     [conversations],
   );
@@ -80,8 +83,8 @@ export const ConversationProvider = ({ children }) => {
     (id) => {
       return conversations.find(
         (conversation) =>
-          conversation.IsGroup === false &&
-          conversation.Participants.some((item) => item.ContactId === id),
+          conversation.isGroup === false &&
+          conversation.participants.some((item) => item.contactId === id),
       );
     },
     [conversations],

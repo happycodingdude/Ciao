@@ -15,11 +15,19 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Contact).MapGet("",
-        (IUnitOfWork unitOfWork, [FromQuery] string name) =>
+        (HttpContext context, IMapper mapper, IUnitOfWork unitOfWork, IFriendService friendService, [FromQuery] string name) =>
         {
-            Console.WriteLine(name);
-            var response = unitOfWork.Contact.DbSet.Where(q => q.Name.Contains(name)).ToList();
-            return Results.Ok(response);
+            if (string.IsNullOrEmpty(name)) return Results.Ok(Enumerable.Empty<Contact>());
+            var id = Guid.Parse(context.Session.GetString("UserId"));
+            var response = unitOfWork.Contact.DbSet.Where(q => q.Id != id && q.Name.Contains(name)).ToList();
+            var dtos = mapper.Map<List<Contact>, List<ContactDto>>(response);
+            foreach (var contact in dtos)
+            {
+                var friendRequest = friendService.GetByTwoContactId(id, contact.Id);
+                contact.FriendId = friendRequest.Id;
+                contact.FriendStatus = friendRequest.Status;
+            }
+            return Results.Ok(dtos);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Contact).MapGet("/{id}",

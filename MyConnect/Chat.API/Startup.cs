@@ -1,5 +1,7 @@
 
 
+using System.Text.Json.Serialization;
+
 namespace Chat.API;
 
 public class Startup

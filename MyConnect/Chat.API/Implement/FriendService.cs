@@ -24,9 +24,7 @@ public class FriendService : BaseService<Friend, FriendDto>, IFriendService
         var entity = _unitOfWork.Friend.DbSet.Find(id);
         if (entity == null) return null;
 
-        var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-        var contactId = JwtToken.ExtractToken(token);
-
+        var contactId = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
         if (entity == null)
             entity = new Friend { Status = "new" };
         else if (entity.Status == "request" && entity.ContactId1 == contactId)

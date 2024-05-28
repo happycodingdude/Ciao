@@ -14,12 +14,12 @@ const AcceptButton = (props) => {
     const body = [
       {
         op: "replace",
-        path: "Status",
+        path: "status",
         value: "friend",
       },
       {
         op: "replace",
-        path: "AcceptTime",
+        path: "acceptTime",
         value: moment().format("YYYY/MM/DD HH:mm:ss"),
       },
     ];

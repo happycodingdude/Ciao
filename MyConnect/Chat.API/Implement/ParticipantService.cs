@@ -32,8 +32,7 @@ public class ParticipantService : BaseService<Participant, ParticipantDto>, IPar
 
         if (includeNotify)
         {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var contactId = JwtToken.ExtractToken(token);
+            var contactId = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
             foreach (var contact in allParticipants.Select(q => q.ContactId.ToString()).Where(q => q != contactId.ToString()))
             {
                 var connection = _notificationService.GetConnection(contact);
@@ -55,8 +54,7 @@ public class ParticipantService : BaseService<Participant, ParticipantDto>, IPar
 
         if (includeNotify)
         {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var contactId = JwtToken.ExtractToken(token);
+            var contactId = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
             var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
             foreach (var contact in _unitOfWork.Participant.DbSet.Where(q => q.ConversationId == entity.ConversationId && q.ContactId != contactId).Select(q => q.ContactId.ToString()))
             {
@@ -75,12 +73,12 @@ public class ParticipantService : BaseService<Participant, ParticipantDto>, IPar
         return result;
     }
 
-    public IEnumerable<ParticipantDto> GetByConversationIdIncludeContact(Guid id)
+    public IEnumerable<ParticipantNoReference> GetByConversationIdIncludeContact(Guid id)
     {
         var entity = _unitOfWork.Participant.DbSet
         .Include(q => q.Contact)
         .Where(q => q.ConversationId == id)
         .ToList();
-        return _mapper.Map<List<Participant>, List<ParticipantDto>>(entity);
+        return _mapper.Map<List<Participant>, List<ParticipantNoReference>>(entity);
     }
 }

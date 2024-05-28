@@ -17,7 +17,9 @@ export const MessageProvider = ({ children }) => {
     (id) => {
       HttpRequest({
         method: "get",
-        url: import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace('{id}',id).replace('{page}',page).replace('{limit}',limit),
+        url: import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace("{id}", id)
+          .replace("{page}", page)
+          .replace("{limit}", limit),
         token: token,
       }).then((res) => {
         setMessages(res.data.reverse());

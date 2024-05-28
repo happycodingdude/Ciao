@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Chat.API.MinimalAPI;
 
 public partial class MinimalAPI
@@ -19,8 +21,10 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapPatch("/{id}",
-        async (IFriendService friendService, Guid id, JsonPatchDocument patch, bool includeNotify) =>
+        async (IFriendService friendService, Guid id, JsonElement jsonElement, bool includeNotify) =>
         {
+            var json = jsonElement.GetRawText();
+            var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
             var response = await friendService.UpdateAsync(id, patch, includeNotify);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");

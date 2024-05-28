@@ -58,8 +58,7 @@ public class NotificationService : BaseService<Notification, NotificationDto>, I
     {
         var result = new List<NotificationTypeConstraint>();
 
-        var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-        var id = JwtToken.ExtractToken(token);
+        var id = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
         var entities = _unitOfWork.Notification.DbSet.Where(q => q.ContactId == id).OrderByDescending(q => q.CreatedTime).Skip(limit * (page - 1)).Take(limit).ToList();
         foreach (var entity in entities)
         {

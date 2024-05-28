@@ -15,7 +15,7 @@ export const ParticipantProvider = ({ children }) => {
     (id) => {
       HttpRequest({
         method: "get",
-        url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GET.replace('{id}', id),
+        url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GET.replace("{id}", id),
         token: auth.token,
       }).then((res) => {
         setParticipants(res.data);
@@ -29,9 +29,9 @@ export const ParticipantProvider = ({ children }) => {
       ?.filter((item) => item.ContactId !== auth.id)
       .map((item) => {
         return {
-          name: item.Contact.Name,
-          avatar: item.Contact.Avatar,
-          userId: item.Contact.Id,
+          name: item.contact.name,
+          avatar: item.contact.avatar,
+          userId: item.contact.id,
         };
       });
     setMentions(updatedMentions);

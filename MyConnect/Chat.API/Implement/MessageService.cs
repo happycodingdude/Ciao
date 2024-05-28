@@ -35,8 +35,6 @@ public class MessageService : BaseService<Message, MessageDto>, IMessageService
         }
         _unitOfWork.Save();
 
-        var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-        var contactId = JwtToken.ExtractToken(token);
         var notify = _mapper.Map<MessageDto, MessageToNotify>(model);
         foreach (var contact in participants.Select(q => q.ContactId.ToString()))
         {
@@ -69,9 +67,7 @@ public class MessageService : BaseService<Message, MessageDto>, IMessageService
 
     private void SeenAll(Guid id)
     {
-        var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-        var contactId = JwtToken.ExtractToken(token);
-
+        var contactId = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
         var unseenMessages = _unitOfWork.Message.DbSet.Where(q => q.ConversationId == id && q.ContactId != contactId && q.Status == "received");
         foreach (var message in unseenMessages)
         {

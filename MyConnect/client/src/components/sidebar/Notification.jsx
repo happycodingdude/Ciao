@@ -46,14 +46,14 @@ const Notification = () => {
   useEventListener("keydown", hideNotificationOnKey);
 
   const read = (e, notification) => {
-    if (notification.Read) return;
+    if (notification.read) return;
     const isClickOnButton =
       Array.from(e.target.classList).includes("button-title") ||
       Array.from(e.target.classList).includes("accept-button");
     const body = [
       {
         op: "replace",
-        path: "Read",
+        path: "read",
         value: true,
       },
     ];
@@ -62,15 +62,15 @@ const Notification = () => {
       method: "patch",
       url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GETBYID.replace(
         "{id}",
-        notification.Id,
+        notification.id,
       ),
       token: token,
       data: body,
     }).then((res) => {
       setNotifications((current) => {
         return current.map((item) => {
-          if (item.Id === notification.Id) item.Read = true;
-          if (isClickOnButton) item.SourceData = null;
+          if (item.id === notification.id) item.read = true;
+          if (isClickOnButton) item.sourceData = null;
           return item;
         });
       });
@@ -141,22 +141,22 @@ const Notification = () => {
               onClick={(e) => read(e, notification)}
             >
               <div className="notification-body py-2 font-normal">
-                {notification.Content}
+                {notification.content}
               </div>
-              {notification.Read ? (
+              {notification.read ? (
                 ""
               ) : (
                 <div className="notification-body aspect-square w-[1rem] shrink-0 rounded-[50%] bg-[var(--main-color)]"></div>
               )}
 
-              {notification.SourceData === null ||
-              notification.SourceData.Status === "friend" ? (
+              {notification.sourceData === null ||
+              notification.sourceData.Status === "friend" ? (
                 ""
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">
                   <AcceptButton
                     className="notification-body accept-button !m-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
-                    id={notification.SourceId}
+                    id={notification.sourceId}
                     onClose={() => {}}
                   />
                 </div>

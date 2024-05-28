@@ -1,0 +1,12 @@
+POST  http://localhost:4100/api/users/signin
+Content-Type: application/json
+
+{
+    "Username":"trint2",
+    "Password":"Qwerty@123"
+}
+
+###
+
+GET  http://localhost:4000/api/conversations/13e8653f-f670-4105-b1a3-8870dee8cce8/participants
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TIpP3r6-uK3G-sDSzvNP6MikxwAt3dVdNFGeYohGUmZi_f8eTYPyzVj1zFzBrBkJqLZ1ir6WfyIuuGcJ2ApfS-1hjmzleretAL_dd0Nl6eR-lIq2ptbmB5i70uYBeitVdFqDYGngG7f8h3jeSudff0jFgzWSHcIpQhD9o2kftkESWrAShUsck6P1HPukUkaG-NDF5JGSDltKf05Jl3-OOqrKF9iU_T1TmyWRBjCWyte0HraeJ5PMmJSnQXe9cphbRWoM-XseuRss_rs6gtZMTt5wU6OvPTaczXs5BGo10lVJKWjeDG1vjgwgVwo1IHYxVLp6ytjOdOGVPXN_vUyj4dREbor6OzaMPZ3OT9WeriTKYw_IzIZiHk48oJR1448ycDli3KyaaAw0Mo4R0JWCJbaWR6gb8G5UsYjohquHnUK0Mzfj5miPZpWmquMRSAxeLATWwAk3AwLiQR_boqQjjxMqTGs_IHkLGk7uNRsFnXwxvKfzGjniFGyWQxYrNEsvtJc9pnhIHmHPHf4U2v0laTUxw2nPQoXyXpXG1ThpnPww

@@ -131,8 +131,11 @@ export const Home = () => {
   }, []);
 
   return (
-    <div id="home" className="relative w-full">
-      <div className="home-container absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100 text-[clamp(1.4rem,1vw,2rem)]">
+    <div
+      id="home"
+      className="relative w-full text-[clamp(1.5rem,1.5vw,2.5rem)]"
+    >
+      <div className="home-container absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100">
         <SideBar
           showChat={() => setPage("chat")}
           showProfile={() => setPage("profile")}

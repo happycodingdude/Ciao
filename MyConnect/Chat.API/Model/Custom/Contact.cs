@@ -19,6 +19,8 @@ public class ContactDto : BaseModel
     public ICollection<Participant>? Participants { get; set; }
     public ICollection<Message>? Messages { get; set; }
     // public ICollection<Friend>? Friends { get; set; }
+    public Guid FriendId { get; set; }
+    public string FriendStatus { get; set; }
 }
 
 public class ContactNoReference : BaseModel

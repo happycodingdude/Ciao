@@ -15,12 +15,12 @@ const AddButton = (props) => {
       url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GET_INCLUDENOTIFY,
       token: auth.token,
       data: {
-        ContactId1: auth.user.Id,
+        ContactId1: auth.user.id,
         ContactId2: id,
         Status: "request",
       },
     }).then((res) => {
-      reFetchRequestById(res.data.Id);
+      reFetchRequestById(res.data.id);
       onClose();
     });
   };

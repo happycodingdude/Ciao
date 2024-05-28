@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Chat.API.MinimalAPI;
 
 public partial class MinimalAPI
@@ -11,13 +13,15 @@ public partial class MinimalAPI
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
-        app.MapGroup(Constants.ApiRoute_Conversation).MapGet("/{id}", (IConversationService conversationService, Guid id) =>
+        app.MapGroup(Constants.ApiRoute_Conversation).MapGet("/{id}",
+        (IConversationService conversationService, Guid id) =>
         {
             var response = conversationService.GetById(id);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
-        app.MapGroup(Constants.ApiRoute_Conversation).MapGet("/{id}/participants", (IParticipantService participantService, Guid id) =>
+        app.MapGroup(Constants.ApiRoute_Conversation).MapGet("/{id}/participants",
+        (IParticipantService participantService, Guid id) =>
         {
             var response = participantService.GetByConversationIdIncludeContact(id);
             return Results.Ok(response);
@@ -52,8 +56,10 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Conversation).MapPatch("/{id}",
-        (IConversationService conversationService, Guid id, JsonPatchDocument patch) =>
+        (IConversationService conversationService, Guid id, JsonElement jsonElement) =>
         {
+            var json = jsonElement.GetRawText();
+            var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
             var response = conversationService.Patch(id, patch);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");

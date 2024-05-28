@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Chat.API.MinimalAPI;
 
 public partial class MinimalAPI
@@ -19,8 +21,10 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Notification).MapPatch("/{id}",
-        (INotificationService notificationService, Guid id, JsonPatchDocument patch) =>
+        (INotificationService notificationService, Guid id, JsonElement jsonElement) =>
         {
+            var json = jsonElement.GetRawText();
+            var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
             var response = notificationService.Patch(id, patch);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
