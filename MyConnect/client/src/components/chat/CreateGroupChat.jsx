@@ -63,7 +63,7 @@ const CreateGroupChat = () => {
     };
     HttpRequest({
       method: "post",
-      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GROUP_ADD,
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_INCLUDENOTIFY,
       token: auth.token,
       data: body,
     }).then((res) => {

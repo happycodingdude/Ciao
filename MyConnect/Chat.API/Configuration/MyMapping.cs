@@ -12,7 +12,6 @@ public class MyMapping : Profile
         CreateMap<ConversationDto, Conversation>().ReverseMap();
         CreateMap<ConversationDto, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
-        CreateMap<ConversationDto, ConversationToNotify>().ReverseMap();
         CreateMap<FriendDto, Friend>().ReverseMap();
         CreateMap<FriendDto, FriendToNotify>().ReverseMap();
         CreateMap<MessageDto, Message>().ReverseMap();

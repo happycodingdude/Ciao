@@ -64,17 +64,20 @@ export const useFetchNotifications = () => {
 export const useDeleteChat = () => {
   const auth = useAuth();
   const deleteChat = (participants) => {
-    const selected = participants.find((item) => item.ContactId === auth.id);
+    const selected = participants.find((item) => item.contactId === auth.id);
     const body = [
       {
         op: "replace",
-        path: "IsDeleted",
+        path: "isDeleted",
         value: true,
       },
     ];
     return HttpRequest({
-      method: "patch",      
-      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GETBYID.replace('{id}', selected.Id),
+      method: "patch",
+      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GETBYID.replace(
+        "{id}",
+        selected.id,
+      ),
       token: auth.token,
       data: body,
     });

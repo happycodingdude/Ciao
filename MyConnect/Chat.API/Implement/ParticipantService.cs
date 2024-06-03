@@ -55,11 +55,11 @@ public class ParticipantService : BaseService<Participant, ParticipantDto>, IPar
         if (includeNotify)
         {
             var contactId = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
-            var notify = _mapper.Map<Conversation, ConversationToNotify>(conversation);
+            var notify = _mapper.Map<Conversation, ConversationDto>(conversation);
             foreach (var contact in _unitOfWork.Participant.DbSet.Where(q => q.ConversationId == entity.ConversationId && q.ContactId != contactId).Select(q => q.ContactId.ToString()))
             {
                 var connection = _notificationService.GetConnection(contact);
-                await _notificationService.Notify<ConversationToNotify>(Constants.NotificationEvent_AddMember, connection, notify);
+                await _notificationService.Notify<ConversationDto>(Constants.NotificationEvent_AddMember, connection, notify);
             }
         }
         return entity;

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Chat.API.MinimalAPI;
 
@@ -30,9 +31,11 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Notification).MapPatch("/bulk_edit",
-        (INotificationService notificationService, List<PatchRequest<NotificationDto>> patchs) =>
+        (INotificationService notificationService, JsonElement jsonElement) =>
         {
-            var response = notificationService.BulkUpdate(patchs);
+            var json = jsonElement.GetRawText();
+            var patch = JsonConvert.DeserializeObject<List<PatchRequest<NotificationDto>>>(json);
+            var response = notificationService.BulkUpdate(patch);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 

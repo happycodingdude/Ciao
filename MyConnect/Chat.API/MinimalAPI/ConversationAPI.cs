@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Chat.API.MinimalAPI;
 
@@ -7,7 +8,7 @@ public partial class MinimalAPI
     public static void ConfigureConversationAPI(WebApplication app)
     {
         app.MapGroup(Constants.ApiRoute_Conversation).MapGet("/",
-        (IConversationService conversationService, int page, int limit) =>
+        (IConversationService conversationService, int page = 0, int limit = 0) =>
         {
             var response = conversationService.GetAllWithUnseenMesages(page, limit);
             return Results.Ok(response);

@@ -33,7 +33,10 @@ export const FriendProvider = ({ children }) => {
     (id, controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: import.meta.env.VITE_ENDPOINT_CONTACT_GETBYID.replace("{id}", id),
+        url: import.meta.env.VITE_ENDPOINT_CONTACT_GETBYID_INCLUDEFRIEND.replace(
+          "{id}",
+          id,
+        ),
         token: auth.token,
         controller: controller,
       }).then((res) => {
@@ -81,6 +84,7 @@ export const FriendProvider = ({ children }) => {
       value={{
         friends,
         profile,
+        setProfile,
         request,
         reFetchFriends: getFriends,
         reFetchProfile: getFriendProfile,

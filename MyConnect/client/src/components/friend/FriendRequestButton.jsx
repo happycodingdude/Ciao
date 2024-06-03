@@ -6,18 +6,26 @@ import CancelButton from "./CancelButton";
 
 const FriendRequestButton = (props) => {
   const { className, onClose } = props;
-  const { profile, request } = useFetchFriends();
+  const { profile } = useFetchFriends();
 
   return {
-    new: <AddButton className={className} id={profile?.Id} onClose={onClose} />,
+    new: <AddButton className={className} id={profile?.id} onClose={onClose} />,
     request_received: (
-      <AcceptButton className={className} id={request?.Id} onClose={onClose} />
+      <AcceptButton
+        className={className}
+        id={profile?.friendId}
+        onClose={onClose}
+      />
     ),
     request_sent: (
-      <CancelButton className={className} id={request?.Id} onClose={onClose} />
+      <CancelButton
+        className={className}
+        id={profile?.friendId}
+        onClose={onClose}
+      />
     ),
     friend: "",
-  }[request?.Status];
+  }[profile?.friendStatus];
 };
 
 export default FriendRequestButton;

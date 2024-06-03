@@ -79,6 +79,7 @@ export const ProfileProvider = ({ children }) => {
       ),
       token: auth.token,
       data: body,
+      alert: true,
     }).then((res) => {
       auth.setUser(res.data);
       // onClose();

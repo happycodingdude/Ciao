@@ -70,15 +70,6 @@ public class FriendService : BaseService<Friend, FriendDto>, IFriendService
 
         if (includeNotify)
         {
-            var connection = _notificationService.GetConnection(created.ContactId2.ToString());
-
-            // Send updated request to client
-            var request = new FriendToNotify
-            {
-                RequestId = created.Id
-            };
-            await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_NewFriendRequest, connection, request);
-
             // Save notification
             var contact = _unitOfWork.Contact.GetById(created.ContactId1);
             var notiEntity = new Notification
@@ -91,10 +82,22 @@ public class FriendService : BaseService<Friend, FriendDto>, IFriendService
             _unitOfWork.Notification.Add(notiEntity);
             _unitOfWork.Save();
 
-            // Send new notification to client
-            var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
-            constraintDto.AddSourceData<FriendDto>(created);
-            await _notificationService.Notify<NotificationTypeConstraint>(Constants.NotificationEvent_NewNotification, connection, constraintDto);
+            var connection = _notificationService.GetConnection(created.ContactId2.ToString());
+            if (!string.IsNullOrEmpty(connection))
+            {
+                // Send updated request to client
+                var request = new FriendToNotify
+                {
+                    RequestId = created.Id
+                };
+                _ = _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_NewFriendRequest, connection, request);
+
+                // Send new notification to client
+                var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
+                constraintDto.AddSourceData<FriendDto>(created);
+                _ = _notificationService.Notify<NotificationTypeConstraint>(Constants.NotificationEvent_NewNotification, connection, constraintDto);
+            }
+
         }
         return created;
     }
@@ -106,34 +109,39 @@ public class FriendService : BaseService<Friend, FriendDto>, IFriendService
         if (includeNotify)
         {
             var connection = _notificationService.GetConnection(updated.ContactId1.ToString());
-
-            // Send updated request to client
-            var request = new FriendToNotify
+            if (!string.IsNullOrEmpty(connection))
             {
-                RequestId = id
-            };
-            await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_AcceptFriendRequest, connection, request);
+                // Send updated request to client
+                var request = new FriendToNotify
+                {
+                    RequestId = id
+                };
+                await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_AcceptFriendRequest, connection, request);
+            }
         }
         return updated;
     }
 
     public async Task DeleteAsync(Guid id, bool includeNotify)
     {
+        // Get request before it's deleted
         var entity = _unitOfWork.Friend.GetById(id);
         Delete(id);
         if (includeNotify)
         {
             var connection = _notificationService.GetConnection(entity.ContactId2.ToString());
-
-            // Send updated request to client
-            var request = new FriendToNotify
+            if (!string.IsNullOrEmpty(connection))
             {
-                ContactId = entity.ContactId1
-            };
-            await _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_CancelFriendRequest, connection, request);
+                // Send updated request to client
+                var request = new FriendToNotify
+                {
+                    ContactId = entity.ContactId1
+                };
+                _ = _notificationService.Notify<FriendToNotify>(Constants.NotificationEvent_CancelFriendRequest, connection, request);
 
-            // Send new notification to client                
-            await _notificationService.Notify(Constants.NotificationEvent_NewNotification, connection);
+                // Send new notification to client                
+                _ = _notificationService.Notify(Constants.NotificationEvent_NewNotification, connection);
+            }
         }
     }
 }

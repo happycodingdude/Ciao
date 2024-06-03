@@ -2,11 +2,11 @@
 
 namespace Chat.API.Configuration;
 
-public class IgnoreJsonAttributesResolver : DefaultContractResolver
+public class IgnoreJsonAttributesResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
 {
-    protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+    protected override IList<Newtonsoft.Json.Serialization.JsonProperty> CreateProperties(Type type, Newtonsoft.Json.MemberSerialization memberSerialization)
     {
-        IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
+        IList<Newtonsoft.Json.Serialization.JsonProperty> props = base.CreateProperties(type, memberSerialization);
         foreach (var prop in props)
         {
             prop.Ignored = false;   // Ignore [JsonIgnore]

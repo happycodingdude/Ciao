@@ -2,11 +2,30 @@ POST  http://localhost:4100/api/users/signin
 Content-Type: application/json
 
 {
-    "Username":"trint2",
+    "Username":"trint",
     "Password":"Qwerty@123"
 }
 
 ###
 
-GET  http://localhost:4000/api/conversations/13e8653f-f670-4105-b1a3-8870dee8cce8/participants
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TIpP3r6-uK3G-sDSzvNP6MikxwAt3dVdNFGeYohGUmZi_f8eTYPyzVj1zFzBrBkJqLZ1ir6WfyIuuGcJ2ApfS-1hjmzleretAL_dd0Nl6eR-lIq2ptbmB5i70uYBeitVdFqDYGngG7f8h3jeSudff0jFgzWSHcIpQhD9o2kftkESWrAShUsck6P1HPukUkaG-NDF5JGSDltKf05Jl3-OOqrKF9iU_T1TmyWRBjCWyte0HraeJ5PMmJSnQXe9cphbRWoM-XseuRss_rs6gtZMTt5wU6OvPTaczXs5BGo10lVJKWjeDG1vjgwgVwo1IHYxVLp6ytjOdOGVPXN_vUyj4dREbor6OzaMPZ3OT9WeriTKYw_IzIZiHk48oJR1448ycDli3KyaaAw0Mo4R0JWCJbaWR6gb8G5UsYjohquHnUK0Mzfj5miPZpWmquMRSAxeLATWwAk3AwLiQR_boqQjjxMqTGs_IHkLGk7uNRsFnXwxvKfzGjniFGyWQxYrNEsvtJc9pnhIHmHPHf4U2v0laTUxw2nPQoXyXpXG1ThpnPww
+GET  http://localhost:4000/api/conversations
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9T1Fdmv8qwNvvAxIPdPIoJYICcT4ayBaavC-IDyoYlfXYBIB2-xQiXjDf4TWpFE61k_8ikRBxHpp_ii9utdShGnU2x10zBdiGDHu06Ungl3n9PEF2QClKL64Q8icXlz709Bf9w-pDrTRYlu3qRsWe5MmWQ-C48wy8VaxGVh2fhlbRSUuHvOtfCz3gouCreCKaHBs47ca2X6wk2L7OlHMRLQkMXYJVaBF8AwNeN5PSvDHr1OfM9TC-kI8xrC0tsgGilNfaUhFefd2wYAuEeYWa4-aWfDuauuVznJADrb0GlytMCLo5C7md35o57DP-lymdZG0FP7TmzxQdtpucSvazDoYdUvbxcp2Dyt4XkBsBiIy7sPucWkZNTClsEuukCwhruUDzx_0VbpCxz-QIDLtLDXUMPH7LXpEi-wg3LsamFA_fDIgvFgTDI-sr2j27DRc0gkrcd_YbSVq6_zKi352Gi84FozovbRJn33o9rhXA1B31i1OiZAAjx51XLsAYitAOju9S6LW5jyk3RNkdrO3jO4-e6oVOmpe0nDobUo2joB0w
+
+###
+
+POST  http://localhost:4000/api/conversations?includeNotify=true
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QQHUPaiV4T8W5us0jje_c55BP7LvkFomwX9bXVhQw1jm3joRaWiLKE3Dnd6SkPfotlKZq7wQjKf-d3MHKZymNzlhFG4uTmHjbJYHQmyTYfcdpa0BIc1JmhEEScj3yU9ktoYcndD3-1rbaUNwjin5eB1HhUwVLS7Sj_zUIE7_zz1IO6twtj40ytwwmPp0jvAAk-CVXYoCpsT5yQ7DVLyc5sGRkhns10mqipdFFhCPCQCKac1AFs646czliJAKrCD5RsIwa81zGMfEa3MkC17zRlCLCmTunzdThnvHSOp6gMrIdZ9z1fIsAOyYidbMMWENM1X7TAJSpPl0Z_Cr5lTNSXIyWvhH3FTg6Qz6nZL46JlUgOVcpofMwND-jtnvM6R_ABz1btfz0VgCJosgp3JWI7beltvhoz-9k2ITTs0eN8dAB_gjzOoqDAI5-aVsS5NRtaKsP5cPw5N421XmJNlqpFYcPThNQOsNDpewbwbki93VPP36s1aKdfs7d2x_pr61tUQTxcNaeb2D2A_JQVZuhZxO5XIYzi9jR15iDpa9Kd0g
+Content-Type: application/json
+
+{
+    "participants": [{
+            "contactId": "4817b568-756a-4f92-82fa-be40d82f5274",
+            "isNotifying": true,
+            "isModerator": true
+        }, {
+            "contactId": "b8ab2c7e-054c-4711-b062-7443488855e9",
+            "isNotifying": true,
+            "isDeleted": true
+        }
+    ]
+}

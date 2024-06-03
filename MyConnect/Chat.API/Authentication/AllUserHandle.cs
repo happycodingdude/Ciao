@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Chat.API.Authentication;
 
 public class AllUserHandle : AuthorizationHandler<AllUserRequirement>

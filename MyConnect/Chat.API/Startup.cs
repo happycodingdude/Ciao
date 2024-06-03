@@ -1,6 +1,4 @@
-
-
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Chat.API;
 
@@ -18,11 +16,17 @@ public class Startup
         Console.WriteLine("ConfigureServices running");
         services.AddDistributedMemoryCache();
         services.AddSession();
-        services.AddControllers()
-        .AddNewtonsoftJson(opt =>
+        services.AddControllers();
+        // .AddNewtonsoftJson(opt =>
+        // {
+        //     opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        //     opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
+        // })
+        services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
         {
-            opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
+            // opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+            opt.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         });
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddEndpointsApiExplorer();

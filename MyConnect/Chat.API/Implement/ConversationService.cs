@@ -23,7 +23,7 @@ public class ConversationService : BaseService<Conversation, ConversationDto>, I
     {
         var messageDbSet = _unitOfWork.Message.DbSet;
         var participantDbSet = _unitOfWork.Participant.DbSet;
-        Guid.TryParse(_httpContextAccessor.HttpContext.Session.GetString("UserId"), out var contactId);
+        var contactId = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
 
         List<Conversation> entity;
         if (page != 0 && limit != 0)
@@ -68,23 +68,22 @@ public class ConversationService : BaseService<Conversation, ConversationDto>, I
 
     public async Task<ConversationDto> CreateAsync(ConversationDto model, bool includeNotify)
     {
-        Add(model);
+        var result = Add(model);
 
         if (includeNotify)
         {
             var id = Guid.Parse(_httpContextAccessor.HttpContext.Session.GetString("UserId"));
-            var notify = _mapper.Map<ConversationDto, ConversationToNotify>(model);
             foreach (var contact in model.Participants.Where(q => q.ContactId != id).Select(q => q.ContactId.ToString()))
             {
                 var connection = _notificationService.GetConnection(contact);
                 var notification = new FirebaseNotification
                 {
                     to = connection,
-                    data = new CustomNotification<ConversationToNotify>(Constants.NotificationEvent_NewConversation, notify)
+                    data = new CustomNotification<ConversationDto>(Constants.NotificationEvent_NewConversation, result)
                 };
-                await _notificationService.Notify<ConversationToNotify>(Constants.NotificationEvent_NewConversation, connection, notify);
+                await _notificationService.Notify<ConversationDto>(Constants.NotificationEvent_NewConversation, connection, result);
             }
         }
-        return model;
+        return result;
     }
 }

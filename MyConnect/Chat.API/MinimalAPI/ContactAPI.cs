@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Chat.API.MinimalAPI;
 
@@ -9,8 +10,8 @@ public partial class MinimalAPI
         app.MapGroup(Constants.ApiRoute_Contact).MapGet(Constants.ApiEndpoint_Info,
         (IContactService contactService, HttpContext context) =>
         {
-            var id = Guid.Parse(context.Session.GetString("UserId"));
-            var response = contactService.GetById(id);
+            var userId = Guid.Parse(context.Session.GetString("UserId"));
+            var response = contactService.GetById(userId);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
@@ -24,16 +25,24 @@ public partial class MinimalAPI
             foreach (var contact in dtos)
             {
                 var friendRequest = friendService.GetByTwoContactId(id, contact.Id);
-                contact.FriendId = friendRequest.Id;
+                contact.FriendId = friendRequest.Id == Guid.Empty ? null : friendRequest.Id;
                 contact.FriendStatus = friendRequest.Status;
             }
             return Results.Ok(dtos);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Contact).MapGet("/{id}",
-        (IContactService contactService, Guid id) =>
+        (IContactService contactService, IFriendService friendService, HttpContext context
+        , Guid id, [FromQuery] bool includeFriend = false) =>
         {
+            var userId = Guid.Parse(context.Session.GetString("UserId"));
             var response = contactService.GetById(id);
+            if (includeFriend)
+            {
+                var friendRequest = friendService.GetByTwoContactId(userId, id);
+                response.FriendId = friendRequest.Id == Guid.Empty ? null : friendRequest.Id;
+                response.FriendStatus = friendRequest.Status;
+            }
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 

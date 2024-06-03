@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { ToastContainer } from "react-toastify";
 import { HttpRequest } from "../../common/Utility";
 import { AttachmentProvider } from "../../context/AttachmentContext";
 import { ConversationProvider } from "../../context/ConversationContext";
@@ -133,7 +134,7 @@ export const Home = () => {
   return (
     <div
       id="home"
-      className="relative w-full text-[clamp(1.5rem,1.5vw,2.5rem)]"
+      className="relative w-full text-[clamp(1.5rem,1.2vw,2.5rem)]"
     >
       <div className="home-container absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100">
         <SideBar
@@ -149,6 +150,19 @@ export const Home = () => {
           }[page]
         }
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition:Bounce
+      />
     </div>
   );
 };

@@ -51,10 +51,10 @@ const ListChat = (props) => {
         selected.participants.find((item) => item.contactId !== auth.id)
           .contactId,
       );
-      reFetchRequest(
-        selected.participants.find((item) => item.contactId !== auth.id)
-          .contactId,
-      );
+      // reFetchRequest(
+      //   selected.participants.find((item) => item.contactId !== auth.id)
+      //     .contactId,
+      // );
     }
   }, [selected?.id]);
 
@@ -154,7 +154,7 @@ const ListChat = (props) => {
             data-user={
               !item.isGroup
                 ? item.participants.find((item) => item.contactId !== auth.id)
-                    ?.ContactId
+                    ?.contactId
                 : ""
             }
             ref={(element) => {
@@ -181,7 +181,7 @@ const ListChat = (props) => {
               <ImageWithLightBox
                 src={
                   item.participants.find((item) => item.contactId !== auth.id)
-                    ?.Contact.Avatar ?? ""
+                    ?.contact.avatar ?? ""
                 }
                 className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />
@@ -194,7 +194,7 @@ const ListChat = (props) => {
                     ? item.title
                     : item.participants.find(
                         (item) => item.contactId !== auth.id,
-                      )?.Contact.Name
+                      )?.contact.name
                 }
               />
               <CustomLabel

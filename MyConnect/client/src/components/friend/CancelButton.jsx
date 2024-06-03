@@ -7,7 +7,7 @@ const CancelButton = (props) => {
   const { id, onClose, className } = props;
 
   const auth = useAuth();
-  const { reFetchRequest } = useFetchFriends();
+  const { setProfile } = useFetchFriends();
 
   const cancelFriendRequest = () => {
     HttpRequest({
@@ -18,7 +18,14 @@ const CancelButton = (props) => {
       ),
       token: auth.token,
     }).then((res) => {
-      reFetchRequest(auth.id);
+      // reFetchRequest(auth.id);
+      setProfile((current) => {
+        return {
+          ...current,
+          friendStatus: "new",
+          friendId: null,
+        };
+      });
       onClose();
     });
   };

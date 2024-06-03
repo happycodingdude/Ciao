@@ -8,7 +8,7 @@ const AcceptButton = (props) => {
   const { id, onClose, className } = props;
 
   const auth = useAuth();
-  const { reFetchFriends, reFetchRequestById } = useFetchFriends();
+  const { reFetchFriends, setProfile } = useFetchFriends();
 
   const acceptFriendRequest = () => {
     const body = [
@@ -32,8 +32,15 @@ const AcceptButton = (props) => {
       token: auth.token,
       data: body,
     }).then((res) => {
-      reFetchRequestById(id);
+      // reFetchRequestById(id);
       reFetchFriends();
+      setProfile((current) => {
+        return {
+          ...current,
+          friendStatus: "friend",
+          friendId: res.data.id,
+        };
+      });
       onClose();
     });
   };

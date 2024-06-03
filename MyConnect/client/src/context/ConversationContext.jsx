@@ -18,7 +18,7 @@ export const ConversationProvider = ({ children }) => {
     (controller = new AbortController()) => {
       HttpRequest({
         method: "get",
-        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET.replace(
+        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETWITHPAGING.replace(
           "{page}",
           page,
         ).replace("{limit}", limit),

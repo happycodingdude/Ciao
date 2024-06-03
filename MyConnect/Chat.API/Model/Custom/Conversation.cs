@@ -2,22 +2,23 @@ namespace Chat.API.Model;
 
 public class ConversationDto : BaseModel
 {
-    public string? Title { get; set; }
-    public DateTime? DeletedTime { get; set; }
-    public string? Avatar { get; set; }
-    public bool IsGroup { get; set; }
-    public ICollection<Participant>? Participants { get; set; }
-    public ICollection<Message>? Messages { get; set; }
-}
-
-public class ConversationToNotify : BaseModel
-{
+    // [JsonPropertyName("title")]
     public string? Title { get; set; }
     public DateTime? DeletedTime { get; set; }
     public string? Avatar { get; set; }
     public bool IsGroup { get; set; }
     public ICollection<ParticipantNoReference>? Participants { get; set; }
+    // public ICollection<Message>? Messages { get; set; }
 }
+
+// public class ConversationToNotify : BaseModel
+// {
+//     public string? Title { get; set; }
+//     public DateTime? DeletedTime { get; set; }
+//     public string? Avatar { get; set; }
+//     public bool IsGroup { get; set; }
+//     public ICollection<ParticipantNoReference>? Participants { get; set; }
+// }
 
 public class ConversationWithTotalUnseen : BaseModel
 {

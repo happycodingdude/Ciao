@@ -100,7 +100,7 @@ const UserProfileSetting = (props) => {
         };
         HttpRequest({
           method: "post",
-          url: `api/conversations`,
+          url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET,
           token: auth.token,
           data: body,
         }).then((res) => {

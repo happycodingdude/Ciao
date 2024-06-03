@@ -9,7 +9,7 @@ const ProfileSetting = (props) => {
       <div className="relative flex w-full justify-center">
         <ImageWithLightBoxWithBorderAndShadow
           src={profile?.Avatar ?? ""}
-          className="aspect-square w-[60%] cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
+          className="aspect-square cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem] laptop:w-[60%]"
           slides={[
             {
               src: profile?.Avatar ?? "",

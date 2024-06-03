@@ -1,4 +1,6 @@
-﻿namespace MyDockerWebAPI.RestApi;
+﻿using System.Text.Json;
+
+namespace MyDockerWebAPI.RestApi;
 
 public class FirebaseFunction : IFirebaseFunction
 {
@@ -7,7 +9,7 @@ public class FirebaseFunction : IFirebaseFunction
         var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"key={Constants.Firebase_SecretKey}");
         var request = new HttpRequestMessage(new HttpMethod("POST"), Constants.Firebase_NotifyEndpoint);
-        var jsonStr = JsonConvert.SerializeObject(data);
+        var jsonStr = JsonSerializer.Serialize(data, Constants.JsonSerialization.SerializeOptions);
         // Console.WriteLine(jsonStr);
         request.Content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
         var response = await httpClient.SendAsync(request);

@@ -78,16 +78,16 @@ const Notification = () => {
   };
 
   const readAll = () => {
-    if (notifications.some((item) => !item.Read)) {
+    if (notifications.some((item) => !item.read)) {
       const body = notifications
         .filter((item) => !item.Read)
         .map((item) => {
           return {
-            Id: item.Id,
-            PatchDocument: [
+            id: item.id,
+            patchDocument: [
               {
                 op: "replace",
-                path: "Read",
+                path: "read",
                 value: true,
               },
             ],
@@ -101,7 +101,7 @@ const Notification = () => {
       }).then((res) => {
         setNotifications((current) => {
           return current.map((item) => {
-            item.Read = true;
+            item.read = true;
             return item;
           });
         });
@@ -150,7 +150,7 @@ const Notification = () => {
               )}
 
               {notification.sourceData === null ||
-              notification.sourceData.Status === "friend" ? (
+              notification.sourceData.status === "friend" ? (
                 ""
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">

@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import "react-toastify/dist/ReactToastify.css";
 import { useFetchProfile } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
@@ -7,6 +8,7 @@ import MediaPicker from "../common/MediaPicker";
 const ProfileSection = (props) => {
   const { profile, setProfile, chooseAvatar, updateProfile, reFetch } =
     useFetchProfile();
+  const profileContainer = useRef();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -17,13 +19,16 @@ const ProfileSection = (props) => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
-      <p className="text-lg font-medium">Edit user profile</p>
+    <div
+      className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]"
+      ref={profileContainer}
+    >
+      <p className="text-xl font-bold">Edit user profile</p>
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
         <div className="relative flex w-full">
           <ImageWithLightBoxWithBorderAndShadow
             src={profile?.avatar ?? ""}
-            className="aspect-square w-[50%] cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem]"
+            className="aspect-square cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem] laptop:w-[40%]"
             slides={[
               {
                 src: profile?.avatar ?? "",
@@ -31,7 +36,7 @@ const ProfileSection = (props) => {
             ]}
           />
           <MediaPicker
-            className="absolute left-[5%] top-[-10%] text-xl"
+            className="absolute left-[2%] top-[-10%] text-xl"
             accept="image/png, image/jpeg"
             id="customer-avatar"
             onChange={chooseAvatar}
@@ -64,8 +69,10 @@ const ProfileSection = (props) => {
       <CustomButton
         title="Save"
         className="!ml-0 h-[10%] !w-[30%]"
-        onClick={updateProfile}
-      />
+        onClick={() => {
+          updateProfile();
+        }}
+      />      
     </div>
   );
 };

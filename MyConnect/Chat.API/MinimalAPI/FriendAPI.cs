@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Chat.API.MinimalAPI;
 
@@ -14,14 +15,14 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapPost("/",
-        async (IFriendService friendService, FriendDto model, bool includeNotify) =>
+        async (IFriendService friendService, FriendDto model, [FromQuery] bool includeNotify = false) =>
         {
             var response = await friendService.AddAsync(model, includeNotify);
             return Results.Ok(response);
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapPatch("/{id}",
-        async (IFriendService friendService, Guid id, JsonElement jsonElement, bool includeNotify) =>
+        async (IFriendService friendService, Guid id, JsonElement jsonElement, [FromQuery] bool includeNotify = false) =>
         {
             var json = jsonElement.GetRawText();
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
@@ -30,7 +31,7 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Friend).MapDelete("/{id}",
-        async (IFriendService friendService, Guid id, bool includeNotify) =>
+        async (IFriendService friendService, Guid id, [FromQuery] bool includeNotify = false) =>
         {
             await friendService.DeleteAsync(id, includeNotify);
             return Results.Ok();
