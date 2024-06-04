@@ -26,8 +26,8 @@ const ListChat = (props) => {
     newMessage,
     clickConversation,
   } = useFetchConversations();
-  const { reFetch: reFetchMessages } = useFetchMessages();
   const { reFetch: reFetchParticipants } = useFetchParticipants();
+  const { reFetch: reFetchMessages } = useFetchMessages();
   const { reFetch: reFetchAttachments } = useFetchAttachments();
   const { reFetchProfile, reFetchRequest } = useFetchFriends();
 
@@ -60,8 +60,10 @@ const ListChat = (props) => {
 
   // Get all chats when first time render
   useEffect(() => {
-    const controller = new AbortController();
-    reFetchConversations(controller);
+    if (!auth.valid) return;
+
+    // const controller = new AbortController();
+    reFetchConversations();
 
     // listenNotification((message) => {
     //   console.log("Home receive message from worker");
@@ -74,10 +76,10 @@ const ListChat = (props) => {
     //       break;
     //   }
     // });
-    return () => {
-      controller.abort();
-    };
-  }, []);
+    // return () => {
+    //   controller.abort();
+    // };
+  }, [auth.valid]);
 
   useEffect(() => {
     refChatItem.current = refChatItem.current.filter((item) => item !== null);

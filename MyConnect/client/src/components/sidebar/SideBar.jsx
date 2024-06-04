@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { NotificationProvider } from "../../context/NotificationContext";
 import { useAuth } from "../../hook/CustomHooks";
 import Signout from "../authentication/Signout";
 import ChatIcon from "../chat/ChatIcon";
@@ -8,31 +9,8 @@ import Notification from "./Notification";
 
 const SideBar = (props) => {
   const { showChat, showProfile } = props;
-
   const { user } = useAuth();
-
   const [tabFocus, setTabFocus] = useState("chat");
-
-  // const { reFetch } = useFetchProfile();
-  // const [open, setOpen] = useState(false);
-
-  // const openProfile = () => {
-  //   reFetch();
-  //   setOpen(true);
-  // };
-
-  // Event listener
-  // const closeProfile = useCallback((e) => {
-  //   if (
-  //     // e.keyCode === 27 ||
-  //     Array.from(e.target.classList).some(
-  //       (item) => item === "profile-container",
-  //     )
-  //   )
-  //     setOpen(false);
-  // }, []);
-  // useEventListener("keydown", closeProfile);
-  // useEventListener("click", closeProfile);
 
   return (
     <section className="w-full max-w-[7%] shrink-0 bg-[var(--bg-color)]">
@@ -64,19 +42,10 @@ const SideBar = (props) => {
               focus={tabFocus === "profile"}
             />
           </div>
-          {/* <BackgroundPortal
-            open={open}
-            title="Edit Profile"
-            onClose={() => setOpen(false)}
-          >
-            <Profile onClose={() => setOpen(false)} />
-          </BackgroundPortal> */}
           <div className="flex flex-col gap-[3rem]">
-            <Notification />
-            {/* <div
-              // onClick={openProfile}
-              className="fa fa-cog cursor-pointer text-xl font-thin"
-            ></div> */}
+            <NotificationProvider>
+              <Notification />
+            </NotificationProvider>
             <Signout className="text-xl font-thin" />
           </div>
         </div>

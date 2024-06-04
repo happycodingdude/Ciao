@@ -40,16 +40,14 @@ export const HttpRequest = ({
     signal: controller.signal,
   })
     .then((res) => {
-      if (alert) toast("😎 Mission succeeded!");
+      if (alert) toast.success("😎 Mission succeeded!");
       return res;
     })
     .catch((err) => {
-      if (alert) toast("👨‍✈️ Mission failed!");
+      if (alert) toast.error("👨‍✈️ Mission failed!");
       console.log(err);
-      // if (err.response?.status === 401) navigate("/authen", { replace: true });
 
       throw err.response;
-      // return err;
     });
 };
 

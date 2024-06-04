@@ -1,4 +1,4 @@
-import { Tooltip } from "antd";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HttpRequest } from "../../common/Utility";
@@ -33,9 +33,7 @@ const Login = ({ reference }) => {
   };
 
   const reset = () => {
-    setUsername("");
-    setPassword("");
-    setError(undefined);
+    // setError(undefined);
     refUsername.current.reset();
     refPassword.current.reset();
   };
@@ -48,41 +46,47 @@ const Login = ({ reference }) => {
   const [processing, setProcessing] = useState(false);
   const refUsername = useRef();
   const refPassword = useRef();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState();
 
-  const signin = () => {
-    if (username === "" && password === "") return;
+  const signinMutation = useMutation({
+    mutationKey: "signin",
+    mutationFn: () => {
+      if (refUsername.current.value === "" && refUsername.current.value === "")
+        throw new Error("");
 
-    setProcessing(true);
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_LOGIN,
-      data: {
-        Username: username,
-        Password: password,
-      },
-    })
-      .then((res) => {
-        // setError(undefined);
-        login(res.headers.access_token);
-        // navigate("/", { replace: true });
-        setTimeout(() => {
-          navigate("/", { replace: true });
-        }, 700);
-      })
-      .catch((err) => {
-        setProcessing(false);
-        if (err.status === 401)
-          setError("Username or Password invalid. Try again");
+      // setProcessing(true);
+      return HttpRequest({
+        method: "post",
+        url: import.meta.env.VITE_ENDPOINT_SIGNIN,
+        data: {
+          Username: refUsername.current.value,
+          Password: refPassword.current.value,
+        },
+        alert: true,
       });
-  };
+    },
+    onSuccess: (res) => {
+      console.log(res);
+      infoMutation.mutate(res.headers.access_token, res.headers.refresh_token);
+    },
+  });
+
+  const info = useQuery({
+    queryKey: "info",
+    queryFn: (token, refreshToken) => {
+      return HttpRequest({
+        method: "get",
+        url: import.meta.env.VITE_ENDPOINT_INFO,
+        token: token,
+      });
+    },
+    onSuccess: (res) => {
+      console.log(res);
+    },
+  });
 
   const handlePressKey = (e) => {
-    if (e.keyCode == 13) {
-      signin();
-    }
+    if (e.keyCode == 13) signinMutation.mutate();
   };
 
   const switchLoginFromForgotPassword = () => {
@@ -111,23 +115,15 @@ const Login = ({ reference }) => {
             <div className="flex flex-col">
               <div className="flex flex-col gap-[3rem]">
                 <CustomInput
-                  ref={refUsername}
+                  reference={refUsername}
                   type="text"
                   label="Username"
-                  value={username}
-                  onChange={(text) => {
-                    setUsername(text);
-                  }}
                   onKeyDown={handlePressKey}
                 />
                 <CustomInput
-                  ref={refPassword}
+                  reference={refPassword}
                   type="password"
                   label="Password"
-                  value={password}
-                  onChange={(text) => {
-                    setPassword(text);
-                  }}
                   onKeyDown={handlePressKey}
                 />
               </div>
@@ -141,18 +137,21 @@ const Login = ({ reference }) => {
               >
                 Forgot password?
               </div>
-              <div>
+              {/* <div>
                 <Tooltip title={error}>
                   <div
                     className={`fa fa-exclamation-triangle
           text-[var(--danger-text-color)] ${error === undefined ? "scale-y-0" : "scale-y-100"} `}
                   ></div>
                 </Tooltip>
-              </div>
+              </div> */}
               <CustomButton
                 title="Sign in"
                 className="mt-[2rem]"
-                onClick={signin}
+                // onClick={signin}
+                onClick={() => {
+                  signinMutation.mutate();
+                }}
                 processing={processing}
               />
             </div>

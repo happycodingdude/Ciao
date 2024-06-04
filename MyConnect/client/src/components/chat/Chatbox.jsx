@@ -28,9 +28,9 @@ const Chatbox = (props) => {
   const { refChatbox, toggleInformation } = props;
 
   const auth = useAuth();
+  const { selected } = useFetchConversations();
   const { participants } = useFetchParticipants();
   const { messages, removeLastItem, addNewItem } = useFetchMessages();
-  const { selected } = useFetchConversations();
   const { reFetch: reFetchAttachments } = useFetchAttachments();
   const { profile } = useFetchFriends();
   const { reFetchNotifications } = useFetchNotifications();

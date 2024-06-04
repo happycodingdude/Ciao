@@ -9,15 +9,18 @@ export const AuthProvider = ({ children }) => {
   console.log("AuthProvider rendering");
 
   const navigate = useNavigate();
-  const [token, setToken] = useLocalStorage("token");
-  const [display, setDisplay] = useLocalStorage("display");
   const [id, setId] = useLocalStorage("id");
+  const [display, setDisplay] = useLocalStorage("display");
+  const [token, setToken] = useLocalStorage("token");
+  const [refresh, setRefresh] = useLocalStorage("refresh");
   const [user, setUser] = useState();
+  const [valid, setValid] = useState(false);
 
   useEffect(() => {
     if (token === null) {
-      setDisplay(null);
       setId(null);
+      setDisplay(null);
+      setRefresh(null);
       setUser(null);
       return;
     }
@@ -29,19 +32,14 @@ export const AuthProvider = ({ children }) => {
       controller: controller,
     })
       .then((res) => {
-        // if (res.response?.status === 401) {
-        //   console.log("Unauthen");
-        //   setToken(null);
-        //   return;
-        // }
         setDisplay(res.data.name);
         setId(res.data.id);
         setUser(res.data);
+        setValid(true);
       })
       .catch((err) => {
         if (err?.status === 401) {
-          logout();
-          navigate("/authen", { replace: true });
+          refreshToken();
         }
       });
 
@@ -50,8 +48,25 @@ export const AuthProvider = ({ children }) => {
     };
   }, [token]);
 
-  const login = (newToken) => {
+  const refreshToken = () => {
+    HttpRequest({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_REFRESH,
+      data: {
+        refreshToken: refresh,
+      },
+    })
+      .then((res) => {
+        login(res.data.accessToken, res.data.refreshToken);
+      })
+      .catch((err) => {
+        navigate("/authen", { replace: true });
+      });
+  };
+
+  const login = (newToken, refreshToken) => {
     setToken(newToken);
+    setRefresh(refreshToken);
   };
 
   const logout = () => {
@@ -60,7 +75,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ token, display, id, user, login, logout, setUser }}
+      value={{ token, valid, id, display, user, login, logout, setUser }}
     >
       {children}
     </AuthContext.Provider>

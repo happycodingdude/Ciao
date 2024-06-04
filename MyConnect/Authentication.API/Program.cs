@@ -141,6 +141,7 @@ async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context)
 
         var responseModel = JsonConvert.DeserializeObject<SignInResponse>(responseBody);
         context.Response.Headers.Append("access_token", responseModel.accessToken);
+        context.Response.Headers.Append("refresh_token", responseModel.refreshToken);
 
         // ms.Seek(0, SeekOrigin.Begin);
         // await ms.CopyToAsync(originalBodyStream);

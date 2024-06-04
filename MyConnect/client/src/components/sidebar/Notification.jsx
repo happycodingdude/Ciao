@@ -8,6 +8,7 @@ import {
 import AcceptButton from "../friend/AcceptButton";
 
 const Notification = () => {
+  console.log("Notification rendering");
   const { token } = useAuth();
   const { notifications, setNotifications, reFetchNotifications } =
     useFetchNotifications();

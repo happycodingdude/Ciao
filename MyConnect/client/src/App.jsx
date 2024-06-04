@@ -1,5 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import "./App.css";
 import { RequireAuth } from "./common/Utility";
 import Authentication from "./components/authentication/Authentication";
@@ -14,13 +16,34 @@ function App() {
   useEffect(() => {
     registerSW();
   }, []);
+
+  // Create a client
+  const queryClient = new QueryClient();
+
   return (
-    <Routes>
-      <Route path="/authen" element={<Authentication />} />
-      <Route element={<RequireAuth />}>
-        <Route path="/" element={<HomeContainer />} />
-      </Route>
-    </Routes>
+    // Provide the client to your App
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        <Route path="/authen" element={<Authentication />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/" element={<HomeContainer />} />
+        </Route>
+      </Routes>
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition:Bounce
+      />
+    </QueryClientProvider>
   );
 }
 

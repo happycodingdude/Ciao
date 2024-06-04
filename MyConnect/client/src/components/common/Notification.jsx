@@ -17,7 +17,6 @@ const messaging = getMessaging(app);
 
 export const requestPermission = (
   registerConnection,
-  controller,
   notifyMessage,
 ) => {
   Notification.requestPermission().then((permission) => {
@@ -35,7 +34,7 @@ export const requestPermission = (
               notifyMessage(payload.data);
             });
 
-            registerConnection(token, controller);
+            registerConnection(token);
           } else console.log("Token failed");
         })
         .catch((err) => {

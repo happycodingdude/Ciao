@@ -13,7 +13,7 @@ export const FriendProvider = ({ children }) => {
   const [request, setRequest] = useState();
 
   const getFriends = useCallback(
-    (controller = new AbortController()) => {
+    () => {
       HttpRequest({
         method: "get",
         url: import.meta.env.VITE_ENDPOINT_FRIEND_GETALLBYCONTACTID.replace(
@@ -21,7 +21,6 @@ export const FriendProvider = ({ children }) => {
           auth.id,
         ),
         token: auth.token,
-        controller: controller,
       }).then((res) => {
         setFriends(res.data);
       });

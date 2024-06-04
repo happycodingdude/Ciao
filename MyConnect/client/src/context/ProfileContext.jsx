@@ -18,7 +18,7 @@ export const ProfileProvider = ({ children }) => {
         method: "get",
         url: import.meta.env.VITE_ENDPOINT_INFO,
         token: auth.token,
-        header: { Data: "full" },
+        // header: { Data: "full" },
         controller: controller,
       }).then((res) => {
         setProfile(res.data);

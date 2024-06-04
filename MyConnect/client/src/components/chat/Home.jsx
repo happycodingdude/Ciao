@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ToastContainer } from "react-toastify";
 import { HttpRequest } from "../../common/Utility";
-import { AttachmentProvider } from "../../context/AttachmentContext";
-import { ConversationProvider } from "../../context/ConversationContext";
 import { FriendProvider } from "../../context/FriendContext";
-import { MessageProvider } from "../../context/MessageContext";
-import { NotificationProvider } from "../../context/NotificationContext";
-import { ParticipantProvider } from "../../context/ParticipantContext";
 import { ProfileProvider } from "../../context/ProfileContext";
 import {
   useAuth,
@@ -24,21 +18,9 @@ import { ChatSection } from "./ChatSection";
 export const HomeContainer = () => {
   return (
     <ErrorBoundary>
-      <NotificationProvider>
-        <ProfileProvider>
-          <FriendProvider>
-            <ConversationProvider>
-              <MessageProvider>
-                <ParticipantProvider>
-                  <AttachmentProvider>
-                    <Home></Home>
-                  </AttachmentProvider>
-                </ParticipantProvider>
-              </MessageProvider>
-            </ConversationProvider>
-          </FriendProvider>
-        </ProfileProvider>
-      </NotificationProvider>
+      <FriendProvider>
+        <Home></Home>
+      </FriendProvider>
     </ErrorBoundary>
   );
 };
@@ -96,12 +78,12 @@ export const Home = () => {
     }
   };
 
-  const registerConnection = (token, controller) => {
+  const registerConnection = (token) => {
     HttpRequest({
       method: "post",
       url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER,
       token: auth.token,
-      controller: controller,
+      // controller: controller,
       data: {
         Id: auth.id,
         Token: token,
@@ -110,10 +92,10 @@ export const Home = () => {
   };
 
   useEffect(() => {
-    const controller = new AbortController();
+    if (!auth.valid) return;
 
-    reFetchFriends(controller);
-    requestPermission(registerConnection, controller, notifyMessage);
+    reFetchFriends();
+    requestPermission(registerConnection, notifyMessage);
 
     // listenNotification((message) => {
     //   console.log("Home receive message from worker");
@@ -126,10 +108,10 @@ export const Home = () => {
     //       break;
     //   }
     // });
-    return () => {
-      controller.abort();
-    };
-  }, []);
+    // return () => {
+    //   controller.abort();
+    // };
+  }, [auth.valid]);
 
   return (
     <div
@@ -146,23 +128,14 @@ export const Home = () => {
             chat: (
               <ChatSection refListChat={refListChat} refChatbox={refChatbox} />
             ),
-            profile: <ProfileSection />,
+            profile: (
+              <ProfileProvider>
+                <ProfileSection />
+              </ProfileProvider>
+            ),
           }[page]
         }
       </div>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition:Bounce
-      />
     </div>
   );
 };

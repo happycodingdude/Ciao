@@ -1,22 +1,24 @@
 import { useEffect, useRef } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { useFetchProfile } from "../../hook/CustomHooks";
+import { useAuth, useFetchProfile } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import MediaPicker from "../common/MediaPicker";
 
-const ProfileSection = (props) => {
+const ProfileSection = () => {
+  const { valid } = useAuth();
   const { profile, setProfile, chooseAvatar, updateProfile, reFetch } =
     useFetchProfile();
   const profileContainer = useRef();
 
   useEffect(() => {
+    if (!valid) return;
     const controller = new AbortController();
     reFetch(controller);
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [valid]);
 
   return (
     <div
@@ -72,7 +74,7 @@ const ProfileSection = (props) => {
         onClick={() => {
           updateProfile();
         }}
-      />      
+      />
     </div>
   );
 };

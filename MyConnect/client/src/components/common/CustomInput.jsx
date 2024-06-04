@@ -1,27 +1,24 @@
-import { Tooltip } from "antd";
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useRef
-} from "react";
+import React, { useRef } from "react";
 
-const CustomInput = forwardRef(
-  ({ type, value, label, error, onChange, onKeyDown }, ref) => {
+const CustomInput =
+  // forwardRef(
+  ({ type, value, label, error, onChange, onKeyDown, reference }) => {
     const refInput = useRef();
     const refPlaceHolder = useRef();
     const refBorder = useRef();
     // const refError = useRef();
 
-    useImperativeHandle(ref, () => ({
-      reset() {
-        refPlaceHolder.current.setAttribute("data-focus", "false");
-        refBorder.current.setAttribute("data-focus", "false");
-      },
-    }));
+    // useImperativeHandle(ref, () => ({
+    //   reset() {
+    //     refPlaceHolder.current.setAttribute("data-focus", "false");
+    //     refBorder.current.setAttribute("data-focus", "false");
+    //   },
+    // }));
 
     const handleInputChange = (e) => {
-      if (onChange === undefined) return;
-      onChange(e.target.value);
+      // if (onChange === undefined) return;
+      // onChange(e.target.value);
+      reference.current = e.target.value;
     };
 
     const handleFocus = (e, focus) => {
@@ -48,9 +45,9 @@ const CustomInput = forwardRef(
           className="w-[99%] border-[.1rem] border-[var(--sub-color)] !border-b-[var(--border-color)] p-[1rem] outline-none 
           transition-all duration-200"
           type={type}
-          ref={refInput}
-          value={value}
-          onChange={handleInputChange}
+          ref={reference}
+          // value={value}
+          // onChange={handleInputChange}
           onFocus={(e) => handleFocus(e, true)}
           onBlur={(e) => handleFocus(e)}
           onKeyDown={onKeyDown}
@@ -72,19 +69,18 @@ const CustomInput = forwardRef(
         >
           {label}
         </p>
-        <Tooltip title={error} color="var(--danger-text-color-light)">
-        <div
-        // ref={refError}
-        // data-error={error === undefined ? 'false' : 'true'}
-          className={`absolute right-[3%] top-[50%] fa fa-exclamation-triangle text-[var(--danger-text-color)] 
-          ${error === undefined ? 'scale-y-0' : 'scale-y-100'}
+        {/* <Tooltip title={error} color="var(--danger-text-color-light)">
+          <div
+            // ref={refError}
+            // data-error={error === undefined ? 'false' : 'true'}
+            className={`fa fa-exclamation-triangle absolute right-[3%] top-[50%] text-[var(--danger-text-color)] 
+          ${error === undefined ? "scale-y-0" : "scale-y-100"}
           `}
-        >
-        </div>
-        </Tooltip>
+          ></div>
+        </Tooltip> */}
       </div>
     );
-  },
-);
+  };
+// );
 
 export default CustomInput;

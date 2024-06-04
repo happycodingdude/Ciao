@@ -14,28 +14,24 @@ export const ConversationProvider = ({ children }) => {
   const [conversations, setConversations] = useState();
   const [selected, setSelected] = useState();
 
-  const getConversations = useCallback(
-    (controller = new AbortController()) => {
-      HttpRequest({
-        method: "get",
-        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETWITHPAGING.replace(
-          "{page}",
-          page,
-        ).replace("{limit}", limit),
-        token: auth.token,
-        controller: controller,
-      }).then((res) => {
-        const filterConversations = res.data.filter((item) =>
-          item.participants.some(
-            (participant) =>
-              participant.contactId === auth.id && !participant.isDeleted,
-          ),
-        );
-        setConversations(filterConversations);
-      });
-    },
-    [auth.token],
-  );
+  const getConversations = useCallback(() => {
+    HttpRequest({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETWITHPAGING.replace(
+        "{page}",
+        page,
+      ).replace("{limit}", limit),
+      token: auth.token,
+    }).then((res) => {
+      const filterConversations = res.data.filter((item) =>
+        item.participants.some(
+          (participant) =>
+            participant.contactId === auth.id && !participant.isDeleted,
+        ),
+      );
+      setConversations(filterConversations);
+    });
+  }, [auth.token]);
 
   const newMessage = useCallback(
     (message) => {

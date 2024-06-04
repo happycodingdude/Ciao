@@ -1,9 +1,27 @@
+POST  http://localhost:4100/api/users/signup
+Content-Type: application/json
+
+{
+    "Name": "Tri Nguyen",
+    "Username": "trint",
+    "Password": "Qwerty@123"
+}
+
+###
 POST  http://localhost:4100/api/users/signin
 Content-Type: application/json
 
 {
     "Username":"trint",
     "Password":"Qwerty@123"
+}
+
+###
+POST  http://localhost:4100/api/users/refresh
+Content-Type: application/json
+
+{
+    "refreshToken":"CfDJ8CPzuFnSsq5PudvkkW85E9SblOfeujQS1s_AIQdsV7rLKQffXGuP227oShdjDlEkDdkEmnE2z_RQ-c7-C-8ZCCpeB3IkiUd9ZBf5T6PmsVQLNRMmVc5fV3ZbXc1WNIfACgAy3nMINSJyD5DLKo-mqiCuLguZ2zLLiNRWLetMV-3B-83m2CQKmAUv5DbOsjN9J7rxqRJPCU39dS8RkRuSSSUWsjM5W99-FT0TBlLYaYZrq4FPIA_wZiIgp1qHxvVYW_OKca0ZEC969hV0hHL3KwhwSHR4jGUo-FHpP4OO2D4srq0PMVGIH80P2V0fAiGiPj1JqE01advlOxhLPSwhxWVXHVsNYmpM5j8Sqd5EMwgQG2Hb_MFHAydAeYU4Gl-WRua8ct2EgoCrZSyDO5ljcoh6PkL-adXPIOsO0ExiCNBDdzaUPy8kibBy3U2bZddrfkUFGItA0-b7BTLJhLuww17hPud8p1vYY3gPRapOKjSR2BahGwks3lpuWn2D2hnVKvGOKzGAYqOwfAc1HV3NiM-ucTKk0plz20fsHDQr2cULXV_nwk3KUvFsxKxoAbWu9g"    
 }
 
 ###
