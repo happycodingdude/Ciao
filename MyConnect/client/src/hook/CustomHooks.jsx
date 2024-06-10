@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useContext, useEffect, useState } from "react";
 import { HttpRequest } from "../common/Utility";
 import AttachmentContext from "../context/AttachmentContext";
@@ -17,6 +18,22 @@ export const useLocalStorage = (key) => {
     localStorage.setItem(key, JSON.stringify(value));
   }, [key, value]);
   return [value, setValue];
+};
+
+export const useInfo = () => {
+  const [token, setToken] = useLocalStorage("token");
+  return useQuery({
+    queryKey: ["user", token],
+    queryFn: async () => {
+      const result = await HttpRequest({
+        method: "get",
+        url: import.meta.env.VITE_ENDPOINT_INFO,
+        token: token,
+      });
+      return result.data;
+    },
+    enabled: !!token, // Chỉ kích hoạt query khi có token
+  });
 };
 
 export const useAuth = () => {

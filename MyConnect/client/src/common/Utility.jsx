@@ -1,20 +1,17 @@
 import axios from "axios";
 import React from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../hook/CustomHooks";
-
-// const navigate = useNavigate();
+import { useInfo } from "../hook/CustomHooks";
 
 export const RequireAuth = () => {
-  const { id } = useAuth();
-  const location = useLocation();
+  const { data: info, isLoading } = useInfo();
 
-  return id ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/authen" state={{ from: location }} replace />
-  );
+  if (isLoading) return "Loading...";
+
+  if (!info) return <Navigate to="/authen" replace />;
+
+  return <Outlet />;
 };
 
 export const HttpRequest = ({

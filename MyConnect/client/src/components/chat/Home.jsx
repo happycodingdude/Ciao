@@ -28,7 +28,7 @@ export const HomeContainer = () => {
 export const Home = () => {
   const [page, setPage] = useState("chat");
 
-  const auth = useAuth();
+  // const auth = useAuth();
   const { reFetch: reFetchConversations } = useFetchConversations();
   const { reFetch: reFetchParticipants } = useFetchParticipants();
   const { reFetchRequest, reFetchRequestById, reFetchFriends } =
@@ -78,40 +78,40 @@ export const Home = () => {
     }
   };
 
-  const registerConnection = (token) => {
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER,
-      token: auth.token,
-      // controller: controller,
-      data: {
-        Id: auth.id,
-        Token: token,
-      },
-    });
-  };
+  // const registerConnection = (token) => {
+  //   HttpRequest({
+  //     method: "post",
+  //     url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER,
+  //     token: auth.token,
+  //     // controller: controller,
+  //     data: {
+  //       Id: auth.id,
+  //       Token: token,
+  //     },
+  //   });
+  // };
 
-  useEffect(() => {
-    if (!auth.valid) return;
+  // useEffect(() => {
+  //   if (!auth.valid) return;
 
-    reFetchFriends();
-    requestPermission(registerConnection, notifyMessage);
+  //   reFetchFriends();
+  //   requestPermission(registerConnection, notifyMessage);
 
-    // listenNotification((message) => {
-    //   console.log("Home receive message from worker");
-    //   const messageData = JSON.parse(message.data);
-    //   switch (message.event) {
-    //     case "AddMember":
-    //       console.log(messageData);
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // });
-    // return () => {
-    //   controller.abort();
-    // };
-  }, [auth.valid]);
+  //   // listenNotification((message) => {
+  //   //   console.log("Home receive message from worker");
+  //   //   const messageData = JSON.parse(message.data);
+  //   //   switch (message.event) {
+  //   //     case "AddMember":
+  //   //       console.log(messageData);
+  //   //       break;
+  //   //     default:
+  //   //       break;
+  //   //   }
+  //   // });
+  //   // return () => {
+  //   //   controller.abort();
+  //   // };
+  // }, [auth.valid]);
 
   return (
     <div

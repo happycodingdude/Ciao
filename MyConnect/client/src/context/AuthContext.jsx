@@ -1,6 +1,5 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { HttpRequest } from "../common/Utility";
 import { useLocalStorage } from "../hook/CustomHooks";
 
 const AuthContext = createContext({});
@@ -16,53 +15,53 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
   const [valid, setValid] = useState(false);
 
-  useEffect(() => {
-    if (token === null) {
-      setId(null);
-      setDisplay(null);
-      setRefresh(null);
-      setUser(null);
-      return;
-    }
-    const controller = new AbortController();
-    HttpRequest({
-      method: "get",
-      url: import.meta.env.VITE_ENDPOINT_INFO,
-      token: token,
-      controller: controller,
-    })
-      .then((res) => {
-        setDisplay(res.data.name);
-        setId(res.data.id);
-        setUser(res.data);
-        setValid(true);
-      })
-      .catch((err) => {
-        if (err?.status === 401) {
-          refreshToken();
-        }
-      });
+  // useEffect(() => {
+  //   if (token === null) {
+  //     setId(null);
+  //     setDisplay(null);
+  //     setRefresh(null);
+  //     setUser(null);
+  //     return;
+  //   }
+  //   const controller = new AbortController();
+  //   HttpRequest({
+  //     method: "get",
+  //     url: import.meta.env.VITE_ENDPOINT_INFO,
+  //     token: token,
+  //     controller: controller,
+  //   })
+  //     .then((res) => {
+  //       setDisplay(res.data.name);
+  //       setId(res.data.id);
+  //       setUser(res.data);
+  //       setValid(true);
+  //     })
+  //     .catch((err) => {
+  //       if (err?.status === 401) {
+  //         refreshToken();
+  //       }
+  //     });
 
-    return () => {
-      controller.abort();
-    };
-  }, [token]);
+  //   return () => {
+  //     controller.abort();
+  //   };
+  // }, [token]);
 
-  const refreshToken = () => {
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_REFRESH,
-      data: {
-        refreshToken: refresh,
-      },
-    })
-      .then((res) => {
-        login(res.data.accessToken, res.data.refreshToken);
-      })
-      .catch((err) => {
-        navigate("/authen", { replace: true });
-      });
-  };
+  // const refreshToken = () => {
+  //   HttpRequest({
+  //     method: "post",
+  //     url: import.meta.env.VITE_ENDPOINT_REFRESH,
+  //     data: {
+  //       refreshToken: refresh,
+  //     },
+  //   })
+  //     .then((res) => {
+  //       login(res.data.accessToken, res.data.refreshToken);
+  //     })
+  //     .catch((err) => {
+  //       navigate("/authen", { replace: true });
+  //     });
+  // };
 
   const login = (newToken, refreshToken) => {
     setToken(newToken);

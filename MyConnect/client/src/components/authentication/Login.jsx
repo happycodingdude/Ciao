@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
+import { useLocalStorage } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import ForgotPassword from "./ForgotPassword";
@@ -11,13 +11,16 @@ const Login = ({ reference }) => {
   console.log("Login calling");
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+
+  const [token, setToken] = useLocalStorage("token");
+  const [refresh, setRefresh] = useLocalStorage("refresh");
 
   const refLoginContainer = useRef();
   const refLoginWrapper = useRef();
   const refLogin = useRef();
   const refForgotPassword = useRef();
 
+  // Transition
   const toggleSignup = () => {
     refLoginContainer.current?.classList.toggle("opacity-0");
     refLoginWrapper.current?.classList.toggle("translate-x-[-150%]");
@@ -46,16 +49,15 @@ const Login = ({ reference }) => {
   const [processing, setProcessing] = useState(false);
   const refUsername = useRef();
   const refPassword = useRef();
-  const [error, setError] = useState();
 
-  const signinMutation = useMutation({
-    mutationKey: "signin",
-    mutationFn: () => {
+  const { mutate: signin } = useMutation({
+    mutationKey: ["signin"],
+    mutationFn: async () => {
       if (refUsername.current.value === "" && refUsername.current.value === "")
-        throw new Error("");
+        return;
 
-      // setProcessing(true);
-      return HttpRequest({
+      setProcessing(true);
+      const result = await HttpRequest({
         method: "post",
         url: import.meta.env.VITE_ENDPOINT_SIGNIN,
         data: {
@@ -64,34 +66,30 @@ const Login = ({ reference }) => {
         },
         alert: true,
       });
+      return result.headers;
     },
     onSuccess: (res) => {
-      console.log(res);
-      infoMutation.mutate(res.headers.access_token, res.headers.refresh_token);
+      setToken(res.access_token);
+      setRefresh(res.refresh_token);
+      setTimeout(() => {
+        setProcessing(false);
+        navigate("/", { replace: true });
+      }, 1000);
+    },
+    onError: (error) => {
+      setTimeout(() => {
+        setProcessing(false);
+      }, 500);
     },
   });
-
-  const info = useQuery({
-    queryKey: "info",
-    queryFn: (token, refreshToken) => {
-      return HttpRequest({
-        method: "get",
-        url: import.meta.env.VITE_ENDPOINT_INFO,
-        token: token,
-      });
-    },
-    onSuccess: (res) => {
-      console.log(res);
-    },
-  });
-
-  const handlePressKey = (e) => {
-    if (e.keyCode == 13) signinMutation.mutate();
-  };
 
   const switchLoginFromForgotPassword = () => {
     refLoginWrapper.current.setAttribute("data-state", "show");
     reset();
+  };
+
+  const handlePressKey = (e) => {
+    if (e.keyCode == 13) signin();
   };
 
   return (
@@ -150,7 +148,7 @@ const Login = ({ reference }) => {
                 className="mt-[2rem]"
                 // onClick={signin}
                 onClick={() => {
-                  signinMutation.mutate();
+                  signin();
                 }}
                 processing={processing}
               />
