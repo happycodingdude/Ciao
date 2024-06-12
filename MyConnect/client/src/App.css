@@ -27,7 +27,8 @@
   --shadow-color-blur: #80808048;
   --border-color: #d1d5db;
   --icon-text-color: gray;
-  --portal-bg-color: #0000009c;
+  /* --portal-bg-color: #0000009c; */
+  --portal-bg-color: #ffffffb7;
   --search-bg-color: #f3f4f6;
 }
 
@@ -107,5 +108,19 @@ body,
 
   .error-show {
     @apply !scale-x-100;
+  }
+
+  .waving-text{
+    animation: waving-text 1.3s both infinite;
+    animation-delay: calc(.1s * var(--i));    
+  }
+
+  @keyframes waving-text {
+    0%,40%,100% {
+      transform: translateY(0)
+    }
+    20% {
+      transform: translateY(-2rem)
+    }
   }
 }

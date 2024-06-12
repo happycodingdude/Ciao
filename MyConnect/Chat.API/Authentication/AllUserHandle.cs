@@ -22,8 +22,12 @@ public class AllUserHandle : AuthorizationHandler<AllUserRequirement>
             var client = _clientFactory.CreateClient(Constants.HttpClient_Auth);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.GetAsync(Constants.ApiRoute_User + Constants.ApiEndpoint_Token);
+
+            Console.WriteLine(response.IsSuccessStatusCode);
+
             response.EnsureSuccessStatusCode();
 
+            Console.WriteLine("Authenticate successfully");
             var content = await response.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<AppUser>(content);
             _httpContextAccessor.HttpContext.Session.SetString("UserId", user.id);

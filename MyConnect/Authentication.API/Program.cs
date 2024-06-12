@@ -129,7 +129,7 @@ async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context)
         context.Response.Body = ms;
 
         manager.AuthenticationScheme = IdentityConstants.BearerScheme;
-        await manager.PasswordSignInAsync(model.Username, model.Password, false, lockoutOnFailure: true);
+        await manager.PasswordSignInAsync(model.Username, model.Password, false, lockoutOnFailure: false);
 
         ms.Seek(0, SeekOrigin.Begin);
         var responseBody = new StreamReader(ms).ReadToEnd();

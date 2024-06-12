@@ -1,21 +1,81 @@
+import { useMutation } from "@tanstack/react-query";
+import ErrorBoundary from "antd/es/alert/ErrorBoundary";
 import React, { useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { FriendProvider } from "../../context/FriendContext";
 import { ProfileProvider } from "../../context/ProfileContext";
 import {
-  useAuth,
   useFetchConversations,
   useFetchFriends,
   useFetchNotifications,
   useFetchParticipants,
+  useInfo,
 } from "../../hook/CustomHooks";
-import ErrorBoundary from "../common/ErrorBoundary";
-import { requestPermission } from "../common/Notification";
+import Authentication from "../authentication/Authentication";
 import ProfileSection from "../profile-new/ProfileSection";
 import SideBar from "../sidebar/SideBar";
 import { ChatSection } from "./ChatSection";
 
 export const HomeContainer = () => {
+  console.log("HomeContainer calling");
+  // const queryClient = useQueryClient();
+
+  // const [token, setToken] = useLocalStorage("token");
+  // const [refresh, setRefresh] = useLocalStorage("refresh");
+
+  const { data: info, isLoading, error } = useInfo();
+  // const { setLoading } = useLoading();
+
+  // const refetch = (newToken, newRefresh) => {
+  //   setToken(newToken);
+  //   setRefresh(newRefresh);
+  //   if (newToken) {
+  //     setTimeout(() => {
+  //       queryClient.invalidateQueries(["info"]);
+  //     }, 500);
+  //   }
+  // };
+
+  // const [refreshInProcess, setRefreshInProcess] = useState(false);
+  // const { mutate: refreshToken } = useMutation({
+  //   mutationFn: async () => {
+  //     return (
+  //       await HttpRequest({
+  //         method: "post",
+  //         url: import.meta.env.VITE_ENDPOINT_REFRESH,
+  //         data: {
+  //           refreshToken: refresh,
+  //         },
+  //       })
+  //     ).data;
+  //   },
+  //   onSuccess: (res) => {
+  //     setRefreshInProcess(false);
+  //     refetch(res.accessToken, res.refreshToken);
+  //   },
+  // });
+
+  if (isLoading) {
+    // setLoading(true);
+    return;
+    // } else if (error?.status === 401 && !refreshInProcess) {
+    //   setRefreshInProcess(true);
+    //   refreshToken();
+    //   return;
+  }
+  // else if (error?.status === 401) {
+  //   // RefreshToken(refresh, refetch)
+  //   // return "Unauthenticated...";
+  //   // return <RefreshToken token={refresh} refetch={refetch} />;
+  //   return <Authentication refetch={refetch} />;
+  // }
+  else if (!info) {
+    // setLoading(false);
+    return <Authentication />;
+  } else {
+    // setLoading(false);
+  }
+
   return (
     <ErrorBoundary>
       <FriendProvider>
@@ -23,6 +83,30 @@ export const HomeContainer = () => {
       </FriendProvider>
     </ErrorBoundary>
   );
+};
+
+const RefreshToken = (props) => {
+  console.log("RefreshToken calling");
+  const { token, refetch } = props;
+  const { mutate: refresh } = useMutation({
+    mutationFn: async () => {
+      return (
+        await HttpRequest({
+          method: "post",
+          url: import.meta.env.VITE_ENDPOINT_REFRESH,
+          data: {
+            refreshToken: token,
+          },
+        })
+      ).data;
+    },
+    onSuccess: (res) => {
+      refetch(res.accessToken, res.refreshToken);
+    },
+  });
+  useEffect(() => {
+    refresh();
+  }, [token]);
 };
 
 export const Home = () => {

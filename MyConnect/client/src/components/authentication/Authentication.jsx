@@ -1,14 +1,10 @@
 import React, { useRef } from "react";
-import { Navigate } from "react-router-dom";
-import { useLocalStorage } from "../../hook/CustomHooks";
+import { LoadingProvider } from "../../context/LoadingContext";
 import Login from "./Login";
 import Signup from "./Signup";
 
-const Authentication = () => {
+const Authentication = (props) => {
   console.log("Authentication calling");
-
-  const [token] = useLocalStorage("token");
-  if (token) return <Navigate to="/" replace />;
 
   const refBgContainer = useRef();
   const refBgSignUpLabelContainer = useRef();
@@ -58,7 +54,10 @@ const Authentication = () => {
             before:absolute before:bottom-0 before:left-0 before:right-0 before:top-0
             before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]"
         ></div>
-        <Login reference={{ refLogin }} />
+
+        <LoadingProvider>
+          <Login />
+        </LoadingProvider>
         <Signup reference={{ refSignup, toggleLogin }}></Signup>
 
         <div

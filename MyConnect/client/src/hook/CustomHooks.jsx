@@ -5,6 +5,7 @@ import AttachmentContext from "../context/AttachmentContext";
 import AuthContext from "../context/AuthContext";
 import ConversationContext from "../context/ConversationContext";
 import FriendContext from "../context/FriendContext";
+import LoadingContext from "../context/LoadingContext";
 import MessageContext from "../context/MessageContext";
 import NotificationContext from "../context/NotificationContext";
 import ParticipantContext from "../context/ParticipantContext";
@@ -12,27 +13,31 @@ import ProfileContext from "../context/ProfileContext";
 
 export const useLocalStorage = (key) => {
   const [value, setValue] = useState(() => {
-    return JSON.parse(localStorage.getItem(key));
+    return localStorage.getItem(key);
   });
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
+    if (!value) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
   }, [key, value]);
   return [value, setValue];
 };
 
+const getInfo = async () => {
+  return (
+    await HttpRequest({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_INFO,
+      token: localStorage.getItem("token"),
+    })
+  ).data;
+};
+
 export const useInfo = () => {
-  const [token, setToken] = useLocalStorage("token");
+  // console.log("token: " + token);
   return useQuery({
-    queryKey: ["user", token],
-    queryFn: async () => {
-      const result = await HttpRequest({
-        method: "get",
-        url: import.meta.env.VITE_ENDPOINT_INFO,
-        token: token,
-      });
-      return result.data;
-    },
-    enabled: !!token, // Chỉ kích hoạt query khi có token
+    queryKey: ["info"],
+    queryFn: getInfo,
+    // enabled: !!localStorage.getItem("token"), // Chỉ kích hoạt query khi có token,
   });
 };
 
@@ -76,6 +81,10 @@ export const useFetchFriends = () => {
 
 export const useFetchNotifications = () => {
   return useContext(NotificationContext);
+};
+
+export const useLoading = () => {
+  return useContext(LoadingContext);
 };
 
 export const useDeleteChat = () => {

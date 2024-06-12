@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
     "Name": "Tri Nguyen",
-    "Username": "trint",
+    "Username": "trint10",
     "Password": "Qwerty@123"
 }
 
@@ -15,6 +15,14 @@ Content-Type: application/json
     "Username":"trint",
     "Password":"Qwerty@123"
 }
+
+###
+GET  http://localhost:4100/api/users/token
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9RjMKgYZQiVqNeFOspXgm8OyowBZ_NajdYJYn7odVCsHoZViEbwz5A-eCCOCVUCVT0QZq6FUSNSnXv-sFmzIk-ksU6o--xKQhYVXKily6Hq_sWck0RZayD8iM0vnyaTRDHgebxUwvfmmK2_PYeT1jBqAZyx5ZACOvQV8b50nTJRZx90NeLM1JYgp1Q97g8dLvYf3z8_gHt7AYfC7dkUgYKgF3m__KRvqI1UYfx5ESnLPxZZXOhOfNks0W6IK6YZ8XmzZan_3xeJLSVnJs5X8xhpwrL8OQnDBy9CK7teDNsbfRblIOXsZIDee_As-cM0PViWS0iZKbGOaknF1TR8ymzJxbsiCr0pgeOKGw4cNo1q5PRzgmtteCurseby8JDTGTrD1Eu6RoL90w7g3A4dMbweYrj5RzHYMrZRrMvUfwxohIlafW3pLDC72218QgPfo5Qt6mxkDuQ2bLrw5VfSBIi90l5DjdwSlhj2qF66GHo_Ui5WSS2hTxgbZv3DDNHnhdyXEGHAWNVNbIYkw-M65qmL3mwCcjH-HC9KXHxtI_izLg
+
+###
+GET  http://localhost:4000/api/contacts/info
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SQwQH_HJzPiRmk2MHIw2gsuDdDW3bvLd0zR_Ju0S6y1IZRshTrvUJ5O3rnTSDWXYRV0rUkTnU-_q7WuzK_01P8L7cxdMLXOnaFQmYrpFwAD82HuSPI5rb5yycN93S9sEh6OdwXSGVssPYCzqWOHwBKvyIANxyc5CndBCBTSjsuBh4r7qMjn2XsWTPsGUGmYEhAY93t_jxj-XreKhcccbze_egjM0i3K5BVAZXD9dTtoimtPI7blJnZV_CJuz1h2hc-4iotbP1y-fIcTosgCg3d_lti_0bMtl0sDk7agGYRKNLdY2hfZjxAf6_AmRKA4aviYVZzUAqg3bCds15tROSvSKxTYfJssHgmEW-tbEP99NbMxRzCXUKj25sawQRZowObM78l7RIN8T62DDgYwlIpT8lgJ7epIuBGGaaCopQARoCbEaMLCUwHELNZqVcbvZN3SQ4xFbIonHesJV837MTEHUclPZy-U_VDb2fay15VtU2MXtiIT0sZrNh9h03i7yDjIpWdMrTSZRI1KOOPSFQ1
 
 ###
 POST  http://localhost:4100/api/users/refresh

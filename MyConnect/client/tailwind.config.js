@@ -297,6 +297,14 @@ export default {
             "z-index": 10,
           },
         },
+        "waving-text": {
+          "0%,40%,100%": {
+            transform: "translateY(0)",
+          },
+          "20%": {
+            transform: "translateY(-7rem)",
+          },
+        },
       },
       animation: {
         // "login-hide": "login-hide 1s linear 1",
@@ -318,13 +326,25 @@ export default {
   },
   plugins: [
     plugin(function ({ matchUtilities, theme }) {
+      // matchUtilities(
+      //   {
+      //     "text-shadow": (value) => ({
+      //       textShadow: value,
+      //     }),
+      //   },
+      //   { values: theme("textShadow") },
+      // );
       matchUtilities(
         {
-          "text-shadow": (value) => ({
-            textShadow: value,
-          }),
+          "animation-delay": (value) => {
+            return {
+              "animation-delay": value,
+            };
+          },
         },
-        { values: theme("textShadow") },
+        {
+          values: theme("transitionDelay"),
+        },
       );
     }),
   ],

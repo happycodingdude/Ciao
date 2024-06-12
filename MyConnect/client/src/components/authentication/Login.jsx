@@ -1,24 +1,30 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { HttpRequest } from "../../common/Utility";
-import { useLocalStorage } from "../../hook/CustomHooks";
+import { useLoading, useLocalStorage } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import ForgotPassword from "./ForgotPassword";
 
-const Login = ({ reference }) => {
+const Login = (props) => {
   console.log("Login calling");
 
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [token, setToken] = useLocalStorage("token");
   const [refresh, setRefresh] = useLocalStorage("refresh");
+  useEffect(() => {
+    setToken(null);
+    setRefresh(null);
+  }, []);
 
+  const { setLoading } = useLoading();
   const refLoginContainer = useRef();
   const refLoginWrapper = useRef();
   const refLogin = useRef();
   const refForgotPassword = useRef();
+  const [error, setError] = useState();
 
   // Transition
   const toggleSignup = () => {
@@ -36,50 +42,45 @@ const Login = ({ reference }) => {
   };
 
   const reset = () => {
-    // setError(undefined);
     refUsername.current.reset();
     refPassword.current.reset();
   };
 
   useEffect(() => {
-    reference.refLogin.toggleSignup = toggleSignup;
-    reference.refLogin.toggleLogin = toggleLogin;
+    // reference.refLogin.toggleSignup = toggleSignup;
+    // reference.refLogin.toggleLogin = toggleLogin;
   }, [toggleSignup, toggleLogin]);
 
-  const [processing, setProcessing] = useState(false);
   const refUsername = useRef();
   const refPassword = useRef();
 
   const { mutate: signin } = useMutation({
-    mutationKey: ["signin"],
     mutationFn: async () => {
       if (refUsername.current.value === "" && refUsername.current.value === "")
         return;
 
-      setProcessing(true);
-      const result = await HttpRequest({
-        method: "post",
-        url: import.meta.env.VITE_ENDPOINT_SIGNIN,
-        data: {
-          Username: refUsername.current.value,
-          Password: refPassword.current.value,
-        },
-        alert: true,
-      });
-      return result.headers;
+      return (
+        await HttpRequest({
+          method: "post",
+          url: import.meta.env.VITE_ENDPOINT_SIGNIN,
+          data: {
+            Username: refUsername.current.value,
+            Password: refPassword.current.value,
+          },
+          // alert: true,
+        })
+      ).headers;
     },
     onSuccess: (res) => {
       setToken(res.access_token);
       setRefresh(res.refresh_token);
       setTimeout(() => {
-        setProcessing(false);
-        navigate("/", { replace: true });
-      }, 1000);
+        queryClient.invalidateQueries(["info"]);
+      }, 200);
     },
     onError: (error) => {
-      setTimeout(() => {
-        setProcessing(false);
-      }, 500);
+      setLoading(false);
+      setError("Username or password invalid. Try again");
     },
   });
 
@@ -89,7 +90,10 @@ const Login = ({ reference }) => {
   };
 
   const handlePressKey = (e) => {
-    if (e.keyCode == 13) signin();
+    if (e.keyCode == 13) {
+      setLoading(true);
+      signin();
+    }
   };
 
   return (
@@ -135,22 +139,22 @@ const Login = ({ reference }) => {
               >
                 Forgot password?
               </div>
-              {/* <div>
+              <div>
                 <Tooltip title={error}>
                   <div
                     className={`fa fa-exclamation-triangle
           text-[var(--danger-text-color)] ${error === undefined ? "scale-y-0" : "scale-y-100"} `}
                   ></div>
                 </Tooltip>
-              </div> */}
+              </div>
               <CustomButton
                 title="Sign in"
                 className="mt-[2rem]"
-                // onClick={signin}
                 onClick={() => {
+                  setLoading(true);
                   signin();
                 }}
-                processing={processing}
+                // processing={processing}
               />
             </div>
           </div>
