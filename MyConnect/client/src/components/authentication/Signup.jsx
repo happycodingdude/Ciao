@@ -1,42 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
-// const env = loadEnv("all", process.cwd());
-
-const Signup = ({ reference }) => {
+const Signup = (props) => {
+  const { show, toggle } = props;
   console.log("Signup calling");
 
   const refSignupContainer = useRef();
   const refSignup = useRef();
 
-  const toggleSignup = () => {
-    refSignupContainer.current?.classList.toggle("opacity-0");
-    refSignup.current?.classList.toggle("translate-x-[150%]");
-    reset();
-  };
-
   const reset = () => {
-    setName("");
-    setUsername("");
-    setPassword("");
-    setErrorUsername(undefined);
-    setErrorPassword(undefined);
-    refUsername.current.reset();
-    refPassword.current.reset();
-    refName.current.reset();
+    // setName("");
+    // setUsername("");
+    // setPassword("");
+    // setErrorUsername(undefined);
+    // setErrorPassword(undefined);
+    // refUsername.current.reset();
+    // refPassword.current.reset();
+    // refName.current.reset();
   };
-
-  const toggleLogin = () => {
-    refSignupContainer.current?.classList.toggle("opacity-0");
-    refSignup.current?.classList.toggle("translate-x-[150%]");
-  };
-
-  useEffect(() => {
-    reference.refSignup.toggleSignup = toggleSignup;
-    reference.refSignup.toggleLogin = toggleLogin;
-  }, [toggleSignup, toggleLogin]);
 
   const refName = useRef();
   const refUsername = useRef();
@@ -60,33 +43,42 @@ const Signup = ({ reference }) => {
       },
     };
     HttpRequest(config)
-      .then((res) => {
-        reference.toggleLogin();
-      })
+      .then((res) => {})
       .catch((err) => {
-        if(err.errors.some(error => error.code.toLowerCase().includes('password'))){
-          let errMessage = '';
-          err.errors.map(error => errMessage += error.description += '\n');
+        if (
+          err.errors.some((error) =>
+            error.code.toLowerCase().includes("password"),
+          )
+        ) {
+          let errMessage = "";
+          err.errors.map((error) => (errMessage += error.description += "\n"));
           setErrorPassword(errMessage);
           setErrorUsername(undefined);
-        } else if(err.errors.some(error => error.code.toLowerCase().includes('username'))){
-          let errMessage = '';
-          err.errors.map(error => errMessage += error.description += '\n');
+        } else if (
+          err.errors.some((error) =>
+            error.code.toLowerCase().includes("username"),
+          )
+        ) {
+          let errMessage = "";
+          err.errors.map((error) => (errMessage += error.description += "\n"));
           setErrorUsername(errMessage);
           setErrorPassword(undefined);
-        }       
+        }
       });
   };
 
   return (
+    // <div
+    //   ref={refSignupContainer}
+    //   className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-[var(--bg-color)] opacity-0 transition-all duration-500"
+    // >
     <div
-      ref={refSignupContainer}
-      className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-[var(--bg-color)] opacity-0 transition-all duration-500"
+      ref={refSignup}
+      data-state={show}
+      className="absolute left-0 h-full w-[40%] bg-[var(--bg-color)] transition-all duration-500
+      data-[state=false]:translate-x-[-700%] data-[state=true]:translate-x-0"
     >
-      <div
-        ref={refSignup}
-        className="m-auto flex max-h-[80%] w-[70%] translate-x-[150%] flex-col gap-[5rem] bg-[var(--bg-color)] transition-all duration-500"
-      >
+      <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)]">
         <p className="text-5xl">Create account</p>
 
         <div className="flex flex-col gap-[5rem]">
@@ -126,6 +118,7 @@ const Signup = ({ reference }) => {
         </div>
       </div>
     </div>
+    // </div>
   );
 };
 

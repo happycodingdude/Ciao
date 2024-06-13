@@ -1,20 +1,22 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 
-const ForgotPassword = ({ reference }) => {
+const ForgotPassword = (props) => {
   console.log("ForgotPassword calling");
+  const { show, toggle } = props;
 
   const refForgotPassword = useRef();
 
   const reset = () => {
-    setUsername("");
-    setPassword("");
-    setErrorUsername(undefined);
-    setErrorPassword(undefined);
-    refUsername.current.reset();
-    refPassword.current.reset();
+    // setUsername("");
+    // setPassword("");
+    // setErrorUsername(undefined);
+    // setErrorPassword(undefined);
+    // refUsername.current.reset();
+    // refPassword.current.reset();
+    // refForgotPassword.current.setAttribute("data-state", "false");
   };
 
   const refUsername = useRef();
@@ -42,7 +44,7 @@ const ForgotPassword = ({ reference }) => {
     HttpRequest(config)
       .then((res) => {
         setTimeout(() => {
-          reference.switchLoginFromForgotPassword();
+          toggle();
         }, 300);
       })
       .catch((err) => {
@@ -52,14 +54,12 @@ const ForgotPassword = ({ reference }) => {
       });
   };
 
-  useEffect(() => {
-    reference.refForgotPassword.reset = reset;
-  }, [reset]);
-
   return (
     <div
       ref={refForgotPassword}
-      className="m-auto flex w-full flex-col gap-[5rem] bg-[var(--bg-color)] duration-500"
+      data-state={show}
+      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)] duration-500 
+        data-[state=false]:translate-y-0 data-[state=true]:translate-y-[-100%]"
     >
       <p className="text-5xl">Reset</p>
 
@@ -91,7 +91,10 @@ const ForgotPassword = ({ reference }) => {
         <CustomButton title="Reset" onClick={resetPassword} />
         <div
           className="cursor-pointer text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
-          onClick={reference.switchLoginFromForgotPassword}
+          onClick={() => {
+            reset();
+            toggle();
+          }}
         >
           Back to login
         </div>

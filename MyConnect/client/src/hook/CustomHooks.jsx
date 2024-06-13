@@ -10,6 +10,7 @@ import MessageContext from "../context/MessageContext";
 import NotificationContext from "../context/NotificationContext";
 import ParticipantContext from "../context/ParticipantContext";
 import ProfileContext from "../context/ProfileContext";
+import { getInfo } from "./APIs";
 
 export const useLocalStorage = (key) => {
   const [value, setValue] = useState(() => {
@@ -22,18 +23,7 @@ export const useLocalStorage = (key) => {
   return [value, setValue];
 };
 
-const getInfo = async () => {
-  return (
-    await HttpRequest({
-      method: "get",
-      url: import.meta.env.VITE_ENDPOINT_INFO,
-      token: localStorage.getItem("token"),
-    })
-  ).data;
-};
-
 export const useInfo = () => {
-  // console.log("token: " + token);
   return useQuery({
     queryKey: ["info"],
     queryFn: getInfo,

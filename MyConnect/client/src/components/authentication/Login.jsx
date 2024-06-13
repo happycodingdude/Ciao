@@ -1,16 +1,48 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
+import { login } from "../../hook/APIs";
 import { useLoading, useLocalStorage } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import ForgotPassword from "./ForgotPassword";
 
+export const LoginContainer = (props) => {
+  const { show } = props;
+  const [showLogin, setShowLogin] = useState(true);
+  const [showForgot, setShowFotgot] = useState(false);
+  return (
+    <div
+      data-state={show}
+      className="absolute right-0 flex h-full w-[40%] flex-col justify-center overflow-hidden bg-[var(--bg-color)] transition-all duration-500
+      data-[state=false]:translate-x-[700%] data-[state=true]:translate-x-0"
+    >
+      <div className="relative">
+        <Login
+          show={showLogin}
+          toggle={() => {
+            setShowLogin(false);
+            setShowFotgot(true);
+          }}
+        />
+        <ForgotPassword
+          show={showForgot}
+          toggle={() => {
+            setShowLogin(true);
+            setShowFotgot(false);
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 const Login = (props) => {
   console.log("Login calling");
+  const { show, toggle } = props;
 
   const queryClient = useQueryClient();
+  const { setLoading } = useLoading();
 
   const [token, setToken] = useLocalStorage("token");
   const [refresh, setRefresh] = useLocalStorage("refresh");
@@ -19,58 +51,21 @@ const Login = (props) => {
     setRefresh(null);
   }, []);
 
-  const { setLoading } = useLoading();
-  const refLoginContainer = useRef();
-  const refLoginWrapper = useRef();
-  const refLogin = useRef();
-  const refForgotPassword = useRef();
-  const [error, setError] = useState();
-
-  // Transition
-  const toggleSignup = () => {
-    refLoginContainer.current?.classList.toggle("opacity-0");
-    refLoginWrapper.current?.classList.toggle("translate-x-[-150%]");
-    setTimeout(() => {
-      refLoginWrapper.current.setAttribute("data-state", "show");
-    }, 200);
-  };
-
-  const toggleLogin = () => {
-    refLoginContainer.current?.classList.toggle("opacity-0");
-    refLoginWrapper.current?.classList.toggle("translate-x-[-150%]");
-    reset();
-  };
-
-  const reset = () => {
-    refUsername.current.reset();
-    refPassword.current.reset();
-  };
-
-  useEffect(() => {
-    // reference.refLogin.toggleSignup = toggleSignup;
-    // reference.refLogin.toggleLogin = toggleLogin;
-  }, [toggleSignup, toggleLogin]);
-
   const refUsername = useRef();
   const refPassword = useRef();
+  const refLogin = useRef();
 
-  const { mutate: signin } = useMutation({
-    mutationFn: async () => {
-      if (refUsername.current.value === "" && refUsername.current.value === "")
-        return;
+  const [error, setError] = useState();
+  const [showPassword, setShowPassword] = useState(false);
 
-      return (
-        await HttpRequest({
-          method: "post",
-          url: import.meta.env.VITE_ENDPOINT_SIGNIN,
-          data: {
-            Username: refUsername.current.value,
-            Password: refPassword.current.value,
-          },
-          // alert: true,
-        })
-      ).headers;
-    },
+  const reset = () => {
+    // refLogin.current.setAttribute("data-state", "false");
+    // refUsername.current.reset();
+    // refPassword.current.reset();
+  };
+
+  const { mutate: signinMutation } = useMutation({
+    mutationFn: ({ username, password }) => login(username, password),
     onSuccess: (res) => {
       setToken(res.access_token);
       setRefresh(res.refresh_token);
@@ -84,89 +79,80 @@ const Login = (props) => {
     },
   });
 
-  const switchLoginFromForgotPassword = () => {
-    refLoginWrapper.current.setAttribute("data-state", "show");
-    reset();
+  const signin = () => {
+    if (refUsername.current.value === "" || refPassword.current.value === "")
+      return;
+
+    setLoading(true);
+    signinMutation({
+      username: refUsername.current.value,
+      password: refPassword.current.value,
+    });
   };
 
   const handlePressKey = (e) => {
     if (e.keyCode == 13) {
-      setLoading(true);
       signin();
     }
   };
 
   return (
     <div
-      ref={refLoginContainer}
-      className="absolute right-0 flex h-full w-[40%] justify-center overflow-hidden bg-[var(--bg-color)] transition-all duration-500"
+      ref={refLogin}
+      data-state={show}
+      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)] duration-500 
+      data-[state=false]:translate-y-[-100%] data-[state=true]:translate-y-0"
     >
-      <div
-        ref={refLoginWrapper}
-        data-state="show"
-        className="flex h-full w-[70%] flex-col transition-all duration-500 data-[state=hide]:translate-y-[-100%] 
-        data-[state=show]:translate-y-0"
-      >
-        <div className="flex h-full w-full shrink-0 flex-col">
-          <div
-            ref={refLogin}
-            className="my-auto flex w-full flex-col gap-[5rem] bg-[var(--bg-color)] duration-500"
-          >
-            <p className="text-5xl">Sign in</p>
+      <p className="text-5xl">Sign in</p>
 
-            <div className="flex flex-col">
-              <div className="flex flex-col gap-[3rem]">
-                <CustomInput
-                  reference={refUsername}
-                  type="text"
-                  label="Username"
-                  onKeyDown={handlePressKey}
-                />
-                <CustomInput
-                  reference={refPassword}
-                  type="password"
-                  label="Password"
-                  onKeyDown={handlePressKey}
-                />
-              </div>
-
-              <div
-                className="mt-[1rem] cursor-pointer self-end text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
-                onClick={() => {
-                  refForgotPassword.reset();
-                  refLoginWrapper.current.setAttribute("data-state", "hide");
-                }}
-              >
-                Forgot password?
-              </div>
-              <div>
-                <Tooltip title={error}>
-                  <div
-                    className={`fa fa-exclamation-triangle
-          text-[var(--danger-text-color)] ${error === undefined ? "scale-y-0" : "scale-y-100"} `}
-                  ></div>
-                </Tooltip>
-              </div>
-              <CustomButton
-                title="Sign in"
-                className="mt-[2rem]"
-                onClick={() => {
-                  setLoading(true);
-                  signin();
-                }}
-                // processing={processing}
-              />
-            </div>
+      <div className="flex flex-col">
+        <div className="flex flex-col gap-[3rem]">
+          <CustomInput
+            reference={refUsername}
+            type="text"
+            label="Username"
+            onKeyDown={handlePressKey}
+          />
+          <div className="relative">
+            <CustomInput
+              reference={refPassword}
+              className="pr-20"
+              type={showPassword ? "text" : "password"}
+              label="Password"
+              onKeyDown={handlePressKey}
+            />
+            <div
+              onClick={() => setShowPassword(!showPassword)}
+              className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center 
+              hover:text-[var(--main-color-bold)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
+            ></div>
           </div>
         </div>
-        <div className="flex h-full w-full shrink-0 flex-col">
-          <ForgotPassword
-            reference={{
-              refForgotPassword,
-              switchLoginFromForgotPassword,
-            }}
-          />
+
+        <div
+          className="mt-[1rem] cursor-pointer self-end text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
+          onClick={() => {
+            reset();
+            toggle();
+          }}
+        >
+          Forgot password?
         </div>
+        <div>
+          <Tooltip title={error}>
+            <div
+              className={`fa fa-exclamation-triangle
+          text-[var(--danger-text-color)] ${error === undefined ? "scale-y-0" : "scale-y-100"} `}
+            ></div>
+          </Tooltip>
+        </div>
+        <CustomButton
+          title="Sign in"
+          className="mt-[2rem]"
+          onClick={() => {
+            signin();
+          }}
+        />
       </div>
     </div>
   );
