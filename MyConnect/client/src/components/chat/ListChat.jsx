@@ -2,11 +2,8 @@ import moment from "moment";
 import React, { useEffect, useRef } from "react";
 import {
   useAuth,
-  useFetchAttachments,
+  useConversation,
   useFetchConversations,
-  useFetchFriends,
-  useFetchMessages,
-  useFetchParticipants,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
@@ -17,19 +14,23 @@ const ListChat = (props) => {
   console.log("ListChat calling");
   const { refListChat } = props;
 
+  const { data: conversations, isLoading } = useConversation();
+
+  // if (isLoading) return;
+
   const auth = useAuth();
   const {
-    conversations,
+    // conversations,
     selected,
     setSelected,
     reFetch: reFetchConversations,
     newMessage,
     clickConversation,
   } = useFetchConversations();
-  const { reFetch: reFetchParticipants } = useFetchParticipants();
-  const { reFetch: reFetchMessages } = useFetchMessages();
-  const { reFetch: reFetchAttachments } = useFetchAttachments();
-  const { reFetchProfile, reFetchRequest } = useFetchFriends();
+  // const { reFetch: reFetchParticipants } = useFetchParticipants();
+  // const { reFetch: reFetchMessages } = useFetchMessages();
+  // const { reFetch: reFetchAttachments } = useFetchAttachments();
+  // const { reFetchProfile, reFetchRequest } = useFetchFriends();
 
   const refChatItem = useRef([]);
   const refChats = useRef();
@@ -39,56 +40,56 @@ const ListChat = (props) => {
     setSelected(item);
   };
 
-  useEffect(() => {
-    if (selected === undefined) return;
-    reFetchMessages(selected.id);
-    reFetchParticipants(selected.id);
-    reFetchAttachments(selected.id);
-    clickConversation(selected);
-    // refChats.current.scrollTop = position;
-    if (!selected.isGroup) {
-      reFetchProfile(
-        selected.participants.find((item) => item.contactId !== auth.id)
-          .contactId,
-      );
-      // reFetchRequest(
-      //   selected.participants.find((item) => item.contactId !== auth.id)
-      //     .contactId,
-      // );
-    }
-  }, [selected?.id]);
+  // useEffect(() => {
+  //   if (selected === undefined) return;
+  //   reFetchMessages(selected.id);
+  //   reFetchParticipants(selected.id);
+  //   reFetchAttachments(selected.id);
+  //   clickConversation(selected);
+  //   // refChats.current.scrollTop = position;
+  //   if (!selected.isGroup) {
+  //     reFetchProfile(
+  //       selected.participants.find((item) => item.contactId !== auth.id)
+  //         .contactId,
+  //     );
+  //     // reFetchRequest(
+  //     //   selected.participants.find((item) => item.contactId !== auth.id)
+  //     //     .contactId,
+  //     // );
+  //   }
+  // }, [selected?.id]);
 
   // Get all chats when first time render
+  // useEffect(() => {
+  //   if (!auth.valid) return;
+
+  //   // const controller = new AbortController();
+  //   reFetchConversations();
+
+  //   // listenNotification((message) => {
+  //   //   console.log("Home receive message from worker");
+  //   //   const messageData = JSON.parse(message.data);
+  //   //   switch (message.event) {
+  //   //     case "AddMember":
+  //   //       console.log(messageData);
+  //   //       break;
+  //   //     default:
+  //   //       break;
+  //   //   }
+  //   // });
+  //   // return () => {
+  //   //   controller.abort();
+  //   // };
+  // }, [auth.valid]);
+
   useEffect(() => {
-    if (!auth.valid) return;
+    // refChatItem.current = refChatItem.current.filter((item) => item !== null);
 
-    // const controller = new AbortController();
-    reFetchConversations();
+    // if (refChats.current.scrollHeight <= refChats.current.clientHeight)
+    //   refChatsScroll.current.classList.add("hidden");
+    // else refChatsScroll.current.classList.remove("hidden");
 
-    // listenNotification((message) => {
-    //   console.log("Home receive message from worker");
-    //   const messageData = JSON.parse(message.data);
-    //   switch (message.event) {
-    //     case "AddMember":
-    //       console.log(messageData);
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // });
-    // return () => {
-    //   controller.abort();
-    // };
-  }, [auth.valid]);
-
-  useEffect(() => {
-    refChatItem.current = refChatItem.current.filter((item) => item !== null);
-
-    if (refChats.current.scrollHeight <= refChats.current.clientHeight)
-      refChatsScroll.current.classList.add("hidden");
-    else refChatsScroll.current.classList.remove("hidden");
-
-    refListChat.newMessage = newMessage;
+    // refListChat.newMessage = newMessage;
 
     // listenNotification((message) => {
     //   console.log("ListChat receive message from worker");
@@ -102,6 +103,7 @@ const ListChat = (props) => {
     //       break;
     //   }
     // });
+
 
     moment.locale("en", {
       relativeTime: {

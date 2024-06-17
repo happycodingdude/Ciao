@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
     "Username":"trint",
-    "Password":"Qwerty@123"
+    "Password":"Qwerty@1234"
 }
 
 ###
@@ -30,6 +30,15 @@ Content-Type: application/json
 
 {
     "refreshToken":"CfDJ8CPzuFnSsq5PudvkkW85E9SblOfeujQS1s_AIQdsV7rLKQffXGuP227oShdjDlEkDdkEmnE2z_RQ-c7-C-8ZCCpeB3IkiUd9ZBf5T6PmsVQLNRMmVc5fV3ZbXc1WNIfACgAy3nMINSJyD5DLKo-mqiCuLguZ2zLLiNRWLetMV-3B-83m2CQKmAUv5DbOsjN9J7rxqRJPCU39dS8RkRuSSSUWsjM5W99-FT0TBlLYaYZrq4FPIA_wZiIgp1qHxvVYW_OKca0ZEC969hV0hHL3KwhwSHR4jGUo-FHpP4OO2D4srq0PMVGIH80P2V0fAiGiPj1JqE01advlOxhLPSwhxWVXHVsNYmpM5j8Sqd5EMwgQG2Hb_MFHAydAeYU4Gl-WRua8ct2EgoCrZSyDO5ljcoh6PkL-adXPIOsO0ExiCNBDdzaUPy8kibBy3U2bZddrfkUFGItA0-b7BTLJhLuww17hPud8p1vYY3gPRapOKjSR2BahGwks3lpuWn2D2hnVKvGOKzGAYqOwfAc1HV3NiM-ucTKk0plz20fsHDQr2cULXV_nwk3KUvFsxKxoAbWu9g"    
+}
+
+###
+POST  http://localhost:4100/api/users/forgot
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@1234"
 }
 
 ###
@@ -52,6 +61,30 @@ Content-Type: application/json
             "contactId": "b8ab2c7e-054c-4711-b062-7443488855e9",
             "isNotifying": true,
             "isDeleted": true
+        }
+    ]
+}
+
+###
+
+PATCH   http://localhost:4000/api/notifications/31786e48-2cac-11ef-b352-0242ac110002
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TjRVXY0uDHiE2dxr6lV-RNvId_oNPpi_UKZ9tc3bgUUCG4sScPYnGStXF9WepUBtKaZSAIejozpwYCTVNBnwIMwBZE65pt921f7xMQmyfhJyNzS04Fr1mQZry4nN3gJNWqceB1rCj4jg6JJz7jfJVVMmgZD0Du0jiZRMH8qWfDbiLigZ3IvAYUdLQOZa1nPqNpxhik9S8N-UDBLJ6M7E2GB8hR_vh4C0taYbErd97kGQxSb9cJE72oQNmyhX3xDdw2oDgEfLe-1MrPH-4mQ1gdsCWJB2GKgH2qPfkUsSATf8UwM2GL-sZw32zYBYt_yC2rKMPTp7M6YLKEKtXK7UBkUyM4HxoANaxODn-WHWPe73lGAiZUHv95LxLPGkzSfFogqAXjF54KZ9s6g2JBKOBKMcMKQBPPmBGY7uRA69CW5dZc5fXN9Di6W95QnTIXmyKk21mGQRgZio3I845kjCgDozz0yJGF-uoxcPtip6bHQld95RN4U3k2nM_Act586IPWm_WGef8ZAL-A1guaF-uy2tg9VIDmBS3XJXQX_u6FKA
+Content-Type: application/json
+
+[{"op":"replace","path":"read","value":true}]
+
+###
+
+POST  http://localhost:4000/api/conversations
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QmDn1itN7X1Id504XwONHlgpIuHgpbYboJ_SKGcxwTQuQSh_oO4D4MAarc_FaIjvlKCFKpXh0FjZSWuaZRLqbgPr8xRCCuLoGfjMjGeDylNUPu-IsT-KXLhy2gLEeL3KuAfGrptaMIND7liXhaDmEFJuqBT5t9nRGHi7PzUdProqn1zYc4OZH4Y-D7cCYz2_l_rDH9SBHiNSBGId6RyCkhwRsTVMoY17YeQ_BYOvEAJaZDYXmsP5n1ZNlGYXqPkEFuU6wThSZpz9kMr9J1sMGQv0SM7tUxjJekizNIuWLPPpNvti0C_1TDSaUgmgN9YbK3iTCcEKzl6tmjEilA2xCMzQhgvrx3HoZ7-5XLXwmvEwu_tbVUCHDiNNjKomK7qf5G11Ys5f-h7Dq3Vl_Qxrb8FvsnKSw-7ive_n6jY4nLMrtjDuyAMyjBx9q4f14QqfwNTHRQQmEZ9vJqc_nZsSDDERZ2QRGEtETrKdauUFySMEKYSNYltiYM-nf1FvYTLX21Xr6WNgjf9dS1kElCDDqSYnv1arN3k_nxTtnGOz6UsQ
+Content-Type: application/json
+
+{
+    "title":"Happy coding",
+    "participants": [{
+            "contactId": "6cd0b479-f501-4aed-a033-f390daaff66c",
+            "isNotifying": true,
+            "isModerator": true
         }
     ]
 }

@@ -175,6 +175,15 @@ async (UserManager<AppUser> userManager, ClaimsPrincipal model, HttpContext cont
     return Results.Ok();
 }).RequireAuthorization();
 
+app.MapGroup(Constants.ApiRoute_User).MapPost(Constants.ApiEndpoint_Forgot,
+async (UserManager<AppUser> userManager, SignupRequest model) =>
+{
+    var user = await userManager.FindByNameAsync(model.Username);
+    var token = await userManager.GeneratePasswordResetTokenAsync(user);
+    var result = await userManager.ResetPasswordAsync(user, token, model.Password);
+    return Results.Ok(user);
+});
+
 app.Run();
 
 

@@ -1,25 +1,22 @@
+import { useMutation } from "@tanstack/react-query";
 import React, { useCallback, useRef, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
-import {
-  useAuth,
-  useEventListener,
-  useFetchNotifications,
-} from "../../hook/CustomHooks";
+import { useEventListener, useNotification } from "../../hook/CustomHooks";
+import { read, readAll } from "../../hook/NotificationAPIs";
 import AcceptButton from "../friend/AcceptButton";
 
 const Notification = () => {
-  console.log("Notification rendering");
-  const { token } = useAuth();
-  const { notifications, setNotifications, reFetchNotifications } =
-    useFetchNotifications();
+  console.log("Notification calling");
+
+  const { data: notifications, refetch } = useNotification();
 
   const refNotification = useRef();
   const refNotificationBody = useRef();
+
   const [loaded, setLoaded] = useState(false);
 
   const showNotification = useCallback(() => {
     if (!loaded) {
-      reFetchNotifications();
+      refetch();
       setLoaded(true);
       refNotificationBody.current.scrollTop = 0;
     }
@@ -46,68 +43,32 @@ const Notification = () => {
   }, []);
   useEventListener("keydown", hideNotificationOnKey);
 
-  const read = (e, notification) => {
-    if (notification.read) return;
-    const isClickOnButton =
-      Array.from(e.target.classList).includes("button-title") ||
-      Array.from(e.target.classList).includes("accept-button");
-    const body = [
-      {
-        op: "replace",
-        path: "read",
-        value: true,
-      },
-    ];
+  const { mutate: readMutation } = useMutation({
+    mutationFn: ({ id }) => read(id),
+    onSuccess: (res) => {
+      refetch();
+    },
+  });
 
-    HttpRequest({
-      method: "patch",
-      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GETBYID.replace(
-        "{id}",
-        notification.id,
-      ),
-      token: token,
-      data: body,
-    }).then((res) => {
-      setNotifications((current) => {
-        return current.map((item) => {
-          if (item.id === notification.id) item.read = true;
-          if (isClickOnButton) item.sourceData = null;
-          return item;
-        });
-      });
+  const readCTA = (e, notification) => {
+    if (notification.read) return;
+    readMutation({
+      id: notification.id,
     });
   };
 
-  const readAll = () => {
-    if (notifications.some((item) => !item.read)) {
-      const body = notifications
-        .filter((item) => !item.Read)
-        .map((item) => {
-          return {
-            id: item.id,
-            patchDocument: [
-              {
-                op: "replace",
-                path: "read",
-                value: true,
-              },
-            ],
-          };
-        });
-      HttpRequest({
-        method: "patch",
-        url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_BULKEDIT,
-        token: token,
-        data: body,
-      }).then((res) => {
-        setNotifications((current) => {
-          return current.map((item) => {
-            item.read = true;
-            return item;
-          });
-        });
-      });
-    }
+  const { mutate: readAllMutation } = useMutation({
+    mutationFn: ({ ids }) => readAll(ids),
+    onSuccess: (res) => {
+      refetch();
+    },
+  });
+
+  const readAllCTA = () => {
+    if (!notifications.some((item) => !item.read)) return;
+    readAllMutation({
+      ids: notifications.filter((item) => !item.Read).map((item) => item.id),
+    });
   };
 
   return (
@@ -115,7 +76,6 @@ const Notification = () => {
       className="fa fa-bell notification-trigger relative cursor-pointer text-xl font-thin"
       onClick={showNotification}
     >
-      {/* <div className="absolute right-0 top-[-10%] aspect-square w-[1rem] rounded-[50%] bg-red-500"></div> */}
       <div
         ref={refNotification}
         data-state="hide"
@@ -127,7 +87,7 @@ const Notification = () => {
           <p className="notification-body text-md font-bold">Notifications</p>
           <div
             className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color-medium)]"
-            onClick={() => readAll()}
+            onClick={() => readAllCTA()}
           >
             Mark all as read
           </div>
@@ -139,7 +99,7 @@ const Notification = () => {
           {notifications?.map((notification) => (
             <div
               className="notification-body border-b-[var(--border-color) flex cursor-pointer flex-wrap items-center justify-between gap-y-2 border-b-[.1rem] hover:bg-[var(--main-color-thin)]"
-              onClick={(e) => read(e, notification)}
+              onClick={(e) => readCTA(e, notification)}
             >
               <div className="notification-body py-2 font-normal">
                 {notification.content}

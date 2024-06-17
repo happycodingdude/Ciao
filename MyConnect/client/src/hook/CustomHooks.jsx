@@ -10,7 +10,9 @@ import MessageContext from "../context/MessageContext";
 import NotificationContext from "../context/NotificationContext";
 import ParticipantContext from "../context/ParticipantContext";
 import ProfileContext from "../context/ProfileContext";
-import { getInfo } from "./APIs";
+import { getConversation } from "./ConversationAPIs";
+import { getNotification } from "./NotificationAPIs";
+import { getInfo } from "./UserAPIs";
 
 export const useLocalStorage = (key) => {
   const [value, setValue] = useState(() => {
@@ -27,7 +29,24 @@ export const useInfo = () => {
   return useQuery({
     queryKey: ["info"],
     queryFn: getInfo,
-    // enabled: !!localStorage.getItem("token"), // Chỉ kích hoạt query khi có token,
+    staleTime: Infinity,
+  });
+};
+
+export const useNotification = () => {
+  return useQuery({
+    queryKey: ["notification"],
+    queryFn: getNotification,
+    // staleTime: Infinity,
+    enabled: false,
+  });
+};
+
+export const useConversation = () => {
+  return useQuery({
+    queryKey: ["conversation"],
+    queryFn: getConversation,
+    staleTime: Infinity,
   });
 };
 

@@ -1,39 +1,85 @@
-import { useEffect, useRef } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth, useFetchProfile } from "../../hook/CustomHooks";
+import { useInfo } from "../../hook/CustomHooks";
+import { updateInfo } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import MediaPicker from "../common/MediaPicker";
 
 const ProfileSection = () => {
-  const { valid } = useAuth();
-  const { profile, setProfile, chooseAvatar, updateProfile, reFetch } =
-    useFetchProfile();
-  const profileContainer = useRef();
+  console.log("ProfileSection calling");
+
+  const queryClient = useQueryClient();
+  const { data: info, refetch } = useInfo();
+
+  const refName = useRef();
+  const refBio = useRef();
+
+  const [file, setFile] = useState();
+  const [avatar, setAvatar] = useState(info.avatar);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    if (!valid) return;
-    const controller = new AbortController();
-    reFetch(controller);
-    return () => {
-      controller.abort();
-    };
-  }, [valid]);
+    refName.current.value = info.name;
+    refBio.current.value = info.bio;
+  }, [info]);
+
+  const chooseAvatar = (e) => {
+    const chosenFiles = Array.from(e.target.files);
+    if (chosenFiles.length === 0) return;
+
+    setAvatar(URL.createObjectURL(e.target.files?.[0]));
+    setFile(e.target.files?.[0]);
+    e.target.value = null;
+  };
+
+  const { mutate: updateInfoMutation } = useMutation({
+    mutationFn: ({ name, bio, avatar }) =>
+      updateInfo(info.id, name, bio, avatar),
+    onSuccess: (res) => {
+      setProcessing(false);
+      // queryClient.invalidateQueries(["info"]);
+      refetch();
+    },
+  });
+
+  const updateInfoCTA = async () => {
+    setProcessing(true);
+
+    let url = "";
+    if (file === undefined) {
+      url = avatar;
+    } else {
+      // Create a root reference
+      const storage = getStorage();
+      url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
+        (snapshot) => {
+          return getDownloadURL(snapshot.ref).then((url) => {
+            return url;
+          });
+        },
+      );
+    }
+    updateInfoMutation({
+      name: refName.current.value,
+      bio: refBio.current.value,
+      avatar: url,
+    });
+  };
 
   return (
-    <div
-      className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]"
-      ref={profileContainer}
-    >
-      <p className="text-xl font-bold">Edit user profile</p>
+    <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
+      <p className="text-xl font-bold">Edit profile</p>
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
         <div className="relative flex w-full">
           <ImageWithLightBoxWithBorderAndShadow
-            src={profile?.avatar ?? ""}
+            src={avatar ?? ""}
             className="aspect-square cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem] laptop:w-[40%]"
             slides={[
               {
-                src: profile?.avatar ?? "",
+                src: avatar ?? "",
               },
             ]}
           />
@@ -47,32 +93,27 @@ const ProfileSection = () => {
         <div className="flex flex-col gap-[.5rem]">
           <p className="[var(--shadow-color-blur)]">Name</p>
           <input
-            value={profile?.name}
+            ref={refName}
             className="rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-medium outline-none transition-all duration-200"
             type="text"
-            onChange={(e) => {
-              setProfile({ ...profile, name: e.target.value });
-            }}
           />
         </div>
         <div className="flex flex-col gap-[.5rem]">
           <p className="[var(--shadow-color-blur)]">Bio</p>
           <textarea
+            ref={refBio}
             rows={4}
-            value={profile?.bio}
             className="hide-scrollbar resize-none rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-medium outline-none transition-all duration-200"
             type="text"
-            onChange={(e) => {
-              setProfile({ ...profile, bio: e.target.value });
-            }}
           />
         </div>
       </div>
       <CustomButton
+        processing={processing}
         title="Save"
         className="!ml-0 h-[10%] !w-[30%]"
         onClick={() => {
-          updateProfile();
+          updateInfoCTA();
         }}
       />
     </div>

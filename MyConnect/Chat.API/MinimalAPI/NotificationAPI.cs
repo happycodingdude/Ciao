@@ -25,6 +25,7 @@ public partial class MinimalAPI
         (INotificationService notificationService, Guid id, JsonElement jsonElement) =>
         {
             var json = jsonElement.GetRawText();
+            Console.WriteLine("json: " + json);
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
             var response = notificationService.Patch(id, patch);
             return Results.Ok(response);

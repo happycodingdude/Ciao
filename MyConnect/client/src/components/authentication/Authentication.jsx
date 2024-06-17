@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
-import { LoadingProvider } from "../../context/LoadingContext";
-import { LoginContainer } from "./Login";
+import LoginContainer from "./LoginContainer";
 import Signup from "./Signup";
 
-const Authentication = (props) => {
+const Authentication = () => {
   console.log("Authentication calling");
 
   const refBgContainer = useRef();
@@ -11,11 +10,9 @@ const Authentication = (props) => {
   const refBgSignInLabelContainer = useRef();
   const refLoginContainer = useRef();
   const refLoginWrapper = useRef();
-  const refLogin = useRef();
-  const refSignup = useRef();
 
   const [showLogin, setShowLogin] = useState(true);
-  const [showSignup, setShowSignup] = useState(true);
+  const [showSignup, setShowSignup] = useState(false);
 
   const toggleBg = () => {
     // Animate background container
@@ -38,28 +35,28 @@ const Authentication = (props) => {
   const toggleSignup = () => {
     toggleBg();
     setShowLogin(false);
+    setShowSignup(true);
   };
 
   const toggleLogin = () => {
     toggleBg();
     setShowLogin(true);
+    setShowSignup(false);
   };
 
   return (
     <div className="flex w-full flex-col bg-[var(--bg-color)] text-[clamp(1rem,1.2vw,2rem)]">
       <section className="relative flex h-full w-full transition-all duration-500">
-        {/* <div
+        <div
           ref={refBgContainer}
           className="absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] rounded-tr-[20rem] 
             bg-[url('images/avatar.jpg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat transition-all duration-500
             before:absolute before:bottom-0 before:left-0 before:right-0 before:top-0
             before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]"
-        ></div> */}
+        ></div>
 
-        <LoadingProvider>
-          <LoginContainer show={showLogin} />
-        </LoadingProvider>
-        <Signup show={showSignup} />
+        <LoginContainer show={showLogin} />
+        <Signup show={showSignup} onSuccess={toggleLogin} />
 
         <div
           ref={refBgSignUpLabelContainer}

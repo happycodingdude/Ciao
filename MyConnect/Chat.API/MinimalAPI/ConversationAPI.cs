@@ -29,7 +29,7 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Conversation).MapPost("/{id}/participants",
-        async (IParticipantService participantService, Guid id, List<ParticipantDto> model, bool includeNotify) =>
+        async (IParticipantService participantService, Guid id, List<ParticipantDto> model, bool includeNotify = false) =>
         {
             var response = await participantService.AddAsync(id, model, includeNotify);
             return Results.Ok(response);
@@ -50,7 +50,7 @@ public partial class MinimalAPI
         }).RequireAuthorization("AllUser");
 
         app.MapGroup(Constants.ApiRoute_Conversation).MapPost("/",
-        async (IConversationService conversationService, ConversationDto model, bool includeNotify) =>
+        async (IConversationService conversationService, ConversationDto model, bool includeNotify = false) =>
         {
             var response = await conversationService.CreateAsync(model, includeNotify);
             return Results.Ok(response);

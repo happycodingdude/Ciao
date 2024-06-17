@@ -1,77 +1,73 @@
-import React, { useRef, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
+import { useMutation } from "@tanstack/react-query";
+import React, { useEffect, useRef, useState } from "react";
+import { useLoading } from "../../hook/CustomHooks";
+import { signup } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
+import ErrorComponent from "../common/ErrorComponent";
 
 const Signup = (props) => {
-  const { show, toggle } = props;
+  const { show, onSuccess } = props;
   console.log("Signup calling");
 
-  const refSignupContainer = useRef();
+  const { setLoading } = useLoading();
+
   const refSignup = useRef();
-
-  const reset = () => {
-    // setName("");
-    // setUsername("");
-    // setPassword("");
-    // setErrorUsername(undefined);
-    // setErrorPassword(undefined);
-    // refUsername.current.reset();
-    // refPassword.current.reset();
-    // refName.current.reset();
-  };
-
   const refName = useRef();
   const refUsername = useRef();
   const refPassword = useRef();
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorUsername, setErrorUsername] = useState();
-  const [errorPassword, setErrorPassword] = useState();
 
-  const signup = () => {
-    if (username === "" || password === "") return;
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
-    const config = {
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_SIGNUP,
-      data: {
-        Name: name,
-        Username: username,
-        Password: password,
-      },
-    };
-    HttpRequest(config)
-      .then((res) => {})
-      .catch((err) => {
-        if (
-          err.errors.some((error) =>
-            error.code.toLowerCase().includes("password"),
-          )
-        ) {
-          let errMessage = "";
-          err.errors.map((error) => (errMessage += error.description += "\n"));
-          setErrorPassword(errMessage);
-          setErrorUsername(undefined);
-        } else if (
-          err.errors.some((error) =>
-            error.code.toLowerCase().includes("username"),
-          )
-        ) {
-          let errMessage = "";
-          err.errors.map((error) => (errMessage += error.description += "\n"));
-          setErrorUsername(errMessage);
-          setErrorPassword(undefined);
-        }
+  const reset = () => {
+    setError("");
+    refName.current.reset();
+    refUsername.current.reset();
+    refPassword.current.reset();
+  };
+
+  useEffect(() => {
+    // Khi toggle ẩn signup thì clear các value đã nhập
+    if (show) reset();
+  }, [show]);
+
+  const { mutate: signupMutation } = useMutation({
+    mutationFn: ({ name, username, password }) =>
+      signup(name, username, password),
+    onSuccess: (res) => {
+      setLoading(false);
+      onSuccess();
+    },
+    onError: (error) => {
+      setLoading(false);
+      let msg = "";
+      error.data.errors.map((message) => {
+        msg += `${message.description} </br>`;
       });
+      console.log(msg);
+      setError(msg);
+    },
+  });
+
+  const signupCTA = () => {
+    if (refUsername.current.value === "" || refPassword.current.value === "")
+      return;
+
+    setLoading(true);
+
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   onSuccess();
+    // }, 2000);
+    signupMutation({
+      name: refName.current.value,
+      username: refUsername.current.value,
+      password: refPassword.current.value,
+    });
   };
 
   return (
-    // <div
-    //   ref={refSignupContainer}
-    //   className="absolute left-0 flex h-full w-[40%] justify-center overflow-hidden bg-[var(--bg-color)] opacity-0 transition-all duration-500"
-    // >
     <div
       ref={refSignup}
       data-state={show}
@@ -81,44 +77,29 @@ const Signup = (props) => {
       <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)]">
         <p className="text-5xl">Create account</p>
 
-        <div className="flex flex-col gap-[5rem]">
-          <div className="flex flex-col gap-[3rem]">
+        <div className="flex flex-col gap-[3rem]">
+          {/* <div className="flex flex-col gap-[3rem]"> */}
+          <CustomInput reference={refName} type="text" label="Name" />
+          <CustomInput reference={refUsername} type="text" label="Username" />
+          <div className="relative">
             <CustomInput
-              ref={refName}
-              type="text"
-              label="Name"
-              value={name}
-              onChange={setName}
-            />
-            <CustomInput
-              ref={refUsername}
-              type="text"
-              label="Username"
-              value={username}
-              error={errorUsername}
-              onChange={(text) => {
-                setUsername(text);
-                if (text === "") setErrorUsername(undefined);
-              }}
-            />
-            <CustomInput
-              ref={refPassword}
-              type="password"
+              reference={refPassword}
+              className="pr-20"
+              type={showPassword ? "text" : "password"}
               label="Password"
-              value={password}
-              error={errorPassword}
-              onChange={(text) => {
-                setPassword(text);
-                if (text === "") setErrorPassword(undefined);
-              }}
             />
+            <div
+              onClick={() => setShowPassword(!showPassword)}
+              className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center 
+              hover:text-[var(--main-color-bold)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
+            ></div>
           </div>
-
-          <CustomButton title="Sign up" onClick={signup} />
+          <ErrorComponent error={error} />
+          {/* </div> */}
+          <CustomButton title="Sign up" onClick={signupCTA} />
         </div>
       </div>
     </div>
-    // </div>
   );
 };
 

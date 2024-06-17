@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
-import { HomeContainer } from "./components/chat/Home";
+import { Home } from "./components/chat/Home";
 import { registerSW } from "./components/common/Notification";
+import { LoadingProvider } from "./context/LoadingContext";
 
 function App() {
   if (typeof setImmediate === "undefined") {
@@ -15,11 +16,14 @@ function App() {
 
   return (
     <>
-      <HomeContainer />
+      <LoadingProvider>
+        {/* <HomeContainer /> */}
+        <Home />
+      </LoadingProvider>
 
       <ToastContainer
         position="bottom-right"
-        autoClose={2000}
+        autoClose={1000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

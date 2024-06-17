@@ -123,4 +123,26 @@ body,
       transform: translateY(-2rem)
     }
   }
+
+  .pulsing{
+    animation: pulsing 1s both infinite;    
+  }
+
+  @keyframes pulsing {
+    0% {
+      transform: scale(1);
+      opacity: 0;
+      /* box-shadow: 0 0 0 0 red; */      
+    }
+    30% {
+      /* transform: scale(1);   */
+      opacity: 1;    
+    }
+    100% {      
+      transform: scale(1.5);
+      opacity: 0;
+      /* transform: scale(0.95); */
+      /* box-shadow: 0 0 .5rem .1rem red; */
+    }
+  }
 }
