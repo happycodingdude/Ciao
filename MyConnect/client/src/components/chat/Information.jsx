@@ -1,17 +1,12 @@
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef } from "react";
-import { HttpRequest } from "../../common/Utility";
 import {
-  useAuth,
-  useDeleteChat,
-  useFetchAttachments,
-  useFetchConversations,
-  useFetchFriends,
-  useFetchParticipants,
+  useAttachment,
+  useInfo,
+  useMessage,
+  useParticipant,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
-import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import MediaPicker from "../common/MediaPicker";
 import AddParticipants from "./AddParticipants";
@@ -20,13 +15,15 @@ const Information = (props) => {
   console.log("Information calling");
   const { refAttachment, refInformationExposed } = props;
 
-  const auth = useAuth();
-  const { selected, setSelected, setConversations } = useFetchConversations();
-  const { participants } = useFetchParticipants();
-  const { displayAttachments } = useFetchAttachments();
-  const { deleteChat } = useDeleteChat();
-  const { removeConversation } = useFetchConversations();
-  const { profile } = useFetchFriends();
+  // const auth = useAuth();
+  // const { selected, setSelected, setConversations } = useFetchConversations();
+  const { data: info } = useInfo();
+  const { data: messages } = useMessage();
+  const { data: participants } = useParticipant();
+  const { data: attachments } = useAttachment();
+  // const { deleteChat } = useDeleteChat();
+  // const { removeConversation } = useFetchConversations();
+  // const { profile } = useFetchFriends();
 
   useEffect(() => {
     refInformationExposed.showInformation = () => {
@@ -44,50 +41,49 @@ const Information = (props) => {
     refInformation.current.classList.remove("animate-flip-scale-down-vertical");
   };
 
-  useEffect(() => {
-    reset();
-  }, [selected.id]);
+  // useEffect(() => {
+  //   reset();
+  // }, [selected.id]);
 
-  const updateAvatar = async (e) => {
-    // Create a root reference
-    const storage = getStorage();
-    const file = e.target.files[0];
-    const url = await uploadBytes(
-      ref(storage, `avatar/${file.name}`),
-      file,
-    ).then((snapshot) => {
-      return getDownloadURL(snapshot.ref).then((url) => {
-        return url;
-      });
-    });
-    const body = [
-      {
-        op: "replace",
-        path: "avatar",
-        value: url,
-      },
-    ];
+  // const updateAvatar = async (e) => {
+  //   // Create a root reference
+  //   const storage = getStorage();
+  //   const file = e.target.files[0];
+  //   const url = await uploadBytes(
+  //     ref(storage, `avatar/${file.name}`),
+  //     file,
+  //   ).then((snapshot) => {
+  //     return getDownloadURL(snapshot.ref).then((url) => {
+  //       return url;
+  //     });
+  //   });
+  //   const body = [
+  //     {
+  //       op: "replace",
+  //       path: "avatar",
+  //       value: url,
+  //     },
+  //   ];
 
-    HttpRequest({
-      method: "patch",
-      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETBYID.replace(
-        "{id}",
-        selected.id,
-      ),
-      token: auth.token,
-      data: body,
-    }).then((res) => {
-      setSelected((current) => ({ ...current, avatar: url }));
-      setConversations((current) => {
-        return current.map((item) => {
-          if (item.id === selected.id) item.avatar = url;
-          return item;
-        });
-      });
-    });
+  //   HttpRequest({
+  //     method: "patch",
+  //     url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETBYID.replace(
+  //       "{id}",
+  //       selected.id,
+  //     ),
+  //     data: body,
+  //   }).then((res) => {
+  //     setSelected((current) => ({ ...current, avatar: url }));
+  //     setConversations((current) => {
+  //       return current.map((item) => {
+  //         if (item.id === selected.id) item.avatar = url;
+  //         return item;
+  //       });
+  //     });
+  //   });
 
-    e.target.value = null;
-  };
+  //   e.target.value = null;
+  // };
 
   const hideInformation = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
@@ -121,10 +117,10 @@ const Information = (props) => {
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               onClick={() => {}}
             /> */}
-            {selected.isGroup ? (
+            {messages.conversation.isGroup ? (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
-                  src={selected.avatar ?? ""}
+                  src={messages.conversation.avatar ?? ""}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   onClick={() => {}}
                 />
@@ -132,11 +128,11 @@ const Information = (props) => {
                   className="absolute left-[42%] top-[-10%]"
                   accept="image/png, image/jpeg"
                   id="conversation-avatar"
-                  onChange={updateAvatar}
+                  // onChange={updateAvatar}
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={selected.title}
+                  title={messages.conversation.title}
                   tooltip
                 />
                 <div className="cursor-pointer text-[var(--text-main-color-blur)]">
@@ -146,23 +142,34 @@ const Information = (props) => {
             ) : (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
-                  src={profile?.avatar ?? ""}
+                  src={
+                    participants?.find(
+                      (item) => item.contactId !== info.data.id,
+                    )?.contact.avatar ?? ""
+                  }
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   slides={[
                     {
-                      src: profile?.avatar ?? "",
+                      src:
+                        participants?.find(
+                          (item) => item.contactId !== info.data.id,
+                        )?.contact.avatar ?? "",
                     },
                   ]}
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={profile?.name}
+                  title={
+                    participants?.find(
+                      (item) => item.contactId !== info.data.id,
+                    )?.contact.name
+                  }
                 />
               </>
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            {selected.isGroup ? (
+            {messages.conversation.isGroup ? (
               <>
                 {/* <ToggleNotification /> */}
                 <AddParticipants />
@@ -175,7 +182,7 @@ const Information = (props) => {
         <div className="flex flex-col gap-[1rem]">
           <div className="flex justify-between">
             <label className="font-bold">Attachments</label>
-            {displayAttachments?.length !== 0 ? (
+            {attachments?.length !== 0 ? (
               <div
                 onClick={showAllAttachment}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-bold)]"
@@ -187,12 +194,12 @@ const Information = (props) => {
             )}
           </div>
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {displayAttachments?.map((item, index) => (
+            {attachments?.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
                 className="aspect-square w-full cursor-pointer rounded-2xl"
-                slides={displayAttachments.map((item) => ({
+                slides={attachments.map((item) => ({
                   src:
                     item.type === "image"
                       ? item.mediaUrl
@@ -207,10 +214,10 @@ const Information = (props) => {
           title="Delete chat"
           message="Are you sure want to delete this chat?"
           onSubmit={() => {
-            deleteChat(participants).then(() => {
-              removeConversation(selected.id);
-              setSelected(undefined);
-            });
+            // deleteChat(participants).then(() => {
+            //   removeConversation(selected.id);
+            //   setSelected(undefined);
+            // });
           }}
         />
       </div>

@@ -63,10 +63,16 @@ const ForgotPassword = (props) => {
       <p className="text-5xl">Reset</p>
 
       <div className="flex flex-col gap-[3rem]">
-        <CustomInput reference={refUsername} type="text" label="Username" />
+        <CustomInput
+          // tabIndex="1"
+          reference={refUsername}
+          type="text"
+          label="Username"
+        />
 
         <div className="relative">
           <CustomInput
+            // tabIndex="2"
             reference={refPassword}
             className="pr-20"
             type={showPassword ? "text" : "password"}

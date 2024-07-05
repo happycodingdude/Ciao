@@ -18,12 +18,12 @@ const ProfileSection = () => {
   const refBio = useRef();
 
   const [file, setFile] = useState();
-  const [avatar, setAvatar] = useState(info.avatar);
+  const [avatar, setAvatar] = useState(info.data.avatar);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    refName.current.value = info.name;
-    refBio.current.value = info.bio;
+    refName.current.value = info.data.name;
+    refBio.current.value = info.data.bio;
   }, [info]);
 
   const chooseAvatar = (e) => {
@@ -37,7 +37,7 @@ const ProfileSection = () => {
 
   const { mutate: updateInfoMutation } = useMutation({
     mutationFn: ({ name, bio, avatar }) =>
-      updateInfo(info.id, name, bio, avatar),
+      updateInfo(info.data.id, name, bio, avatar),
     onSuccess: (res) => {
       setProcessing(false);
       // queryClient.invalidateQueries(["info"]);

@@ -2,8 +2,8 @@ POST  http://localhost:4100/api/users/signup
 Content-Type: application/json
 
 {
-    "Name": "Tri Nguyen",
-    "Username": "trint10",
+    "Name": "Tri Nguyen 1",
+    "Username": "trint1",
     "Password": "Qwerty@123"
 }
 
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
     "Username":"trint",
-    "Password":"Qwerty@1234"
+    "Password":"Qwerty@123"
 }
 
 ###
@@ -22,14 +22,14 @@ Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9RjMKgYZQiVqNeFOspXgm8OyowBZ_Najd
 
 ###
 GET  http://localhost:4000/api/contacts/info
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SQwQH_HJzPiRmk2MHIw2gsuDdDW3bvLd0zR_Ju0S6y1IZRshTrvUJ5O3rnTSDWXYRV0rUkTnU-_q7WuzK_01P8L7cxdMLXOnaFQmYrpFwAD82HuSPI5rb5yycN93S9sEh6OdwXSGVssPYCzqWOHwBKvyIANxyc5CndBCBTSjsuBh4r7qMjn2XsWTPsGUGmYEhAY93t_jxj-XreKhcccbze_egjM0i3K5BVAZXD9dTtoimtPI7blJnZV_CJuz1h2hc-4iotbP1y-fIcTosgCg3d_lti_0bMtl0sDk7agGYRKNLdY2hfZjxAf6_AmRKA4aviYVZzUAqg3bCds15tROSvSKxTYfJssHgmEW-tbEP99NbMxRzCXUKj25sawQRZowObM78l7RIN8T62DDgYwlIpT8lgJ7epIuBGGaaCopQARoCbEaMLCUwHELNZqVcbvZN3SQ4xFbIonHesJV837MTEHUclPZy-U_VDb2fay15VtU2MXtiIT0sZrNh9h03i7yDjIpWdMrTSZRI1KOOPSFQ1
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9RYUvTRKU20ZX218NQe2RwWE_2eO_iaqrv_diYq9DtOXeqVviTK39wzJuTfLKqYhwSJ0wknsHOZnJLT2DyISpRSFiMS-J6mesKWFn-P3yq2zRB_jgX84PByoW-YHFNRYIjLskrFA1qDmbNeBlJ4CCIFOuENqVPqUBXLg7HxL7oSoLiKNtzkTrwORJWpwzuzv1Vw7l5RnfPwrX-EcLQAAzsuhmHEn6XOQsumgLieOVP5BhVVbGxjZxmct2yX2x3NPaXccEjXf0c5NBc7DDBvfTDxKYJB8lMwPbsb1xS6loIvJJw1xqwwbOjK2hYE0eGY97MYTAj8f9Zz7rSw8pRKJxce4_93i5Zk0DlUVPiG1faoCAfT24pPkyDbNeO4llhlM79P-yqwQ5f5kTwcRBz32TGX-oB9ZeX9Lmk2PxDugdm85KDLTeKTBSTIJ1KfcS_dpW2If2yGP3HXVFu6ZqhKazMnW8xPPG7n-j5ND9yQ2UKIggsy_7X1INmMcQf2ggznOr4j07FcnQn3k289cSbRfZeaamFqA3UkGQMsX17pqWn0pw
 
 ###
 POST  http://localhost:4100/api/users/refresh
 Content-Type: application/json
 
 {
-    "refreshToken":"CfDJ8CPzuFnSsq5PudvkkW85E9SblOfeujQS1s_AIQdsV7rLKQffXGuP227oShdjDlEkDdkEmnE2z_RQ-c7-C-8ZCCpeB3IkiUd9ZBf5T6PmsVQLNRMmVc5fV3ZbXc1WNIfACgAy3nMINSJyD5DLKo-mqiCuLguZ2zLLiNRWLetMV-3B-83m2CQKmAUv5DbOsjN9J7rxqRJPCU39dS8RkRuSSSUWsjM5W99-FT0TBlLYaYZrq4FPIA_wZiIgp1qHxvVYW_OKca0ZEC969hV0hHL3KwhwSHR4jGUo-FHpP4OO2D4srq0PMVGIH80P2V0fAiGiPj1JqE01advlOxhLPSwhxWVXHVsNYmpM5j8Sqd5EMwgQG2Hb_MFHAydAeYU4Gl-WRua8ct2EgoCrZSyDO5ljcoh6PkL-adXPIOsO0ExiCNBDdzaUPy8kibBy3U2bZddrfkUFGItA0-b7BTLJhLuww17hPud8p1vYY3gPRapOKjSR2BahGwks3lpuWn2D2hnVKvGOKzGAYqOwfAc1HV3NiM-ucTKk0plz20fsHDQr2cULXV_nwk3KUvFsxKxoAbWu9g"    
+    "refreshToken":"CfDJ8CPzuFnSsq5PudvkkW85E9QCpgg8zyKE4JRNoZ341lrUJz71g7ODvul3e7t6wDlcs845sysRUqsKkhHJe7Z2M2tlTTsAj4W87NMOugQ6jjbkLam-1jM2adQSZul8rugtHXVmXofTWdEesgbvxt5e9-EB2e0PTCl5kEjSYH4BWx0acmUp18jwYsBShI-pRyfsNnPavq0VsXaFsi44hiUi09RrEt2elFgVepMTA7vFwtD9eIHPoNfPOBUoZweeM9wqoHcs4ERjZTR9t56kb4M2mLzUC6r-Z5MlpouzSq7giYG6uH53NFCD9KPcmrL3VL8a5XGpWahkNRXwP4cLHRyBm777DqknTO3BzePpOHmrZmJZhxWUNawki66GeXfSchfGc9O_3nuLQ4aUgATSCOsiqgeIIomq6ohjSOi6HPTo5zSZvmyAnRqpifLYlxkXtxfR4sfQFQyrIxh1zn_EVT91djhvZ_BwVH4zLSlTPv8jfYhgVGZXx65CCy9MLiIHq3tdRLu_08zdoaQ0jkMhN1NqL98h2iffsqgWvl41kyVxgww-fcOCGENPLaFFVDE4SxlFiA"    
 }
 
 ###
@@ -76,15 +76,69 @@ Content-Type: application/json
 ###
 
 POST  http://localhost:4000/api/conversations
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QmDn1itN7X1Id504XwONHlgpIuHgpbYboJ_SKGcxwTQuQSh_oO4D4MAarc_FaIjvlKCFKpXh0FjZSWuaZRLqbgPr8xRCCuLoGfjMjGeDylNUPu-IsT-KXLhy2gLEeL3KuAfGrptaMIND7liXhaDmEFJuqBT5t9nRGHi7PzUdProqn1zYc4OZH4Y-D7cCYz2_l_rDH9SBHiNSBGId6RyCkhwRsTVMoY17YeQ_BYOvEAJaZDYXmsP5n1ZNlGYXqPkEFuU6wThSZpz9kMr9J1sMGQv0SM7tUxjJekizNIuWLPPpNvti0C_1TDSaUgmgN9YbK3iTCcEKzl6tmjEilA2xCMzQhgvrx3HoZ7-5XLXwmvEwu_tbVUCHDiNNjKomK7qf5G11Ys5f-h7Dq3Vl_Qxrb8FvsnKSw-7ive_n6jY4nLMrtjDuyAMyjBx9q4f14QqfwNTHRQQmEZ9vJqc_nZsSDDERZ2QRGEtETrKdauUFySMEKYSNYltiYM-nf1FvYTLX21Xr6WNgjf9dS1kElCDDqSYnv1arN3k_nxTtnGOz6UsQ
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TVzEaG7HASiRHtmvK8y17XDypySsgqRf4r1Ed4cfQ-vKGzCAdKtdu722JKpk6f4XYmQJXqfPVyJRG4X6yEVSPMDJfoywlu6BBER3B58LkKWrjczb2IKCTU0Pkq94HfeL0-WKRzE1S6o7hzv8fw4Bf_pyBcdKcvsWeWGGnN01NF8eCHpBjY-VSbCi_W_v5Cxh_Yn8MaxQ-O_oKanXnLIQwgajYOJy8l9wEX-LIIfPYE-9l0GMt4V0zDHii7Exc7NXvqd1PGr2RzLhjGZeDlMmuXgZcpL5aMixX4hYKFcPkCoSTpmx5QMoSD1BGWGNu09D97zcdRFuUlWVP_ZlOFQiqTGYOWR0tf6ApSnjYiXPNEhCvmx-q3oWoDkCtoLS6budYF5WKM1dPlmVmA-gp6L1JWhajjjmWH7nFtp2g-elamZOA8ThHMWrBDApH6fGKYE0BeSoaxAzKjcqhmerdF1HRPQoHPL06fd809VM-krLrmi5-cogaYjXPGWG8dwfLxFRQ5rBxIvy4QAEUZORHkmgsaXSH4RbeET_Z5XXX8Ib5klw
 Content-Type: application/json
 
 {
     "title":"Happy coding",
+    "isGroup":true,
     "participants": [{
             "contactId": "6cd0b479-f501-4aed-a033-f390daaff66c",
             "isNotifying": true,
             "isModerator": true
+        },{
+            "contactId": "80a6d922-c6e9-4332-a519-92dad5b796bc",
+            "isNotifying": true
         }
     ]
 }
+
+###
+
+POST  http://localhost:4000/api/messages/send
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9RPZ-XK6EoldtGegneNX-pRszM7Gi87UZH30qlyXnHa8qp4hQBrpbNFqk64hszYmwNt5cPBDT_0TP4iZvln0CbOGwaTzXr4AU9TjtJ51OVJwip82OaP57f16BB9klCRPDX15Pwdz08t93RqwQY-9oxXFwlOpDHEKhh_96Zgwth0DQDIrP2w1Xo1qI3Ql8jBeHiV8TRw-gF8kfevG_fiioZd6h3kJJphvMcxXIvc31YNM2AAjT5v1rSt2aAam8RHDdX65p9Eyd_OBG77mJxZJdn7GV1si2LQ27pEZs-1vfWXicefChQ3uLXxf4jjFg6BuK86jDAMs7gNF-zAU4TA2pK4U_XRqbVmYQw-yB-VcWqRpRaDJC6WSKN6YJATPrLYF6tnFh5sY6Y0VAeQ22jQK_siJQCbFohxbKQK_VxJkJUuFuJHea0sKsSp1iDJhxqlD965HXIfmoyg12gOkQsfB0uOn5T5EYYdK_hNyxq2rjQfEsOR9ZkVwcc4fcxJupkqznR6suo2ZivI_e0fFAOguiBlEYu4S2UbJTF_deA8itWYWQ
+Content-Type: application/json
+
+{
+    "type":"text",
+    "content":"xin chao 10",
+    "contactId":"6cd0b479-f501-4aed-a033-f390daaff66c",
+    "conversationId":"9163a82e-d51a-4751-b670-a06c71997ae1"
+}
+
+###
+POST https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA
+Content-Type: application/json
+
+{
+    "token":"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ0cmludCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWFicWhmQG15Y29ubmVjdC1mMmFmOC5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsInN1YiI6ImZpcmViYXNlLWFkbWluc2RrLWFicWhmQG15Y29ubmVjdC1mMmFmOC5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsImF1ZCI6Imh0dHBzOi8vaWRlbnRpdHl0b29sa2l0Lmdvb2dsZWFwaXMuY29tL2dvb2dsZS5pZGVudGl0eS5pZGVudGl0eXRvb2xraXQudjEuSWRlbnRpdHlUb29sa2l0IiwiZXhwIjoxNzE5NTA1ODMxLCJpYXQiOjE3MTk1MDIyMzF9.opYAp9amkOtUGZ2lH5V6w3GyWlDHHY-61eG4tl_TuqmSqsKj_0htjj0epcHxj9uEu7eLOzxr9AdaEv8ti_kXrX-Oxt6HzMsB5NDXTs-nRZJTT618ROuO04A7fLD-gA3z8kjZRm62bWzmJmSkZOjnaHtxTlE_o6JbQaCJ-9ixSbEpJKdlqXlgMQdtMsHO9-LhN9Tva-8hjI3a9RmUJV5l_aiPIq7H_2w9IxemlnSnCxNcmvtX91u5q6qNuAax9ffbQiZh_0a_YTTV8nx6lDPGb_QWpu72PldRZ74fWZHXQy1Zgk5WcdTAdCwj6KScw9tDdfsQCMUmgvNPtoFJtw5K8g",
+    "returnSecureToken":true,
+    "scope":"https://www.googleapis.com/auth/firebase.messaging"
+}
+
+###
+POST https://fcm.googleapis.com/v1/projects/myconnect-f2af8/messages:send
+Authorization: Bearer ya29.a0AXooCgvI7dnBNlLV3TSEGAbK-8a2AgL7rhs7QXrpEzUzrvuexYbPrXo7EK3UGDCwwkqfFh0-mhtJQIE_zRWccwTbem47-Z8jLuD4n-yOICW0fKVaLbL3g8Z60dhzMvVYGvxBHohLrIODS-Zm9cTCXsZ4Fv77Dy5kwDGUaCgYKAdASARESFQHGX2MieiLWRqCClQX-de6UPm0nSQ0171
+
+###
+
+POST  http://localhost:4000/api/conversations/9163a82e-d51a-4751-b670-a06c71997ae1/participants
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9RoW4KFAsWbTnEqEPuhra8ikdGHWhw7QdaUAkxOneyvQfKwmEcujAYP7QRUaVX9gVXUuh2peFKKqTSaUvJ7-4XEDhJQ-ORT_zB59tiXMRMHNEaqhL04Q-29SEJCqdstLhMghPTU6GqX6MZDBisFcUU-PKb45VEen_ZxTCLORNQvgR2DokONyRQQtJawvdOF2re0HzxcDKw9qHWZSIa6TJzJqvxY435ea6gh5WgZ8SRbxiZAq9xUI39eo-yHjNUoBs9Y0XvDh1IoXizJyM7wRHJSfL9L5LituSgi-prZ0WLCEuRym0PrtNRpFlCug57zp4p9gNmkZVx0Y_DLpXXh2Rj-2oyI2apzzImSMFeUkAGCgZIwQ0IeE6pv0XdkQIXlgWYGqqju12y5V5cYQMV0qCf9tzf8KbzGImf9WdDPiTkNt3TBR7kMOUex-ePLqfYyUatP5kxExSB10qoLI8NnGWs1Dyc2rJzgeyr4NFuZSRXFbY8H6m828M5PO0EJpEkgORyrPnDMUyWjZqL-Tr0I-u4l52tCK7Fyf_CrBimSmwqvoA
+Content-Type: application/json
+
+[
+    {
+        "isNotifying":true,
+        "contactId":"80a6d922-c6e9-4332-a519-92dad5b796bc",
+        "conversationId":"9163a82e-d51a-4751-b670-a06c71997ae1"
+    }
+]
+
+###
+GET  http://localhost:4000/api/contacts?name=tri
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9S98GiWzkqj6yECD_eAIb7Hnn9esRzApLv6D1frCPwVnVE5okN-zjeDh-_nm33c1vv1b_wewZ393gzdV6vpENEdLu9UmZLb0tekjYJYZd1wAecOvCyzrzipgu_xD5L9fjcKz6WBrxeQaIU1RRLRyLkNt0LhhRNvfUg7KKg3J-_8W_bOsXNnU0LVGcpHw45x9ri1RuIcJtqFFQ44mDmg9wuvplKNjhtYGpWAuAV37Kp97828V9bPJa_5t5Iwtco3PDaen2Vs0S6WWOhGf5iC20-dSEdu7sSGc7U2NiQXERPmCEDdVNPaSIZ97EY2Ixtcmal9P3eQzvBIpgVk47meU-ZyBkfI7cLJYvjPqoFo26linZZ2mtB5RaIEVhHTmpKz614LQ1zzadwx5tkb7Eps5Gq_dEgcdNFhNy38hSEtzwJWYmBmIjg_y7ZH0GXo2LhM164Oh3Sp1NR8tS3RyYdv4z3dP8fhv58sHf-VXwBwi6WTNt-uD5AB7ZeabnmkSigKN4GZQhkri0ryUnRM95RA-wxUHbYumbbaJ1P83IJm-sj0xA
+
+
+###
+GET  http://localhost:4000/api/contacts?name=tri
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9S98GiWzkqj6yECD_eAIb7Hnn9esRzApLv6D1frCPwVnVE5okN-zjeDh-_nm33c1vv1b_wewZ393gzdV6vpENEdLu9UmZLb0tekjYJYZd1wAecOvCyzrzipgu_xD5L9fjcKz6WBrxeQaIU1RRLRyLkNt0LhhRNvfUg7KKg3J-_8W_bOsXNnU0LVGcpHw45x9ri1RuIcJtqFFQ44mDmg9wuvplKNjhtYGpWAuAV37Kp97828V9bPJa_5t5Iwtco3PDaen2Vs0S6WWOhGf5iC20-dSEdu7sSGc7U2NiQXERPmCEDdVNPaSIZ97EY2Ixtcmal9P3eQzvBIpgVk47meU-ZyBkfI7cLJYvjPqoFo26linZZ2mtB5RaIEVhHTmpKz614LQ1zzadwx5tkb7Eps5Gq_dEgcdNFhNy38hSEtzwJWYmBmIjg_y7ZH0GXo2LhM164Oh3Sp1NR8tS3RyYdv4z3dP8fhv58sHf-VXwBwi6WTNt-uD5AB7ZeabnmkSigKN4GZQhkri0ryUnRM95RA-wxUHbYumbbaJ1P83IJm-sj0xA

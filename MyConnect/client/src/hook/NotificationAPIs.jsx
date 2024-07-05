@@ -11,7 +11,6 @@ export const getNotification = async () => {
         "{page}",
         page,
       ).replace("{limit}", limit),
-      token: localStorage.getItem("token"),
     })
   ).data;
 };
@@ -24,7 +23,6 @@ export const read = async (id) => {
         "{id}",
         id,
       ),
-      token: localStorage.getItem("token"),
       data: [
         {
           op: "replace",
@@ -41,7 +39,6 @@ export const readAll = async (ids) => {
     await HttpRequest({
       method: "patch",
       url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_BULKEDIT,
-      token: localStorage.getItem("token"),
       data: ids.map((id) => {
         return {
           id: id,
@@ -63,7 +60,6 @@ export const registerConnection = async (id, token) => {
     await HttpRequest({
       method: "post",
       url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER,
-      token: localStorage.getItem("token"),
       data: {
         id: id,
         token: token,
@@ -76,7 +72,8 @@ export const notifyMessage = (message) => {
   console.log(message);
   const messageData =
     message.data === undefined ? undefined : JSON.parse(message.data);
-  switch (message.event) {
+  switch (
+    message.event
     // case "NewMessage":
     //   refListChat.newMessage(messageData);
     //   if (refChatbox.newMessage) refChatbox.newMessage(messageData);
@@ -109,5 +106,6 @@ export const notifyMessage = (message) => {
     //   break;
     // default:
     //   break;
+  ) {
   }
 };

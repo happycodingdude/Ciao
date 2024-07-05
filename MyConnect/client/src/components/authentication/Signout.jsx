@@ -1,34 +1,29 @@
-import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useLoading, useLocalStorage } from "../../hook/CustomHooks";
+import { useInfo, useLocalStorage } from "../../hook/CustomHooks";
 
-const Signout = ({ className }) => {
+const Signout = (props) => {
   console.log("Signout calling");
+  const { className, setPage } = props;
 
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [token, setToken] = useLocalStorage("token");
   const [refresh, setRefresh] = useLocalStorage("refresh");
-  const { setLoading } = useLoading();
-
-  // const { mutate: signoutMutation, isSuccess } = useMutation({
-  //   mutationFn: signout,
-  // });
-
-  // if (isSuccess) return <Authentication />;
+  const { refetch } = useInfo();
+  // const { setLoading } = useLoading();
 
   const signout = () => {
-    setLoading(true);
+    // setLoading(true);
     HttpRequest({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
       token: token,
     }).then((res) => {
-      setToken(null);
       setRefresh(null);
-      setTimeout(() => {
-        queryClient.invalidateQueries(["info"]);
-      }, 200);
+      setToken(null);
+      refetch();
+      // setPage("chat");
+      // queryClient.invalidateQueries(["info"]);
     });
   };
 

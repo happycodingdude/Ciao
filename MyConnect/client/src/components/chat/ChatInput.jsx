@@ -6,15 +6,13 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import { Tooltip } from "antd";
 import { EditorState, convertToRaw, getDefaultKeyBinding } from "draft-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  useFetchConversations,
-  useFetchParticipants,
-} from "../../hook/CustomHooks";
+import { useFetchParticipants, useMessage } from "../../hook/CustomHooks";
 
 const ChatInput = (props) => {
   const { send, refChatInputExpose } = props;
   const { mentions } = useFetchParticipants();
-  const { selected } = useFetchConversations();
+  // const { selected } = useFetchConversations();
+  const { data: messages } = useMessage();
 
   const editorRef = useRef();
   const [directText, setDirectText] = useState("");
@@ -75,7 +73,7 @@ const ChatInput = (props) => {
   };
 
   const callToAction = () => {
-    if (selected.IsGroup) groupChat();
+    if (messages.conversation.isGroup) groupChat();
     else directChat();
   };
 
@@ -89,7 +87,7 @@ const ChatInput = (props) => {
 
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
-      {selected.IsGroup ? (
+      {messages.conversation.isGroup ? (
         <div className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16">
           <Editor
             ref={editorRef}

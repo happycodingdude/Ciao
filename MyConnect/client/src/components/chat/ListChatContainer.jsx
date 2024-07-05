@@ -1,0 +1,15 @@
+import React from "react";
+import ListChat from "./ListChat";
+import ListChatHeader from "./ListChatHeader";
+
+const ListChatContainer = () => {
+  console.log("ListChatContainer calling");
+  return (
+    <div className="flex w-[calc(100%/4)] min-w-[calc(100%/4)] flex-col bg-[var(--bg-color)] shadow-[5px_0px_10px_-10px_var(--shadow-color)_inset]">
+      <ListChatHeader />
+      <ListChat />
+    </div>
+  );
+};
+
+export default ListChatContainer;

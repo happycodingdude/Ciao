@@ -1,18 +1,15 @@
 import React, { useRef } from "react";
-import { AttachmentProvider } from "../../context/AttachmentContext";
-import { ConversationProvider } from "../../context/ConversationContext";
-import { MessageProvider } from "../../context/MessageContext";
-import { ParticipantProvider } from "../../context/ParticipantContext";
-import { useAuth, useFetchConversations } from "../../hook/CustomHooks";
-import Attachment from "./Attachment";
+import { useMessage } from "../../hook/CustomHooks";
 import Chatbox from "./Chatbox";
+import ListChatContainer from "./ListChatContainer";
+import Attachment from "./Attachment";
 import Information from "./Information";
-import ListChat from "./ListChat";
 
 export const ChatSection = (props) => {
+  console.log("ChatSection calling");
   const { refListChat, refChatbox } = props;
-  const { selected, reFetch: reFetchConversations } = useFetchConversations();
-  const { valid } = useAuth();
+
+  const { data } = useMessage();
 
   const refInformationContainer = useRef();
   const refInformation = useRef();
@@ -47,40 +44,32 @@ export const ChatSection = (props) => {
   };
 
   return (
-    <ConversationProvider>
-      <MessageProvider>
-        <ParticipantProvider>
-          <AttachmentProvider>
-            <section className={`relative flex grow overflow-hidden`}>
-              <ListChat refListChat={refListChat} />
-              {selected ? (
-                <>
-                  <Chatbox
-                    refChatbox={refChatbox}
-                    toggleInformation={toggleInformationContainer}
-                  />
-                  <div
-                    ref={refInformationContainer}
-                    className="relative flex-1 origin-right overflow-hidden"
-                  >
-                    <Information
-                      refAttachment={refAttachment}
-                      refInformationExposed={refInformation}
-                      removeInListChat={(val) => removeInListChat(val)}
-                    />
-                    <Attachment
-                      refInformation={refInformation}
-                      refAttachmentExposed={refAttachment}
-                    />
-                  </div>
-                </>
-              ) : (
-                ""
-              )}
-            </section>
-          </AttachmentProvider>
-        </ParticipantProvider>
-      </MessageProvider>
-    </ConversationProvider>
+    <section className={`relative flex grow overflow-hidden`}>
+      <ListChatContainer refListChat={refListChat} />
+      {data?.messages ? (
+        <>
+          <Chatbox
+            refChatbox={refChatbox}
+            toggleInformation={toggleInformationContainer}
+          />
+          <div
+            ref={refInformationContainer}
+            className="relative flex-1 origin-right overflow-hidden"
+          >
+            <Information
+              refAttachment={refAttachment}
+              refInformationExposed={refInformation}
+              removeInListChat={(val) => removeInListChat(val)}
+            />
+            <Attachment
+              refInformation={refInformation}
+              refAttachmentExposed={refAttachment}
+            />
+          </div>
+        </>
+      ) : (
+        ""
+      )}
+    </section>
   );
 };

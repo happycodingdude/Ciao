@@ -22,7 +22,7 @@ const BackgroundPortal = ({ children, open, title, onClose, className }) => {
         {children}
       </div>
     </div>,
-    document.getElementById("home"),
+    document.getElementById("root"),
   );
 };
 

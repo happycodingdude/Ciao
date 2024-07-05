@@ -11,6 +11,7 @@ const Login = (props) => {
   const { show, showContainer, toggle } = props;
 
   const queryClient = useQueryClient();
+  // const { refetch } = useInfo();
   const { setLoading } = useLoading();
   const [token, setToken] = useLocalStorage("token");
   const [refresh, setRefresh] = useLocalStorage("refresh");
@@ -21,6 +22,7 @@ const Login = (props) => {
 
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     // Khi toggle hiện login container ra thì clear các value đã nhập
@@ -40,12 +42,11 @@ const Login = (props) => {
     onSuccess: (res) => {
       setToken(res.access_token);
       setRefresh(res.refresh_token);
-      setTimeout(() => {
-        queryClient.invalidateQueries(["info"]);
-      }, 200);
+      // refetch();
+      queryClient.invalidateQueries(["info"]);
     },
     onError: (error) => {
-      setLoading(false);
+      setProcessing(false);
       setError("Username or password invalid. Try again please");
     },
   });
@@ -54,7 +55,7 @@ const Login = (props) => {
     if (refUsername.current.value === "" || refPassword.current.value === "")
       return;
 
-    setLoading(true);
+    setProcessing(true);
     signinMutation({
       username: refUsername.current.value,
       password: refPassword.current.value,
@@ -78,6 +79,7 @@ const Login = (props) => {
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
+          tabIndex="1"
           reference={refUsername}
           type="text"
           label="Username"
@@ -85,6 +87,7 @@ const Login = (props) => {
         />
         <div className="relative">
           <CustomInput
+            tabIndex="2"
             reference={refPassword}
             className="pr-20"
             type={showPassword ? "text" : "password"}
@@ -111,6 +114,7 @@ const Login = (props) => {
         <ErrorComponent error={error} />
 
         <CustomButton
+          processing={processing}
           title="Sign in"
           onClick={() => {
             signinCTA();

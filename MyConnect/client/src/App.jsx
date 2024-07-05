@@ -14,10 +14,29 @@ function App() {
     registerSW();
   }, []);
 
+  // const { isLoading } = useInfo();
+  // // const { setLoading } = useLoading();
+
+  // const [showAuthen, setShowAuthen] = useState(false);
+
+  // if (isLoading) {
+  //   // setLoading(true);
+  //   return;
+  // }
+
+  // useEffect(() => {
+  //   // When clear cache
+  //   if (!localStorage.getItem("token") && !localStorage.getItem("refresh")) {
+  //     // setLoading(false);
+  //     // return <Authentication />;
+  //     setShowAuthen(true);
+  //   }
+  // }, []);
+
   return (
     <>
       <LoadingProvider>
-        {/* <HomeContainer /> */}
+        {/* {showAuthen ? <Authentication /> : <Home />} */}
         <Home />
       </LoadingProvider>
 
@@ -34,10 +53,6 @@ function App() {
         theme="colored"
         transition:Bounce
       />
-
-      {/* <LoadingProvider>
-        <Loading />
-      </LoadingProvider> */}
     </>
   );
 }

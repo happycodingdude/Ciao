@@ -32,14 +32,14 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         services.AddHttpContextAccessor();
-        services.AddDbContextPool<CoreContext>(option =>
+        services.AddDbContextPool<AppDbContext>(option =>
         {
-            string environment = _configuration["ASPNETCORE_ENVIRONMENT"];
-            if (environment == "Development")
-                option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
-            else
-                option.UseMySQL(_configuration.GetConnectionString("Db-Production"));
+            option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
         });
+
+        var assembly = typeof(Program).Assembly;
+        services.AddMediatR(config => config.RegisterServicesFromAssembly(assembly));
+        services.AddCarter();
 
         // Authentication
         services.AddAuthentication();
@@ -55,9 +55,9 @@ public class Startup
         });
 
         // Add HttpClient
-        services.AddHttpClient(Constants.HttpClient_Auth, client =>
+        services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
         {
-            client.BaseAddress = new Uri(Constants.ApiDomain_Auth);
+            client.BaseAddress = new Uri(AppConstants.ApiDomain_Auth);
         });
 
         // Exception handler
@@ -65,31 +65,31 @@ public class Startup
         services.AddExceptionHandler<UnauthorizedExceptionHandler>();
         services.AddProblemDetails();
 
-        // Service
-        services.AddScoped<IAttachmentService, AttachmentService>();
-        services.AddScoped<IContactService, ContactService>();
-        services.AddScoped<IConversationService, ConversationService>();
-        services.AddScoped<IFriendService, FriendService>();
-        services.AddScoped<IMessageService, MessageService>();
-        services.AddScoped<INotificationService, NotificationService>();
-        services.AddScoped<IParticipantService, ParticipantService>();
-        services.AddScoped<IScheduleContactService, ScheduleContactService>();
-        services.AddScoped<IScheduleService, ScheduleService>();
+        // // Service
+        // services.AddScoped<IAttachmentService, AttachmentService>();
+        // services.AddScoped<IContactService, ContactService>();
+        // services.AddScoped<IConversationService, ConversationService>();
+        // services.AddScoped<IFriendService, FriendService>();
+        // services.AddScoped<IMessageService, MessageService>();
+        // services.AddScoped<INotificationService, NotificationService>();
+        // services.AddScoped<IParticipantService, ParticipantService>();
+        // services.AddScoped<IScheduleContactService, ScheduleContactService>();
+        // services.AddScoped<IScheduleService, ScheduleService>();
 
-        // Repository
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-        services.AddScoped<IContactRepository, ContactRepository>();
-        services.AddScoped<IConversationRepository, ConversationRepository>();
-        services.AddScoped<IFriendRepository, FriendRepository>();
-        services.AddScoped<IMessageRepository, MessageRepository>();
-        services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<IParticipantRepository, ParticipantRepository>();
-        services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
-        services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        // // Repository
+        // services.AddScoped<IUnitOfWork, UnitOfWork>();
+        // services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+        // services.AddScoped<IContactRepository, ContactRepository>();
+        // services.AddScoped<IConversationRepository, ConversationRepository>();
+        // services.AddScoped<IFriendRepository, FriendRepository>();
+        // services.AddScoped<IMessageRepository, MessageRepository>();
+        // services.AddScoped<INotificationRepository, NotificationRepository>();
+        // services.AddScoped<IParticipantRepository, ParticipantRepository>();
+        // services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
+        // services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
-        // Firebase
-        services.AddScoped<IFirebaseFunction, FirebaseFunction>();
+        // // Firebase
+        // services.AddScoped<IFirebaseFunction, FirebaseFunction>();
     }
 
     // public void Configure(WebApplication app, IWebHostEnvironment env)
@@ -111,18 +111,16 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // app.UseEndpoints(endpoints =>
-        // {
-        //     endpoints.MapControllers();
-        // });
-        // app.UseEndpoints(e => { });
-
-        // DatabaseMigration.Migrate(app);      
-
-
-
         // Using from Domain project        
-        Utils.RedisCLient.Configure(_configuration);
+        // Utils.RedisCLient.Configure(_configuration);
+
+        // using (var scope = app.ApplicationServices.CreateScope())
+        // {
+        //     var context = scope.ServiceProvider.GetService<AppDbContext>();
+        //     context.Database.Migrate();
+        //     context.Database.EnsureCreated();
+        //     context.Database.gene
+        // }
     }
 
     private void OnStarted()

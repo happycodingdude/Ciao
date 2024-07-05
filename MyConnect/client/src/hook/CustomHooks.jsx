@@ -7,11 +7,13 @@ import ConversationContext from "../context/ConversationContext";
 import FriendContext from "../context/FriendContext";
 import LoadingContext from "../context/LoadingContext";
 import MessageContext from "../context/MessageContext";
-import NotificationContext from "../context/NotificationContext";
 import ParticipantContext from "../context/ParticipantContext";
 import ProfileContext from "../context/ProfileContext";
+import { getAttachments } from "./AttachmentAPIs";
 import { getConversation } from "./ConversationAPIs";
+import { getMessages } from "./MessageAPIs";
 import { getNotification } from "./NotificationAPIs";
+import { getParticipants } from "./ParticipantAPIs";
 import { getInfo } from "./UserAPIs";
 
 export const useLocalStorage = (key) => {
@@ -37,7 +39,7 @@ export const useNotification = () => {
   return useQuery({
     queryKey: ["notification"],
     queryFn: getNotification,
-    // staleTime: Infinity,
+    staleTime: Infinity,
     enabled: false,
   });
 };
@@ -50,6 +52,33 @@ export const useConversation = () => {
   });
 };
 
+export const useParticipant = (conversationId) => {
+  return useQuery({
+    queryKey: ["participant"],
+    queryFn: () => getParticipants(conversationId),
+    staleTime: Infinity,
+    enabled: false,
+  });
+};
+
+export const useMessage = (conversation) => {
+  return useQuery({
+    queryKey: ["message"],
+    queryFn: () => getMessages(conversation),
+    staleTime: Infinity,
+    enabled: false,
+  });
+};
+
+export const useAttachment = (conversationId) => {
+  return useQuery({
+    queryKey: ["attachment"],
+    queryFn: () => getAttachments(conversationId),
+    staleTime: Infinity,
+    enabled: false,
+  });
+};
+
 export const useAuth = () => {
   return useContext(AuthContext);
 };
@@ -57,9 +86,9 @@ export const useAuth = () => {
 export const useEventListener = (event, callback, element = window) => {
   if (!element || !element.addEventListener) return;
   useEffect(() => {
-    element.addEventListener(event, callback);
+    element.addEventListener(event, callback, true);
     return () => {
-      element.removeEventListener(event, callback);
+      element.removeEventListener(event, callback, true);
     };
   }, [event, callback, element]);
 };
@@ -86,10 +115,6 @@ export const useFetchProfile = () => {
 
 export const useFetchFriends = () => {
   return useContext(FriendContext);
-};
-
-export const useFetchNotifications = () => {
-  return useContext(NotificationContext);
 };
 
 export const useLoading = () => {

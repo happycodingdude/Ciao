@@ -1,16 +1,14 @@
+import useMessage from "antd/es/message/useMessage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  useFetchAttachments,
-  useFetchConversations,
-} from "../../hook/CustomHooks";
+import { useAttachment } from "../../hook/CustomHooks";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 
 const Attachment = (props) => {
   console.log("Attachment calling");
   const { refInformation, refAttachmentExposed } = props;
-  const { attachments } = useFetchAttachments();
-  const { selected } = useFetchConversations();
+  const { data: attachments } = useAttachment();
+  const { data: messages } = useMessage();
 
   const refAttachment = useRef();
   const refScrollAttachment = useRef();
@@ -46,9 +44,9 @@ const Attachment = (props) => {
     hideAttachment();
   };
 
-  useEffect(() => {
-    reset();
-  }, [selected.Id]);
+  // useEffect(() => {
+  //   reset();
+  // }, [selected.Id]);
 
   const toggleAttachmentActive = useCallback(
     (type) => {

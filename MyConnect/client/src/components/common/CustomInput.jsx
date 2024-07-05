@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 const CustomInput = (props) => {
-  const { type, label, onKeyDown, reference, className } = props;
+  const { type, label, onKeyDown, reference, className, tabIndex = -1 } = props;
   const refPlaceHolder = useRef();
   const refBorder = useRef();
 
@@ -30,6 +30,7 @@ const CustomInput = (props) => {
   return (
     <div className="relative">
       <input
+        tabIndex={tabIndex}
         className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--sub-color)] !border-b-[var(--border-color)] p-[1rem] pb-[.2rem] pl-0 outline-none 
           transition-all duration-200`}
         type={type}

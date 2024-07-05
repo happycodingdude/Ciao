@@ -1,39 +1,38 @@
+import { useMutation } from "@tanstack/react-query";
 import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import {
-  useAuth,
+  useAttachment,
   useEventListener,
-  useFetchAttachments,
-  useFetchConversations,
-  useFetchFriends,
   useFetchMessages,
-  useFetchNotifications,
-  useFetchParticipants,
+  useInfo,
+  useMessage,
+  useParticipant,
 } from "../../hook/CustomHooks";
-import UpdateTitle from "../chat/UpdateTitle";
+import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import FriendRequestButton from "../friend/FriendRequestButton";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
+import MessageContent from "./MessageContent";
+import UpdateTitle from "./UpdateTitle";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
   const { refChatbox, toggleInformation } = props;
 
-  const auth = useAuth();
-  const { selected } = useFetchConversations();
-  const { participants } = useFetchParticipants();
-  const { messages, removeLastItem, addNewItem } = useFetchMessages();
-  const { reFetch: reFetchAttachments } = useFetchAttachments();
-  const { profile } = useFetchFriends();
-  const { reFetchNotifications } = useFetchNotifications();
+  const { data: info } = useInfo();
+  const { data: messages } = useMessage();
+  const { data: participants } = useParticipant();
+  const { refetch: refetchAttachments } = useAttachment();
+
+  const { removeLastItem, addNewItem } = useFetchMessages();
+  // const { reFetch: reFetchAttachments } = useFetchAttachments();
 
   const [files, setFiles] = useState([]);
   const [open, setOpen] = useState(false);
@@ -53,7 +52,7 @@ const Chatbox = (props) => {
 
   refChatbox.newMessage = (messageData) => {
     if (
-      messageData.contactId !== auth.id &&
+      messageData.contactId !== info.data.id &&
       messageData.conversationId === selected?.id
     )
       addNewItem(messageData);
@@ -152,8 +151,8 @@ const Chatbox = (props) => {
 
   const sendMessage = async (text) => {
     let body = {
-      contactId: auth.id,
-      conversationId: selected.id,
+      contactId: info.data.id,
+      conversationId: messages.conversation.id,
     };
     if (files.length === 0) {
       if (text === "") return;
@@ -179,23 +178,79 @@ const Chatbox = (props) => {
       };
     }
 
-    addNewItem(body);
+    // addNewItem(body);
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
 
     HttpRequest({
       method: "post",
       url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND,
-      token: auth.token,
       data: body,
     })
       .then((res) => {
         setFiles([]);
-        if (body.type === "media") reFetchAttachments(selected.id);
+        if (body.type === "media") refetchAttachments();
       })
       .catch((err) => {
-        removeLastItem();
+        // removeLastItem();
       });
   };
+
+  const {
+    mutate: sendMutation,
+    isPending,
+    variables,
+  } = useMutation({
+    mutationFn: async (content) => {
+      setTimeout(() => {
+        scrollChatContentToBottom();
+      }, 200);
+      let body = {
+        contactId: info.data.id,
+        conversationId: messages.conversation.id,
+      };
+      if (files.length === 0) {
+        if (content === "") return;
+        body = {
+          ...body,
+          type: "text",
+          content: content,
+        };
+      } else {
+        const uploaded = await uploadFile().then((uploads) => {
+          return uploads.map((item) => ({
+            type: item.type,
+            mediaUrl: item.url,
+            mediaName: item.name,
+            mediaSize: item.size,
+          }));
+        });
+        body = {
+          ...body,
+          type: "media",
+          attachments: uploaded,
+          content: uploaded.map((item) => item.MediaName).join(","),
+        };
+      }
+      await send(body);
+      messages.messages.push({
+        type: "text",
+        content: content,
+        contactId: info.data.id,
+        conversationId: messages.conversation.id,
+        attachments: [],
+      });
+    },
+    // onSuccess: (res) => {
+    //   setToken(res.access_token);
+    //   setRefresh(res.refresh_token);
+    //   // refetch();
+    //   queryClient.invalidateQueries(["info"]);
+    // },
+    // onError: (error) => {
+    //   setProcessing(false);
+    //   setError("Username or password invalid. Try again please");
+    // },
+  });
 
   const scrollChatContentToBottom = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
@@ -233,8 +288,8 @@ const Chatbox = (props) => {
       refScrollButton.current.classList.remove("hidden");
     else refScrollButton.current.classList.add("hidden");
   }, []);
-
   useEventListener("scroll", handleScroll);
+
   const closeProfile = useCallback((e) => {
     if (
       // e.keyCode === 27 ||
@@ -267,24 +322,27 @@ const Chatbox = (props) => {
       ref={refChatboxContainer}
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
-      <div className="relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*]:px-[2rem]">
+      <div className="relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*:not(:first-child)]:px-[2rem]">
         <div
           ref={refScrollButton}
-          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] hidden aspect-square w-[3rem] cursor-pointer items-center 
+          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex aspect-square w-[3rem] cursor-pointer items-center 
           justify-center rounded-[50%] bg-[var(--main-color-normal)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
           onClick={scrollChatContentToBottom}
         ></div>
         <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem]">
           <div className="flex items-center gap-[1rem]">
-            {selected?.isGroup ? (
+            {messages.conversation.isGroup ? (
               <ImageWithLightBoxWithBorderAndShadow
-                src={selected?.avatar ?? ""}
+                src={messages.conversation.avatar ?? ""}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 onClick={() => {}}
               />
             ) : (
               <ImageWithLightBoxWithBorderAndShadow
-                src={profile?.avatar ?? ""}
+                src={
+                  participants?.find((item) => item.contactId !== info.data.id)
+                    ?.contact.avatar ?? ""
+                }
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 // onClick={() => {
                 //   setUserId(profile?.Id);
@@ -292,7 +350,10 @@ const Chatbox = (props) => {
                 // }}
                 slides={[
                   {
-                    src: profile?.avatar ?? "",
+                    src:
+                      participants?.find(
+                        (item) => item.contactId !== info.data.id,
+                      )?.contact.avatar ?? "",
                   },
                 ]}
               />
@@ -302,12 +363,12 @@ const Chatbox = (props) => {
               ref={refTitleContainer}
               className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
             >
-              {selected?.isGroup ? (
+              {messages.conversation.isGroup ? (
                 <>
                   <div className="flex w-full gap-[.5rem]">
                     <CustomLabel
                       className="text-start text-lg font-bold"
-                      title={selected?.title}
+                      title={messages.conversation.title}
                       tooltip
                     />
                     <UpdateTitle />
@@ -318,7 +379,11 @@ const Chatbox = (props) => {
                 <>
                   <CustomLabel
                     className="text-start text-lg font-bold"
-                    title={profile?.name}
+                    title={
+                      participants?.find(
+                        (item) => item.contactId !== info.data.id,
+                      )?.contact.name
+                    }
                   />
                   <FriendRequestButton
                     className="fa fa-user-plus !ml-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
@@ -342,99 +407,30 @@ const Chatbox = (props) => {
           className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll scroll-smooth 
           bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
         >
-          {messages?.map((message) => (
-            <div
-              className={`flex items-end gap-[1rem] 
-                ${message.contactId === auth.id ? "flex-row-reverse" : ""}`}
-            >
-              {message.contactId !== auth.id ? (
-                <div className="relative w-[3rem]">
-                  {selected?.IsGroup ? (
-                    <ImageWithLightBoxWithBorderAndShadow
-                      src={
-                        participants?.find(
-                          (item) => item.contactId == message.contactId,
-                        )?.contact.avatar ?? ""
-                      }
-                      className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
-                      onClick={() => {
-                        setUserId(message.contactId);
-                        setOpen(true);
-                      }}
-                    />
-                  ) : (
-                    <ImageWithLightBoxWithBorderAndShadow
-                      src={profile?.avatar ?? ""}
-                      className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
-                      slides={[
-                        {
-                          src: profile?.avatar ?? "",
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-              ) : (
-                ""
-              )}
-              <div
-                className={`flex flex-col gap-[.3rem] laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
-                  ${message.contactId === auth.id ? "items-end" : "items-start"}`}
-              >
-                <div
-                  className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-blur)]
-                    ${message.contactId === auth.id ? "flex-row-reverse" : ""}`}
-                >
-                  {message.contactId === auth.id ? (
-                    ""
-                  ) : (
-                    <p>
-                      {
-                        participants?.find(
-                          (item) => item.contactId == message.contactId,
-                        )?.contact.name
-                      }
-                    </p>
-                  )}
-
-                  <p>
-                    {moment(message.createdTime).format("DD/MM/YYYY") ===
-                    moment().format("DD/MM/YYYY")
-                      ? moment(message.createdTime).format("HH:mm")
-                      : moment(message.createdTime).format("DD/MM HH:mm")}
-                  </p>
-                </div>
-                {message.type === "text" ? (
-                  <div
-                    className="break-all rounded-[3rem] bg-gradient-radial-to-bc from-[var(--sub-color)] to-[var(--main-color)] 
-                    px-[1.5rem] py-[.7rem] text-[var(--text-sub-color)]"
-                  >
-                    {/* {GenerateContent(participants, message.content)} */}
-                    {message.content}
-                  </div>
-                ) : (
-                  <div
-                    className={`flex w-full flex-wrap ${message.contactId === auth.id ? "justify-end" : ""} gap-[1rem]`}
-                  >
-                    {message.attachments.map((item, index) => (
-                      <ImageWithLightBox
-                        src={item.mediaUrl}
-                        title={item.mediaName?.split(".")[0]}
-                        className="my-auto aspect-square w-[45%] cursor-pointer rounded-2xl"
-                        slides={message.attachments.map((item) => ({
-                          src:
-                            item.type === "image"
-                              ? item.mediaUrl
-                              : "images/filenotfound.svg",
-                        }))}
-                        index={index}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+          {messages?.messages.map((message) => (
+            <MessageContent message={message} />
           ))}
+
+          {isPending && (
+            <MessageContent
+              pending={isPending}
+              message={{
+                type: "text",
+                content: variables,
+                status: "received",
+                isPinned: false,
+                isLike: false,
+                likeCount: 0,
+                seenTime: null,
+                contactId: "6cd0b479-f501-4aed-a033-f390daaff66c",
+                conversationId: "9163a82e-d51a-4751-b670-a06c71997ae1",
+                attachments: [],
+                id: "9b5f717a-550c-46b4-9ea3-2d2332a8891e",
+                createdTime: "2024-06-27T16:08:38.161513",
+                updatedTime: null,
+              }}
+            />
+          )}
           <BackgroundPortal
             className="!w-[35%]"
             open={open}
@@ -475,7 +471,7 @@ const Chatbox = (props) => {
               className="fa fa-file cursor-pointer font-normal"
             ></label>
           </Tooltip>
-          {selected.isGroup ? (
+          {messages.conversation.isGroup ? (
             ""
           ) : (
             <div className="relative">
@@ -542,7 +538,8 @@ const Chatbox = (props) => {
             </div>
           </>
         ) : (
-          <ChatInput send={sendMessage} refChatInputExpose={refChatInput} />
+          // <ChatInput send={sendMessage} refChatInputExpose={refChatInput} />
+          <ChatInput send={sendMutation} refChatInputExpose={refChatInput} />
         )}
       </div>
     </div>

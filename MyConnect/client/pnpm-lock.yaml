@@ -32,6 +32,9 @@ importers:
       axios:
         specifier: 1.6.2
         version: 1.6.2
+      axios-retry:
+        specifier: ^4.4.1
+        version: 4.4.1(axios@1.6.2)
       bootstrap:
         specifier: 5.3.0
         version: 5.3.0(@popperjs/core@2.11.8)
@@ -994,6 +997,11 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  axios-retry@4.4.1:
+    resolution: {integrity: sha512-JGzNoglDHtHWIEvvAampB0P7jxQ/sT4COmW0FgSQkVg6o4KqNjNMBI6uFVOq517hkw/OAYYAG08ADtBlV8lvmQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+
   axios@1.6.2:
     resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
 
@@ -1629,6 +1637,10 @@ packages:
   is-regex@1.1.4:
     resolution: {integrity: sha512-kvRdxDsxZjhzUX07ZnLydzS1TU/TJlTUHHY4YLL87e37oUA49DfkLqgy+VjFocowy29cKvcSiu+kIv728jTTVg==}
     engines: {node: '>= 0.4'}
+
+  is-retry-allowed@2.2.0:
+    resolution: {integrity: sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==}
+    engines: {node: '>=10'}
 
   is-shared-array-buffer@1.0.3:
     resolution: {integrity: sha512-nA2hv5XIhLR3uVzDDfCIknerhx8XUKnstuOERPNNIinXG7v9u+ohXF67vxm4TPTEPU6lm61ZkwP3c9PCB97rhg==}
@@ -3890,6 +3902,11 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
+  axios-retry@4.4.1(axios@1.6.2):
+    dependencies:
+      axios: 1.6.2
+      is-retry-allowed: 2.2.0
+
   axios@1.6.2:
     dependencies:
       follow-redirects: 1.15.6
@@ -4679,6 +4696,8 @@ snapshots:
     dependencies:
       call-bind: 1.0.7
       has-tostringtag: 1.0.2
+
+  is-retry-allowed@2.2.0: {}
 
   is-shared-array-buffer@1.0.3:
     dependencies:

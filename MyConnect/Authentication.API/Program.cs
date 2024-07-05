@@ -40,7 +40,7 @@ builder.Services.AddAuthentication()
 //     options.SlidingExpiration = true;
 //     // options.AccessDeniedPath = "/Forbidden/";
 // });
-// builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme, opt =>
+// builder.Services.AddAuthentication().AddCookie(IdentityAppConstants.ApplicationScheme, opt =>
 // {
 //     opt.Cookie.Name = "app-token";
 //     opt.Cookie.HttpOnly = true;
@@ -58,9 +58,9 @@ builder.Services.AddIdentityCore<AppUser>()
 .AddApiEndpoints();
 
 // Add HttpClient
-builder.Services.AddHttpClient(Constants.HttpClient_Chat, client =>
+builder.Services.AddHttpClient(AppConstants.HttpClient_Chat, client =>
 {
-    client.BaseAddress = new Uri(Constants.ApiDomain_Chat);
+    client.BaseAddress = new Uri(AppConstants.ApiDomain_Chat);
 });
 
 var app = builder.Build();
@@ -81,9 +81,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseDbTransaction();
 
-app.MapGroup(Constants.ApiRoute_User).MapIdentityApi<AppUser>();
+app.MapGroup(AppConstants.ApiRoute_User).MapIdentityApi<AppUser>();
 
-app.MapGroup(Constants.ApiRoute_User).MapPost(Constants.ApiEndpoint_SignUp,
+app.MapGroup(AppConstants.ApiRoute_User).MapPost(AppConstants.ApiEndpoint_SignUp,
 // async Task<Results<Ok, BadRequest<IdentityResult>>>
 async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory clientFactory) =>
 {
@@ -102,8 +102,8 @@ async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory
             Id = created,
             Name = model.Name
         };
-        var client = clientFactory.CreateClient(Constants.HttpClient_Chat);
-        var response = await client.PostAsJsonAsync(Constants.ApiRoute_Contact, contact);
+        var client = clientFactory.CreateClient(AppConstants.HttpClient_Chat);
+        var response = await client.PostAsJsonAsync(AppConstants.ApiRoute_Contact, contact);
         response.EnsureSuccessStatusCode();
         return Results.Ok();
     }
@@ -120,7 +120,7 @@ async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory
 // .Produces(StatusCodes.Status200OK)
 // .Produces(StatusCodes.Status404NotFound);
 
-app.MapGroup(Constants.ApiRoute_User).MapPost(Constants.ApiEndpoint_SignIn,
+app.MapGroup(AppConstants.ApiRoute_User).MapPost(AppConstants.ApiEndpoint_SignIn,
 async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context) =>
 {
     Stream originalBodyStream = context.Response.Body;
@@ -154,14 +154,14 @@ async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context)
     return Results.Empty;
 });
 
-app.MapGroup(Constants.ApiRoute_User).MapGet(Constants.ApiEndpoint_Token,
+app.MapGroup(AppConstants.ApiRoute_User).MapGet(AppConstants.ApiEndpoint_Token,
 async (UserManager<AppUser> userManager, ClaimsPrincipal model) =>
 {
     var user = await userManager.FindByNameAsync(model.Identity.Name);
     return Results.Ok(user);
 }).RequireAuthorization();
 
-app.MapGroup(Constants.ApiRoute_User).MapGet(Constants.ApiEndpoint_Signout,
+app.MapGroup(AppConstants.ApiRoute_User).MapGet(AppConstants.ApiEndpoint_Signout,
 async (UserManager<AppUser> userManager, ClaimsPrincipal model, HttpContext context) =>
 {
     // Delete all cookies
@@ -175,7 +175,7 @@ async (UserManager<AppUser> userManager, ClaimsPrincipal model, HttpContext cont
     return Results.Ok();
 }).RequireAuthorization();
 
-app.MapGroup(Constants.ApiRoute_User).MapPost(Constants.ApiEndpoint_Forgot,
+app.MapGroup(AppConstants.ApiRoute_User).MapPost(AppConstants.ApiEndpoint_Forgot,
 async (UserManager<AppUser> userManager, SignupRequest model) =>
 {
     var user = await userManager.FindByNameAsync(model.Username);

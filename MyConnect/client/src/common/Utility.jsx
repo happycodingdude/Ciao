@@ -1,36 +1,46 @@
 import axios from "axios";
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
-import { useInfo } from "../hook/CustomHooks";
 
-export const RequireAuth = () => {
-  const { data: info, isLoading } = useInfo();
+axiosRetry(axios, {
+  retries: 1,
+  retryCondition: async (error) => {
+    if (
+      !(error.config.url === import.meta.env.VITE_ENDPOINT_REFRESH) &&
+      error.response.status === 401 &&
+      localStorage.getItem("refresh")
+    ) {
+      const newToken = await refreshToken();
+      error.config.headers["Authorization"] = "Bearer " + newToken;
+      return true;
+    }
+    return false;
+  },
+});
 
-  if (isLoading) return "Loading...";
-
-  if (!info) return <Navigate to="/authen" replace />;
-
-  return <Outlet />;
+const delay = (delay) => {
+  return new Promise((resolve) => setTimeout(resolve, delay));
 };
 
-export const HttpRequest = ({
+export const HttpRequest = async ({
   method,
   url,
-  token,
   header = {},
   data = null,
   controller = new AbortController(),
   alert = false,
+  timeout = 0,
 }) => {
-  return axios({
+  if (timeout !== 0) await delay(timeout);
+
+  return await axios({
     method: method,
     url: url,
     data: data,
     headers: {
       ...{
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
+        Authorization: "Bearer " + localStorage.getItem("token"),
       },
       ...header,
     },
@@ -42,13 +52,25 @@ export const HttpRequest = ({
     })
     .catch((err) => {
       if (alert) toast.error("👨‍✈️ Mission failed!");
-      console.log(err);
-
-      throw err.response;
+      return err;
     });
 };
 
-export const GenerateContent = (contacts, text) => {
+const refreshToken = () => {
+  return axios({
+    method: "post",
+    url: import.meta.env.VITE_ENDPOINT_REFRESH,
+    data: {
+      refreshToken: localStorage.getItem("refresh"),
+    },
+  }).then((res) => {
+    localStorage.setItem("token", res.data.accessToken);
+    localStorage.setItem("refresh", res.data.refreshToken);
+    return res.data.accessToken;
+  });
+};
+
+export const generateContent = (contacts, text) => {
   if (contacts?.some((item) => text.includes(`@${item.ContactId}`))) {
     contacts.map((item) => {
       text = text.replace(

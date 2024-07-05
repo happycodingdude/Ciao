@@ -6,6 +6,7 @@ const ErrorComponent = (props) => {
   const { error } = props;
   return (
     <div
+      tabIndex="-1"
       className={`relative h-[2rem] w-[2rem] ${error === "" ? "scale-0" : "scale-100"}`}
     >
       <div className="pulsing absolute h-[70%] w-[70%] rounded-[50%] border-[.1rem] border-red-500"></div>

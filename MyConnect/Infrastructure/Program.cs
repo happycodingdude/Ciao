@@ -13,6 +13,11 @@ var configuration = new ConfigurationBuilder()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContextPool<AppDbContext>(option =>
+{
+    option.UseMySQL(configuration.GetConnectionString("Db-Development"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
