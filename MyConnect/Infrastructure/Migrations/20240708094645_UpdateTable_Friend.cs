@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class UpdateTable_Friend : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -74,9 +74,8 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ContactId1 = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ContactId2 = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Status = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true),
+                    FromContactId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    ToContactId = table.Column<Guid>(type: "char(36)", nullable: false),
                     AcceptTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     UpdatedTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
@@ -85,14 +84,14 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Friend", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Friend_Contact_ContactId1",
-                        column: x => x.ContactId1,
+                        name: "FK_Friend_Contact_FromContactId",
+                        column: x => x.FromContactId,
                         principalTable: "Contact",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Friend_Contact_ContactId2",
-                        column: x => x.ContactId2,
+                        name: "FK_Friend_Contact_ToContactId",
+                        column: x => x.ToContactId,
                         principalTable: "Contact",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -250,14 +249,14 @@ namespace Infrastructure.Migrations
                 column: "MessageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friend_ContactId1",
+                name: "IX_Friend_FromContactId",
                 table: "Friend",
-                column: "ContactId1");
+                column: "FromContactId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friend_ContactId2",
+                name: "IX_Friend_ToContactId",
                 table: "Friend",
-                column: "ContactId2");
+                column: "ToContactId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Message_ContactId",

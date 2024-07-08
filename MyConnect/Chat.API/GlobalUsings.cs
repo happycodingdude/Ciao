@@ -1,5 +1,5 @@
 global using AutoMapper;
-global using Chat.API.Interface;
+global using Chat.API.Features;
 global using Chat.API.Model;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.EntityFrameworkCore;
@@ -20,5 +20,4 @@ global using Infrastructure.Constants;
 global using Infrastructure.Exceptions;
 global using Infrastructure.Authentication;
 global using System.Text.Json;
-global using Chat.API.Implement;
 global using Newtonsoft.Json;

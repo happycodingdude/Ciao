@@ -1,5 +1,4 @@
-
-namespace Chat.API.Implement;
+namespace Chat.API.Features;
 
 public class ContactService : BaseService<Contact, ContactDto>, IContactService
 {

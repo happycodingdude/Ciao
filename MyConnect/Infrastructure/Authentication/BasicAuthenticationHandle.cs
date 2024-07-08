@@ -1,17 +1,17 @@
 namespace Infrastructure.Authentication;
 
-public class AllUserHandle : AuthorizationHandler<AllUserRequirement>
+public class BasicAuthenticationHandle : AuthorizationHandler<BasicAuthenticationRequirement>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IHttpClientFactory _clientFactory;
 
-    public AllUserHandle(IHttpContextAccessor httpContextAccessor, IHttpClientFactory clientFactory)
+    public BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor, IHttpClientFactory clientFactory)
     {
         _httpContextAccessor = httpContextAccessor;
         _clientFactory = clientFactory;
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AllUserRequirement requirement)
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, BasicAuthenticationRequirement requirement)
     {
         try
         {
@@ -20,12 +20,7 @@ public class AllUserHandle : AuthorizationHandler<AllUserRequirement>
             var client = _clientFactory.CreateClient(AppConstants.HttpClient_Auth);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.GetAsync(AppConstants.ApiRoute_User + AppConstants.ApiEndpoint_Token);
-
-            // Console.WriteLine(response.IsSuccessStatusCode);
-
             response.EnsureSuccessStatusCode();
-
-            // Console.WriteLine("Authenticate successfully");
             var content = await response.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<AppUser>(content);
             _httpContextAccessor.HttpContext.Session.SetString("UserId", user.id);

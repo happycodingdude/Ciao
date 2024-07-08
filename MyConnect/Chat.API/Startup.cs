@@ -14,56 +14,56 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         Console.WriteLine("ConfigureServices running");
-        services.AddDistributedMemoryCache();
-        services.AddSession();
-        services.AddControllers();
-        // .AddNewtonsoftJson(opt =>
+        // services.AddDistributedMemoryCache();
+        // services.AddSession();
+        // services.AddControllers();
+        // // .AddNewtonsoftJson(opt =>
+        // // {
+        // //     opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        // //     opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
+        // // })
+        // services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
         // {
-        //     opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-        //     opt.SerializerSettings.ContractResolver = new IgnoreJsonAttributesResolver();
-        // })
-        services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
-        {
-            // opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-            opt.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        });
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-        services.AddHttpContextAccessor();
-        services.AddDbContextPool<AppDbContext>(option =>
-        {
-            option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
-        });
+        //     // opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        //     opt.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        //     opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        // });
+        // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        // services.AddEndpointsApiExplorer();
+        // services.AddSwaggerGen();
+        // services.AddHttpContextAccessor();
+        // services.AddDbContextPool<AppDbContext>(option =>
+        // {
+        //     option.UseMySQL(_configuration.GetConnectionString("Db-Development"));
+        // });
 
-        var assembly = typeof(Program).Assembly;
-        services.AddMediatR(config => config.RegisterServicesFromAssembly(assembly));
-        services.AddCarter();
+        // var assembly = typeof(Program).Assembly;
+        // services.AddMediatR(config => config.RegisterServicesFromAssembly(assembly));
+        // services.AddCarter();
 
-        // Authentication
-        services.AddAuthentication();
+        // // Authentication
+        // services.AddAuthentication();
 
-        // Authorization
-        services.AddSingleton<IAuthorizationHandler, AllUserHandle>();
-        services.AddAuthorization(option =>
-        {
-            option.AddPolicy("AllUser", policy =>
-            {
-                policy.AddRequirements(new AllUserRequirement());
-            });
-        });
+        // // Authorization
+        // services.AddSingleton<IAuthorizationHandler, AllUserHandle>();
+        // services.AddAuthorization(option =>
+        // {
+        //     option.AddPolicy("AllUser", policy =>
+        //     {
+        //         policy.AddRequirements(new AllUserRequirement());
+        //     });
+        // });
 
-        // Add HttpClient
-        services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
-        {
-            client.BaseAddress = new Uri(AppConstants.ApiDomain_Auth);
-        });
+        // // Add HttpClient
+        // services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
+        // {
+        //     client.BaseAddress = new Uri(AppConstants.ApiDomain_Auth);
+        // });
 
-        // Exception handler
-        services.AddExceptionHandler<BadRequestExceptionHandler>();
-        services.AddExceptionHandler<UnauthorizedExceptionHandler>();
-        services.AddProblemDetails();
+        // // Exception handler
+        // services.AddExceptionHandler<BadRequestExceptionHandler>();
+        // services.AddExceptionHandler<UnauthorizedExceptionHandler>();
+        // services.AddProblemDetails();
 
         // // Service
         // services.AddScoped<IAttachmentService, AttachmentService>();

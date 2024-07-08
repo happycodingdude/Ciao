@@ -1,4 +1,4 @@
-namespace Chat.API.Interface;
+namespace Chat.API.Features;
 
 public interface IContactService : IBaseService<Contact, ContactDto>
 {

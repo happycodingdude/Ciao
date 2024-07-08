@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240708094645_UpdateTable_Friend")]
+    partial class UpdateTable_Friend
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,29 +144,25 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("AcceptTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("ContactId1")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ContactId2")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime?>("CreatedTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                    b.Property<Guid>("FromContactId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ToContactId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("UpdatedTime")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContactId1");
+                    b.HasIndex("FromContactId");
 
-                    b.HasIndex("ContactId2");
+                    b.HasIndex("ToContactId");
 
                     b.ToTable("Friend", (string)null);
                 });
@@ -377,21 +376,21 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Features.Friend", b =>
                 {
-                    b.HasOne("Domain.Features.Contact", "Contact1")
+                    b.HasOne("Domain.Features.Contact", "FromContact")
                         .WithMany()
-                        .HasForeignKey("ContactId1")
+                        .HasForeignKey("FromContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Features.Contact", "Contact2")
+                    b.HasOne("Domain.Features.Contact", "ToContact")
                         .WithMany()
-                        .HasForeignKey("ContactId2")
+                        .HasForeignKey("ToContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Contact1");
+                    b.Navigation("FromContact");
 
-                    b.Navigation("Contact2");
+                    b.Navigation("ToContact");
                 });
 
             modelBuilder.Entity("Domain.Features.Message", b =>

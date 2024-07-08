@@ -16,26 +16,26 @@ public static class GetFriendsByContactId
 
         public async Task<IEnumerable<GetAllFriend>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var friends = await _dbContext
-            .Friends
-            .AsNoTracking()
-            .Where(q => (q.ContactId1 == request.Id || q.ContactId2 == request.Id) && q.Status == "friend")
-            .ToListAsync(cancellationToken);
-            if (!friends.Any()) return Enumerable.Empty<GetAllFriend>();
+            // var friends = await _dbContext
+            // .Friends
+            // .AsNoTracking()
+            // .Where(q => (q.ContactId1 == request.Id || q.ContactId2 == request.Id) && q.Status == "friend")
+            // .ToListAsync(cancellationToken);
+            // if (!friends.Any()) return Enumerable.Empty<GetAllFriend>();
 
             var result = new List<GetAllFriend>();
-            foreach (var friend in friends)
-                result.Add(new GetAllFriend
-                {
-                    Id = friend.Id,
-                    ContactId = friend.ContactId1 == request.Id ? friend.ContactId2 : friend.ContactId1,
-                    ContactName = (await _dbContext
-                                    .Contacts
-                                    .AsNoTracking()
-                                    .Where(q => q.Id == (friend.ContactId1 == request.Id ? friend.ContactId2 : friend.ContactId1))
-                                    .FirstOrDefaultAsync(cancellationToken))
-                                    .Name
-                });
+            // foreach (var friend in friends)
+            //     result.Add(new GetAllFriend
+            //     {
+            //         Id = friend.Id,
+            //         ContactId = friend.ContactId1 == request.Id ? friend.ContactId2 : friend.ContactId1,
+            //         ContactName = (await _dbContext
+            //                         .Contacts
+            //                         .AsNoTracking()
+            //                         .Where(q => q.Id == (friend.ContactId1 == request.Id ? friend.ContactId2 : friend.ContactId1))
+            //                         .FirstOrDefaultAsync(cancellationToken))
+            //                         .Name
+            //     });
 
             return result;
         }
@@ -52,6 +52,6 @@ public class GetFriendsByContactIdEndpoint : ICarterModule
             var query = new GetFriendsByContactId.Query { Id = id };
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization("AllUser");
+        }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }

@@ -1,6 +1,3 @@
-using System.Text.Json;
-using Newtonsoft.Json;
-
 namespace Chat.API.MinimalAPI;
 
 public partial class MinimalAPI

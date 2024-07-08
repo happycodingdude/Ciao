@@ -40,6 +40,6 @@ public class UpdateContactEndpoint : ICarterModule
             };
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization("AllUser");
+        }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }

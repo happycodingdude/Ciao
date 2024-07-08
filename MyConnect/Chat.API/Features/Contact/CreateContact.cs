@@ -8,22 +8,21 @@ public static class CreateContact
 
     internal sealed class Handler : IRequestHandler<Query, Unit>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IContactService _service;
 
-        public Handler(AppDbContext dbContext)
+        public Handler(IContactService service)
         {
-            _dbContext = dbContext;
+            _service = service;
         }
 
         public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
         {
-            var contact = new Contact
+            var contact = new ContactDto
             {
                 Id = request.Id,
                 Name = request.Name
             };
-            _dbContext.Contacts.Add(contact);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _service.AddAsync(contact);
             return Unit.Value;
         }
     }

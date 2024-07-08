@@ -19,7 +19,7 @@ public class BaseRepository<T> : IRepository<T> where T : BaseModel
 
     public virtual IEnumerable<T> GetAll(int page, int limit)
     {
-        return DbSet.OrderByDescending(q => q.CreatedTime).Skip(limit * (page - 1)).Take(limit).ToList();
+        return DbSet.AsNoTracking().OrderByDescending(q => q.CreatedTime).Skip(limit * (page - 1)).Take(limit).ToList();
     }
 
     public virtual async Task<T> GetByIdAsync(Guid id)

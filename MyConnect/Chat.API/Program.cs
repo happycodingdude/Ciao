@@ -40,12 +40,12 @@ builder.Services.AddCarter();
 builder.Services.AddAuthentication();
 
 // Authorization
-builder.Services.AddSingleton<IAuthorizationHandler, AllUserHandle>();
+builder.Services.AddSingleton<IAuthorizationHandler, BasicAuthenticationHandle>();
 builder.Services.AddAuthorization(option =>
 {
-    option.AddPolicy("AllUser", policy =>
+    option.AddPolicy("Basic", policy =>
     {
-        policy.AddRequirements(new AllUserRequirement());
+        policy.AddRequirements(new BasicAuthenticationRequirement());
     });
 });
 
@@ -63,7 +63,7 @@ builder.Services.AddProblemDetails();
 // Business logics
 // builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IContactService, ContactService>();
-// builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
 // builder.Services.AddScoped<IFriendService, FriendService>();
 // builder.Services.AddScoped<IMessageService, MessageService>();
 // builder.Services.AddScoped<INotificationService, NotificationService>();

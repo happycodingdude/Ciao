@@ -11,3 +11,8 @@ public partial class AppConstants
     public const string HttpClient_Chat = "Chat";
     public const string HttpClient_Auth = "Auth";
 }
+
+public partial class AppConstants
+{
+    public const string Authentication_Basic = "Basic";
+}

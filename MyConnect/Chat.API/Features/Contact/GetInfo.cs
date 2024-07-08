@@ -32,6 +32,6 @@ public class GetInfoEndpoint : ICarterModule
             var query = new GetInfo.Query { Id = userId };
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization("AllUser");
+        }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }

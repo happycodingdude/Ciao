@@ -7,8 +7,7 @@ public class FriendEntityConfiguration : IEntityTypeConfiguration<Friend>
         builder.ToTable("Friend");
         builder.HasKey(q => q.Id);
         builder.Property(q => q.CreatedTime).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-        builder.Property(q => q.Status).HasMaxLength(20);
-        builder.HasOne(q => q.Contact1).WithMany().HasForeignKey(q => q.ContactId1).IsRequired().OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(q => q.Contact2).WithMany().HasForeignKey(q => q.ContactId2).IsRequired().OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(q => q.FromContact).WithMany().HasForeignKey(q => q.FromContactId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(q => q.ToContact).WithMany().HasForeignKey(q => q.ToContactId).IsRequired().OnDelete(DeleteBehavior.Cascade);
     }
 }
