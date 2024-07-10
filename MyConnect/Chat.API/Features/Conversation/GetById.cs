@@ -34,6 +34,6 @@ public class GetByIdEndpoint : ICarterModule
             };
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization("AllUser");
+        }).RequireAuthorization("Basic");
     }
 }

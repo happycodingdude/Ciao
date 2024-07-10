@@ -1,4 +1,4 @@
-namespace Chat.API.Model;
+namespace Chat.API.Features;
 
 public class ContactDto : BaseModel
 {

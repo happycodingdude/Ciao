@@ -21,3 +21,4 @@ global using Infrastructure.Exceptions;
 global using Infrastructure.Authentication;
 global using System.Text.Json;
 global using Newtonsoft.Json;
+global using FluentValidation;

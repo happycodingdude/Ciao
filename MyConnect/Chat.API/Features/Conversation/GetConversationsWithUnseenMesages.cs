@@ -10,56 +10,81 @@ public static class GetConversationsWithUnseenMesages
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<ConversationWithTotalUnseen>>
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public Handler(AppDbContext dbContext, IMapper mapper)
+        public Handler(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Query request, CancellationToken cancellationToken)
         {
             request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;
             request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
-            var conversations = await _dbContext
-                .Conversations
-                .AsNoTracking()
-                .Where(q => q.Participants.Any(w => w.ContactId == request.ContactId))
-                .OrderByDescending(q => q.UpdatedTime)
-                .Skip(request.Limit * (request.Page - 1))
-                .Take(request.Limit)
-                .ToListAsync();
+
+            var conversations = await (
+                from conv in _dbContext.Set<Conversation>().AsNoTracking()
+                    .Select(q => new { q.Id, q.Title, q.Avatar, q.IsGroup, q.UpdatedTime })
+                    .OrderByDescending(q => q.UpdatedTime)
+                    .Skip(request.Limit * (request.Page - 1))
+                    .Take(request.Limit)
+                from mess in _dbContext.Set<Message>().AsNoTracking().Where(q => q.ConversationId == conv.Id).DefaultIfEmpty()
+                join part in _dbContext.Set<Participant>().AsNoTracking() on conv.Id equals part.ConversationId
+                join cust in _dbContext.Set<Contact>().AsNoTracking() on part.ContactId equals cust.Id
+                where part.ContactId != request.ContactId
+                select new
+                {
+                    conv.Id,
+                    conv.Title,
+                    conv.Avatar,
+                    conv.IsGroup,
+                    conv.UpdatedTime,
+                    Participant = new ConversationWithTotalUnseen_Participants
+                    {
+                        Id = part.Id,
+                        IsDeleted = part.IsDeleted,
+                        IsModerator = part.IsModerator,
+                        IsNotifying = part.IsNotifying,
+                        ContactId = part.ContactId,
+                        Contact = new ConversationWithTotalUnseen_Participants_Contact
+                        {
+                            Id = cust.Id,
+                            Name = cust.Name,
+                            Avatar = cust.Avatar
+                        }
+                    },
+                    Message = new { mess.Id, mess.Content, mess.CreatedTime, mess.ContactId, mess.Status, mess.SeenTime } ?? null
+                }
+            )
+            .ToListAsync(cancellationToken);
+
             if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
 
-            var conversationDTOs = _mapper.Map<List<Conversation>, List<ConversationWithTotalUnseen>>(conversations);
-            foreach (var conversation in conversationDTOs)
-            {
-                var participants = await _dbContext
-                                        .Participants
-                                        .AsNoTracking()
-                                        .Include(q => q.Contact)
-                                        .Where(q => q.ConversationId == conversation.Id)
-                                        .ToListAsync(cancellationToken);
-
-                conversation.Participants = _mapper.Map<List<Participant>, List<ParticipantNoReference>>(participants);
-                conversation.IsNotifying = participants.FirstOrDefault(q => q.ContactId == request.ContactId).IsNotifying;
-
-                var messages = await _dbContext.Messages.Where(q => q.ConversationId == conversation.Id).ToListAsync(cancellationToken);
-                conversation.UnSeenMessages = messages.Count(q => q.ContactId != request.ContactId && q.Status == "received");
-                var lastMessageEntity = messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
-                if (lastMessageEntity == null) continue;
-                conversation.LastMessageId = lastMessageEntity.Id;
-                conversation.LastMessage = lastMessageEntity.Content;
-                conversation.LastMessageTime = lastMessageEntity.CreatedTime;
-                conversation.LastMessageContact = lastMessageEntity.ContactId;
-                conversation.LastSeenTime = messages
-                                        .Where(q => q.ContactId == request.ContactId && q.Status == "seen" && q.SeenTime.HasValue)
-                                        .OrderByDescending(q => q.CreatedTime)
-                                        .FirstOrDefault()?
-                                        .SeenTime;
-            }
-            return conversationDTOs;
+            var result =
+                from conv in conversations
+                    // group conv by new { conv.Id, conv.Avatar, conv.IsGroup, conv.UpdatedTime } into convGroup
+                group conv by conv.Id into convGroup
+                from firstMess in convGroup.Select(q => q.Message).DistinctBy(q => q.Id).OrderByDescending(q => q.CreatedTime).DefaultIfEmpty()
+                select new ConversationWithTotalUnseen
+                {
+                    Id = convGroup.Key,
+                    Title = convGroup.Select(q => q.Title).FirstOrDefault(),
+                    Avatar = convGroup.Select(q => q.Avatar).FirstOrDefault(),
+                    IsGroup = convGroup.Select(q => q.IsGroup).FirstOrDefault(),
+                    UpdatedTime = convGroup.Select(q => q.UpdatedTime).FirstOrDefault(),
+                    Participants = convGroup.Select(q => q.Participant).DistinctBy(q => q.Id).ToList(),
+                    UnSeenMessages = convGroup.Select(q => q.Message).DistinctBy(q => q.Id)
+                        .Count(q => q.ContactId != request.ContactId && q.Status == "received"),
+                    LastMessageId = firstMess?.Id,
+                    LastMessage = firstMess?.Content,
+                    LastMessageTime = firstMess?.CreatedTime,
+                    LastMessageContact = firstMess?.ContactId,
+                    LastSeenTime = convGroup.Select(q => q.Message).DistinctBy(q => q.Id)
+                        .Where(q => q.ContactId == request.ContactId && q.Status == "seen" && q.SeenTime.HasValue)
+                        .OrderByDescending(q => q.CreatedTime)
+                        .FirstOrDefault()?
+                        .SeenTime,
+                };
+            return result.DistinctBy(q => q.Id);
         }
     }
 }
@@ -80,6 +105,6 @@ public class GetConversationsWithUnseenMesagesEndpoint : ICarterModule
             };
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization("AllUser");
+        }).RequireAuthorization("Basic");
     }
 }

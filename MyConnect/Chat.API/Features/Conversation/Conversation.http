@@ -1,0 +1,39 @@
+###
+POST  http://localhost:4100/api/users/signin
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@123"
+}
+
+###
+GET  http://localhost:4000/api/conversations
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TsxzUenMssYsPEIOR8Ac4RP5TihZRm5KNsY7x-fXhpiPNHTpdVOqjAu5p_fCfaXGIRaSQwAU9wTYRhowtfZXUhndjqqvYdpY-n3lD5Mkx1N7WLKe1CZPcBD1fdSkS_bjQR34lqcRMY1DJ245dMwHMiZKKay_lL0hJztA2rmXVgzuf2dZSvUKMuSAlmBFaD5ytEfy6peVHOHE5ILnIJMVQfZi0aIvkNPq937dGAY0A3u-3DZCrqrBoWxiE6TyMMma5ejMMAs0rdkiX-BR_QK6kus9z7xChv7h5z1vpNH_81RRzdYs5BEi4MYmtJ5YRVphZn92B0ylbDkAYiuACTNtaXxxbXGN7KHkrdoBhAyKy5K6VAW6qTgXPa7HtqhpZRZhx3mhSy4bV1fYu6wIeBckmf9KDLj9en9rvtttM10EJFzyEMHDTuEsase6s7Xfq0rGSgnPtBvdH2CcgK8diVYMC5873XHOMM9k0P71MkpfjqEhjUCPraSqvJY0o0ki-gbMXGhf0y_BMEIkcDTR7obAjPgVRt6Wg3AWvS1W3qSd7fIQ
+
+
+###
+GET  http://localhost:4000/api/conversations/9163a82e-d51a-4751-b670-a06c71997ae1
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TABatzo0f22-IBt6yRQRaB3xsZ4VE7l_j1SJJdiQ0Aa1nfE64_oY-GZbMLhTdFPHPG9YaQhFpNIqTxfhX0QdRe1ZaikcdWlz98btSDBNl9wFOg4igqKQsxaBPZKWPguM6QD3fxSV5-PPsGbBDV1BtHWcCHsUmi0xkUej0kzl7ikszWwv6PDpx1FZMX9XVQnC5M7lz_GFZWArk2Z9EgCFD1NKdW6hYFlyuEFr5rMBYJU_cHopTKxhmDs2PTvHYb0-JzbAfvUYwDnMKhp0-ROc38Y6zkoIDDghmZ7noLwNwMa4PwENDKgKKZqYjhcdrW4JErROR6X7lf4JEQwICVs-zaXpuVnkjjBBPHwWDkwRdEgVJOjaPBdQveI2awbv7B09VThlsSYCeVyk1YDMAi4zB_R1yuJxO4U8Vn9CaqHrU-eUiIj1A06XZho_skJeUe5sOiRCYBCViDKaY1Fz7NXz5CFTrh2gXPLJOnFmg8wqQilzbzKi-q85BRUcC8b2oLPnOLYc1iXK5ehJ8AzZifdenoThDGpvPUjJQGV-0MmpfEnA
+
+###
+POST  http://localhost:4000/api/conversations
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TsxzUenMssYsPEIOR8Ac4RP5TihZRm5KNsY7x-fXhpiPNHTpdVOqjAu5p_fCfaXGIRaSQwAU9wTYRhowtfZXUhndjqqvYdpY-n3lD5Mkx1N7WLKe1CZPcBD1fdSkS_bjQR34lqcRMY1DJ245dMwHMiZKKay_lL0hJztA2rmXVgzuf2dZSvUKMuSAlmBFaD5ytEfy6peVHOHE5ILnIJMVQfZi0aIvkNPq937dGAY0A3u-3DZCrqrBoWxiE6TyMMma5ejMMAs0rdkiX-BR_QK6kus9z7xChv7h5z1vpNH_81RRzdYs5BEi4MYmtJ5YRVphZn92B0ylbDkAYiuACTNtaXxxbXGN7KHkrdoBhAyKy5K6VAW6qTgXPa7HtqhpZRZhx3mhSy4bV1fYu6wIeBckmf9KDLj9en9rvtttM10EJFzyEMHDTuEsase6s7Xfq0rGSgnPtBvdH2CcgK8diVYMC5873XHOMM9k0P71MkpfjqEhjUCPraSqvJY0o0ki-gbMXGhf0y_BMEIkcDTR7obAjPgVRt6Wg3AWvS1W3qSd7fIQ
+Content-Type: application/json
+
+{
+    "title":"A wonderful day",
+    "isGroup": true,
+    "participants":[
+        {
+            "contactId":"6cd0b479-f501-4aed-a033-f390daaff66c",
+            "isNotification":true,
+            "isModerator":true
+        },
+        {
+            "contactId":"80a6d922-c6e9-4332-a519-92dad5b796bc",
+            "isNotification":true,
+            "isModerator":true
+        }
+    ]
+}

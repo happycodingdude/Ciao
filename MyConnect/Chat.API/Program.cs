@@ -31,10 +31,11 @@ builder.Services.AddDbContextPool<AppDbContext>(option =>
     option.UseMySQL(configuration.GetConnectionString("Db-Development"));
 });
 
-// MediatR, Carter
+// MediatR, Carter, Fluent Validator
 var assembly = typeof(Program).Assembly;
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(assembly));
 builder.Services.AddCarter();
+builder.Services.AddValidatorsFromAssembly(assembly);
 
 // Authentication
 builder.Services.AddAuthentication();
