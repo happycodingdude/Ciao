@@ -1,6 +1,6 @@
-namespace Chat.API.Features.Contacts;
+namespace Chat.API.Features.Participants;
 
-public static class UpdateContact
+public static class UpdateParticipant
 {
     public class Query : IRequest<Unit>
     {
@@ -10,9 +10,9 @@ public static class UpdateContact
 
     internal sealed class Handler : IRequestHandler<Query, Unit>
     {
-        private readonly IContactService _service;
+        private readonly IParticipantService _service;
 
-        public Handler(IContactService service)
+        public Handler(IParticipantService service)
         {
             _service = service;
         }
@@ -25,19 +25,18 @@ public static class UpdateContact
     }
 }
 
-public class UpdateContactEndpoint : ICarterModule
+public class UpdateParticipantEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapPatch("",
-        async (HttpContext context, JsonElement jsonElement, ISender sender) =>
+        app.MapGroup(AppConstants.ApiRoute_Participant).MapPatch("/{id}",
+        async (Guid id, JsonElement jsonElement, ISender sender) =>
         {
-            var userId = Guid.Parse(context.Session.GetString("UserId"));
             var json = jsonElement.GetRawText();
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
-            var query = new UpdateContact.Query
+            var query = new UpdateParticipant.Query
             {
-                Id = userId,
+                Id = id,
                 Patch = patch
             };
             await sender.Send(query);

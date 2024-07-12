@@ -1,3 +1,5 @@
+namespace Chat.API.Features.Contacts;
+
 public static class CreateContact
 {
     public class Query : IRequest<Unit>

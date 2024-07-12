@@ -9,6 +9,7 @@ public class MyMapping : Profile
         CreateMap<ContactDto, Contact>().ReverseMap();
         CreateMap<ContactDto, ContactNoReference>().ReverseMap();
         CreateMap<Contact, ContactNoReference>().ReverseMap();
+        CreateMap<Contact, ParticipantWithContact_Contact>().ReverseMap();
         CreateMap<ConversationDto, Conversation>().ReverseMap();
         CreateMap<ConversationDto, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
@@ -16,8 +17,10 @@ public class MyMapping : Profile
         CreateMap<FriendDto, FriendToNotify>().ReverseMap();
         CreateMap<MessageDto, Message>().ReverseMap();
         CreateMap<MessageDto, MessageToNotify>().ReverseMap();
-        CreateMap<MessageDto, MessageNoReference>().ReverseMap();
-        CreateMap<Message, MessageNoReference>().ReverseMap();
+        // CreateMap<MessageDto, MessageNoReference>().ReverseMap();
+        // CreateMap<Message, MessageNoReference>().ReverseMap();
+        CreateMap<Message, MessageWithAttachment>().ReverseMap();
+        CreateMap<Attachment, MessageWithAttachment_Attachment>().ReverseMap();
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<NotificationDto, NotificationTypeConstraint>().ReverseMap();
         CreateMap<Notification, NotificationTypeConstraint>().ReverseMap();

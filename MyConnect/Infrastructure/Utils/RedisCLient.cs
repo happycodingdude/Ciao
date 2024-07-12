@@ -1,3 +1,5 @@
+using IDatabase = StackExchange.Redis.IDatabase;
+
 namespace Infrastructure.Utils;
 
 public partial class Utils

@@ -56,14 +56,15 @@ public class BaseService<T, V> : IBaseService<T, V> where T : BaseModel where V 
         return _mapper.Map<T, V>(entity);
     }
 
-    public virtual async Task<V> PatchAsync(Guid id, JsonPatchDocument patch)
+    public virtual async Task PatchAsync(Guid id, JsonPatchDocument patch)
     {
+        if (!patch.Operations.Any()) return;
         var entity = await _repository.GetByIdAsync(id);
         patch.ApplyTo(entity);
         // entity.BeforeUpdate();
         _repository.Update(entity);
         await _unitOfWork.SaveAsync();
-        return _mapper.Map<T, V>(entity);
+        // return _mapper.Map<T, V>(entity);
     }
 
     public async Task<List<PatchResponse>> BulkUpdateAsync(List<PatchRequest<V>> patches)

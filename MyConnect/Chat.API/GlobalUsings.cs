@@ -22,3 +22,8 @@ global using Infrastructure.Authentication;
 global using System.Text.Json;
 global using Newtonsoft.Json;
 global using FluentValidation;
+global using Chat.API.Configuration;
+global using Chat.API.Features.Contacts;
+global using Chat.API.Features.Participants;
+global using Chat.API.Features.Conversations;
+global using Infrastructure.RequestPipeline;

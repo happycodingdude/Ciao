@@ -1,4 +1,4 @@
-
+namespace Chat.API.Features.Conversations;
 
 public static class CreateConversation
 {
@@ -11,7 +11,14 @@ public static class CreateConversation
     {
         public Validator()
         {
-            RuleFor(c => c.Model.Participants).NotEmpty();
+            RuleFor(c => c.Model.Participants).ShouldHaveValue().DependentRules(() =>
+            {
+                RuleFor(c => c.Model.Participants.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
+                RuleFor(c => c.Model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
+                RuleFor(c => c.Model.Participants.Count).GreaterThan(1).When(q => q.Model.IsGroup).WithMessage("Group conversation should contain at least 2 participants");
+                RuleFor(c => c.Model.Participants.Count).Equal(2).When(q => !q.Model.IsGroup).WithMessage("Direct conversation should contain 2 participants");
+            });
+            RuleFor(c => c.Model.Title).NotEmpty().When(q => q.Model.IsGroup).WithMessage("Title should not be empty");
         }
     }
 
@@ -51,6 +58,6 @@ public class CreateConversationEndpoint : ICarterModule
             };
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization("Basic");
+        }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }

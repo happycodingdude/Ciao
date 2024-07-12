@@ -1,4 +1,4 @@
-namespace Chat.API.Features;
+namespace Chat.API.Features.Conversations;
 
 public class ConversationService : BaseService<Conversation, ConversationDto>, IConversationService
 {

@@ -68,7 +68,7 @@ builder.Services.AddScoped<IConversationService, ConversationService>();
 // builder.Services.AddScoped<IFriendService, FriendService>();
 // builder.Services.AddScoped<IMessageService, MessageService>();
 // builder.Services.AddScoped<INotificationService, NotificationService>();
-// builder.Services.AddScoped<IParticipantService, ParticipantService>();
+builder.Services.AddScoped<IParticipantService, ParticipantService>();
 // builder.Services.AddScoped<IScheduleContactService, ScheduleContactService>();
 // builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
@@ -98,5 +98,6 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapCarter();
+app.UseDbTransaction();
 
 app.Run();

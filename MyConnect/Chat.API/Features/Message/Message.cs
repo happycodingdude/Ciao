@@ -1,10 +1,10 @@
-namespace Chat.API.Model;
+namespace Chat.API.Features;
 
 public class MessageDto : BaseModel
 {
-    public string? Type { get; set; }
-    public string? Content { get; set; }
-    public string? Status { get; set; } = "received";
+    public string Type { get; set; }
+    public string Content { get; set; }
+    public string Status { get; set; } = "received";
     public bool IsPinned { get; set; }
     public bool IsLike { get; set; }
     public int LikeCount { get; set; }
@@ -18,9 +18,9 @@ public class MessageDto : BaseModel
 
 public class MessageNoReference : BaseModel
 {
-    public string? Type { get; set; }
-    public string? Content { get; set; }
-    public string? Status { get; set; }
+    public string Type { get; set; }
+    public string Content { get; set; }
+    public string Status { get; set; }
     public bool IsPinned { get; set; }
     public bool IsLike { get; set; }
     public int LikeCount { get; set; }
@@ -33,10 +33,10 @@ public class MessageNoReference : BaseModel
 
 public class MessageToNotify : BaseModel
 {
-    public string? Type { get; set; }
-    public string? Content { get; set; }
-    public string? MediaUrl { get; set; }
-    public string? Status { get; set; }
+    public string Type { get; set; }
+    public string Content { get; set; }
+    public string MediaUrl { get; set; }
+    public string Status { get; set; }
     public bool IsPinned { get; set; }
     public bool IsLike { get; set; }
     public int LikeCount { get; set; }

@@ -1,3 +1,5 @@
+namespace Chat.API.Features.Contacts;
+
 public static class GetContactsWithFriendStatus
 {
     public class Query : IRequest<IEnumerable<ContactDto>>

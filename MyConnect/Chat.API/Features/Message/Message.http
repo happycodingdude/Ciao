@@ -1,0 +1,33 @@
+###
+POST  http://localhost:4100/api/users/signin
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@123"
+}
+
+
+###
+GET  http://localhost:4000/api/conversations/d8c1076f-6eb6-4b0f-9b0e-7ba0b8f00271/messages
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SAH3jDGQcojg-gzx7uN94KrlQwfrVQ-5WmXTjYg_0w7z3Kv1o8A9Q4BkOktbD-3ybe2c1gf458EwdTlAl3VNUi3mLmo-SJa2M3LeLn6KTVyu9XC40-6VdW-vYT7eIK44l8YuApk8D4kAeNR2pPqU6OmGfKRiQjvHJ4dP95HQ33zuhuuNgDrj6FlLUJ-BBmXlSwjMdZD-mzg60zNmttb774TtFDe-ZbPfIHcO2UgdM02tHm0Nk3Dr8zF1kivYIobyANquBlGXryW_jZ5WLT034uJRlkE29332HzE58QgW8fA-vTgzo_vN80RvsSZzHLUiAGvo_kWk9rnTbsD3pC1hR526QjqCHfz51ryWYRUCIvoCAyr87r2SMTQ5h-tF7jIHAGQTOVqB-Iqv0pbCbBuq0lvcv1xuSmtydVtF9qG4dHY7FnK6QB7KFiQ-0XPwYsnMJXD0lG_SYlvWOgGm27eKWMg7VmkVbVPf4swaGrqMyTy5diJaAYbxFzlHCMf3GXaiAwbLystdat8PP-SqkFs2Hr5VuLrYIXxSXrjIb8KNXASA
+
+
+###
+POST  http://localhost:4000/api/messages/send
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9R_vNUKJ8Pc6CVOJAlZ87Jk5XyZ8G504FxerLyzz-cqu3MFGTpOXUFmPZbEpgRJ3dJzFBJklj7i3AnIscm6f9ZY0Ow1Zd6Gakn5Yz1hcQPN7eEb2xiP1svfl1dH8fGS7POcsmr5dPX2c9hrpoEVGwqdLiEEdNvxbW2J49Cy_v2ju42bGCRjezIhDL0EOZ3vwdE2QSUMUAI_J4aTYwrUjdVrMSTLGp_eIVwjB-KFgvAWVdNipyUUmAp-RoSZRZXjApz1m1QUcGkKb4-94Y-dBXcTG198c10zcN2SGR3vMBFdIH8iQQkN-lcWAOcks9nJ8sjn2vJKLa9rBoyC6bfW1-JH_rQUjx4H57fV6FtNBRRWuORzYYyAFH47UtI5ouF40x5NPkHM0SCB3PlC-e_9P4KyLPqETYv9jFlLnArMIQ2iA-BH2oAicQd8kjSICgmuQBvi4aZulz5T0VGDuNtLtfbXM-u_O5WCdOMqtLY5VruPrRnrZmMAk78xLQHjpTja4NKVA0YhnULXA3sDeogNM7OlUQl7DYS2GSRgqSDob9QKIA
+Content-Type: application/json
+
+{
+    "conversationId":"d8c1076f-6eb6-4b0f-9b0e-7ba0b8f00271",
+    "type":"media",
+    "content":"hihi 3",
+    "attachments":[
+        {
+            "type":"file",
+            "mediaUrl":"zxc",
+            "mediaName":"zxcv",
+            "mediaSize":2
+        }
+    ]
+}

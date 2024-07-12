@@ -1,4 +1,4 @@
-namespace Authentication.API;
+namespace Infrastructure.Middleware;
 
 public class DbTransactionMiddleware
 {

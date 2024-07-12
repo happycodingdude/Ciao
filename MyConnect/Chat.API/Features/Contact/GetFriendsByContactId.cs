@@ -1,3 +1,5 @@
+namespace Chat.API.Features.Contacts;
+
 public static class GetFriendsByContactId
 {
     public class Query : IRequest<IEnumerable<GetAllFriend>>

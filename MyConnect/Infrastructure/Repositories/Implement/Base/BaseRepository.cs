@@ -3,12 +3,14 @@ namespace Infrastructure.Repositories;
 public class BaseRepository<T> : IRepository<T> where T : BaseModel
 {
     protected readonly AppDbContext _context;
+    protected readonly DbSet<T> _dbSet;
     public DbSet<T> DbSet { get; private set; }
 
     public BaseRepository(AppDbContext context)
     {
         _context = context;
         _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        _dbSet = _context.Set<T>();
         DbSet = _context.Set<T>();
     }
 

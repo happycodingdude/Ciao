@@ -1,4 +1,4 @@
-namespace Chat.API.Features;
+namespace Chat.API.Features.Conversations;
 
 public class ConversationDto : BaseModel
 {
@@ -20,8 +20,9 @@ public class ConversationDto : BaseModel
 //     public ICollection<ParticipantNoReference>? Participants { get; set; }
 // }
 
-public class ConversationWithTotalUnseen : BaseModel
+public class ConversationWithTotalUnseen
 {
+    public Guid Id { get; set; }
     public string? Title { get; set; }
     public string? Avatar { get; set; }
     public DateTime? DeletedTime { get; set; }
@@ -33,6 +34,7 @@ public class ConversationWithTotalUnseen : BaseModel
     public Guid? LastMessageContact { get; set; }
     public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
+    public DateTime? UpdatedTime { get; set; }
     public ICollection<ConversationWithTotalUnseen_Participants>? Participants { get; set; }
 }
 

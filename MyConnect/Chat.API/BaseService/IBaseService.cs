@@ -8,7 +8,7 @@ public interface IBaseService<T, V> where V : class
     Task<V> AddAsync(V dto);
     Task<List<V>> AddAsync(List<V> dto);
     Task<V> UpdateAsync(V dto);
-    Task<V> PatchAsync(Guid id, JsonPatchDocument patch);
+    Task PatchAsync(Guid id, JsonPatchDocument patch);
     Task<List<PatchResponse>> BulkUpdateAsync(List<PatchRequest<V>> patches);
     Task DeleteAsync(Guid id);
     Task DeleteAsync(List<V> dto);

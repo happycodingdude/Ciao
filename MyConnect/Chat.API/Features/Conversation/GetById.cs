@@ -1,3 +1,5 @@
+namespace Chat.API.Features.Conversations;
+
 public static class GetById
 {
     public class Query : IRequest<ConversationDto>
@@ -34,6 +36,6 @@ public class GetByIdEndpoint : ICarterModule
             };
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization("Basic");
+        }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }

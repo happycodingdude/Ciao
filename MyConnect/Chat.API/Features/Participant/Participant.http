@@ -1,0 +1,39 @@
+###
+POST  http://localhost:4100/api/users/signin
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@123"
+}
+
+
+###
+GET  http://localhost:4000/api/conversations/851327a5-4b32-4d2d-9bbb-e67041b0f372/participants
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TgqwRPBbM1IiYarvIWBmeriFwE8U6TcRbnx3lzcfKU1LGG6laat6TLLWtWfgksaXgeyjNlBpb9UCcyNtQfIzIFGsvpBe7hK81XVuM3x2H9hkPLIkI4eGlrVXnBkM-OPSM81KYYPfoGUlpn3siwH_llcFpfATPW2rlb4tY-6vlP0MhQXtWNBrYWM6JQN21VRGV320CdB0Ix_cEd7sjYzXzfDMZoZ6qEyUGOvqavjwmL48OU2Cbta_bnbjj5w-Qbrd0G4MjJlOBHh8BIO7fpPq5QoVLOIdRw-btrwAVCluqQ5XcLZxTBBkBw5L0MGnETkVJc0kbTNoVgkJZ6cgqgPp1ySaVZzW6Lkpin5Gpdakpk_R9Y7wV5_kcGFZfNsjgBtgJ0BpEmqQqtp87O-KrCsBka54bfgDNCO9q6GQ3j2MEeHr1K7pFOL-1DhW8iR2R_EqCvmnIuSxT-KxWlhDpZQth-89-JHjSgNZThkMPvcP5zGsO0Cc4GGpEJnIgHxAqxS4k6tXwq7cbFGRvCLAWNlV3kFdvvFVdX8bbdtmWS4J3EGA
+
+
+###
+POST  http://localhost:4000/api/conversations/d8c1076f-6eb6-4b0f-9b0e-7ba0b8f00271/participants
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9Qymt6ea5Igoxs7SV_-P-6imqxnidWPoYrbphdLtMuwGBBsqrYJDd5jPOyP-A_Cxgxqn-WeadM1ufflqnOIRmIGY1cR-qL-vRn79yfyLOcTQeSP3QByAZnaXMXx7_M6Y1topk78nhg3SJApKADrGcV_WTnnp8C18yHXD-hMhWwwZ83imThBtMi6D23814h2oNTzI-0IR2xDIS9QCkgEBx3Slm9e3sr-rmdRWVTYwwfz_T6XnNcMU4wZGK1mCtPdqK-YAvhhI6fLW5lbC1REdlj9bh9YQh4-fRQGVRxU_n6YC24J8EdGy9zifjnMcF-Xmwj7--B3PXBoU_Wu9olAfXDRQJzv_jS0aLk0BEDn2mBwYZNMiwjl4G2st-_sCk4Ydir1R-CpWwQpu1QVVzylB7s8px6NT10ZcYgbC-rvFgZ9yEftooyIJNoEBoUwpmYymbB4jQm1GGwaBx59deGvhyZe77sbpLRBOQi00ncjQTjljJ1kOZeLhXKCCumndRXf3KXqjVVXB_P-yoq8SiGBUboohI-fyyJUD0nifBAbCNyzCw
+Content-Type: application/json
+
+[
+    {
+        "isNotifying":true,
+        "contactId":"35b3e2df-b853-4cb4-9a05-02fed171fe3e"
+    }
+]
+
+###
+PATCH   http://localhost:4000/api/participants/12d2167b-193e-4c4c-a7a0-28f7632e6744
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TgqwRPBbM1IiYarvIWBmeriFwE8U6TcRbnx3lzcfKU1LGG6laat6TLLWtWfgksaXgeyjNlBpb9UCcyNtQfIzIFGsvpBe7hK81XVuM3x2H9hkPLIkI4eGlrVXnBkM-OPSM81KYYPfoGUlpn3siwH_llcFpfATPW2rlb4tY-6vlP0MhQXtWNBrYWM6JQN21VRGV320CdB0Ix_cEd7sjYzXzfDMZoZ6qEyUGOvqavjwmL48OU2Cbta_bnbjj5w-Qbrd0G4MjJlOBHh8BIO7fpPq5QoVLOIdRw-btrwAVCluqQ5XcLZxTBBkBw5L0MGnETkVJc0kbTNoVgkJZ6cgqgPp1ySaVZzW6Lkpin5Gpdakpk_R9Y7wV5_kcGFZfNsjgBtgJ0BpEmqQqtp87O-KrCsBka54bfgDNCO9q6GQ3j2MEeHr1K7pFOL-1DhW8iR2R_EqCvmnIuSxT-KxWlhDpZQth-89-JHjSgNZThkMPvcP5zGsO0Cc4GGpEJnIgHxAqxS4k6tXwq7cbFGRvCLAWNlV3kFdvvFVdX8bbdtmWS4J3EGA
+Content-Type: application/json
+
+[
+    {
+        "op":"replace",
+        "path":"isNotifying",
+        "value":false
+    }
+]

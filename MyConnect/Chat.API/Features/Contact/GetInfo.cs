@@ -1,3 +1,5 @@
+namespace Chat.API.Features.Contacts;
+
 public static class GetInfo
 {
     public class Query : IRequest<ContactDto>
