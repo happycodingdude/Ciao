@@ -10,12 +10,10 @@ public static class GetByConversationId
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<AttachmentGroupByCreatedTime>>
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public Handler(AppDbContext dbContext, IMapper mapper)
+        public Handler(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<AttachmentGroupByCreatedTime>> Handle(Query request, CancellationToken cancellationToken)

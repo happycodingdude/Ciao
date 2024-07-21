@@ -8,15 +8,41 @@ Content-Type: application/json
 }
 
 ###
+POST  http://localhost:4100/api/users/signup
+Content-Type: application/json
+
+{
+    "Name":"Ha yeuuu",
+    "Username":"hayeu",
+    "Password":"Qwerty@123"
+}
+
+###
+POST  http://localhost:4000/api/contacts
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@123"
+}
+
+
+###
 GET  http://localhost:4000/api/contacts/info
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9S4mJ0eTRzNeqxPp0to_xPVEiLSa0yNAYN1fvYTbcCb6NGT3JbbxEDmv7utV0-GXgKjxYURADo8K57H_aTi7xseYuXn2poTEhFtarSaN0ZFW1x_RAZLChJkiC0Xv3OBDb_xoPWVo-h6m3dnyQNCgp2-uDRVUr0YzRpa_f5NePIfbM8D88Bk_f3-Z9UJUzbbfWSZoU1WeNb2q7eneTSkIcmzpytx8c7GPFVF-wWMHUXBC7qfDGDdOEYB2Z5LheP3FsYew9dYzI6ZyScKClVgzjl-yeVuGjzay0FtZEpS25Cu9ZzCOE4rkMR6rCfCs0B1CVPUbmFzkOsCNZmK6qwVAGeuBmLLa_ShSAC7XqpePZqzmHJMOmhCLRRf_dWya41-ZldNgNovv0sv0HoycK8MWp0_X0JQb67sb02vn7qKF_42pr3YFv8aBTNa7xBN5vwrcF9geOgfgE2y86rBgwd-6Xwml9UikG4cIoW8lyK-LXyoiFad9fFhIkmEkZ2eTYIP8L0WJCouh-DPjlKvxfrHxJZshrEs4BchjQXnS4gNykFXsQ
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QYluvAyeNZybw0_nwilsrgdzoncyN5qjXYMKMofXptFzB6QQpffMSe5zYUXix2tsc_2BX1IlVKPNMPH_5dCf6KVjsxmC-BmCf3adWrt67YJBm7RW3woG20bHHW4p1xVsJapZExkIXnfjxk_RLFIWpYq9PvNtmV6KBJgc-i0D7oxyOCbQeRrpgDIVpzgomwlz_uL1KbSVU7XsSLJ-mhQK-AL4oB-cpoSE49tzsj2tenlY23f6x8oLEd2NCFmJFIoJAgHK-BtgpdHbJHbLJf7HcwpCa1mEIhBodpkQIWZQIb3CLot_TvhttAbR0lkh7vhZo-xKPC5vMisSRBg2dgkjgcp8vk4LDEPSi_9T_MwKlRZAVVoOumdhJcvc-h3kEM8MEYT8WKWwwcxDWIgXjrY36nyLLaNAYgEAHjaqy_F89lS5RZ_WMKF9fisMomvYq3VnF6Od-Mvhq1VTgghhEio_joBxFWeejOAW_cUVXOwEPYpRFl6ReMf6OLC7iOQwcxFguDD1e3tzsHka0MHYoCdXeRkfpBFC8d8t9vcIrqIy672Q
 
 ###
 PATCH   http://localhost:4000/api/contacts
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QUWzSYIXSNQEtLAK3_1eFiYTbNlTEbWP3pwiVuaakGVmswvDyJSqmarpaVvJjE-TkaiQo57QHz6CpQ9BMIpt1K5Z8EPiahQalJ1VxYBTDXkuT5oLjPzdVNt4B87zpOvNiu6UqOydN0vRGjn1uKu_AxWtpZ5RUfv5FMs4maHy0jDmeYoj118r_rKkismhQKzohBWGTkblq6R1kgexrklxKaeYqfCjHY-4CJpopFnqhSLl8-BHpzI6JukpjgGsl4W-YkTyty9sHLyWpe676YnxjK4_2cPhWjirfs10ERBOdHLFUdkhqnBDDwgS5lTy544i79h8X4ZHnLl6ZfCeK8_ZgMdxGEb2mbA-LUBXVVIK2O8l_bJcrMY2WKf3Ipv5OaAZRoSbPetLi8EJgEYISaM7ZQ6hqEZdzazGPAidxQ_AdLah6heoB6kdw9uMJBvNetaQE-fhct5710kG4mrnDXG0vDYQCir0vK5VNfGL2zE0IrrEHjUciStVPPPBtA3ZCAS1mp1_rSsS7QtT1srH9Fj80EQ06-QxyQKomOOPpnpfw9lA
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9Sm4-Ehj2WeYqFAw0CVB4MfVioyhcdp0YTwzpzlVUjbwxytHHfU7GD2PE8DslhR1Y1DK_DGq9_mYW-TOeuSu99swVfsGko5DxRsqP_OT5v4UaToEeluo0LDSSzJ0i3sF0uRYSkw2vJQf7OMRlAHlcl3gCv1BHBCIBvhuQrT_jsWG-DdGh0nfCTEkYi47SDWxPO53Xg3wGD9SFNvzN9eGxL3UXf6VfWckroRUpWL8hYrgIF7vbt06pHKxzNUqWit5nPrRE2BXCvtABjcD-aKEQ-dh_SPbWrn_HlqR7bWK3kuR5Fj4Y8Cjucy7zB48Mg9fF_rg5OJuI_c2GKliWIU4k9GKnkIaQ31OmAWQxi6SyRRwMhFIfx1PD-hAKK8ji9aIkl650KmwP1qDWKpPFlzAeql2ZqSq3Bhrg8llJm3RZrhpLg4zTUoKikH8LL8ZpdkaO8-6UcUZuXSXd35rsI3mkxWymXLKepwPbG-VkC9tCO2T2AGeEndU8ZLwBnxAgyMmyFCszOjT8qb3rumNa78su-ltgCgAfT3_bNhZ1QMzmjbOw
 Content-Type: application/json
 
-[{"op":"replace","path":"bio","value":"welcome to my world ^^"}]
+[
+	{
+        "op": "replace",
+        "path": "bio",
+        "value": "Welcome to my world @@"
+    }
+]
 
 ###
 GET  http://localhost:4000/api/contacts?name=tri

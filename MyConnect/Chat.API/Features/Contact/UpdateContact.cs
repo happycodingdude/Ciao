@@ -8,18 +8,36 @@ public static class UpdateContact
         public JsonPatchDocument Patch { get; set; }
     }
 
+    public class Validator : AbstractValidator<Query>
+    {
+        public Validator()
+        {
+            RuleFor(c => c.Patch.Operations.Where(q => q.path.ToLower() == nameof(ContactDto.Name).ToLower()).Select(q => q.value.ToString()))
+                .Must(q => q.All(w => !string.IsNullOrEmpty(w)))
+                .WithMessage("Name should not be empty");
+        }
+    }
+
     internal sealed class Handler : IRequestHandler<Query, Unit>
     {
         private readonly IContactService _service;
+        private readonly IValidator<Query> _validator;
 
-        public Handler(IContactService service)
+
+        public Handler(IContactService service, IValidator<Query> validator)
         {
             _service = service;
+            _validator = validator;
         }
 
         public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
         {
+            var validationResult = _validator.Validate(request);
+            if (!validationResult.IsValid)
+                throw new BadRequestException(validationResult.ToString());
+
             await _service.PatchAsync(request.Id, request.Patch);
+
             return Unit.Value;
         }
     }

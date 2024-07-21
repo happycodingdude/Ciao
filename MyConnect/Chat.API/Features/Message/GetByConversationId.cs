@@ -23,62 +23,6 @@ public static class GetByConversationId
             _mapper = mapper;
         }
 
-        // public async Task<IEnumerable<MessageWithAttachment>> Handle(Query request, CancellationToken cancellationToken)
-        // {
-        //     request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;
-        //     request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
-
-        //     var messages = await (
-        //         from mess in _dbContext.Set<Message>().AsNoTracking()
-        //             .Where(q => q.ConversationId == request.ConversationId)
-        //             .OrderByDescending(q => q.CreatedTime)
-        //             .Skip(request.Limit * (request.Page - 1))
-        //             .Take(request.Limit)
-        //             .OrderBy(q => q.CreatedTime)
-        //         from atta in _dbContext.Set<Attachment>().AsNoTracking().Where(q => q.MessageId == mess.Id).DefaultIfEmpty()
-        //         select new { mess, atta }
-        //     )
-        //     .ToListAsync(cancellationToken);
-
-        //     if (!messages.Any()) return Enumerable.Empty<MessageWithAttachment>();
-
-        //     var result =
-        //         from mess in messages
-        //         group mess.mess by mess.mess.Id into messGrouping
-        //         select new MessageWithAttachment
-        //         {
-        //             Id = messGrouping.Key,
-        //             Type = messGrouping.Select(q => q.Type).FirstOrDefault(),
-        //             Content = messGrouping.Select(q => q.Content).FirstOrDefault(),
-        //             Status = messGrouping.Select(q => q.Status).FirstOrDefault(),
-        //             IsPinned = messGrouping.Select(q => q.IsPinned).FirstOrDefault(),
-        //             IsLike = messGrouping.Select(q => q.IsLike).FirstOrDefault(),
-        //             LikeCount = messGrouping.Select(q => q.LikeCount).FirstOrDefault(),
-        //             SeenTime = messGrouping.Select(q => q.SeenTime).FirstOrDefault(),
-        //             ContactId = messGrouping.Select(q => q.ContactId).FirstOrDefault(),
-        //             ConversationId = messGrouping.Select(q => q.ConversationId).FirstOrDefault(),
-        //             Attachments = (
-        //                 from mess in messages
-        //                 group mess.atta by mess.atta?.MessageId into attaGrouping
-        //                 where attaGrouping.Key == messGrouping.Key
-        //                 from atta in attaGrouping
-        //                 select new MessageWithAttachment_Attachment
-        //                 {
-        //                     Id = atta.Id,
-        //                     Type = atta.Type,
-        //                     MediaName = atta.MediaName,
-        //                     MediaSize = atta.MediaSize,
-        //                     MediaUrl = atta.MediaUrl,
-        //                 }
-        //             ).ToList()
-        //         };
-
-        //     var messagesToBeSeen = _mapper.Map<List<MessageWithAttachment>, List<Message>>(result.ToList());
-        //     await SeenAll(messagesToBeSeen, request.ContactId);
-
-        //     return result;
-        // }
-
         public async Task<IEnumerable<MessageWithAttachment>> Handle(Query request, CancellationToken cancellationToken)
         {
             request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;

@@ -14,7 +14,9 @@ public static class UpdateConversation
     {
         public Validator()
         {
-            RuleFor(c => c.Patch.Operations.Select(q => q.value.ToString())).Must(q => q.All(w => !string.IsNullOrEmpty(w))).WithMessage("Title should not be empty");
+            RuleFor(c => c.Patch.Operations.Where(q => q.path.ToLower() == nameof(ConversationDto.Title).ToLower()).Select(q => q.value.ToString()))
+                .Must(q => q.All(w => !string.IsNullOrEmpty(w)))
+                .WithMessage("Title should not be empty");
         }
     }
 
@@ -36,6 +38,7 @@ public static class UpdateConversation
                 throw new BadRequestException(validationResult.ToString());
 
             await _service.PatchAsync(request.Id, request.Patch);
+
             return Unit.Value;
         }
     }

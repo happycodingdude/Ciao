@@ -24,13 +24,15 @@ public static class CreateConversation
 
     internal sealed class Handler : IRequestHandler<Query, Unit>
     {
-        private readonly IConversationService _service;
         private readonly IValidator<Query> _validator;
+        private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public Handler(IConversationService service, IValidator<Query> validator)
+        public Handler(IValidator<Query> validator, IUnitOfWork uow, IMapper mapper)
         {
-            _service = service;
+            _uow = uow;
             _validator = validator;
+            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
@@ -39,7 +41,10 @@ public static class CreateConversation
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await _service.AddAsync(request.Model);
+            var entity = _mapper.Map<ConversationDto, Conversation>(request.Model);
+            _uow.Conversation.Add(entity);
+            await _uow.SaveAsync();
+            
             return Unit.Value;
         }
     }

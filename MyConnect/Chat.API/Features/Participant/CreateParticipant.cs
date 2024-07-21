@@ -23,13 +23,15 @@ public static class CreateParticipant
 
     internal sealed class Handler : IRequestHandler<Query, Unit>
     {
-        private readonly IParticipantService _service;
         private readonly IValidator<Query> _validator;
+        private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public Handler(IParticipantService service, IValidator<Query> validator)
+        public Handler(IValidator<Query> validator, IUnitOfWork uow, IMapper mapper)
         {
-            _service = service;
             _validator = validator;
+            _uow = uow;
+            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
@@ -38,7 +40,19 @@ public static class CreateParticipant
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await _service.AddAsync(request.Id, request.Model);
+            // Get current participants of conversation, then filter new item to add
+            var participants = _uow.Participant.GetByConversationId(request.Id);
+            var filterNewItemToAdd = request.Model.Select(q => q.ContactId).ToList().Except(participants.Select(q => q.ContactId).ToList());
+            var filteredParticipants = request.Model.Where(q => filterNewItemToAdd.Contains(q.ContactId));
+            if (!filteredParticipants.Any()) return Unit.Value;
+
+            // Add new participants
+            foreach (var item in filteredParticipants)
+                item.ConversationId = request.Id;
+            var participantsToAdd = _mapper.Map<List<ParticipantDto>, List<Participant>>(filteredParticipants.ToList());
+            _uow.Participant.Add(participantsToAdd);
+            await _uow.SaveAsync();
+
             return Unit.Value;
         }
     }

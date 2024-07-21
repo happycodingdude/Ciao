@@ -62,13 +62,14 @@ builder.Services.AddExceptionHandler<UnauthorizedExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 // Business logics
-// builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
-// builder.Services.AddScoped<IFriendService, FriendService>();
-// builder.Services.AddScoped<IMessageService, MessageService>();
-// builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
+// builder.Services.AddScoped<IMessageService, MessageService>();
+// builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+// builder.Services.AddScoped<IFriendService, FriendService>();
 // builder.Services.AddScoped<IScheduleContactService, ScheduleContactService>();
 // builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
@@ -83,7 +84,11 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
 builder.Services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+
 var app = builder.Build();
+
+// Config Redis        
+Utils.RedisCLient.Configure(configuration);
 
 if (app.Environment.IsDevelopment())
 {

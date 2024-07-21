@@ -51,9 +51,9 @@ builder.Services.AddAuthentication()
 builder.Services.AddAuthorization();
 
 // Config Dbcontext
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("Db-Development")));
-builder.Services.AddIdentityCore<AppUser>()
-.AddEntityFrameworkStores<AppDbContext>()
+builder.Services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("Db-Development")));
+builder.Services.AddIdentityCore<AuthenticationUser>()
+.AddEntityFrameworkStores<AuthenticationDbContext>()
 // .AddClaimsPrincipalFactory<AppClaimsFactory>()
 .AddApiEndpoints();
 
@@ -63,9 +63,14 @@ builder.Services.AddHttpClient(AppConstants.HttpClient_Chat, client =>
     client.BaseAddress = new Uri(AppConstants.ApiDomain_Chat);
 });
 
+// Exception handler
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<UnauthorizedExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
-// Using from Domain project        
+// Config Redis        
 Utils.RedisCLient.Configure(configuration);
 
 // Configure the HTTP request pipeline.
@@ -73,21 +78,21 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    // app.UseExceptionHandler();
+    app.UseExceptionHandler();
 }
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseDbTransaction();
+app.UseAuthenticationDbTransaction();
 
-app.MapGroup(AppConstants.ApiRoute_User).MapIdentityApi<AppUser>();
+app.MapGroup(AppConstants.ApiRoute_User).MapIdentityApi<AuthenticationUser>();
 
 app.MapGroup(AppConstants.ApiRoute_User).MapPost(AppConstants.ApiEndpoint_SignUp,
 // async Task<Results<Ok, BadRequest<IdentityResult>>>
-async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory clientFactory) =>
+async (UserManager<AuthenticationUser> userManager, SignupRequest model, IHttpClientFactory clientFactory) =>
 {
-    var user = new AppUser
+    var user = new AuthenticationUser
     {
         // Email = model.Username,
         UserName = model.Username,
@@ -104,7 +109,15 @@ async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory
         };
         var client = clientFactory.CreateClient(AppConstants.HttpClient_Chat);
         var response = await client.PostAsJsonAsync(AppConstants.ApiRoute_Contact, contact);
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception ex)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new BadRequestException(error);
+        }
         return Results.Ok();
     }
     return Results.BadRequest(result);
@@ -120,8 +133,8 @@ async (UserManager<AppUser> userManager, SignupRequest model, IHttpClientFactory
 // .Produces(StatusCodes.Status200OK)
 // .Produces(StatusCodes.Status404NotFound);
 
-app.MapGroup(AppConstants.ApiRoute_User).MapPost(AppConstants.ApiEndpoint_SignIn,
-async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context) =>
+app.MapGroup(AppConstants.ApiRoute_User).MapPost("/signin",
+async (SignInManager<AuthenticationUser> manager, SignupRequest model, HttpContext context) =>
 {
     Stream originalBodyStream = context.Response.Body;
     using (var ms = new MemoryStream())
@@ -154,15 +167,15 @@ async (SignInManager<AppUser> manager, SignupRequest model, HttpContext context)
     return Results.Empty;
 });
 
-app.MapGroup(AppConstants.ApiRoute_User).MapGet(AppConstants.ApiEndpoint_Token,
-async (UserManager<AppUser> userManager, ClaimsPrincipal model) =>
+app.MapGroup(AppConstants.ApiRoute_User).MapGet("/token",
+async (UserManager<AuthenticationUser> userManager, ClaimsPrincipal model) =>
 {
     var user = await userManager.FindByNameAsync(model.Identity.Name);
     return Results.Ok(user);
 }).RequireAuthorization();
 
-app.MapGroup(AppConstants.ApiRoute_User).MapGet(AppConstants.ApiEndpoint_Signout,
-async (UserManager<AppUser> userManager, ClaimsPrincipal model, HttpContext context) =>
+app.MapGroup(AppConstants.ApiRoute_User).MapGet("/signout",
+async (UserManager<AuthenticationUser> userManager, ClaimsPrincipal model, HttpContext context) =>
 {
     // Delete all cookies
     foreach (var cookie in context.Request.Cookies.Keys)
@@ -175,8 +188,8 @@ async (UserManager<AppUser> userManager, ClaimsPrincipal model, HttpContext cont
     return Results.Ok();
 }).RequireAuthorization();
 
-app.MapGroup(AppConstants.ApiRoute_User).MapPost(AppConstants.ApiEndpoint_Forgot,
-async (UserManager<AppUser> userManager, SignupRequest model) =>
+app.MapGroup(AppConstants.ApiRoute_User).MapPost("/forgot",
+async (UserManager<AuthenticationUser> userManager, SignupRequest model) =>
 {
     var user = await userManager.FindByNameAsync(model.Username);
     var token = await userManager.GeneratePasswordResetTokenAsync(user);
@@ -187,9 +200,9 @@ async (UserManager<AppUser> userManager, SignupRequest model) =>
 app.Run();
 
 
-// class AppClaimsFactory : IUserClaimsPrincipalFactory<AppUser>
+// class AppClaimsFactory : IUserClaimsPrincipalFactory<AuthenticationUser>
 // {
-//     public Task<ClaimsPrincipal> CreateAsync(AppUser user)
+//     public Task<ClaimsPrincipal> CreateAsync(AuthenticationUser user)
 //     {
 //         var claims = new Claim[] {
 //             new Claim("UserId", user.Id),

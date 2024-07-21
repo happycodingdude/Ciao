@@ -2,12 +2,12 @@ namespace Chat.API.Features.Contacts;
 
 public class ContactDto : BaseModel
 {
-    [Required]
+    // [Required]
     public string? Name { get; set; }
     [Newtonsoft.Json.JsonIgnore]
-    [Required]
+    // [Required]
     public string? Username { get; set; }
-    [MinLength(6)]
+    // [MinLength(6)]
     [Newtonsoft.Json.JsonIgnore]
     public string? Password { get; set; }
     public string? Avatar { get; set; }
