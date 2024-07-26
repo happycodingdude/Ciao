@@ -10,9 +10,26 @@ public static class CreateFriend
 
     public class Validator : AbstractValidator<Query>
     {
-        public Validator()
+        readonly IServiceScopeFactory _scopeFactory;
+
+        public Validator(IServiceScopeFactory scopeFactory)
         {
+            _scopeFactory = scopeFactory;
             RuleFor(c => c.ToContactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
+            RuleFor(c => c).Must(UniqueRequest).WithMessage("Friend request has been sent");
+            RuleFor(c => c.ToContactId).NotEqual(q => q.FromContactId).WithMessage("Can not send self-request");
+        }
+
+        private bool UniqueRequest(Query request)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var sent = dbContext.Friends.AsNoTracking()
+                    .Any(q => (q.FromContactId == request.FromContactId && q.ToContactId == request.ToContactId)
+                            || q.FromContactId == request.ToContactId && q.ToContactId == request.FromContactId);
+                return !sent;
+            }
         }
     }
 
@@ -21,14 +38,14 @@ public static class CreateFriend
         private readonly IValidator<Query> _validator;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
-        private readonly IFirebaseFunction _firebaseFunction;
+        private readonly INotificationMethod _notificationMethod;
 
-        public Handler(IValidator<Query> validator, IUnitOfWork uow, IMapper mapper, IFirebaseFunction firebaseFunction)
+        public Handler(IValidator<Query> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod)
         {
             _uow = uow;
             _validator = validator;
             _mapper = mapper;
-            _firebaseFunction = firebaseFunction;
+            _notificationMethod = notificationMethod;
         }
 
         public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
@@ -37,17 +54,18 @@ public static class CreateFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var entity = new Friend
+            // Add friend 
+            var friendEntity = new Friend
             {
                 FromContactId = request.FromContactId,
                 ToContactId = request.ToContactId
             };
-            _uow.Friend.Add(entity);
-
+            _uow.Friend.Add(friendEntity);
+            // Add notification
             var contact = await _uow.Contact.GetByIdAsync(request.FromContactId);
             var notiEntity = new Notification
             {
-                SourceId = entity.Id,
+                SourceId = friendEntity.Id,
                 SourceType = "friend_request",
                 Content = $"{contact.Name} send you a request",
                 ContactId = request.ToContactId
@@ -55,6 +73,24 @@ public static class CreateFriend
             _uow.Notification.Add(notiEntity);
 
             await _uow.SaveAsync();
+
+            // Push notification
+            var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
+            notiDto.AddSourceData(friendEntity);
+            await _notificationMethod.Notify(
+                "NewNotification",
+                new string[1] { request.ToContactId.ToString() },
+                notiDto
+            );
+            // Push friend request
+            await _notificationMethod.Notify(
+               "NewFriendRequest",
+               new string[1] { request.ToContactId.ToString() },
+               new FriendToNotify
+               {
+                   RequestId = friendEntity.Id
+               }
+           );
 
             return Unit.Value;
         }

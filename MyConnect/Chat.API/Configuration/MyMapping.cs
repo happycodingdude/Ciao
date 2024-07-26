@@ -28,6 +28,7 @@ public class MyMapping : Profile
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<NotificationDto, NotificationTypeConstraint>().ReverseMap();
         CreateMap<Notification, NotificationTypeConstraint>().ReverseMap();
+        CreateMap<Notification, NotificationToNotify>().ReverseMap();
         CreateMap<ParticipantDto, Participant>().ReverseMap();
         CreateMap<ParticipantDto, ParticipantNoReference>().ReverseMap();
         CreateMap<Participant, ParticipantNoReference>().ReverseMap();

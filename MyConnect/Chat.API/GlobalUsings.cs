@@ -30,8 +30,5 @@ global using Chat.API.Features.Schedules;
 global using Chat.API.Features.ScheduleContacts;
 global using Infrastructure.Utils;
 global using Infrastructure.Utils.Firebase;
-global using FirebaseAdmin;
-global using Google.Apis.Auth.OAuth2;
-global using FirebaseAdmin.Messaging;
 global using Message = Domain.Features.Message;
 global using Notification = Domain.Features.Notification;

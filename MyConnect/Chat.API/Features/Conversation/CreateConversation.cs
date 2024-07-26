@@ -50,7 +50,7 @@ public static class CreateConversation
             await _uow.SaveAsync();
 
             await _notificationMethod.Notify(
-                "New conversation",
+                "NewConversation",
                 request.Model.Participants
                     .Where(q => q.ContactId != request.ContactId)
                     .Select(q => q.ContactId.ToString())

@@ -26,7 +26,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDbContextPool<AppDbContext>(option =>
+builder.Services.AddDbContext<AppDbContext>(option =>
 {
     option.UseMySQL(configuration.GetConnectionString("Db-Development"));
 });
@@ -66,13 +66,13 @@ builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
 builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddScoped<INotificationMethod, NotificationMethod>();
+builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
 // builder.Services.AddScoped<IMessageService, MessageService>();
 // builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 // builder.Services.AddScoped<IScheduleContactService, ScheduleContactService>();
 // builder.Services.AddScoped<IScheduleService, ScheduleService>();
-builder.Services.AddScoped<INotificationMethod, NotificationMethod>();
 
 // Repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

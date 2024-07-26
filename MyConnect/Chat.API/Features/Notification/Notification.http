@@ -3,7 +3,7 @@ POST  http://localhost:4100/api/users/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"hayeu",
     "Password":"Qwerty@123"
 }
 
@@ -26,6 +26,6 @@ Content-Type: application/json
     }
 ]
 
-###
+### Register connection
 POST    http://localhost:4000/api/notifications?token=1234
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QauwSMG0u9EfN_pO6-tB55LHAeJpIwlWbHMPHrQx91nKOSC9CQDPigbqMn1YgbdJNRPPae8eqg8Lbm-zH2h0tnjqObLfiftDGTyDWKfK1aNK2eBxxEDo9P8QTQSAUf1AYfaKWyjKzxAfaJbPgcoeZrggppukAeyYny4_jbq7vyT8KfVgXc45U3I-RG2V0wseWVMSgI5m3ocfMMmbw29kYQbj5LL5sXuHvtKfKTtDUh01Qcci0keJXrnQr0ch3HlgVnBncuN1JIgVNRRKyP-3UzZhXUK0hQhJxR8s7j9hFARJI4lpWMcPfkr0pQa-tdLpeblXqbjQJYZE0oOFpU9kYhEq4a4rt_CDIfFqMwm7W_HI5Xn6Fwcp3hSv-o829gmcMNd26bQyLS_H4Zo5d-43gtmGu4TBVagMI1QMKOaq4aM1fP1Qbv7XkMnbMVoGzAeszG5S11gZVxWKEYnE47tzn8SWQtiai_LXKzuax_G3A_kM5EPqLkOodG_xwv8nQUKAG-WB2rg8z633jImnSx2JMRDmu-Km8exZU3SZj8HFyHxA
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9S-_Hsa26v-sRb98Ud2TUAeitAYYMdAfSl-s1kIPKlLBe2bdfeIcYirF6O75vEqXeKEJhnf-x-DnJBcBPkNweZReTuBR3KcizGz9mrEtSOhmTZXsoPRQEFRURNgTZpfeSIjGeyiVmSo3McBLMS89UEEO_rvIV47SdbPKYfuVUrpDxVwqghww8Z-2ASpZFUvxtfeHyR8tltT8ca0K4vPoMJCstdIqSlOl2y2A26EpKcP1BIbbEzMhYw-q0dlLw9XXfvXOucvizUs9sraRykCjez8NIY2nqzM-mQUbSXZHMYg7ZMt16aSjW1ts9sF5aEPX9LkSqOtX4ftHmnllym36UfQJ5U6QDzWl0EeN2QtaaIjn-cj0xcLrF73aij07ssGqdqkLdYdp3x85XnHn4HX8wGJuWMQZBK5aBKJmzL3jG6lRrY-lv9ZEWSRaEoZPx7HLg7Wz5Rpi4XV67f7EYsfU3KFYli-P7EGLFnOmhicm85ZfIr1G0sZZq1oECoXOu7qEFXxUC2Rj5NX6lCI__Z8IqTZI7UdfUil5vuIUs3103jFXA

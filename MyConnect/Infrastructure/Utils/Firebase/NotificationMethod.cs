@@ -18,6 +18,11 @@ public class NotificationMethod : INotificationMethod
             if (!token.IsNull)
                 connections.Add(token);
         }
+        if (!connections.Any())
+        {
+            Console.WriteLine("No connection");
+            return;
+        }
         var notify = new FirebaseNotification
         {
             _event = _event,
