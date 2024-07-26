@@ -1,9 +1,32 @@
-﻿namespace Chat.API.Features.Notifications;
+﻿using System.Reflection;
+
+namespace Infrastructure.Utils.Firebase;
 
 public class FirebaseFunction : IFirebaseFunction
 {
-    public async Task Notify(object data)
+    public async Task Notify(FirebaseNotification notification)
     {
+        Console.WriteLine($"Path => {AppDomain.CurrentDomain.BaseDirectory}");
+        FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.FromFile("./Features/Notification/Firebase/service-account-config.json")
+        });
+
+        var message = new MulticastMessage()
+        {
+            Tokens = notification.tokens,
+            Notification = new FirebaseAdmin.Messaging.Notification()
+            {
+                Title = notification.title,
+                Body = notification.body
+            },
+            Data = new Dictionary<string, string>()
+            {
+                { "event_name", notification._event },
+                { "data", JsonConvert.SerializeObject(notification.data) }
+            }
+        };
+        await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message);
         // var httpClient = new HttpClient();
 
         // FirebaseApp.Create(new AppOptions()

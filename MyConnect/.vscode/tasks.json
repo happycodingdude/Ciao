@@ -36,6 +36,24 @@
         "${workspaceFolder}/Chat.API/Chat.API.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "copy-firebase-serviceaccount-file",
+      "type": "shell",
+      "command": "cp",
+      "args": [
+          "${workspaceFolder}/Infrastructure/Utils/Firebase/service-account-config.json",
+          "${workspaceFolder}/Chat.API/bin/Debug/net8.0/"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "build-all",
+      "dependsOn": [
+          "build",          
+          "copy-firebase-serviceaccount-file"
+      ],
+      "problemMatcher": []
     }
   ]
 }

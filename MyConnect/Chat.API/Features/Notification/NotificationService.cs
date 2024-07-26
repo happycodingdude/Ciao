@@ -1,6 +1,6 @@
 namespace Chat.API.Features.Notifications;
 
-public class NotificationService : BaseService<Notification, NotificationDto>, INotificationService
+public class NotificationService : BaseService<Domain.Features.Notification, NotificationDto>, INotificationService
 {
     private readonly IFirebaseFunction _firebaseFunction;
     private readonly IUnitOfWork _unitOfWork;

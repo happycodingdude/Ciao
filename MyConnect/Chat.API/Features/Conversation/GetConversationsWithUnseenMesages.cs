@@ -96,7 +96,6 @@ public static class GetConversationsWithUnseenMesages
                     LastMessageContact = firstMess?.ContactId,
                     LastSeenTime = lastMess?.SeenTime
                 };
-            // return result.DistinctBy(q => q.Id);
             return result;
         }
     }

@@ -67,11 +67,12 @@ builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
+builder.Services.AddScoped<IFriendService, FriendService>();
 // builder.Services.AddScoped<IMessageService, MessageService>();
 // builder.Services.AddScoped<IAttachmentService, AttachmentService>();
-// builder.Services.AddScoped<IFriendService, FriendService>();
 // builder.Services.AddScoped<IScheduleContactService, ScheduleContactService>();
 // builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<INotificationMethod, NotificationMethod>();
 
 // Repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

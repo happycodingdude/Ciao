@@ -1,6 +1,6 @@
 namespace Chat.API.Features.Contacts;
 
-public static class GetContactsWithFriendStatus
+public static class SearchContactsWithFriendStatus
 {
     public class Query : IRequest<IEnumerable<ContactDto>>
     {
@@ -55,7 +55,7 @@ public static class GetContactsWithFriendStatus
     }
 }
 
-public class GetContactsWithFriendStatusEndpoint : ICarterModule
+public class SearchContactsWithFriendStatusEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
@@ -63,7 +63,7 @@ public class GetContactsWithFriendStatusEndpoint : ICarterModule
         async (HttpContext context, ISender sender, [FromQuery] string name) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetContactsWithFriendStatus.Query
+            var query = new SearchContactsWithFriendStatus.Query
             {
                 Id = userId,
                 Name = name

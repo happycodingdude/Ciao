@@ -1,6 +1,6 @@
 namespace Chat.API.Features.Notifications;
 
-public interface INotificationService : IBaseService<Notification, NotificationDto>
+public interface INotificationService : IBaseService<Domain.Features.Notification, NotificationDto>
 {
     // string GetConnection(string id);
     // bool RegisterConnection(RegisterConnection param);

@@ -18,27 +18,21 @@ Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9Q_qnG4pOh6iEQ1UfXTNw8syyjAg0PU0G
 
 ###
 POST  http://localhost:4000/api/conversations
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9TpKc_C-QZR2MMrgb-LeiaYJNyfpKPPzuKi98vnJagmkpLgt7PFAF1tcSKVwnlqI6LArq5HR3YJAfJyDQIXRL_tY0o78CgHMx-5JAviux4HjABnA10FDeUa5ztShEZ5tej9thcOyNpNL9fn2F2N9pTaA2tZqaZ9LHBbDWA0gSbms0eYlujkbXHFrhM_370AM-7BVvr6wDn7h422f7sjVL08Xqj2tfcv6r6Gq4xP5whF_OMFnlgVbB5jNwJfsxvmDidb7VgNlTdduaHZDpUcmyS_hdLKuaJr3BKoHXHaG40zIj2E9ard9zhBh1zJ6KzpWaOE5OqxtrygP_-pQjmtMQk9Wp0Eq8rbcppSKDQK8DIodFpELpiEqSJW1mM5iAfTWAUJxfa1M-Ed0joD4LJ7G0qy1fAgej_qLtI_O7vBEtuds0S_65NqEBgUlUamaI-ZOPaxaTP_K2h_fd-tGA0V_ZaY5vcLIp6Lom63kFloLejG7x0u9i1kVivncu5kC1Ho88486gCYPaYM6UNhASPWFn9yKS2Bp1iTynOv7_zdWLh0tQ
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9QeHMfpfJJWYhG5ELVHsu698Jiz_FWu4J0-5dc7yb7YM8G3LOMxmzofPd3dHgtqkIdaWiK_-1g1-fkMekwiYe7U7Ua8v8SiTHnESZ8MURdP9eVyIaQYN_LicbPvyBDLYbeqka8JW9g5x9ZIa66YxVcNTi-jTPpNjb094QQM-IsH8cQQxm24Igi0f_857Tou6frL7TKfljw4cPBf0J2uoJWRp13PZQHDs1HlOr7tiSCVl2a3GQSAOwTUzxe_vUAXh8RB00N1-fFDAbuTVLjFpQYbGpWqJi9jkfnXtCQtuLc6q6kkvNFaGkn_SornP_C0FW0oZQjX1XkZu_JZs2CGkMxrdqLruFhY2aqSZJ6hIiJ0zHEvwN8p_O_eAiWLWYVCzKc47nK7kbvnYP8KGudFPu-sOLeo7fHlKCRQFhjMDrVDmKMV6z984jpLFj7cdv2wkshxkrDw6gIL8MvWbR1qJtBa1D-RnTU-7I-eQ4mltXTitF-R970FkJ6duiqXGmVdCwZGTMF3dYFMEc5KwqeMmrrG-iErj-f63Wdu7BfmzTli6Q
 Content-Type: application/json
 
 {
-    "title":"A wonderful day (group 3) extension validator",
+    "title":"Try your best",
     "isGroup": true,
     "participants":[
         {
-            "contactId":"6cd0b479-f501-4aed-a033-f390daaff66c",
+            "contactId":"15c43b14-8148-481d-8f0b-5cec28ee8764",
             "isNotifying":true,
             "isModerator":true
         },
         {
-            "contactId":"80a6d922-c6e9-4332-a519-92dad5b796bc",
-            "isNotifying":true,
-            "isModerator":true
-        },
-        {
-            "contactId":"35b3e2df-b853-4cb4-9a05-02fed171fe3e",
-            "isNotifying":true,
-            "isModerator":true
+            "contactId":"326430f9-21b4-41e2-a9a5-a95566af83b3",
+            "isNotifying":true            
         }
     ]
 }
