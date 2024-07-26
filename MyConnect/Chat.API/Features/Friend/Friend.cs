@@ -14,6 +14,7 @@ public class GetAllFriend
     public Guid Id { get; set; }
     public Guid ContactId { get; set; }
     public string ContactName { get; set; }
+    public string Status { get; set; }
 }
 
 public class FriendToNotify

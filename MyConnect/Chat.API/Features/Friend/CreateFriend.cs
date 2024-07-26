@@ -74,14 +74,6 @@ public static class CreateFriend
 
             await _uow.SaveAsync();
 
-            // Push notification
-            var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
-            notiDto.AddSourceData(friendEntity);
-            await _notificationMethod.Notify(
-                "NewNotification",
-                new string[1] { request.ToContactId.ToString() },
-                notiDto
-            );
             // Push friend request
             await _notificationMethod.Notify(
                "NewFriendRequest",
@@ -91,6 +83,14 @@ public static class CreateFriend
                    RequestId = friendEntity.Id
                }
            );
+            // Push notification
+            var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
+            notiDto.AddSourceData(friendEntity);
+            await _notificationMethod.Notify(
+                "NewNotification",
+                new string[1] { request.ToContactId.ToString() },
+                notiDto
+            );
 
             return Unit.Value;
         }

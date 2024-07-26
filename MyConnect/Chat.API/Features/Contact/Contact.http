@@ -12,8 +12,8 @@ POST  http://localhost:4100/api/users/signup
 Content-Type: application/json
 
 {
-    "Name":"Truck Ha",
-    "Username":"truckha",
+    "Name":"Em yeu",
+    "Username":"emyeu",
     "Password":"Qwerty@123"
 }
 

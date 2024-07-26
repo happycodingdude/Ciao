@@ -27,7 +27,12 @@ public static class GetByContactId
                 {
                     Id = frnd.Id,
                     ContactId = frnd.FromContactId == request.Id ? toContact.Id : fromContact.Id,
-                    ContactName = frnd.FromContactId == request.Id ? toContact.Name : fromContact.Name
+                    ContactName = frnd.FromContactId == request.Id ? toContact.Name : fromContact.Name,
+                    Status = frnd.AcceptTime.HasValue == true
+                        ? "friend"
+                        : frnd.FromContactId == request.Id
+                            ? "request_sent"
+                            : "request_received"
                 }
             ).ToListAsync(cancellationToken);
 
