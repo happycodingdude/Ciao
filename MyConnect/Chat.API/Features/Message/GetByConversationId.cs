@@ -34,7 +34,7 @@ public static class GetByConversationId
                     .OrderByDescending(q => q.CreatedTime)
                     .Skip(request.Limit * (request.Page - 1))
                     .Take(request.Limit)
-                    .OrderBy(q => q.CreatedTime)
+                    // .OrderBy(q => q.CreatedTime)
                 from atta in _dbContext.Set<Attachment>().AsNoTracking().Where(q => q.MessageId == mess.Id).DefaultIfEmpty()
                 select new
                 {
@@ -67,29 +67,25 @@ public static class GetByConversationId
                     IsLike = messGrouping.Select(q => q.mess.IsLike).FirstOrDefault(),
                     LikeCount = messGrouping.Select(q => q.mess.LikeCount).FirstOrDefault(),
                     SeenTime = messGrouping.Select(q => q.mess.SeenTime).FirstOrDefault(),
+                    CreatedTime = messGrouping.Select(q => q.mess.CreatedTime).FirstOrDefault(),
                     ContactId = messGrouping.Select(q => q.mess.ContactId).FirstOrDefault(),
                     ConversationId = messGrouping.Select(q => q.mess.ConversationId).FirstOrDefault(),
                     Attachments = messGrouping.Select(q => q.atta).Where(q => q.Id.HasValue).ToList()
                 };
 
             var messagesToBeSeen = _mapper.Map<List<MessageWithAttachment>, List<Message>>(result.ToList());
-            await SeenAll(messagesToBeSeen, request.ContactId);
+            await SeenAll(request.ConversationId, request.ContactId);
 
             return result;
         }
 
-        private async Task SeenAll(List<Message> messages, Guid ContactId)
+        private async Task SeenAll(Guid conversationId, Guid contactId)
         {
-            var unseenMessages = messages.Where(q => q.ContactId != ContactId && q.Status == "received");
-            if (!unseenMessages.Any()) return;
-
-            foreach (var message in unseenMessages)
-            {
-                message.Status = "seen";
-                message.SeenTime = DateTime.Now;
-                _uow.Message.Update(message);
-            }
-            await _uow.SaveAsync();
+            await _dbContext.Set<Message>().Where(q => q.ConversationId == conversationId && q.ContactId != contactId && q.Status == "received")
+                .ExecuteUpdateAsync(q => q
+                    .SetProperty(w => w.Status, "seen")
+                    .SetProperty(w => w.SeenTime, DateTime.Now)
+                );
         }
     }
 }

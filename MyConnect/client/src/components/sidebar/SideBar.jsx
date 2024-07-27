@@ -18,19 +18,6 @@ const SideBar = (props) => {
   const { data: info } = useInfo();
   const { refetch } = useConversation();
 
-  // const { mutate: registerConnectionMutation } = useMutation({
-  //   mutationFn: ({ token }) => registerConnection(info.id, token),
-  // });
-
-  // useEffect(() => {
-  //   // requestPermission(registerConnectionMutation, notifyMessage);
-  // }, [info?.id]);
-
-  // setTimeout(() => {
-  //   setLoading(false);
-  //   // showChat();
-  // }, 500);
-
   return (
     <section className="w-full max-w-[7%] shrink-0 bg-[var(--bg-color)]">
       <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
@@ -61,7 +48,7 @@ const SideBar = (props) => {
         </div>
         <div className="flex flex-col gap-[3rem]">
           <Notification />
-          <Signout className="text-xl font-thin" setPage={setPage} />
+          <Signout className="text-xl font-thin" />
         </div>
       </div>
     </section>

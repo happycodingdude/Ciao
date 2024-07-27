@@ -55,29 +55,45 @@ export const readAll = async (ids) => {
   ).data;
 };
 
-export const registerConnection = async (id, token) => {
+export const registerConnection = async (token) => {
   return (
     await HttpRequest({
       method: "post",
-      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER,
-      data: {
-        id: id,
-        token: token,
-      },
+      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER.replace(
+        "{token}",
+        token,
+      ),
     })
   ).data;
 };
 
-export const notifyMessage = (message) => {
-  console.log(message);
+export const notifyMessage = (message, queryClient) => {
   const messageData =
     message.data === undefined ? undefined : JSON.parse(message.data);
-  switch (
-    message.event
-    // case "NewMessage":
-    //   refListChat.newMessage(messageData);
-    //   if (refChatbox.newMessage) refChatbox.newMessage(messageData);
-    //   break;
+  switch (message.event) {
+    case "NewMessage":
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const cloned = oldData.map((item) => {
+          return Object.assign({}, item);
+        });
+        var newData = cloned.map((conversation) => {
+          if (conversation.id !== messageData.conversationId)
+            return conversation;
+          conversation.lastMessage = messageData.content;
+          conversation.lastMessageContact = messageData.contactId;
+          conversation.unSeenMessages++;
+          return conversation;
+        });
+        return newData;
+      });
+      queryClient.setQueryData(["message"], (oldData) => {
+        const cloned = Object.assign({}, oldData);
+        if (cloned.conversation.id !== messageData.conversationId)
+          return cloned;
+        cloned.messages = [messageData, ...cloned.messages];
+        return cloned;
+      });
+      break;
     // case "AddMember":
     //   const listChat = Array.from(document.querySelectorAll(".chat-item"));
     //   const oldChat = listChat.find(
@@ -104,8 +120,7 @@ export const notifyMessage = (message) => {
     // case "NewNotification":
     //   reFetchNotifications();
     //   break;
-    // default:
-    //   break;
-  ) {
+    default:
+      break;
   }
 };

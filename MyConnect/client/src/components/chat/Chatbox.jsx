@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
@@ -25,6 +25,8 @@ import UpdateTitle from "./UpdateTitle";
 const Chatbox = (props) => {
   console.log("Chatbox calling");
   const { refChatbox, toggleInformation } = props;
+
+  const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
@@ -232,12 +234,38 @@ const Chatbox = (props) => {
         };
       }
       await send(body);
-      messages.messages.push({
-        type: "text",
-        content: content,
-        contactId: info.data.id,
-        conversationId: messages.conversation.id,
-        attachments: [],
+      // messages.messages.unshift({
+      //   type: "text",
+      //   content: content,
+      //   contactId: info.data.id,
+      //   conversationId: messages.conversation.id,
+      //   attachments: [],
+      // });
+      queryClient.setQueryData(["message"], (oldData) => {
+        const cloned = Object.assign({}, oldData);
+        if (cloned.conversation.id !== messages.conversation.id) return cloned;
+        cloned.messages = [
+          {
+            type: "text",
+            content: content,
+            contactId: info.data.id,
+            conversationId: messages.conversation.id,
+            attachments: [],
+          },
+          ...cloned.messages,
+        ];
+        return cloned;
+      });
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const cloned = oldData.map((item) => {
+          return Object.assign({}, item);
+        });
+        var newData = cloned.map((conversation) => {
+          if (conversation.id !== messages.conversation.id) return conversation;
+          conversation.lastMessage = content;
+          return conversation;
+        });
+        return newData;
       });
     },
     // onSuccess: (res) => {
@@ -281,10 +309,11 @@ const Chatbox = (props) => {
 
   // Event listener
   const handleScroll = useCallback(() => {
-    if (
-      refChatContent.current.scrollHeight - refChatContent.current.scrollTop >
-      500
-    )
+    // if (
+    //   refChatContent.current.scrollHeight - refChatContent.current.scrollTop >
+    //   300
+    // )
+    if (refChatContent.current.scrollTop < -200)
       refScrollButton.current.classList.remove("hidden");
     else refScrollButton.current.classList.add("hidden");
   }, []);
@@ -325,7 +354,7 @@ const Chatbox = (props) => {
       <div className="relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*:not(:first-child)]:px-[2rem]">
         <div
           ref={refScrollButton}
-          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex aspect-square w-[3rem] cursor-pointer items-center 
+          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center 
           justify-center rounded-[50%] bg-[var(--main-color-normal)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
           onClick={scrollChatContentToBottom}
         ></div>
@@ -404,33 +433,25 @@ const Chatbox = (props) => {
         </div>
         <div
           ref={refChatContent}
-          className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll scroll-smooth 
+          className="hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
         >
-          {messages?.messages.map((message) => (
-            <MessageContent message={message} />
-          ))}
-
           {isPending && (
             <MessageContent
               pending={isPending}
               message={{
                 type: "text",
                 content: variables,
-                status: "received",
-                isPinned: false,
-                isLike: false,
-                likeCount: 0,
-                seenTime: null,
-                contactId: "6cd0b479-f501-4aed-a033-f390daaff66c",
-                conversationId: "9163a82e-d51a-4751-b670-a06c71997ae1",
+                contactId: info.data.id,
+                conversationId: messages.conversation.id,
                 attachments: [],
-                id: "9b5f717a-550c-46b4-9ea3-2d2332a8891e",
-                createdTime: "2024-06-27T16:08:38.161513",
-                updatedTime: null,
               }}
             />
           )}
+
+          {messages?.messages.map((message) => (
+            <MessageContent message={message} />
+          ))}
           <BackgroundPortal
             className="!w-[35%]"
             open={open}

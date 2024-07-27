@@ -69,7 +69,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IFriendService, FriendService>();
 builder.Services.AddScoped<INotificationMethod, NotificationMethod>();
 builder.Services.AddScoped<IFirebaseFunction, FirebaseFunction>();
-// builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 // builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 // builder.Services.AddScoped<IScheduleContactService, ScheduleContactService>();
 // builder.Services.AddScoped<IScheduleService, ScheduleService>();

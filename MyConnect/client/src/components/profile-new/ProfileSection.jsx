@@ -36,12 +36,22 @@ const ProfileSection = () => {
   };
 
   const { mutate: updateInfoMutation } = useMutation({
-    mutationFn: ({ name, bio, avatar }) =>
-      updateInfo(info.data.id, name, bio, avatar),
+    mutationFn: ({ name, bio, avatar }) => updateInfo(name, bio, avatar),
     onSuccess: (res) => {
       setProcessing(false);
+      queryClient.setQueryData(["info"], (oldData) =>
+        oldData
+          ? {
+              ...oldData,
+              data: {
+                ...oldData.data,
+                avatar: res,
+              },
+            }
+          : oldData,
+      );
       // queryClient.invalidateQueries(["info"]);
-      refetch();
+      // refetch();
     },
   });
 

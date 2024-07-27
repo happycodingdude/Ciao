@@ -1,12 +1,15 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useInfo, useLocalStorage } from "../../hook/CustomHooks";
 
+// const queryCache = new QueryCache();
+
 const Signout = (props) => {
   console.log("Signout calling");
-  const { className, setPage } = props;
+  const { className } = props;
 
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const [token, setToken] = useLocalStorage("token");
   const [refresh, setRefresh] = useLocalStorage("refresh");
   const { refetch } = useInfo();
@@ -24,6 +27,19 @@ const Signout = (props) => {
       refetch();
       // setPage("chat");
       // queryClient.invalidateQueries(["info"]);
+      setTimeout(() => {
+        queryClient.resetQueries({ queryKey: ["message"], exact: true });
+        queryClient.resetQueries({ queryKey: ["participant"], exact: true });
+        queryClient.resetQueries({ queryKey: ["attachment"], exact: true });
+        queryClient.resetQueries({ queryKey: ["notification"], exact: true });
+      }, 1000);
+      // queryClient.removeQueries();
+      // queryClient.removeQueries({ queryKey: "conversation", exact: true });
+      // queryClient.resetQueries({ queryKey: "message", exact: true });
+      // queryClient.removeQueries({ queryKey: "participant", exact: true });
+      // queryClient.removeQueries({ queryKey: "attachment", exact: true });
+      // queryClient.removeQueries({ queryKey: "notification", exact: true });
+      // backToLogin();
     });
   };
 

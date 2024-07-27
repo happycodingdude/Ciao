@@ -22,8 +22,13 @@ public class FirebaseFunction : IFirebaseFunction
             },
             Data = new Dictionary<string, string>()
             {
-                { "event_name", notification._event },
-                { "data", JsonConvert.SerializeObject(notification.data) }
+                { "event", notification._event },
+                { "data", JsonConvert.SerializeObject(notification.data,
+                    new JsonSerializerSettings
+                    {
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    })
+                }
             }
         };
         Console.WriteLine($"message => {JsonConvert.SerializeObject(message)}");

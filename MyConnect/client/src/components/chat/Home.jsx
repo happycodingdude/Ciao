@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useInfo, useLoading } from "../../hook/CustomHooks";
 import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
@@ -11,8 +11,7 @@ import { ChatSection } from "./ChatSection";
 export const Home = () => {
   console.log("Home calling");
 
-  // if (!localStorage.getItem("token") && !localStorage.getItem("refresh"))
-  //   return <Authentication />;
+  const queryClient = useQueryClient();
 
   const refListChat = useRef();
   const refChatbox = useRef();
@@ -20,15 +19,17 @@ export const Home = () => {
   const [page, setPage] = useState("chat");
   // const [backToLogin, setBackToLogin] = useState(false);
 
-  const { data: info, isLoading, error } = useInfo();
+  const { data: info, isLoading } = useInfo();
   const { setLoading } = useLoading();
 
   const { mutate: registerConnectionMutation } = useMutation({
-    mutationFn: ({ token }) => registerConnection(info.data.id, token),
+    mutationFn: ({ token }) => registerConnection(token),
   });
+  // Khi load được info -> đăng ký connection để nhận noti
   useEffect(() => {
-    requestPermission(registerConnectionMutation, notifyMessage);
-  }, [info?.data.id]);
+    if (info?.data)
+      requestPermission(registerConnectionMutation, notifyMessage, queryClient);
+  }, [info?.data?.id]);
 
   if (isLoading) {
     setLoading(true);
@@ -45,6 +46,23 @@ export const Home = () => {
     return <Authentication />;
   }
 
+  // if (isFetching) {
+  //   console.log("isFetching");
+  // }
+
+  // if (isRefetching) {
+  //   console.log("isRefetching");
+  // }
+
+  // if (backToLogin) {
+  //   setLoading(false);
+  //   return <Authentication />;
+  // }
+
+  // if (info.data) {
+  //   console.log("info ready");
+  //   //requestPermission(registerConnectionMutation, notifyMessage);
+  // }
   setLoading(false);
 
   // useEffect(() => {
@@ -85,17 +103,6 @@ export const Home = () => {
           }[page]
         }
       </div>
-      {/* {isExpired ?? <ExpiredSession backToLogin={setBackToLogin} />} */}
-      {/* <BackgroundPortal
-        open={true}
-        className="w-[40rem]"
-        title="Expired session"
-      >
-        <div>
-          <p>Your session has expired. Try login again</p>
-          <CustomButton title="Login" className="!w-1/2" />
-        </div>
-      </BackgroundPortal> */}
       <div id="portal"></div>
     </div>
   );

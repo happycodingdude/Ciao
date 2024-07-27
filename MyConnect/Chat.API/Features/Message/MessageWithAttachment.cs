@@ -9,6 +9,7 @@ public class MessageWithAttachment : BaseModel
     public bool IsLike { get; set; }
     public int LikeCount { get; set; }
     public DateTime? SeenTime { get; set; }
+    public DateTime? CreatedTime { get; set; }
     public Guid ContactId { get; set; }
     public Guid ConversationId { get; set; }
     public ICollection<MessageWithAttachment_Attachment>? Attachments { get; set; }

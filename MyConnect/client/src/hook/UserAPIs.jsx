@@ -51,7 +51,7 @@ export const getInfo = async () => {
   });
 };
 
-export const updateInfo = async (id, name, bio, avatar) => {
+export const updateInfo = async (name, bio, avatar) => {
   const body = [
     {
       op: "replace",
@@ -69,10 +69,11 @@ export const updateInfo = async (id, name, bio, avatar) => {
       value: avatar,
     },
   ];
-  return await HttpRequest({
+  await HttpRequest({
     method: "patch",
-    url: import.meta.env.VITE_ENDPOINT_CONTACT_GETBYID.replace("{id}", id),
+    url: import.meta.env.VITE_ENDPOINT_CONTACT_GET,
     data: body,
     alert: true,
   });
+  return avatar;
 };

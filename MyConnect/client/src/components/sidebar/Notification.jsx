@@ -110,8 +110,7 @@ const Notification = () => {
                 <div className="notification-body aspect-square w-[1rem] shrink-0 rounded-[50%] bg-[var(--main-color)]"></div>
               )}
 
-              {notification.sourceData === null ||
-              notification.sourceData.status === "friend" ? (
+              {notification.sourceData.friendStatus === "friend" ? (
                 ""
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">

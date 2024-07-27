@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -9,6 +10,7 @@ import {
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import LocalLoading from "../common/LocalLoading";
 
 moment.locale("en", {
   relativeTime: {
@@ -32,6 +34,8 @@ moment.locale("en", {
 const ListChat = () => {
   console.log("ListChat calling");
 
+  const queryClient = useQueryClient();
+
   const refChatItem = useRef([]);
   const refChats = useRef();
   const refChatsScroll = useRef();
@@ -39,6 +43,7 @@ const ListChat = () => {
   const [selected, setSelected] = useState();
 
   const { data: info } = useInfo();
+  const { data: conversations, isLoading, isRefetching } = useConversation();
   const { refetch: refetchMessage } = useMessage(selected);
   const { refetch: refetchParticipant } = useParticipant(selected?.id);
   const { refetch: refetchAttachment } = useAttachment(selected?.id);
@@ -49,11 +54,22 @@ const ListChat = () => {
 
   useEffect(() => {
     if (selected) {
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const cloned = oldData.map((item) => {
+          return Object.assign({}, item);
+        });
+        var newData = cloned.map((conversation) => {
+          if (conversation.id !== selected.id) return conversation;
+          conversation.unSeenMessages = 0;
+          return conversation;
+        });
+        return newData;
+      });
       refetchMessage();
       refetchParticipant();
       refetchAttachment();
     }
-  }, [selected]);
+  }, [selected?.id]);
 
   // Get all chats when first time render
   // useEffect(() => {
@@ -78,9 +94,7 @@ const ListChat = () => {
   //   // };
   // }, [auth.valid]);
 
-  const { data: conversations, isLoading, isRefetching } = useConversation();
-
-  if (isLoading || isRefetching) return "Loading...";
+  // if (isLoading || isRefetching) return <LocalLoading loading />;
 
   // useEffect(() => {
   //   // refChatItem.current = refChatItem.current.filter((item) => item !== null);
@@ -132,8 +146,9 @@ const ListChat = () => {
     <>
       <div
         ref={refChats}
-        className="hide-scrollbar flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
+        className="hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
+        {isLoading || isRefetching ? <LocalLoading loading /> : ""}
         {conversations?.map((item, i) => (
           <div
             data-key={item.id}
@@ -155,7 +170,7 @@ const ListChat = () => {
                 [&_.chat-content]:text-[var(--text-sub-color-blur)]`
                 : ""
             } `}
-            // className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem] 
+            // className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem]
             // bg-[var(--main-color-thin)] py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-[var(--main-color-light)]`}
             onClick={() => {
               handleSetConversation(65 * i, item);
@@ -178,7 +193,7 @@ const ListChat = () => {
             )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
-                className={`text-base ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 ? "font-bold" : ""} `}
+                className={`text-base ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected?.id ? "font-bold" : ""} `}
                 title={
                   item.isGroup
                     ? item.title
@@ -190,7 +205,8 @@ const ListChat = () => {
               <CustomLabel
                 className={`chat-content ${
                   item.lastMessageContact !== info.data.id &&
-                  item.unSeenMessages > 0
+                  item.unSeenMessages > 0 &&
+                  item.id != selected?.id
                     ? "font-medium"
                     : "text-[var(--text-main-color-blur)]"
                 }`}

@@ -12,16 +12,23 @@ public static class SendMessage
         public Validator()
         {
             RuleFor(c => c.Model.ConversationId).NotEmpty().WithMessage("Conversation should not be empty");
-            RuleFor(c => c.Model.Type).NotEmpty().WithMessage("Message type should not be empty");
-            RuleFor(c => c.Model.Content).NotEmpty().When(q => q.Model.Type == "text").WithMessage("Text message should have content");
-            RuleFor(c => c.Model.Attachments).NotEmpty().When(q => q.Model.Type == "media").WithMessage("Media message should have attachments")
-                .DependentRules(() =>
-                {
-                    RuleFor(c => c.Model.Attachments).Must(q => q.All(w => w.Type == "image" || w.Type == "file")).WithMessage("Attachment type should be image or file");
-                    RuleFor(c => c.Model.Attachments).Must(q => q.All(w => !string.IsNullOrEmpty(w.MediaUrl))).WithMessage("Attachment url should not be empty");
-                    RuleFor(c => c.Model.Attachments).Must(q => q.All(w => !string.IsNullOrEmpty(w.MediaName))).WithMessage("Attachment name should not be empty");
-                    RuleFor(c => c.Model.Attachments).Must(q => q.All(w => w.MediaSize > 0)).WithMessage("Attachment size should not be 0");
-                });
+            RuleFor(c => c.Model.Type).Must(q => q == "text" || q == "media").WithMessage("Message type should be text or media");
+
+            When(c => c.Model.Type == "text", () =>
+            {
+                RuleFor(c => c.Model.Content).NotEmpty().WithMessage("Text message should have content");
+            });
+            When(c => c.Model.Type == "media", () =>
+            {
+                RuleFor(c => c.Model.Attachments).NotEmpty().WithMessage("Media message should have attachments")
+                    .DependentRules(() =>
+                    {
+                        RuleFor(c => c.Model.Attachments.Select(q => q.Type)).Must(q => q.All(w => w == "image" || w == "file")).WithMessage("Attachment type should be image or file");
+                        RuleFor(c => c.Model.Attachments.Select(q => q.MediaUrl)).Must(q => q.All(w => !string.IsNullOrEmpty(w))).WithMessage("Attachment url should not be empty");
+                        RuleFor(c => c.Model.Attachments.Select(q => q.MediaName)).Must(q => q.All(w => !string.IsNullOrEmpty(w))).WithMessage("Attachment name should not be empty");
+                        RuleFor(c => c.Model.Attachments.Select(q => q.MediaSize)).Must(q => q.All(w => w > 0)).WithMessage("Attachment size should not be 0");
+                    });
+            });
         }
     }
 
@@ -31,13 +38,15 @@ public static class SendMessage
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IValidator<Query> _validator;
+        private readonly INotificationMethod _notificationMethod;
 
-        public Handler(AppDbContext dbContext, IUnitOfWork uow, IMapper mapper, IValidator<Query> validator)
+        public Handler(AppDbContext dbContext, IUnitOfWork uow, IMapper mapper, IValidator<Query> validator, INotificationMethod notificationMethod)
         {
             _dbContext = dbContext;
             _uow = uow;
             _mapper = mapper;
             _validator = validator;
+            _notificationMethod = notificationMethod;
         }
 
         public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
@@ -46,9 +55,9 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
+            // // Add message
             var entity = _mapper.Map<MessageDto, Message>(request.Model);
             _uow.Message.Add(entity);
-
             // Update UpdatedTime of conversation to popup as first item when reload
             var conversation = await _uow.Conversation.GetByIdAsync(request.Model.ConversationId);
             _uow.Conversation.Update(conversation);
@@ -58,6 +67,17 @@ public static class SendMessage
             // When a message sent, all members of that group will be having that group conversation back
             await _dbContext.Set<Participant>().Where(q => q.ConversationId == request.Model.ConversationId)
                 .ExecuteUpdateAsync(q => q.SetProperty(w => w.IsDeleted, false));
+
+            // Push message
+            await _notificationMethod.Notify(
+                "NewMessage",
+                _uow.Participant
+                    .GetByConversationId(request.Model.ConversationId)
+                    .Where(q => q.ContactId != request.Model.ContactId)
+                    .Select(q => q.ContactId.ToString())
+                .ToArray(),
+                _mapper.Map<Message, MessageToNotify>(entity)
+            );
 
             return Unit.Value;
         }

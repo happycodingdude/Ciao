@@ -1,15 +1,16 @@
 import React, { useRef } from "react";
 import { useMessage } from "../../hook/CustomHooks";
-import Chatbox from "./Chatbox";
-import ListChatContainer from "./ListChatContainer";
+import LocalLoading from "../common/LocalLoading";
 import Attachment from "./Attachment";
+import Chatbox from "./Chatbox";
 import Information from "./Information";
+import ListChatContainer from "./ListChatContainer";
 
 export const ChatSection = (props) => {
   console.log("ChatSection calling");
   const { refListChat, refChatbox } = props;
 
-  const { data } = useMessage();
+  const { data, isLoading, isRefetching } = useMessage();
 
   const refInformationContainer = useRef();
   const refInformation = useRef();
@@ -46,30 +47,33 @@ export const ChatSection = (props) => {
   return (
     <section className={`relative flex grow overflow-hidden`}>
       <ListChatContainer refListChat={refListChat} />
-      {data?.messages ? (
-        <>
-          <Chatbox
-            refChatbox={refChatbox}
-            toggleInformation={toggleInformationContainer}
-          />
-          <div
-            ref={refInformationContainer}
-            className="relative flex-1 origin-right overflow-hidden"
-          >
-            <Information
-              refAttachment={refAttachment}
-              refInformationExposed={refInformation}
-              removeInListChat={(val) => removeInListChat(val)}
+      <div className="relative flex grow">
+        {data?.messages ? (
+          <>
+            <Chatbox
+              refChatbox={refChatbox}
+              toggleInformation={toggleInformationContainer}
             />
-            <Attachment
-              refInformation={refInformation}
-              refAttachmentExposed={refAttachment}
-            />
-          </div>
-        </>
-      ) : (
-        ""
-      )}
+            <div
+              ref={refInformationContainer}
+              className="relative flex-1 origin-right overflow-hidden"
+            >
+              <Information
+                refAttachment={refAttachment}
+                refInformationExposed={refInformation}
+                removeInListChat={(val) => removeInListChat(val)}
+              />
+              <Attachment
+                refInformation={refInformation}
+                refAttachmentExposed={refAttachment}
+              />
+            </div>
+          </>
+        ) : (
+          ""
+        )}
+        {isLoading || isRefetching ? <LocalLoading loading /> : ""}
+      </div>
     </section>
   );
 };

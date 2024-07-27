@@ -93,7 +93,7 @@ const MessageContent = (props) => {
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {message.attachments.map((item, index) => (
+            {message.attachments?.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}

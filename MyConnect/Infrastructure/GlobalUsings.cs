@@ -21,3 +21,4 @@ global using Google.Apis.Auth.OAuth2;
 global using FirebaseAdmin.Messaging;
 global using Message = Domain.Features.Message;
 global using Notification = Domain.Features.Notification;
+global using Newtonsoft.Json.Serialization;

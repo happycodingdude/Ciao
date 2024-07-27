@@ -3,7 +3,7 @@ POST  http://localhost:4100/api/users/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"hayeu",
     "Password":"Qwerty@123"
 }
 
@@ -15,19 +15,11 @@ Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SAH3jDGQcojg-gzx7uN94KrlQwfrVQ-5
 
 ###
 POST  http://localhost:4000/api/messages/send
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9R_vNUKJ8Pc6CVOJAlZ87Jk5XyZ8G504FxerLyzz-cqu3MFGTpOXUFmPZbEpgRJ3dJzFBJklj7i3AnIscm6f9ZY0Ow1Zd6Gakn5Yz1hcQPN7eEb2xiP1svfl1dH8fGS7POcsmr5dPX2c9hrpoEVGwqdLiEEdNvxbW2J49Cy_v2ju42bGCRjezIhDL0EOZ3vwdE2QSUMUAI_J4aTYwrUjdVrMSTLGp_eIVwjB-KFgvAWVdNipyUUmAp-RoSZRZXjApz1m1QUcGkKb4-94Y-dBXcTG198c10zcN2SGR3vMBFdIH8iQQkN-lcWAOcks9nJ8sjn2vJKLa9rBoyC6bfW1-JH_rQUjx4H57fV6FtNBRRWuORzYYyAFH47UtI5ouF40x5NPkHM0SCB3PlC-e_9P4KyLPqETYv9jFlLnArMIQ2iA-BH2oAicQd8kjSICgmuQBvi4aZulz5T0VGDuNtLtfbXM-u_O5WCdOMqtLY5VruPrRnrZmMAk78xLQHjpTja4NKVA0YhnULXA3sDeogNM7OlUQl7DYS2GSRgqSDob9QKIA
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SZNNt30uLGmUx6XLC1dIENr9Jzn-DLALt14C6JLfqHkQAy6kPfrUzy2cjp5I9S_PKEjKBMLKEd9JI0f3y6bnfuGbTg1xr4ytZEiuXBwnicCwMVOlIEpBlEUvix9i1JLmSj3TpL1DAi6BWYgZgo9SLvtQ5doVCDz7catQYHmTBSS7x_4MrP7uuczzpoHCZRaT9jSAVu2BX_5WJ6Na4QYqkTZGnYOnZ1fOHEMcb8hHK_U89hflpEiPeNaCYzT2o5YDTzq0WDi_kJX5vwuY4E7SOdgj08e2sP6CXQfTvZLn9WszB1y_923oVUP0XThZ6grkxnTjDRMuQ38acWoSTHLI0ESxnd6-WEMo0gbsMaYs5EvIs63HroXxxd7Wi4cZnX4-cejlCr1T4BswPnYG0w3HbeQY9RPtrIXsEP-sGIIGCQq8c-WD6QX9e0nUd_j2WZvBwI5kJCRL-KjJrU42zgTL7lzGnAaCzmnkb_VxTZVndxJWVA6uVqKUuL2LWzVQRcHasdtaFrZF54L0Gb-D0LydkCpwO34nOJUHSxc0w7sa8FmA
 Content-Type: application/json
 
 {
-    "conversationId":"d8c1076f-6eb6-4b0f-9b0e-7ba0b8f00271",
-    "type":"media",
-    "content":"hihi 3",
-    "attachments":[
-        {
-            "type":"file",
-            "mediaUrl":"zxc",
-            "mediaName":"zxcv",
-            "mediaSize":2
-        }
-    ]
+    "conversationId":"ee5ba076-aca9-4802-af0f-b3bf04bab384",
+    "type":"text",
+    "content":"hihi 62"
 }
