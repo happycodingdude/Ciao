@@ -1,0 +1,6 @@
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Presentation/obj/Debug/net8.0/Presentation.csproj.AssemblyReference.cache
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Presentation/obj/Debug/net8.0/Presentation.GeneratedMSBuildEditorConfig.editorconfig
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Presentation/obj/Debug/net8.0/Presentation.AssemblyInfoInputs.cache
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Presentation/obj/Debug/net8.0/Presentation.AssemblyInfo.cs
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Presentation/obj/Debug/net8.0/Presentation.csproj.CoreCompileInputs.cache
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Presentation/obj/Debug/net8.0/Presentation.sourcelink.json

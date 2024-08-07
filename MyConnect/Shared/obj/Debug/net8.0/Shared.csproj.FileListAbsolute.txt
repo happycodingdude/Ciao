@@ -1,0 +1,13 @@
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.GeneratedMSBuildEditorConfig.editorconfig
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.AssemblyInfoInputs.cache
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.AssemblyInfo.cs
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.csproj.CoreCompileInputs.cache
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.sourcelink.json
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/bin/Debug/net8.0/Shared.deps.json
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/bin/Debug/net8.0/Shared.dll
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/bin/Debug/net8.0/Shared.pdb
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.dll
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/refint/Shared.dll
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.pdb
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/ref/Shared.dll
+/home/ubuntu/workspace/mydockercoreapi/MyConnect/Shared/obj/Debug/net8.0/Shared.csproj.AssemblyReference.cache
