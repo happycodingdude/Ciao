@@ -11,13 +11,11 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<NotificationTypeConstraint>>
     {
-        private readonly AppDbContext _dbContext;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public Handler(AppDbContext dbContext, IUnitOfWork uow, IMapper mapper)
+        public Handler(IUnitOfWork uow, IMapper mapper)
         {
-            _dbContext = dbContext;
             _uow = uow;
             _mapper = mapper;
         }
@@ -28,14 +26,13 @@ public static class GetByConversationId
             request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
 
             var notifications = await (
-                from noti in _dbContext.Set<Notification>()
+                from noti in _uow.Notification.DbSet
                     .AsNoTracking()
                     .Where(q => q.ContactId == request.ContactId)
                     .OrderByDescending(q => q.CreatedTime)
                     .Skip(request.Limit * (request.Page - 1))
                     .Take(request.Limit)
-                from frnd in _dbContext.Set<Friend>()
-                    .AsNoTracking()
+                from frnd in _uow.Friend.DbSet
                     .Where(f => f.Id == noti.SourceId)
                     .DefaultIfEmpty()
                 select new

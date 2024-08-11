@@ -7,6 +7,6 @@ public class ParticipantRepository : BaseRepository<Participant>, IParticipantRe
 
     public IEnumerable<Participant> GetByConversationId(Guid conversationId)
     {
-        return _dbSet.Where(q => q.ConversationId == conversationId);
+        return DbSet.Where(q => q.ConversationId == conversationId);
     }
 }

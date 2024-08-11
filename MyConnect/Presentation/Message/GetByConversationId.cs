@@ -12,13 +12,11 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<MessageWithAttachment>>
     {
-        private readonly AppDbContext _dbContext;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public Handler(AppDbContext dbContext, IUnitOfWork uow, IMapper mapper)
+        public Handler(IUnitOfWork uow, IMapper mapper)
         {
-            _dbContext = dbContext;
             _uow = uow;
             _mapper = mapper;
         }
@@ -29,13 +27,13 @@ public static class GetByConversationId
             request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
 
             var messages = await (
-                from mess in _dbContext.Set<Message>().AsNoTracking()
+                from mess in _uow.Message.DbSet
                     .Where(q => q.ConversationId == request.ConversationId)
                     .OrderByDescending(q => q.CreatedTime)
                     .Skip(request.Limit * (request.Page - 1))
                     .Take(request.Limit)
                     // .OrderBy(q => q.CreatedTime)
-                from atta in _dbContext.Set<Attachment>().AsNoTracking().Where(q => q.MessageId == mess.Id).DefaultIfEmpty()
+                from atta in _uow.Attachment.DbSet.Where(q => q.MessageId == mess.Id).DefaultIfEmpty()
                 select new
                 {
                     mess.Id,
@@ -81,7 +79,7 @@ public static class GetByConversationId
 
         private async Task SeenAll(Guid conversationId, Guid contactId)
         {
-            await _dbContext.Set<Message>().Where(q => q.ConversationId == conversationId && q.ContactId != contactId && q.Status == "received")
+            await _uow.Message.DbSet.Where(q => q.ConversationId == conversationId && q.ContactId != contactId && q.Status == "received")
                 .ExecuteUpdateAsync(q => q
                     .SetProperty(w => w.Status, "seen")
                     .SetProperty(w => w.SeenTime, DateTime.Now)

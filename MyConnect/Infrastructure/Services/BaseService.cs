@@ -8,9 +8,9 @@ public class BaseService<T, V> : IBaseService<T, V> where T : BaseModel where V 
 
     public BaseService(IRepository<T> repository, IUnitOfWork unitOfWork, IMapper mapper)
     {
+        _repository = repository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _repository = repository;
     }
 
     public virtual IEnumerable<V> GetAll()

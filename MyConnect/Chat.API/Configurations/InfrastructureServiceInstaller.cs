@@ -4,6 +4,11 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration)
     {
+        // Common
+        services.AddHttpContextAccessor();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+
         // HttpClient
         services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
         {
@@ -18,17 +23,24 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         });
 
-        // Dbcontext        
-        services.AddDbContext<AppDbContext>(option =>
-        {
-            option.UseMySQL(configuration.GetConnectionString("Db-Development"));
-        });
+        // Chat Dbcontext        
+        services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+
+        // Authentication Dbcontext
+        services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+        services.AddIdentityCore<AuthenticationUser>().AddEntityFrameworkStores<AuthenticationDbContext>().AddApiEndpoints();
+        // services.AddIdentityApiEndpoints<AuthenticationUser>()
+        //     .AddRoles<IdentityRole>()
+        //     .AddEntityFrameworkStores<AuthenticationDbContext>()
+        //     .AddSignInManager()
+        //     .AddRoleManager<RoleManager<IdentityRole>>()
+        //     .AddDefaultTokenProviders();
 
         // Authentication
-        services.AddAuthentication();
+        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
 
         // Authorization
-        services.AddSingleton<IAuthorizationHandler, BasicAuthenticationHandle>();
+        services.AddScoped<IAuthorizationHandler, BasicAuthenticationHandle>();
         services.AddAuthorization(option =>
         {
             option.AddPolicy("Basic", policy =>
@@ -54,25 +66,26 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<IRedisCaching, Redis>();
 
         // Repositories
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-        services.AddScoped<IContactRepository, ContactRepository>();
-        services.AddScoped<IConversationRepository, ConversationRepository>();
-        services.AddScoped<IFriendRepository, FriendRepository>();
-        services.AddScoped<IMessageRepository, MessageRepository>();
-        services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<IParticipantRepository, ParticipantRepository>();
-        services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
-        services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        services.AddSingleton<IUnitOfWork, UnitOfWork>();
+        services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
+        services.AddSingleton<IContactRepository, ContactRepository>();
+        services.AddSingleton<IConversationRepository, ConversationRepository>();
+        services.AddSingleton<IFriendRepository, FriendRepository>();
+        services.AddSingleton<IMessageRepository, MessageRepository>();
+        services.AddSingleton<INotificationRepository, NotificationRepository>();
+        services.AddSingleton<IParticipantRepository, ParticipantRepository>();
+        services.AddSingleton<IScheduleContactRepository, ScheduleContactRepository>();
+        services.AddSingleton<IScheduleRepository, ScheduleRepository>();
 
         // Business logics
-        services.AddScoped<IContactService, ContactService>();
-        services.AddScoped<IConversationService, ConversationService>();
-        services.AddScoped<IParticipantService, ParticipantService>();
-        services.AddScoped<INotificationService, NotificationService>();
-        services.AddScoped<IFriendService, FriendService>();
-        services.AddScoped<IMessageService, MessageService>();
-        services.AddScoped<INotificationMethod, NotificationMethod>();
-        services.AddScoped<IFirebaseFunction, FirebaseFunction>();
+        services.AddSingleton<IContactService, ContactService>();
+        services.AddSingleton<IConversationService, ConversationService>();
+        services.AddSingleton<IParticipantService, ParticipantService>();
+        services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<IFriendService, FriendService>();
+        services.AddSingleton<IMessageService, MessageService>();
+        services.AddSingleton<INotificationMethod, NotificationMethod>();
+        services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
+        services.AddScoped<IIdentityService, IdentityService>();
     }
 }

@@ -2,7 +2,7 @@ namespace Presentation.Notifications;
 
 public static class RegisterConnection
 {
-    public class Query : IRequest<bool>
+    public class Query : IRequest<Unit>
     {
         public Guid ContactId { get; set; }
         public string Token { get; set; }
@@ -16,22 +16,25 @@ public static class RegisterConnection
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, bool>
+    internal sealed class Handler : IRequestHandler<Query, Unit>
     {
-        private readonly IValidator<Query> _validator;
+        readonly IValidator<Query> _validator;
+        readonly IDistributedCache _distributedCache;
 
-        public Handler(IValidator<Query> validator)
+        public Handler(IValidator<Query> validator, IDistributedCache distributedCache)
         {
             _validator = validator;
+            _distributedCache = distributedCache;
         }
 
-        public async Task<bool> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
         {
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            return Utils.RedisCLient.Db.StringSet($"connection-{request.ContactId}", request.Token);
+            await _distributedCache.SetStringAsync($"connection-{request.ContactId}", request.Token);
+            return Unit.Value;
         }
     }
 }

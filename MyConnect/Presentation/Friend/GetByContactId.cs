@@ -9,19 +9,19 @@ public static class GetByContactId
 
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<GetAllFriend>>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IUnitOfWork _uow;
 
-        public Handler(AppDbContext dbContext)
+        public Handler(IUnitOfWork uow)
         {
-            _dbContext = dbContext;
+            _uow = uow;
         }
 
         public async Task<IEnumerable<GetAllFriend>> Handle(Query request, CancellationToken cancellationToken)
         {
             var friends = await (
-                from frnd in _dbContext.Set<Friend>().AsNoTracking()
-                join fromContact in _dbContext.Set<Contact>().AsNoTracking() on frnd.FromContactId equals fromContact.Id
-                join toContact in _dbContext.Set<Contact>().AsNoTracking() on frnd.ToContactId equals toContact.Id
+                from frnd in _uow.Friend.DbSet
+                join fromContact in _uow.Contact.DbSet on frnd.FromContactId equals fromContact.Id
+                join toContact in _uow.Contact.DbSet on frnd.ToContactId equals toContact.Id
                 where frnd.FromContactId == request.Id || frnd.ToContactId == request.Id
                 select new GetAllFriend
                 {

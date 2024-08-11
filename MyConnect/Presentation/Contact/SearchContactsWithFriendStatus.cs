@@ -10,11 +10,11 @@ public static class SearchContactsWithFriendStatus
 
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<ContactDto>>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IUnitOfWork _uow;
 
-        public Handler(AppDbContext dbContext)
+        public Handler(IUnitOfWork uow)
         {
-            _dbContext = dbContext;
+            _uow = uow;
         }
 
         public async Task<IEnumerable<ContactDto>> Handle(Query request, CancellationToken cancellationToken)
@@ -22,9 +22,8 @@ public static class SearchContactsWithFriendStatus
             if (string.IsNullOrEmpty(request.Name)) return Enumerable.Empty<ContactDto>();
 
             var contacts = await (
-                from cust in _dbContext.Set<Contact>().AsNoTracking().Where(c => c.Id != request.Id && c.Name.Contains(request.Name))
-                from frnd in _dbContext.Set<Friend>()
-                    .AsNoTracking()
+                from cust in _uow.Contact.DbSet.Where(c => c.Id != request.Id && c.Name.Contains(request.Name))
+                from frnd in _uow.Friend.DbSet
                     .Where(f => (f.FromContactId == request.Id && f.ToContactId == cust.Id) || (f.FromContactId == cust.Id && f.ToContactId == request.Id))
                     .DefaultIfEmpty()
                 select new { cust.Id, cust.Name, cust.Avatar, cust.Bio, cust.IsOnline, cust.LastLogout, FriendRequest = frnd }

@@ -3,8 +3,6 @@ global using Microsoft.EntityFrameworkCore;
 global using Authentication.API;
 global using System.Security.Claims;
 global using Newtonsoft.Json;
-global using Infrastructure.Constants;
-global using Infrastructure.Utils;
 global using Infrastructure.Databases;
 global using Infrastructure.RequestPipeline;
 global using Infrastructure.Middleware.Exceptions;

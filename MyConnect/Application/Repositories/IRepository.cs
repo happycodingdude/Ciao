@@ -11,5 +11,5 @@ public interface IRepository<T> : IDisposable where T : class
     void Update(List<T> entity);
     void Delete(Guid id);
     void Delete(List<T> entities);
-    // DbSet<T> DbSet { get; }
+    DbSet<T> DbSet { get; }
 }

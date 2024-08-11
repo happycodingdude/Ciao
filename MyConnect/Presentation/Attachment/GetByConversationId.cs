@@ -9,18 +9,18 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<AttachmentGroupByCreatedTime>>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IUnitOfWork _uow;
 
-        public Handler(AppDbContext dbContext)
+        public Handler(IUnitOfWork uow)
         {
-            _dbContext = dbContext;
+            _uow = uow;
         }
 
         public async Task<IEnumerable<AttachmentGroupByCreatedTime>> Handle(Query request, CancellationToken cancellationToken)
         {
             return await (
-                from atta in _dbContext.Set<Attachment>().AsNoTracking().OrderByDescending(q => q.CreatedTime)
-                join mess in _dbContext.Set<Message>().AsNoTracking() on atta.MessageId equals mess.Id
+                from atta in _uow.Attachment.DbSet.OrderByDescending(q => q.CreatedTime)
+                join mess in _uow.Message.DbSet on atta.MessageId equals mess.Id
                 where mess.ConversationId == request.ConversationId
                 group atta by atta.CreatedTime.Value.Date into dateGrouping
                 select new AttachmentGroupByCreatedTime

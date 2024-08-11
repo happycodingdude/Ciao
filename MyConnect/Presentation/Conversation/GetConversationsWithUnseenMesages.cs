@@ -2,36 +2,36 @@ namespace Presentation.Conversations;
 
 public static class GetConversationsWithUnseenMesages
 {
-    public class Query : IRequest<IEnumerable<object>>
+    public class Query : IRequest<IEnumerable<ConversationWithTotalUnseen>>
     {
         public Guid ContactId { get; set; }
         public int Page { get; set; }
         public int Limit { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, IEnumerable<object>>
+    internal sealed class Handler : IRequestHandler<Query, IEnumerable<ConversationWithTotalUnseen>>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IUnitOfWork _uow;
 
-        public Handler(AppDbContext dbContext)
+        public Handler(IUnitOfWork uow)
         {
-            _dbContext = dbContext;
+            _uow = uow;
         }
 
-        public async Task<IEnumerable<object>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Query request, CancellationToken cancellationToken)
         {
             request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;
             request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
 
             var conversations = await (
-                from conv in _dbContext.Set<Conversation>().AsNoTracking()
+                from conv in _uow.Conversation.DbSet
                     .Select(q => new { q.Id, q.Title, q.Avatar, q.IsGroup, q.UpdatedTime })
                     .OrderByDescending(q => q.UpdatedTime)
                     .Skip(request.Limit * (request.Page - 1))
                     .Take(request.Limit)
-                from mess in _dbContext.Set<Message>().AsNoTracking().Where(q => q.ConversationId == conv.Id).DefaultIfEmpty()
-                join part in _dbContext.Set<Participant>().AsNoTracking() on conv.Id equals part.ConversationId
-                join cust in _dbContext.Set<Contact>().AsNoTracking() on part.ContactId equals cust.Id
+                from mess in _uow.Message.DbSet.Where(q => q.ConversationId == conv.Id).DefaultIfEmpty()
+                join part in _uow.Participant.DbSet on conv.Id equals part.ConversationId
+                join cust in _uow.Contact.DbSet on part.ContactId equals cust.Id
                 select new
                 {
                     conv.Id,

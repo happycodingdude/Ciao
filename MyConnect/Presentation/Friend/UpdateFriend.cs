@@ -1,3 +1,5 @@
+using Shared.Configurations;
+
 namespace Presentation.Friends;
 
 public static class UpdateFriend
@@ -11,11 +13,11 @@ public static class UpdateFriend
 
     public class Validator : AbstractValidator<Query>
     {
-        readonly IServiceScopeFactory _scopeFactory;
+        readonly IUnitOfWork _uow;
 
-        public Validator(IServiceScopeFactory scopeFactory)
+        public Validator(IUnitOfWork uow)
         {
-            _scopeFactory = scopeFactory;
+            _uow = uow;
             RuleFor(c => c.Patch.Operations.Count(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower()))
                 .Equal(1)
                 .WithMessage("This is used for acceptance only 1");
@@ -24,28 +26,20 @@ public static class UpdateFriend
                     .Select(q => q.value.ToString()))
                 .Must(q => q.All(w => w == "accept"))
                 .WithMessage("This is used for acceptance only 2");
-            RuleFor(c => c.Id).Must(NotYetAccepted).WithMessage("Friend request has been accepted");
-            RuleFor(c => c).Must(NotSelfAccept).WithMessage("Can not self-accept");
+            RuleFor(c => c.Id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
+            RuleFor(c => c).MustAsync((item, cancellation) => NotSelfAccept(item)).WithMessage("Can not self-accept");
         }
 
-        private bool NotYetAccepted(Guid id)
+        private async Task<bool> NotYetAccepted(Guid id)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var sent = dbContext.Friends.Find(id);
-                return !sent.AcceptTime.HasValue;
-            }
+            var sent = await _uow.Friend.GetByIdAsync(id);
+            return !sent.AcceptTime.HasValue;
         }
 
-        private bool NotSelfAccept(Query request)
+        private async Task<bool> NotSelfAccept(Query request)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var sent = dbContext.Friends.Find(request.Id);
-                return sent.FromContactId != request.ContactId;
-            }
+            var sent = await _uow.Friend.GetByIdAsync(request.Id);
+            return sent.FromContactId != request.ContactId;
         }
     }
 

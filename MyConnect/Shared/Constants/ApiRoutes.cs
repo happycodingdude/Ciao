@@ -2,7 +2,7 @@ namespace Shared.Constants;
 
 public partial class AppConstants
 {
-    public const string ApiRoute_User = "/api/users";
+    public const string ApiRoute_Identity = "/api/identity";
     public const string ApiRoute_Contact = "/api/contacts";
     public const string ApiRoute_Conversation = "/api/conversations";
     public const string ApiRoute_Friend = "/api/friends";

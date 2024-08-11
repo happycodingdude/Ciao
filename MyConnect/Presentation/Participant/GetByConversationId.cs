@@ -9,20 +9,20 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Query, IEnumerable<ParticipantWithContact>>
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public Handler(AppDbContext dbContext, IMapper mapper)
+        public Handler(IMapper mapper, IUnitOfWork uow)
         {
-            _dbContext = dbContext;
             _mapper = mapper;
+            _uow = uow;
         }
 
         public async Task<IEnumerable<ParticipantWithContact>> Handle(Query request, CancellationToken cancellationToken)
         {
             return await (
-                from part in _dbContext.Set<Participant>().AsNoTracking()
-                join cust in _dbContext.Set<Contact>().AsNoTracking() on part.ContactId equals cust.Id
+                from part in _uow.Participant.DbSet
+                join cust in _uow.Contact.DbSet on part.ContactId equals cust.Id
                 where part.ConversationId == request.ConversationId
                 select new ParticipantWithContact
                 {

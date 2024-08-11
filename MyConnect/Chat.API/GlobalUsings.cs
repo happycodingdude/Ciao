@@ -19,3 +19,5 @@ global using Microsoft.EntityFrameworkCore;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using Infrastructure.RequestPipeline;
+global using Microsoft.AspNetCore.Identity;
+global using Application.DTOs;

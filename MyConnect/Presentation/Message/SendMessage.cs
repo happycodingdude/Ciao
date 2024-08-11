@@ -34,15 +34,13 @@ public static class SendMessage
 
     internal sealed class Handler : IRequestHandler<Query, Unit>
     {
-        private readonly AppDbContext _dbContext;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IValidator<Query> _validator;
         private readonly INotificationMethod _notificationMethod;
 
-        public Handler(AppDbContext dbContext, IUnitOfWork uow, IMapper mapper, IValidator<Query> validator, INotificationMethod notificationMethod)
+        public Handler(IUnitOfWork uow, IMapper mapper, IValidator<Query> validator, INotificationMethod notificationMethod)
         {
-            _dbContext = dbContext;
             _uow = uow;
             _mapper = mapper;
             _validator = validator;
@@ -65,7 +63,7 @@ public static class SendMessage
             await _uow.SaveAsync();
 
             // When a message sent, all members of that group will be having that group conversation back
-            await _dbContext.Set<Participant>().Where(q => q.ConversationId == request.Model.ConversationId)
+            await _uow.Participant.DbSet.Where(q => q.ConversationId == request.Model.ConversationId)
                 .ExecuteUpdateAsync(q => q.SetProperty(w => w.IsDeleted, false));
 
             // Push message

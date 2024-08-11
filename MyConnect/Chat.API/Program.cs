@@ -16,15 +16,15 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseExceptionHandler();
 }
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
-app.UseRouting();
-app.UseSession();
-app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapCarter();
+
+app.MapGroup("/identity").MapIdentityApi<AuthenticationUser>();
 app.UseDbTransaction();
+app.UseAuthenticationDbTransaction();
+app.MapCarter();
 
 app.Run();

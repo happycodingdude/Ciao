@@ -1,0 +1,11 @@
+@host = http://localhost:4000
+
+POST {{host}}/api/identity/signin
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@123"
+}
+
+###

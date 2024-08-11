@@ -10,26 +10,22 @@ public static class CreateFriend
 
     public class Validator : AbstractValidator<Query>
     {
-        readonly IServiceScopeFactory _scopeFactory;
+        readonly IUnitOfWork _uow;
 
-        public Validator(IServiceScopeFactory scopeFactory)
+        public Validator(IUnitOfWork uow)
         {
-            _scopeFactory = scopeFactory;
+            _uow = uow;
             RuleFor(c => c.ToContactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
-            RuleFor(c => c).Must(UniqueRequest).WithMessage("Friend request has been sent");
+            RuleFor(c => c).MustAsync((item, cancellation) => UniqueRequest(item)).WithMessage("Friend request has been sent");
             RuleFor(c => c.ToContactId).NotEqual(q => q.FromContactId).WithMessage("Can not send self-request");
         }
 
-        private bool UniqueRequest(Query request)
+        private async Task<bool> UniqueRequest(Query request)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var sent = dbContext.Friends.AsNoTracking()
+            var sent = _uow.Friend.DbSet
                     .Any(q => (q.FromContactId == request.FromContactId && q.ToContactId == request.ToContactId)
                             || q.FromContactId == request.ToContactId && q.ToContactId == request.FromContactId);
-                return !sent;
-            }
+            return !sent;
         }
     }
 
