@@ -1,6 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class ContactRepository : BaseRepository<Contact>, IContactRepository
-{
-    public ContactRepository(AppDbContext context) : base(context) { }
-}
+public class ContactRepository(AppDbContext context) : BaseRepository<Contact>(context), IContactRepository { }

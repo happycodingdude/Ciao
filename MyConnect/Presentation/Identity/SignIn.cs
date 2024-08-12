@@ -2,20 +2,19 @@ namespace Presentation.Identities;
 
 public static class SignIn
 {
-    public record Request(IdentityRequest Model) : IRequest<HttpContext>;
+    public record Request(IdentityRequest model) : IRequest<Unit>;
 
-    internal sealed class Handler(SignInManager<AuthenticationUser> signInManager,
-        IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, HttpContext>
+    internal sealed class Handler(SignInManager<AuthenticationUser> signInManager, IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, Unit>
     {
-        public async Task<HttpContext> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            //Stream originalBodyStream = httpContext.Response.Body;
+            // Stream originalBodyStream = httpContextAccessor.HttpContext.Response.Body;
             using (var ms = new MemoryStream())
             {
                 httpContextAccessor.HttpContext.Response.Body = ms;
 
                 signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
-                await signInManager.PasswordSignInAsync(request.Model.Username, request.Model.Password, false, lockoutOnFailure: false);
+                await signInManager.PasswordSignInAsync(request.model.Username, request.model.Password, false, lockoutOnFailure: false);
 
                 ms.Seek(0, SeekOrigin.Begin);
                 var responseBody = new StreamReader(ms).ReadToEnd();
@@ -34,7 +33,7 @@ public static class SignIn
                 // await context.Response.Body.WriteAsync(ms.ToArray());
             }
 
-            return httpContextAccessor.HttpContext;
+            return Unit.Value;
         }
     }
 }
@@ -47,7 +46,8 @@ public class SignInEndpoint : ICarterModule
         async (ISender sender, IdentityRequest model) =>
         {
             var request = new SignIn.Request(model);
-            return await sender.Send(request);
+            await sender.Send(request);
+            return Results.Ok();
         });
     }
 }

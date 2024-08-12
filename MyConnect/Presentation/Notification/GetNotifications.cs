@@ -2,37 +2,20 @@ namespace Presentation.Notifications;
 
 public static class GetByConversationId
 {
-    public class Query : IRequest<IEnumerable<NotificationTypeConstraint>>
+    public record Request(Guid contactId, int page, int limit) : IRequest<IEnumerable<NotificationTypeConstraint>>;
+
+    internal sealed class Handler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<Request, IEnumerable<NotificationTypeConstraint>>
     {
-        public Guid ContactId { get; set; }
-        public int Page { get; set; }
-        public int Limit { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, IEnumerable<NotificationTypeConstraint>>
-    {
-        private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
-
-        public Handler(IUnitOfWork uow, IMapper mapper)
+        public async Task<IEnumerable<NotificationTypeConstraint>> Handle(Request request, CancellationToken cancellationToken)
         {
-            _uow = uow;
-            _mapper = mapper;
-        }
-
-        public async Task<IEnumerable<NotificationTypeConstraint>> Handle(Query request, CancellationToken cancellationToken)
-        {
-            request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;
-            request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
-
             var notifications = await (
-                from noti in _uow.Notification.DbSet
+                from noti in uow.Notification.DbSet
                     .AsNoTracking()
-                    .Where(q => q.ContactId == request.ContactId)
+                    .Where(q => q.ContactId == request.contactId)
                     .OrderByDescending(q => q.CreatedTime)
-                    .Skip(request.Limit * (request.Page - 1))
-                    .Take(request.Limit)
-                from frnd in _uow.Friend.DbSet
+                    .Skip(request.limit * (request.page - 1))
+                    .Take(request.limit)
+                from frnd in uow.Friend.DbSet
                     .Where(f => f.Id == noti.SourceId)
                     .DefaultIfEmpty()
                 select new
@@ -51,11 +34,11 @@ public static class GetByConversationId
                 switch (notification.noti.SourceType)
                 {
                     case AppConstants.NotificationSourceType_FriendRequest:
-                        var constraintDto = _mapper.Map<Notification, NotificationTypeConstraint>(notification.noti);
-                        var friendRequest = _mapper.Map<Friend, NotificationSourceDataType_Friend>(notification.frnd);
+                        var constraintDto = mapper.Map<Notification, NotificationTypeConstraint>(notification.noti);
+                        var friendRequest = mapper.Map<Friend, NotificationSourceDataType_Friend>(notification.frnd);
                         friendRequest.FriendStatus = notification.frnd.AcceptTime.HasValue == true
                             ? "friend"
-                            : notification.frnd.FromContactId == request.ContactId
+                            : notification.frnd.FromContactId == request.contactId
                                 ? "request_sent"
                                 : "request_received";
                         constraintDto.AddSourceData(friendRequest);
@@ -79,12 +62,7 @@ public class GetByConversationIdEndpoint : ICarterModule
         async (HttpContext context, ISender sender, int page = 0, int limit = 0) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetByConversationId.Query
-            {
-                ContactId = userId,
-                Page = page,
-                Limit = limit
-            };
+            var query = new GetByConversationId.Request(userId, page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

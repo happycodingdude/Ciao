@@ -2,38 +2,25 @@ namespace Presentation.Notifications;
 
 public static class RegisterConnection
 {
-    public class Query : IRequest<Unit>
-    {
-        public Guid ContactId { get; set; }
-        public string Token { get; set; }
-    }
+    public record Request(Guid contactId, string token) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(c => c.Token).NotEmpty().WithMessage("Token should not be empty");
+            RuleFor(c => c.token).NotEmpty().WithMessage("Token should not be empty");
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IDistributedCache distributedCache) : IRequestHandler<Request, Unit>
     {
-        readonly IValidator<Query> _validator;
-        readonly IDistributedCache _distributedCache;
-
-        public Handler(IValidator<Query> validator, IDistributedCache distributedCache)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _validator = validator;
-            _distributedCache = distributedCache;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
+            var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await _distributedCache.SetStringAsync($"connection-{request.ContactId}", request.Token);
+            await distributedCache.SetStringAsync($"connection-{request.contactId}", request.token);
             return Unit.Value;
         }
     }
@@ -47,11 +34,7 @@ public class RegisterConnectionEndpoint : ICarterModule
         async (HttpContext context, ISender sender, string token) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new RegisterConnection.Query
-            {
-                ContactId = userId,
-                Token = token
-            };
+            var query = new RegisterConnection.Request(userId, token);
             var response = await sender.Send(query);
             return Results.Ok(response);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

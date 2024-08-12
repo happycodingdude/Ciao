@@ -2,60 +2,43 @@ namespace Presentation.Conversations;
 
 public static class CreateConversation
 {
-    public class Query : IRequest<Unit>
-    {
-        public Guid ContactId { get; set; }
-        public ConversationDto Model { get; set; }
-    }
+    public record Request(Guid contactId, ConversationDto model) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(c => c.Model.Participants).ShouldHaveValue().DependentRules(() =>
+            RuleFor(c => c.model.Participants).ShouldHaveValue().DependentRules(() =>
             {
-                RuleFor(c => c.Model.Participants.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
-                RuleFor(c => c.Model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
-                RuleFor(c => c.Model.Participants.Count).GreaterThan(1).When(q => q.Model.IsGroup).WithMessage("Group conversation should contain at least 2 participants");
-                RuleFor(c => c.Model.Participants.Count).Equal(2).When(q => !q.Model.IsGroup).WithMessage("Direct conversation should contain 2 participants");
-                RuleFor(c => c.Model.Participants.Where(q => q.IsModerator).Count()).Equal(1).WithMessage("Conversation should only have 1 moderator");
+                RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
+                RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
+                RuleFor(c => c.model.Participants.Count).GreaterThan(1).When(q => q.model.IsGroup).WithMessage("Group conversation should contain at least 2 participants");
+                RuleFor(c => c.model.Participants.Count).Equal(2).When(q => !q.model.IsGroup).WithMessage("Direct conversation should contain 2 participants");
+                RuleFor(c => c.model.Participants.Where(q => q.IsModerator).Count()).Equal(1).WithMessage("Conversation should only have 1 moderator");
             });
-            RuleFor(c => c.Model.Title).NotEmpty().When(q => q.Model.IsGroup).WithMessage("Title should not be empty");
+            RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod) : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Query> _validator;
-        private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
-        private readonly INotificationMethod _notificationMethod;
-
-        public Handler(IValidator<Query> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _uow = uow;
-            _validator = validator;
-            _mapper = mapper;
-            _notificationMethod = notificationMethod;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
+            var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var entity = _mapper.Map<ConversationDto, Conversation>(request.Model);
-            _uow.Conversation.Add(entity);
-            await _uow.SaveAsync();
+            var entity = mapper.Map<ConversationDto, Conversation>(request.model);
+            uow.Conversation.Add(entity);
+            await uow.SaveAsync();
 
-            await _notificationMethod.Notify(
+            await notificationMethod.Notify(
                 "NewConversation",
-                request.Model.Participants
-                    .Where(q => q.ContactId != request.ContactId)
+                request.model.Participants
+                    .Where(q => q.ContactId != request.contactId)
                     .Select(q => q.ContactId.ToString())
                     .ToArray(),
-                _mapper.Map<Conversation, ConversationToNotify>(entity)
+                mapper.Map<Conversation, ConversationToNotify>(entity)
             );
 
             return Unit.Value;
@@ -71,11 +54,7 @@ public class CreateConversationEndpoint : ICarterModule
         async (HttpContext context, ISender sender, ConversationDto model) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new CreateConversation.Query
-            {
-                ContactId = userId,
-                Model = model
-            };
+            var query = new CreateConversation.Request(userId, model);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

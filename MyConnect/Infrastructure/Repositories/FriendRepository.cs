@@ -1,6 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class FriendRepository : BaseRepository<Friend>, IFriendRepository
-{
-    public FriendRepository(AppDbContext context) : base(context) { }
-}
+public class FriendRepository(AppDbContext context) : BaseRepository<Friend>(context), IFriendRepository { }

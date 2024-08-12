@@ -1,6 +1,6 @@
-@host = http://localhost:4000
+@host = http://localhost:4000/api
 
-POST {{host}}/api/identity/signin
+POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
@@ -9,3 +9,16 @@ Content-Type: application/json
 }
 
 ###
+###
+POST  {{host}}/users/signup
+Content-Type: application/json
+
+{
+    "Name":"Em yeu",
+    "Username":"emyeu",
+    "Password":"Qwerty@123"
+}
+
+###
+GET   {{host}}/users/signout
+Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SYKSugQwj9SQxB0AmJwWC6fhmCIyxHCT6S6rJUyUc3BKJgvzjE8PRJH5X-vurxSRdUx2f1Jy39eaSRV-xiI4kEkw1cbhO16SHAKh4e13m4Jl7gzRfi8vYH96N7TWyUHBUmOY6fKIQocbEyW1LHn2yP1jdgaGTIy2aWrmkwhbtfflB2sntTg5iCiam8i9X-6YGIGF1TZQ0_4fGgZkXpUQAuJVdJYewHxIqLiuqIFIomQorsDUgf0JoHRNMvx2gMmnxdwGjj3AeZy-w6E7xJkMeX23ecpnOM-Ok9Yy_rlKRnHfjLut3HCZMJSZTk1E8xpvyxPJiU3tNR87cvQ15oWQg3NkGDYRxZnmXC21SRtdFueDOu8nQ8XRTdmRok9r42QgaFWXYAXg1EU3lM063Ji6j8gU-5fwYpuzSA3seppT0gOU2DnirVaKKcrasA_6nPVd4__oC9tdD8ehuie0bkYQ9NSWlxIG9-C0pRK7saaYrh9MQrVbxXILYLpijrz78GGhEaFctA3vFDPObtfgc4y-_uO6dLj-UajCRo65Owacjd6w

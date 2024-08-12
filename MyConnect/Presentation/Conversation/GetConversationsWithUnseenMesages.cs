@@ -2,36 +2,21 @@ namespace Presentation.Conversations;
 
 public static class GetConversationsWithUnseenMesages
 {
-    public class Query : IRequest<IEnumerable<ConversationWithTotalUnseen>>
+    public record Request(Guid contactId, int page, int limit) : IRequest<IEnumerable<ConversationWithTotalUnseen>>;
+
+    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, IEnumerable<ConversationWithTotalUnseen>>
     {
-        public Guid ContactId { get; set; }
-        public int Page { get; set; }
-        public int Limit { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, IEnumerable<ConversationWithTotalUnseen>>
-    {
-        private readonly IUnitOfWork _uow;
-
-        public Handler(IUnitOfWork uow)
+        public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Request request, CancellationToken cancellationToken)
         {
-            _uow = uow;
-        }
-
-        public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Query request, CancellationToken cancellationToken)
-        {
-            request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;
-            request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
-
             var conversations = await (
-                from conv in _uow.Conversation.DbSet
+                from conv in uow.Conversation.DbSet
                     .Select(q => new { q.Id, q.Title, q.Avatar, q.IsGroup, q.UpdatedTime })
                     .OrderByDescending(q => q.UpdatedTime)
-                    .Skip(request.Limit * (request.Page - 1))
-                    .Take(request.Limit)
-                from mess in _uow.Message.DbSet.Where(q => q.ConversationId == conv.Id).DefaultIfEmpty()
-                join part in _uow.Participant.DbSet on conv.Id equals part.ConversationId
-                join cust in _uow.Contact.DbSet on part.ContactId equals cust.Id
+                    .Skip(request.limit * (request.page - 1))
+                    .Take(request.limit)
+                from mess in uow.Message.DbSet.Where(q => q.ConversationId == conv.Id).DefaultIfEmpty()
+                join part in uow.Participant.DbSet on conv.Id equals part.ConversationId
+                join cust in uow.Contact.DbSet on part.ContactId equals cust.Id
                 select new
                 {
                     conv.Id,
@@ -54,10 +39,7 @@ public static class GetConversationsWithUnseenMesages
                 }
             )
             .ToListAsync(cancellationToken);
-
             if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
-
-            // return conversations;
 
             var result =
                 from conv in conversations
@@ -67,7 +49,7 @@ public static class GetConversationsWithUnseenMesages
                 let unseenMessages = convGroup.Select(q => q.mess)
                     .Where(q => q != null)
                     .DistinctBy(q => q.Id)
-                    .Where(q => q.ContactId != request.ContactId && q.Status == "received")
+                    .Where(q => q.ContactId != request.contactId && q.Status == "received")
                     .Count()
                 let firstMess = convGroup.Select(q => q.mess)
                     .Where(q => q != null)
@@ -77,7 +59,7 @@ public static class GetConversationsWithUnseenMesages
                 let lastMess = convGroup.Select(q => q.mess)
                     .Where(q => q != null)
                     .DistinctBy(q => q.Id)
-                    .Where(q => q.ContactId == request.ContactId && q.Status == "seen" && q.SeenTime.HasValue)
+                    .Where(q => q.ContactId == request.contactId && q.Status == "seen" && q.SeenTime.HasValue)
                     .OrderByDescending(q => q.CreatedTime)
                     .FirstOrDefault()
                 select new ConversationWithTotalUnseen
@@ -87,8 +69,8 @@ public static class GetConversationsWithUnseenMesages
                     Avatar = conversation.Avatar,
                     IsGroup = conversation.IsGroup,
                     UpdatedTime = conversation.UpdatedTime,
-                    IsNotifying = participants.Where(q => q.ContactId == request.ContactId).FirstOrDefault().IsNotifying,
-                    Participants = participants.Where(q => q.ContactId != request.ContactId).ToList(),
+                    IsNotifying = participants.Where(q => q.ContactId == request.contactId).FirstOrDefault().IsNotifying,
+                    Participants = participants.Where(q => q.ContactId != request.contactId).ToList(),
                     UnSeenMessages = unseenMessages,
                     LastMessageId = firstMess?.Id,
                     LastMessage = firstMess?.Content,
@@ -109,12 +91,7 @@ public class GetConversationsWithUnseenMesagesEndpoint : ICarterModule
         async (HttpContext context, ISender sender, int page = 0, int limit = 0) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetConversationsWithUnseenMesages.Query
-            {
-                ContactId = userId,
-                Page = page,
-                Limit = limit
-            };
+            var query = new GetConversationsWithUnseenMesages.Request(userId, page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

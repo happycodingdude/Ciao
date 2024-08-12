@@ -2,23 +2,13 @@ namespace Presentation.Friends;
 
 public static class GetById
 {
-    public class Query : IRequest<FriendDto>
+    public record Request(Guid id) : IRequest<FriendDto>;
+
+    internal sealed class Handler(IFriendService service) : IRequestHandler<Request, FriendDto>
     {
-        public Guid Id { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, FriendDto>
-    {
-        private readonly IFriendService _service;
-
-        public Handler(IFriendService service)
+        public async Task<FriendDto> Handle(Request request, CancellationToken cancellationToken)
         {
-            _service = service;
-        }
-
-        public async Task<FriendDto> Handle(Query request, CancellationToken cancellationToken)
-        {
-            return await _service.GetByIdAsync(request.Id);
+            return await service.GetByIdAsync(request.id);
         }
     }
 }
@@ -30,10 +20,7 @@ public class GetByIdEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Friend).MapGet("/{id}",
         async (ISender sender, Guid id) =>
         {
-            var query = new GetById.Query
-            {
-                Id = id
-            };
+            var query = new GetById.Request(id);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

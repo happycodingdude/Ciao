@@ -1,6 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class ConversationRepository : BaseRepository<Conversation>, IConversationRepository
-{
-    public ConversationRepository(AppDbContext context) : base(context) { }
-}
+public class ConversationRepository(AppDbContext context) : BaseRepository<Conversation>(context), IConversationRepository { }

@@ -1,8 +1,5 @@
 namespace Infrastructure.Services;
 
-public class FriendService : BaseService<Friend, FriendDto>, IFriendService
-{
-    public FriendService(IFriendRepository repo, IUnitOfWork unitOfWork, IMapper mapper) : base(repo, unitOfWork, mapper)
-    {
-    }
-}
+public class FriendService(IFriendRepository repo, IUnitOfWork unitOfWork, IMapper mapper)
+    : BaseService<Friend, FriendDto>(repo, unitOfWork, mapper), IFriendService
+{ }

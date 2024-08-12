@@ -2,23 +2,13 @@ namespace Presentation.Conversations;
 
 public static class GetById
 {
-    public class Query : IRequest<ConversationDto>
+    public record Request(Guid id) : IRequest<ConversationDto>;
+
+    internal sealed class Handler(IConversationService service) : IRequestHandler<Request, ConversationDto>
     {
-        public Guid Id { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, ConversationDto>
-    {
-        private readonly IConversationService _service;
-
-        public Handler(IConversationService service)
+        public async Task<ConversationDto> Handle(Request request, CancellationToken cancellationToken)
         {
-            _service = service;
-        }
-
-        public async Task<ConversationDto> Handle(Query request, CancellationToken cancellationToken)
-        {
-            return await _service.GetByIdAsync(request.Id);
+            return await service.GetByIdAsync(request.id);
         }
     }
 }
@@ -30,10 +20,7 @@ public class GetByIdEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("/{id}",
         async (ISender sender, Guid id) =>
         {
-            var query = new GetById.Query
-            {
-                Id = id
-            };
+            var query = new GetById.Request(id);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

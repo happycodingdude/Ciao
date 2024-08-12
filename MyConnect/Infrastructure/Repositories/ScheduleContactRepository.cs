@@ -1,6 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class ScheduleContactRepository : BaseRepository<ScheduleContact>, IScheduleContactRepository
-{
-    public ScheduleContactRepository(AppDbContext context) : base(context) { }
-}
+public class ScheduleContactRepository(AppDbContext context) : BaseRepository<ScheduleContact>(context), IScheduleContactRepository { }

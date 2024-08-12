@@ -1,69 +1,58 @@
 namespace Infrastructure.Services;
 
-public class BaseService<T, V> : IBaseService<T, V> where T : BaseModel where V : class
+public class BaseService<T, V>(IRepository<T> repository, IUnitOfWork unitOfWork, IMapper mapper) : IBaseService<T, V> where T : BaseModel where V : class
 {
-    private readonly IRepository<T> _repository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public BaseService(IRepository<T> repository, IUnitOfWork unitOfWork, IMapper mapper)
-    {
-        _repository = repository;
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
-
     public virtual IEnumerable<V> GetAll()
     {
-        var entity = _repository.GetAll();
-        return _mapper.Map<IEnumerable<T>, IEnumerable<V>>(entity);
+        var entity = repository.GetAll();
+        return mapper.Map<IEnumerable<T>, IEnumerable<V>>(entity);
     }
 
     public virtual IEnumerable<V> GetAll(int page, int limit)
     {
-        var entity = _repository.GetAll(page, limit);
-        return _mapper.Map<IEnumerable<T>, IEnumerable<V>>(entity);
+        var entity = repository.GetAll(page, limit);
+        return mapper.Map<IEnumerable<T>, IEnumerable<V>>(entity);
     }
 
     public virtual async Task<V> GetByIdAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        return _mapper.Map<T, V>(entity);
+        var entity = await repository.GetByIdAsync(id);
+        return mapper.Map<T, V>(entity);
     }
 
     public virtual async Task<V> AddAsync(V dto)
     {
-        var entity = _mapper.Map<V, T>(dto);
-        _repository.Add(entity);
-        await _unitOfWork.SaveAsync();
-        return _mapper.Map<T, V>(entity);
+        var entity = mapper.Map<V, T>(dto);
+        repository.Add(entity);
+        await unitOfWork.SaveAsync();
+        return mapper.Map<T, V>(entity);
     }
 
     public virtual async Task<List<V>> AddAsync(List<V> dto)
     {
-        var entity = _mapper.Map<List<V>, List<T>>(dto);
-        _repository.Add(entity);
-        await _unitOfWork.SaveAsync();
-        return _mapper.Map<List<T>, List<V>>(entity);
+        var entity = mapper.Map<List<V>, List<T>>(dto);
+        repository.Add(entity);
+        await unitOfWork.SaveAsync();
+        return mapper.Map<List<T>, List<V>>(entity);
     }
 
     public virtual async Task<V> UpdateAsync(V dto)
     {
-        var entity = _mapper.Map<V, T>(dto);
+        var entity = mapper.Map<V, T>(dto);
         // entity.BeforeUpdate();
-        _repository.Update(entity);
-        await _unitOfWork.SaveAsync();
-        return _mapper.Map<T, V>(entity);
+        repository.Update(entity);
+        await unitOfWork.SaveAsync();
+        return mapper.Map<T, V>(entity);
     }
 
     public virtual async Task<V> PatchAsync(Guid id, JsonPatchDocument patch)
     {
         // if (!patch.Operations.Any()) return null;
-        var entity = await _repository.GetByIdAsync(id);
+        var entity = await repository.GetByIdAsync(id);
         patch.ApplyTo(entity);
-        _repository.Update(entity);
-        await _unitOfWork.SaveAsync();
-        return _mapper.Map<T, V>(entity);
+        repository.Update(entity);
+        await unitOfWork.SaveAsync();
+        return mapper.Map<T, V>(entity);
     }
 
     public async Task<List<PatchResponse>> BulkUpdateAsync(List<PatchRequest<V>> patches)
@@ -71,34 +60,34 @@ public class BaseService<T, V> : IBaseService<T, V> where T : BaseModel where V 
         var response = new List<PatchResponse>();
         foreach (var patch in patches)
         {
-            var entity = await _repository.GetByIdAsync(patch.Id);
+            var entity = await repository.GetByIdAsync(patch.Id);
             if (entity == null)
             {
                 response.Add(new PatchResponse(entity.Id, "object not found"));
             }
             else
             {
-                var dto = _mapper.Map<T, V>(entity);
+                var dto = mapper.Map<T, V>(entity);
                 patch.PatchDocument.ApplyTo(dto);
-                var updatedEntity = _mapper.Map<V, T>(dto);
-                _repository.Update(updatedEntity);
+                var updatedEntity = mapper.Map<V, T>(dto);
+                repository.Update(updatedEntity);
                 response.Add(new PatchResponse(updatedEntity.Id, "success"));
             }
         }
-        await _unitOfWork.SaveAsync();
+        await unitOfWork.SaveAsync();
         return response;
     }
 
     public virtual async Task DeleteAsync(Guid id)
     {
-        _repository.Delete(id);
-        await _unitOfWork.SaveAsync();
+        repository.Delete(id);
+        await unitOfWork.SaveAsync();
     }
 
     public virtual async Task DeleteAsync(List<V> dto)
     {
-        var entity = _mapper.Map<List<V>, List<T>>(dto);
-        _repository.Delete(entity);
-        await _unitOfWork.SaveAsync();
+        var entity = mapper.Map<List<V>, List<T>>(dto);
+        repository.Delete(entity);
+        await unitOfWork.SaveAsync();
     }
 }

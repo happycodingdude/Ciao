@@ -1,6 +1,4 @@
-﻿using Application.DTOs;
-
-namespace Application.Notifications;
+﻿namespace Application.Notifications;
 
 public interface IFirebaseFunction
 {

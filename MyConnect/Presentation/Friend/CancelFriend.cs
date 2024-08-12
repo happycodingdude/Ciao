@@ -2,20 +2,16 @@ namespace Presentation.Friends;
 
 public static class CancelFriend
 {
-    public class Query : IRequest<Unit>
-    {
-        public Guid Id { get; set; }
-        public Guid ContactId { get; set; }
-    }
+    public record Request(Guid id, Guid contactId) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Request>
     {
         readonly IUnitOfWork _uow;
 
         public Validator(IUnitOfWork uow)
         {
             _uow = uow;
-            RuleFor(c => c.Id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
+            RuleFor(c => c.id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
             RuleFor(c => c).MustAsync((item, cancellation) => NotReceivedRequest(item)).WithMessage("Can not cancel received request");
         }
 
@@ -25,44 +21,32 @@ public static class CancelFriend
             return !sent.AcceptTime.HasValue;
         }
 
-        private async Task<bool> NotReceivedRequest(Query request)
+        private async Task<bool> NotReceivedRequest(Request request)
         {
-            var sent = await _uow.Friend.GetByIdAsync(request.Id);
-            return sent.ToContactId != request.ContactId;
+            var sent = await _uow.Friend.GetByIdAsync(request.id);
+            return sent.ToContactId != request.contactId;
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Unit>
+    internal sealed class Handler(IValidator<Request> validator, INotificationMethod notificationMethod, IUnitOfWork uow) : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Query> _validator;
-        private readonly INotificationMethod _notificationMethod;
-        private readonly IUnitOfWork _uow;
-
-
-        public Handler(IValidator<Query> validator, INotificationMethod notificationMethod, IUnitOfWork uow)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _validator = validator;
-            _notificationMethod = notificationMethod;
-            _uow = uow;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
+            var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var entity = await _uow.Friend.GetByIdAsync(request.Id);
-            _uow.Friend.Delete(request.Id);
-            await _uow.SaveAsync();
+            var entity = await uow.Friend.GetByIdAsync(request.id);
+            uow.Friend.Delete(request.id);
+            await uow.SaveAsync();
 
             // Push friend request            
-            await _notificationMethod.Notify(
+            await notificationMethod.Notify(
                "CancelFriendRequest",
                new string[1] { entity.ToContactId.ToString() },
                new FriendToNotify
                {
-                   RequestId = request.Id
+                   RequestId = request.id
                }
            );
 
@@ -79,11 +63,7 @@ public class CancelFriendEndpoint : ICarterModule
         async (HttpContext context, ISender sender, Guid id) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new CancelFriend.Query
-            {
-                Id = id,
-                ContactId = userId
-            };
+            var query = new CancelFriend.Request(id, userId);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

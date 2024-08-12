@@ -1,32 +1,25 @@
-using Shared.Configurations;
-
 namespace Presentation.Friends;
 
 public static class UpdateFriend
 {
-    public class Query : IRequest<Unit>
-    {
-        public Guid Id { get; set; }
-        public Guid ContactId { get; set; }
-        public JsonPatchDocument Patch { get; set; }
-    }
+    public record Request(Guid id, Guid contactId, JsonPatchDocument patch) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Request>
     {
         readonly IUnitOfWork _uow;
 
         public Validator(IUnitOfWork uow)
         {
             _uow = uow;
-            RuleFor(c => c.Patch.Operations.Count(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower()))
+            RuleFor(c => c.patch.Operations.Count(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower()))
                 .Equal(1)
                 .WithMessage("This is used for acceptance only 1");
-            RuleFor(c => c.Patch.Operations
+            RuleFor(c => c.patch.Operations
                     .Where(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower())
                     .Select(q => q.value.ToString()))
                 .Must(q => q.All(w => w == "accept"))
                 .WithMessage("This is used for acceptance only 2");
-            RuleFor(c => c.Id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
+            RuleFor(c => c.id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
             RuleFor(c => c).MustAsync((item, cancellation) => NotSelfAccept(item)).WithMessage("Can not self-accept");
         }
 
@@ -36,48 +29,35 @@ public static class UpdateFriend
             return !sent.AcceptTime.HasValue;
         }
 
-        private async Task<bool> NotSelfAccept(Query request)
+        private async Task<bool> NotSelfAccept(Request request)
         {
-            var sent = await _uow.Friend.GetByIdAsync(request.Id);
-            return sent.FromContactId != request.ContactId;
+            var sent = await _uow.Friend.GetByIdAsync(request.id);
+            return sent.FromContactId != request.contactId;
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IFriendService service, INotificationMethod notificationMethod) : IRequestHandler<Request, Unit>
     {
-        private readonly IFriendService _service;
-        private readonly IValidator<Query> _validator;
-        private readonly INotificationMethod _notificationMethod;
-
-
-        public Handler(IFriendService service, IValidator<Query> validator, INotificationMethod notificationMethod)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _service = service;
-            _validator = validator;
-            _notificationMethod = notificationMethod;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
+            var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
             var patchToUpdate = new CustomJsonPatchDocument[1]
             {
                 new CustomJsonPatchDocument("replace", nameof(FriendDto.AcceptTime), DateTime.Now.ToString())
-            };
-            // Console.WriteLine($"patchToUpdate => {JsonConvert.SerializeObject(patchToUpdate)}");
+            };            
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(JsonConvert.SerializeObject(patchToUpdate));
-            var response = await _service.PatchAsync(request.Id, patch);
+            var response = await service.PatchAsync(request.id, patch);
 
             // Push friend request            
-            await _notificationMethod.Notify(
+            await notificationMethod.Notify(
                "AcceptFriendRequest",
                new string[1] { response.ToContactId.ToString() },
                new FriendToNotify
                {
-                   RequestId = request.Id
+                   RequestId = request.id
                }
            );
 
@@ -96,12 +76,7 @@ public class UpdateFriendEndpoint : ICarterModule
             var userId = Guid.Parse(context.Session.GetString("UserId"));
             var json = jsonElement.GetRawText();
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
-            var query = new UpdateFriend.Query
-            {
-                Id = id,
-                ContactId = userId,
-                Patch = patch
-            };
+            var query = new UpdateFriend.Request(id, userId, patch);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

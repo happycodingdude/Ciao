@@ -21,3 +21,4 @@ global using System.Text.Json.Serialization;
 global using Infrastructure.RequestPipeline;
 global using Microsoft.AspNetCore.Identity;
 global using Application.DTOs;
+global using Microsoft.AspNetCore.Http.Json;

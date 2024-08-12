@@ -2,23 +2,13 @@ namespace Presentation.Contacts;
 
 public static class GetInfo
 {
-    public class Query : IRequest<ContactDto>
+    public record Request(Guid id) : IRequest<ContactDto>;
+
+    internal sealed class Handler(IContactService service) : IRequestHandler<Request, ContactDto>
     {
-        public Guid Id { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, ContactDto>
-    {
-        private readonly IContactService _service;
-
-        public Handler(IContactService service)
+        public async Task<ContactDto> Handle(Request request, CancellationToken cancellationToken)
         {
-            _service = service;
-        }
-
-        public async Task<ContactDto> Handle(Query request, CancellationToken cancellationToken)
-        {
-            return await _service.GetByIdAsync(request.Id);
+            return await service.GetByIdAsync(request.id);
         }
     }
 }
@@ -31,7 +21,7 @@ public class GetInfoEndpoint : ICarterModule
         async (HttpContext context, ISender sender) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetInfo.Query { Id = userId };
+            var query = new GetInfo.Request(userId);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

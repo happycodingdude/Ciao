@@ -1,6 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class AttachmentRepository : BaseRepository<Attachment>, IAttachmentRepository
-{
-    public AttachmentRepository(AppDbContext context) : base(context) { }
-}
+public class AttachmentRepository(AppDbContext context) : BaseRepository<Attachment>(context), IAttachmentRepository { }

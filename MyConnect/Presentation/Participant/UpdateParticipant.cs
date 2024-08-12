@@ -2,24 +2,13 @@ namespace Presentation.Participants;
 
 public static class UpdateParticipant
 {
-    public class Query : IRequest<Unit>
+    public record Request(Guid id, JsonPatchDocument patch) : IRequest<Unit>;
+
+    internal sealed class Handler(IParticipantService service) : IRequestHandler<Request, Unit>
     {
-        public Guid Id { get; set; }
-        public JsonPatchDocument Patch { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, Unit>
-    {
-        private readonly IParticipantService _service;
-
-        public Handler(IParticipantService service)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _service = service;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            await _service.PatchAsync(request.Id, request.Patch);
+            await service.PatchAsync(request.id, request.patch);
             return Unit.Value;
         }
     }
@@ -34,11 +23,7 @@ public class UpdateParticipantEndpoint : ICarterModule
         {
             var json = jsonElement.GetRawText();
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
-            var query = new UpdateParticipant.Query
-            {
-                Id = id,
-                Patch = patch
-            };
+            var query = new UpdateParticipant.Request(id, patch);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

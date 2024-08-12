@@ -1,11 +1,8 @@
 namespace Infrastructure.Services;
 
-public class ParticipantService : BaseService<Participant, ParticipantDto>, IParticipantService
+public class ParticipantService(IParticipantRepository repo, IUnitOfWork unitOfWork, IMapper mapper)
+    : BaseService<Participant, ParticipantDto>(repo, unitOfWork, mapper), IParticipantService
 {
-    public ParticipantService(IParticipantRepository repo, IUnitOfWork unitOfWork, IMapper mapper) : base(repo, unitOfWork, mapper)
-    {
-    }
-
     // public bool CheckExistConversation(Guid id, Guid fid)
     // {
     //     var result = _unitOfWork.Participant.GetAll()

@@ -2,29 +2,18 @@ namespace Presentation.Contacts;
 
 public static class SearchContactsWithFriendStatus
 {
-    public class Query : IRequest<IEnumerable<ContactDto>>
+    public record Request(Guid id, string name) : IRequest<IEnumerable<ContactDto>>;
+
+    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, IEnumerable<ContactDto>>
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, IEnumerable<ContactDto>>
-    {
-        private readonly IUnitOfWork _uow;
-
-        public Handler(IUnitOfWork uow)
+        public async Task<IEnumerable<ContactDto>> Handle(Request request, CancellationToken cancellationToken)
         {
-            _uow = uow;
-        }
-
-        public async Task<IEnumerable<ContactDto>> Handle(Query request, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(request.Name)) return Enumerable.Empty<ContactDto>();
+            if (string.IsNullOrEmpty(request.name)) return Enumerable.Empty<ContactDto>();
 
             var contacts = await (
-                from cust in _uow.Contact.DbSet.Where(c => c.Id != request.Id && c.Name.Contains(request.Name))
-                from frnd in _uow.Friend.DbSet
-                    .Where(f => (f.FromContactId == request.Id && f.ToContactId == cust.Id) || (f.FromContactId == cust.Id && f.ToContactId == request.Id))
+                from cust in uow.Contact.DbSet.Where(c => c.Id != request.id && c.Name.Contains(request.name))
+                from frnd in uow.Friend.DbSet
+                    .Where(f => (f.FromContactId == request.id && f.ToContactId == cust.Id) || (f.FromContactId == cust.Id && f.ToContactId == request.id))
                     .DefaultIfEmpty()
                 select new { cust.Id, cust.Name, cust.Avatar, cust.Bio, cust.IsOnline, cust.LastLogout, FriendRequest = frnd }
                ).ToListAsync(cancellationToken);
@@ -45,7 +34,7 @@ public static class SearchContactsWithFriendStatus
                     FriendId = frnd?.Id,
                     FriendStatus = frnd?.AcceptTime.HasValue == true
                         ? "friend"
-                        : frnd?.FromContactId == request.Id
+                        : frnd?.FromContactId == request.id
                             ? "request_sent"
                             : "request_received"
                 };
@@ -62,12 +51,7 @@ public class SearchContactsWithFriendStatusEndpoint : ICarterModule
         async (HttpContext context, ISender sender, [FromQuery] string name) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new SearchContactsWithFriendStatus.Query
-            {
-                Id = userId,
-                Name = name
-            };
-
+            var query = new SearchContactsWithFriendStatus.Request(userId, name);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

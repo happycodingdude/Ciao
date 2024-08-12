@@ -1,6 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class MessageRepository : BaseRepository<Message>, IMessageRepository
-{
-    public MessageRepository(AppDbContext context) : base(context) { }
-}
+public class MessageRepository(AppDbContext context) : BaseRepository<Message>(context), IMessageRepository { }

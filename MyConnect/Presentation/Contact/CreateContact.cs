@@ -2,41 +2,27 @@ namespace Presentation.Contacts;
 
 public static class CreateContact
 {
-    public class Query : IRequest<Unit>
-    {
-        public ContactDto Model { get; set; }
-    }
+    public record Request(ContactDto model) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(c => c.Model.Name).NotEmpty().WithMessage("Name should not be empty");
+            RuleFor(c => c.model.Name).NotEmpty().WithMessage("Name should not be empty");
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper) : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Query> _validator;
-        private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
-
-        public Handler(IValidator<Query> validator, IUnitOfWork uow, IMapper mapper)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _uow = uow;
-            _validator = validator;
-            _mapper = mapper;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
+            var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var entity = _mapper.Map<ContactDto, Contact>(request.Model);
-            _uow.Contact.Add(entity);
-            await _uow.SaveAsync();
+            var entity = mapper.Map<ContactDto, Contact>(request.model);
+            uow.Contact.Add(entity);
+            await uow.SaveAsync();
 
             return Unit.Value;
         }
@@ -50,10 +36,7 @@ public class CreateContactEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Contact).MapPost("",
         async (ContactDto model, ISender sender) =>
         {
-            var query = new CreateContact.Query
-            {
-                Model = model
-            };
+            var query = new CreateContact.Request(model);
             await sender.Send(query);
             return Results.Ok();
         });

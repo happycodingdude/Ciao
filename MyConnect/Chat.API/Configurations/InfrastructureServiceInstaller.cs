@@ -16,7 +16,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         });
 
         // Json formatter
-        services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
+        services.Configure<JsonOptions>(opt =>
         {
             // opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
             opt.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -29,12 +29,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Authentication Dbcontext
         services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
         services.AddIdentityCore<AuthenticationUser>().AddEntityFrameworkStores<AuthenticationDbContext>().AddApiEndpoints();
-        // services.AddIdentityApiEndpoints<AuthenticationUser>()
-        //     .AddRoles<IdentityRole>()
-        //     .AddEntityFrameworkStores<AuthenticationDbContext>()
-        //     .AddSignInManager()
-        //     .AddRoleManager<RoleManager<IdentityRole>>()
-        //     .AddDefaultTokenProviders();
 
         // Authentication
         services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);

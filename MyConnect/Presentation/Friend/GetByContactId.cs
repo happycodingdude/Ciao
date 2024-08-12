@@ -2,35 +2,25 @@ namespace Presentation.Friends;
 
 public static class GetByContactId
 {
-    public class Query : IRequest<IEnumerable<GetAllFriend>>
+    public record Request(Guid id) : IRequest<IEnumerable<GetAllFriend>>;
+
+    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, IEnumerable<GetAllFriend>>
     {
-        public Guid Id { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, IEnumerable<GetAllFriend>>
-    {
-        private readonly IUnitOfWork _uow;
-
-        public Handler(IUnitOfWork uow)
-        {
-            _uow = uow;
-        }
-
-        public async Task<IEnumerable<GetAllFriend>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetAllFriend>> Handle(Request request, CancellationToken cancellationToken)
         {
             var friends = await (
-                from frnd in _uow.Friend.DbSet
-                join fromContact in _uow.Contact.DbSet on frnd.FromContactId equals fromContact.Id
-                join toContact in _uow.Contact.DbSet on frnd.ToContactId equals toContact.Id
-                where frnd.FromContactId == request.Id || frnd.ToContactId == request.Id
+                from frnd in uow.Friend.DbSet
+                join fromContact in uow.Contact.DbSet on frnd.FromContactId equals fromContact.Id
+                join toContact in uow.Contact.DbSet on frnd.ToContactId equals toContact.Id
+                where frnd.FromContactId == request.id || frnd.ToContactId == request.id
                 select new GetAllFriend
                 {
                     Id = frnd.Id,
-                    ContactId = frnd.FromContactId == request.Id ? toContact.Id : fromContact.Id,
-                    ContactName = frnd.FromContactId == request.Id ? toContact.Name : fromContact.Name,
+                    ContactId = frnd.FromContactId == request.id ? toContact.Id : fromContact.Id,
+                    ContactName = frnd.FromContactId == request.id ? toContact.Name : fromContact.Name,
                     Status = frnd.AcceptTime.HasValue == true
                         ? "friend"
-                        : frnd.FromContactId == request.Id
+                        : frnd.FromContactId == request.id
                             ? "request_sent"
                             : "request_received"
                 }
@@ -50,7 +40,7 @@ public class GetByContactIdEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("/{id}/friends",
         async (ISender sender, Guid id) =>
         {
-            var query = new GetByContactId.Query { Id = id };
+            var query = new GetByContactId.Request(id);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

@@ -3,40 +3,27 @@ namespace Presentation.Conversations;
 
 public static class UpdateConversation
 {
-    public class Query : IRequest<Unit>
-    {
-        public Guid Id { get; set; }
-        public JsonPatchDocument Patch { get; set; }
-    }
+    public record Request(Guid id, JsonPatchDocument patch) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(c => c.Patch.Operations.Where(q => q.path.ToLower() == nameof(ConversationDto.Title).ToLower()).Select(q => q.value.ToString()))
+            RuleFor(c => c.patch.Operations.Where(q => q.path.ToLower() == nameof(ConversationDto.Title).ToLower()).Select(q => q.value.ToString()))
                 .Must(q => q.All(w => !string.IsNullOrEmpty(w)))
                 .WithMessage("Title should not be empty");
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IConversationService service) : IRequestHandler<Request, Unit>
     {
-        private readonly IConversationService _service;
-        private readonly IValidator<Query> _validator;
-
-        public Handler(IConversationService service, IValidator<Query> validator)
+        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            _service = service;
-            _validator = validator;
-        }
-
-        public async Task<Unit> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
+            var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await _service.PatchAsync(request.Id, request.Patch);
+            await service.PatchAsync(request.id, request.patch);
 
             return Unit.Value;
         }
@@ -52,11 +39,7 @@ public class UpdateConversationEndpoint : ICarterModule
         {
             var json = jsonElement.GetRawText();
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);
-            var query = new UpdateConversation.Query
-            {
-                Id = id,
-                Patch = patch
-            };
+            var query = new UpdateConversation.Request(id, patch);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

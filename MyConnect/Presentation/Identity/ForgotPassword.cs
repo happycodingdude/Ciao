@@ -2,31 +2,15 @@ namespace Presentation.Identities;
 
 public static class ForgotPassword
 {
-    public record Request(IdentityRequest Model) : IRequest<Unit>;
+    public record Request(IdentityRequest model) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Request>
+    internal sealed class Handler(UserManager<AuthenticationUser> userManager) : IRequestHandler<Request, Unit>
     {
-        public Validator(IUnitOfWork uow)
-        {
-        }
-    }
-
-    internal sealed class Handler : IRequestHandler<Request, Unit>
-    {
-        readonly IValidator<Request> _validator;
-        readonly UserManager<AuthenticationUser> _userManager;
-
-        public Handler(IValidator<Request> validator, UserManager<AuthenticationUser> userManager)
-        {
-            _validator = validator;
-            _userManager = userManager;
-        }
-
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByNameAsync(request.Model.Username);
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await _userManager.ResetPasswordAsync(user, token, request.Model.Password);
+            var user = await userManager.FindByNameAsync(request.model.Username);
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, token, request.model.Password);
 
             return Unit.Value;
         }

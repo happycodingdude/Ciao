@@ -2,38 +2,20 @@ namespace Presentation.Messages;
 
 public static class GetByConversationId
 {
-    public class Query : IRequest<IEnumerable<MessageWithAttachment>>
+    public record Request(Guid conversationId, Guid contactId, int page, int limit) : IRequest<IEnumerable<MessageWithAttachment>>;
+
+    internal sealed class Handler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<Request, IEnumerable<MessageWithAttachment>>
     {
-        public Guid ConversationId { get; set; }
-        public Guid ContactId { get; set; }
-        public int Page { get; set; }
-        public int Limit { get; set; }
-    }
-
-    internal sealed class Handler : IRequestHandler<Query, IEnumerable<MessageWithAttachment>>
-    {
-        private readonly IUnitOfWork _uow;
-        private readonly IMapper _mapper;
-
-        public Handler(IUnitOfWork uow, IMapper mapper)
+        public async Task<IEnumerable<MessageWithAttachment>> Handle(Request request, CancellationToken cancellationToken)
         {
-            _uow = uow;
-            _mapper = mapper;
-        }
-
-        public async Task<IEnumerable<MessageWithAttachment>> Handle(Query request, CancellationToken cancellationToken)
-        {
-            request.Page = request.Page != 0 ? request.Page : AppConstants.DefaultPage;
-            request.Limit = request.Limit != 0 ? request.Limit : AppConstants.DefaultLimit;
-
             var messages = await (
-                from mess in _uow.Message.DbSet
-                    .Where(q => q.ConversationId == request.ConversationId)
+                from mess in uow.Message.DbSet
+                    .Where(q => q.ConversationId == request.conversationId)
                     .OrderByDescending(q => q.CreatedTime)
-                    .Skip(request.Limit * (request.Page - 1))
-                    .Take(request.Limit)
+                    .Skip(request.limit * (request.page - 1))
+                    .Take(request.limit)
                     // .OrderBy(q => q.CreatedTime)
-                from atta in _uow.Attachment.DbSet.Where(q => q.MessageId == mess.Id).DefaultIfEmpty()
+                from atta in uow.Attachment.DbSet.Where(q => q.MessageId == mess.Id).DefaultIfEmpty()
                 select new
                 {
                     mess.Id,
@@ -71,15 +53,15 @@ public static class GetByConversationId
                     Attachments = messGrouping.Select(q => q.atta).Where(q => q.Id.HasValue).ToList()
                 };
 
-            var messagesToBeSeen = _mapper.Map<List<MessageWithAttachment>, List<Message>>(result.ToList());
-            await SeenAll(request.ConversationId, request.ContactId);
+            var messagesToBeSeen = mapper.Map<List<MessageWithAttachment>, List<Message>>(result.ToList());
+            await SeenAll(request.conversationId, request.contactId);
 
             return result;
         }
 
         private async Task SeenAll(Guid conversationId, Guid contactId)
         {
-            await _uow.Message.DbSet.Where(q => q.ConversationId == conversationId && q.ContactId != contactId && q.Status == "received")
+            await uow.Message.DbSet.Where(q => q.ConversationId == conversationId && q.ContactId != contactId && q.Status == "received")
                 .ExecuteUpdateAsync(q => q
                     .SetProperty(w => w.Status, "seen")
                     .SetProperty(w => w.SeenTime, DateTime.Now)
@@ -96,13 +78,7 @@ public class GetByConversationIdEndpoint : ICarterModule
         async (HttpContext context, ISender sender, Guid id, int page = 0, int limit = 0) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetByConversationId.Query
-            {
-                ConversationId = id,
-                ContactId = userId,
-                Page = page,
-                Limit = limit
-            };
+            var query = new GetByConversationId.Request(id, userId, page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);
