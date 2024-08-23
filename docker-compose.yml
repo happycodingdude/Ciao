@@ -1,21 +1,64 @@
 version: "3.7"
 
-# services:
-#   mongo-db:
-#     build:
-#       context: .
-#       secrets:
-#         - MONGO_INITDB_ROOT_USERNAME
-#         - MONGO_INITDB_ROOT_PASSWORD
-# secrets:
-#   MONGO_INITDB_ROOT_USERNAME:
-#     environment: MONGO_INITDB_ROOT_USERNAME
-#   MONGO_INITDB_ROOT_PASSWORD:
-#     environment: MONGO_INITDB_ROOT_PASSWORD
-
 services:
+  mysql-db:
+    image: mysql:latest
+    container_name: mysql
+    volumes:
+      - db-vol:/var/lib/mysql
+    networks:
+      - local-network
+    ports:
+      - "3300:3306"
+    env_file:
+      - .env
+    restart: always
+
+  # client:
+  #   image: trintdk/client
+  #   container_name: client
+  #   ports:
+  #     - "5002:5000"
+  #   restart: always
+
   mongo-db:
-    build:
-      context: .
-      env_file:
-        - .env
+    image: mongo
+    container_name: mongo
+    volumes:
+      - mongo-data-vol:/data/db
+      - mongo-config-vol:/data/configdb
+    networks:
+      - local-network
+    ports:
+      - "2700:27017"
+    env_file:
+      - .env
+    restart: always
+
+  redis:
+    image: redis
+    container_name: redis
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    # command: --requirepass $$REDIS_PASSWORD
+    volumes:
+      - redis-vol:/data
+    networks:
+      - local-network
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    restart: always
+
+volumes:
+  db-vol:
+    external: true
+  mongo-data-vol:
+    external: true
+  mongo-config-vol:
+    external: true
+  redis-vol:
+    external: true
+networks:
+  local-network:
+    external: true
