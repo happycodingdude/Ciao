@@ -1,4 +1,4 @@
 namespace Application.Repositories;
 
 
-public interface INotificationRepository : IRepository<Notification> { }
+public interface INotificationRepository : IMongoRepository<Notification> { }

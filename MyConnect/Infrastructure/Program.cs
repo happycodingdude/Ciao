@@ -14,11 +14,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
-    option.UseMySQL(configuration.GetConnectionString("Chat-Db-Development"));
+    option.UseMySQL(configuration.GetConnectionString("lab-chat-db"));
 });
 builder.Services.AddDbContext<AuthenticationDbContext>(option =>
 {
-    option.UseMySQL(configuration.GetConnectionString("Authentication-Db-Development"));
+    option.UseMySQL(configuration.GetConnectionString("lab-authentication-db"));
 });
 
 var app = builder.Build();

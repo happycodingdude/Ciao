@@ -1,3 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class NotificationRepository(AppDbContext context) : BaseRepository<Notification>(context), INotificationRepository { }
+public class NotificationRepository(MongoDbContext context) : MongoBaseRepository<Notification>(context), INotificationRepository { }

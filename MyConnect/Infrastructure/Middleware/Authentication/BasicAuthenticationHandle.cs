@@ -6,7 +6,7 @@ public class BasicAuthenticationHandle(IHttpContextAccessor _httpContextAccessor
     {
         try
         {
-            var user = await identityService.FindByNameAsync();
+            var user = await identityService.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
             _httpContextAccessor.HttpContext.Session.SetString("UserId", user.Id);
 
             context.Succeed(requirement);

@@ -8,16 +8,13 @@ public static class SignOut
         IHttpContextAccessor httpContextAccessor,
         IDistributedCache distributedCache) : IRequestHandler<Request, Unit>
     {
-        readonly ClaimsPrincipal _claimPrincipal;
-
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             // Delete all cookies
             foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies.Keys)
                 httpContextAccessor.HttpContext.Response.Cookies.Delete(cookie);
 
-            var user = await userManager.FindByNameAsync(_claimPrincipal.Identity.Name);
-
+            var user = await userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name);
             // Delete Firebase connection
             await distributedCache.RemoveAsync($"connection-{user.Id}");
 

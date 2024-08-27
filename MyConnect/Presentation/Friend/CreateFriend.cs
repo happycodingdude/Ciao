@@ -44,12 +44,12 @@ public static class CreateFriend
             var contact = await uow.Contact.GetByIdAsync(request.fromContactId);
             var notiEntity = new Notification
             {
-                SourceId = friendEntity.Id,
+                SourceId = friendEntity.Id.ToString(),
                 SourceType = "friend_request",
                 Content = $"{contact.Name} send you a request",
-                ContactId = request.toContactId
+                ContactId = request.toContactId.ToString()
             };
-            uow.Notification.Add(notiEntity);
+            await uow.Notification.AddAsync(notiEntity);
 
             await uow.SaveAsync();
 

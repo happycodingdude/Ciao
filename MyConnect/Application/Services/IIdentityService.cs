@@ -2,5 +2,5 @@ namespace Application.Services;
 
 public interface IIdentityService
 {
-    Task<AuthenticationUser> FindByNameAsync();
+    Task<AuthenticationUser> FindByNameAsync(string name);
 }

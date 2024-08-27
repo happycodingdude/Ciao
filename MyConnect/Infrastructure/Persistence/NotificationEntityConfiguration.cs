@@ -11,6 +11,6 @@ public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notifica
         builder.Property(q => q.SourceType).IsRequired().HasMaxLength(20);
         builder.Property(q => q.Content).IsRequired();
         builder.Property(q => q.Read).IsRequired();
-        builder.HasOne(q => q.Contact).WithMany().HasForeignKey(q => q.ContactId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+        // builder.HasOne(q => q.Contact).WithMany().HasForeignKey(q => q.ContactId).IsRequired().OnDelete(DeleteBehavior.Cascade);
     }
 }

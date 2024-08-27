@@ -27,4 +27,4 @@ global using Application.Exceptions;
 global using AutoMapper;
 global using Microsoft.AspNetCore.JsonPatch;
 global using Shared.Configurations;
-global using System.Security.Claims;
+global using MongoDB.Driver;

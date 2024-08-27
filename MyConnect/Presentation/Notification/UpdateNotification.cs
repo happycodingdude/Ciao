@@ -11,15 +11,26 @@ public static class UpdateNotification
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, INotificationService service) : IRequestHandler<Request, Unit>
+    // internal sealed class Handler(IValidator<Request> validator, INotificationService service) : IRequestHandler<Request, Unit>
+    // {
+    //     public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
+    //     {
+    //         var validationResult = validator.Validate(request);
+    //         if (!validationResult.IsValid)
+    //             throw new BadRequestException(validationResult.ToString());
+
+    //         await service.PatchAsync(request.id, request.patch);
+
+    //         return Unit.Value;
+    //     }
+    // }
+    internal sealed class Handler(IValidator<Request> validator) : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
-
-            await service.PatchAsync(request.id, request.patch);
 
             return Unit.Value;
         }

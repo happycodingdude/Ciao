@@ -8,6 +8,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+        services.AddSession();
 
         // HttpClient
         services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
@@ -29,6 +30,9 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Authentication Dbcontext
         services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
         services.AddIdentityCore<AuthenticationUser>().AddEntityFrameworkStores<AuthenticationDbContext>().AddApiEndpoints();
+
+        // Mongo
+        services.AddSingleton<MongoDbContext>();
 
         // Authentication
         services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
@@ -54,7 +58,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Redis        
         services.AddStackExchangeRedisCache(opt =>
         {
-            opt.Configuration = $"{configuration["Redis:Host"]}:{configuration["Redis:Port"]},password={configuration["Redis:Pass"]}";
+            opt.Configuration = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
         });
         services.AddMemoryCache();
         services.AddSingleton<IRedisCaching, Redis>();
@@ -75,7 +79,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<IContactService, ContactService>();
         services.AddSingleton<IConversationService, ConversationService>();
         services.AddSingleton<IParticipantService, ParticipantService>();
-        services.AddSingleton<INotificationService, NotificationService>();
+        // services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IFriendService, FriendService>();
         services.AddSingleton<IMessageService, MessageService>();
         services.AddSingleton<INotificationMethod, NotificationMethod>();

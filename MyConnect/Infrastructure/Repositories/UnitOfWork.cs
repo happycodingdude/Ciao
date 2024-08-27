@@ -4,7 +4,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 {
     private readonly AppDbContext _context;
 
-    public UnitOfWork(AppDbContext context)
+    public UnitOfWork(AppDbContext context, MongoDbContext mongoDbContext)
     {
         _context = context;
         Contact = new ContactRepository(_context);
@@ -15,7 +15,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         ScheduleContact = new ScheduleContactRepository(_context);
         Attachment = new AttachmentRepository(_context);
         Friend = new FriendRepository(_context);
-        Notification = new NotificationRepository(_context);
+        Notification = new NotificationRepository(mongoDbContext);
     }
 
     public IContactRepository Contact { get; private set; }

@@ -8,48 +8,55 @@ public static class GetByConversationId
     {
         public async Task<IEnumerable<NotificationTypeConstraint>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var notifications = await (
-                from noti in uow.Notification.DbSet
-                    .AsNoTracking()
-                    .Where(q => q.ContactId == request.contactId)
-                    .OrderByDescending(q => q.CreatedTime)
-                    .Skip(request.limit * (request.page - 1))
-                    .Take(request.limit)
-                from frnd in uow.Friend.DbSet
-                    .Where(f => f.Id == noti.SourceId)
-                    .DefaultIfEmpty()
-                select new
-                {
-                    noti,
-                    frnd
-                }
-            )
-            .ToListAsync(cancellationToken);
+            // var notifications = await (
+            //     from noti in uow.Notification.DbSet
+            //         .AsNoTracking()
+            //         .Where(q => q.ContactId == request.contactId)
+            //         .OrderByDescending(q => q.CreatedTime)
+            //         .Skip(request.limit * (request.page - 1))
+            //         .Take(request.limit)
+            //     from frnd in uow.Friend.DbSet
+            //         .Where(f => f.Id == noti.SourceId)
+            //         .DefaultIfEmpty()
+            //     select new
+            //     {
+            //         noti,
+            //         frnd
+            //     }
+            // )
+            // .ToListAsync(cancellationToken);
 
-            if (!notifications.Any()) return Enumerable.Empty<NotificationTypeConstraint>();
+            // if (!notifications.Any()) return Enumerable.Empty<NotificationTypeConstraint>();
 
-            var result = new List<NotificationTypeConstraint>(notifications.Count);
-            foreach (var notification in notifications)
+            // var result = new List<NotificationTypeConstraint>(notifications.Count);
+            // foreach (var notification in notifications)
+            // {
+            //     switch (notification.noti.SourceType)
+            //     {
+            //         case AppConstants.NotificationSourceType_FriendRequest:
+            //             var constraintDto = mapper.Map<Notification, NotificationTypeConstraint>(notification.noti);
+            //             var friendRequest = mapper.Map<Friend, NotificationSourceDataType_Friend>(notification.frnd);
+            //             friendRequest.FriendStatus = notification.frnd.AcceptTime.HasValue == true
+            //                 ? "friend"
+            //                 : notification.frnd.FromContactId == request.contactId
+            //                     ? "request_sent"
+            //                     : "request_received";
+            //             constraintDto.AddSourceData(friendRequest);
+            //             result.Add(constraintDto);
+            //             break;
+            //         default:
+            //             break;
+            //     }
+            // }
+
+            // return result;
+
+            var notification = new Notification
             {
-                switch (notification.noti.SourceType)
-                {
-                    case AppConstants.NotificationSourceType_FriendRequest:
-                        var constraintDto = mapper.Map<Notification, NotificationTypeConstraint>(notification.noti);
-                        var friendRequest = mapper.Map<Friend, NotificationSourceDataType_Friend>(notification.frnd);
-                        friendRequest.FriendStatus = notification.frnd.AcceptTime.HasValue == true
-                            ? "friend"
-                            : notification.frnd.FromContactId == request.contactId
-                                ? "request_sent"
-                                : "request_received";
-                        constraintDto.AddSourceData(friendRequest);
-                        result.Add(constraintDto);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return result;
+                Content = "test mongo"
+            };
+            await uow.Notification.AddAsync(notification);
+            return null;
         }
     }
 }
