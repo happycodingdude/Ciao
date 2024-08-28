@@ -27,3 +27,4 @@ global using Shared.Configurations;
 global using Microsoft.Extensions.Caching.Distributed;
 global using Microsoft.AspNetCore.Identity;
 global using System.Security.Claims;
+global using System.Linq.Expressions;

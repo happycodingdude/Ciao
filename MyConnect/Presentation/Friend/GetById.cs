@@ -2,13 +2,13 @@ namespace Presentation.Friends;
 
 public static class GetById
 {
-    public record Request(Guid id) : IRequest<FriendDto>;
+    public record Request(Guid id) : IRequest<Friend>;
 
-    internal sealed class Handler(IFriendService service) : IRequestHandler<Request, FriendDto>
+    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Friend>
     {
-        public async Task<FriendDto> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await service.GetByIdAsync(request.id);
+            return await uow.Friend.GetItemAsync(d => d.Id == request.id.ToString());
         }
     }
 }

@@ -1,10 +1,14 @@
 namespace Domain.Features;
 
-public class Friend : BaseModel
+public class Friend : MongoBaseModel
 {
-    public Guid FromContactId { get; set; }
-    public Guid ToContactId { get; set; }
+    public FriendDto_Contact FromContact { get; set; }
+    public FriendDto_Contact ToContact { get; set; }
     public DateTime? AcceptTime { get; set; }
-    public Contact? FromContact { get; set; }
-    public Contact? ToContact { get; set; }
+}
+
+public class FriendDto_Contact
+{
+    public string ContactId { get; set; }
+    public string ContactName { get; set; }
 }

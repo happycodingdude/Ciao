@@ -2,31 +2,14 @@ namespace Presentation.Notifications;
 
 public static class GetByConversationId
 {
-    public record Request(Guid contactId, int page, int limit) : IRequest<IEnumerable<NotificationTypeConstraint>>;
+    public record Request(int page, int limit) : IRequest<IEnumerable<Notification>>;
 
-    internal sealed class Handler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<Request, IEnumerable<NotificationTypeConstraint>>
+    internal sealed class Handler(IHttpContextAccessor httpContextAccessor, IUnitOfWork uow, IMapper mapper) : IRequestHandler<Request, IEnumerable<Notification>>
     {
-        public async Task<IEnumerable<NotificationTypeConstraint>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Notification>> Handle(Request request, CancellationToken cancellationToken)
         {
-            // var notifications = await (
-            //     from noti in uow.Notification.DbSet
-            //         .AsNoTracking()
-            //         .Where(q => q.ContactId == request.contactId)
-            //         .OrderByDescending(q => q.CreatedTime)
-            //         .Skip(request.limit * (request.page - 1))
-            //         .Take(request.limit)
-            //     from frnd in uow.Friend.DbSet
-            //         .Where(f => f.Id == noti.SourceId)
-            //         .DefaultIfEmpty()
-            //     select new
-            //     {
-            //         noti,
-            //         frnd
-            //     }
-            // )
-            // .ToListAsync(cancellationToken);
-
-            // if (!notifications.Any()) return Enumerable.Empty<NotificationTypeConstraint>();
+            var notifications = await uow.Notification.GetAllAsync(_ => true);
+            if (!notifications.Any()) return Enumerable.Empty<Notification>();
 
             // var result = new List<NotificationTypeConstraint>(notifications.Count);
             // foreach (var notification in notifications)
@@ -49,14 +32,7 @@ public static class GetByConversationId
             //     }
             // }
 
-            // return result;
-
-            var notification = new Notification
-            {
-                Content = "test mongo"
-            };
-            await uow.Notification.AddAsync(notification);
-            return null;
+            return notifications;
         }
     }
 }
@@ -68,8 +44,7 @@ public class GetByConversationIdEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Notification).MapGet("",
         async (HttpContext context, ISender sender, int page = 0, int limit = 0) =>
         {
-            var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetByConversationId.Request(userId, page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);
+            var query = new GetByConversationId.Request(page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

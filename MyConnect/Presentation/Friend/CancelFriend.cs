@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CancelFriend
 {
-    public record Request(Guid id, Guid contactId) : IRequest<Unit>;
+    public record Request(string id, Guid contactId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -15,16 +15,16 @@ public static class CancelFriend
             RuleFor(c => c).MustAsync((item, cancellation) => NotReceivedRequest(item)).WithMessage("Can not cancel received request");
         }
 
-        private async Task<bool> NotYetAccepted(Guid id)
+        private async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _uow.Friend.GetByIdAsync(id);
+            var sent = await _uow.Friend.GetItemAsync(d => d.Id == id);
             return !sent.AcceptTime.HasValue;
         }
 
         private async Task<bool> NotReceivedRequest(Request request)
         {
-            var sent = await _uow.Friend.GetByIdAsync(request.id);
-            return sent.ToContactId != request.contactId;
+            var sent = await _uow.Friend.GetItemAsync(d => d.Id == request.id);
+            return sent.ToContact.ContactId != request.contactId.ToString();
         }
     }
 
@@ -36,14 +36,13 @@ public static class CancelFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var entity = await uow.Friend.GetByIdAsync(request.id);
-            uow.Friend.Delete(request.id);
-            await uow.SaveAsync();
+            var entity = await uow.Friend.GetItemAsync(d => d.Id == request.id);
+            await uow.Friend.DeleteAsync(q => q.Id == request.id);
 
             // Push friend request            
             await notificationMethod.Notify(
                "CancelFriendRequest",
-               new string[1] { entity.ToContactId.ToString() },
+               new string[1] { entity.ToContact.ContactId.ToString() },
                new FriendToNotify
                {
                    RequestId = request.id
@@ -60,7 +59,7 @@ public class CancelFriendEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Friend).MapDelete("{id}",
-        async (HttpContext context, ISender sender, Guid id) =>
+        async (HttpContext context, ISender sender, string id) =>
         {
             var userId = Guid.Parse(context.Session.GetString("UserId"));
             var query = new CancelFriend.Request(id, userId);

@@ -1,3 +1,3 @@
 namespace Application.Repositories;
 
-public interface IFriendRepository : IRepository<Friend> { }
+public interface IFriendRepository : IMongoRepository<Friend> { }

@@ -10,7 +10,7 @@ public static class GetByConversationId
         {
             return await (
                 from part in uow.Participant.DbSet
-                join cust in uow.Contact.DbSet on part.ContactId equals cust.Id
+                    // join cust in uow.Contact.DbSet on part.ContactId equals cust.Id
                 where part.ConversationId == request.conversationId
                 select new ParticipantWithContact
                 {
@@ -18,8 +18,8 @@ public static class GetByConversationId
                     IsDeleted = part.IsDeleted,
                     IsModerator = part.IsModerator,
                     IsNotifying = part.IsNotifying,
-                    ContactId = cust.Id,
-                    Contact = mapper.Map<Contact, ParticipantWithContact_Contact>(cust)
+                    // ContactId = cust.Id,
+                    // Contact = mapper.Map<Contact, ParticipantWithContact_Contact>(cust)
                 }
             ).ToListAsync(cancellationToken);
         }

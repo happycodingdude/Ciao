@@ -1,5 +1,5 @@
 namespace Application.Services;
 
-public interface IFriendService : IBaseService<Friend, FriendDto>
-{
-}
+// public interface IFriendService : IBaseService<Friend, FriendDto>
+// {
+// }

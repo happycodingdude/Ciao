@@ -1,6 +1,6 @@
 namespace Application.DTOs;
 
-public class NotificationDto : BaseModel
+public class NotificationDto : MongoBaseModel
 {
     public Guid SourceId { get; set; }
     public string SourceType { get; set; }

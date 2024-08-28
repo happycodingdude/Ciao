@@ -4,18 +4,19 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 {
     private readonly AppDbContext _context;
 
-    public UnitOfWork(AppDbContext context, MongoDbContext mongoDbContext)
+    public UnitOfWork(AppDbContext context, MongoDbContext mongoDbContext, IHttpContextAccessor httpContextAccessor)
     {
+        var dbName = httpContextAccessor.HttpContext.Session.GetString("UserId");
         _context = context;
-        Contact = new ContactRepository(_context);
+        Contact = new ContactRepository(mongoDbContext, dbName);
         Conversation = new ConversationRepository(_context);
         Message = new MessageRepository(_context);
         Participant = new ParticipantRepository(_context);
         Schedule = new ScheduleRepository(_context);
         ScheduleContact = new ScheduleContactRepository(_context);
         Attachment = new AttachmentRepository(_context);
-        Friend = new FriendRepository(_context);
-        Notification = new NotificationRepository(mongoDbContext);
+        Friend = new FriendRepository(mongoDbContext, dbName);
+        Notification = new NotificationRepository(mongoDbContext, dbName);
     }
 
     public IContactRepository Contact { get; private set; }

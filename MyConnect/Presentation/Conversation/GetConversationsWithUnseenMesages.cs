@@ -16,7 +16,7 @@ public static class GetConversationsWithUnseenMesages
                     .Take(request.limit)
                 from mess in uow.Message.DbSet.Where(q => q.ConversationId == conv.Id).DefaultIfEmpty()
                 join part in uow.Participant.DbSet on conv.Id equals part.ConversationId
-                join cust in uow.Contact.DbSet on part.ContactId equals cust.Id
+                // join cust in uow.Contact.DbSet on part.ContactId equals cust.Id
                 select new
                 {
                     conv.Id,
@@ -30,9 +30,9 @@ public static class GetConversationsWithUnseenMesages
                         ContactId = part.ContactId,
                         Contact = new ConversationWithTotalUnseen_Participants_Contact
                         {
-                            Id = cust.Id,
-                            Name = cust.Name,
-                            Avatar = cust.Avatar
+                            // Id = cust.Id,
+                            // Name = cust.Name,
+                            // Avatar = cust.Avatar
                         }
                     },
                     mess

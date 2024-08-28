@@ -70,17 +70,17 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<IConversationRepository, ConversationRepository>();
         services.AddSingleton<IFriendRepository, FriendRepository>();
         services.AddSingleton<IMessageRepository, MessageRepository>();
-        services.AddSingleton<INotificationRepository, NotificationRepository>();
+        // services.AddSingleton<INotificationRepository, NotificationRepository>();
         services.AddSingleton<IParticipantRepository, ParticipantRepository>();
         services.AddSingleton<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddSingleton<IScheduleRepository, ScheduleRepository>();
 
         // Business logics
-        services.AddSingleton<IContactService, ContactService>();
+        // services.AddSingleton<IContactService, ContactService>();
         services.AddSingleton<IConversationService, ConversationService>();
         services.AddSingleton<IParticipantService, ParticipantService>();
         // services.AddSingleton<INotificationService, NotificationService>();
-        services.AddSingleton<IFriendService, FriendService>();
+        // services.AddSingleton<IFriendService, FriendService>();
         services.AddSingleton<IMessageService, MessageService>();
         services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();

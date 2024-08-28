@@ -45,6 +45,16 @@ public class BaseService<T, V>(IRepository<T> repository, IUnitOfWork unitOfWork
         return mapper.Map<T, V>(entity);
     }
 
+    // public virtual async Task<V> PatchAsync(Guid id, JsonPatchDocument patch)
+    // {
+    //     // if (!patch.Operations.Any()) return null;
+    //     var entity = await repository.GetByIdAsync(id);
+    //     patch.ApplyTo(entity);
+    //     repository.Update(entity);
+    //     await unitOfWork.SaveAsync();
+    //     return mapper.Map<T, V>(entity);
+    // }
+
     public virtual async Task<V> PatchAsync(Guid id, JsonPatchDocument patch)
     {
         // if (!patch.Operations.Any()) return null;

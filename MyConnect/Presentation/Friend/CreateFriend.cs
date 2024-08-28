@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CreateFriend
 {
-    public record Request(Guid fromContactId, Guid toContactId) : IRequest<Unit>;
+    public record Request(Guid userId, Guid contactId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -11,17 +11,18 @@ public static class CreateFriend
         public Validator(IUnitOfWork uow)
         {
             _uow = uow;
-            RuleFor(c => c.toContactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
+            RuleFor(c => c.contactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
             RuleFor(c => c).MustAsync((item, cancellation) => UniqueRequest(item)).WithMessage("Friend request has been sent");
-            RuleFor(c => c.toContactId).NotEqual(q => q.fromContactId).WithMessage("Can not send self-request");
+            RuleFor(c => c.userId).NotEqual(q => q.contactId).WithMessage("Can not send self-request");
         }
 
         private async Task<bool> UniqueRequest(Request request)
         {
-            var sent = _uow.Friend.DbSet
-                    .Any(q => (q.FromContactId == request.fromContactId && q.ToContactId == request.toContactId)
-                            || q.FromContactId == request.toContactId && q.ToContactId == request.fromContactId);
-            return !sent;
+            var sent = await _uow.Friend.GetAllAsync(d =>
+                (d.FromContact.ContactId == request.userId.ToString() && d.ToContact.ContactId == request.contactId.ToString()) ||
+                (d.FromContact.ContactId == request.contactId.ToString() && d.ToContact.ContactId == request.userId.ToString()));
+
+            return !sent.Any();
         }
     }
 
@@ -33,30 +34,39 @@ public static class CreateFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
+            var fromContact = await uow.Contact.GetItemAsync(d => d.Id == request.userId.ToString());
+            var toContact = await uow.Contact.GetItemAsync(d => d.Id == request.contactId.ToString());
             // Add friend 
             var friendEntity = new Friend
             {
-                FromContactId = request.fromContactId,
-                ToContactId = request.toContactId
+                FromContact = new FriendDto_Contact
+                {
+                    ContactId = request.userId.ToString(),
+                    ContactName = fromContact.Name
+                },
+                ToContact = new FriendDto_Contact
+                {
+                    ContactId = request.contactId.ToString(),
+                    ContactName = toContact.Name
+                },
             };
-            uow.Friend.Add(friendEntity);
-            // Add notification
-            var contact = await uow.Contact.GetByIdAsync(request.fromContactId);
+            await uow.Friend.AddAsync(friendEntity);
+            // Add notification            
             var notiEntity = new Notification
             {
                 SourceId = friendEntity.Id.ToString(),
                 SourceType = "friend_request",
-                Content = $"{contact.Name} send you a request",
-                ContactId = request.toContactId.ToString()
+                Content = $"{fromContact.Name} send you a request",
+                ContactId = request.contactId.ToString()
             };
             await uow.Notification.AddAsync(notiEntity);
 
-            await uow.SaveAsync();
+            // await uow.SaveAsync();
 
             // Push friend request
             await notificationMethod.Notify(
                "NewFriendRequest",
-               new string[1] { request.toContactId.ToString() },
+               new string[1] { request.contactId.ToString() },
                new FriendToNotify
                {
                    RequestId = friendEntity.Id
@@ -67,7 +77,7 @@ public static class CreateFriend
             notiDto.AddSourceData(friendEntity);
             await notificationMethod.Notify(
                 "NewNotification",
-                new string[1] { request.toContactId.ToString() },
+                new string[1] { request.contactId.ToString() },
                 notiDto
             );
 

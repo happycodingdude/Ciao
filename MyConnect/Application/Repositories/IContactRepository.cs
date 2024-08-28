@@ -1,3 +1,3 @@
 namespace Application.Repositories;
 
-public interface IContactRepository : IRepository<Contact> { }
+public interface IContactRepository : IMongoRepository<Contact> { }

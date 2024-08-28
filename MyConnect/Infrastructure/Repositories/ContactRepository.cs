@@ -1,3 +1,6 @@
 namespace Infrastructure.Repositories;
 
-public class ContactRepository(AppDbContext context) : BaseRepository<Contact>(context), IContactRepository { }
+public class ContactRepository : MongoBaseRepository<Contact>, IContactRepository
+{
+    public ContactRepository(MongoDbContext context, string dbName) : base(context, dbName) { }
+}
