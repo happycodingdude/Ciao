@@ -7,12 +7,12 @@ public static class ParticipantValidators
         return ruleBuilder.NotEmpty().WithMessage("Participants should not be empty");
     }
 
-    public static IRuleBuilderOptions<T, IList<Guid>> ShouldHaveContactId<T>(this IRuleBuilder<T, IList<Guid>> ruleBuilder)
+    public static IRuleBuilderOptions<T, IList<string>> ShouldHaveContactId<T>(this IRuleBuilder<T, IList<string>> ruleBuilder)
     {
-        return ruleBuilder.Must(q => q.All(w => w != Guid.Empty)).WithMessage("ContactId should not be empty");
+        return ruleBuilder.Must(q => q.All(w => !string.IsNullOrEmpty(w))).WithMessage("ContactId should not be empty");
     }
 
-    public static IRuleBuilderOptions<T, IList<Guid>> ShouldNotHaveDuplicatedContactId<T>(this IRuleBuilder<T, IList<Guid>> ruleBuilder)
+    public static IRuleBuilderOptions<T, IList<string>> ShouldNotHaveDuplicatedContactId<T>(this IRuleBuilder<T, IList<string>> ruleBuilder)
     {
         return ruleBuilder.Must(q => !q.GroupBy(w => w).Any(q => q.Count() > 1)).WithMessage("ContactId should not be duplicated");
     }

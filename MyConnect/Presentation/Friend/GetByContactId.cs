@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class GetByContactId
 {
-    public record Request(Guid id) : IRequest<IEnumerable<GetAllFriend>>;
+    public record Request(string contactId) : IRequest<IEnumerable<GetAllFriend>>;
 
     internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, IEnumerable<GetAllFriend>>
     {
@@ -27,7 +27,8 @@ public static class GetByContactId
             // ).ToListAsync(cancellationToken);
 
 
-            var friends = await uow.Friend.GetAllAsync(_ => true);
+            var filter = Builders<Friend>.Filter.Where(q => q.FromContact.ContactId == request.contactId || q.ToContact.ContactId == request.contactId);
+            var friends = await uow.Friend.GetAllAsync(filter);
 
             if (!friends.Any()) return Enumerable.Empty<GetAllFriend>();
 
@@ -36,11 +37,11 @@ public static class GetByContactId
                 result.Add(new GetAllFriend
                 {
                     Id = friend.Id,
-                    ContactId = friend.FromContact.ContactId == request.id.ToString() ? friend.ToContact.ContactId : friend.FromContact.ContactId,
-                    ContactName = friend.FromContact.ContactId == request.id.ToString() ? friend.ToContact.ContactName : friend.FromContact.ContactName,
+                    ContactId = friend.FromContact.ContactId == request.contactId ? friend.ToContact.ContactId : friend.FromContact.ContactId,
+                    ContactName = friend.FromContact.ContactId == request.contactId ? friend.ToContact.ContactName : friend.FromContact.ContactName,
                     Status = friend.AcceptTime.HasValue == true
                         ? "friend"
-                        : friend.FromContact.ContactId == request.id.ToString()
+                        : friend.FromContact.ContactId == request.contactId
                             ? "request_sent"
                             : "request_received"
                 });
@@ -54,10 +55,10 @@ public class GetByContactIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("/{id}/friends",
-        async (ISender sender, Guid id) =>
+        app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("/{contactId}/friends",
+        async (ISender sender, string contactId) =>
         {
-            var query = new GetByContactId.Request(id);
+            var query = new GetByContactId.Request(contactId);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

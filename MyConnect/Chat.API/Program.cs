@@ -24,7 +24,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGroup("/identity").MapIdentityApi<AuthenticationUser>();
-app.UseDbTransaction();
+//app.UseDbTransaction();
 app.UseAuthenticationDbTransaction();
 app.MapCarter();
 

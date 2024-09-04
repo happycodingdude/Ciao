@@ -1,6 +1,6 @@
 namespace Domain.Features;
 
-public class Schedule : BaseModel
+public class Schedule : MongoBaseModel
 {
     public string? Content { get; set; }
     public DateTime StartDate { get; set; }

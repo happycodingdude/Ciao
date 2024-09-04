@@ -2,13 +2,13 @@ namespace Presentation.Conversations;
 
 public static class GetById
 {
-    public record Request(Guid id) : IRequest<ConversationDto>;
+    public record Request(string id) : IRequest<Conversation>;
 
-    internal sealed class Handler(IConversationService service) : IRequestHandler<Request, ConversationDto>
+    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Conversation>
     {
-        public async Task<ConversationDto> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<Conversation> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await service.GetByIdAsync(request.id);
+            return await uow.Conversation.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.id));
         }
     }
 }
@@ -18,7 +18,7 @@ public class GetByIdEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("/{id}",
-        async (ISender sender, Guid id) =>
+        async (ISender sender, string id) =>
         {
             var query = new GetById.Request(id);
             var result = await sender.Send(query);

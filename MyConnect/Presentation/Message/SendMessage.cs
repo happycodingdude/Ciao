@@ -2,7 +2,7 @@ namespace Presentation.Messages;
 
 public static class SendMessage
 {
-    public record Request(MessageDto model) : IRequest<Unit>;
+    public record Request(Message model) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -29,7 +29,8 @@ public static class SendMessage
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod) : IRequestHandler<Request, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod, IHttpContextAccessor httpContextAccessor)
+        : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
@@ -37,28 +38,33 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // // Add message
-            var entity = mapper.Map<MessageDto, Message>(request.model);
-            uow.Message.Add(entity);
+            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
+            // Add message
+            // var entity = mapper.Map<MessageDto, Message>(request.model);
+            await uow.Message.AddAsync(request.model);
             // Update UpdatedTime of conversation to popup as first item when reload
-            var conversation = await uow.Conversation.GetByIdAsync(request.model.ConversationId);
-            uow.Conversation.Update(conversation);
 
-            await uow.SaveAsync();
+            var filter = MongoQuery.IdFilter<Conversation>(request.model.ConversationId);
+            var conversation = await uow.Conversation.GetItemAsync(filter);
+            // uow.Conversation.Update(conversation);
+
+            // await uow.SaveAsync();
 
             // When a message sent, all members of that group will be having that group conversation back
-            await uow.Participant.DbSet.Where(q => q.ConversationId == request.model.ConversationId)
-                .ExecuteUpdateAsync(q => q.SetProperty(w => w.IsDeleted, false));
+            foreach (var participant in conversation.Participants)
+                participant.IsDeleted = false;
+            await uow.Conversation.UpdateOneAsync(filter, conversation);
+            // await uow.Participant.DbSet.Where(q => q.ConversationId == request.model.ConversationId)
+            //     .ExecuteUpdateAsync(q => q.SetProperty(w => w.IsDeleted, false));
 
             // Push message
             await notificationMethod.Notify(
                 "NewMessage",
-                uow.Participant
-                    .GetByConversationId(request.model.ConversationId)
-                    .Where(q => q.ContactId != request.model.ContactId)
-                    .Select(q => q.ContactId.ToString())
+                conversation.Participants
+                    .Where(q => q.Contact.Id != userId)
+                    .Select(q => q.Contact.Id)
                 .ToArray(),
-                mapper.Map<Message, MessageToNotify>(entity)
+                request.model
             );
 
             return Unit.Value;
@@ -71,9 +77,8 @@ public class SendMessageEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Message).MapPost("/send",
-        async (HttpContext context, ISender sender, MessageDto model) =>
+        async (ISender sender, Message model) =>
         {
-            model.ContactId = Guid.Parse(context.Session.GetString("UserId"));
             var query = new SendMessage.Request(model);
             await sender.Send(query);
             return Results.Ok();

@@ -25,7 +25,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         });
 
         // Chat Dbcontext        
-        services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+        //services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
         // Authentication Dbcontext
         services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
@@ -65,23 +65,23 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // Repositories
         services.AddSingleton<IUnitOfWork, UnitOfWork>();
-        services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
-        services.AddSingleton<IContactRepository, ContactRepository>();
-        services.AddSingleton<IConversationRepository, ConversationRepository>();
-        services.AddSingleton<IFriendRepository, FriendRepository>();
-        services.AddSingleton<IMessageRepository, MessageRepository>();
+        // services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
+        //services.AddSingleton<IContactRepository, ContactRepository>();
+        // services.AddSingleton<IConversationRepository, ConversationRepository>();
+        //services.AddSingleton<IFriendRepository, FriendRepository>();
+        // services.AddSingleton<IMessageRepository, MessageRepository>();
         // services.AddSingleton<INotificationRepository, NotificationRepository>();
-        services.AddSingleton<IParticipantRepository, ParticipantRepository>();
-        services.AddSingleton<IScheduleContactRepository, ScheduleContactRepository>();
-        services.AddSingleton<IScheduleRepository, ScheduleRepository>();
+        // services.AddSingleton<IParticipantRepository, ParticipantRepository>();
+        // services.AddSingleton<IScheduleContactRepository, ScheduleContactRepository>();
+        // services.AddSingleton<IScheduleRepository, ScheduleRepository>();
 
         // Business logics
         // services.AddSingleton<IContactService, ContactService>();
-        services.AddSingleton<IConversationService, ConversationService>();
-        services.AddSingleton<IParticipantService, ParticipantService>();
+        // services.AddSingleton<IConversationService, ConversationService>();
+        // services.AddSingleton<IParticipantService, ParticipantService>();
         // services.AddSingleton<INotificationService, NotificationService>();
         // services.AddSingleton<IFriendService, FriendService>();
-        services.AddSingleton<IMessageService, MessageService>();
+        // services.AddSingleton<IMessageService, MessageService>();
         services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<IIdentityService, IdentityService>();

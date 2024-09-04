@@ -2,13 +2,14 @@ namespace Presentation.Contacts;
 
 public static class GetInfo
 {
-    public record Request(Guid id) : IRequest<ContactDto>;
+    public record Request() : IRequest<Contact>;
 
-    internal sealed class Handler(IContactService service) : IRequestHandler<Request, ContactDto>
+    internal sealed class Handler(IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, Contact>
     {
-        public async Task<ContactDto> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await service.GetByIdAsync(request.id);
+            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
+            return await uow.Contact.GetItemAsync(MongoQuery.IdFilter<Contact>(userId));
         }
     }
 }
@@ -18,10 +19,9 @@ public class GetInfoEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("/info",
-        async (HttpContext context, ISender sender) =>
+        async (ISender sender) =>
         {
-            var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new GetInfo.Request(userId);
+            var query = new GetInfo.Request();
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

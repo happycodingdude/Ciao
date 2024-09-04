@@ -1,6 +1,6 @@
 namespace Domain.Features;
 
-public class ScheduleContact : BaseModel
+public class ScheduleContact : MongoBaseModel
 {
     public bool? IsDeleted { get; set; }
     public Guid ScheduleId { get; set; }

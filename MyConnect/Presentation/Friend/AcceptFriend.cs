@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class AcceptFriend
 {
-    public record Request(string id, Guid userId) : IRequest<Unit>;
+    public record Request(string id, string userId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -25,14 +25,14 @@ public static class AcceptFriend
 
         private async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _uow.Friend.GetItemAsync(d => d.Id == id);
+            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
             return !sent.AcceptTime.HasValue;
         }
 
         private async Task<bool> NotSelfAccept(Request request)
         {
-            var sent = await _uow.Friend.GetItemAsync(d => d.Id == request.id);
-            return sent.FromContact.ContactId != request.userId.ToString();
+            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
+            return sent.FromContact.ContactId != request.userId;
         }
     }
 
@@ -51,12 +51,12 @@ public static class AcceptFriend
             // var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(JsonConvert.SerializeObject(patchToUpdate));
             // var response = await service.PatchAsync(request.id, patch);
 
-            Expression<Func<Friend, bool>> filter = q => q.Id == request.id;
+            var filter = MongoQuery.IdFilter<Friend>(request.id);
             var entity = await uow.Friend.GetItemAsync(filter);
             if (entity.AcceptTime.HasValue) return Unit.Value;
 
             entity.AcceptTime = DateTime.Now;
-            await uow.Friend.UpdateAsync(filter, entity);
+            await uow.Friend.UpdateOneAsync(filter, entity);
 
             // Push friend request            
             await notificationMethod.Notify(
@@ -80,7 +80,7 @@ public class AcceptFriendEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Friend).MapPatch("{id}",
         async (HttpContext context, ISender sender, string id) =>
         {
-            var userId = Guid.Parse(context.Session.GetString("UserId"));
+            var userId = context.Session.GetString("UserId");
             var query = new AcceptFriend.Request(id, userId);
             await sender.Send(query);
             return Results.Ok();

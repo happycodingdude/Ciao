@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CreateFriend
 {
-    public record Request(Guid userId, Guid contactId) : IRequest<Unit>;
+    public record Request(string userId, string contactId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -18,10 +18,10 @@ public static class CreateFriend
 
         private async Task<bool> UniqueRequest(Request request)
         {
-            var sent = await _uow.Friend.GetAllAsync(d =>
-                (d.FromContact.ContactId == request.userId.ToString() && d.ToContact.ContactId == request.contactId.ToString()) ||
-                (d.FromContact.ContactId == request.contactId.ToString() && d.ToContact.ContactId == request.userId.ToString()));
-
+            var filter = Builders<Friend>.Filter.Where(q =>
+                (q.FromContact.ContactId == request.userId.ToString() && q.ToContact.ContactId == request.contactId.ToString()) ||
+                (q.FromContact.ContactId == request.contactId.ToString() && q.ToContact.ContactId == request.userId.ToString()));
+            var sent = await _uow.Friend.GetAllAsync(filter);
             return !sent.Any();
         }
     }
@@ -34,19 +34,19 @@ public static class CreateFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var fromContact = await uow.Contact.GetItemAsync(d => d.Id == request.userId.ToString());
-            var toContact = await uow.Contact.GetItemAsync(d => d.Id == request.contactId.ToString());
+            var fromContact = await uow.Contact.GetItemAsync(MongoQuery.IdFilter<Contact>(request.userId));
+            var toContact = await uow.Contact.GetItemAsync(MongoQuery.IdFilter<Contact>(request.contactId));
             // Add friend 
             var friendEntity = new Friend
             {
                 FromContact = new FriendDto_Contact
                 {
-                    ContactId = request.userId.ToString(),
+                    ContactId = request.userId,
                     ContactName = fromContact.Name
                 },
                 ToContact = new FriendDto_Contact
                 {
-                    ContactId = request.contactId.ToString(),
+                    ContactId = request.contactId,
                     ContactName = toContact.Name
                 },
             };
@@ -54,10 +54,10 @@ public static class CreateFriend
             // Add notification            
             var notiEntity = new Notification
             {
-                SourceId = friendEntity.Id.ToString(),
+                SourceId = friendEntity.Id,
                 SourceType = "friend_request",
                 Content = $"{fromContact.Name} send you a request",
-                ContactId = request.contactId.ToString()
+                ContactId = request.contactId
             };
             await uow.Notification.AddAsync(notiEntity);
 
@@ -66,7 +66,7 @@ public static class CreateFriend
             // Push friend request
             await notificationMethod.Notify(
                "NewFriendRequest",
-               new string[1] { request.contactId.ToString() },
+               new string[1] { request.contactId },
                new FriendToNotify
                {
                    RequestId = friendEntity.Id
@@ -77,7 +77,7 @@ public static class CreateFriend
             notiDto.AddSourceData(friendEntity);
             await notificationMethod.Notify(
                 "NewNotification",
-                new string[1] { request.contactId.ToString() },
+                new string[1] { request.contactId },
                 notiDto
             );
 
@@ -90,11 +90,11 @@ public class CreateFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Friend).MapPost("{id}",
-        async (HttpContext context, ISender sender, Guid id) =>
+        app.MapGroup(AppConstants.ApiRoute_Contact).MapPost("{contactId}/friends",
+        async (HttpContext context, ISender sender, string contactId) =>
         {
-            var userId = Guid.Parse(context.Session.GetString("UserId"));
-            var query = new CreateFriend.Request(userId, id);
+            var userId = context.Session.GetString("UserId");
+            var query = new CreateFriend.Request(userId, contactId);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

@@ -14,7 +14,7 @@ public static class UpdateContact
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IContactService service) : IRequestHandler<Request, Unit>
+    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow) : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
@@ -22,7 +22,7 @@ public static class UpdateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await service.PatchAsync(request.id, request.patch);
+            //await service.PatchAsync(request.id, request.patch);
 
             return Unit.Value;
         }

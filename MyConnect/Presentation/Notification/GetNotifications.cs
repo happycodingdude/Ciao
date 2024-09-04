@@ -8,7 +8,9 @@ public static class GetByConversationId
     {
         public async Task<IEnumerable<Notification>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var notifications = await uow.Notification.GetAllAsync(_ => true);
+            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var filter = Builders<Notification>.Filter.Where(q => q.ContactId == userId);
+            var notifications = await uow.Notification.GetAllAsync(filter);
             if (!notifications.Any()) return Enumerable.Empty<Notification>();
 
             // var result = new List<NotificationTypeConstraint>(notifications.Count);

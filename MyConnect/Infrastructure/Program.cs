@@ -12,10 +12,10 @@ var configuration = new ConfigurationBuilder()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<AppDbContext>(option =>
-{
-    option.UseMySQL(configuration.GetConnectionString("lab-chat-db"));
-});
+// builder.Services.AddDbContext<AppDbContext>(option =>
+// {
+//     option.UseMySQL(configuration.GetConnectionString("lab-chat-db"));
+// });
 builder.Services.AddDbContext<AuthenticationDbContext>(option =>
 {
     option.UseMySQL(configuration.GetConnectionString("lab-authentication-db"));

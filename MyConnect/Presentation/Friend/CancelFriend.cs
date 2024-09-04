@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CancelFriend
 {
-    public record Request(string id, Guid contactId) : IRequest<Unit>;
+    public record Request(string id, string userId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -17,14 +17,14 @@ public static class CancelFriend
 
         private async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _uow.Friend.GetItemAsync(d => d.Id == id);
+            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
             return !sent.AcceptTime.HasValue;
         }
 
         private async Task<bool> NotReceivedRequest(Request request)
         {
-            var sent = await _uow.Friend.GetItemAsync(d => d.Id == request.id);
-            return sent.ToContact.ContactId != request.contactId.ToString();
+            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
+            return sent.ToContact.ContactId != request.userId;
         }
     }
 
@@ -36,8 +36,9 @@ public static class CancelFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var entity = await uow.Friend.GetItemAsync(d => d.Id == request.id);
-            await uow.Friend.DeleteAsync(q => q.Id == request.id);
+            var filter = MongoQuery.IdFilter<Friend>(request.id);
+            var entity = await uow.Friend.GetItemAsync(filter);
+            await uow.Friend.DeleteOneAsync(filter);
 
             // Push friend request            
             await notificationMethod.Notify(
@@ -61,7 +62,7 @@ public class CancelFriendEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Friend).MapDelete("{id}",
         async (HttpContext context, ISender sender, string id) =>
         {
-            var userId = Guid.Parse(context.Session.GetString("UserId"));
+            var userId = context.Session.GetString("UserId");
             var query = new CancelFriend.Request(id, userId);
             await sender.Send(query);
             return Results.Ok();

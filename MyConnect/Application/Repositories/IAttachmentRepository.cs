@@ -1,3 +1,3 @@
 namespace Application.Repositories;
 
-public interface IAttachmentRepository : IRepository<Attachment> { }
+public interface IAttachmentRepository : IMongoRepository<Attachment> { }

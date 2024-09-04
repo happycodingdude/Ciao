@@ -1,22 +1,30 @@
 namespace Infrastructure.Repositories;
 
-public class UnitOfWork : IUnitOfWork, IDisposable
+public class UnitOfWork : IUnitOfWork
 {
-    private readonly AppDbContext _context;
+    // private readonly AppDbContext _context;
 
-    public UnitOfWork(AppDbContext context, MongoDbContext mongoDbContext, IHttpContextAccessor httpContextAccessor)
+    // public UnitOfWork(AppDbContext context, MongoDbContext mongoDbContext, IHttpContextAccessor httpContextAccessor)
+    public UnitOfWork(MongoDbContext mongoDbContext, IHttpContextAccessor httpContextAccessor)
     {
         var dbName = httpContextAccessor.HttpContext.Session.GetString("UserId");
-        _context = context;
-        Contact = new ContactRepository(mongoDbContext, dbName);
-        Conversation = new ConversationRepository(_context);
-        Message = new MessageRepository(_context);
-        Participant = new ParticipantRepository(_context);
-        Schedule = new ScheduleRepository(_context);
-        ScheduleContact = new ScheduleContactRepository(_context);
-        Attachment = new AttachmentRepository(_context);
-        Friend = new FriendRepository(mongoDbContext, dbName);
-        Notification = new NotificationRepository(mongoDbContext, dbName);
+        // _context = context;
+        if (dbName is null)
+        {
+            Contact = new ContactRepository(mongoDbContext);
+        }
+        else
+        {
+            Contact = new ContactRepository(mongoDbContext, dbName);
+            // Conversation = new ConversationRepository(_context);
+            // Message = new MessageRepository(_context);
+            // Participant = new ParticipantRepository(_context);
+            // Schedule = new ScheduleRepository(_context);
+            // ScheduleContact = new ScheduleContactRepository(_context);
+            // Attachment = new AttachmentRepository(_context);
+            Friend = new FriendRepository(mongoDbContext, dbName);
+            Notification = new NotificationRepository(mongoDbContext, dbName);
+        }
     }
 
     public IContactRepository Contact { get; private set; }
@@ -31,26 +39,26 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 
     public async Task SaveAsync()
     {
-        await _context.SaveChangesAsync();
+        // await _context.SaveChangesAsync();
     }
 
-    private bool disposed = false;
+    //private bool disposed = false;
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposed)
-        {
-            if (disposing)
-            {
-                _context.Dispose();
-            }
-        }
-        disposed = true;
-    }
+    // protected virtual void Dispose(bool disposing)
+    // {
+    //     if (!disposed)
+    //     {
+    //         if (disposing)
+    //         {
+    //             _context.Dispose();
+    //         }
+    //     }
+    //     disposed = true;
+    // }
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+    // public void Dispose()
+    // {
+    //     Dispose(true);
+    //     GC.SuppressFinalize(this);
+    // }
 }

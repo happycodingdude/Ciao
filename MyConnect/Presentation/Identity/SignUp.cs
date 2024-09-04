@@ -4,20 +4,21 @@ public static class SignUp
 {
     public record Request(IdentityRequest model) : IRequest<Unit>;
 
-    public class Validator : AbstractValidator<Request>
-    {
-        public Validator(IUnitOfWork uow)
-        {
-        }
-    }
+    // public class Validator : AbstractValidator<Request>
+    // {
+    //     public Validator(IUnitOfWork uow)
+    //     {
+    //     }
+    // }
 
-    internal sealed class Handler(IValidator<Request> validator, UserManager<AuthenticationUser> userManager) : IRequestHandler<Request, Unit>
+    internal sealed class Handler(UserManager<AuthenticationUser> userManager, IUnitOfWork uow)
+        : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
-            if (!validationResult.IsValid)
-                throw new BadRequestException(validationResult.ToString());
+            // var validationResult = validator.Validate(request);
+            // if (!validationResult.IsValid)
+            //     throw new BadRequestException(validationResult.ToString());
 
             var user = new AuthenticationUser
             {
@@ -26,15 +27,16 @@ public static class SignUp
                 PasswordHash = request.model.Password
             };
             var result = await userManager.CreateAsync(user, user.PasswordHash);
-            if (result.Succeeded)
+            if (!result.Succeeded)
+                throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
+
+            var created = await userManager.GetUserIdAsync(user);
+            uow.Contact.UseDatabase(created);
+            var contact = new Contact
             {
-                var created = await userManager.GetUserIdAsync(user);
-                var contact = new CreateContact
-                {
-                    Id = created,
-                    Name = request.model.Name
-                };
-            }
+                Name = request.model.Name
+            };
+            await uow.Contact.AddAsync(contact);
 
             return Unit.Value;
         }

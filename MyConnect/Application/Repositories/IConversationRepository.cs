@@ -1,3 +1,3 @@
 namespace Application.Repositories;
 
-public interface IConversationRepository : IRepository<Conversation> { }
+public interface IConversationRepository : IMongoRepository<Conversation> { }

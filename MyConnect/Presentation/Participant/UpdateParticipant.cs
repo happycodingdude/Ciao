@@ -2,13 +2,15 @@ namespace Presentation.Participants;
 
 public static class UpdateParticipant
 {
-    public record Request(Guid id, JsonPatchDocument patch) : IRequest<Unit>;
+    public record Request(string id, JsonPatchDocument patch) : IRequest<Unit>;
 
-    internal sealed class Handler(IParticipantService service) : IRequestHandler<Request, Unit>
+    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            await service.PatchAsync(request.id, request.patch);
+            var filter = MongoQuery.IdFilter<Participant>(request.id);
+            var entity = await uow.Participant.GetItemAsync(filter);
+            await uow.Participant.UpdateOneAsync(filter, entity);
             return Unit.Value;
         }
     }
@@ -19,7 +21,7 @@ public class UpdateParticipantEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Participant).MapPatch("/{id}",
-        async (Guid id, JsonElement jsonElement, ISender sender) =>
+        async (string id, JsonElement jsonElement, ISender sender) =>
         {
             var json = jsonElement.GetRawText();
             var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(json);

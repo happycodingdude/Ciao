@@ -1,6 +1,6 @@
 namespace Domain.Features;
 
-public class Message : BaseModel
+public class Message : MongoBaseModel
 {
     public string? Type { get; set; }
     public string? Content { get; set; }
@@ -9,9 +9,9 @@ public class Message : BaseModel
     public bool IsLike { get; set; }
     public int LikeCount { get; set; }
     public DateTime? SeenTime { get; set; }
-    public Guid ContactId { get; set; }
-    public Guid ConversationId { get; set; }
+    // public Guid ContactId { get; set; }
+    public string ConversationId { get; set; }
     public Contact? Contact { get; set; }
-    public Conversation? Conversation { get; set; }
+    // public Conversation? Conversation { get; set; }
     public ICollection<Attachment>? Attachments { get; set; }
 }

@@ -8,12 +8,12 @@ public static class SeenNotification
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            Expression<Func<Notification, bool>> filter = q => q.Id == request.id;
+            var filter = MongoQuery.IdFilter<Notification>(request.id);
             var entity = await uow.Notification.GetItemAsync(filter);
             if (entity.Read) return Unit.Value;
 
             entity.Read = true;
-            await uow.Notification.UpdateAsync(filter, entity);
+            await uow.Notification.UpdateOneAsync(filter, entity);
 
             return Unit.Value;
         }

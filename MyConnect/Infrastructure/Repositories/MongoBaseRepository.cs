@@ -3,20 +3,37 @@ namespace Infrastructure.Repositories;
 public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
 {
     private IMongoCollection<T> collection;
+    private MongoClient _client;
 
     public MongoBaseRepository(MongoDbContext context, string dbName)
     {
         collection = context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression) => await collection.Find(expression).ToListAsync();
+    public MongoBaseRepository(MongoDbContext context)
+    {
+        _client = context.Client;
+    }
 
-    public async Task<T> GetItemAsync(Expression<Func<T, bool>> expression) => await collection.Find(expression).SingleAsync();
+    public void UseDatabase(string dbName)
+    {
+        collection = _client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await collection.Find(filter).ToListAsync();
+
+    public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await collection.Find(filter).SingleAsync();
 
     public async Task AddAsync(T entity) => await collection.InsertOneAsync(entity);
 
-    public async Task UpdateAsync(Expression<Func<T, bool>> expression, T entity) => await collection.ReplaceOneAsync(expression, entity);
+    public async Task UpdateOneAsync(FilterDefinition<T> filter, T entity)
+    {
+        entity.BeforeUpdate();
+        await collection.ReplaceOneAsync(filter, entity);
+    }
 
-    public async Task DeleteAsync(Expression<Func<T, bool>> expression) => await collection.DeleteOneAsync(expression);
+    public async Task UpdateManyAsync(FilterDefinition<T> filter, UpdateDefinition<T> update) => await collection.UpdateManyAsync(filter, update);
+
+    public async Task DeleteOneAsync(FilterDefinition<T> filter) => await collection.DeleteOneAsync(filter);
 
 }

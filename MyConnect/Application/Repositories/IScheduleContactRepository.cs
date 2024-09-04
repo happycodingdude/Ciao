@@ -1,3 +1,3 @@
 namespace Application.Repositories;
 
-public interface IScheduleContactRepository : IRepository<ScheduleContact> { }
+public interface IScheduleContactRepository : IMongoRepository<ScheduleContact> { }

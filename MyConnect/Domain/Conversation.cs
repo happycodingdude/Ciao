@@ -1,6 +1,6 @@
 namespace Domain.Features;
 
-public class Conversation : BaseModel
+public class Conversation : MongoBaseModel
 {
     public string? Title { get; set; }
     public DateTime? DeletedTime { get; set; }
