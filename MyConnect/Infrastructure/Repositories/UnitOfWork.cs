@@ -7,24 +7,15 @@ public class UnitOfWork : IUnitOfWork
     // public UnitOfWork(AppDbContext context, MongoDbContext mongoDbContext, IHttpContextAccessor httpContextAccessor)
     public UnitOfWork(MongoDbContext mongoDbContext, IHttpContextAccessor httpContextAccessor)
     {
-        var dbName = httpContextAccessor.HttpContext.Session.GetString("UserId");
-        // _context = context;
-        if (dbName is null)
-        {
-            Contact = new ContactRepository(mongoDbContext);
-        }
-        else
-        {
-            Contact = new ContactRepository(mongoDbContext, dbName);
-            // Conversation = new ConversationRepository(_context);
-            // Message = new MessageRepository(_context);
-            // Participant = new ParticipantRepository(_context);
-            // Schedule = new ScheduleRepository(_context);
-            // ScheduleContact = new ScheduleContactRepository(_context);
-            // Attachment = new AttachmentRepository(_context);
-            Friend = new FriendRepository(mongoDbContext, dbName);
-            Notification = new NotificationRepository(mongoDbContext, dbName);
-        }
+        Contact = new ContactRepository(mongoDbContext);
+        Conversation = new ConversationRepository(mongoDbContext);
+        Message = new MessageRepository(mongoDbContext);
+        Participant = new ParticipantRepository(mongoDbContext);
+        Schedule = new ScheduleRepository(mongoDbContext);
+        ScheduleContact = new ScheduleContactRepository(mongoDbContext);
+        Attachment = new AttachmentRepository(mongoDbContext);
+        Friend = new FriendRepository(mongoDbContext);
+        Notification = new NotificationRepository(mongoDbContext);
     }
 
     public IContactRepository Contact { get; private set; }

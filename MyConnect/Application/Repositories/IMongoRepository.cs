@@ -2,7 +2,6 @@ namespace Application.Repositories;
 
 public interface IMongoRepository<T> where T : MongoBaseModel
 {
-    void UseDatabase(string dbName);
     //void InitCollection(string dbName);
     Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter);
     // IEnumerable<T> GetAll(int page, int limit);

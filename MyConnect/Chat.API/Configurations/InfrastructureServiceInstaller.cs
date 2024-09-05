@@ -41,7 +41,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IAuthorizationHandler, BasicAuthenticationHandle>();
         services.AddAuthorization(option =>
         {
-            option.AddPolicy("Basic", policy =>
+            option.AddPolicy(AppConstants.Authentication_Basic, policy =>
             {
                 policy.AddRequirements(new BasicAuthenticationRequirement());
             });

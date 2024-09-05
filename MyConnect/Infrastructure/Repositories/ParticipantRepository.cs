@@ -10,5 +10,5 @@ namespace Infrastructure.Repositories;
 // }
 public class ParticipantRepository : MongoBaseRepository<Participant>, IParticipantRepository
 {
-    public ParticipantRepository(MongoDbContext context, string dbName) : base(context, dbName) { }
+    public ParticipantRepository(MongoDbContext context) : base(context) { }
 }

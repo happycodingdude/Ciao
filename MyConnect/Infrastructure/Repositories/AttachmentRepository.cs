@@ -1,7 +1,7 @@
 namespace Infrastructure.Repositories;
 
 // public class AttachmentRepository(AppDbContext context) : BaseRepository<Attachment>(context), IAttachmentRepository { }
-public class AttachmentRepository : MongoBaseRepository<Attachment>, IAttachmentRepository
+public class AttachmentRepository(MongoDbContext context) : MongoBaseRepository<Attachment>(context), IAttachmentRepository
 {
-    public AttachmentRepository(MongoDbContext context, string dbName) : base(context, dbName) { }
+    // public AttachmentRepository(MongoDbContext context) : base(context) { }
 }

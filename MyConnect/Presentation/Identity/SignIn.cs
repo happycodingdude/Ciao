@@ -4,7 +4,8 @@ public static class SignIn
 {
     public record Request(IdentityRequest model) : IRequest<Unit>;
 
-    internal sealed class Handler(SignInManager<AuthenticationUser> signInManager, IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, Unit>
+    internal sealed class Handler(SignInManager<AuthenticationUser> signInManager, UserManager<AuthenticationUser> userManager, IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
+        : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
@@ -15,6 +16,14 @@ public static class SignIn
 
                 signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
                 await signInManager.PasswordSignInAsync(request.model.Username, request.model.Password, false, lockoutOnFailure: false);
+
+                // Update IsOnline
+                // var user = await userManager.FindByNameAsync(request.model.Username);
+                // Console.WriteLine($"userId => {user.Id}");
+                // uow.Contact.UseDatabase(user.Id);
+                // var contact = (await uow.Contact.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+                // contact.IsOnline = true;
+                // await uow.Contact.UpdateOneAsync(MongoQuery.IdFilter<Contact>(user.Id), contact);
 
                 ms.Seek(0, SeekOrigin.Begin);
                 var responseBody = new StreamReader(ms).ReadToEnd();

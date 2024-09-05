@@ -1,23 +1,23 @@
 namespace Infrastructure.Repositories;
 
-public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
+public class MongoBaseRepository<T>(MongoDbContext context) : IMongoRepository<T>, IInitDatabase where T : MongoBaseModel
 {
     private IMongoCollection<T> collection;
-    private MongoClient _client;
+    // private MongoClient _client;
 
-    public MongoBaseRepository(MongoDbContext context, string dbName)
-    {
-        collection = context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
-    }
+    // public MongoBaseRepository(MongoDbContext context, string dbName)
+    // {
+    //     collection = context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
+    // }
 
-    public MongoBaseRepository(MongoDbContext context)
-    {
-        _client = context.Client;
-    }
+    // public MongoBaseRepository(MongoDbContext context)
+    // {
+    //     _client = context.Client;
+    // }
 
     public void UseDatabase(string dbName)
     {
-        collection = _client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
+        collection = context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await collection.Find(filter).ToListAsync();

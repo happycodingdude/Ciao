@@ -4,6 +4,7 @@ public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor,
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, BasicAuthenticationRequirement requirement)
     {
+        Console.WriteLine("BasicAuthenticationHandle calling");
         try
         {
             var user = await identityService.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name);

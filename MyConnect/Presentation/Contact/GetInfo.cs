@@ -8,8 +8,7 @@ public static class GetInfo
     {
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
-            return await uow.Contact.GetItemAsync(MongoQuery.IdFilter<Contact>(userId));
+            return (await uow.Contact.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
         }
     }
 }

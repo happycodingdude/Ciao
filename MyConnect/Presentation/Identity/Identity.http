@@ -13,8 +13,8 @@ POST  {{host}}/identity/signup
 Content-Type: application/json
 
 {
-    "Name":"Em yeu",
-    "Username":"trint2",
+    "Name":"Trí Nguyễn",
+    "Username":"trint1",
     "Password":"Qwerty@123"
 }
 

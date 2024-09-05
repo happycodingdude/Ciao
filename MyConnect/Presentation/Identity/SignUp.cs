@@ -16,10 +16,6 @@ public static class SignUp
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            // var validationResult = validator.Validate(request);
-            // if (!validationResult.IsValid)
-            //     throw new BadRequestException(validationResult.ToString());
-
             var user = new AuthenticationUser
             {
                 // Email = model.Username,
@@ -30,8 +26,8 @@ public static class SignUp
             if (!result.Succeeded)
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
-            var created = await userManager.GetUserIdAsync(user);
-            uow.Contact.UseDatabase(created);
+            var userId = await userManager.GetUserIdAsync(user);
+            // uow.Contact.UseDatabase(userId);
             var contact = new Contact
             {
                 Name = request.model.Name
