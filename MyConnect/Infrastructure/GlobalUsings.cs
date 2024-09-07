@@ -29,3 +29,4 @@ global using Microsoft.AspNetCore.JsonPatch;
 global using Shared.Configurations;
 global using MongoDB.Driver;
 global using System.Reflection;
+global using Action = System.Action;

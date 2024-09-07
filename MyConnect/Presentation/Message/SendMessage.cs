@@ -41,7 +41,7 @@ public static class SendMessage
             var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
             // Add message
             // var entity = mapper.Map<MessageDto, Message>(request.model);
-            await uow.Message.AddAsync(request.model);
+            uow.Message.AddAsync(request.model);
             // Update UpdatedTime of conversation to popup as first item when reload
 
             var filter = MongoQuery.IdFilter<Conversation>(request.model.ConversationId);

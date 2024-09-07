@@ -1,17 +1,17 @@
-@host = https://localhost:4001/api
+@host = http://localhost:4000/api
 
 ###
 POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"trint5",
     "Password":"Qwerty@123"
 }
 
 ###
 GET {{host}}/contacts/info
-Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7Nf7pdv0K6cKufaCUP9leWt2vw2zStUGQDwNE0FafAIdr1Vs-buOZ3j-0FBoYxqm6TqpIzHx1uXc-5hzRfI7e7-uCX81WHXcJFzPz2_jhIThvBMRXu5qB1laMkG2b_6cOFGTotzBPMrkdSdcDQxjuJ6cii7e7aj_Mkig_JjxnoSjE7pmU1BN87LwyngmVWeJ9siSrL0lNMDBOClkXEoYrod1emQ0suNdam-dLFAOimkjSAwm-lEq3OZTbZiNN1NwF-iEo0hTM-F6HwXxDRLiTyj0FLRtnCdp_4z8UfQpEufT3rOCjshGzhOWYk9s5Jq8coegQvoiarMpvTnXsOqy3EnipITY-CTZwNG9x67qAwI8-M40oLF9nl2Dii5FguccFGs6UXb71WrGHCx7K8G8u2cOohFzi7749L5Fp_95g8B7MARUkvah9bAkgsaIvTN8nrAUrTggCCrp2JWWPekyPJoZGsoEEVadgY-bq9GuEgP17cKtgekaPJNy5Mgh_Jgdz6KiVr06TY3YGuk-JTCtD1SFzXx626-UWxNkD72uHstFg
+Authorization: Bearer CfDJ8IE6k77TFy5BnhYCqdQ4BPh8qA2a3cOEg6rKM4R9eihCfLfM-Sm3H4Slcsike5aBWhHDTJmVDtc7ScMVcPv43X-q9zlO9aJ6JoYy_jBVV5Nd2sSxnqv9lEhbKRfCgd7--9e8rR_juHvdJqpVGO6ilQScyPXvS49df6QJV_wPoqQDJmOg9coE4Q5cOU7GVeSCaOqo36N95XXpznPj2y218gz3xiEiKyqkGddPCrmVj-HVYc4VMosBm_j1vuhUOSUs3L80-wvg6b3-r4JjVPkMCBJPlnEByCMD_AwHloMJWJ0J3kM9LLLw0gJO8jQ9cw3D9sqMWTwPTHcK0n7CZC8oDsA4_N0xFmzs2M1TvtXkOnPkcqBSn8PzCfg53M6KhucLe0oJlTY05yOGLwwcgLlWgcRpLp-DdcHPYjCe6ZYbQesed-4Bqy1lOp5dkDFej2tcuynieP8JVu7IuDKvvW0gwQxMIk8ZPyJJ2FpK5vlkZgWcod8GEoL7fwvOZuK5EmyAYCU8INrRRAK5Jw0W4MWTCAMaifpJPonG1wUV7A7v525iPkuHR4wL7YuPBUpCxmuifQ
 
 ###
 PATCH   {{host}}/contacts

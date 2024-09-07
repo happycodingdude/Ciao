@@ -33,7 +33,7 @@ public static class CreateConversation
             // var entity = mapper.Map<ConversationDto, Conversation>(request.model);
             // uow.Conversation.Add(entity);
             // await uow.SaveAsync();
-            await uow.Conversation.AddAsync(request.model);
+            uow.Conversation.AddAsync(request.model);
 
             await notificationMethod.Notify(
                 "NewConversation",

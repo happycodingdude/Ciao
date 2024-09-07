@@ -1,6 +1,6 @@
 namespace Application.Repositories;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IDisposable
 {
     IContactRepository Contact { get; }
     IConversationRepository Conversation { get; }
@@ -12,4 +12,7 @@ public interface IUnitOfWork
     IFriendRepository Friend { get; }
     INotificationRepository Notification { get; }
     Task SaveAsync();
+    void AddOperation(Action operation);
+    void CleanOperations();
+    // IDisposable Session { get; }
 }

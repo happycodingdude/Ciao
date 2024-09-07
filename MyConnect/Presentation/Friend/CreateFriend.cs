@@ -50,7 +50,7 @@ public static class CreateFriend
                     ContactName = toContact.Name
                 },
             };
-            await uow.Friend.AddAsync(friendEntity);
+            uow.Friend.AddAsync(friendEntity);
             // Add notification            
             var notiEntity = new Notification
             {
@@ -59,7 +59,7 @@ public static class CreateFriend
                 Content = $"{fromContact.Name} send you a request",
                 ContactId = request.contactId
             };
-            await uow.Notification.AddAsync(notiEntity);
+            uow.Notification.AddAsync(notiEntity);
 
             // await uow.SaveAsync();
 

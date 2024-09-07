@@ -20,7 +20,7 @@ public static class CreateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await uow.Contact.AddAsync(request.model);
+            uow.Contact.AddAsync(request.model);
             //await uow.SaveAsync();
 
             return Unit.Value;

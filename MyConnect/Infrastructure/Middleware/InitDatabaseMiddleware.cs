@@ -16,7 +16,6 @@ public class InitDatabaseMiddleware
         Console.WriteLine("InitDatabaseMiddleware calling");
 
         var dbName = httpContext.Session.GetString("UserId");
-        Console.WriteLine($"dbName => {dbName}");
         if (!string.IsNullOrEmpty(dbName))
         {
             var types = AppDomain.CurrentDomain.GetAssemblies()

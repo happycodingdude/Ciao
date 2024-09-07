@@ -27,12 +27,13 @@ public static class SignUp
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
             var userId = await userManager.GetUserIdAsync(user);
-            // uow.Contact.UseDatabase(userId);
+            uow.Contact.UseDatabase(userId);
             var contact = new Contact
             {
                 Name = request.model.Name
             };
-            await uow.Contact.AddAsync(contact);
+            uow.Contact.AddAsync(contact);
+            await uow.SaveAsync();
 
             return Unit.Value;
         }

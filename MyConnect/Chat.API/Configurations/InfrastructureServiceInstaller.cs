@@ -66,7 +66,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Repositories
         services.AddSingleton<IUnitOfWork, UnitOfWork>();
         // services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
-        //services.AddSingleton<IContactRepository, ContactRepository>();
+        services.AddSingleton<IContactRepository, ContactRepository>();
         // services.AddSingleton<IConversationRepository, ConversationRepository>();
         //services.AddSingleton<IFriendRepository, FriendRepository>();
         // services.AddSingleton<IMessageRepository, MessageRepository>();
