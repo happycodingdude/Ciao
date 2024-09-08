@@ -371,3 +371,6 @@
 /MyConnect/client/npm-debug.log*
 /MyConnect/client/yarn-debug.log*
 /MyConnect/client/yarn-error.log*
+
+
+/scripts
