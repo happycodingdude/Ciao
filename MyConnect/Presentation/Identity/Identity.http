@@ -4,7 +4,7 @@ POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"trint6",
     "Password":"Qwerty@123"
 }
 
@@ -13,8 +13,8 @@ POST  {{host}}/identity/signup
 Content-Type: application/json
 
 {
-    "Name":"Trí Nguyễn 5",
-    "Username":"trint5",
+    "Name":"Trí Nguyễn 6",
+    "Username":"trint6",
     "Password":"Qwerty@123"
 }
 

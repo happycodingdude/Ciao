@@ -11,7 +11,7 @@ public static class SignUp
     //     }
     // }
 
-    internal sealed class Handler(UserManager<AuthenticationUser> userManager, IUnitOfWork uow)
+    internal sealed class Handler(UserManager<AuthenticationUser> userManager, IContactRepository contactRepository, IUnitOfWork uow)
         : IRequestHandler<Request, Unit>
     {
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -27,12 +27,12 @@ public static class SignUp
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
             var userId = await userManager.GetUserIdAsync(user);
-            uow.Contact.UseDatabase(userId);
+            contactRepository.UseDatabase(userId);
             var contact = new Contact
             {
                 Name = request.model.Name
             };
-            uow.Contact.AddAsync(contact);
+            contactRepository.AddAsync(contact);
             await uow.SaveAsync();
 
             return Unit.Value;
