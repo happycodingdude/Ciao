@@ -1,89 +1,97 @@
 version: "3.7"
 
 services:
+  # mongodb primary
   mongod1:
     container_name: mongod1
     image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    env_file:
+      - .env
     ports:
-      - 27017:27017
+      - "2701:27017"
     volumes:
       - ./mongo-db/data1:/data/db
       - ./scripts/keyfile:/scripts/keyfile
     depends_on:
       - mongod2
       - mongod3
-    restart: always
     command: "mongod --bind_ip_all --replSet my-replica-set --keyFile /scripts/keyfile"
+    networks:
+      - my-mongo-cluster
+    restart: always
 
-  # mongodb replicaset secondary
+  # mongodb secondary 1
   mongod2:
     container_name: mongod2
     image: mongo
-    expose:
-      - 27017
+    ports:
+      - "2702:27017"
     volumes:
       - ./mongo-db/data2:/data/db
       - ./scripts/keyfile:/scripts/keyfile
-    restart: always
     command: "mongod --bind_ip_all --replSet my-replica-set --keyFile /scripts/keyfile"
+    networks:
+      - my-mongo-cluster
+    restart: always
 
-  # mongodb replicaset arbiter
+  # mongodb secondary 2
   mongod3:
     container_name: mongod3
     image: mongo
-    expose:
-      - 27017
+    ports:
+      - "2703:27017"
     volumes:
       - ./mongo-db/data3:/data/db
       - ./scripts/keyfile:/scripts/keyfile
-    restart: always
     command: "mongod --bind_ip_all --replSet my-replica-set --keyFile /scripts/keyfile"
+    networks:
+      - my-mongo-cluster
+    restart: always
 
+  # replica setup
   mongo-setup:
     image: mongo
     container_name: mongo-setup
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    env_file:
+      - .env
     depends_on:
       - mongod1
       - mongod2
       - mongod3
     volumes:
       - ./scripts/mongodb_rs_init.sh:/scripts/mongodb_rs_init.sh
-    restart: on-failure
     entrypoint: ["/bin/bash", "/scripts/mongodb_rs_init.sh"]
+    networks:
+      - my-mongo-cluster
+    restart: on-failure
 
-  # mongo-3:
-  #   image: mongo
-  #   container_name: mongo3
-  #   volumes:
-  #     - mongo-data-vol3:/data/db
-  #     - mongo-config-vol3:/data/configdb
-  #   command: mongod --replSet my-mongo-set
-  #   networks:
-  #     - my-mongo-cluster
-  #   ports:
-  #     - "2703:27017"
-  #   restart: always
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    volumes:
+      - db-vol:/var/lib/mysql
+    networks:
+      - local-network
+    ports:
+      - "3300:3306"
+    env_file:
+      - .env
+    restart: always
 
-  # redis:
-  #   image: redis
-  #   container_name: redis
-  #   command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
-  #   # command: --requirepass $$REDIS_PASSWORD
-  #   volumes:
-  #     - redis-vol:/data
-  #   networks:
-  #     - local-network
-  #   ports:
-  #     - "6300:6379"
-  #   env_file:
-  #     - .env
-  #   restart: always
+  redis:
+    image: redis
+    container_name: redis
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    # command: --requirepass $$REDIS_PASSWORD
+    volumes:
+      - redis-vol:/data
+    networks:
+      - local-network
+    ports:
+      - "6300:6379"
+    env_file:
+      - .env
+    restart: always
 
 volumes:
   db-vol:
