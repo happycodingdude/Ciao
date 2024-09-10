@@ -5,4 +5,4 @@ namespace Infrastructure.Repositories;
 // {
 //     // public AttachmentRepository(MongoDbContext context) : base(context) { }
 // }
-public class AttachmentRepository(MongoDbContext context, IUnitOfWork uow) : MongoBaseRepository<Attachment>(context, uow), IAttachmentRepository { }
+public class AttachmentRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : MongoBaseRepository<Attachment>(context, uow, httpContextAccessor), IAttachmentRepository { }

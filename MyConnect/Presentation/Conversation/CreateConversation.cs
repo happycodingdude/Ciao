@@ -20,9 +20,27 @@ public static class CreateConversation
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod, IHttpContextAccessor httpContextAccessor)
-        : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly INotificationMethod notificationMethod;
+        private readonly IUnitOfWork uow;
+        private readonly IConversationRepository conversationRepository;
+
+        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory,
+            INotificationMethod notificationMethod, IUnitOfWork uow)
+        {
+            this.validator = validator;
+            this.httpContextAccessor = httpContextAccessor;
+            this.notificationMethod = notificationMethod;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
@@ -32,8 +50,8 @@ public static class CreateConversation
             var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
             // var entity = mapper.Map<ConversationDto, Conversation>(request.model);
             // uow.Conversation.Add(entity);
-            // await uow.SaveAsync();
-            uow.Conversation.AddAsync(request.model);
+            conversationRepository.Add(request.model);
+            await uow.SaveAsync();
 
             await notificationMethod.Notify(
                 "NewConversation",

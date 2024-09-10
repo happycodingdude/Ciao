@@ -23,7 +23,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseInitDatabase();
+// app.UseInitDatabase();
 app.MapGroup("/identity").MapIdentityApi<AuthenticationUser>();
 //app.UseDbTransaction();
 app.UseAuthenticationDbTransaction();

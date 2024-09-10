@@ -4,9 +4,28 @@ public static class SignIn
 {
     public record Request(IdentityRequest model) : IRequest<Unit>;
 
-    internal sealed class Handler(SignInManager<AuthenticationUser> signInManager, UserManager<AuthenticationUser> userManager, IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
-        : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly SignInManager<AuthenticationUser> signInManager;
+        private readonly UserManager<AuthenticationUser> userManager;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IUnitOfWork uow;
+        private readonly IContactRepository contactRepository;
+
+        public Handler(SignInManager<AuthenticationUser> signInManager, UserManager<AuthenticationUser> userManager,
+            IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory,
+            IUnitOfWork uow)
+        {
+            this.signInManager = signInManager;
+            this.userManager = userManager;
+            this.httpContextAccessor = httpContextAccessor;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             // Stream originalBodyStream = httpContextAccessor.HttpContext.Response.Body;
@@ -17,13 +36,16 @@ public static class SignIn
                 signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
                 await signInManager.PasswordSignInAsync(request.model.Username, request.model.Password, false, lockoutOnFailure: false);
 
-                // Update IsOnline
+                // Update IsOnline true
                 // var user = await userManager.FindByNameAsync(request.model.Username);
-                // Console.WriteLine($"userId => {user.Id}");
-                // uow.Contact.UseDatabase(user.Id);
-                // var contact = (await uow.Contact.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
-                // contact.IsOnline = true;
-                // await uow.Contact.UpdateOneAsync(MongoQuery.IdFilter<Contact>(user.Id), contact);
+                // contactRepository.UseDatabase(user.Id);
+                var contact = (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+                if (!contact.IsOnline)
+                {
+                    contact.IsOnline = true;
+                    contactRepository.UpdateOne(Builders<Contact>.Filter.Empty, contact);
+                    await uow.SaveAsync();
+                }
 
                 ms.Seek(0, SeekOrigin.Begin);
                 var responseBody = new StreamReader(ms).ReadToEnd();

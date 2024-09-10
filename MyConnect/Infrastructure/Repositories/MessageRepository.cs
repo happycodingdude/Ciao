@@ -5,4 +5,4 @@ namespace Infrastructure.Repositories;
 // {
 //     public MessageRepository(MongoDbContext context) : base(context) { }
 // }
-public class MessageRepository(MongoDbContext context, IUnitOfWork uow) : MongoBaseRepository<Message>(context, uow), IMessageRepository { }
+public class MessageRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : MongoBaseRepository<Message>(context, uow, httpContextAccessor), IMessageRepository { }

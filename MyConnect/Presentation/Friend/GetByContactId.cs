@@ -4,8 +4,18 @@ public static class GetByContactId
 {
     public record Request(string contactId) : IRequest<IEnumerable<GetAllFriend>>;
 
-    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, IEnumerable<GetAllFriend>>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<GetAllFriend>>
     {
+        private readonly IFriendRepository friendRepository;
+
+        public Handler(IServiceScopeFactory scopeFactory)
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
+        }
+
         public async Task<IEnumerable<GetAllFriend>> Handle(Request request, CancellationToken cancellationToken)
         {
             // var friends = await (
@@ -28,7 +38,7 @@ public static class GetByContactId
 
 
             var filter = Builders<Friend>.Filter.Where(q => q.FromContact.ContactId == request.contactId || q.ToContact.ContactId == request.contactId);
-            var friends = await uow.Friend.GetAllAsync(filter);
+            var friends = await friendRepository.GetAllAsync(filter);
 
             if (!friends.Any()) return Enumerable.Empty<GetAllFriend>();
 

@@ -6,36 +6,61 @@ public static class CreateFriend
 
     public class Validator : AbstractValidator<Request>
     {
-        readonly IUnitOfWork _uow;
+        readonly IFriendRepository _friendRepository;
 
-        public Validator(IUnitOfWork uow)
+        public Validator(IServiceScopeFactory scopeFactory)
         {
-            _uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                _friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
             RuleFor(c => c.contactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
             RuleFor(c => c).MustAsync((item, cancellation) => UniqueRequest(item)).WithMessage("Friend request has been sent");
             RuleFor(c => c.userId).NotEqual(q => q.contactId).WithMessage("Can not send self-request");
         }
 
-        private async Task<bool> UniqueRequest(Request request)
+        async Task<bool> UniqueRequest(Request request)
         {
             var filter = Builders<Friend>.Filter.Where(q =>
                 (q.FromContact.ContactId == request.userId.ToString() && q.ToContact.ContactId == request.contactId.ToString()) ||
                 (q.FromContact.ContactId == request.contactId.ToString() && q.ToContact.ContactId == request.userId.ToString()));
-            var sent = await _uow.Friend.GetAllAsync(filter);
+            var sent = await _friendRepository.GetAllAsync(filter);
             return !sent.Any();
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper, INotificationMethod notificationMethod) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly INotificationMethod notificationMethod;
+        private readonly IUnitOfWork uow;
+        private readonly IMapper mapper;
+        private readonly IContactRepository contactRepository;
+        private readonly IFriendRepository friendRepository;
+        private readonly INotificationRepository notificationRepository;
+
+        public Handler(IValidator<Request> validator, INotificationMethod notificationMethod, IUnitOfWork uow, IServiceScopeFactory scopeFactory, IMapper mapper)
+        {
+            this.validator = validator;
+            this.notificationMethod = notificationMethod;
+            this.uow = uow;
+            this.mapper = mapper;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
+                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+                notificationRepository = scope.ServiceProvider.GetService<INotificationRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var fromContact = await uow.Contact.GetItemAsync(MongoQuery.IdFilter<Contact>(request.userId));
-            var toContact = await uow.Contact.GetItemAsync(MongoQuery.IdFilter<Contact>(request.contactId));
+            var fromContact = await contactRepository.GetItemAsync(MongoQuery.IdFilter<Contact>(request.userId));
+            var toContact = await contactRepository.GetItemAsync(MongoQuery.IdFilter<Contact>(request.contactId));
             // Add friend 
             var friendEntity = new Friend
             {
@@ -50,7 +75,7 @@ public static class CreateFriend
                     ContactName = toContact.Name
                 },
             };
-            uow.Friend.AddAsync(friendEntity);
+            friendRepository.Add(friendEntity);
             // Add notification            
             var notiEntity = new Notification
             {
@@ -59,9 +84,9 @@ public static class CreateFriend
                 Content = $"{fromContact.Name} send you a request",
                 ContactId = request.contactId
             };
-            uow.Notification.AddAsync(notiEntity);
+            notificationRepository.Add(notiEntity);
 
-            // await uow.SaveAsync();
+            await uow.SaveAsync();
 
             // Push friend request
             await notificationMethod.Notify(

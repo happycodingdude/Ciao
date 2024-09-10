@@ -4,13 +4,26 @@ public static class UpdateParticipant
 {
     public record Request(string id, JsonPatchDocument patch) : IRequest<Unit>;
 
-    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IUnitOfWork uow;
+        private readonly IParticipantRepository participantRepository;
+
+        public Handler(IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        {
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                participantRepository = scope.ServiceProvider.GetService<IParticipantRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = MongoQuery.IdFilter<Participant>(request.id);
-            var entity = await uow.Participant.GetItemAsync(filter);
-            await uow.Participant.UpdateOneAsync(filter, entity);
+            var entity = await participantRepository.GetItemAsync(filter);
+            participantRepository.UpdateOne(filter, entity);
+            await uow.SaveAsync();
             return Unit.Value;
         }
     }

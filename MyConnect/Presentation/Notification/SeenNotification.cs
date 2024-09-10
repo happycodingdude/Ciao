@@ -4,16 +4,29 @@ public static class SeenNotification
 {
     public record Request(string id) : IRequest<Unit>;
 
-    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IUnitOfWork uow;
+        private readonly INotificationRepository notificationRepository;
+
+        public Handler(IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        {
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                notificationRepository = scope.ServiceProvider.GetService<INotificationRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = MongoQuery.IdFilter<Notification>(request.id);
-            var entity = await uow.Notification.GetItemAsync(filter);
+            var entity = await notificationRepository.GetItemAsync(filter);
             if (entity.Read) return Unit.Value;
 
             entity.Read = true;
-            await uow.Notification.UpdateOneAsync(filter, entity);
+            notificationRepository.UpdateOne(filter, entity);
+            await uow.SaveAsync();
 
             return Unit.Value;
         }

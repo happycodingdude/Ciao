@@ -4,8 +4,18 @@ public static class GetInfo
 {
     public record Request() : IRequest<Contact>;
 
-    internal sealed class Handler(IContactRepository contactRepository, IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, Contact>
+    internal sealed class Handler : IRequestHandler<Request, Contact>
     {
+        private readonly IContactRepository contactRepository;
+
+        public Handler(IServiceScopeFactory scopeFactory)
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
+            }
+        }
+
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
             return (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();

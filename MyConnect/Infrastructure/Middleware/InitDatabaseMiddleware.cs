@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace Infrastructure.Middleware;
 
 public class InitDatabaseMiddleware
@@ -11,7 +9,7 @@ public class InitDatabaseMiddleware
         _next = next;
     }
 
-    public async Task Invoke(HttpContext httpContext, IServiceProvider serviceProvider, MongoDbContext context)
+    public async Task Invoke(HttpContext httpContext)
     {
         Console.WriteLine("InitDatabaseMiddleware calling");
 

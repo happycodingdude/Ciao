@@ -17,8 +17,22 @@ public static class CreateParticipant
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, IMapper mapper) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly IUnitOfWork uow;
+        private readonly IConversationRepository conversationRepository;
+
+        public Handler(IValidator<Request> validator, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        {
+            this.validator = validator;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
@@ -26,7 +40,7 @@ public static class CreateParticipant
                 throw new BadRequestException(validationResult.ToString());
 
             // Get current participants of conversation, then filter new item to add
-            var conversation = await uow.Conversation.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.conversationId));
+            var conversation = await conversationRepository.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.conversationId));
             var filterNewItemToAdd = request.model.Select(q => q.Contact.Id).ToList().Except(conversation.Participants.Select(q => q.Contact.Id).ToList());
             var filteredParticipants = request.model.Where(q => filterNewItemToAdd.Contains(q.Contact.Id));
             if (!filteredParticipants.Any()) return Unit.Value;
@@ -38,8 +52,8 @@ public static class CreateParticipant
             // var participantsToAdd = mapper.Map<List<ParticipantDto>, List<Participant>>(filteredParticipants.ToList());
             // uow.Participant.Add(participantsToAdd);
 
-            await uow.Conversation.UpdateOneAsync(MongoQuery.IdFilter<Conversation>(request.conversationId), conversation);
-            // await uow.SaveAsync();
+            conversationRepository.UpdateOne(MongoQuery.IdFilter<Conversation>(request.conversationId), conversation);
+            await uow.SaveAsync();
 
             return Unit.Value;
         }

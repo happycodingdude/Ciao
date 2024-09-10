@@ -4,12 +4,22 @@ public static class GetById
 {
     public record Request(string id) : IRequest<Friend>;
 
-    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Friend>
+    internal sealed class Handler : IRequestHandler<Request, Friend>
     {
+        private readonly IFriendRepository friendRepository;
+
+        public Handler(IServiceScopeFactory scopeFactory)
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
+        }
+
         public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = MongoQuery.IdFilter<Friend>(request.id);
-            return await uow.Friend.GetItemAsync(filter);
+            return await friendRepository.GetItemAsync(filter);
         }
     }
 }

@@ -4,4 +4,4 @@ namespace Infrastructure.Repositories;
 // {
 //     public NotificationRepository(MongoDbContext context) : base(context) { }
 // }
-public class NotificationRepository(MongoDbContext context, IUnitOfWork uow) : MongoBaseRepository<Notification>(context, uow), INotificationRepository { }
+public class NotificationRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : MongoBaseRepository<Notification>(context, uow, httpContextAccessor), INotificationRepository { }

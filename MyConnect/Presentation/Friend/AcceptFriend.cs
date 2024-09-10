@@ -6,11 +6,14 @@ public static class AcceptFriend
 
     public class Validator : AbstractValidator<Request>
     {
-        readonly IUnitOfWork _uow;
+        readonly IFriendRepository _friendRepository;
 
-        public Validator(IUnitOfWork uow)
+        public Validator(IServiceScopeFactory scopeFactory)
         {
-            _uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                _friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
             // RuleFor(c => c.patch.Operations.Count(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower()))
             //     .Equal(1)
             //     .WithMessage("This is used for acceptance only 1");
@@ -25,19 +28,35 @@ public static class AcceptFriend
 
         private async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
             return !sent.AcceptTime.HasValue;
         }
 
         private async Task<bool> NotSelfAccept(Request request)
         {
-            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
             return sent.FromContact.ContactId != request.userId;
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow, INotificationMethod notificationMethod) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly INotificationMethod notificationMethod;
+        private readonly IUnitOfWork uow;
+        private readonly IFriendRepository friendRepository;
+
+        public Handler(IValidator<Request> validator, INotificationMethod notificationMethod, IUnitOfWork uow, IServiceScopeFactory scopeFactory)
+        {
+            this.validator = validator;
+            this.notificationMethod = notificationMethod;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
@@ -52,11 +71,12 @@ public static class AcceptFriend
             // var response = await service.PatchAsync(request.id, patch);
 
             var filter = MongoQuery.IdFilter<Friend>(request.id);
-            var entity = await uow.Friend.GetItemAsync(filter);
+            var entity = await friendRepository.GetItemAsync(filter);
             if (entity.AcceptTime.HasValue) return Unit.Value;
 
             entity.AcceptTime = DateTime.Now;
-            await uow.Friend.UpdateOneAsync(filter, entity);
+            friendRepository.UpdateOne(filter, entity);
+            await uow.SaveAsync();
 
             // Push friend request            
             await notificationMethod.Notify(

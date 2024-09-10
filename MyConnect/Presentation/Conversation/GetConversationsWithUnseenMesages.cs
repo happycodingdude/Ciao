@@ -4,13 +4,25 @@ public static class GetConversationsWithUnseenMesages
 {
     public record Request(int page, int limit) : IRequest<IEnumerable<object>>;
 
-    internal sealed class Handler(IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, IEnumerable<object>>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<object>>
     {
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IConversationRepository conversationRepository;
+
+        public Handler(IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory)
+        {
+            this.httpContextAccessor = httpContextAccessor;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
+            }
+        }
+
         public async Task<IEnumerable<object>> Handle(Request request, CancellationToken cancellationToken)
         {
             var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
             var filter = Builders<Conversation>.Filter.Where(q => q.Participants.Any(w => w.Contact.Id == userId));
-            var conversations = await uow.Conversation.GetAllAsync(filter);
+            var conversations = await conversationRepository.GetAllAsync(filter);
 
             // var conversations = await (
             //     from conv in uow.Conversation.DbSet

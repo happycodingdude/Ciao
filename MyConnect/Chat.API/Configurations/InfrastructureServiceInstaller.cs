@@ -65,15 +65,15 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // Repositories
         services.AddSingleton<IUnitOfWork, UnitOfWork>();
-        // services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
-        services.AddSingleton<IContactRepository, ContactRepository>();
-        // services.AddSingleton<IConversationRepository, ConversationRepository>();
-        //services.AddSingleton<IFriendRepository, FriendRepository>();
-        // services.AddSingleton<IMessageRepository, MessageRepository>();
-        // services.AddSingleton<INotificationRepository, NotificationRepository>();
-        // services.AddSingleton<IParticipantRepository, ParticipantRepository>();
-        // services.AddSingleton<IScheduleContactRepository, ScheduleContactRepository>();
-        // services.AddSingleton<IScheduleRepository, ScheduleRepository>();
+        services.AddScoped<IContactRepository, ContactRepository>();
+        services.AddScoped<IConversationRepository, ConversationRepository>();
+        services.AddScoped<IParticipantRepository, ParticipantRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+        services.AddScoped<IFriendRepository, FriendRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
+        services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
         // Business logics
         // services.AddSingleton<IContactService, ContactService>();

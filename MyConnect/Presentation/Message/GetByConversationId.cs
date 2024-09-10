@@ -4,14 +4,28 @@ public static class GetByConversationId
 {
     public record Request(string conversationId, int page, int limit) : IRequest<IEnumerable<Message>>;
 
-    internal sealed class Handler(IUnitOfWork uow, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IRequestHandler<Request, IEnumerable<Message>>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<Message>>
     {
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IUnitOfWork uow;
+        private readonly IMessageRepository messageRepository;
+
+        public Handler(IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        {
+            this.httpContextAccessor = httpContextAccessor;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                messageRepository = scope.ServiceProvider.GetService<IMessageRepository>();
+            }
+        }
+
         public async Task<IEnumerable<Message>> Handle(Request request, CancellationToken cancellationToken)
         {
             var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
 
             var filter = Builders<Message>.Filter.Where(q => q.ConversationId == request.conversationId);
-            var messages = await uow.Message.GetAllAsync(filter);
+            var messages = await messageRepository.GetAllAsync(filter);
             // var messages = await (
             //     from mess in uow.Message.DbSet
             //         .Where(q => q.ConversationId == request.conversationId)
@@ -69,7 +83,8 @@ public static class GetByConversationId
             var updates = Builders<Message>.Update
                 .Set(q => q.Status, "seen")
                 .Set(q => q.SeenTime, DateTime.Now);
-            await uow.Message.UpdateManyAsync(filter, updates);
+            messageRepository.UpdateMany(filter, updates);
+            await uow.SaveAsync();
         }
     }
 }

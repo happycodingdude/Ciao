@@ -6,30 +6,49 @@ public static class CancelFriend
 
     public class Validator : AbstractValidator<Request>
     {
-        readonly IUnitOfWork _uow;
+        readonly IFriendRepository _friendRepository;
 
-        public Validator(IUnitOfWork uow)
+        public Validator(IServiceScopeFactory scopeFactory)
         {
-            _uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                _friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
             RuleFor(c => c.id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
             RuleFor(c => c).MustAsync((item, cancellation) => NotReceivedRequest(item)).WithMessage("Can not cancel received request");
         }
 
         private async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
             return !sent.AcceptTime.HasValue;
         }
 
         private async Task<bool> NotReceivedRequest(Request request)
         {
-            var sent = await _uow.Friend.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
             return sent.ToContact.ContactId != request.userId;
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, INotificationMethod notificationMethod, IUnitOfWork uow) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly INotificationMethod notificationMethod;
+        private readonly IUnitOfWork uow;
+        private readonly IFriendRepository friendRepository;
+
+        public Handler(IValidator<Request> validator, INotificationMethod notificationMethod, IUnitOfWork uow, IServiceScopeFactory scopeFactory)
+        {
+            this.validator = validator;
+            this.notificationMethod = notificationMethod;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
@@ -37,8 +56,9 @@ public static class CancelFriend
                 throw new BadRequestException(validationResult.ToString());
 
             var filter = MongoQuery.IdFilter<Friend>(request.id);
-            var entity = await uow.Friend.GetItemAsync(filter);
-            await uow.Friend.DeleteOneAsync(filter);
+            var entity = await friendRepository.GetItemAsync(filter);
+            friendRepository.DeleteOne(filter);
+            await uow.SaveAsync();
 
             // Push friend request            
             await notificationMethod.Notify(

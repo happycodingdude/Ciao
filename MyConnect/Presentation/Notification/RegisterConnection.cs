@@ -12,8 +12,19 @@ public static class RegisterConnection
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IDistributedCache distributedCache) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IDistributedCache distributedCache;
+
+        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IDistributedCache distributedCache)
+        {
+            this.validator = validator;
+            this.httpContextAccessor = httpContextAccessor;
+            this.distributedCache = distributedCache;
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);

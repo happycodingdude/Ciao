@@ -1,8 +1,19 @@
 namespace Infrastructure.Repositories;
 
-public class MongoBaseRepository<T>(MongoDbContext context, IUnitOfWork uow) : IMongoRepository<T> where T : MongoBaseModel
+public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
 {
-    private IMongoCollection<T> collection;
+    IMongoCollection<T> collection;
+    MongoDbContext context;
+    IUnitOfWork uow;
+
+    public MongoBaseRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor)
+    {
+        Console.WriteLine($"MongoBaseRepository calling with type => {typeof(T).Name}");
+        this.context = context;
+        this.uow = uow;
+        var dbName = httpContextAccessor.HttpContext.Session.GetString("UserId");
+        UseDatabase(dbName);
+    }
 
     public void UseDatabase(string dbName)
     {
@@ -14,16 +25,16 @@ public class MongoBaseRepository<T>(MongoDbContext context, IUnitOfWork uow) : I
 
     public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await collection.Find(filter).SingleAsync();
 
-    public void AddAsync(T entity) => uow.AddOperation(() => collection.InsertOneAsync(entity));
+    public void Add(T entity) => uow.AddOperation(() => collection.InsertOneAsync(entity));
 
-    public async Task UpdateOneAsync(FilterDefinition<T> filter, T entity)
+    public void UpdateOne(FilterDefinition<T> filter, T entity)
     {
-        entity.BeforeUpdate();
-        await collection.ReplaceOneAsync(filter, entity);
+        // entity.BeforeUpdate();
+        uow.AddOperation(() => collection.ReplaceOneAsync(filter, entity));
     }
 
-    public async Task UpdateManyAsync(FilterDefinition<T> filter, UpdateDefinition<T> update) => await collection.UpdateManyAsync(filter, update);
+    public void UpdateMany(FilterDefinition<T> filter, UpdateDefinition<T> update) => uow.AddOperation(() => collection.UpdateManyAsync(filter, update));
 
-    public async Task DeleteOneAsync(FilterDefinition<T> filter) => await collection.DeleteOneAsync(filter);
+    public void DeleteOne(FilterDefinition<T> filter) => uow.AddOperation(() => collection.DeleteOneAsync(filter));
 
 }

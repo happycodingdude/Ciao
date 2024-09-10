@@ -4,11 +4,21 @@ public static class GetById
 {
     public record Request(string id) : IRequest<Conversation>;
 
-    internal sealed class Handler(IUnitOfWork uow) : IRequestHandler<Request, Conversation>
+    internal sealed class Handler : IRequestHandler<Request, Conversation>
     {
+        private readonly IConversationRepository conversationRepository;
+
+        public Handler(IServiceScopeFactory scopeFactory)
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
+            }
+        }
+
         public async Task<Conversation> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await uow.Conversation.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.id));
+            return await conversationRepository.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.id));
         }
     }
 }

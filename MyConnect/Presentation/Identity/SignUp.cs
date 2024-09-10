@@ -11,9 +11,22 @@ public static class SignUp
     //     }
     // }
 
-    internal sealed class Handler(UserManager<AuthenticationUser> userManager, IContactRepository contactRepository, IUnitOfWork uow)
-        : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly UserManager<AuthenticationUser> userManager;
+        private readonly IUnitOfWork uow;
+        private readonly IContactRepository contactRepository;
+
+        public Handler(UserManager<AuthenticationUser> userManager, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        {
+            this.userManager = userManager;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var user = new AuthenticationUser
@@ -32,7 +45,7 @@ public static class SignUp
             {
                 Name = request.model.Name
             };
-            contactRepository.AddAsync(contact);
+            contactRepository.Add(contact);
             await uow.SaveAsync();
 
             return Unit.Value;

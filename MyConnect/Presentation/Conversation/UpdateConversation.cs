@@ -15,8 +15,22 @@ public static class UpdateConversation
         }
     }
 
-    internal sealed class Handler(IValidator<Request> validator, IUnitOfWork uow) : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, Unit>
     {
+        private readonly IValidator<Request> validator;
+        private readonly IUnitOfWork uow;
+        private readonly IConversationRepository conversationRepository;
+
+        public Handler(IValidator<Request> validator, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        {
+            this.validator = validator;
+            this.uow = uow;
+            using (var scope = scopeFactory.CreateScope())
+            {
+                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
+            }
+        }
+
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = validator.Validate(request);
@@ -24,8 +38,9 @@ public static class UpdateConversation
                 throw new BadRequestException(validationResult.ToString());
 
             var filter = MongoQuery.IdFilter<Conversation>(request.id);
-            var entity = await uow.Conversation.GetItemAsync(filter);
-            await uow.Conversation.UpdateOneAsync(filter, entity);
+            var entity = await conversationRepository.GetItemAsync(filter);
+            conversationRepository.UpdateOne(filter, entity);
+            await uow.SaveAsync();
 
             return Unit.Value;
         }

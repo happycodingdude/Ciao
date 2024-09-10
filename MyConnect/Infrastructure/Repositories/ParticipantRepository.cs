@@ -12,4 +12,4 @@ namespace Infrastructure.Repositories;
 // {
 //     public ParticipantRepository(MongoDbContext context) : base(context) { }
 // }
-public class ParticipantRepository(MongoDbContext context, IUnitOfWork uow) : MongoBaseRepository<Participant>(context, uow), IParticipantRepository { }
+public class ParticipantRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : MongoBaseRepository<Participant>(context, uow, httpContextAccessor), IParticipantRepository { }
