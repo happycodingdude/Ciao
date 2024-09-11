@@ -63,22 +63,17 @@ public static class AcceptFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // var patchToUpdate = new CustomJsonPatchDocument[1]
-            // {
-            //     new CustomJsonPatchDocument("replace", nameof(FriendDto.AcceptTime), DateTime.Now.ToString())
-            // };
-            // var patch = JsonConvert.DeserializeObject<JsonPatchDocument>(JsonConvert.SerializeObject(patchToUpdate));
-            // var response = await service.PatchAsync(request.id, patch);
-
             var filter = MongoQuery.IdFilter<Friend>(request.id);
             var entity = await friendRepository.GetItemAsync(filter);
+            // Check if request was excepted
             if (entity.AcceptTime.HasValue) return Unit.Value;
 
-            entity.AcceptTime = DateTime.Now;
-            friendRepository.UpdateOne(filter, entity);
+            var updates = Builders<Friend>.Update
+                .Set(q => q.AcceptTime, DateTime.Now);
+            friendRepository.Update(filter, updates);
             await uow.SaveAsync();
 
-            // Push friend request            
+            // Push accepted request            
             await notificationMethod.Notify(
                "AcceptFriendRequest",
                new string[1] { entity.ToContact.ContactId },
@@ -97,7 +92,7 @@ public class AcceptFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Friend).MapPatch("{id}",
+        app.MapGroup(AppConstants.ApiRoute_Friend).MapPut("{id}",
         async (HttpContext context, ISender sender, string id) =>
         {
             var userId = context.Session.GetString("UserId");

@@ -39,8 +39,9 @@ public static class SignOut
             var contact = (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
             if (contact.IsOnline)
             {
-                contact.IsOnline = false;
-                contactRepository.UpdateOne(Builders<Contact>.Filter.Empty, contact);
+                var updates = Builders<Contact>.Update
+                    .Set(q => q.IsOnline, false);
+                contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
                 await uow.SaveAsync();
             }
 

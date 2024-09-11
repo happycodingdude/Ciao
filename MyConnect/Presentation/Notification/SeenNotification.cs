@@ -24,8 +24,9 @@ public static class SeenNotification
             var entity = await notificationRepository.GetItemAsync(filter);
             if (entity.Read) return Unit.Value;
 
-            entity.Read = true;
-            notificationRepository.UpdateOne(filter, entity);
+            var updates = Builders<Notification>.Update
+                .Set(q => q.Read, true);
+            notificationRepository.Update(filter, updates);
             await uow.SaveAsync();
 
             return Unit.Value;
@@ -37,7 +38,7 @@ public class SeenNotificationEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Notification).MapPatch("/{id}",
+        app.MapGroup(AppConstants.ApiRoute_Notification).MapPut("/{id}",
         async (string id, ISender sender) =>
         {
             var query = new SeenNotification.Request(id);

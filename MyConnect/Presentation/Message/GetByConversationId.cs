@@ -83,7 +83,7 @@ public static class GetByConversationId
             var updates = Builders<Message>.Update
                 .Set(q => q.Status, "seen")
                 .Set(q => q.SeenTime, DateTime.Now);
-            messageRepository.UpdateMany(filter, updates);
+            messageRepository.Update(filter, updates);
             await uow.SaveAsync();
         }
     }

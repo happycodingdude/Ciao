@@ -58,26 +58,21 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
             // Add message
-            // var entity = mapper.Map<MessageDto, Message>(request.model);
             messageRepository.Add(request.model);
-            // Update UpdatedTime of conversation to popup as first item when reload
-
+            // When a message sent, all members of that group will be having that group conversation back
             var filter = MongoQuery.IdFilter<Conversation>(request.model.ConversationId);
             var conversation = await conversationRepository.GetItemAsync(filter);
-            // uow.Conversation.Update(conversation);
-
-
-            // When a message sent, all members of that group will be having that group conversation back
             foreach (var participant in conversation.Participants)
                 participant.IsDeleted = false;
-            conversationRepository.UpdateOne(filter, conversation);
-            // await uow.Participant.DbSet.Where(q => q.ConversationId == request.model.ConversationId)
-            //     .ExecuteUpdateAsync(q => q.SetProperty(w => w.IsDeleted, false));
+            var updates = Builders<Conversation>.Update
+                .Set(q => q.Participants, conversation.Participants);
+            conversationRepository.Update(filter, updates);
+
             await uow.SaveAsync();
 
             // Push message
+            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
             await notificationMethod.Notify(
                 "NewMessage",
                 conversation.Participants

@@ -22,8 +22,8 @@ public static class CreateFriend
         async Task<bool> UniqueRequest(Request request)
         {
             var filter = Builders<Friend>.Filter.Where(q =>
-                (q.FromContact.ContactId == request.userId.ToString() && q.ToContact.ContactId == request.contactId.ToString()) ||
-                (q.FromContact.ContactId == request.contactId.ToString() && q.ToContact.ContactId == request.userId.ToString()));
+                (q.FromContact.ContactId == request.userId && q.ToContact.ContactId == request.contactId) ||
+                (q.FromContact.ContactId == request.contactId && q.ToContact.ContactId == request.userId));
             var sent = await _friendRepository.GetAllAsync(filter);
             return !sent.Any();
         }
@@ -59,9 +59,9 @@ public static class CreateFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
+            // Add friend 
             var fromContact = await contactRepository.GetItemAsync(MongoQuery.IdFilter<Contact>(request.userId));
             var toContact = await contactRepository.GetItemAsync(MongoQuery.IdFilter<Contact>(request.contactId));
-            // Add friend 
             var friendEntity = new Friend
             {
                 FromContact = new FriendDto_Contact

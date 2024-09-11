@@ -47,12 +47,10 @@ public static class CreateConversation
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
-            // var entity = mapper.Map<ConversationDto, Conversation>(request.model);
-            // uow.Conversation.Add(entity);
             conversationRepository.Add(request.model);
             await uow.SaveAsync();
 
+            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
             await notificationMethod.Notify(
                 "NewConversation",
                 request.model.Participants

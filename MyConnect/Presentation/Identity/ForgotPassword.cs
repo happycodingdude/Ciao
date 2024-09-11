@@ -10,7 +10,7 @@ public static class ForgotPassword
         {
             var user = await userManager.FindByNameAsync(request.model.Username);
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await userManager.ResetPasswordAsync(user, token, request.model.Password);
+            await userManager.ResetPasswordAsync(user, token, request.model.Password);
 
             return Unit.Value;
         }

@@ -27,13 +27,13 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public void Add(T entity) => uow.AddOperation(() => collection.InsertOneAsync(entity));
 
-    public void UpdateOne(FilterDefinition<T> filter, T entity)
-    {
-        // entity.BeforeUpdate();
-        uow.AddOperation(() => collection.ReplaceOneAsync(filter, entity));
-    }
+    // public void UpdateOne(FilterDefinition<T> filter, T entity)
+    // {
+    //     // entity.BeforeUpdate();
+    //     uow.AddOperation(() => collection.ReplaceOneAsync(filter, entity));
+    // }
 
-    public void UpdateMany(FilterDefinition<T> filter, UpdateDefinition<T> update) => uow.AddOperation(() => collection.UpdateManyAsync(filter, update));
+    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update) => uow.AddOperation(() => collection.UpdateManyAsync(filter, update));
 
     public void DeleteOne(FilterDefinition<T> filter) => uow.AddOperation(() => collection.DeleteOneAsync(filter));
 

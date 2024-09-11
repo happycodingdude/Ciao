@@ -4,13 +4,6 @@ public static class SignUp
 {
     public record Request(IdentityRequest model) : IRequest<Unit>;
 
-    // public class Validator : AbstractValidator<Request>
-    // {
-    //     public Validator(IUnitOfWork uow)
-    //     {
-    //     }
-    // }
-
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         private readonly UserManager<AuthenticationUser> userManager;
@@ -40,7 +33,7 @@ public static class SignUp
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
             var userId = await userManager.GetUserIdAsync(user);
-            contactRepository.UseDatabase(userId);
+            // contactRepository.UseDatabase(userId);
             var contact = new Contact
             {
                 Name = request.model.Name

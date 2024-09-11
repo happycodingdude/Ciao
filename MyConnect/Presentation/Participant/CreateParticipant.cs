@@ -40,7 +40,8 @@ public static class CreateParticipant
                 throw new BadRequestException(validationResult.ToString());
 
             // Get current participants of conversation, then filter new item to add
-            var conversation = await conversationRepository.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.conversationId));
+            var filter = MongoQuery.IdFilter<Conversation>(request.conversationId);
+            var conversation = await conversationRepository.GetItemAsync(filter);
             var filterNewItemToAdd = request.model.Select(q => q.Contact.Id).ToList().Except(conversation.Participants.Select(q => q.Contact.Id).ToList());
             var filteredParticipants = request.model.Where(q => filterNewItemToAdd.Contains(q.Contact.Id));
             if (!filteredParticipants.Any()) return Unit.Value;
@@ -48,11 +49,10 @@ public static class CreateParticipant
             // Add new participants
             foreach (var item in filteredParticipants)
                 conversation.Participants.Add(item);
-            //     item.ConversationId = request.id;
-            // var participantsToAdd = mapper.Map<List<ParticipantDto>, List<Participant>>(filteredParticipants.ToList());
-            // uow.Participant.Add(participantsToAdd);
+            var updates = Builders<Conversation>.Update
+                .Set(q => q.Participants, conversation.Participants);
+            conversationRepository.Update(filter, updates);
 
-            conversationRepository.UpdateOne(MongoQuery.IdFilter<Conversation>(request.conversationId), conversation);
             await uow.SaveAsync();
 
             return Unit.Value;

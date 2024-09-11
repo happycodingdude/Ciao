@@ -56,11 +56,11 @@ public static class CancelFriend
                 throw new BadRequestException(validationResult.ToString());
 
             var filter = MongoQuery.IdFilter<Friend>(request.id);
-            var entity = await friendRepository.GetItemAsync(filter);
             friendRepository.DeleteOne(filter);
             await uow.SaveAsync();
 
-            // Push friend request            
+            // Push cancelled request
+            var entity = await friendRepository.GetItemAsync(filter);
             await notificationMethod.Notify(
                "CancelFriendRequest",
                new string[1] { entity.ToContact.ContactId.ToString() },

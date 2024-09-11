@@ -18,25 +18,6 @@ public static class GetByContactId
 
         public async Task<IEnumerable<GetAllFriend>> Handle(Request request, CancellationToken cancellationToken)
         {
-            // var friends = await (
-            //     from frnd in uow.Friend.DbSet
-            //     join fromContact in uow.Contact.DbSet on frnd.FromContactId equals fromContact.Id
-            //     join toContact in uow.Contact.DbSet on frnd.ToContactId equals toContact.Id
-            //     where frnd.FromContactId == request.id || frnd.ToContactId == request.id
-            //     select new GetAllFriend
-            //     {
-            //         Id = frnd.Id,
-            //         ContactId = frnd.FromContactId == request.id ? toContact.Id : fromContact.Id,
-            //         ContactName = frnd.FromContactId == request.id ? toContact.Name : fromContact.Name,
-            //         Status = frnd.AcceptTime.HasValue == true
-            //             ? "friend"
-            //             : frnd.FromContactId == request.id
-            //                 ? "request_sent"
-            //                 : "request_received"
-            //     }
-            // ).ToListAsync(cancellationToken);
-
-
             var filter = Builders<Friend>.Filter.Where(q => q.FromContact.ContactId == request.contactId || q.ToContact.ContactId == request.contactId);
             var friends = await friendRepository.GetAllAsync(filter);
 

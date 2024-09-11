@@ -8,8 +8,8 @@ public interface IMongoRepository<T> : IInitDatabase where T : MongoBaseModel
     Task<T> GetItemAsync(FilterDefinition<T> filter);
     void Add(T entity);
     // void Add(List<T> entities);
-    void UpdateOne(FilterDefinition<T> filter, T entity);
-    void UpdateMany(FilterDefinition<T> filter, UpdateDefinition<T> update);
+    // void UpdateOne(FilterDefinition<T> filter, T entity);
+    void Update(FilterDefinition<T> filter, UpdateDefinition<T> update);
     // void Update(List<T> entity);
     void DeleteOne(FilterDefinition<T> filter);
     // void Delete(List<T> entities);
