@@ -6,24 +6,20 @@ public static class SignIn
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly SignInManager<AuthenticationUser> signInManager;
-        private readonly UserManager<AuthenticationUser> userManager;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IUnitOfWork uow;
-        private readonly IContactRepository contactRepository;
+        private readonly SignInManager<AuthenticationUser> _signInManager;
+        private readonly UserManager<AuthenticationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IContactRepository _contactRepository;
 
-        public Handler(SignInManager<AuthenticationUser> signInManager, UserManager<AuthenticationUser> userManager,
-            IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory,
+        public Handler(SignInManager<AuthenticationUser> signInManager,
+            UserManager<AuthenticationUser> userManager,
+            IHttpContextAccessor httpContextAccessor,
             IUnitOfWork uow)
         {
-            this.signInManager = signInManager;
-            this.userManager = userManager;
-            this.httpContextAccessor = httpContextAccessor;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
-            }
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+            _contactRepository = uow.GetService<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -31,19 +27,20 @@ public static class SignIn
             // Stream originalBodyStream = httpContextAccessor.HttpContext.Response.Body;
             using (var ms = new MemoryStream())
             {
-                httpContextAccessor.HttpContext.Response.Body = ms;
+                _httpContextAccessor.HttpContext.Response.Body = ms;
 
-                signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
-                await signInManager.PasswordSignInAsync(request.model.Username, request.model.Password, false, lockoutOnFailure: false);
+                _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
+                await _signInManager.PasswordSignInAsync(request.model.Username, request.model.Password, false, lockoutOnFailure: false);
 
                 // Update IsOnline true
-                var contact = (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+                var user = await _userManager.FindByNameAsync(request.model.Username);
+                _contactRepository.UseDatabase(user.Id);
+                var contact = (await _contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
                 if (!contact.IsOnline)
                 {
                     var updates = Builders<Contact>.Update
                         .Set(q => q.IsOnline, true);
-                    contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
-                    await uow.SaveAsync();
+                    _contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
@@ -52,8 +49,8 @@ public static class SignIn
                     throw new UnauthorizedException();
 
                 var responseModel = JsonConvert.DeserializeObject<SignInResponse>(responseBody);
-                httpContextAccessor.HttpContext.Response.Headers.Append("access_token", responseModel.accessToken);
-                httpContextAccessor.HttpContext.Response.Headers.Append("refresh_token", responseModel.refreshToken);
+                _httpContextAccessor.HttpContext.Response.Headers.Append("access_token", responseModel.accessToken);
+                _httpContextAccessor.HttpContext.Response.Headers.Append("refresh_token", responseModel.refreshToken);
 
                 // ms.Seek(0, SeekOrigin.Begin);
                 // await ms.CopyToAsync(originalBodyStream);

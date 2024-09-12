@@ -14,25 +14,27 @@ public static class RegisterConnection
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> validator;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IDistributedCache distributedCache;
+        private readonly IValidator<Request> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IDistributedCache _distributedCache;
 
-        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IDistributedCache distributedCache)
+        public Handler(IValidator<Request> validator,
+            IHttpContextAccessor httpContextAccessor,
+            IDistributedCache distributedCache)
         {
-            this.validator = validator;
-            this.httpContextAccessor = httpContextAccessor;
-            this.distributedCache = distributedCache;
+            _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
+            _distributedCache = distributedCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
-            await distributedCache.SetStringAsync($"connection-{userId}", request.token);
+            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            await _distributedCache.SetStringAsync($"connection-{userId}", request.token);
 
             return Unit.Value;
         }

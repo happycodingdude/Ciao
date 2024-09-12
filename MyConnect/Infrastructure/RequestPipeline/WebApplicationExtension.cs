@@ -6,6 +6,8 @@ public static class WebApplicationExtension
                 => app.UseMiddleware<DbTransactionMiddleware>();
         public static IApplicationBuilder UseAuthenticationDbTransaction(this IApplicationBuilder app)
                 => app.UseMiddleware<AuthenticationDbTransactionMiddleware>();
-        public static IApplicationBuilder UseInitDatabase(this IApplicationBuilder app)
-                => app.UseMiddleware<InitDatabaseMiddleware>();
+        // public static IApplicationBuilder UseInitDatabase(this IApplicationBuilder app)
+        //         => app.UseMiddleware<InitDatabaseMiddleware>();
+        public static IApplicationBuilder UseCheckSignout(this IApplicationBuilder app)
+                => app.UseMiddleware<CheckSignoutMiddleware>();
 }

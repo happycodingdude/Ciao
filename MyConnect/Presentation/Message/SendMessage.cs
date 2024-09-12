@@ -31,49 +31,44 @@ public static class SendMessage
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> validator;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly INotificationMethod notificationMethod;
-        private readonly IUnitOfWork uow;
-        private readonly IConversationRepository conversationRepository;
-        private readonly IMessageRepository messageRepository;
+        private readonly IValidator<Request> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationMethod _notificationMethod;
+        private readonly IConversationRepository _conversationRepository;
+        private readonly IMessageRepository _messageRepository;
 
-        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory,
-            INotificationMethod notificationMethod, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator,
+            IHttpContextAccessor httpContextAccessor,
+            INotificationMethod notificationMethod,
+            IUnitOfWork uow)
         {
-            this.validator = validator;
-            this.httpContextAccessor = httpContextAccessor;
-            this.notificationMethod = notificationMethod;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-                messageRepository = scope.ServiceProvider.GetService<IMessageRepository>();
-            }
+            _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
+            _notificationMethod = notificationMethod;
+            _conversationRepository = uow.GetService<IConversationRepository>();
+            _messageRepository = uow.GetService<IMessageRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
             // Add message
-            messageRepository.Add(request.model);
+            _messageRepository.Add(request.model);
             // When a message sent, all members of that group will be having that group conversation back
             var filter = MongoQuery.IdFilter<Conversation>(request.model.ConversationId);
-            var conversation = await conversationRepository.GetItemAsync(filter);
+            var conversation = await _conversationRepository.GetItemAsync(filter);
             foreach (var participant in conversation.Participants)
                 participant.IsDeleted = false;
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
-            conversationRepository.Update(filter, updates);
-
-            await uow.SaveAsync();
+            _conversationRepository.Update(filter, updates);
 
             // Push message
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
-            await notificationMethod.Notify(
+            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            await _notificationMethod.Notify(
                 "NewMessage",
                 conversation.Participants
                     .Where(q => q.Contact.Id != userId)

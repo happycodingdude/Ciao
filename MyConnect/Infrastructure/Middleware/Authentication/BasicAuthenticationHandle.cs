@@ -8,7 +8,8 @@ public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor,
         try
         {
             var user = await identityService.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name);
-            httpContextAccessor.HttpContext.Session.SetString("UserId", user.Id);
+            // httpContextAccessor.HttpContext.Session.SetString("UserId", user.Id);
+            httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
 
             context.Succeed(requirement);
         }

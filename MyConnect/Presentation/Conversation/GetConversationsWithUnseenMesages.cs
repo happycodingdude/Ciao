@@ -6,23 +6,20 @@ public static class GetConversationsWithUnseenMesages
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<object>>
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IConversationRepository conversationRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory)
+        public Handler(IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
         {
-            this.httpContextAccessor = httpContextAccessor;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-            }
+            _httpContextAccessor = httpContextAccessor;
+            _conversationRepository = uow.GetService<IConversationRepository>();
         }
 
         public async Task<IEnumerable<object>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
             var filter = Builders<Conversation>.Filter.Where(q => q.Participants.Any(w => w.Contact.Id == userId));
-            var conversations = await conversationRepository.GetAllAsync(filter);
+            var conversations = await _conversationRepository.GetAllAsync(filter);
 
             // var conversations = await (
             //     from conv in uow.Conversation.DbSet

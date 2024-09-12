@@ -6,18 +6,13 @@ public static class SignUp
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly UserManager<AuthenticationUser> userManager;
-        private readonly IUnitOfWork uow;
-        private readonly IContactRepository contactRepository;
+        private readonly UserManager<AuthenticationUser> _userManager;
+        private readonly IContactRepository _contactRepository;
 
-        public Handler(UserManager<AuthenticationUser> userManager, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        public Handler(UserManager<AuthenticationUser> userManager, IUnitOfWork uow)
         {
-            this.userManager = userManager;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
-            }
+            _userManager = userManager;
+            _contactRepository = uow.GetService<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -28,18 +23,17 @@ public static class SignUp
                 UserName = request.model.Username,
                 PasswordHash = request.model.Password
             };
-            var result = await userManager.CreateAsync(user, user.PasswordHash);
+            var result = await _userManager.CreateAsync(user, user.PasswordHash);
             if (!result.Succeeded)
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
-            var userId = await userManager.GetUserIdAsync(user);
-            // contactRepository.UseDatabase(userId);
+            var userId = await _userManager.GetUserIdAsync(user);
+            _contactRepository.UseDatabase(userId);
             var contact = new Contact
             {
                 Name = request.model.Name
             };
-            contactRepository.Add(contact);
-            await uow.SaveAsync();
+            _contactRepository.Add(contact);
 
             return Unit.Value;
         }

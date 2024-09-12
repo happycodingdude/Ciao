@@ -6,26 +6,21 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<Message>>
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IUnitOfWork uow;
-        private readonly IMessageRepository messageRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMessageRepository _messageRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        public Handler(IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
         {
-            this.httpContextAccessor = httpContextAccessor;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                messageRepository = scope.ServiceProvider.GetService<IMessageRepository>();
-            }
+            _httpContextAccessor = httpContextAccessor;
+            _messageRepository = uow.GetService<IMessageRepository>();
         }
 
         public async Task<IEnumerable<Message>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
             var filter = Builders<Message>.Filter.Where(q => q.ConversationId == request.conversationId);
-            var messages = await messageRepository.GetAllAsync(filter);
+            var messages = await _messageRepository.GetAllAsync(filter);
             // var messages = await (
             //     from mess in uow.Message.DbSet
             //         .Where(q => q.ConversationId == request.conversationId)
@@ -83,8 +78,7 @@ public static class GetByConversationId
             var updates = Builders<Message>.Update
                 .Set(q => q.Status, "seen")
                 .Set(q => q.SeenTime, DateTime.Now);
-            messageRepository.Update(filter, updates);
-            await uow.SaveAsync();
+            _messageRepository.Update(filter, updates);
         }
     }
 }

@@ -4,7 +4,7 @@ public static class GetByConversationId
 {
     public record Request(string conversationId) : IRequest<IEnumerable<ParticipantWithContact>>;
 
-    internal sealed class Handler(IMapper mapper, IUnitOfWork uow) : IRequestHandler<Request, IEnumerable<ParticipantWithContact>>
+    internal sealed class Handler(IMapper mapper) : IRequestHandler<Request, IEnumerable<ParticipantWithContact>>
     {
         public async Task<IEnumerable<ParticipantWithContact>> Handle(Request request, CancellationToken cancellationToken)
         {

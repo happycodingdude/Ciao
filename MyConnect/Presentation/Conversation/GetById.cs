@@ -6,19 +6,16 @@ public static class GetById
 
     internal sealed class Handler : IRequestHandler<Request, Conversation>
     {
-        private readonly IConversationRepository conversationRepository;
+        private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IServiceScopeFactory scopeFactory)
+        public Handler(IUnitOfWork uow)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-            }
+            _conversationRepository = uow.GetService<IConversationRepository>();
         }
 
         public async Task<Conversation> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await conversationRepository.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.id));
+            return await _conversationRepository.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.id));
         }
     }
 }

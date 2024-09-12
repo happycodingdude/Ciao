@@ -6,19 +6,16 @@ public static class GetInfo
 
     internal sealed class Handler : IRequestHandler<Request, Contact>
     {
-        private readonly IContactRepository contactRepository;
+        private readonly IContactRepository _contactRepository;
 
-        public Handler(IServiceScopeFactory scopeFactory)
+        public Handler(IUnitOfWork uow)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
-            }
+            _contactRepository = uow.GetService<IContactRepository>();
         }
 
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            return (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+            return (await _contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
         }
     }
 }

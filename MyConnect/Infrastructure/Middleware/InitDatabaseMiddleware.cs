@@ -1,5 +1,6 @@
 namespace Infrastructure.Middleware;
 
+// KHÔNG SỬ DỤNG NỮA ==> vì khởi tạo các class không liên quan làm tốn bộ nhớ
 public class InitDatabaseMiddleware
 {
     private readonly RequestDelegate _next;

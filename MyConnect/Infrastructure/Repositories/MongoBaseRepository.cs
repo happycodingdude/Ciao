@@ -2,30 +2,32 @@ namespace Infrastructure.Repositories;
 
 public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
 {
-    IMongoCollection<T> collection;
-    MongoDbContext context;
-    IUnitOfWork uow;
+    IMongoCollection<T> _collection;
+    MongoDbContext _context;
+    IUnitOfWork _uow;
 
-    public MongoBaseRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor)
+    public MongoBaseRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor)
     {
-        Console.WriteLine($"MongoBaseRepository calling with type => {typeof(T).Name}");
-        this.context = context;
-        this.uow = uow;
-        var dbName = httpContextAccessor.HttpContext.Session.GetString("UserId");
-        UseDatabase(dbName);
+        // Console.WriteLine($"MongoBaseRepository calling with type => {typeof(T).Name}");
+        _context = context;
+        var dbName = httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
+        if (dbName is not null)
+            UseDatabase(dbName);
     }
 
     public void UseDatabase(string dbName)
     {
         Console.WriteLine($"UseDatabase => {dbName}");
-        collection = context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
+        _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await collection.Find(filter).ToListAsync();
+    public void UseUOW(IUnitOfWork uow) => _uow = uow;
 
-    public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await collection.Find(filter).SingleAsync();
+    public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await _collection.Find(filter).ToListAsync();
 
-    public void Add(T entity) => uow.AddOperation(() => collection.InsertOneAsync(entity));
+    public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleAsync();
+
+    public void Add(T entity) => _uow.AddOperation(() => _collection.InsertOneAsync(entity));
 
     // public void UpdateOne(FilterDefinition<T> filter, T entity)
     // {
@@ -33,8 +35,8 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     //     uow.AddOperation(() => collection.ReplaceOneAsync(filter, entity));
     // }
 
-    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update) => uow.AddOperation(() => collection.UpdateManyAsync(filter, update));
+    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update) => _uow.AddOperation(() => _collection.UpdateManyAsync(filter, update));
 
-    public void DeleteOne(FilterDefinition<T> filter) => uow.AddOperation(() => collection.DeleteOneAsync(filter));
+    public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation(() => _collection.DeleteOneAsync(filter));
 
 }

@@ -18,23 +18,18 @@ public static class UpdateConversation
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> validator;
-        private readonly IUnitOfWork uow;
-        private readonly IConversationRepository conversationRepository;
+        private readonly IValidator<Request> _validator;
+        private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IValidator<Request> validator, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
-            this.validator = validator;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-            }
+            _validator = validator;
+            _conversationRepository = uow.GetService<IConversationRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
@@ -42,8 +37,7 @@ public static class UpdateConversation
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Title, request.model.Title)
                 .Set(q => q.Avatar, request.model.Avatar);
-            conversationRepository.Update(filter, updates);
-            await uow.SaveAsync();
+            _conversationRepository.Update(filter, updates);
 
             return Unit.Value;
         }

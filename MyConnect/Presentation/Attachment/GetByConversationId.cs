@@ -6,20 +6,17 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<AttachmentGroupByCreatedTime>>
     {
-        private readonly IMessageRepository messageRepository;
+        private readonly IMessageRepository _messageRepository;
 
-        public Handler(IServiceScopeFactory scopeFactory)
+        public Handler(IUnitOfWork uow)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                messageRepository = scope.ServiceProvider.GetService<IMessageRepository>();
-            }
+            _messageRepository = uow.GetService<IMessageRepository>();
         }
 
         public async Task<IEnumerable<AttachmentGroupByCreatedTime>> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = Builders<Message>.Filter.Where(q => q.ConversationId == request.conversationId);
-            var data = await messageRepository.GetItemAsync(filter);
+            var data = await _messageRepository.GetItemAsync(filter);
             return (
                 from atta in data.Attachments.OrderByDescending(q => q.CreatedTime)
                 group atta by atta.CreatedTime.Date into dateGrouping

@@ -22,36 +22,32 @@ public static class CreateConversation
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> validator;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly INotificationMethod notificationMethod;
-        private readonly IUnitOfWork uow;
-        private readonly IConversationRepository conversationRepository;
+        private readonly IValidator<Request> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationMethod _notificationMethod;
+        private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory,
-            INotificationMethod notificationMethod, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator,
+            IHttpContextAccessor httpContextAccessor,
+            INotificationMethod notificationMethod,
+            IUnitOfWork uow)
         {
-            this.validator = validator;
-            this.httpContextAccessor = httpContextAccessor;
-            this.notificationMethod = notificationMethod;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-            }
+            _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
+            _notificationMethod = notificationMethod;
+            _conversationRepository = uow.GetService<IConversationRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            conversationRepository.Add(request.model);
-            await uow.SaveAsync();
+            _conversationRepository.Add(request.model);
 
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
-            await notificationMethod.Notify(
+            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            await _notificationMethod.Notify(
                 "NewConversation",
                 request.model.Participants
                     .Where(q => q.Contact.Id != userId)

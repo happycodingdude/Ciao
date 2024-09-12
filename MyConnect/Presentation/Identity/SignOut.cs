@@ -6,44 +6,38 @@ public static class SignOut
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly UserManager<AuthenticationUser> userManager;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IDistributedCache distributedCache;
-        private readonly IUnitOfWork uow;
-        private readonly IContactRepository contactRepository;
+        private readonly UserManager<AuthenticationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IDistributedCache _distributedCache;
+        private readonly IContactRepository _contactRepository;
 
-        public Handler(UserManager<AuthenticationUser> userManager, IHttpContextAccessor httpContextAccessor,
-            IDistributedCache distributedCache, IUnitOfWork uow, IServiceScopeFactory scopeFactory)
+        public Handler(UserManager<AuthenticationUser> userManager,
+            IHttpContextAccessor httpContextAccessor,
+            IDistributedCache distributedCache,
+            IUnitOfWork uow)
         {
-            this.userManager = userManager;
-            this.httpContextAccessor = httpContextAccessor;
-            this.distributedCache = distributedCache;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
-            }
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+            _distributedCache = distributedCache;
+            _contactRepository = uow.GetService<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             // Delete all cookies
-            foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies.Keys)
-                httpContextAccessor.HttpContext.Response.Cookies.Delete(cookie);
+            foreach (var cookie in _httpContextAccessor.HttpContext.Request.Cookies.Keys)
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(cookie);
 
-            var user = await userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
             // Delete Firebase connection
-            await distributedCache.RemoveAsync($"connection-{user.Id}");
+            await _distributedCache.RemoveAsync($"connection-{user.Id}");
 
             // Update IsOnline false
-            var contact = (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
-            if (contact.IsOnline)
-            {
-                var updates = Builders<Contact>.Update
-                    .Set(q => q.IsOnline, false);
-                contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
-                await uow.SaveAsync();
-            }
+            var contact = (await _contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+            var updates = Builders<Contact>.Update
+                .Set(q => q.IsOnline, false)
+                .Set(q => q.LastLogout, DateTime.Now);
+            _contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
 
             return Unit.Value;
         }

@@ -6,31 +6,25 @@ public static class UpdateParticipant
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IUnitOfWork uow;
-        private readonly IConversationRepository conversationRepository;
+        private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        public Handler(IUnitOfWork uow)
         {
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-            }
+            _conversationRepository = uow.GetService<IConversationRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = Builders<Conversation>.Filter.Where(q => q.Participants.Any(w => w.Id == request.id));
-            var conversation = (await conversationRepository.GetAllAsync(filter)).SingleOrDefault();
+            var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
             conversation.Participants.FirstOrDefault(q => q.Id == request.id).IsNotifying = request.model.IsNotifying;
             conversation.Participants.FirstOrDefault(q => q.Id == request.id).IsDeleted = request.model.IsDeleted;
 
             var idFilter = MongoQuery.IdFilter<Conversation>(conversation.Id);
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
-            conversationRepository.Update(idFilter, updates);
+            _conversationRepository.Update(idFilter, updates);
 
-            await uow.SaveAsync();
             return Unit.Value;
         }
     }

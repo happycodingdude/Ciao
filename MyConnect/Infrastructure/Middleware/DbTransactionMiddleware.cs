@@ -9,32 +9,12 @@ public class DbTransactionMiddleware
         _next = next;
     }
 
-    public async Task Invoke(HttpContext httpContext, AppDbContext context)
+    public async Task Invoke(HttpContext httpContext, IUnitOfWork uow)
     {
         Console.WriteLine("DbTransactionMiddleware calling");
-        // For HTTP GET opening transaction is not required
-        if (httpContext.Request.Method.Equals("GET", StringComparison.CurrentCultureIgnoreCase))
-        {
-            await _next(httpContext);
-            return;
-        }
-
-        IDbContextTransaction transaction = null;
-
-        try
-        {
-            transaction = context.Database.BeginTransaction(IsolationLevel.ReadUncommitted);
-
-            await _next(httpContext);
-
-            Console.WriteLine("transaction Commit");
-            transaction.Commit();
-        }
-        finally
-        {
-            Console.WriteLine("transaction Dispose");
-            transaction?.Dispose();
-        }
+        await _next(httpContext);
+        Console.WriteLine("transaction Commit");
+        await uow.SaveAsync();
     }
 }
 
@@ -49,7 +29,7 @@ public class AuthenticationDbTransactionMiddleware
 
     public async Task Invoke(HttpContext httpContext, AuthenticationDbContext context)
     {
-        Console.WriteLine("DbTransactionMiddleware calling");
+        Console.WriteLine("AuthenticationDbTransactionMiddleware calling");
         // For HTTP GET opening transaction is not required
         if (httpContext.Request.Method.Equals("GET", StringComparison.CurrentCultureIgnoreCase))
         {

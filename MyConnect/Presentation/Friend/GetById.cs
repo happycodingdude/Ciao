@@ -6,20 +6,17 @@ public static class GetById
 
     internal sealed class Handler : IRequestHandler<Request, Friend>
     {
-        private readonly IFriendRepository friendRepository;
+        private readonly IFriendRepository _friendRepository;
 
-        public Handler(IServiceScopeFactory scopeFactory)
+        public Handler(IUnitOfWork uow)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
-            }
+            _friendRepository = uow.GetService<IFriendRepository>();
         }
 
         public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = MongoQuery.IdFilter<Friend>(request.id);
-            return await friendRepository.GetItemAsync(filter);
+            return await _friendRepository.GetItemAsync(filter);
         }
     }
 }

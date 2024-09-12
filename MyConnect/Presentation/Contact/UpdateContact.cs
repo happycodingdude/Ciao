@@ -14,23 +14,18 @@ public static class UpdateContact
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> validator;
-        private readonly IUnitOfWork uow;
-        private readonly IContactRepository contactRepository;
+        private readonly IValidator<Request> _validator;
+        private readonly IContactRepository _contactRepository;
 
-        public Handler(IValidator<Request> validator, IUnitOfWork uow, IServiceScopeFactory scopeFactory)
+        public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
-            this.validator = validator;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                contactRepository = scope.ServiceProvider.GetService<IContactRepository>();
-            }
+            _validator = validator;
+            _contactRepository = uow.GetService<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
@@ -38,8 +33,7 @@ public static class UpdateContact
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
                 .Set(q => q.Bio, request.model.Bio);
-            contactRepository.Update(filter, updates);
-            await uow.SaveAsync();
+            _contactRepository.Update(filter, updates);
 
             return Unit.Value;
         }

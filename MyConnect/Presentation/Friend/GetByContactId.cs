@@ -6,20 +6,17 @@ public static class GetByContactId
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<GetAllFriend>>
     {
-        private readonly IFriendRepository friendRepository;
+        private readonly IFriendRepository _friendRepository;
 
-        public Handler(IServiceScopeFactory scopeFactory)
+        public Handler(IUnitOfWork uow)
         {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                friendRepository = scope.ServiceProvider.GetService<IFriendRepository>();
-            }
+            _friendRepository = uow.GetService<IFriendRepository>();
         }
 
         public async Task<IEnumerable<GetAllFriend>> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = Builders<Friend>.Filter.Where(q => q.FromContact.ContactId == request.contactId || q.ToContact.ContactId == request.contactId);
-            var friends = await friendRepository.GetAllAsync(filter);
+            var friends = await _friendRepository.GetAllAsync(filter);
 
             if (!friends.Any()) return Enumerable.Empty<GetAllFriend>();
 

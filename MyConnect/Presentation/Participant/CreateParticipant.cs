@@ -19,29 +19,24 @@ public static class CreateParticipant
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> validator;
-        private readonly IUnitOfWork uow;
-        private readonly IConversationRepository conversationRepository;
+        private readonly IValidator<Request> _validator;
+        private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IValidator<Request> validator, IServiceScopeFactory scopeFactory, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
-            this.validator = validator;
-            this.uow = uow;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                conversationRepository = scope.ServiceProvider.GetService<IConversationRepository>();
-            }
+            _validator = validator;
+            _conversationRepository = uow.GetService<IConversationRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = validator.Validate(request);
+            var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
             // Get current participants of conversation, then filter new item to add
             var filter = MongoQuery.IdFilter<Conversation>(request.conversationId);
-            var conversation = await conversationRepository.GetItemAsync(filter);
+            var conversation = await _conversationRepository.GetItemAsync(filter);
             var filterNewItemToAdd = request.model.Select(q => q.Contact.Id).ToList().Except(conversation.Participants.Select(q => q.Contact.Id).ToList());
             var filteredParticipants = request.model.Where(q => filterNewItemToAdd.Contains(q.Contact.Id));
             if (!filteredParticipants.Any()) return Unit.Value;
@@ -51,9 +46,7 @@ public static class CreateParticipant
                 conversation.Participants.Add(item);
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
-            conversationRepository.Update(filter, updates);
-
-            await uow.SaveAsync();
+            _conversationRepository.Update(filter, updates);
 
             return Unit.Value;
         }

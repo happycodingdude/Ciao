@@ -63,8 +63,8 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddMemoryCache();
         services.AddSingleton<IRedisCaching, Redis>();
 
-        // Repositories
-        services.AddSingleton<IUnitOfWork, UnitOfWork>();
+        // Repositories        
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IContactRepository, ContactRepository>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IParticipantRepository, ParticipantRepository>();

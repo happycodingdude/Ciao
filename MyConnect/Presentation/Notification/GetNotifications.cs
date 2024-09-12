@@ -6,23 +6,20 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<Notification>>
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly INotificationRepository notificationRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationRepository _notificationRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory)
+        public Handler(IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
         {
-            this.httpContextAccessor = httpContextAccessor;
-            using (var scope = scopeFactory.CreateScope())
-            {
-                notificationRepository = scope.ServiceProvider.GetService<INotificationRepository>();
-            }
+            _httpContextAccessor = httpContextAccessor;
+            _notificationRepository = uow.GetService<INotificationRepository>();
         }
 
         public async Task<IEnumerable<Notification>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
             var filter = Builders<Notification>.Filter.Where(q => q.ContactId == userId);
-            var notifications = await notificationRepository.GetAllAsync(filter);
+            var notifications = await _notificationRepository.GetAllAsync(filter);
             if (!notifications.Any()) return Enumerable.Empty<Notification>();
 
             // var result = new List<NotificationTypeConstraint>(notifications.Count);
