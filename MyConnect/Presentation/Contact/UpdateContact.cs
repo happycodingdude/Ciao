@@ -15,11 +15,13 @@ public static class UpdateContact
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         private readonly IValidator<Request> _validator;
-        private readonly IContactRepository _contactRepository;
+        private readonly IUnitOfWork _uow;
+        private IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
             _validator = validator;
+            _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
 
@@ -29,13 +31,29 @@ public static class UpdateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = Builders<Contact>.Filter.Empty;
+            _ = _contactRepository.TrackChangeAsync(CollectionChange);
+            var filter = MongoQuery<Contact>.EmptyFilter();
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
                 .Set(q => q.Bio, request.model.Bio);
             _contactRepository.Update(filter, updates);
 
             return Unit.Value;
+        }
+
+        async Task CollectionChange(ChangeStreamDocument<Contact> change)
+        {
+            Contact changed = change.FullDocument;
+            Console.WriteLine($"changed => {changed.Id}");
+            // Cập nhật lại collection All để làm search
+            _contactRepository = _uow.GetService<IContactRepository>();
+            _contactRepository.UseDatabase(typeof(Contact).Name, "All");
+            var filter = MongoQuery<Contact>.IdFilter(changed.Id);
+            var updates = Builders<Contact>.Update
+                .Set(q => q.Name, changed.Name)
+                .Set(q => q.Bio, changed.Bio);
+            _contactRepository.Update(filter, updates);
+            await _uow.SaveAsync();
         }
     }
 }

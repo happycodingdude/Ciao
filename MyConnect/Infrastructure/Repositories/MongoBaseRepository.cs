@@ -8,17 +8,31 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public MongoBaseRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor)
     {
-        // Console.WriteLine($"MongoBaseRepository calling with type => {typeof(T).Name}");
         _context = context;
-        var dbName = httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
+        var dbName = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
         if (dbName is not null)
-            UseDatabase(dbName);
+            UseDatabase(typeof(T).Name, dbName);
     }
 
     public void UseDatabase(string dbName)
     {
-        Console.WriteLine($"UseDatabase => {dbName}");
+        Console.WriteLine($"dbName => {dbName}");
         _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
+    }
+
+    public void UseDatabase(string dbName, string collection)
+    {
+        Console.WriteLine($"dbName => {dbName} and collection => {collection}");
+        _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(collection);
+    }
+
+    public async Task TrackChangeAsync(Func<ChangeStreamDocument<T>, Task> action)
+    {
+        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<T>>()
+            .Match(change => change.OperationType == ChangeStreamOperationType.Update);
+        var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
+        var tracking = await _collection.WatchAsync(pipeline, options);
+        await tracking.ForEachAsync(action);
     }
 
     public void UseUOW(IUnitOfWork uow) => _uow = uow;
@@ -29,14 +43,11 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public void Add(T entity) => _uow.AddOperation(() => _collection.InsertOneAsync(entity));
 
-    // public void UpdateOne(FilterDefinition<T> filter, T entity)
-    // {
-    //     // entity.BeforeUpdate();
-    //     uow.AddOperation(() => collection.ReplaceOneAsync(filter, entity));
-    // }
-
-    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update) => _uow.AddOperation(() => _collection.UpdateManyAsync(filter, update));
+    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
+    {
+        update = update.Set(q => q.UpdatedTime, DateTime.Now);
+        _uow.AddOperation(() => _collection.UpdateManyAsync(filter, update));
+    }
 
     public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation(() => _collection.DeleteOneAsync(filter));
-
 }

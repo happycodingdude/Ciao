@@ -17,7 +17,7 @@ public static class GetByConversationId
 
         public async Task<IEnumerable<Message>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
 
             var filter = Builders<Message>.Filter.Where(q => q.ConversationId == request.conversationId);
             var messages = await _messageRepository.GetAllAsync(filter);

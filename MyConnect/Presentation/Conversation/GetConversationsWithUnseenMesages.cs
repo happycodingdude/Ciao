@@ -17,7 +17,7 @@ public static class GetConversationsWithUnseenMesages
 
         public async Task<IEnumerable<object>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
             var filter = Builders<Conversation>.Filter.Where(q => q.Participants.Any(w => w.Contact.Id == userId));
             var conversations = await _conversationRepository.GetAllAsync(filter);
 

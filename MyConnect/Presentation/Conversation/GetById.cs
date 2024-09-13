@@ -15,7 +15,7 @@ public static class GetById
 
         public async Task<Conversation> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await _conversationRepository.GetItemAsync(MongoQuery.IdFilter<Conversation>(request.id));
+            return await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(request.id));
         }
     }
 }

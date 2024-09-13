@@ -20,7 +20,7 @@ public static class UpdateParticipant
             conversation.Participants.FirstOrDefault(q => q.Id == request.id).IsNotifying = request.model.IsNotifying;
             conversation.Participants.FirstOrDefault(q => q.Id == request.id).IsDeleted = request.model.IsDeleted;
 
-            var idFilter = MongoQuery.IdFilter<Conversation>(conversation.Id);
+            var idFilter = MongoQuery<Conversation>.IdFilter(conversation.Id);
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.Update(idFilter, updates);

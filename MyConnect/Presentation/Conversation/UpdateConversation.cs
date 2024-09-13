@@ -33,7 +33,7 @@ public static class UpdateConversation
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = MongoQuery.IdFilter<Conversation>(request.id);
+            var filter = MongoQuery<Conversation>.IdFilter(request.id);
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Title, request.model.Title)
                 .Set(q => q.Avatar, request.model.Avatar);

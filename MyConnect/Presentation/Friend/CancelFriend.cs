@@ -8,22 +8,32 @@ public static class CancelFriend
     {
         readonly IFriendRepository _friendRepository;
 
-        public Validator(IUnitOfWork uow)
+        // public Validator(IUnitOfWork uow)
+        // {
+        //     _friendRepository = uow.GetService<IFriendRepository>();
+        //     RuleFor(c => c.id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
+        //     RuleFor(c => c).MustAsync((item, cancellation) => NotReceivedRequest(item)).WithMessage("Can not cancel received request");
+        // }
+
+        public Validator(IServiceProvider serviceProvider)
         {
-            _friendRepository = uow.GetService<IFriendRepository>();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
+            }
             RuleFor(c => c.id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
             RuleFor(c => c).MustAsync((item, cancellation) => NotReceivedRequest(item)).WithMessage("Can not cancel received request");
         }
 
-        private async Task<bool> NotYetAccepted(string id)
+        async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery<Friend>.IdFilter(id));
             return !sent.AcceptTime.HasValue;
         }
 
-        private async Task<bool> NotReceivedRequest(Request request)
+        async Task<bool> NotReceivedRequest(Request request)
         {
-            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery<Friend>.IdFilter(request.id));
             return sent.ToContact.ContactId != request.userId;
         }
     }
@@ -49,7 +59,7 @@ public static class CancelFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = MongoQuery.IdFilter<Friend>(request.id);
+            var filter = MongoQuery<Friend>.IdFilter(request.id);
             _friendRepository.DeleteOne(filter);
 
             // Push cancelled request
@@ -75,7 +85,7 @@ public class CancelFriendEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Friend).MapDelete("{id}",
         async (HttpContext context, ISender sender, string id) =>
         {
-            var userId = context.Session.GetString("UserId");
+            var userId = context.Items["UserId"]?.ToString();
             var query = new CancelFriend.Request(id, userId);
             await sender.Send(query);
             return Results.Ok();

@@ -2,15 +2,26 @@ namespace Presentation.Friends;
 
 public static class CreateFriend
 {
-    public record Request(string userId, string contactId) : IRequest<Unit>;
+    public record Request(string contactId, string userId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
         readonly IFriendRepository _friendRepository;
 
-        public Validator(IUnitOfWork uow)
+        // public Validator(IUnitOfWork uow)
+        // {
+        //     _friendRepository = uow.GetService<IFriendRepository>();
+        //     RuleFor(c => c.contactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
+        //     RuleFor(c => c).MustAsync((item, cancellation) => UniqueRequest(item)).WithMessage("Friend request has been sent");
+        //     RuleFor(c => c.userId).NotEqual(q => q.contactId).WithMessage("Can not send self-request");
+        // }
+
+        public Validator(IServiceProvider serviceProvider)
         {
-            _friendRepository = uow.GetService<IFriendRepository>();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
+            }
             RuleFor(c => c.contactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
             RuleFor(c => c).MustAsync((item, cancellation) => UniqueRequest(item)).WithMessage("Friend request has been sent");
             RuleFor(c => c.userId).NotEqual(q => q.contactId).WithMessage("Can not send self-request");
@@ -55,8 +66,8 @@ public static class CreateFriend
                 throw new BadRequestException(validationResult.ToString());
 
             // Add friend 
-            var fromContact = await _contactRepository.GetItemAsync(MongoQuery.IdFilter<Contact>(request.userId));
-            var toContact = await _contactRepository.GetItemAsync(MongoQuery.IdFilter<Contact>(request.contactId));
+            var fromContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.userId));
+            var toContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.contactId));
             var friendEntity = new Friend
             {
                 FromContact = new FriendDto_Contact
@@ -111,8 +122,8 @@ public class CreateFriendEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Contact).MapPost("{contactId}/friends",
         async (HttpContext context, ISender sender, string contactId) =>
         {
-            var userId = context.Session.GetString("UserId");
-            var query = new CreateFriend.Request(userId, contactId);
+            var userId = context.Items["UserId"]?.ToString();
+            var query = new CreateFriend.Request(contactId, userId);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

@@ -58,7 +58,7 @@ public static class SendMessage
             // Add message
             _messageRepository.Add(request.model);
             // When a message sent, all members of that group will be having that group conversation back
-            var filter = MongoQuery.IdFilter<Conversation>(request.model.ConversationId);
+            var filter = MongoQuery<Conversation>.IdFilter(request.model.ConversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
             foreach (var participant in conversation.Participants)
                 participant.IsDeleted = false;
@@ -67,7 +67,7 @@ public static class SendMessage
             _conversationRepository.Update(filter, updates);
 
             // Push message
-            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
             await _notificationMethod.Notify(
                 "NewMessage",
                 conversation.Participants

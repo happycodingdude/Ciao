@@ -33,7 +33,7 @@ public static class RegisterConnection
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
             await _distributedCache.SetStringAsync($"connection-{userId}", request.token);
 
             return Unit.Value;

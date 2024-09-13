@@ -46,7 +46,7 @@ public static class CreateConversation
 
             _conversationRepository.Add(request.model);
 
-            var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
             await _notificationMethod.Notify(
                 "NewConversation",
                 request.model.Participants

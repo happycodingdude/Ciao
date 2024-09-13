@@ -1,3 +1,5 @@
+using Presentation.Friends;
+
 namespace Chat.API.Configurations;
 
 public class PresentationServiceInstaller : IServiceInstaller
@@ -10,6 +12,7 @@ public class PresentationServiceInstaller : IServiceInstaller
         // MediatR, Carter, FluentValidation
         services.AddCarter();
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Presentation.AssemblyReference.Assembly));
-        services.AddValidatorsFromAssembly(Presentation.AssemblyReference.Assembly);
+        services.AddValidatorsFromAssembly(Presentation.AssemblyReference.Assembly, ServiceLifetime.Scoped);
+        // services.AddScoped<IValidator<AcceptFriend.Request>, AcceptFriend.Validator>();
     }
 }

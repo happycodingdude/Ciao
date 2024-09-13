@@ -15,7 +15,7 @@ public static class GetInfo
 
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            return (await _contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+            return (await _contactRepository.GetAllAsync(MongoQuery<Contact>.EmptyFilter())).SingleOrDefault();
         }
     }
 }

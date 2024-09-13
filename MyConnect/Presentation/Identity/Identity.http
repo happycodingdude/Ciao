@@ -1,4 +1,4 @@
-@host = https://localhost:4001/api
+@host = http://localhost:4000/api
 
 POST {{host}}/identity/signin
 Content-Type: application/json
@@ -13,11 +13,11 @@ POST  {{host}}/identity/signup
 Content-Type: application/json
 
 {
-    "Name":"Trí Nguyễn 2",
-    "Username":"trint2",
+    "Name":"Tri Nguyễn 3",
+    "Username":"trint4",
     "Password":"Qwerty@123"
 }
 
 ###
 GET   {{host}}/identity/signout
-Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7P9DtgPmgkuglNCewSimw6PpD6ax9jBuN8XcRwe6CHKzqGJ_bfhf5stir54wvNvnhO1I75pKBiZetg3iqs5M6awu0zQYWJlyZuweXQvqkEtakC8yzbV8PXs2kOS4oZJpsJwZGZTDnUmzlmcu60vUiUSSC6cBLHiWrpaLx6PyaImJX8kZxmtdhq6d8JgkyvIO9e_-D9ynTTmuIHx3Uflny19aLlOao4LQoHq1OnvkcKBMH-Cv4rq1hs6KvHxH7SXm2OjqMwJLpAlTHiYvKse-IF2EI_lR8-ljycatX1-QoGmPfhdeOdmBu7kM1U24wHivAFjHUmiqe74b0Kg3UISOLXV6MIflgjm6qqGgIKaEdeXWpyndzd2nx21UQ4vkkb5uWKy5jEwn7GSU6ozy9hjVYlx1dF_E8QMQYJX7D72rpCrdfrtQ2ZYVOuA79sLgEFg04_wSdmLevUEefdT2tQsQBqQ5rxESRblfVAMHar4J50DpNoukpmWYiPQhllDmK-ooQmD-QspnJfx50CvXtpTE4xHPOKj2QmnPIS8HKExssNK0w
+Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7O3Ghq75WgV6rIpR9IdJmpCH5UJ5L_RJHfzjD3I0CxzXSne0B7UqboebdJMiIbMif62NG8G0RMlXKhnz4aKUGnANAaeJVeJHIPEGvASSF-MAFfOHz5h7y7PVs_ehSob6bV8QzJTEVhGBKL3eh5VM-bnHV6rYEtmUp-Xs2cx39vYNT8zWKopLTe9ab0cZ8cSij9t4vr6ymV2favGX0zLq39IkaQ_50mzOdEIlEJb-OWPlC25JVtIG2Wa3W_S-qKuhldVAD2walfDgwTER7w-jre-bViOHQKN_E_5so4V--Nu8wMyKS9CcxePTwLTMQDCErPiYUANi7UkeJZDTVq5d-iqeL--9qcymwp-iDa9hP6nrLmYx5r5PPdWV_grsFN_w0NnpkML3W_HxpY0TfcRK_wdilooe4boR2msUbt5j6pbNGW46fwAdlUanHMIe4oxuw4sHd7LrhUmBB8ng-_KZced1yLtTW1cU8q8AO3is7LG5nCmlT4aLUAxXqKbV1MVWx-Hq2aA6RULtTDMVfkv6VVfZq9CQVeq7a70ZmKlDxNQtw

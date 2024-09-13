@@ -15,7 +15,7 @@ public static class GetById
 
         public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)
         {
-            var filter = MongoQuery.IdFilter<Friend>(request.id);
+            var filter = MongoQuery<Friend>.IdFilter(request.id);
             return await _friendRepository.GetItemAsync(filter);
         }
     }

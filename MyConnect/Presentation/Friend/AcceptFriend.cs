@@ -8,9 +8,27 @@ public static class AcceptFriend
     {
         readonly IFriendRepository _friendRepository;
 
-        public Validator(IUnitOfWork uow)
+        // public Validator(IUnitOfWork uow)
+        // {
+        //     _friendRepository = uow.GetService<IFriendRepository>();
+        //     // RuleFor(c => c.patch.Operations.Count(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower()))
+        //     //     .Equal(1)
+        //     //     .WithMessage("This is used for acceptance only 1");
+        //     // RuleFor(c => c.patch.Operations
+        //     //         .Where(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower())
+        //     //         .Select(q => q.value.ToString()))
+        //     //     .Must(q => q.All(w => w == "accept"))
+        //     //     .WithMessage("This is used for acceptance only 2");
+        //     RuleFor(c => c.id).MustAsync((item, cancellation) => NotYetAccepted(item)).WithMessage("Friend request has been accepted");
+        //     RuleFor(c => c).MustAsync((item, cancellation) => NotSelfAccept(item)).WithMessage("Can not self-accept");
+        // }
+
+        public Validator(IServiceProvider serviceProvider)
         {
-            _friendRepository = uow.GetService<IFriendRepository>();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
+            }
             // RuleFor(c => c.patch.Operations.Count(q => q.path.ToLower() == nameof(GetAllFriend.Status).ToLower()))
             //     .Equal(1)
             //     .WithMessage("This is used for acceptance only 1");
@@ -23,15 +41,15 @@ public static class AcceptFriend
             RuleFor(c => c).MustAsync((item, cancellation) => NotSelfAccept(item)).WithMessage("Can not self-accept");
         }
 
-        private async Task<bool> NotYetAccepted(string id)
+        async Task<bool> NotYetAccepted(string id)
         {
-            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery<Friend>.IdFilter(id));
             return !sent.AcceptTime.HasValue;
         }
 
-        private async Task<bool> NotSelfAccept(Request request)
+        async Task<bool> NotSelfAccept(Request request)
         {
-            var sent = await _friendRepository.GetItemAsync(MongoQuery.IdFilter<Friend>(request.id));
+            var sent = await _friendRepository.GetItemAsync(MongoQuery<Friend>.IdFilter(request.id));
             return sent.FromContact.ContactId != request.userId;
         }
     }
@@ -57,7 +75,7 @@ public static class AcceptFriend
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = MongoQuery.IdFilter<Friend>(request.id);
+            var filter = MongoQuery<Friend>.IdFilter(request.id);
             var entity = await _friendRepository.GetItemAsync(filter);
             // Check if request was excepted
             if (entity.AcceptTime.HasValue) return Unit.Value;
@@ -88,7 +106,7 @@ public class AcceptFriendEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiRoute_Friend).MapPut("{id}",
         async (HttpContext context, ISender sender, string id) =>
         {
-            var userId = context.Session.GetString("UserId");
+            var userId = context.Items["UserId"]?.ToString();
             var query = new AcceptFriend.Request(id, userId);
             await sender.Send(query);
             return Results.Ok();

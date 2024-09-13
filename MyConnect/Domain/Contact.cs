@@ -8,6 +8,7 @@ public class Contact : MongoBaseModel
     public string Avatar { get; set; }
     public string Bio { get; set; }
     public bool IsOnline { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? LastLogout { get; set; }
     // public ICollection<ScheduleContact>? ScheduleContacts { get; set; }
     // public ICollection<Participant>? Participants { get; set; }

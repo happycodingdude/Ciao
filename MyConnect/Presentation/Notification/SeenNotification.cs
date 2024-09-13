@@ -15,7 +15,7 @@ public static class SeenNotification
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var filter = MongoQuery.IdFilter<Notification>(request.id);
+            var filter = MongoQuery<Notification>.IdFilter(request.id);
             var entity = await _notificationRepository.GetItemAsync(filter);
             if (entity.Read) return Unit.Value;
 

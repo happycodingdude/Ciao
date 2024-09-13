@@ -21,7 +21,7 @@ public class CheckSignoutMiddleware
             return;
         }
 
-        var user = (await contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+        var user = (await contactRepository.GetAllAsync(MongoQuery<Contact>.EmptyFilter())).SingleOrDefault();
         if (!user.IsOnline)
             throw new UnauthorizedException();
 

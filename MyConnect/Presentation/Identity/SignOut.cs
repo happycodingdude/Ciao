@@ -33,11 +33,12 @@ public static class SignOut
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
 
             // Update IsOnline false
-            var contact = (await _contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+            var filter = MongoQuery<Contact>.EmptyFilter();
+            var contact = (await _contactRepository.GetAllAsync(filter)).SingleOrDefault();
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
                 .Set(q => q.LastLogout, DateTime.Now);
-            _contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
+            _contactRepository.Update(filter, updates);
 
             return Unit.Value;
         }

@@ -35,7 +35,7 @@ public static class CreateParticipant
                 throw new BadRequestException(validationResult.ToString());
 
             // Get current participants of conversation, then filter new item to add
-            var filter = MongoQuery.IdFilter<Conversation>(request.conversationId);
+            var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
             var filterNewItemToAdd = request.model.Select(q => q.Contact.Id).ToList().Except(conversation.Participants.Select(q => q.Contact.Id).ToList());
             var filteredParticipants = request.model.Where(q => filterNewItemToAdd.Contains(q.Contact.Id));

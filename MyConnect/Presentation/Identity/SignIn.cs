@@ -34,13 +34,14 @@ public static class SignIn
 
                 // Update IsOnline true
                 var user = await _userManager.FindByNameAsync(request.model.Username);
-                _contactRepository.UseDatabase(user.Id);
-                var contact = (await _contactRepository.GetAllAsync(Builders<Contact>.Filter.Empty)).SingleOrDefault();
+                _contactRepository.UseDatabase(typeof(Contact).Name, user.Id);
+                var filter = MongoQuery<Contact>.EmptyFilter();
+                var contact = (await _contactRepository.GetAllAsync(filter)).SingleOrDefault();
                 if (!contact.IsOnline)
                 {
                     var updates = Builders<Contact>.Update
                         .Set(q => q.IsOnline, true);
-                    _contactRepository.Update(Builders<Contact>.Filter.Empty, updates);
+                    _contactRepository.Update(filter, updates);
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
