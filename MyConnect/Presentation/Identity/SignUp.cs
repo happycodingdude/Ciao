@@ -30,16 +30,11 @@ public static class SignUp
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
             var userId = await _userManager.GetUserIdAsync(user);
-            // Tạo collection mới ở db Contact
             _contactRepository.UseDatabase(typeof(Contact).Name, userId);
             var contact = new Contact
             {
                 Name = request.model.Name
             };
-            _contactRepository.Add(contact);
-            // Cập nhật lại collection All để làm search
-            _contactRepository = _uow.GetService<IContactRepository>();
-            _contactRepository.UseDatabase(typeof(Contact).Name, "All");
             _contactRepository.Add(contact);
 
             return Unit.Value;

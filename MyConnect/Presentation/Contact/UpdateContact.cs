@@ -31,7 +31,6 @@ public static class UpdateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // _ = _contactRepository.TrackChangeAsync(CollectionChange, cancellationToken);
             var filter = MongoQuery<Contact>.EmptyFilter();
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
@@ -39,21 +38,6 @@ public static class UpdateContact
             _contactRepository.Update(filter, updates);
 
             return Unit.Value;
-        }
-
-        async Task CollectionChange(ChangeStreamDocument<Contact> change)
-        {
-            Contact changed = change.FullDocument;
-            Console.WriteLine($"changed => {changed.Id}");
-            // Cập nhật lại collection All để làm search
-            var repo = _uow.GetService<IContactRepository>();
-            repo.UseDatabase(typeof(Contact).Name, "All");
-            var filter = MongoQuery<Contact>.IdFilter(changed.Id);
-            var updates = Builders<Contact>.Update
-                .Set(q => q.Name, changed.Name)
-                .Set(q => q.Bio, changed.Bio);
-            repo.Update(filter, updates);
-            await _uow.SaveAsync();
         }
     }
 }

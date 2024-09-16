@@ -1,6 +1,6 @@
 namespace Infrastructure.Specifications;
 
-public class ExpressionReplacer : ExpressionVisitor
+public class ExpressionReplacer : System.Linq.Expressions.ExpressionVisitor
 {
     private readonly Expression _oldExpr;
     private readonly Expression _newExpr;

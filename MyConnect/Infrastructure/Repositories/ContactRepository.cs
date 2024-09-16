@@ -8,7 +8,11 @@ public class ContactRepository(MongoDbContext context, IHttpContextAccessor http
         if (string.IsNullOrEmpty(name)) return Enumerable.Empty<Contact>();
 
         var collection = context.Client.GetDatabase(typeof(Contact).Name).GetCollection<Contact>("All");
-        var filter = Builders<Contact>.Filter.Where(q => q.Name.ToLower().Contains(name.ToLower()));
+        // var options = RegexOptions.CultureInvariant | RegexOptions.IgnoreCase;
+        // var regex = new Regex(@"(?<!\S)" + name + @"(?!\S)", options);
+        // var regex = new Regex(@"[iíìỉĩị]" + name, options);
+        // var filter = Builders<Contact>.Filter.Where(q => q.Name.ToLower().Contains(name.ToLower()));
+        var filter = Builders<Contact>.Filter.Text(name);
         var contacts = await collection.Find(filter).ToListAsync();
 
         // var contacts = await (

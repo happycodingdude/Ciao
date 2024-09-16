@@ -32,3 +32,4 @@ global using System.Reflection;
 global using Action = System.Action;
 global using Application.Specifications;
 global using MongoDB.Bson;
+global using MongoDB.Bson.Serialization;

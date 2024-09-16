@@ -4,7 +4,7 @@ POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"trint9",
     "Password":"Qwerty@123"
 }
 
@@ -13,11 +13,11 @@ POST  {{host}}/identity/signup
 Content-Type: application/json
 
 {
-    "Name":"Tri Nguyễn 5",
-    "Username":"trint5",
+    "Name":"Tri Nguyễn 9",
+    "Username":"trint9",
     "Password":"Qwerty@123"
 }
 
 ###
 GET   {{host}}/identity/signout
-Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7PWGGYCC9oo2iANlhno1UXvY8FlG0N6Sz-7sE1BKEFGtwZjd-5b5-ithVs9h298VJ7P3Lx5YskvTp_4ropuHEFzAOqRZBbrSlTk9wfmxrGl_ZgSnZGs9lcQFVq4tVvcWWnBIN_xugRnjFpFVbj-GCbtadRxQx3Ej14W__45zVKVpGbB31PEohcgCBuUrS51Tc5gbqsZK0LJWPBO22cvB2I1iT05v2J90EAKPQfc86bmnluleevLQJrEHaQhbJqS_DV6hIqeoNf6NPZuJ28zDgfCTYei878FSmj1rrEB08zlrPEM8tmAadvYZThPposiS2bkZ40GCJYalRLyKP-XmQiL35yk7BpbHRGxPtSbnI-4K67sKEbK4e57r--zsaCTtf3-NgWOzF2hf9qY97O-e6X11dYYgNtyEkP0-AMyF5NlWdzrlmFtEqhnZc2uKeQBr2LGOZm8ZdfQMDVIZUixjHUMQG_Eq8UhlwltxSe9QjUjgC1ZH695v_5x_9KBQk9bQdCHoVStbab6BPZnDgVSfhnbguo6qOM_kIGpjyrAVMMZEQ
+Authorization: Bearer CfDJ8IE6k77TFy5BnhYCqdQ4BPglBOdoE4Tak7enigva0Er2UY08GiT3JIuz0leMCDIC9JkHB89gsGnNMECNecXxY7XfeMJJJkElArLyDptSCIWgFHGPIQ4wQ-_nn1E1A0RQKqrHoaKkUif47Q5WerBJ9UAsaVEluhR8avO8qoZxO0tINdiOUME1shlV4uJ7L_XXvw_HiP--igKM4MHJoVA0qol4uADsV-ul-BK_MyMvichqOmEe3ei13UThYfPN-H_gL8_PV7fMNTbskWBcNEqLWcVArpVGNkNyOGE2wMH5rjgyXa_ImwAIw1unMr8pJSTD5VXpOPSFP4eqNcX3DNUjYIf7oV8avnLucP4-vOxJBqPU455m5k9msOT21ah-d2q3qknWcMBjMY78jGYvmIvTysF3xp5Bj-W1om4EoyQxlduiVugRW6chQA7kgvyMgpOxnhzLPifPz6KN9frifHsB-zOzs25iySywrEAlStDGUP5hZZtqGR5_ncSHJt9NWt5CKeCdaMsKdBrs_ovcqUV6_7EIlyXCRkjvJPIB9hBqJ-ObnWF2EthKQ7reLiDs5IUOZg
