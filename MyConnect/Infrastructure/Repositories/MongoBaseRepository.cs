@@ -14,6 +14,7 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
             UseDatabase(typeof(T).Name, dbName);
     }
 
+    #region Init Database
     public void UseDatabase(string dbName)
     {
         Console.WriteLine($"dbName => {dbName}");
@@ -25,18 +26,10 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         Console.WriteLine($"dbName => {dbName} and collection => {collection}");
         _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(collection);
     }
-
-    public async Task TrackChangeAsync(Func<ChangeStreamDocument<T>, Task> action)
-    {
-        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<T>>()
-            .Match(change => change.OperationType == ChangeStreamOperationType.Update);
-        var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
-        var tracking = await _collection.WatchAsync(pipeline, options);
-        await tracking.ForEachAsync(action);
-    }
-
     public void UseUOW(IUnitOfWork uow) => _uow = uow;
+    #endregion
 
+    #region CRUD
     public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await _collection.Find(filter).ToListAsync();
 
     public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleAsync();
@@ -50,4 +43,5 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     }
 
     public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation(() => _collection.DeleteOneAsync(filter));
+    #endregion
 }

@@ -1,3 +1,5 @@
+using Infrastructure.BackgroundJob;
+
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
@@ -74,6 +76,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        services.AddSingleton(typeof(IChangeTracking<>), typeof(ChangeTracking<>));
 
         // Business logics
         // services.AddSingleton<IContactService, ContactService>();
@@ -85,5 +88,8 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<IIdentityService, IdentityService>();
+
+        // Background jobs
+        services.AddHostedService<SyncContactAllCollection>();
     }
 }

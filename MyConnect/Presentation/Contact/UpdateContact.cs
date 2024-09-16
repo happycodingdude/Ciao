@@ -16,7 +16,7 @@ public static class UpdateContact
     {
         private readonly IValidator<Request> _validator;
         private readonly IUnitOfWork _uow;
-        private IContactRepository _contactRepository;
+        private readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
@@ -31,7 +31,7 @@ public static class UpdateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            _ = _contactRepository.TrackChangeAsync(CollectionChange);
+            // _ = _contactRepository.TrackChangeAsync(CollectionChange, cancellationToken);
             var filter = MongoQuery<Contact>.EmptyFilter();
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
@@ -46,13 +46,13 @@ public static class UpdateContact
             Contact changed = change.FullDocument;
             Console.WriteLine($"changed => {changed.Id}");
             // Cập nhật lại collection All để làm search
-            _contactRepository = _uow.GetService<IContactRepository>();
-            _contactRepository.UseDatabase(typeof(Contact).Name, "All");
+            var repo = _uow.GetService<IContactRepository>();
+            repo.UseDatabase(typeof(Contact).Name, "All");
             var filter = MongoQuery<Contact>.IdFilter(changed.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, changed.Name)
                 .Set(q => q.Bio, changed.Bio);
-            _contactRepository.Update(filter, updates);
+            repo.Update(filter, updates);
             await _uow.SaveAsync();
         }
     }

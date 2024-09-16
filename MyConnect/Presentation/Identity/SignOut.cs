@@ -9,6 +9,7 @@ public static class SignOut
         private readonly UserManager<AuthenticationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IDistributedCache _distributedCache;
+        private readonly IUnitOfWork _uow;
         private readonly IContactRepository _contactRepository;
 
         public Handler(UserManager<AuthenticationUser> userManager,
@@ -19,6 +20,7 @@ public static class SignOut
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
+            _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
 
@@ -33,14 +35,28 @@ public static class SignOut
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
 
             // Update IsOnline false
+            // _ = _contactRepository.TrackChangeAsync(CollectionChange, cancellationToken);
             var filter = MongoQuery<Contact>.EmptyFilter();
-            var contact = (await _contactRepository.GetAllAsync(filter)).SingleOrDefault();
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
                 .Set(q => q.LastLogout, DateTime.Now);
             _contactRepository.Update(filter, updates);
 
             return Unit.Value;
+        }
+
+        async Task CollectionChange(ChangeStreamDocument<Contact> change)
+        {
+            Contact changed = change.FullDocument;
+            Console.WriteLine($"changed => {changed.Id}");
+            // Cập nhật lại collection All để làm search
+            var repo = _uow.GetService<IContactRepository>();
+            repo.UseDatabase(typeof(Contact).Name, "All");
+            var filter = MongoQuery<Contact>.IdFilter(changed.Id);
+            var updates = Builders<Contact>.Update
+                .Set(q => q.IsOnline, false);
+            repo.Update(filter, updates);
+            await _uow.SaveAsync();
         }
     }
 }

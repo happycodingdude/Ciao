@@ -8,5 +8,5 @@ public interface IMongoRepository<T> : IInitDatabase where T : MongoBaseModel
     void Add(T entity);
     void Update(FilterDefinition<T> filter, UpdateDefinition<T> update);
     void DeleteOne(FilterDefinition<T> filter);
-    Task TrackChangeAsync(Func<ChangeStreamDocument<T>, Task> action);
+    // Task TrackChangeAsync(Func<ChangeStreamDocument<T>, Task> action);
 }

@@ -6,3 +6,4 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Identity;
 global using MongoDB.Driver;
 global using System.Reflection;
+global using MongoDB.Bson;
