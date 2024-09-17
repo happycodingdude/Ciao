@@ -1,3 +1,5 @@
+using Shared.Constants;
+
 namespace Infrastructure.Repositories;
 
 public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
@@ -11,14 +13,15 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         _context = context;
         var dbName = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
         if (dbName is not null)
-            UseDatabase(typeof(T).Name, dbName);
+            UseDatabase(dbName, typeof(T).Name);
+        // UseDatabase(typeof(T).Name, collection);
     }
 
     #region Init Database
-    public void UseDatabase(string dbName)
+    public void UseDatabase(string collection)
     {
-        Console.WriteLine($"dbName => {dbName}");
-        _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(typeof(T).Name);
+        Console.WriteLine($"collection => {collection}");
+        _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
     }
 
     public void UseDatabase(string dbName, string collection)
@@ -26,7 +29,10 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         Console.WriteLine($"dbName => {dbName} and collection => {collection}");
         _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(collection);
     }
+
     public void UseUOW(IUnitOfWork uow) => _uow = uow;
+
+    public void UserWarehouseDB() => UseDatabase(AppConstants.WarehouseDB, typeof(T).Name);
     #endregion
 
     #region CRUD

@@ -34,29 +34,14 @@ public static class SignOut
             // Delete Firebase connection
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
 
-            // Update IsOnline false
-            // _ = _contactRepository.TrackChangeAsync(CollectionChange, cancellationToken);
-            var filter = MongoQuery<Contact>.EmptyFilter();
+            // Update IsOnline false            
+            var filter = Builders<Contact>.Filter.Where(q => q.UserId == user.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
                 .Set(q => q.LastLogout, DateTime.Now);
             _contactRepository.Update(filter, updates);
 
             return Unit.Value;
-        }
-
-        async Task CollectionChange(ChangeStreamDocument<Contact> change)
-        {
-            Contact changed = change.FullDocument;
-            Console.WriteLine($"changed => {changed.Id}");
-            // Cập nhật lại collection All để làm search
-            var repo = _uow.GetService<IContactRepository>();
-            repo.UseDatabase(typeof(Contact).Name, "All");
-            var filter = MongoQuery<Contact>.IdFilter(changed.Id);
-            var updates = Builders<Contact>.Update
-                .Set(q => q.IsOnline, false);
-            repo.Update(filter, updates);
-            await _uow.SaveAsync();
         }
     }
 }

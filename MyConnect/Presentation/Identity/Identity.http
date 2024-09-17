@@ -1,23 +1,38 @@
 @host = http://localhost:4000/api
 
-POST {{host}}/identity/signin
-Content-Type: application/json
-
-{
-    "Username":"trint9",
-    "Password":"Qwerty@123"
-}
-
 ###
 POST  {{host}}/identity/signup
 Content-Type: application/json
 
 {
-    "Name":"Tri Nguyễn 9",
-    "Username":"trint9",
+    "Name":"Tri Nguyễn 4",
+    "Username":"trint4",
     "Password":"Qwerty@123"
 }
 
 ###
+POST {{host}}/identity/signin
+Content-Type: application/json
+
+{
+    "Username":"trint",
+    "Password":"Qwerty@123"
+}
+
+###
+GET {{host}}/contacts/info
+Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7PMMlX4TIKNvX8W-EQ-hMq1zzW2rPLpTPvBjMBDE05lb-3fkD-P4qNw1HovxMacY5F1NFcvi7KsWJywTulEbB9fJq7usOJ5rCLWbeFw1gZ28pEmEyq91ZgIwNNyNlv0oEgaLZhe34n4SOWieXpDCAz7Eg2ihkjlmlSvIM0v92iORRXw_C-0nfkAO-KPBhyBnjjpzcHgDQCqsem1TRnwbP5MdME8_8OxJ-xU63oGG4eiIwpbz3e1b2Fax0xBdUK2JuYLpIEWwJOnyaTdaBJ4Rad94wBisEUaAbRvsbf6igtDscZdoeUZTMDVOIW1mwdRqii5TqVdQxeC8DP-inqY7Oqfkjm3jmwAPSwHAtP0DOp1vh4-y9__KuEM2TpUrr-OhMgyMdHHSlP6dl1zQ_32F3lZIg5qv1bfJcRuI_3uXIp4hT-YIwsAnmPbkKjNpXbIJB4zpPK0JSgNxHXg0KT3rqDNFyApFQ4yLjm8IrVp7NgSgnPRYenfod69kg4rtisNgPKLTelFBpSWvO_i_rqNRDyy_vOBOi4Q9BZJMePf6GNwtg
+
+###
+PUT   {{host}}/contacts
+Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7PMMlX4TIKNvX8W-EQ-hMq1zzW2rPLpTPvBjMBDE05lb-3fkD-P4qNw1HovxMacY5F1NFcvi7KsWJywTulEbB9fJq7usOJ5rCLWbeFw1gZ28pEmEyq91ZgIwNNyNlv0oEgaLZhe34n4SOWieXpDCAz7Eg2ihkjlmlSvIM0v92iORRXw_C-0nfkAO-KPBhyBnjjpzcHgDQCqsem1TRnwbP5MdME8_8OxJ-xU63oGG4eiIwpbz3e1b2Fax0xBdUK2JuYLpIEWwJOnyaTdaBJ4Rad94wBisEUaAbRvsbf6igtDscZdoeUZTMDVOIW1mwdRqii5TqVdQxeC8DP-inqY7Oqfkjm3jmwAPSwHAtP0DOp1vh4-y9__KuEM2TpUrr-OhMgyMdHHSlP6dl1zQ_32F3lZIg5qv1bfJcRuI_3uXIp4hT-YIwsAnmPbkKjNpXbIJB4zpPK0JSgNxHXg0KT3rqDNFyApFQ4yLjm8IrVp7NgSgnPRYenfod69kg4rtisNgPKLTelFBpSWvO_i_rqNRDyy_vOBOi4Q9BZJMePf6GNwtg
+Content-Type: application/json
+
+{
+    "Name":"Anton Tri",
+    "Bio":"Hello world!!@@"
+}
+
+###
 GET   {{host}}/identity/signout
-Authorization: Bearer CfDJ8IE6k77TFy5BnhYCqdQ4BPglBOdoE4Tak7enigva0Er2UY08GiT3JIuz0leMCDIC9JkHB89gsGnNMECNecXxY7XfeMJJJkElArLyDptSCIWgFHGPIQ4wQ-_nn1E1A0RQKqrHoaKkUif47Q5WerBJ9UAsaVEluhR8avO8qoZxO0tINdiOUME1shlV4uJ7L_XXvw_HiP--igKM4MHJoVA0qol4uADsV-ul-BK_MyMvichqOmEe3ei13UThYfPN-H_gL8_PV7fMNTbskWBcNEqLWcVArpVGNkNyOGE2wMH5rjgyXa_ImwAIw1unMr8pJSTD5VXpOPSFP4eqNcX3DNUjYIf7oV8avnLucP4-vOxJBqPU455m5k9msOT21ah-d2q3qknWcMBjMY78jGYvmIvTysF3xp5Bj-W1om4EoyQxlduiVugRW6chQA7kgvyMgpOxnhzLPifPz6KN9frifHsB-zOzs25iySywrEAlStDGUP5hZZtqGR5_ncSHJt9NWt5CKeCdaMsKdBrs_ovcqUV6_7EIlyXCRkjvJPIB9hBqJ-ObnWF2EthKQ7reLiDs5IUOZg
+Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7PMMlX4TIKNvX8W-EQ-hMq1zzW2rPLpTPvBjMBDE05lb-3fkD-P4qNw1HovxMacY5F1NFcvi7KsWJywTulEbB9fJq7usOJ5rCLWbeFw1gZ28pEmEyq91ZgIwNNyNlv0oEgaLZhe34n4SOWieXpDCAz7Eg2ihkjlmlSvIM0v92iORRXw_C-0nfkAO-KPBhyBnjjpzcHgDQCqsem1TRnwbP5MdME8_8OxJ-xU63oGG4eiIwpbz3e1b2Fax0xBdUK2JuYLpIEWwJOnyaTdaBJ4Rad94wBisEUaAbRvsbf6igtDscZdoeUZTMDVOIW1mwdRqii5TqVdQxeC8DP-inqY7Oqfkjm3jmwAPSwHAtP0DOp1vh4-y9__KuEM2TpUrr-OhMgyMdHHSlP6dl1zQ_32F3lZIg5qv1bfJcRuI_3uXIp4hT-YIwsAnmPbkKjNpXbIJB4zpPK0JSgNxHXg0KT3rqDNFyApFQ4yLjm8IrVp7NgSgnPRYenfod69kg4rtisNgPKLTelFBpSWvO_i_rqNRDyy_vOBOi4Q9BZJMePf6GNwtg

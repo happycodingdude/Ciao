@@ -7,13 +7,11 @@ public static class SignUp
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         private readonly UserManager<AuthenticationUser> _userManager;
-        private readonly IUnitOfWork _uow;
         private IContactRepository _contactRepository;
 
         public Handler(UserManager<AuthenticationUser> userManager, IUnitOfWork uow)
         {
             _userManager = userManager;
-            _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
 
@@ -30,9 +28,9 @@ public static class SignUp
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
             var userId = await _userManager.GetUserIdAsync(user);
-            _contactRepository.UseDatabase(typeof(Contact).Name, userId);
             var contact = new Contact
             {
+                UserId = userId,
                 Name = request.model.Name
             };
             _contactRepository.Add(contact);

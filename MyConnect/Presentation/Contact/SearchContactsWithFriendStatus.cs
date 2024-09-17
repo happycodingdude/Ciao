@@ -2,9 +2,9 @@ namespace Presentation.Contacts;
 
 public static class SearchContactsWithFriendStatus
 {
-    public record Request(string name) : IRequest<IEnumerable<Contact>>;
+    public record Request(string name) : IRequest<IEnumerable<ContactDto>>;
 
-    internal sealed class Handler : IRequestHandler<Request, IEnumerable<Contact>>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<ContactDto>>
     {
         private readonly IContactRepository _contactRepository;
 
@@ -13,7 +13,7 @@ public static class SearchContactsWithFriendStatus
             _contactRepository = uow.GetService<IContactRepository>();
         }
 
-        public async Task<IEnumerable<Contact>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ContactDto>> Handle(Request request, CancellationToken cancellationToken)
         {
             return await _contactRepository.SearchContactsWithFriendStatus(request.name);
         }

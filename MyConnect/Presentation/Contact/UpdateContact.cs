@@ -14,13 +14,15 @@ public static class UpdateContact
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> _validator;
-        private readonly IUnitOfWork _uow;
-        private readonly IContactRepository _contactRepository;
+        readonly IValidator<Request> _validator;
+        readonly IHttpContextAccessor _httpContextAccessor;
+        readonly IUnitOfWork _uow;
+        readonly IContactRepository _contactRepository;
 
-        public Handler(IValidator<Request> validator, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
         {
             _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
             _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
@@ -31,7 +33,8 @@ public static class UpdateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = MongoQuery<Contact>.EmptyFilter();
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();
+            var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
                 .Set(q => q.Bio, request.model.Bio);

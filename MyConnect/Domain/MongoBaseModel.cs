@@ -11,4 +11,9 @@ public class MongoBaseModel
     [BsonElement("UpdatedTime")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? UpdatedTime { get; set; }
+
+    public MongoBaseModel()
+    {
+        Id = ObjectId.GenerateNewId().ToString();
+    }
 }

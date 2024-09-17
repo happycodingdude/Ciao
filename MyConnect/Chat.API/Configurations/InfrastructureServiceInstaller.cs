@@ -90,6 +90,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IIdentityService, IdentityService>();
 
         // Background jobs
-        services.AddHostedService<SyncContactAllCollection>();
+        // services.AddHostedService<SyncContactAllCollection>();
     }
 }

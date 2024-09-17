@@ -1,25 +1,19 @@
 namespace Presentation.Friends;
 
-public static class CreateFriend
+public static class AddFriend
 {
     public record Request(string contactId, string userId) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
+        readonly IContactRepository _contactRepository;
         readonly IFriendRepository _friendRepository;
-
-        // public Validator(IUnitOfWork uow)
-        // {
-        //     _friendRepository = uow.GetService<IFriendRepository>();
-        //     RuleFor(c => c.contactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
-        //     RuleFor(c => c).MustAsync((item, cancellation) => UniqueRequest(item)).WithMessage("Friend request has been sent");
-        //     RuleFor(c => c.userId).NotEqual(q => q.contactId).WithMessage("Can not send self-request");
-        // }
 
         public Validator(IServiceProvider serviceProvider)
         {
             using (var scope = serviceProvider.CreateScope())
             {
+                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
                 _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
             }
             RuleFor(c => c.contactId).NotEmpty().WithMessage("Friend request should be sent to 1 contact");
@@ -29,9 +23,11 @@ public static class CreateFriend
 
         async Task<bool> UniqueRequest(Request request)
         {
+            var userfilter = Builders<Contact>.Filter.Where(q => q.UserId == request.userId);
+            var user = await _contactRepository.GetItemAsync(userfilter);
             var filter = Builders<Friend>.Filter.Where(q =>
-                (q.FromContact.ContactId == request.userId && q.ToContact.ContactId == request.contactId) ||
-                (q.FromContact.ContactId == request.contactId && q.ToContact.ContactId == request.userId));
+                (q.FromContact.ContactId == user.Id && q.ToContact.ContactId == request.contactId) ||
+                (q.FromContact.ContactId == request.contactId && q.ToContact.ContactId == user.Id));
             var sent = await _friendRepository.GetAllAsync(filter);
             return !sent.Any();
         }
@@ -40,6 +36,7 @@ public static class CreateFriend
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         private readonly IValidator<Request> _validator;
+        readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationMethod _notificationMethod;
         private readonly IMapper _mapper;
         private readonly IContactRepository _contactRepository;
@@ -47,11 +44,13 @@ public static class CreateFriend
         private readonly INotificationRepository _notificationRepository;
 
         public Handler(IValidator<Request> validator,
+            IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
             IMapper mapper,
             IUnitOfWork uow)
         {
             _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
             _contactRepository = uow.GetService<IContactRepository>();
@@ -61,18 +60,22 @@ public static class CreateFriend
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = _validator.Validate(request);
+            var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Add friend 
-            var fromContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.userId));
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();
+            var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
+            var user = await _contactRepository.GetItemAsync(filter);
+
+            // Add friend             
+            var fromContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(user.Id));
             var toContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.contactId));
             var friendEntity = new Friend
             {
                 FromContact = new FriendDto_Contact
                 {
-                    ContactId = request.userId,
+                    ContactId = fromContact.Id,
                     ContactName = fromContact.Name
                 },
                 ToContact = new FriendDto_Contact
@@ -92,30 +95,30 @@ public static class CreateFriend
             };
             _notificationRepository.Add(notiEntity);
 
-            // Push friend request
-            await _notificationMethod.Notify(
-               "NewFriendRequest",
-               new string[1] { request.contactId },
-               new FriendToNotify
-               {
-                   RequestId = friendEntity.Id
-               }
-           );
-            // Push notification
-            var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
-            notiDto.AddSourceData(friendEntity);
-            await _notificationMethod.Notify(
-                "NewNotification",
-                new string[1] { request.contactId },
-                notiDto
-            );
+            //     // Push friend request
+            //     await _notificationMethod.Notify(
+            //        "NewFriendRequest",
+            //        new string[1] { request.contactId },
+            //        new FriendToNotify
+            //        {
+            //            RequestId = friendEntity.Id
+            //        }
+            //    );
+            //     // Push notification
+            //     var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
+            //     notiDto.AddSourceData(friendEntity);
+            //     await _notificationMethod.Notify(
+            //         "NewNotification",
+            //         new string[1] { request.contactId },
+            //         notiDto
+            //     );
 
             return Unit.Value;
         }
     }
 }
 
-public class CreateFriendEndpoint : ICarterModule
+public class AddFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
@@ -123,7 +126,7 @@ public class CreateFriendEndpoint : ICarterModule
         async (HttpContext context, ISender sender, string contactId) =>
         {
             var userId = context.Items["UserId"]?.ToString();
-            var query = new CreateFriend.Request(contactId, userId);
+            var query = new AddFriend.Request(contactId, userId);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

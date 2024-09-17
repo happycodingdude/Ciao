@@ -6,16 +6,20 @@ public static class GetInfo
 
     internal sealed class Handler : IRequestHandler<Request, Contact>
     {
+        readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IContactRepository _contactRepository;
 
-        public Handler(IUnitOfWork uow)
+        public Handler(IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
         {
             _contactRepository = uow.GetService<IContactRepository>();
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            return (await _contactRepository.GetAllAsync(MongoQuery<Contact>.EmptyFilter())).SingleOrDefault();
+            var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();
+            var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
+            return await _contactRepository.GetItemAsync(filter);
         }
     }
 }

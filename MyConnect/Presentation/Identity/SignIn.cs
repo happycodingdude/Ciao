@@ -50,18 +50,16 @@ public static class SignIn
                 // context.Response.Body = originalBodyStream;
                 // await context.Response.Body.WriteAsync(ms.ToArray());
 
-
-                // Update IsOnline true
                 var user = await _userManager.FindByNameAsync(request.model.Username);
-                _contactRepository.UseDatabase(typeof(Contact).Name, user.Id);
-                var filter = MongoQuery<Contact>.EmptyFilter();
-                var contact = (await _contactRepository.GetAllAsync(filter)).SingleOrDefault();
-                // if (!contact.IsOnline)
-                // {
-                var updates = Builders<Contact>.Update
-                    .Set(q => q.IsOnline, true);
-                _contactRepository.Update(filter, updates);
-                // }
+                // Update IsOnline true
+                var filter = Builders<Contact>.Filter.Where(q => q.UserId == user.Id);
+                var contact = await _contactRepository.GetItemAsync(filter);
+                if (!contact.IsOnline)
+                {
+                    var updates = Builders<Contact>.Update
+                        .Set(q => q.IsOnline, true);
+                    _contactRepository.Update(filter, updates);
+                }
             }
 
             return Unit.Value;

@@ -1,5 +1,9 @@
 namespace Infrastructure.Repositories;
 
-public class NotificationRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor)
-    : MongoBaseRepository<Notification>(context, httpContextAccessor), INotificationRepository
-{ }
+public class NotificationRepository : MongoBaseRepository<Notification>, INotificationRepository
+{
+    public NotificationRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
+    {
+        UserWarehouseDB();
+    }
+}
