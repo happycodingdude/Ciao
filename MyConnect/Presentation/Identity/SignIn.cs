@@ -6,11 +6,10 @@ public static class SignIn
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly SignInManager<AuthenticationUser> _signInManager;
-        private readonly UserManager<AuthenticationUser> _userManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUnitOfWork _uow;
-        private readonly IContactRepository _contactRepository;
+        readonly SignInManager<AuthenticationUser> _signInManager;
+        readonly UserManager<AuthenticationUser> _userManager;
+        readonly IHttpContextAccessor _httpContextAccessor;
+        readonly IContactRepository _contactRepository;
 
         public Handler(SignInManager<AuthenticationUser> signInManager,
             UserManager<AuthenticationUser> userManager,
@@ -20,7 +19,6 @@ public static class SignIn
             _signInManager = signInManager;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
-            _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
 
@@ -50,8 +48,8 @@ public static class SignIn
                 // context.Response.Body = originalBodyStream;
                 // await context.Response.Body.WriteAsync(ms.ToArray());
 
-                var user = await _userManager.FindByNameAsync(request.model.Username);
                 // Update IsOnline true
+                var user = await _userManager.FindByNameAsync(request.model.Username);
                 var filter = Builders<Contact>.Filter.Where(q => q.UserId == user.Id);
                 var contact = await _contactRepository.GetItemAsync(filter);
                 if (!contact.IsOnline)

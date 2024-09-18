@@ -1,10 +1,8 @@
-using Shared.Constants;
-
 namespace Infrastructure.Repositories;
 
 public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
 {
-    IMongoCollection<T> _collection;
+    internal protected IMongoCollection<T> _collection;
     MongoDbContext _context;
     IUnitOfWork _uow;
 

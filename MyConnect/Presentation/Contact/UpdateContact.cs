@@ -16,14 +16,14 @@ public static class UpdateContact
     {
         readonly IValidator<Request> _validator;
         readonly IHttpContextAccessor _httpContextAccessor;
-        readonly IUnitOfWork _uow;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IValidator<Request> validator, IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator,
+            IHttpContextAccessor httpContextAccessor,
+            IUnitOfWork uow)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
-            _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
 

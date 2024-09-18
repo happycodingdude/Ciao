@@ -6,7 +6,7 @@ public static class SearchContactsWithFriendStatus
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<ContactDto>>
     {
-        private readonly IContactRepository _contactRepository;
+        readonly IContactRepository _contactRepository;
 
         public Handler(IUnitOfWork uow)
         {

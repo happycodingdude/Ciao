@@ -4,17 +4,39 @@ public static class GetById
 {
     public record Request(string id) : IRequest<Friend>;
 
+    public class Validator : AbstractValidator<Request>
+    {
+        readonly IContactRepository _contactRepository;
+        readonly IFriendRepository _friendRepository;
+
+        public Validator(IServiceProvider serviceProvider)
+        {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
+                _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
+            }
+            RuleFor(c => c.id).ContactRelated(_contactRepository, _friendRepository);
+        }
+    }
+
     internal sealed class Handler : IRequestHandler<Request, Friend>
     {
-        private readonly IFriendRepository _friendRepository;
+        readonly IValidator<Request> _validator;
+        readonly IFriendRepository _friendRepository;
 
-        public Handler(IUnitOfWork uow)
+        public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
+            _validator = validator;
             _friendRepository = uow.GetService<IFriendRepository>();
         }
 
         public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                throw new BadRequestException(validationResult.ToString());
+
             var filter = MongoQuery<Friend>.IdFilter(request.id);
             return await _friendRepository.GetItemAsync(filter);
         }

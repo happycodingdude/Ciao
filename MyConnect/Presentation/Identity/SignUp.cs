@@ -6,8 +6,8 @@ public static class SignUp
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly UserManager<AuthenticationUser> _userManager;
-        private IContactRepository _contactRepository;
+        readonly UserManager<AuthenticationUser> _userManager;
+        IContactRepository _contactRepository;
 
         public Handler(UserManager<AuthenticationUser> userManager, IUnitOfWork uow)
         {

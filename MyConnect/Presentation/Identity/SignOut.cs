@@ -6,11 +6,10 @@ public static class SignOut
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly UserManager<AuthenticationUser> _userManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IDistributedCache _distributedCache;
-        private readonly IUnitOfWork _uow;
-        private readonly IContactRepository _contactRepository;
+        readonly UserManager<AuthenticationUser> _userManager;
+        readonly IHttpContextAccessor _httpContextAccessor;
+        readonly IDistributedCache _distributedCache;
+        readonly IContactRepository _contactRepository;
 
         public Handler(UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
@@ -20,7 +19,6 @@ public static class SignOut
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
-            _uow = uow;
             _contactRepository = uow.GetService<IContactRepository>();
         }
 
@@ -31,6 +29,7 @@ public static class SignOut
                 _httpContextAccessor.HttpContext.Response.Cookies.Delete(cookie);
 
             var user = await _userManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+
             // Delete Firebase connection
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
 

@@ -1,12 +1,7 @@
 namespace Application.DTOs;
 
-public class ContactDto : MongoBaseModel
+public class ContactDto : Contact
 {
-    public string Name { get; set; }
-    public string Avatar { get; set; }
-    public string Bio { get; set; }
-    public bool IsOnline { get; set; }
-    public DateTime? LastLogout { get; set; }
     public string FriendId { get; set; }
     public string FriendStatus { get; set; }
 }
