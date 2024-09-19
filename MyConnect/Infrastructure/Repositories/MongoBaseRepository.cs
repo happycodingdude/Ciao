@@ -36,7 +36,7 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     #region CRUD
     public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await _collection.Find(filter).ToListAsync();
 
-    public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleAsync();
+    public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleOrDefaultAsync();
 
     public void Add(T entity) => _uow.AddOperation(() => _collection.InsertOneAsync(entity));
 

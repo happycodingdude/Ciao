@@ -10,8 +10,11 @@ public class MyMapping : Profile
         CreateMap<ContactDto, ContactNoReference>().ReverseMap();
         CreateMap<Contact, ContactNoReference>().ReverseMap();
         CreateMap<Contact, ParticipantWithContact_Contact>().ReverseMap();
-        CreateMap<ConversationDto, Conversation>().ReverseMap();
-        CreateMap<ConversationDto, ConversationWithTotalUnseen>().ReverseMap();
+        CreateMap<Conversation, CreateConversationRequest>().ReverseMap();
+        CreateMap<Participant, CreateConversation_Participant>()
+            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+            .ReverseMap();
+        // CreateMap<ConversationDto, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
         // CreateMap<FriendDto, Friend>().ReverseMap();

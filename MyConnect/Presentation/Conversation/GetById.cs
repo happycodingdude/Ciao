@@ -6,7 +6,7 @@ public static class GetById
 
     internal sealed class Handler : IRequestHandler<Request, Conversation>
     {
-        private readonly IConversationRepository _conversationRepository;
+        readonly IConversationRepository _conversationRepository;
 
         public Handler(IUnitOfWork uow)
         {

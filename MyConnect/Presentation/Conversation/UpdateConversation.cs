@@ -7,19 +7,35 @@ public static class UpdateConversation
 
     public class Validator : AbstractValidator<Request>
     {
-        public Validator()
+        readonly IContactRepository _contactRepository;
+        readonly IConversationRepository _conversationRepository;
+
+        public Validator(IServiceProvider serviceProvider)
         {
-            // RuleFor(c => c.patch.Operations.Where(q => q.path.ToLower() == nameof(ConversationDto.Title).ToLower()).Select(q => q.value.ToString()))
-            //     .Must(q => q.All(w => !string.IsNullOrEmpty(w)))
-            //     .WithMessage("Title should not be empty");
-            RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
+                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
+            }
+            RuleFor(c => c.id).MustAsync((item, cancellation) => ContactRelated(item)).WithMessage("Not related to this conversation").DependentRules(() =>
+            {
+                RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
+            });
+        }
+
+        async Task<bool> ContactRelated(string id)
+        {
+            var user = await _contactRepository.GetInfoAsync();
+            var conversation = await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(id));
+            Console.WriteLine($"conversation => {conversation}");
+            return conversation != null && conversation.Participants.Any(q => q.Contact.Id == user.Id);
         }
     }
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> _validator;
-        private readonly IConversationRepository _conversationRepository;
+        readonly IValidator<Request> _validator;
+        readonly IConversationRepository _conversationRepository;
 
         public Handler(IValidator<Request> validator, IUnitOfWork uow)
         {
@@ -29,7 +45,7 @@ public static class UpdateConversation
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = _validator.Validate(request);
+            var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
