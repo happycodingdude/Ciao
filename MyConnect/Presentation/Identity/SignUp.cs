@@ -9,10 +9,10 @@ public static class SignUp
         readonly UserManager<AuthenticationUser> _userManager;
         IContactRepository _contactRepository;
 
-        public Handler(UserManager<AuthenticationUser> userManager, IUnitOfWork uow)
+        public Handler(UserManager<AuthenticationUser> userManager, IService service)
         {
             _userManager = userManager;
-            _contactRepository = uow.GetService<IContactRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

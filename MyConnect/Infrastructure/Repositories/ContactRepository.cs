@@ -2,13 +2,11 @@ namespace Infrastructure.Repositories;
 
 public class ContactRepository : MongoBaseRepository<Contact>, IContactRepository
 {
-    readonly MongoDbContext _context;
     readonly IHttpContextAccessor _httpContextAccessor;
 
     public ContactRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor)
         : base(context, httpContextAccessor)
     {
-        _context = context;
         _httpContextAccessor = httpContextAccessor;
         UserWarehouseDB();
     }
@@ -24,7 +22,6 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
     {
         if (string.IsNullOrEmpty(name)) return Enumerable.Empty<ContactDto>();
 
-        var userId = _httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
         var user = await GetInfoAsync();
 
         var pipeline = new BsonDocument[]

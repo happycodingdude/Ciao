@@ -14,12 +14,12 @@ public static class SignIn
         public Handler(SignInManager<AuthenticationUser> signInManager,
             UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
-            IUnitOfWork uow)
+            IService service)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
-            _contactRepository = uow.GetService<IContactRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

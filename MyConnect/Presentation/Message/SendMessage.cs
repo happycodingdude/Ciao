@@ -2,13 +2,13 @@ namespace Presentation.Messages;
 
 public static class SendMessage
 {
-    public record Request(Message model) : IRequest<Unit>;
+    public record Request(string conversationId, Message model) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(c => c.model.ConversationId).NotEmpty().WithMessage("Conversation should not be empty");
+            RuleFor(c => c.conversationId).NotEmpty().WithMessage("Conversation should not be empty");
             RuleFor(c => c.model.Type).Must(q => q == "text" || q == "media").WithMessage("Message type should be text or media");
 
             When(c => c.model.Type == "text", () =>
@@ -31,22 +31,22 @@ public static class SendMessage
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> _validator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly INotificationMethod _notificationMethod;
-        private readonly IConversationRepository _conversationRepository;
-        private readonly IMessageRepository _messageRepository;
+        readonly IValidator<Request> _validator;
+        readonly IHttpContextAccessor _httpContextAccessor;
+        readonly INotificationMethod _notificationMethod;
+        readonly IConversationRepository _conversationRepository;
+        readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator,
             IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
-            IUnitOfWork uow)
+            IService service)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
-            _conversationRepository = uow.GetService<IConversationRepository>();
-            _messageRepository = uow.GetService<IMessageRepository>();
+            _conversationRepository = service.Get<IConversationRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -55,27 +55,39 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Add message
-            _messageRepository.Add(request.model);
+            var user = await _contactRepository.GetInfoAsync();
+
+            var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             // When a message sent, all members of that group will be having that group conversation back
-            var filter = MongoQuery<Conversation>.IdFilter(request.model.ConversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
+            // Add message
+            request.model.Contact = new Message_Contact
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Avatar = user.Avatar,
+            };
+            // request.model.Contact.Name = contact.Name;
+            // request.model.Contact.Avatar = contact.Avatar;
+            conversation.Messages.Add(request.model);
+            // Update participants
             foreach (var participant in conversation.Participants)
                 participant.IsDeleted = false;
             var updates = Builders<Conversation>.Update
+                .Set(q => q.Messages, conversation.Messages)
                 .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.Update(filter, updates);
 
             // Push message
-            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
-            await _notificationMethod.Notify(
-                "NewMessage",
-                conversation.Participants
-                    .Where(q => q.Contact.Id != userId)
-                    .Select(q => q.Contact.Id)
-                .ToArray(),
-                request.model
-            );
+            // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
+            // await _notificationMethod.Notify(
+            //     "NewMessage",
+            //     conversation.Participants
+            //         .Where(q => q.Contact.Id != userId)
+            //         .Select(q => q.Contact.Id)
+            //     .ToArray(),
+            //     request.model
+            // );
 
             return Unit.Value;
         }
@@ -86,10 +98,10 @@ public class SendMessageEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Message).MapPost("/send",
-        async (ISender sender, Message model) =>
+        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPost("/{conversationId}/messages",
+        async (ISender sender, string conversationId, Message model) =>
         {
-            var query = new SendMessage.Request(model);
+            var query = new SendMessage.Request(conversationId, model);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

@@ -2,7 +2,6 @@ namespace Application.Repositories;
 
 public interface IUnitOfWork
 {
-    T GetService<T>() where T : IInitDatabase;
-    void AddOperation(Action operation);
+    void AddOperation<TResult>(Func<Task<TResult>> operation) where TResult : class;
     Task SaveAsync();
 }

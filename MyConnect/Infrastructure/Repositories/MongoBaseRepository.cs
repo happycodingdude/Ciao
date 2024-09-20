@@ -38,7 +38,12 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleOrDefaultAsync();
 
-    public void Add(T entity) => _uow.AddOperation(() => _collection.InsertOneAsync(entity));
+
+    public void Add(T entity) => _uow.AddOperation(async () =>
+    {
+        await _collection.InsertOneAsync(entity);
+        return Task.CompletedTask;
+    });
 
     public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {

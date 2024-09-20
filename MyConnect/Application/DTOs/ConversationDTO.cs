@@ -22,3 +22,14 @@ public class ConversationToNotify
     public string Avatar { get; set; }
     public bool IsGroup { get; set; }
 }
+
+public class ConversationWithTotalUnseen : Conversation
+{
+    public int UnSeenMessages { get; set; }
+    public string LastMessageId { get; set; }
+    public string LastMessage { get; set; }
+    public DateTime? LastMessageTime { get; set; }
+    public string LastMessageContact { get; set; }
+    public DateTime? LastSeenTime { get; set; }
+    public bool IsNotifying { get; set; }
+}

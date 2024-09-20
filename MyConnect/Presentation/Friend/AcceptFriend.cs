@@ -16,7 +16,7 @@ public static class AcceptFriend
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
                 _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
             }
-            RuleFor(c => c.id).ContactRelated(_contactRepository, _friendRepository).DependentRules(() =>
+            RuleFor(c => c.id).ContactRelatedToFriendRequest(_contactRepository, _friendRepository).DependentRules(() =>
             {
                 RuleFor(c => c).MustAsync((item, cancellation) => MustBeReceiver(item)).WithMessage("Only accept received request").DependentRules(() =>
                 {
@@ -41,11 +41,11 @@ public static class AcceptFriend
 
         public Handler(IValidator<Request> validator,
             INotificationMethod notificationMethod,
-            IUnitOfWork uow)
+            IService service)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
-            _friendRepository = uow.GetService<IFriendRepository>();
+            _friendRepository = service.Get<IFriendRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -56,8 +56,6 @@ public static class AcceptFriend
 
             var filter = MongoQuery<Friend>.IdFilter(request.id);
             var entity = await _friendRepository.GetItemAsync(filter);
-            // Check if request was excepted
-            // if (entity.AcceptTime.HasValue) return Unit.Value;
 
             var updates = Builders<Friend>.Update
                 .Set(q => q.AcceptTime, DateTime.Now);

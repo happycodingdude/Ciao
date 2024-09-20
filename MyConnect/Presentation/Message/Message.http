@@ -1,25 +1,21 @@
+@host = http://localhost:4000/api
+
 ###
-POST  http://localhost:4100/api/users/signin
+POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"hayeu",
+    "Username":"trint2",
     "Password":"Qwerty@123"
 }
 
 
 ###
-GET  http://localhost:4000/api/conversations/d8c1076f-6eb6-4b0f-9b0e-7ba0b8f00271/messages
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SAH3jDGQcojg-gzx7uN94KrlQwfrVQ-5WmXTjYg_0w7z3Kv1o8A9Q4BkOktbD-3ybe2c1gf458EwdTlAl3VNUi3mLmo-SJa2M3LeLn6KTVyu9XC40-6VdW-vYT7eIK44l8YuApk8D4kAeNR2pPqU6OmGfKRiQjvHJ4dP95HQ33zuhuuNgDrj6FlLUJ-BBmXlSwjMdZD-mzg60zNmttb774TtFDe-ZbPfIHcO2UgdM02tHm0Nk3Dr8zF1kivYIobyANquBlGXryW_jZ5WLT034uJRlkE29332HzE58QgW8fA-vTgzo_vN80RvsSZzHLUiAGvo_kWk9rnTbsD3pC1hR526QjqCHfz51ryWYRUCIvoCAyr87r2SMTQ5h-tF7jIHAGQTOVqB-Iqv0pbCbBuq0lvcv1xuSmtydVtF9qG4dHY7FnK6QB7KFiQ-0XPwYsnMJXD0lG_SYlvWOgGm27eKWMg7VmkVbVPf4swaGrqMyTy5diJaAYbxFzlHCMf3GXaiAwbLystdat8PP-SqkFs2Hr5VuLrYIXxSXrjIb8KNXASA
-
-
-###
-POST  http://localhost:4000/api/messages/send
-Authorization: Bearer CfDJ8CPzuFnSsq5PudvkkW85E9SZNNt30uLGmUx6XLC1dIENr9Jzn-DLALt14C6JLfqHkQAy6kPfrUzy2cjp5I9S_PKEjKBMLKEd9JI0f3y6bnfuGbTg1xr4ytZEiuXBwnicCwMVOlIEpBlEUvix9i1JLmSj3TpL1DAi6BWYgZgo9SLvtQ5doVCDz7catQYHmTBSS7x_4MrP7uuczzpoHCZRaT9jSAVu2BX_5WJ6Na4QYqkTZGnYOnZ1fOHEMcb8hHK_U89hflpEiPeNaCYzT2o5YDTzq0WDi_kJX5vwuY4E7SOdgj08e2sP6CXQfTvZLn9WszB1y_923oVUP0XThZ6grkxnTjDRMuQ38acWoSTHLI0ESxnd6-WEMo0gbsMaYs5EvIs63HroXxxd7Wi4cZnX4-cejlCr1T4BswPnYG0w3HbeQY9RPtrIXsEP-sGIIGCQq8c-WD6QX9e0nUd_j2WZvBwI5kJCRL-KjJrU42zgTL7lzGnAaCzmnkb_VxTZVndxJWVA6uVqKUuL2LWzVQRcHasdtaFrZF54L0Gb-D0LydkCpwO34nOJUHSxc0w7sa8FmA
+POST  {{host}}/conversations/66ed47b5c0177de7aa8523e2/messages
+Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7PYA4XsKP7-tXD-8yth1KighO730IkJ4ThX2ToWI-_zmp_uuMbxsAzbEfOWxeMaiVwL9sIsuEwJiyvkKY6ZPV97NLifBmxdk4-wvEuXa858WrMgsPz0bBK3X4Viavf8TLWhyp8-Gm2s0-_Q5mT68yetbQ5LHctHxTDkd7h_fma4e66xTykDCorjQUNr5_IQrk3IGKmfe0EXH4DE3y3F-Gq9oAkgtbtWXP_kqb_LewuPPqRTZpN93Dzy4kubXwwASyXSg9tx4vHgEvcaKgsbdwC3oWJj3xzMcMxDs8neHRPWJKuiPTCVOcfW_zvOo8Tgg8JhcEDrpyDeySKIC4HBM8ZTWEVjVd_iy2rMsYuEgo6JOBW0BPWOEKfmEljMGq1qPg12sla1BeZ909PAAkJjDrM_nNdm7vaqQydaaZ6C0xn-ctAXlC_qtkq7N9anbjERjATUXQQbhvS11Jnc8eAESOHtjcXh1tTpEPzWC-O7rUwWM-ErCN672Wxs4cWkbObwkMfJ2NwBR8vIReU6WqB8WtjkW8IT253TdNvVYs6GUBnejg
 Content-Type: application/json
 
 {
-    "conversationId":"ee5ba076-aca9-4802-af0f-b3bf04bab384",
     "type":"text",
-    "content":"hihi 62"
+    "content":"hihi 2"    
 }

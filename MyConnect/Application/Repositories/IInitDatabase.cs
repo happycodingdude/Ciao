@@ -5,5 +5,5 @@ public interface IInitDatabase
     void UseDatabase(string collection);
     void UseDatabase(string dbName, string collection);
     void UseUOW(IUnitOfWork uow);
-    void UserWarehouseDB();
+    // void UserWarehouseDB();
 }

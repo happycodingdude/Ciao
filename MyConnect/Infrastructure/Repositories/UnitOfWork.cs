@@ -1,21 +1,13 @@
 namespace Infrastructure.Repositories;
 
-public class UnitOfWork(MongoDbContext mongoDbContext, IServiceScopeFactory serviceScopeFactory) : IUnitOfWork, IDisposable
+public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposable
 {
     private IClientSessionHandle session;
-    private List<Action> operations = new List<Action>();
+    private List<Func<Task<object>>> operations = new List<Func<Task<object>>>();
 
-    public T GetService<T>() where T : IInitDatabase
+    public void AddOperation<TResult>(Func<Task<TResult>> operation) where TResult : class
     {
-        using var scope = serviceScopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetService<T>();
-        service.UseUOW(this);
-        return service;
-    }
-
-    public void AddOperation(Action operation)
-    {
-        operations.Add(operation);
+        operations.Add(async () => await operation());
     }
 
     public async Task SaveAsync()
@@ -26,10 +18,11 @@ public class UnitOfWork(MongoDbContext mongoDbContext, IServiceScopeFactory serv
         {
             session.StartTransaction();
 
-            operations.ForEach(o =>
+            foreach (var operation in operations)
             {
-                o.Invoke();
-            });
+                var result = await operation.Invoke();
+                Console.WriteLine($"operation result => {JsonConvert.SerializeObject(result)}");
+            }
 
             await session.CommitTransactionAsync();
         }

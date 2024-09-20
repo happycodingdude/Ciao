@@ -16,7 +16,7 @@ public static class GetById
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
                 _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
             }
-            RuleFor(c => c.id).ContactRelated(_contactRepository, _friendRepository);
+            RuleFor(c => c.id).ContactRelatedToFriendRequest(_contactRepository, _friendRepository);
         }
     }
 
@@ -25,10 +25,10 @@ public static class GetById
         readonly IValidator<Request> _validator;
         readonly IFriendRepository _friendRepository;
 
-        public Handler(IValidator<Request> validator, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator, IService service)
         {
             _validator = validator;
-            _friendRepository = uow.GetService<IFriendRepository>();
+            _friendRepository = service.Get<IFriendRepository>();
         }
 
         public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)

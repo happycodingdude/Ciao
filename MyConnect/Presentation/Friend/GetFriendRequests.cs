@@ -9,10 +9,10 @@ public static class GetFriendRequests
         readonly IFriendRepository _friendRepository;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IUnitOfWork uow)
+        public Handler(IService service)
         {
-            _friendRepository = uow.GetService<IFriendRepository>();
-            _contactRepository = uow.GetService<IContactRepository>();
+            _friendRepository = service.Get<IFriendRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<IEnumerable<Friend>> Handle(Request request, CancellationToken cancellationToken)

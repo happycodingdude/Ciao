@@ -1,3 +1,6 @@
 namespace Application.Repositories;
 
-public interface IConversationRepository : IMongoRepository<Conversation> { }
+public interface IConversationRepository : IMongoRepository<Conversation>
+{
+    Task<IEnumerable<ConversationWithTotalUnseen>> GetConversationsWithUnseenMesages(PagingParam pagingParam);
+}

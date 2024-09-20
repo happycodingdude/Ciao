@@ -16,7 +16,7 @@ public static class CancelFriend
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
                 _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
             }
-            RuleFor(c => c.id).ContactRelated(_contactRepository, _friendRepository).DependentRules(() =>
+            RuleFor(c => c.id).ContactRelatedToFriendRequest(_contactRepository, _friendRepository).DependentRules(() =>
             {
                 RuleFor(c => c).MustAsync((item, cancellation) => MustBeSender(item)).WithMessage("Only cancel sent request").DependentRules(() =>
                 {
@@ -41,11 +41,11 @@ public static class CancelFriend
 
         public Handler(IValidator<Request> validator,
             INotificationMethod notificationMethod,
-            IUnitOfWork uow)
+            IService service)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
-            _friendRepository = uow.GetService<IFriendRepository>();
+            _friendRepository = service.Get<IFriendRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

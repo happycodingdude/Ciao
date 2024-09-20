@@ -9,10 +9,10 @@ public static class GetByConversationId
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationRepository _notificationRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor, IUnitOfWork uow)
+        public Handler(IHttpContextAccessor httpContextAccessor, IService service)
         {
             _httpContextAccessor = httpContextAccessor;
-            _notificationRepository = uow.GetService<INotificationRepository>();
+            _notificationRepository = service.Get<INotificationRepository>();
         }
 
         public async Task<IEnumerable<Notification>> Handle(Request request, CancellationToken cancellationToken)

@@ -1,4 +1,6 @@
 
+using Microsoft.AspNetCore.Mvc;
+
 namespace Presentation.Conversations;
 
 public static class UpdateConversation
@@ -17,18 +19,10 @@ public static class UpdateConversation
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
                 _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
             }
-            RuleFor(c => c.id).MustAsync((item, cancellation) => ContactRelated(item)).WithMessage("Not related to this conversation").DependentRules(() =>
+            RuleFor(c => c.id).ContactRelatedToConversation(_contactRepository, _conversationRepository).DependentRules(() =>
             {
                 RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
             });
-        }
-
-        async Task<bool> ContactRelated(string id)
-        {
-            var user = await _contactRepository.GetInfoAsync();
-            var conversation = await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(id));
-            Console.WriteLine($"conversation => {conversation}");
-            return conversation != null && conversation.Participants.Any(q => q.Contact.Id == user.Id);
         }
     }
 
@@ -37,10 +31,10 @@ public static class UpdateConversation
         readonly IValidator<Request> _validator;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IValidator<Request> validator, IUnitOfWork uow)
+        public Handler(IValidator<Request> validator, IService service)
         {
             _validator = validator;
-            _conversationRepository = uow.GetService<IConversationRepository>();
+            _conversationRepository = service.Get<IConversationRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

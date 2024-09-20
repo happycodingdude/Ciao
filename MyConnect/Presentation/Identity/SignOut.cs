@@ -14,12 +14,12 @@ public static class SignOut
         public Handler(UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
             IDistributedCache distributedCache,
-            IUnitOfWork uow)
+            IService service)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
-            _contactRepository = uow.GetService<IContactRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

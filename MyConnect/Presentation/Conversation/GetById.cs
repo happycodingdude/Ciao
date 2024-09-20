@@ -4,17 +4,39 @@ public static class GetById
 {
     public record Request(string id) : IRequest<Conversation>;
 
-    internal sealed class Handler : IRequestHandler<Request, Conversation>
+    public class Validator : AbstractValidator<Request>
     {
+        readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IUnitOfWork uow)
+        public Validator(IServiceProvider serviceProvider)
         {
-            _conversationRepository = uow.GetService<IConversationRepository>();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
+                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
+            }
+            RuleFor(c => c.id).ContactRelatedToConversation(_contactRepository, _conversationRepository);
+        }
+    }
+
+    internal sealed class Handler : IRequestHandler<Request, Conversation>
+    {
+        readonly IValidator<Request> _validator;
+        readonly IConversationRepository _conversationRepository;
+
+        public Handler(IValidator<Request> validator, IService service)
+        {
+            _validator = validator;
+            _conversationRepository = service.Get<IConversationRepository>();
         }
 
         public async Task<Conversation> Handle(Request request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                throw new BadRequestException(validationResult.ToString());
+
             return await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(request.id));
         }
     }

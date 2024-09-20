@@ -53,8 +53,9 @@ public class SyncContactAllCollection : BackgroundService
         {
             using var scope = _serviceScopeFactory.CreateScope();
 
+            var service = scope.ServiceProvider.GetService<IService>();
             var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
-            var repo = uow.GetService<IContactRepository>();
+            var repo = service.Get<IContactRepository>(uow);
             repo.UseDatabase(typeof(Contact).Name, "All");
 
             var newContact = BsonSerializer.Deserialize<Contact>(change.FullDocument);
@@ -66,8 +67,9 @@ public class SyncContactAllCollection : BackgroundService
         {
             using var scope = _serviceScopeFactory.CreateScope();
 
+            var service = scope.ServiceProvider.GetService<IService>();
             var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
-            var repo = uow.GetService<IContactRepository>();
+            var repo = service.Get<IContactRepository>(uow);
             repo.UseDatabase(typeof(Contact).Name, collection);
 
             var filter = MongoQuery<Contact>.EmptyFilter();

@@ -8,9 +8,9 @@ public static class SeenNotification
     {
         private readonly INotificationRepository _notificationRepository;
 
-        public Handler(IUnitOfWork uow)
+        public Handler(IService service)
         {
-            _notificationRepository = uow.GetService<INotificationRepository>();
+            _notificationRepository = service.Get<INotificationRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

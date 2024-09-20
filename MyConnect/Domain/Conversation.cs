@@ -7,5 +7,5 @@ public class Conversation : MongoBaseModel
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
     public ICollection<Participant>? Participants { get; set; }
-    public ICollection<Message>? Messages { get; set; }
+    public ICollection<Message> Messages { get; set; } = new List<Message>();
 }

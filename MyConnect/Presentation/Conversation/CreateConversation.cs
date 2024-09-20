@@ -21,8 +21,6 @@ public static class CreateConversation
                 RuleFor(c => c.model.Participants.Count).GreaterThan(1).When(q => q.model.IsGroup).WithMessage("Group conversation should contain at least 1 participant");
                 RuleFor(c => c).MustAsync((item, cancellation) => MustContainOnlyOneContact(item.model.Participants.ToList()))
                     .When(q => !q.model.IsGroup).WithMessage("Direct conversation should only contain 1 participant");
-                // RuleFor(c => c.model.Participants.Count).Equal(1).When(q => !q.model.IsGroup).WithMessage("Direct conversation should only contain 1 participant");
-                // RuleFor(c => c.model.Participants).Must(q => q.Any(w => w.Contact.Id != )).When(q => !q.model.IsGroup).WithMessage("Direct conversation should only contain 1 participant");
             });
             RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
         }
@@ -47,14 +45,14 @@ public static class CreateConversation
             IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
             IMapper mapper,
-            IUnitOfWork uow)
+            IService service)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
-            _conversationRepository = uow.GetService<IConversationRepository>();
-            _contactRepository = uow.GetService<IContactRepository>();
+            _conversationRepository = service.Get<IConversationRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

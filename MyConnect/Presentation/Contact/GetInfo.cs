@@ -8,9 +8,9 @@ public static class GetInfo
     {
         readonly IContactRepository _contactRepository;
 
-        public Handler(IUnitOfWork uow)
+        public Handler(IService service)
         {
-            _contactRepository = uow.GetService<IContactRepository>();
+            _contactRepository = service.Get<IContactRepository>();
         }
 
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)

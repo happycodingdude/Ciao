@@ -2,7 +2,7 @@ namespace Presentation.Configurations;
 
 public static class FriendValidators
 {
-    public static IRuleBuilderOptions<T, string> ContactRelated<T>(this IRuleBuilder<T, string> ruleBuilder,
+    public static IRuleBuilderOptions<T, string> ContactRelatedToFriendRequest<T>(this IRuleBuilder<T, string> ruleBuilder,
         IContactRepository contactRepository,
         IFriendRepository friendRepository)
     {
