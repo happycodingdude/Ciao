@@ -1,6 +1,3 @@
-
-using Microsoft.AspNetCore.Mvc;
-
 namespace Presentation.Conversations;
 
 public static class UpdateConversation

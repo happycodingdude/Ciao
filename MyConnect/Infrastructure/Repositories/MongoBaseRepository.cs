@@ -24,7 +24,7 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         {
             var collection = _context.Client.GetDatabase(AppConstants.WarehouseDB).GetCollection<Contact>(nameof(Contact));
             var contact = collection.Find(q => q.UserId == userId).SingleOrDefault();
-            UseDatabase(typeof(T).Name, contact.Id);
+            UseCollection(contact.Id);
         }
         // UseDatabase(typeof(T).Name, collection);
     }
@@ -39,6 +39,10 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     {
         Console.WriteLine($"dbName => {dbName} and collection => {collection}");
         _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(collection);
+    }
+    public void UseCollection(string collection)
+    {
+        _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
     }
 
     public void UseUOW(IUnitOfWork uow) => _uow = uow;

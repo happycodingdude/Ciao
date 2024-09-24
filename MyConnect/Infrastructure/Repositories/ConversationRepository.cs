@@ -32,7 +32,6 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
 
         var user = await _contactRepository.GetInfoAsync();
-        Console.WriteLine($"user => {user.Id}");
         foreach (var conversation in conversations)
         {
             conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).IsNotifying;

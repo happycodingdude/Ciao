@@ -5,17 +5,18 @@ POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint2",
+    "Username":"trint4",
     "Password":"Qwerty@123"
 }
 
 
 ###
-POST  {{host}}/conversations/66ed47b5c0177de7aa8523e2/messages
-Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7PYA4XsKP7-tXD-8yth1KighO730IkJ4ThX2ToWI-_zmp_uuMbxsAzbEfOWxeMaiVwL9sIsuEwJiyvkKY6ZPV97NLifBmxdk4-wvEuXa858WrMgsPz0bBK3X4Viavf8TLWhyp8-Gm2s0-_Q5mT68yetbQ5LHctHxTDkd7h_fma4e66xTykDCorjQUNr5_IQrk3IGKmfe0EXH4DE3y3F-Gq9oAkgtbtWXP_kqb_LewuPPqRTZpN93Dzy4kubXwwASyXSg9tx4vHgEvcaKgsbdwC3oWJj3xzMcMxDs8neHRPWJKuiPTCVOcfW_zvOo8Tgg8JhcEDrpyDeySKIC4HBM8ZTWEVjVd_iy2rMsYuEgo6JOBW0BPWOEKfmEljMGq1qPg12sla1BeZ909PAAkJjDrM_nNdm7vaqQydaaZ6C0xn-ctAXlC_qtkq7N9anbjERjATUXQQbhvS11Jnc8eAESOHtjcXh1tTpEPzWC-O7rUwWM-ErCN672Wxs4cWkbObwkMfJ2NwBR8vIReU6WqB8WtjkW8IT253TdNvVYs6GUBnejg
+POST  {{host}}/conversations/66f2d628fa33f96c68fd71d9/messages
+Authorization: Bearer CfDJ8IE6k77TFy5BnhYCqdQ4BPgv3wzrN89M_396aS347AOc1Qio3sr43wcS9Q6fBruhXPCACGrDHyx1OAcKZu8mPy1iz3v9atheMPl5wYpFhep3oJJfZroS6sN568SnGPQBPVMT-_RBQZ5R9dG04obAN90WdmA9zem8M1ylAsBorIZkpnQ6POyRb7Sc5cSl2rBdhyso-ITzUsfH_uNJ26fenJ8sOa4iiOLzvjs9Qv9RLFOl5I_zBvnZhYxqDp46qVLHuu7vqJQ6ScpXwF7CVjlovgpYT92kT3MJD45IMvDEV3KxIE-Xrx682Arq65GadQdtxrcD76O-umXoW2W2J0nz-ED_26AzmLu4t1X0bYZyBwLeul0QPhuVG06x3PDLuLrlLLsi4dLQYk2YEZIwktjlgDalldw2TTO7gUy7C_w6CCnnX7wrAjZEk4StsFOjsW5Pn5Iw18J9AK2v3U0WdOQlH10M7QNYRq3A01lkofAiknMLUkaNzRxRfnBnkbcBlx4p3I0dZtRb5Ob55kAQszJk0AoAhntL7O9t2WH03895EkU4nSwSRyBRihHTh_S4ZxIJ0w
 Content-Type: application/json
 
 {
+    "moderator":"66f270cf9423f7e5257a711e",
     "type":"text",
-    "content":"hihi 2"    
+    "content":"hihi 4"
 }

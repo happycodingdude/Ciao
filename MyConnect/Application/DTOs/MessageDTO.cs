@@ -45,10 +45,11 @@ public class MessageToNotify : BaseModel
     public ICollection<AttachmentNoReference>? Attachments { get; set; }
 }
 
-// public class CreateMessageRequest : Message
-// {
-//     public string ContactId { get; set; }
-// }
+public class CreateMessageRequest : Message
+{
+    public string ConversationId { get; set; }
+    public string Moderator { get; set; }
+}
 
 // public class MessageWithAttachment : Message
 // {

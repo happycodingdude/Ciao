@@ -14,9 +14,7 @@ public class MyMapping : Profile
         CreateMap<Participant, CreateConversation_Participant>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
-        // CreateMap<Message, CreateMessageRequest>()
-        //     .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
-        //     .ReverseMap();
+        CreateMap<Message, CreateMessageRequest>().ReverseMap();
         // CreateMap<ConversationDto, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();

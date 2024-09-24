@@ -7,20 +7,33 @@ public static class CreateConversation
     public class Validator : AbstractValidator<Request>
     {
         readonly IContactRepository _contactRepository;
+        readonly IConversationRepository _conversationRepository;
 
         public Validator(IServiceProvider serviceProvider)
         {
             using (var scope = serviceProvider.CreateScope())
             {
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
+                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
             }
             RuleFor(c => c.model.Participants).ShouldHaveValue().DependentRules(() =>
             {
                 RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
                 RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
-                RuleFor(c => c.model.Participants.Count).GreaterThan(1).When(q => q.model.IsGroup).WithMessage("Group conversation should contain at least 1 participant");
-                RuleFor(c => c).MustAsync((item, cancellation) => MustContainOnlyOneContact(item.model.Participants.ToList()))
-                    .When(q => !q.model.IsGroup).WithMessage("Direct conversation should only contain 1 participant");
+                When(c => c.model.IsGroup, () =>
+                {
+                    RuleFor(c => c.model.Participants.Count).GreaterThan(1).WithMessage("Group conversation should contain at least 1 participant");
+                });
+                When(c => !c.model.IsGroup, () =>
+                {
+                    RuleFor(c => c).MustAsync((item, cancellation) => MustContainOnlyOneContact(item.model.Participants.ToList()))
+                        .WithMessage("Direct conversation should only contain 1 participant")
+                        .DependentRules(() =>
+                        {
+                            RuleFor(c => c).MustAsync((item, cancellation) => OnlyOneDirectConversation(item.model.Participants.ToList()))
+                                .WithMessage("Direct conversation was created");
+                        });
+                });
             });
             RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
         }
@@ -33,8 +46,16 @@ public static class CreateConversation
 
         async Task<bool> OnlyOneDirectConversation(List<CreateConversation_Participant> participants)
         {
-            var contact =
-            return participants.Count == 1 && participants.Any(q => q.ContactId != user.Id);
+            var user = await _contactRepository.GetInfoAsync();
+            var contactId = participants.FirstOrDefault(q => q.ContactId != user.Id).ContactId;
+
+            var filter = Builders<Conversation>.Filter.And(
+                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == user.Id),
+                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == contactId)
+            );
+            var conversation = await _conversationRepository.GetAllAsync(filter);
+
+            return !conversation.Any();
         }
     }
 
