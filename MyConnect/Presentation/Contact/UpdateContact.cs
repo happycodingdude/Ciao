@@ -20,11 +20,11 @@ public static class UpdateContact
 
         public Handler(IValidator<Request> validator,
             IHttpContextAccessor httpContextAccessor,
-            IService service)
+            IService<IContactRepository> service)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
-            _contactRepository = service.Get<IContactRepository>();
+            _contactRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

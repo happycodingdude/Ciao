@@ -53,14 +53,16 @@ public static class AddFriend
         public Handler(IValidator<Request> validator,
             INotificationMethod notificationMethod,
             IMapper mapper,
-            IService service)
+            IService<IContactRepository> contactService,
+            IService<IFriendRepository> friendService,
+            IService<INotificationRepository> notificationService)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
-            _contactRepository = service.Get<IContactRepository>();
-            _friendRepository = service.Get<IFriendRepository>();
-            _notificationRepository = service.Get<INotificationRepository>();
+            _contactRepository = contactService.Get();
+            _friendRepository = friendService.Get();
+            _notificationRepository = notificationService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

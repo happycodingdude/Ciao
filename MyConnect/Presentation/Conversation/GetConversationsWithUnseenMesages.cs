@@ -8,9 +8,9 @@ public static class GetConversationsWithUnseenMesages
     {
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IService service)
+        public Handler(IService<IConversationRepository> service)
         {
-            _conversationRepository = service.Get<IConversationRepository>();
+            _conversationRepository = service.Get();
         }
 
         public async Task<IEnumerable<object>> Handle(Request request, CancellationToken cancellationToken)

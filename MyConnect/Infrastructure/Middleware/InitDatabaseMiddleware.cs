@@ -14,25 +14,25 @@ public class InitDatabaseMiddleware
     {
         Console.WriteLine("InitDatabaseMiddleware calling");
 
-        var dbName = httpContext.Session.GetString("UserId");
-        if (!string.IsNullOrEmpty(dbName))
-        {
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
-                .Where(q => typeof(IInitDatabase).IsAssignableFrom(q) && q.IsInterface);
+        // var dbName = httpContext.Session.GetString("UserId");
+        // if (!string.IsNullOrEmpty(dbName))
+        // {
+        //     var types = AppDomain.CurrentDomain.GetAssemblies()
+        //     .SelectMany(s => s.GetTypes())
+        //         .Where(q => typeof(IInitDatabase).IsAssignableFrom(q) && q.IsInterface);
 
-            foreach (var type in types)
-            {
-                var service = httpContext.RequestServices.GetService(type);
-                // chỗ này service bị null
-                if (service != null)
-                    ((IInitDatabase)service).UseDatabase(dbName);
-            }
-        }
-        else
-        {
+        //     foreach (var type in types)
+        //     {
+        //         var service = httpContext.RequestServices.GetService(type);
+        //         // chỗ này service bị null
+        //         if (service != null)
+        //             ((IInitDatabase)service).UseDatabase(dbName);
+        //     }
+        // }
+        // else
+        // {
 
-        }
+        // }
         await _next(httpContext);
     }
 }

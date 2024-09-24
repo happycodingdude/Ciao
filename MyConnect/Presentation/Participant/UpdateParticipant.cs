@@ -8,9 +8,9 @@ public static class UpdateParticipant
     {
         private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IService service)
+        public Handler(IService<IConversationRepository> service)
         {
-            _conversationRepository = service.Get<IConversationRepository>();
+            _conversationRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

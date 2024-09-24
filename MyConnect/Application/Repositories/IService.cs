@@ -1,7 +1,12 @@
 namespace Application.Repositories;
 
-public interface IService
+// public interface IService
+// {
+//     T Get<T>() where T : IInitDatabase;
+//     T Get<T>(IUnitOfWork uow) where T : IInitDatabase;
+// }
+
+public interface IService<T>
 {
-    T Get<T>() where T : IInitDatabase;
-    T Get<T>(IUnitOfWork uow) where T : IInitDatabase;
+    T Get();
 }

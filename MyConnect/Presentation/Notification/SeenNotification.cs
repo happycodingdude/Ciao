@@ -4,17 +4,39 @@ public static class SeenNotification
 {
     public record Request(string id) : IRequest<Unit>;
 
+    public class Validator : AbstractValidator<Request>
+    {
+        readonly IContactRepository _contactRepository;
+        readonly INotificationRepository _notificationRepository;
+
+        public Validator(IServiceProvider serviceProvider)
+        {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
+                _notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+            }
+            RuleFor(c => c.id).ContactRelatedToNotification(_contactRepository, _notificationRepository);
+        }
+    }
+
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly INotificationRepository _notificationRepository;
+        readonly IValidator<Request> _validator;
+        readonly INotificationRepository _notificationRepository;
 
-        public Handler(IService service)
+        public Handler(IValidator<Request> validator, IService<INotificationRepository> service)
         {
-            _notificationRepository = service.Get<INotificationRepository>();
+            _validator = validator;
+            _notificationRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                throw new BadRequestException(validationResult.ToString());
+
             var filter = MongoQuery<Notification>.IdFilter(request.id);
             var entity = await _notificationRepository.GetItemAsync(filter);
             if (entity.Read) return Unit.Value;

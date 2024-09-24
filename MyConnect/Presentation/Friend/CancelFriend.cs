@@ -41,11 +41,11 @@ public static class CancelFriend
 
         public Handler(IValidator<Request> validator,
             INotificationMethod notificationMethod,
-            IService service)
+            IService<IFriendRepository> service)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
-            _friendRepository = service.Get<IFriendRepository>();
+            _friendRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

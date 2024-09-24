@@ -14,12 +14,12 @@ public static class SignOut
         public Handler(UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
             IDistributedCache distributedCache,
-            IService service)
+            IService<IContactRepository> service)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
-            _contactRepository = service.Get<IContactRepository>();
+            _contactRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -28,13 +28,14 @@ public static class SignOut
             foreach (var cookie in _httpContextAccessor.HttpContext.Request.Cookies.Keys)
                 _httpContextAccessor.HttpContext.Response.Cookies.Delete(cookie);
 
-            var user = await _userManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+            var identity = await _userManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+            var user = await _contactRepository.GetInfoAsync();
 
             // Delete Firebase connection
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
 
-            // Update IsOnline false            
-            var filter = Builders<Contact>.Filter.Where(q => q.UserId == user.Id);
+            // Update IsOnline false
+            var filter = Builders<Contact>.Filter.Where(q => q.Id == user.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
                 .Set(q => q.LastLogout, DateTime.Now);

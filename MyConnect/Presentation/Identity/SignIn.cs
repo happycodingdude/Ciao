@@ -14,12 +14,12 @@ public static class SignIn
         public Handler(SignInManager<AuthenticationUser> signInManager,
             UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
-            IService service)
+            IService<IContactRepository> service)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
-            _contactRepository = service.Get<IContactRepository>();
+            _contactRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -50,6 +50,8 @@ public static class SignIn
 
                 // Update IsOnline true
                 var user = await _userManager.FindByNameAsync(request.model.Username);
+                // _contactRepository.UseDatabase(user.Id);
+                // var filter = MongoQuery<Contact>.EmptyFilter();
                 var filter = Builders<Contact>.Filter.Where(q => q.UserId == user.Id);
                 var contact = await _contactRepository.GetItemAsync(filter);
                 if (!contact.IsOnline)

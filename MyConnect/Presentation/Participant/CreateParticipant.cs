@@ -22,10 +22,10 @@ public static class CreateParticipant
         private readonly IValidator<Request> _validator;
         private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IValidator<Request> validator, IService service)
+        public Handler(IValidator<Request> validator, IService<IConversationRepository> service)
         {
             _validator = validator;
-            _conversationRepository = service.Get<IConversationRepository>();
+            _conversationRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

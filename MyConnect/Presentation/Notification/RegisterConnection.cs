@@ -14,17 +14,20 @@ public static class RegisterConnection
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        private readonly IValidator<Request> _validator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IDistributedCache _distributedCache;
+        readonly IValidator<Request> _validator;
+        readonly IHttpContextAccessor _httpContextAccessor;
+        readonly IDistributedCache _distributedCache;
+        readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator,
             IHttpContextAccessor httpContextAccessor,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            IService<IContactRepository> service)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
+            _contactRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -33,8 +36,9 @@ public static class RegisterConnection
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
-            await _distributedCache.SetStringAsync($"connection-{userId}", request.token);
+            // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
+            var user = await _contactRepository.GetInfoAsync();
+            await _distributedCache.SetStringAsync($"connection-{user.Id}", request.token);
 
             return Unit.Value;
         }

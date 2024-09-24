@@ -9,10 +9,10 @@ public static class SignUp
         readonly UserManager<AuthenticationUser> _userManager;
         IContactRepository _contactRepository;
 
-        public Handler(UserManager<AuthenticationUser> userManager, IService service)
+        public Handler(UserManager<AuthenticationUser> userManager, IService<IContactRepository> service)
         {
             _userManager = userManager;
-            _contactRepository = service.Get<IContactRepository>();
+            _contactRepository = service.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -28,6 +28,7 @@ public static class SignUp
                 throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
             var userId = await _userManager.GetUserIdAsync(user);
+            // _contactRepository.UseDatabase(userId);
             var contact = new Contact
             {
                 UserId = userId,

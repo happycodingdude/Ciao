@@ -25,10 +25,10 @@ public static class GetById
         readonly IValidator<Request> _validator;
         readonly IFriendRepository _friendRepository;
 
-        public Handler(IValidator<Request> validator, IService service)
+        public Handler(IValidator<Request> validator, IService<IFriendRepository> service)
         {
             _validator = validator;
-            _friendRepository = service.Get<IFriendRepository>();
+            _friendRepository = service.Get();
         }
 
         public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)

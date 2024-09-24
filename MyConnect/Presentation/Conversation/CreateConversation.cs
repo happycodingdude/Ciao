@@ -30,6 +30,12 @@ public static class CreateConversation
             var user = await _contactRepository.GetInfoAsync();
             return participants.Count == 1 && participants.Any(q => q.ContactId != user.Id);
         }
+
+        async Task<bool> OnlyOneDirectConversation(List<CreateConversation_Participant> participants)
+        {
+            var contact =
+            return participants.Count == 1 && participants.Any(q => q.ContactId != user.Id);
+        }
     }
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
@@ -45,14 +51,15 @@ public static class CreateConversation
             IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
             IMapper mapper,
-            IService service)
+            IService<IConversationRepository> conversationService,
+            IService<IContactRepository> contactService)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
-            _conversationRepository = service.Get<IConversationRepository>();
-            _contactRepository = service.Get<IContactRepository>();
+            _conversationRepository = conversationService.Get();
+            _contactRepository = contactService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

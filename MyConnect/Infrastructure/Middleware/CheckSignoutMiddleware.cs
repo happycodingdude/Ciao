@@ -22,8 +22,8 @@ public class CheckSignoutMiddleware
         }
 
         var userId = httpContext.Items["UserId"].ToString();
-        var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
-        var user = await contactRepository.GetItemAsync(filter);
+        // contactRepository.UseDatabase(userId);
+        var user = await contactRepository.GetInfoAsync();
         if (!user.IsOnline)
             throw new UnauthorizedException();
 

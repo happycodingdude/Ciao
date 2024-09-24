@@ -5,8 +5,11 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 {
     readonly IContactRepository _contactRepository;
 
-    public ConversationRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor, IContactRepository contactRepository)
-        : base(context, httpContextAccessor)
+    public ConversationRepository(MongoDbContext context,
+        IUnitOfWork uow,
+        IHttpContextAccessor httpContextAccessor,
+        IContactRepository contactRepository)
+        : base(context, uow, httpContextAccessor)
     {
         _contactRepository = contactRepository;
     }

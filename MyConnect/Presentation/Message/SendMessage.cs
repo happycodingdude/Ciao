@@ -40,13 +40,14 @@ public static class SendMessage
         public Handler(IValidator<Request> validator,
             IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
-            IService service)
+            IService<IConversationRepository> conversationService,
+            IService<IContactRepository> contactService)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
-            _conversationRepository = service.Get<IConversationRepository>();
-            _contactRepository = service.Get<IContactRepository>();
+            _conversationRepository = conversationService.Get();
+            _contactRepository = contactService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

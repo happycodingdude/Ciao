@@ -25,10 +25,10 @@ public static class GetById
         readonly IValidator<Request> _validator;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IValidator<Request> validator, IService service)
+        public Handler(IValidator<Request> validator, IService<IConversationRepository> service)
         {
             _validator = validator;
-            _conversationRepository = service.Get<IConversationRepository>();
+            _conversationRepository = service.Get();
         }
 
         public async Task<Conversation> Handle(Request request, CancellationToken cancellationToken)

@@ -6,21 +6,25 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<Notification>>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly INotificationRepository _notificationRepository;
+        readonly INotificationRepository _notificationRepository;
+        readonly IContactRepository _contactRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor, IService service)
+        public Handler(IService<INotificationRepository> notificationService, IService<IContactRepository> contactService)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _notificationRepository = service.Get<INotificationRepository>();
+            _notificationRepository = notificationService.Get();
+            _contactRepository = contactService.Get();
         }
 
         public async Task<IEnumerable<Notification>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
-            var filter = Builders<Notification>.Filter.Where(q => q.ContactId == userId);
-            var notifications = await _notificationRepository.GetAllAsync(filter);
-            if (!notifications.Any()) return Enumerable.Empty<Notification>();
+            // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
+            // var filter = Builders<Notification>.Filter.Where(q => q.ContactId == userId);
+            // var notifications = await _notificationRepository.GetAllAsync(filter);
+            // if (!notifications.Any()) return Enumerable.Empty<Notification>();
+
+            var user = await _contactRepository.GetInfoAsync();
+            var filter = Builders<Notification>.Filter.Where(q => q.ContactId == user.Id);
+            return await _notificationRepository.GetAllAsync(filter);
 
             // var result = new List<NotificationTypeConstraint>(notifications.Count);
             // foreach (var notification in notifications)
@@ -43,7 +47,7 @@ public static class GetByConversationId
             //     }
             // }
 
-            return notifications;
+            // return notifications;
         }
     }
 }

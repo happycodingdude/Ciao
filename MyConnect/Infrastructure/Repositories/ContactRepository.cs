@@ -4,8 +4,8 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
 {
     readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ContactRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor)
-        : base(context, httpContextAccessor)
+    public ContactRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor)
+        : base(context, uow, httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
         UserWarehouseDB();

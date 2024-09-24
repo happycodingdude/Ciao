@@ -8,9 +8,9 @@ public static class GetByContactId
     {
         private readonly IFriendRepository _friendRepository;
 
-        public Handler(IService service)
+        public Handler(IService<IFriendRepository> service)
         {
-            _friendRepository = service.Get<IFriendRepository>();
+            _friendRepository = service.Get();
         }
 
         public async Task<IEnumerable<GetAllFriend>> Handle(Request request, CancellationToken cancellationToken)

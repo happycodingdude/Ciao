@@ -51,42 +51,42 @@ public class SyncContactAllCollection : BackgroundService
 
         async Task Add()
         {
-            using var scope = _serviceScopeFactory.CreateScope();
+            // using var scope = _serviceScopeFactory.CreateScope();
 
-            var service = scope.ServiceProvider.GetService<IService>();
-            var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
-            var repo = service.Get<IContactRepository>(uow);
-            repo.UseDatabase(typeof(Contact).Name, "All");
+            // var service = scope.ServiceProvider.GetService<IService>();
+            // var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+            // var repo = service.Get<IContactRepository>(uow);
+            // repo.UseDatabase(typeof(Contact).Name, "All");
 
-            var newContact = BsonSerializer.Deserialize<Contact>(change.FullDocument);
-            repo.Add(newContact);
-            await uow.SaveAsync();
+            // var newContact = BsonSerializer.Deserialize<Contact>(change.FullDocument);
+            // repo.Add(newContact);
+            // await uow.SaveAsync();
         }
 
         async Task Update()
         {
-            using var scope = _serviceScopeFactory.CreateScope();
+            // using var scope = _serviceScopeFactory.CreateScope();
 
-            var service = scope.ServiceProvider.GetService<IService>();
-            var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
-            var repo = service.Get<IContactRepository>(uow);
-            repo.UseDatabase(typeof(Contact).Name, collection);
+            // var service = scope.ServiceProvider.GetService<IService>();
+            // var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+            // var repo = service.Get<IContactRepository>(uow);
+            // repo.UseDatabase(typeof(Contact).Name, collection);
 
-            var filter = MongoQuery<Contact>.EmptyFilter();
-            var contact = (await repo.GetAllAsync(filter)).SingleOrDefault();
+            // var filter = MongoQuery<Contact>.EmptyFilter();
+            // var contact = (await repo.GetAllAsync(filter)).SingleOrDefault();
 
-            repo.UseDatabase(typeof(Contact).Name, "All");
-            filter = MongoQuery<Contact>.IdFilter(change.DocumentKey["_id"].ToString());
-            var updates = Builders<Contact>.Update
-                .Set(q => q.Name, contact.Name)
-                .Set(q => q.Avatar, contact.Avatar)
-                .Set(q => q.Bio, contact.Bio)
-                .Set(q => q.IsOnline, contact.IsOnline)
-                .Set(q => q.LastLogout, contact.LastLogout);
+            // repo.UseDatabase(typeof(Contact).Name, "All");
+            // filter = MongoQuery<Contact>.IdFilter(change.DocumentKey["_id"].ToString());
+            // var updates = Builders<Contact>.Update
+            //     .Set(q => q.Name, contact.Name)
+            //     .Set(q => q.Avatar, contact.Avatar)
+            //     .Set(q => q.Bio, contact.Bio)
+            //     .Set(q => q.IsOnline, contact.IsOnline)
+            //     .Set(q => q.LastLogout, contact.LastLogout);
 
-            var all = await repo.GetItemAsync(filter);
-            repo.Update(filter, updates);
-            await uow.SaveAsync();
+            // var all = await repo.GetItemAsync(filter);
+            // repo.Update(filter, updates);
+            // await uow.SaveAsync();
         }
 
         // Respect the cancellation token
