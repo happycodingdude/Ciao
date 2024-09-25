@@ -2,37 +2,32 @@ namespace Presentation.Friends;
 
 public static class GetByContactId
 {
-    public record Request(string contactId) : IRequest<IEnumerable<GetAllFriend>>;
+    public record Request(string contactId) : IRequest<IEnumerable<FriendWithStatus>>;
 
-    internal sealed class Handler : IRequestHandler<Request, IEnumerable<GetAllFriend>>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<FriendWithStatus>>
     {
-        private readonly IFriendRepository _friendRepository;
+        readonly IMapper _mapper;
+        readonly IFriendRepository _friendRepository;
 
-        public Handler(IService<IFriendRepository> service)
+        public Handler(IMapper mapper, IService<IFriendRepository> service)
         {
+            _mapper = mapper;
             _friendRepository = service.Get();
         }
 
-        public async Task<IEnumerable<GetAllFriend>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<FriendWithStatus>> Handle(Request request, CancellationToken cancellationToken)
         {
             var filter = Builders<Friend>.Filter.Where(q => q.FromContact.ContactId == request.contactId || q.ToContact.ContactId == request.contactId);
             var friends = await _friendRepository.GetAllAsync(filter);
+            if (!friends.Any()) return Enumerable.Empty<FriendWithStatus>();
 
-            if (!friends.Any()) return Enumerable.Empty<GetAllFriend>();
-
-            var result = new List<GetAllFriend>(friends.Count());
+            var result = new List<FriendWithStatus>(friends.Count());
             foreach (var friend in friends)
-                result.Add(new GetAllFriend
-                {
-                    Id = friend.Id,
-                    ContactId = friend.FromContact.ContactId == request.contactId ? friend.ToContact.ContactId : friend.FromContact.ContactId,
-                    ContactName = friend.FromContact.ContactId == request.contactId ? friend.ToContact.ContactName : friend.FromContact.ContactName,
-                    Status = friend.AcceptTime.HasValue == true
-                        ? "friend"
-                        : friend.FromContact.ContactId == request.contactId
-                            ? "request_sent"
-                            : "request_received"
-                });
+            {
+                var friendWithStatus = _mapper.Map<Friend, FriendWithStatus>(friend);
+                friendWithStatus.Status = await _friendRepository.GetFriendStatusAsync(friend);
+                result.Add(friendWithStatus);
+            }
 
             return result;
         }

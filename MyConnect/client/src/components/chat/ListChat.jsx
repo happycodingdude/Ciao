@@ -66,8 +66,8 @@ const ListChat = () => {
         return newData;
       });
       refetchMessage();
-      refetchParticipant();
-      refetchAttachment();
+      // refetchParticipant();
+      // refetchAttachment();
     }
   }, [selected?.id]);
 

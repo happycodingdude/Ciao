@@ -73,7 +73,7 @@ const ChatInput = (props) => {
   };
 
   const callToAction = () => {
-    if (messages.conversation.isGroup) groupChat();
+    if (messages.isGroup) groupChat();
     else directChat();
   };
 
@@ -87,7 +87,7 @@ const ChatInput = (props) => {
 
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
-      {messages.conversation.isGroup ? (
+      {messages.isGroup ? (
         <div className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16">
           <Editor
             ref={editorRef}

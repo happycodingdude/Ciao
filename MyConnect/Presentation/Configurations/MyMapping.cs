@@ -18,7 +18,7 @@ public class MyMapping : Profile
         // CreateMap<ConversationDto, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
-        // CreateMap<FriendDto, Friend>().ReverseMap();
+        CreateMap<FriendWithStatus, Friend>().ReverseMap();
         // CreateMap<FriendDto, FriendToNotify>().ReverseMap();
         CreateMap<Friend, NotificationSourceDataType_Friend>()
             .ForMember(q => q.FriendId, s => s.MapFrom(w => w.Id))
@@ -31,8 +31,9 @@ public class MyMapping : Profile
         // CreateMap<Message, MessageWithAttachment>().ReverseMap();
         // CreateMap<Attachment, MessageWithAttachment_Attachment>().ReverseMap();
         CreateMap<NotificationDto, Notification>().ReverseMap();
-        CreateMap<NotificationDto, NotificationTypeConstraint>().ReverseMap();
-        CreateMap<Notification, NotificationTypeConstraint>().ReverseMap();
+        // CreateMap(typeof(NotificationDto), typeof(NotificationTypeConstraint<>)).ReverseMap();
+        // CreateMap(typeof(Notification), typeof(NotificationTypeConstraint<>)).ReverseMap();
+        // CreateMap<Notification, NotificationTypeConstraint>().ReverseMap();
         CreateMap<Notification, NotificationToNotify>().ReverseMap();
         CreateMap<ParticipantDto, Participant>().ReverseMap();
         CreateMap<ParticipantDto, ParticipantNoReference>().ReverseMap();

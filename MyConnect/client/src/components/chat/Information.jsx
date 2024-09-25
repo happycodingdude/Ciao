@@ -117,10 +117,10 @@ const Information = (props) => {
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
               onClick={() => {}}
             /> */}
-            {messages.conversation.isGroup ? (
+            {messages.isGroup ? (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
-                  src={messages.conversation.avatar ?? ""}
+                  src={messages.avatar ?? ""}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   onClick={() => {}}
                 />
@@ -132,27 +132,27 @@ const Information = (props) => {
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
-                  title={messages.conversation.title}
+                  title={messages.title}
                   tooltip
                 />
                 <div className="cursor-pointer text-[var(--text-main-color-blur)]">
-                  {participants?.length} members
+                  {messages.participants.length} members
                 </div>
               </>
             ) : (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
                   src={
-                    participants?.find(
-                      (item) => item.contactId !== info.data.id,
+                    messages.participants?.find(
+                      (item) => item.contact.id !== info.data.id,
                     )?.contact.avatar ?? ""
                   }
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   slides={[
                     {
                       src:
-                        participants?.find(
-                          (item) => item.contactId !== info.data.id,
+                        messages.participants?.find(
+                          (item) => item.contact.id !== info.data.id,
                         )?.contact.avatar ?? "",
                     },
                   ]}
@@ -160,8 +160,8 @@ const Information = (props) => {
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
                   title={
-                    participants?.find(
-                      (item) => item.contactId !== info.data.id,
+                    messages.participants?.find(
+                      (item) => item.contact.id !== info.data.id,
                     )?.contact.name
                   }
                 />
@@ -169,7 +169,7 @@ const Information = (props) => {
             )}
           </div>
           <div className="flex w-full justify-center gap-[2rem]">
-            {messages.conversation.isGroup ? (
+            {messages.isGroup ? (
               <>
                 {/* <ToggleNotification /> */}
                 <AddParticipants />

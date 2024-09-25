@@ -6,11 +6,15 @@ public static class GetByConversationId
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<Notification>>
     {
+        readonly IMapper _mapper;
         readonly INotificationRepository _notificationRepository;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IService<INotificationRepository> notificationService, IService<IContactRepository> contactService)
+        public Handler(IMapper mapper,
+            IService<INotificationRepository> notificationService,
+            IService<IContactRepository> contactService)
         {
+            _mapper = mapper;
             _notificationRepository = notificationService.Get();
             _contactRepository = contactService.Get();
         }
@@ -26,13 +30,13 @@ public static class GetByConversationId
             var filter = Builders<Notification>.Filter.Where(q => q.ContactId == user.Id);
             return await _notificationRepository.GetAllAsync(filter);
 
-            // var result = new List<NotificationTypeConstraint>(notifications.Count);
+            // var result = new List<NotificationWithSourceData>(notifications.Count());
             // foreach (var notification in notifications)
             // {
-            //     switch (notification.noti.SourceType)
+            //     switch (notification.SourceType)
             //     {
-            //         case AppConstants.NotificationSourceType_FriendRequest:
-            //             var constraintDto = mapper.Map<Notification, NotificationTypeConstraint>(notification.noti);
+            //         case "friend_request":
+            //             var constraintDto = _mapper.Map<Notification, NotificationWithSourceData>(notification);
             //             var friendRequest = mapper.Map<Friend, NotificationSourceDataType_Friend>(notification.frnd);
             //             friendRequest.FriendStatus = notification.frnd.AcceptTime.HasValue == true
             //                 ? "friend"
@@ -47,7 +51,7 @@ public static class GetByConversationId
             //     }
             // }
 
-            // return notifications;
+            // return result;
         }
     }
 }

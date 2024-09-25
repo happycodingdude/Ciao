@@ -56,18 +56,18 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleOrDefaultAsync();
 
 
-    public void Add(T entity) => _uow.AddOperation(async () =>
+    public void Add(T entity) => _uow.AddOperation(async (session) =>
     {
-        await _collection.InsertOneAsync(entity);
+        await _collection.InsertOneAsync(session, entity);
         return Task.CompletedTask;
     });
 
     public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
         update = update.Set(q => q.UpdatedTime, DateTime.Now);
-        _uow.AddOperation(() => _collection.UpdateManyAsync(filter, update));
+        _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
     }
 
-    public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation(() => _collection.DeleteOneAsync(filter));
+    public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation((session) => _collection.DeleteOneAsync(session, filter));
     #endregion
 }

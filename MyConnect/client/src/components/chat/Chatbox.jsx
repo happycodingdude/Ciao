@@ -3,14 +3,12 @@ import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
 import {
   useAttachment,
   useEventListener,
   useFetchMessages,
   useInfo,
   useMessage,
-  useParticipant,
 } from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
@@ -30,7 +28,7 @@ const Chatbox = (props) => {
 
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
-  const { data: participants } = useParticipant();
+  // const { data: participants } = useParticipant();
   const { refetch: refetchAttachments } = useAttachment();
 
   const { removeLastItem, addNewItem } = useFetchMessages();
@@ -154,7 +152,7 @@ const Chatbox = (props) => {
   const sendMessage = async (text) => {
     let body = {
       contactId: info.data.id,
-      conversationId: messages.conversation.id,
+      conversationId: messages.id,
     };
     if (files.length === 0) {
       if (text === "") return;
@@ -183,9 +181,14 @@ const Chatbox = (props) => {
     // addNewItem(body);
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
 
+    // console.log(body);
+
     HttpRequest({
       method: "post",
-      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND,
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
+        "{id}",
+        messages.id,
+      ),
       data: body,
     })
       .then((res) => {
@@ -207,8 +210,8 @@ const Chatbox = (props) => {
         scrollChatContentToBottom();
       }, 200);
       let body = {
-        contactId: info.data.id,
-        conversationId: messages.conversation.id,
+        moderator: messages.participants.find((q) => q.isModerator === true)
+          .contact.id,
       };
       if (files.length === 0) {
         if (content === "") return;
@@ -233,7 +236,10 @@ const Chatbox = (props) => {
           content: uploaded.map((item) => item.MediaName).join(","),
         };
       }
-      await send(body);
+      // console.log(body);
+      console.log(messages.id);
+
+      await send(messages.id, body);
       // messages.messages.unshift({
       //   type: "text",
       //   content: content,
@@ -243,13 +249,13 @@ const Chatbox = (props) => {
       // });
       queryClient.setQueryData(["message"], (oldData) => {
         const cloned = Object.assign({}, oldData);
-        if (cloned.conversation.id !== messages.conversation.id) return cloned;
+        if (cloned.conversation.id !== messages.id) return cloned;
         cloned.messages = [
           {
             type: "text",
             content: content,
             contactId: info.data.id,
-            conversationId: messages.conversation.id,
+            conversationId: messages.id,
             attachments: [],
           },
           ...cloned.messages,
@@ -261,7 +267,7 @@ const Chatbox = (props) => {
           return Object.assign({}, item);
         });
         var newData = cloned.map((conversation) => {
-          if (conversation.id !== messages.conversation.id) return conversation;
+          if (conversation.id !== messages.id) return conversation;
           conversation.lastMessage = content;
           return conversation;
         });
@@ -360,17 +366,18 @@ const Chatbox = (props) => {
         ></div>
         <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem]">
           <div className="flex items-center gap-[1rem]">
-            {messages.conversation.isGroup ? (
+            {messages.isGroup ? (
               <ImageWithLightBoxWithBorderAndShadow
-                src={messages.conversation.avatar ?? ""}
+                src={messages.avatar ?? ""}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 onClick={() => {}}
               />
             ) : (
               <ImageWithLightBoxWithBorderAndShadow
                 src={
-                  participants?.find((item) => item.contactId !== info.data.id)
-                    ?.contact.avatar ?? ""
+                  messages.participants?.find(
+                    (item) => item.contact.id !== info.data.id,
+                  )?.contact.avatar ?? ""
                 }
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 // onClick={() => {
@@ -380,8 +387,8 @@ const Chatbox = (props) => {
                 slides={[
                   {
                     src:
-                      participants?.find(
-                        (item) => item.contactId !== info.data.id,
+                      messages.participants?.find(
+                        (item) => item.contact.id !== info.data.id,
                       )?.contact.avatar ?? "",
                   },
                 ]}
@@ -392,25 +399,25 @@ const Chatbox = (props) => {
               ref={refTitleContainer}
               className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
             >
-              {messages.conversation.isGroup ? (
+              {messages.isGroup ? (
                 <>
                   <div className="flex w-full gap-[.5rem]">
                     <CustomLabel
                       className="text-start text-lg font-bold"
-                      title={messages.conversation.title}
+                      title={messages.title}
                       tooltip
                     />
                     <UpdateTitle />
                   </div>
-                  <p>{participants?.length} members</p>
+                  <p>{messages.participants.length} members</p>
                 </>
               ) : (
                 <>
                   <CustomLabel
                     className="text-start text-lg font-bold"
                     title={
-                      participants?.find(
-                        (item) => item.contactId !== info.data.id,
+                      messages.participants?.find(
+                        (item) => item.contact.id !== info.data.id,
                       )?.contact.name
                     }
                   />
@@ -443,7 +450,7 @@ const Chatbox = (props) => {
                 type: "text",
                 content: variables,
                 contactId: info.data.id,
-                conversationId: messages.conversation.id,
+                conversationId: messages.id,
                 attachments: [],
               }}
             />
@@ -492,7 +499,7 @@ const Chatbox = (props) => {
               className="fa fa-file cursor-pointer font-normal"
             ></label>
           </Tooltip>
-          {messages.conversation.isGroup ? (
+          {messages.isGroup ? (
             ""
           ) : (
             <div className="relative">

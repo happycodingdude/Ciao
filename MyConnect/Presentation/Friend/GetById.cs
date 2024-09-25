@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class GetById
 {
-    public record Request(string id) : IRequest<Friend>;
+    public record Request(string id) : IRequest<FriendWithStatus>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -20,25 +20,30 @@ public static class GetById
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, Friend>
+    internal sealed class Handler : IRequestHandler<Request, FriendWithStatus>
     {
         readonly IValidator<Request> _validator;
+        readonly IMapper _mapper;
         readonly IFriendRepository _friendRepository;
 
-        public Handler(IValidator<Request> validator, IService<IFriendRepository> service)
+        public Handler(IValidator<Request> validator, IMapper mapper, IService<IFriendRepository> service)
         {
             _validator = validator;
+            _mapper = mapper;
             _friendRepository = service.Get();
         }
 
-        public async Task<Friend> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<FriendWithStatus> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
             var filter = MongoQuery<Friend>.IdFilter(request.id);
-            return await _friendRepository.GetItemAsync(filter);
+            var friend = await _friendRepository.GetItemAsync(filter);
+            var result = _mapper.Map<Friend, FriendWithStatus>(friend);
+            result.Status = await _friendRepository.GetFriendStatusAsync(friend);
+            return result;
         }
     }
 }

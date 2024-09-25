@@ -37,7 +37,8 @@ public static class UpdateContact
             var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
-                .Set(q => q.Bio, request.model.Bio);
+                .Set(q => q.Bio, request.model.Bio)
+                .Set(q => q.Avatar, request.model.Avatar);
             _contactRepository.Update(filter, updates);
 
             return Unit.Value;

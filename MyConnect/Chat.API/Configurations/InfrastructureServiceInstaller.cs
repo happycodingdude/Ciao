@@ -1,11 +1,13 @@
-using Infrastructure.BackgroundJob;
-
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration)
     {
+        // Serializer
+        // var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("<>f__AnonymousType"));
+        // BsonSerializer.RegisterSerializer(objectSerializer);
+
         // Common
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
@@ -76,6 +78,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         services.AddScoped<IFriendRepository, FriendRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        // services.AddSingleton(typeof(INotificationRepository<>), typeof(NotificationRepository<>));
         services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddSingleton(typeof(IChangeTracking<>), typeof(ChangeTracking<>));

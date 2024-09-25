@@ -15,17 +15,17 @@ export const getMessages = async (conversation) => {
         .replace("{limit}", limit),
     })
   ).data;
-  return {
-    conversation,
-    messages,
-  };
+  return messages;
 };
 
-export const send = async (data) => {
+export const send = async (id, data) => {
   return (
     await HttpRequest({
       method: "post",
-      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND,
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
+        "{conversationId}",
+        id,
+      ),
       data: data,
       timeout: 500,
     })

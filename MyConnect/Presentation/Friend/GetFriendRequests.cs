@@ -2,24 +2,39 @@ namespace Presentation.Friends;
 
 public static class GetFriendRequests
 {
-    public record Request() : IRequest<IEnumerable<Friend>>;
+    public record Request() : IRequest<IEnumerable<FriendWithStatus>>;
 
-    internal sealed class Handler : IRequestHandler<Request, IEnumerable<Friend>>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<FriendWithStatus>>
     {
+        readonly IMapper _mapper;
         readonly IFriendRepository _friendRepository;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IService<IFriendRepository> friendService, IService<IContactRepository> contactService)
+        public Handler(IMapper mapper,
+            IService<IFriendRepository> friendService,
+            IService<IContactRepository> contactService)
         {
+            _mapper = mapper;
             _friendRepository = friendService.Get();
             _contactRepository = contactService.Get();
         }
 
-        public async Task<IEnumerable<Friend>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<FriendWithStatus>> Handle(Request request, CancellationToken cancellationToken)
         {
             var user = await _contactRepository.GetInfoAsync();
             var filter = Builders<Friend>.Filter.Where(q => q.FromContact.ContactId == user.Id || q.ToContact.ContactId == user.Id);
-            return await _friendRepository.GetAllAsync(filter);
+            var friends = await _friendRepository.GetAllAsync(filter);
+            if (!friends.Any()) return Enumerable.Empty<FriendWithStatus>();
+
+            var result = new List<FriendWithStatus>(friends.Count());
+            foreach (var friend in friends)
+            {
+                var friendWithStatus = _mapper.Map<Friend, FriendWithStatus>(friend);
+                friendWithStatus.Status = await _friendRepository.GetFriendStatusAsync(friend);
+                result.Add(friendWithStatus);
+            }
+
+            return result;
         }
     }
 }

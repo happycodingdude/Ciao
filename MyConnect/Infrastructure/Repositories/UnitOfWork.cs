@@ -3,11 +3,11 @@ namespace Infrastructure.Repositories;
 public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposable
 {
     private IClientSessionHandle session;
-    private List<Func<Task<object>>> operations = new List<Func<Task<object>>>();
+    private List<Func<IClientSessionHandle, Task<object>>> operations = new List<Func<IClientSessionHandle, Task<object>>>();
 
-    public void AddOperation<TResult>(Func<Task<TResult>> operation) where TResult : class
+    public void AddOperation<TResult>(Func<IClientSessionHandle, Task<TResult>> operation) where TResult : class
     {
-        operations.Add(async () => await operation());
+        operations.Add(async (session) => await operation(session));
     }
 
     public async Task SaveAsync()
@@ -17,14 +17,20 @@ public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposabl
         using (session = await mongoDbContext.Client.StartSessionAsync())
         {
             session.StartTransaction();
-
-            foreach (var operation in operations)
+            try
             {
-                var result = await operation.Invoke();
-                Console.WriteLine($"operation result => {JsonConvert.SerializeObject(result)}");
+                foreach (var operation in operations)
+                {
+                    var result = await operation.Invoke(session);
+                    Console.WriteLine($"operation result => {JsonConvert.SerializeObject(result)}");
+                }
+                await session.CommitTransactionAsync();
             }
-
-            await session.CommitTransactionAsync();
+            catch (Exception ex)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(ex));
+                await session.AbortTransactionAsync();
+            }
         }
     }
 

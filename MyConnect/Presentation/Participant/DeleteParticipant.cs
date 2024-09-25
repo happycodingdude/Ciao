@@ -1,8 +1,8 @@
 namespace Presentation.Participants;
 
-public static class UpdateParticipant
+public static class DeleteParticipant
 {
-    public record Request(string conversationId, Participant model) : IRequest<Unit>;
+    public record Request(string conversationId) : IRequest<Unit>;
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
@@ -20,8 +20,9 @@ public static class UpdateParticipant
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
             var user = await _contactRepository.GetInfoAsync();
+            if (conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsDeleted) return Unit.Value;
 
-            conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsNotifying = request.model.IsNotifying;
+            conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsDeleted = true;
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.Update(filter, updates);
@@ -31,14 +32,14 @@ public static class UpdateParticipant
     }
 }
 
-public class UpdateParticipantEndpoint : ICarterModule
+public class DeleteParticipantEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("/{conversationId}/participants",
-        async (ISender sender, string conversationId, Participant model) =>
+        app.MapGroup(AppConstants.ApiRoute_Conversation).MapDelete("/{conversationId}/participants",
+        async (ISender sender, string conversationId) =>
         {
-            var query = new UpdateParticipant.Request(conversationId, model);
+            var query = new DeleteParticipant.Request(conversationId);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

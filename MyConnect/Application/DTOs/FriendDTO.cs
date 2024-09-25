@@ -13,11 +13,8 @@ namespace Application.DTOs;
 //     public string ContactName { get; set; }
 // }
 
-public class GetAllFriend
+public class FriendWithStatus : Friend
 {
-    public string Id { get; set; }
-    public string ContactId { get; set; }
-    public string ContactName { get; set; }
     public string Status { get; set; }
 }
 

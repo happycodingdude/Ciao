@@ -4,6 +4,7 @@ public class Friend : MongoBaseModel
 {
     public FriendDto_Contact FromContact { get; set; }
     public FriendDto_Contact ToContact { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? AcceptTime { get; set; }
 }
 

@@ -76,7 +76,7 @@ public static class AddFriend
             // Add friend             
             var fromContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(user.Id));
             var toContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.contactId));
-            var friendEntity = new Friend
+            var friend = new Friend
             {
                 FromContact = new FriendDto_Contact
                 {
@@ -89,16 +89,17 @@ public static class AddFriend
                     ContactName = toContact.Name
                 },
             };
-            _friendRepository.Add(friendEntity);
+            _friendRepository.Add(friend);
             // Add notification            
-            var notiEntity = new Notification
+            var notification = new Notification
             {
-                SourceId = friendEntity.Id,
+                SourceId = friend.Id,
                 SourceType = "friend_request",
                 Content = $"{fromContact.Name} send you a request",
                 ContactId = request.contactId
             };
-            _notificationRepository.Add(notiEntity);
+            Console.WriteLine($"notification => {JsonConvert.SerializeObject(notification)}");
+            _notificationRepository.Add(notification);
 
             //     // Push friend request
             //     await _notificationMethod.Notify(

@@ -1,5 +1,5 @@
-namespace Application.Services;
+// namespace Application.Services;
 
-public interface INotificationService : IBaseService<Notification, NotificationDto>
-{
-}
+// public interface INotificationService : IBaseService<Notification, NotificationDto>
+// {
+// }

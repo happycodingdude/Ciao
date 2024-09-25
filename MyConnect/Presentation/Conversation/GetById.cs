@@ -43,6 +43,7 @@ public static class GetById
 
             var conversation = await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(request.id));
             await SeenAll(conversation);
+            conversation.Messages = conversation.Messages.OrderByDescending(q => q.CreatedTime).ToList();
             return conversation;
         }
 
