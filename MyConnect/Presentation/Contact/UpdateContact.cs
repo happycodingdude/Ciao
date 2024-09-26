@@ -1,3 +1,5 @@
+using MongoDB.Bson;
+
 namespace Presentation.Contacts;
 
 public static class UpdateContact
@@ -15,16 +17,16 @@ public static class UpdateContact
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
-        readonly IHttpContextAccessor _httpContextAccessor;
         readonly IContactRepository _contactRepository;
+        readonly IConversationRepository _conversationRepository;
 
         public Handler(IValidator<Request> validator,
-            IHttpContextAccessor httpContextAccessor,
-            IService<IContactRepository> service)
+            IService<IContactRepository> contactService,
+            IService<IConversationRepository> conversationService)
         {
             _validator = validator;
-            _httpContextAccessor = httpContextAccessor;
-            _contactRepository = service.Get();
+            _contactRepository = contactService.Get();
+            _conversationRepository = conversationService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -33,13 +35,32 @@ public static class UpdateContact
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();
-            var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
+            var user = await _contactRepository.GetInfoAsync();
+
+            // Update contact infor
+            var filter = MongoQuery<Contact>.IdFilter(user.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
                 .Set(q => q.Bio, request.model.Bio)
                 .Set(q => q.Avatar, request.model.Avatar);
             _contactRepository.Update(filter, updates);
+
+            // Update contact infor in conersation
+            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
+            // var conversations = await _conversationRepository.GetAllAsync(conversationFilter);
+            // foreach (var conversation in conversations)
+            // {
+            //     conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).Contact.Name = request.model.Name;
+            //     conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).Contact.Avatar = request.model.Avatar;
+            // }
+            var conversationUpdates = Builders<Conversation>.Update
+                .Set("Participants.$[elem].Contact.Name", request.model.Name)
+                .Set("Participants.$[elem].Contact.Avatar", request.model.Avatar);
+            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+                new BsonDocument("elem.Contact._id", user.Id)
+                );
+
+            _conversationRepository.Update(conversationFilter, conversationUpdates, arrayFilter);
 
             return Unit.Value;
         }

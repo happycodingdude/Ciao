@@ -7,6 +7,7 @@ import {
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import MediaPicker from "../common/MediaPicker";
 import AddParticipants from "./AddParticipants";
@@ -182,7 +183,7 @@ const Information = (props) => {
         <div className="flex flex-col gap-[1rem]">
           <div className="flex justify-between">
             <label className="font-bold">Attachments</label>
-            {attachments?.length !== 0 ? (
+            {messages?.messages.length !== 0 ? (
               <div
                 onClick={showAllAttachment}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-bold)]"
@@ -194,20 +195,23 @@ const Information = (props) => {
             )}
           </div>
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {attachments?.map((item, index) => (
-              <ImageWithLightBox
-                src={item.mediaUrl}
-                title={item.mediaName?.split(".")[0]}
-                className="aspect-square w-full cursor-pointer rounded-2xl"
-                slides={attachments.map((item) => ({
-                  src:
-                    item.type === "image"
-                      ? item.mediaUrl
-                      : "images/filenotfound.svg",
-                }))}
-                index={index}
-              />
-            ))}
+            {messages?.messages
+              .filter((mess) => mess.type === "media")
+              .flatMap((mess) => mess.attachments)
+              .map((item, index) => (
+                <ImageWithLightBox
+                  src={item.mediaUrl}
+                  title={item.mediaName?.split(".")[0]}
+                  className="aspect-square w-full cursor-pointer rounded-2xl"
+                  slides={attachments?.map((item) => ({
+                    src:
+                      item.type === "image"
+                        ? item.mediaUrl
+                        : "images/filenotfound.svg",
+                  }))}
+                  index={index}
+                />
+              ))}
           </div>
         </div>
         <DeleteConfirmation

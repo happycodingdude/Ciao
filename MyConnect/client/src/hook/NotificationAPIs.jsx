@@ -58,7 +58,7 @@ export const readAll = async (ids) => {
 export const registerConnection = async (token) => {
   return (
     await HttpRequest({
-      method: "post",
+      method: "get",
       url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_REGISTER.replace(
         "{token}",
         token,
@@ -88,8 +88,7 @@ export const notifyMessage = (message, queryClient) => {
       });
       queryClient.setQueryData(["message"], (oldData) => {
         const cloned = Object.assign({}, oldData);
-        if (cloned.conversation.id !== messageData.conversationId)
-          return cloned;
+        if (cloned.id !== messageData.conversationId) return cloned;
         cloned.messages = [messageData, ...cloned.messages];
         return cloned;
       });

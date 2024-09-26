@@ -49,7 +49,7 @@ public class RegisterConnectionEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Notification).MapPost("",
+        app.MapGroup(AppConstants.ApiRoute_Notification).MapGet("/register",
         async (ISender sender, string token) =>
         {
             var query = new RegisterConnection.Request(token);

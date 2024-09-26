@@ -12,12 +12,16 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         : base(context, uow, httpContextAccessor)
     {
         _contactRepository = contactRepository;
+        UserWarehouseDB();
     }
 
     public async Task<IEnumerable<ConversationWithTotalUnseen>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
     {
+        var user = await _contactRepository.GetInfoAsync();
+
         var pipeline = new BsonDocument[]
         {
+            new BsonDocument("$match", new BsonDocument("Participants.Contact._id", new BsonDocument("$eq", user.Id))),
             new BsonDocument("$sort", new BsonDocument("CreatedTime", -1)),
             new BsonDocument("$skip", pagingParam.Skip),
             new BsonDocument("$limit", pagingParam.Limit)
@@ -28,10 +32,8 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             .ToListAsync())
             .Select(bson => BsonSerializer.Deserialize<ConversationWithTotalUnseen>(bson))
             .ToList();
-
         if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
 
-        var user = await _contactRepository.GetInfoAsync();
         foreach (var conversation in conversations)
         {
             conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).IsNotifying;

@@ -5,9 +5,9 @@ public class NotificationMethod(IFirebaseFunction firebaseFunction, IDistributed
     public async Task Notify(string _event, string[] contactIds, object data)
     {
         var connections = new List<string>();
-        foreach (var contact in contactIds)
+        foreach (var id in contactIds)
         {
-            var token = await distributedCache.GetStringAsync($"connection-{contact}");
+            var token = await distributedCache.GetStringAsync($"connection-{id}");
             if (!string.IsNullOrEmpty(token))
                 connections.Add(token);
         }

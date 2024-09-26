@@ -51,7 +51,8 @@ public static class CreateConversation
 
             var filter = Builders<Conversation>.Filter.And(
                 Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == user.Id),
-                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == contactId)
+                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == contactId),
+                Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
             );
             var conversation = await _conversationRepository.GetAllAsync(filter);
 

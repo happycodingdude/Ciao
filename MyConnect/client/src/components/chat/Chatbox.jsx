@@ -237,25 +237,31 @@ const Chatbox = (props) => {
         };
       }
       // console.log(body);
-      console.log(messages.id);
+      // console.log(messages.id);
 
       await send(messages.id, body);
-      // messages.messages.unshift({
+      // messages.messages.push({
       //   type: "text",
       //   content: content,
-      //   contactId: info.data.id,
-      //   conversationId: messages.conversation.id,
+      //   contact: {
+      //     id: info.data.id,
+      //     name: info.data.name,
+      //     avatar: info.data.avatar,
+      //   },
       //   attachments: [],
       // });
       queryClient.setQueryData(["message"], (oldData) => {
         const cloned = Object.assign({}, oldData);
-        if (cloned.conversation.id !== messages.id) return cloned;
+        if (cloned.id !== messages.id) return cloned;
         cloned.messages = [
           {
             type: "text",
             content: content,
-            contactId: info.data.id,
-            conversationId: messages.id,
+            contact: {
+              id: info.data.id,
+              name: info.data.name,
+              avatar: info.data.avatar,
+            },
             attachments: [],
           },
           ...cloned.messages,
@@ -449,8 +455,11 @@ const Chatbox = (props) => {
               message={{
                 type: "text",
                 content: variables,
-                contactId: info.data.id,
-                conversationId: messages.id,
+                contact: {
+                  id: info.data.id,
+                  name: info.data.name,
+                  avatar: info.data.avatar,
+                },
                 attachments: [],
               }}
             />
@@ -560,7 +569,7 @@ const Chatbox = (props) => {
                 <div
                   className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
                   text-[var(--main-color-medium)]"
-                  onClick={sendMessage}
+                  onClick={sendMutation}
                 ></div>
               </Tooltip>
             </div>

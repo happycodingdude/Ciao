@@ -32,7 +32,8 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         //services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
         // Authentication Dbcontext
-        services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+        // services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+        services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")));
         services.AddIdentityCore<AuthenticationUser>().AddEntityFrameworkStores<AuthenticationDbContext>().AddApiEndpoints();
 
         // Mongo

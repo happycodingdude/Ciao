@@ -50,6 +50,8 @@ const Attachment = (props) => {
 
   const toggleAttachmentActive = useCallback(
     (type) => {
+      console.log(messages);
+
       const cloned = attachments.map((item) => {
         return Object.assign({}, item);
       });
@@ -63,7 +65,7 @@ const Attachment = (props) => {
         newAttachments.filter((item) => item !== undefined),
       );
     },
-    [attachments],
+    [messages],
   );
 
   return (

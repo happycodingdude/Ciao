@@ -14,10 +14,10 @@ export default defineConfig({
       //   changeOrigin: true,
       //   rewrite: (path) => path.replace("/auth/api", ""),
       // },
-      "/chat/api": {
+      "/chat": {
         target: env.VITE_ASPNETCORE_CHAT_URL,
         changeOrigin: true,
-        rewrite: (path) => path.replace("/chat/api", ""),
+        rewrite: (path) => path.replace("/chat", ""),
       },
     },
   },

@@ -20,7 +20,7 @@ public static class ConversationValidators
         return ruleBuilder.MustAsync(async (request, cancellation) =>
         {
             var user = await contactRepository.GetInfoAsync();
-            conversationRepository.UseCollection(request.Moderator);
+            // conversationRepository.UseCollection(request.Moderator);
             var conversation = await conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(request.ConversationId));
             return conversation != null && conversation.Participants.Any(q => q.Contact.Id == user.Id);
         }).WithMessage("Not related to this conversation");

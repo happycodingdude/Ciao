@@ -31,18 +31,9 @@ public class MessageNoReference : BaseModel
     public ICollection<Attachment>? Attachments { get; set; }
 }
 
-public class MessageToNotify : BaseModel
+public class MessageToNotify : Message
 {
-    public string Type { get; set; }
-    public string Content { get; set; }
-    public string MediaUrl { get; set; }
-    public string Status { get; set; }
-    public bool IsPinned { get; set; }
-    public bool IsLike { get; set; }
-    public int LikeCount { get; set; }
-    public Guid ContactId { get; set; }
-    public Guid ConversationId { get; set; }
-    public ICollection<AttachmentNoReference>? Attachments { get; set; }
+    public string ConversationId { get; set; }
 }
 
 public class CreateMessageRequest : Message

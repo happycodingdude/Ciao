@@ -71,20 +71,20 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            _conversationRepository.UseCollection(request.model.Moderator);
+            // _conversationRepository.UseCollection(request.model.Moderator);
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             // When a message sent, all members of that group will be having that group conversation back
             var conversation = await _conversationRepository.GetItemAsync(filter);
             // Add message
             var user = await _contactRepository.GetInfoAsync();
-            var model = _mapper.Map<CreateMessageRequest, Message>(request.model);
-            model.Contact = new Message_Contact
+            var message = _mapper.Map<CreateMessageRequest, Message>(request.model);
+            message.Contact = new Message_Contact
             {
                 Id = user.Id,
                 Name = user.Name,
                 Avatar = user.Avatar,
             };
-            conversation.Messages.Add(model);
+            conversation.Messages.Add(message);
             // Update participants
             foreach (var participant in conversation.Participants)
                 participant.IsDeleted = false;
@@ -94,16 +94,17 @@ public static class SendMessage
                 .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.Update(filter, updates);
 
-            // Push message
-            // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
-            // await _notificationMethod.Notify(
-            //     "NewMessage",
-            //     conversation.Participants
-            //         .Where(q => q.Contact.Id != userId)
-            //         .Select(q => q.Contact.Id)
-            //     .ToArray(),
-            //     request.model
-            // );
+            // Push message            
+            var notify = _mapper.Map<Message, MessageToNotify>(message);
+            notify.ConversationId = conversation.Id;
+            await _notificationMethod.Notify(
+                "NewMessage",
+                conversation.Participants
+                    .Where(q => q.Contact.Id != user.Id)
+                    .Select(q => q.Contact.Id)
+                .ToArray(),
+                notify
+            );
 
             return Unit.Value;
         }

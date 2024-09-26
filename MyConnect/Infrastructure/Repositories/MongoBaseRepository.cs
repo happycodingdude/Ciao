@@ -62,10 +62,13 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         return Task.CompletedTask;
     });
 
-    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
+    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter = null)
     {
         update = update.Set(q => q.UpdatedTime, DateTime.Now);
-        _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
+        if (arrayFilter is null)
+            _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
+        else
+            _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
     }
 
     public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation((session) => _collection.DeleteOneAsync(session, filter));

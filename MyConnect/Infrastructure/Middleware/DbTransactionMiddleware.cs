@@ -41,7 +41,7 @@ public class AuthenticationDbTransactionMiddleware
 
         try
         {
-            transaction = context.Database.BeginTransaction(IsolationLevel.ReadUncommitted);
+            transaction = context.Database.CurrentTransaction ?? context.Database.BeginTransaction(IsolationLevel.ReadUncommitted);
 
             await _next(httpContext);
 
