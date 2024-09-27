@@ -23,9 +23,7 @@ const MessageContent = (props) => {
           {messages.isGroup ? (
             <ImageWithLightBoxWithBorderAndShadow
               src={
-                message.participants?.find(
-                  (item) => item.contact.id == message.contact.id,
-                )?.contact.avatar ?? ""
+                message.contact.avatar ?? ""
               }
               className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
               // onClick={() => {
@@ -36,17 +34,13 @@ const MessageContent = (props) => {
           ) : (
             <ImageWithLightBoxWithBorderAndShadow
               src={
-                message.participants?.find(
-                  (item) => item.contact.id !== info.data.id,
-                )?.contact.avatar ?? ""
+                message.contact.avatar ?? ""
               }
               className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
               slides={[
                 {
                   src:
-                    message.participants?.find(
-                      (item) => item.contact.id !== info.data.id,
-                    )?.contact.avatar ?? "",
+                    message.contact.avatar ?? "",
                 },
               ]}
             />
