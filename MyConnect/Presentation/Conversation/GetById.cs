@@ -41,10 +41,11 @@ public static class GetById
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var conversation = await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(request.id));
-            await SeenAll(conversation);
-            conversation.Messages = conversation.Messages.OrderByDescending(q => q.CreatedTime).ToList();
-            return conversation;
+            // var conversation = await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(request.id));
+            // await SeenAll(conversation);
+            // conversation.Messages = conversation.Messages.OrderByDescending(q => q.CreatedTime).ToList();
+            // return conversation;
+            return await _conversationRepository.GetById(request.id);
         }
 
         async Task SeenAll(Conversation conversation)
@@ -59,8 +60,7 @@ public static class GetById
                 unseenMessage.Status = "seen";
                 unseenMessage.SeenTime = DateTime.Now;
             }
-            var updates = Builders<Conversation>.Update
-                .Set(q => q.Messages, conversation.Messages);
+            var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
             _conversationRepository.Update(filter, updates);
         }
     }

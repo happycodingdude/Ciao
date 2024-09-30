@@ -23,8 +23,13 @@ public class ConversationToNotify
     public bool IsGroup { get; set; }
 }
 
-public class ConversationWithTotalUnseen : Conversation
+public class ConversationWithTotalUnseen : MongoBaseModel
 {
+    public string Title { get; set; }
+    public string Avatar { get; set; }
+    public bool IsGroup { get; set; }
+    public DateTime? DeletedTime { get; set; }
+    public ICollection<Participant>? Participants { get; set; }
     public int UnSeenMessages { get; set; }
     public string LastMessageId { get; set; }
     public string LastMessage { get; set; }

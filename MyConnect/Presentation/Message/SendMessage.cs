@@ -44,21 +44,18 @@ public static class SendMessage
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
-        readonly IHttpContextAccessor _httpContextAccessor;
         readonly INotificationMethod _notificationMethod;
         readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator,
-            IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
             IMapper mapper,
             IService<IConversationRepository> conversationService,
             IService<IContactRepository> contactService)
         {
             _validator = validator;
-            _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
             _conversationRepository = conversationService.Get();
@@ -73,7 +70,6 @@ public static class SendMessage
 
             // _conversationRepository.UseCollection(request.model.Moderator);
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
-            // When a message sent, all members of that group will be having that group conversation back
             var conversation = await _conversationRepository.GetItemAsync(filter);
             // Add message
             var user = await _contactRepository.GetInfoAsync();
@@ -87,19 +83,24 @@ public static class SendMessage
             if (message.Type == "media")
                 message.Attachments.ToList().ForEach(q => message.Content += q.MediaName);
             conversation.Messages.Add(message);
-            // Update participants
-            foreach (var participant in conversation.Participants)
-                participant.IsDeleted = false;
+            var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
+
+            // When a message sent, all members of that group will be having that group conversation back
+            // if contain any member has deleted the conversation
+            if (conversation.Participants.Any(q => q.IsDeleted))
+            {
+                // Update participants
+                foreach (var participant in conversation.Participants.Where(q => q.IsDeleted))
+                    participant.IsDeleted = false;
+                updates.Set(q => q.Participants, conversation.Participants);
+            }
             // Update conversation
-            var updates = Builders<Conversation>.Update
-                .Set(q => q.Messages, conversation.Messages)
-                .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.Update(filter, updates);
 
             // Push message            
             var notify = _mapper.Map<Message, MessageToNotify>(message);
             notify.ConversationId = conversation.Id;
-            await _notificationMethod.Notify(
+            _ = _notificationMethod.Notify(
                 "NewMessage",
                 conversation.Participants
                     .Where(q => q.Contact.Id != user.Id)
