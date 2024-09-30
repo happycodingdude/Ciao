@@ -179,7 +179,7 @@ const ListChat = () => {
             {item.isGroup ? (
               <ImageWithLightBox
                 src={item.avatar ?? ""}
-                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />
             ) : (
               <ImageWithLightBox
@@ -188,7 +188,7 @@ const ListChat = () => {
                     (item) => item.contactId !== info.data.id,
                   )?.contact.avatar ?? ""
                 }
-                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />
             )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>

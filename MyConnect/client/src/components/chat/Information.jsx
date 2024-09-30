@@ -202,7 +202,7 @@ const Information = (props) => {
                 <ImageWithLightBox
                   src={item.mediaUrl}
                   title={item.mediaName?.split(".")[0]}
-                  className="aspect-square w-full cursor-pointer rounded-2xl"
+                  className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:150%]"
                   slides={attachments?.map((item) => ({
                     src:
                       item.type === "image"

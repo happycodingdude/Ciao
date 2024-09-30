@@ -43,10 +43,11 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             if (lastMessage is null) continue;
 
             conversation.LastMessageId = lastMessage.Id;
-            if (lastMessage.Type == "text")
-                conversation.LastMessage = lastMessage.Content;
-            else
-                lastMessage.Attachments.ToList().ForEach(q => conversation.LastMessage += q.MediaName);
+            conversation.LastMessage = lastMessage.Content;
+            // if (lastMessage.Type == "text")
+            //     conversation.LastMessage = lastMessage.Content;
+            // else
+            //     lastMessage.Attachments.ToList().ForEach(q => conversation.LastMessage += q.MediaName);
             conversation.LastMessageTime = lastMessage.CreatedTime;
             conversation.LastMessageContact = lastMessage.Contact.Id;
         }

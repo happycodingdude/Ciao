@@ -25,7 +25,7 @@ function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
           "--image-url": `url(${src ?? "images/imagenotfound.jpg"})`,
           // "--image-url": `url("images/imagenotfound.jpg")`,
         }}
-        className={`${className} bg-[image:var(--image-url)] bg-[size:150%] bg-[position:center_center] bg-no-repeat`}
+        className={`${className} bg-[image:var(--image-url)] bg-[position:center_center] bg-no-repeat`}
         onClick={onClick ?? handleShowLightbox}
       ></div>
       <CustomLightbox

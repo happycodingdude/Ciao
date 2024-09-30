@@ -22,9 +22,7 @@ const MessageContent = (props) => {
         <div className="relative w-[3rem]">
           {messages.isGroup ? (
             <ImageWithLightBoxWithBorderAndShadow
-              src={
-                message.contact.avatar ?? ""
-              }
+              src={message.contact.avatar ?? ""}
               className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
               // onClick={() => {
               //   setUserId(message.contactId);
@@ -33,14 +31,11 @@ const MessageContent = (props) => {
             />
           ) : (
             <ImageWithLightBoxWithBorderAndShadow
-              src={
-                message.contact.avatar ?? ""
-              }
+              src={message.contact.avatar ?? ""}
               className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
               slides={[
                 {
-                  src:
-                    message.contact.avatar ?? "",
+                  src: message.contact.avatar ?? "",
                 },
               ]}
             />
@@ -86,7 +81,7 @@ const MessageContent = (props) => {
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
-                className="my-auto aspect-square w-[45%] cursor-pointer rounded-2xl"
+                className="my-auto aspect-video w-[45%]  cursor-pointer rounded-2xl bg-[size:100%]"
                 slides={message.attachments.map((item) => ({
                   src:
                     item.type === "image"

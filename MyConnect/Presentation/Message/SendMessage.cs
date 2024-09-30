@@ -84,6 +84,8 @@ public static class SendMessage
                 Name = user.Name,
                 Avatar = user.Avatar,
             };
+            if (message.Type == "media")
+                message.Attachments.ToList().ForEach(q => message.Content += q.MediaName);
             conversation.Messages.Add(message);
             // Update participants
             foreach (var participant in conversation.Participants)
