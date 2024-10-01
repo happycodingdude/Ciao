@@ -1,13 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  useAttachment,
-  useConversation,
-  useInfo,
-  useMessage,
-  useParticipant,
-} from "../../hook/CustomHooks";
+import { useConversation, useInfo, useMessage } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import LocalLoading from "../common/LocalLoading";
@@ -45,8 +39,6 @@ const ListChat = () => {
   const { data: info } = useInfo();
   const { data: conversations, isLoading, isRefetching } = useConversation();
   const { refetch: refetchMessage } = useMessage(selected);
-  const { refetch: refetchParticipant } = useParticipant(selected?.id);
-  const { refetch: refetchAttachment } = useAttachment(selected?.id);
 
   const handleSetConversation = (position, item) => {
     setSelected(item);
@@ -155,8 +147,8 @@ const ListChat = () => {
             data-user={
               !item.isGroup
                 ? item.participants.find(
-                    (item) => item.contactId !== info.data.id,
-                  )?.contactId
+                    (item) => item.contact.id !== info.data.id,
+                  )?.contact.id
                 : ""
             }
             ref={(element) => {
@@ -185,7 +177,7 @@ const ListChat = () => {
               <ImageWithLightBox
                 src={
                   item.participants.find(
-                    (item) => item.contactId !== info.data.id,
+                    (item) => item.contact.id !== info.data.id,
                   )?.contact.avatar ?? ""
                 }
                 className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
@@ -198,7 +190,7 @@ const ListChat = () => {
                   item.isGroup
                     ? item.title
                     : item.participants.find(
-                        (item) => item.contactId !== info.data.id,
+                        (item) => item.contact.id !== info.data.id,
                       )?.contact.name
                 }
               />

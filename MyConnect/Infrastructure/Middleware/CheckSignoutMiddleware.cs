@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+
 namespace Infrastructure.Middleware;
 
 public class CheckSignoutMiddleware
@@ -9,23 +11,37 @@ public class CheckSignoutMiddleware
         _next = next;
     }
 
-    public async Task Invoke(HttpContext httpContext, IContactRepository contactRepository)
+    public async Task Invoke(HttpContext httpContext, SignInManager<AuthenticationUser> _signInManager, IContactRepository contactRepository)
     {
         Console.WriteLine("CheckSignoutMiddleware calling");
 
-        // Check for APIs not using basic authentication
-        var dbName = httpContext.Items["UserId"]?.ToString();
-        if (dbName is null)
+        // var user = httpContext.User;  
+        // Console.WriteLine($"user => {user.Claims.FirstOrDefault(q => q.Type == "UserId")}");
+        // Console.WriteLine($"user logged in => {user.Identity.IsAuthenticated}");
+        var auth = await httpContext.AuthenticateAsync();
+        if (auth?.Principal is not null)
         {
-            await _next(httpContext);
-            return;
+            var IssuedUtc = auth.Properties.IssuedUtc;
+            Console.WriteLine($"issuedUtc => {IssuedUtc}");
+            Console.WriteLine($"now => {DateTimeOffset.Now}");
+            var ExpiresUtc = auth.Properties.ExpiresUtc;
+            Console.WriteLine($"ExpiresUtc => {ExpiresUtc}");
         }
 
-        var userId = httpContext.Items["UserId"].ToString();
-        // contactRepository.UseDatabase(userId);
-        var user = await contactRepository.GetInfoAsync();
-        if (!user.IsOnline)
-            throw new UnauthorizedException();
+
+        // // Check for APIs not using basic authentication
+        // var dbName = httpContext.Items["UserId"]?.ToString();
+        // if (dbName is null)
+        // {
+        //     await _next(httpContext);
+        //     return;
+        // }
+
+        // var userId = httpContext.Items["UserId"].ToString();
+        // // contactRepository.UseDatabase(userId);
+        // var user = await contactRepository.GetInfoAsync();
+        // if (!user.IsOnline)
+        //     throw new UnauthorizedException();
 
         await _next(httpContext);
     }

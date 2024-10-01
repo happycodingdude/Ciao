@@ -32,15 +32,32 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         //services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
         // Authentication Dbcontext
-        // services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
         services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")));
+        // services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")));
         services.AddIdentityCore<AuthenticationUser>().AddEntityFrameworkStores<AuthenticationDbContext>().AddApiEndpoints();
 
         // Mongo
         services.AddSingleton<MongoDbContext>();
 
         // Authentication
-        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+        // services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+        {
+            options.ExpireTimeSpan = TimeSpan.FromHours(1);
+            options.Cookie = new CookieBuilder
+            {
+                HttpOnly = true,
+                Name = "Ciao-cookie"
+            };
+            options.Events.OnRedirectToLogin = context =>
+            {
+                Console.WriteLine("OnRedirectToLogin...");
+                context.Response.StatusCode = 401;
+                return Task.CompletedTask;
+            };
+            // options.SlidingExpiration = true;
+            // options.AccessDeniedPath = "/Forbidden/";
+        });
 
         // Authorization
         services.AddScoped<IAuthorizationHandler, BasicAuthenticationHandle>();
@@ -93,7 +110,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // services.AddSingleton<IMessageService, MessageService>();
         services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
-        services.AddScoped<IIdentityService, IdentityService>();
+        // services.AddScoped<IIdentityService, IdentityService>();
 
         // Background jobs
         // services.AddHostedService<SyncContactAllCollection>();

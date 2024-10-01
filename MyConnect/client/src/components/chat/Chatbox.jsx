@@ -3,13 +3,7 @@ import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  useAttachment,
-  useEventListener,
-  useFetchMessages,
-  useInfo,
-  useMessage,
-} from "../../hook/CustomHooks";
+import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
@@ -29,9 +23,9 @@ const Chatbox = (props) => {
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
   // const { data: participants } = useParticipant();
-  const { refetch: refetchAttachments } = useAttachment();
+  // const { refetch: refetchAttachments } = useAttachment();
 
-  const { removeLastItem, addNewItem } = useFetchMessages();
+  // const { removeLastItem, addNewItem } = useFetchMessages();
   // const { reFetch: reFetchAttachments } = useFetchAttachments();
 
   const [files, setFiles] = useState([]);
@@ -51,11 +45,11 @@ const Chatbox = (props) => {
   }, []);
 
   refChatbox.newMessage = (messageData) => {
-    if (
-      messageData.contactId !== info.data.id &&
-      messageData.conversationId === selected?.id
-    )
-      addNewItem(messageData);
+    // if (
+    //   messageData.contactId !== info.data.id &&
+    //   messageData.conversationId === selected?.id
+    // )
+    //   addNewItem(messageData);
   };
 
   useEffect(() => {
@@ -193,7 +187,7 @@ const Chatbox = (props) => {
     })
       .then((res) => {
         setFiles([]);
-        if (body.type === "media") refetchAttachments();
+        // if (body.type === "media") refetchAttachments();
       })
       .catch((err) => {
         // removeLastItem();

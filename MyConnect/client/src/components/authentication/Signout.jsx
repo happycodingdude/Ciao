@@ -20,10 +20,7 @@ const Signout = (props) => {
     HttpRequest({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
-      token: token,
     }).then((res) => {
-      setRefresh(null);
-      setToken(null);
       refetch();
       // setPage("chat");
       // queryClient.invalidateQueries(["info"]);

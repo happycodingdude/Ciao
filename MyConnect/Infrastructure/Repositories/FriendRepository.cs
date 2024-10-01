@@ -14,7 +14,7 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
         : base(context, uow, httpContextAccessor)
     {
         _contactRepository = contactService.Get();
-        UserWarehouseDB();
+        // UserWarehouseDB();
     }
 
     public async Task<string> GetFriendStatusAsync(Friend friend)

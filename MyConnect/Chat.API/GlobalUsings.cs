@@ -22,3 +22,4 @@ global using Infrastructure.RequestPipeline;
 global using Microsoft.AspNetCore.Identity;
 global using Application.DTOs;
 global using Microsoft.AspNetCore.Http.Json;
+global using Microsoft.AspNetCore.Authentication.Cookies;

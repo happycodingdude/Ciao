@@ -30,18 +30,18 @@ const Login = (props) => {
   }, [showContainer]);
 
   const reset = () => {
-    setToken(null);
-    setRefresh(null);
-    setError("");
-    refUsername.current.reset();
-    refPassword.current.reset();
+    // setToken(null);
+    // setRefresh(null);
+    // setError("");
+    // refUsername.current.reset();
+    // refPassword.current.reset();
   };
 
   const { mutate: signinMutation } = useMutation({
     mutationFn: ({ username, password }) => signin(username, password),
     onSuccess: (res) => {
-      setToken(res.access_token);
-      setRefresh(res.refresh_token);
+      // setToken(res.access_token);
+      // setRefresh(res.refresh_token);
       // refetch();
       queryClient.invalidateQueries(["info"]);
     },

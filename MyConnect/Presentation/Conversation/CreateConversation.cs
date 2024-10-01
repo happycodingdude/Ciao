@@ -106,7 +106,7 @@ public static class CreateConversation
                 participant.Contact.Name = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id)?.Name;
                 participant.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id)?.Avatar;
             }
-            // Add this user
+            // Add authenticated user
             conversation.Participants.Add(new Participant
             {
                 IsModerator = true,
@@ -119,6 +119,10 @@ public static class CreateConversation
                     Avatar = user.Avatar
                 }
             });
+            // Change conversation title if direct message
+            if (!conversation.IsGroup)
+                conversation.Title = null;
+
             _conversationRepository.Add(conversation);
 
             // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();

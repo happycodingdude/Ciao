@@ -15,16 +15,16 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
     {
         _mapper = mapper;
         _contactRepository = contactRepository;
-        UserWarehouseDB();
+        // UserWarehouseDB();
     }
 
     public async Task<IEnumerable<ConversationWithTotalUnseen>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
     {
-        var user = await _contactRepository.GetInfoAsync();
+        var userId = _contactRepository.GetUserId();
 
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("Participants.Contact._id", new BsonDocument("$eq", user.Id))),
+            new BsonDocument("$match", new BsonDocument("Participants.Contact._id", new BsonDocument("$eq", userId))),
             new BsonDocument("$sort", new BsonDocument("CreatedTime", -1)),
             new BsonDocument("$skip", pagingParam.Skip),
             new BsonDocument("$limit", pagingParam.Limit)
@@ -41,8 +41,8 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         foreach (var conversation in conversations)
         {
             var convertedConversation = _mapper.Map<Conversation, ConversationWithTotalUnseen>(conversation);
-            convertedConversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).IsNotifying;
-            convertedConversation.UnSeenMessages = conversation.Messages.Where(q => q.Contact.Id != user.Id && q.Status == "received").Count();
+            convertedConversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
+            convertedConversation.UnSeenMessages = conversation.Messages.Where(q => q.Contact.Id != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
             if (lastMessage is not null)

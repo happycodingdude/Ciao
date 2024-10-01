@@ -30,6 +30,6 @@ public class GetConversationsWithUnseenMesagesEndpoint : ICarterModule
             var query = new GetConversationsWithUnseenMesages.Request(limit, page);
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

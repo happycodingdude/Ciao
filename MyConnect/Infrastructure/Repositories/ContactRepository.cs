@@ -8,13 +8,24 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
         : base(context, uow, httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
-        UserWarehouseDB();
+        // UserWarehouseDB();
+    }
+
+    public async Task<Contact> GetByUsername(string username)
+    {
+        var filter = Builders<Contact>.Filter.Where(q => q.Username == username);
+        return await GetItemAsync(filter);
+    }
+
+    public string GetUserId()
+    {
+        return _httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(q => q.Type == "UserId").Value;
     }
 
     public async Task<Contact> GetInfoAsync()
     {
-        var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();
-        var filter = Builders<Contact>.Filter.Where(q => q.UserId == userId);
+        var userId = _httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(q => q.Type == "UserId").Value;
+        var filter = MongoQuery<Contact>.IdFilter(userId);
         return await GetItemAsync(filter);
     }
 

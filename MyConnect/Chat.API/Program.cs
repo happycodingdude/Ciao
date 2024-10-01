@@ -11,6 +11,10 @@ var configuration = new ConfigurationBuilder()
 builder.Services.InstallServices(builder.Configuration, typeof(IServiceInstaller).Assembly);
 
 var app = builder.Build();
+// app.UseCookiePolicy(new CookiePolicyOptions
+// {
+//     MinimumSameSitePolicy = SameSiteMode.Strict,
+// });
 
 if (app.Environment.IsDevelopment())
 {
@@ -23,11 +27,11 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCheckSignout();
+// app.UseCheckSignout();
 // app.UseInitDatabase();
-app.MapGroup("/identity").MapIdentityApi<AuthenticationUser>();
+// app.MapGroup("/identity").MapIdentityApi<AuthenticationUser>();
 app.UseDbTransaction();
-app.UseAuthenticationDbTransaction();
+// app.UseAuthenticationDbTransaction();
 app.MapCarter();
 
 app.Run();

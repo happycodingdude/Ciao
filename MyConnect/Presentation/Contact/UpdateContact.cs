@@ -1,5 +1,3 @@
-using MongoDB.Bson;
-
 namespace Presentation.Contacts;
 
 public static class UpdateContact

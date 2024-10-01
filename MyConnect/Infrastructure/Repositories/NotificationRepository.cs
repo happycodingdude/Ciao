@@ -7,6 +7,6 @@ public class NotificationRepository : MongoBaseRepository<Notification>, INotifi
 {
     public NotificationRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : base(context, uow, httpContextAccessor)
     {
-        UserWarehouseDB();
+        // UserWarehouseDB();
     }
 }

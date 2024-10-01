@@ -30,6 +30,6 @@ public class GetInfoEndpoint : ICarterModule
             var query = new GetInfo.Request();
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

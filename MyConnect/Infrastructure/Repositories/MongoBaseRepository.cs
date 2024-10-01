@@ -19,13 +19,15 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     {
         _context = context;
         _uow = uow;
-        var userId = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
-        if (userId is not null)
-        {
-            var collection = _context.Client.GetDatabase(AppConstants.WarehouseDB).GetCollection<Contact>(nameof(Contact));
-            var contact = collection.Find(q => q.UserId == userId).SingleOrDefault();
-            UseCollection(contact.Id);
-        }
+        // var userId = httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(q => q.Type == "UserId").Value;
+        // if (userId is not null)
+        // {
+        //     var collection = _context.Client.GetDatabase(AppConstants.WarehouseDB).GetCollection<Contact>(nameof(Contact));
+        //     var contact = collection.Find(q => q.Id == userId).SingleOrDefault();
+        //     UseCollection(contact.Id);
+        // }
+
+        UseDatabase(AppConstants.WarehouseDB, typeof(T).Name);
         // UseDatabase(typeof(T).Name, collection);
     }
 
@@ -35,19 +37,19 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     //     _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
     // }
 
-    public void UseDatabase(string dbName, string collection)
+    void UseDatabase(string dbName, string collection)
     {
         Console.WriteLine($"dbName => {dbName} and collection => {collection}");
         _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(collection);
     }
-    public void UseCollection(string collection)
-    {
-        _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
-    }
+    // public void UseCollection(string collection)
+    // {
+    //     _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
+    // }
 
-    public void UseUOW(IUnitOfWork uow) => _uow = uow;
+    // public void UseUOW(IUnitOfWork uow) => _uow = uow;
 
-    internal protected void UserWarehouseDB() => UseDatabase(AppConstants.WarehouseDB, typeof(T).Name);
+    //internal protected void UserWarehouseDB() => UseDatabase(AppConstants.WarehouseDB, typeof(T).Name);
     #endregion
 
     #region CRUD

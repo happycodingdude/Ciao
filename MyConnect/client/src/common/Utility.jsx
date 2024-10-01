@@ -1,22 +1,22 @@
 import axios from "axios";
-import axiosRetry from "axios-retry";
+// import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 
-axiosRetry(axios, {
-  retries: 1,
-  retryCondition: async (error) => {
-    if (
-      !(error.config.url === import.meta.env.VITE_ENDPOINT_REFRESH) &&
-      error.response.status === 401 &&
-      localStorage.getItem("refresh")
-    ) {
-      const newToken = await refreshToken();
-      error.config.headers["Authorization"] = "Bearer " + newToken;
-      return true;
-    }
-    return false;
-  },
-});
+// axiosRetry(axios, {
+//   retries: 1,
+//   retryCondition: async (error) => {
+//     if (
+//       !(error.config.url === import.meta.env.VITE_ENDPOINT_REFRESH) &&
+//       error.response.status === 401 &&
+//       localStorage.getItem("refresh")
+//     ) {
+//       const newToken = await refreshToken();
+//       error.config.headers["Authorization"] = "Bearer " + newToken;
+//       return true;
+//     }
+//     return false;
+//   },
+// });
 
 const delay = (delay) => {
   return new Promise((resolve) => setTimeout(resolve, delay));
@@ -40,7 +40,7 @@ export const HttpRequest = async ({
     headers: {
       ...{
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        // Authorization: "Bearer " + localStorage.getItem("token"),
       },
       ...header,
     },
@@ -56,19 +56,19 @@ export const HttpRequest = async ({
     });
 };
 
-const refreshToken = () => {
-  return axios({
-    method: "post",
-    url: import.meta.env.VITE_ENDPOINT_REFRESH,
-    data: {
-      refreshToken: localStorage.getItem("refresh"),
-    },
-  }).then((res) => {
-    localStorage.setItem("token", res.data.accessToken);
-    localStorage.setItem("refresh", res.data.refreshToken);
-    return res.data.accessToken;
-  });
-};
+// const refreshToken = () => {
+//   return axios({
+//     method: "post",
+//     url: import.meta.env.VITE_ENDPOINT_REFRESH,
+//     data: {
+//       refreshToken: localStorage.getItem("refresh"),
+//     },
+//   }).then((res) => {
+//     localStorage.setItem("token", res.data.accessToken);
+//     localStorage.setItem("refresh", res.data.refreshToken);
+//     return res.data.accessToken;
+//   });
+// };
 
 export const generateContent = (contacts, text) => {
   if (contacts?.some((item) => text.includes(`@${item.ContactId}`))) {
