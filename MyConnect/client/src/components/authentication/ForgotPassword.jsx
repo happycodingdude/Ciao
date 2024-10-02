@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import { useLoading } from "../../hook/CustomHooks";
 import { forgotPassword } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -8,24 +7,24 @@ import ErrorComponent from "../common/ErrorComponent";
 
 const ForgotPassword = (props) => {
   console.log("ForgotPassword calling");
-  const { show, showContainer, toggle } = props;
-
-  const { setLoading } = useLoading();
+  const { show, toggle } = props;
 
   const refForgotPassword = useRef();
   const refUsername = useRef();
   const refPassword = useRef();
 
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     // Khi toggle hiện login container ra thì clear các value đã nhập
-    if (showContainer) reset();
-  }, [showContainer]);
+    if (!show) reset();
+  }, [show]);
 
   const reset = () => {
     setError("");
+    setProcessing(false);
     refUsername.current.reset();
     refPassword.current.reset();
   };
@@ -37,8 +36,8 @@ const ForgotPassword = (props) => {
       toggle();
     },
     onError: (error) => {
-      setLoading(false);
-      setError("Username or password invalid. Try again please");
+      setProcessing(false);
+      setError(error.response.data);
     },
   });
 
@@ -46,7 +45,7 @@ const ForgotPassword = (props) => {
     if (refUsername.current.value === "" || refPassword.current.value === "")
       return;
 
-    setLoading(true);
+    setProcessing(true);
     forgotPasswordMutation({
       username: refUsername.current.value,
       password: refPassword.current.value,
@@ -64,7 +63,7 @@ const ForgotPassword = (props) => {
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
-          // tabIndex="1"
+          tabIndex={show ? "1" : "-1"}
           reference={refUsername}
           type="text"
           label="Username"
@@ -72,7 +71,7 @@ const ForgotPassword = (props) => {
 
         <div className="relative">
           <CustomInput
-            // tabIndex="2"
+            tabIndex={show ? "2" : "-1"}
             reference={refPassword}
             className="pr-20"
             type={showPassword ? "text" : "password"}
@@ -87,12 +86,15 @@ const ForgotPassword = (props) => {
 
         <ErrorComponent error={error} />
 
-        <CustomButton title="Reset" onClick={forgotPasswordCTA} />
+        <CustomButton
+          processing={processing}
+          title="Reset"
+          onClick={forgotPasswordCTA}
+        />
 
         <div
           className="cursor-pointer text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
           onClick={() => {
-            reset();
             toggle();
           }}
         >

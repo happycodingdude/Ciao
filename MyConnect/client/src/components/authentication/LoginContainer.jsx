@@ -3,7 +3,7 @@ import ForgotPassword from "./ForgotPassword";
 import Login from "./Login";
 
 const LoginContainer = (props) => {
-  const { show } = props;
+  const { show, onSuccess } = props;
   const [showLogin, setShowLogin] = useState(true);
   const [showForgot, setShowFotgot] = useState(false);
 
@@ -32,10 +32,10 @@ const LoginContainer = (props) => {
             setShowLogin(false);
             setShowFotgot(true);
           }}
+          onSuccess={onSuccess}
         />
         <ForgotPassword
           show={showForgot}
-          showContainer={show}
           toggle={() => {
             setShowLogin(true);
             setShowFotgot(false);

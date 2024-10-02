@@ -22,11 +22,6 @@ const Chatbox = (props) => {
 
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
-  // const { data: participants } = useParticipant();
-  // const { refetch: refetchAttachments } = useAttachment();
-
-  // const { removeLastItem, addNewItem } = useFetchMessages();
-  // const { reFetch: reFetchAttachments } = useFetchAttachments();
 
   const [files, setFiles] = useState([]);
   const [open, setOpen] = useState(false);
@@ -43,14 +38,6 @@ const Chatbox = (props) => {
   useEffect(() => {
     setFiles([]);
   }, []);
-
-  refChatbox.newMessage = (messageData) => {
-    // if (
-    //   messageData.contactId !== info.data.id &&
-    //   messageData.conversationId === selected?.id
-    // )
-    //   addNewItem(messageData);
-  };
 
   useEffect(() => {
     // listenNotification((message) => {
@@ -172,10 +159,7 @@ const Chatbox = (props) => {
       };
     }
 
-    // addNewItem(body);
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-
-    // console.log(body);
 
     HttpRequest({
       method: "post",
@@ -184,14 +168,9 @@ const Chatbox = (props) => {
         messages.id,
       ),
       data: body,
-    })
-      .then((res) => {
-        setFiles([]);
-        // if (body.type === "media") refetchAttachments();
-      })
-      .catch((err) => {
-        // removeLastItem();
-      });
+    }).then((res) => {
+      setFiles([]);
+    });
   };
 
   const {
@@ -230,20 +209,9 @@ const Chatbox = (props) => {
           content: uploaded.map((item) => item.MediaName).join(","),
         };
       }
-      // console.log(body);
-      // console.log(messages.id);
 
       await send(messages.id, body);
-      // messages.messages.push({
-      //   type: "text",
-      //   content: content,
-      //   contact: {
-      //     id: info.data.id,
-      //     name: info.data.name,
-      //     avatar: info.data.avatar,
-      //   },
-      //   attachments: [],
-      // });
+
       queryClient.setQueryData(["message"], (oldData) => {
         const cloned = Object.assign({}, oldData);
         if (cloned.id !== messages.id) return cloned;
@@ -274,16 +242,6 @@ const Chatbox = (props) => {
         return newData;
       });
     },
-    // onSuccess: (res) => {
-    //   setToken(res.access_token);
-    //   setRefresh(res.refresh_token);
-    //   // refetch();
-    //   queryClient.invalidateQueries(["info"]);
-    // },
-    // onError: (error) => {
-    //   setProcessing(false);
-    //   setError("Username or password invalid. Try again please");
-    // },
   });
 
   const scrollChatContentToBottom = () => {
@@ -315,10 +273,6 @@ const Chatbox = (props) => {
 
   // Event listener
   const handleScroll = useCallback(() => {
-    // if (
-    //   refChatContent.current.scrollHeight - refChatContent.current.scrollTop >
-    //   300
-    // )
     if (refChatContent.current.scrollTop < -200)
       refScrollButton.current.classList.remove("hidden");
     else refScrollButton.current.classList.add("hidden");

@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import { useLoading } from "../../hook/CustomHooks";
 import { signup } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -10,7 +9,7 @@ const Signup = (props) => {
   const { show, onSuccess } = props;
   console.log("Signup calling");
 
-  const { setLoading } = useLoading();
+  const [processing, setProcessing] = useState(false);
 
   const refSignup = useRef();
   const refName = useRef();
@@ -29,24 +28,19 @@ const Signup = (props) => {
 
   useEffect(() => {
     // Khi toggle ẩn signup thì clear các value đã nhập
-    if (show) reset();
+    if (!show) reset();
   }, [show]);
 
   const { mutate: signupMutation } = useMutation({
     mutationFn: ({ name, username, password }) =>
       signup(name, username, password),
     onSuccess: (res) => {
-      setLoading(false);
+      setProcessing(false);
       onSuccess();
     },
     onError: (error) => {
-      setLoading(false);
-      let msg = "";
-      error.data.errors.map((message) => {
-        msg += `${message.description} </br>`;
-      });
-      console.log(msg);
-      setError(msg);
+      setProcessing(false);
+      setError(error.response.data);
     },
   });
 
@@ -54,12 +48,7 @@ const Signup = (props) => {
     if (refUsername.current.value === "" || refPassword.current.value === "")
       return;
 
-    setLoading(true);
-
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   onSuccess();
-    // }, 2000);
+    setProcessing(true);
     signupMutation({
       name: refName.current.value,
       username: refUsername.current.value,
@@ -79,10 +68,21 @@ const Signup = (props) => {
 
         <div className="flex flex-col gap-[3rem]">
           {/* <div className="flex flex-col gap-[3rem]"> */}
-          <CustomInput reference={refName} type="text" label="Name" />
-          <CustomInput reference={refUsername} type="text" label="Username" />
+          <CustomInput
+            tabIndex={show ? "1" : "-1"}
+            reference={refName}
+            type="text"
+            label="Name"
+          />
+          <CustomInput
+            tabIndex={show ? "2" : "-1"}
+            reference={refUsername}
+            type="text"
+            label="Username"
+          />
           <div className="relative">
             <CustomInput
+              tabIndex={show ? "3" : "-1"}
               reference={refPassword}
               className="pr-20"
               type={showPassword ? "text" : "password"}
@@ -95,8 +95,11 @@ const Signup = (props) => {
             ></div>
           </div>
           <ErrorComponent error={error} />
-          {/* </div> */}
-          <CustomButton title="Sign up" onClick={signupCTA} />
+          <CustomButton
+            processing={processing}
+            title="Sign up"
+            onClick={signupCTA}
+          />
         </div>
       </div>
     </div>

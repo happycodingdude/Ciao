@@ -13,16 +13,14 @@ export const signup = async (name, username, password) => {
 };
 
 export const signin = async (username, password) => {
-  return (
-    await HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_SIGNIN,
-      data: {
-        Username: username,
-        Password: password,
-      },
-    })
-  ).headers;
+  return await HttpRequest({
+    method: "post",
+    url: import.meta.env.VITE_ENDPOINT_SIGNIN,
+    data: {
+      Username: username,
+      Password: password,
+    },
+  });
 };
 
 export const forgotPassword = async (username, password) => {

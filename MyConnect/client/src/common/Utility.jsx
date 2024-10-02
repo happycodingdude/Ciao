@@ -52,7 +52,7 @@ export const HttpRequest = async ({
     })
     .catch((err) => {
       if (alert) toast.error("👨‍✈️ Mission failed!");
-      return err;
+      throw err;
     });
 };
 

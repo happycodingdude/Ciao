@@ -7,11 +7,13 @@ public static class ForgotPassword
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly PasswordHasher<string> _passwordHasher = new();
+        readonly IPasswordValidator _passwordValidator;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IService<IContactRepository> service)
+        public Handler(IService<IContactRepository> service, IPasswordValidator passwordValidator)
         {
             _contactRepository = service.Get();
+            _passwordValidator = passwordValidator;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -22,7 +24,11 @@ public static class ForgotPassword
 
             var user = await _contactRepository.GetByUsername(request.model.Username);
             if (user is null)
-                throw new UnauthorizedException();
+                throw new BadRequestException("Username not found");
+
+            var error = await _passwordValidator.Validate(request.model.Password);
+            if (!string.IsNullOrEmpty(error))
+                throw new BadRequestException(error);
 
             var hashPassword = _passwordHasher.HashPassword(request.model.Username, request.model.Password);
             var filter = MongoQuery<Contact>.IdFilter(user.Id);

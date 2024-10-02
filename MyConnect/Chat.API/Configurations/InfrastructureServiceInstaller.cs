@@ -29,12 +29,13 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         });
 
         // Chat Dbcontext        
-        //services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+        // services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
-        // Authentication Dbcontext
-        services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")));
-        // services.AddDbContext<AuthenticationDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-authentication-db")));
-        services.AddIdentityCore<AuthenticationUser>().AddEntityFrameworkStores<AuthenticationDbContext>().AddApiEndpoints();
+        // Authentication Dbcontext        
+        services.AddDbContext<IdentityDbContext<AuthenticationUser>>();
+        services.AddIdentityCore<IdentityUser>().AddEntityFrameworkStores<IdentityDbContext<AuthenticationUser>>().AddApiEndpoints();
+        // services.AddIdentityCore<IdentityUser>()
+        //     .AddEntityFrameworkStores<IdentityDbContext<IdentityUser>>();
 
         // Mongo
         services.AddSingleton<MongoDbContext>();
@@ -110,6 +111,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // services.AddSingleton<IMessageService, MessageService>();
         services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
+        services.AddScoped<IPasswordValidator, PasswordValidator>();
         // services.AddScoped<IIdentityService, IdentityService>();
 
         // Background jobs

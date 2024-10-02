@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import { useLoading, useLocalStorage } from "../../hook/CustomHooks";
 import { signin } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -8,13 +7,9 @@ import ErrorComponent from "../common/ErrorComponent";
 
 const Login = (props) => {
   console.log("Login calling");
-  const { show, showContainer, toggle } = props;
+  const { show, showContainer, toggle, onSuccess } = props;
 
   const queryClient = useQueryClient();
-  // const { refetch } = useInfo();
-  const { setLoading } = useLoading();
-  const [token, setToken] = useLocalStorage("token");
-  const [refresh, setRefresh] = useLocalStorage("refresh");
 
   const refLogin = useRef();
   const refUsername = useRef();
@@ -26,24 +21,21 @@ const Login = (props) => {
 
   useEffect(() => {
     // Khi toggle hiện login container ra thì clear các value đã nhập
-    if (showContainer) reset();
-  }, [showContainer]);
+    if (!show || showContainer) reset();
+  }, [show, showContainer]);
 
   const reset = () => {
-    // setToken(null);
-    // setRefresh(null);
-    // setError("");
-    // refUsername.current.reset();
-    // refPassword.current.reset();
+    setError("");
+    setProcessing(false);
+    refUsername.current.reset();
+    refPassword.current.reset();
   };
 
   const { mutate: signinMutation } = useMutation({
     mutationFn: ({ username, password }) => signin(username, password),
     onSuccess: (res) => {
-      // setToken(res.access_token);
-      // setRefresh(res.refresh_token);
-      // refetch();
       queryClient.invalidateQueries(["info"]);
+      onSuccess();
     },
     onError: (error) => {
       setProcessing(false);
@@ -79,7 +71,7 @@ const Login = (props) => {
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
-          tabIndex="1"
+          tabIndex={show && showContainer ? "1" : "-1"}
           reference={refUsername}
           type="text"
           label="Username"
@@ -87,7 +79,7 @@ const Login = (props) => {
         />
         <div className="relative">
           <CustomInput
-            tabIndex="2"
+            tabIndex={show && showContainer ? "2" : "-1"}
             reference={refPassword}
             className="pr-20"
             type={showPassword ? "text" : "password"}
@@ -104,7 +96,7 @@ const Login = (props) => {
         <div
           className="cursor-pointer self-end text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
           onClick={() => {
-            reset();
+            // reset();
             toggle();
           }}
         >

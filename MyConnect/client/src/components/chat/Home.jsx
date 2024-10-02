@@ -19,13 +19,13 @@ export const Home = () => {
   const [page, setPage] = useState("chat");
   // const [backToLogin, setBackToLogin] = useState(false);
 
-  const { data: info, isLoading } = useInfo();
+  const { data: info, isLoading, error } = useInfo();
   const { setLoading } = useLoading();
 
   const { mutate: registerConnectionMutation } = useMutation({
     mutationFn: ({ token }) => registerConnection(token),
   });
-  // Khi load được info -> đăng ký connection để nhận noti
+  // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
     if (info?.data)
       requestPermission(registerConnectionMutation, notifyMessage, queryClient);
@@ -36,56 +36,18 @@ export const Home = () => {
     return;
   }
 
-  // When clear cache
-  if (
-    info.response?.status === 401 &&
-    !localStorage.getItem("token") &&
-    !localStorage.getItem("refresh")
-  ) {
+  if (error?.response.status === 401) {
     setLoading(false);
-    return <Authentication />;
+    return (
+      <Authentication
+        onSuccess={() => {
+          setPage("chat");
+        }}
+      />
+    );
   }
 
-  // if (isFetching) {
-  //   console.log("isFetching");
-  // }
-
-  // if (isRefetching) {
-  //   console.log("isRefetching");
-  // }
-
-  // if (backToLogin) {
-  //   setLoading(false);
-  //   return <Authentication />;
-  // }
-
-  // if (info.data) {
-  //   console.log("info ready");
-  //   //requestPermission(registerConnectionMutation, notifyMessage);
-  // }
   setLoading(false);
-
-  // useEffect(() => {
-  //   if (!auth.valid) return;
-
-  //   reFetchFriends();
-  //   requestPermission(registerConnection, notifyMessage);
-
-  //   // listenNotification((message) => {
-  //   //   console.log("Home receive message from worker");
-  //   //   const messageData = JSON.parse(message.data);
-  //   //   switch (message.event) {
-  //   //     case "AddMember":
-  //   //       console.log(messageData);
-  //   //       break;
-  //   //     default:
-  //   //       break;
-  //   //   }
-  //   // });
-  //   // return () => {
-  //   //   controller.abort();
-  //   // };
-  // }, [auth.valid]);
 
   return (
     <div

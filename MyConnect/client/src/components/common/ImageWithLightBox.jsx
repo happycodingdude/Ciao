@@ -1,33 +1,30 @@
 import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
 
-function ImageWithLightBox({ src, title, className, slides, index, onClick }) {
+function ImageWithLightBox(props) {
+  const { src, title, className, slides, index, onClick } = props;
+
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = (e) => setShowLightbox(true);
 
-  // const imageOnError = (e) => {
-  //   e.target.onerror = null;
-  //   e.target.src = "images/imagenotfound.jpg";
-  // };
-
   return (
     <>
-      {/* <img
-        src={src}
+      <div className="blurred-img">
+        <img src={src} loading="lazy"></img>
+      </div>
+      {/* <div
         title={title}
-        className={`${className} `}
-        onClick={onClick ?? handleShowLightbox}
-        onError={imageOnError}
-      ></img> */}
-      <div
         style={{
-          // "--image-url": `url(${src ? src : "images/imagenotfound.jpg"})`,
           "--image-url": `url(${src ?? "images/imagenotfound.jpg"})`,
-          // "--image-url": `url("images/imagenotfound.jpg")`,
         }}
-        className={`${className} bg-[image:var(--image-url)] bg-[position:center_center] bg-no-repeat`}
+        // data-src={src ?? "images/imagenotfound.jpg"}
+        // className={`${className} bg-[image:var(--image-url)]  bg-[position:center_center] bg-no-repeat`}
+        className={`${className} blurred-img  bg-[position:center_center] bg-no-repeat`}
         onClick={onClick ?? handleShowLightbox}
-      ></div>
+        onLoad={() => {
+          console.log("image loading....");
+        }}
+      ></div> */}
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}
       />

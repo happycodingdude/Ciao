@@ -10,7 +10,6 @@ const MessageContent = (props) => {
 
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
-  // const { data: participants } = useParticipant();
 
   return (
     <div
@@ -48,6 +47,7 @@ const MessageContent = (props) => {
         className={`flex flex-col gap-[.3rem] laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
         ${message.contact.id === info.data.id ? "items-end" : "items-start"}`}
       >
+        {/* Sender infor */}
         <div
           className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-blur)]
           ${message.contact.id === info.data.id ? "flex-row-reverse" : ""}`}
@@ -65,6 +65,7 @@ const MessageContent = (props) => {
               : moment(message.createdTime).format("DD/MM HH:mm")}
           </p>
         </div>
+        {/* Content */}
         {message.type === "text" ? (
           <div
             className={`break-all rounded-[3rem] bg-gradient-radial-to-bc from-[var(--sub-color)] ${pending ? "to-[var(--main-color-normal)]" : "to-[var(--main-color)]"}  

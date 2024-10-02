@@ -17,7 +17,8 @@ public static class SignUp
             RuleFor(c => c.model.Username).NotEmpty().WithMessage("Username must not be empty").
             DependentRules(() =>
             {
-                RuleFor(c => c.model.Username).MustAsync((item, cancellation) => UsernameMustBeUnique(item)).WithMessage("Username existed");
+                RuleFor(c => c.model.Username).MustAsync((item, cancellation) => UsernameMustBeUnique(item))
+                    .WithMessage(req => $"Username '{req.model.Username}' existed");
             });
             RuleFor(c => c.model.Password).NotEmpty().WithMessage("Password must not be empty");
         }
@@ -31,18 +32,18 @@ public static class SignUp
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        // readonly UserManager<AuthenticationUser> _userManager;
         readonly IValidator<Request> _validator;
         readonly PasswordHasher<string> _passwordHasher = new();
+        readonly IPasswordValidator _passwordValidator;
         IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator,
-            // UserManager<AuthenticationUser> userManager, 
-            IService<IContactRepository> service)
+            IService<IContactRepository> service,
+            IPasswordValidator passwordValidator)
         {
-            // _userManager = userManager;
             _validator = validator;
             _contactRepository = service.Get();
+            _passwordValidator = passwordValidator;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -50,11 +51,10 @@ public static class SignUp
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
-            // if (!result.Succeeded)
-            //     throw new BadRequestException(JsonConvert.SerializeObject(result.Errors));
 
-            // var userId = await _userManager.GetUserIdAsync(user);
-            // // _contactRepository.UseDatabase(userId);
+            var error = await _passwordValidator.Validate(request.model.Password);
+            if (!string.IsNullOrEmpty(error))
+                throw new BadRequestException(error);
 
             var hashPassword = _passwordHasher.HashPassword(request.model.Username, request.model.Password);
             var contact = new Contact

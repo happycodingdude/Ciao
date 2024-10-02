@@ -2,8 +2,9 @@ import React, { useRef, useState } from "react";
 import LoginContainer from "./LoginContainer";
 import Signup from "./Signup";
 
-const Authentication = () => {
+const Authentication = (props) => {
   console.log("Authentication calling");
+  const { onSuccess } = props;
 
   const refBgContainer = useRef();
   const refBgSignUpLabelContainer = useRef();
@@ -55,7 +56,7 @@ const Authentication = () => {
             before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]"
         ></div>
 
-        <LoginContainer show={showLogin} />
+        <LoginContainer show={showLogin} onSuccess={onSuccess} />
         <Signup show={showSignup} onSuccess={toggleLogin} />
 
         <div

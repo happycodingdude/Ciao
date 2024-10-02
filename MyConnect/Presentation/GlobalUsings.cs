@@ -25,3 +25,4 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authentication.Cookies;
 global using MongoDB.Bson;
+global using Shared.Utils;
