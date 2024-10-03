@@ -82,3 +82,57 @@ export const generateContent = (contacts, text) => {
   }
   return text;
 };
+
+export const blurImageOLD = (containerClass) => {
+  const container = document.querySelector(containerClass);
+  const blurredDivs = container.querySelectorAll(".blurred-div");
+  blurredDivs.forEach((div) => {
+    const img = div.querySelector("img");
+    if (img.complete) {
+      loaded();
+    } else {
+      img.addEventListener("load", loaded);
+    }
+    function loaded() {
+      div.classList.add("loaded");
+    }
+  });
+};
+
+export const blurImage = (containerClass) => {
+  // Duyệt tất cả tấm ảnh cần lazy-load
+  const container = document.querySelector(containerClass);
+  const lazyBackgrounds = container.querySelectorAll(".lazy-background");
+
+  // Chờ các tấm ảnh này xuất hiện trên màn hình
+  const lazyImageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      // Tấm ảnh này đã xuất hiện trên màn hình
+      if (entry.isIntersecting) {
+        const lazyImage = entry.target;
+
+        // Nếu ảnh đã hiển thị rồi thì bỏ qua
+        // if (!lazyImage.classList.contains("blurred")) return;
+
+        const src = lazyImage.dataset.src;
+
+        lazyImage.tagName.toLowerCase() === "img"
+          ? // <img>: copy data-src sang src
+            (lazyImage.src = src)
+          : // <div>: copy data-src sang background-image
+            (lazyImage.style.backgroundImage = "url('" + src + "')");
+
+        // Copy xong rồi thì bỏ class 'blurred' đi để hiển thị
+        lazyImage.classList.remove("blurred");
+
+        // Job done, không cần observe nó nữa
+        observer.unobserve(lazyImage);
+      }
+    });
+  });
+
+  // Observe từng tấm ảnh và chờ nó xuất hiện trên màn hình
+  lazyBackgrounds.forEach((lazyImage) => {
+    lazyImageObserver.observe(lazyImage);
+  });
+};

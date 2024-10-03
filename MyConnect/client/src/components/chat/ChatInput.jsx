@@ -11,7 +11,6 @@ import { useFetchParticipants, useMessage } from "../../hook/CustomHooks";
 const ChatInput = (props) => {
   const { send, refChatInputExpose } = props;
   const { mentions } = useFetchParticipants();
-  // const { selected } = useFetchConversations();
   const { data: messages } = useMessage();
 
   const editorRef = useRef();

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { blurImage } from "../../common/Utility";
 import {
   useAttachment,
   useInfo,
@@ -34,6 +35,10 @@ const Information = (props) => {
       refInformation.current.classList.add("animate-flip-scale-up-vertical");
     };
   }, []);
+
+  useEffect(() => {
+    blurImage(".information-container");
+  }, [messages]);
 
   const refInformation = useRef();
 
@@ -108,7 +113,7 @@ const Information = (props) => {
         <p className="font-bold">Information</p>
       </div>
       <div
-        className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
+        className="information-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
       [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]"
       >
         <div className="flex flex-col gap-[1rem]">

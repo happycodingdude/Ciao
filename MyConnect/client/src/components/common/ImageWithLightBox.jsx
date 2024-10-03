@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
 
-function ImageWithLightBox(props) {
+const ImageWithLightBox = (props) => {
+  console.log("ImageWithLightBox calling...");
   const { src, title, className, slides, index, onClick } = props;
 
   const [showLightbox, setShowLightbox] = useState(false);
@@ -9,27 +10,17 @@ function ImageWithLightBox(props) {
 
   return (
     <>
-      <div className="blurred-img">
-        <img src={src} loading="lazy"></img>
-      </div>
-      {/* <div
+      <div
         title={title}
-        style={{
-          "--image-url": `url(${src ?? "images/imagenotfound.jpg"})`,
-        }}
-        // data-src={src ?? "images/imagenotfound.jpg"}
-        // className={`${className} bg-[image:var(--image-url)]  bg-[position:center_center] bg-no-repeat`}
-        className={`${className} blurred-img  bg-[position:center_center] bg-no-repeat`}
+        data-src={src ?? "images/imagenotfound.jpg"}
+        className={`${className} lazy-background blurred bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
         onClick={onClick ?? handleShowLightbox}
-        onLoad={() => {
-          console.log("image loading....");
-        }}
-      ></div> */}
+      ></div>
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}
       />
     </>
   );
-}
+};
 
 export default ImageWithLightBox;

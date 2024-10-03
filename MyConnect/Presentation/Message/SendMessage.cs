@@ -81,7 +81,8 @@ public static class SendMessage
                 Avatar = user.Avatar,
             };
             if (message.Type == "media")
-                message.Attachments.ToList().ForEach(q => message.Content += q.MediaName);
+                message.Content = string.Join(",", message.Attachments.Select(q => q.MediaName));
+
             conversation.Messages.Add(message);
             var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
 

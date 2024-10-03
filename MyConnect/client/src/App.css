@@ -150,23 +150,61 @@ body,
     font-size: 1.3rem;
   }
 
-  .blurred-img {
-    background-image: var(--image-url);
-    background-repeat: no-repeat;
+  .blurred-div {
+    /* background-image: var(--image-url); */
+    /* background-repeat: no-repeat; */
     background-size: cover;
-  }
-
-  .blurred-img.loaded::before {
-    animation: none;
-    content: none;
+    background-position: center;
+    background-color: greenyellow;
+    position: relative;
   }
   
-  .blurred-img img {
+  .blurred-div img {
+    /* object-position: center;
+    object-fit: contain;     */
+    border-radius: 1rem;
+    /* width: 20rem;
+    height: 12rem;
+    scale:1.5; */
     opacity: 0;
     transition: opacity 250ms ease-in-out;
   }
   
-  .blurred-img.loaded img {
+  .blurred-div.loaded img {
     opacity: 1;
+  }
+
+  .blurred-div::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* opacity: 0; */
+    animation: pulse 2.5s infinite;
+    /* background-color: var(--text-color); */
+  }
+  
+  @keyframes pulse {
+    0% {
+      background-color: rgba(255,255,255,0);
+    }
+    50% {
+      background-color: rgba(255,255,255,0.5);
+    }
+    100% {
+      background-color: rgba(255,255,255,0);
+    }
+  }
+
+  /* .blurred-div.loaded::before {    
+    content: none;
+  } */
+
+  /* .lazy-background.blurred {
+    opacity: 0;
+    transition: opacity 250ms ease-in-out;
+  } */
+
+  .lazy-background.blurred {
+    opacity: 0;
   }
 }

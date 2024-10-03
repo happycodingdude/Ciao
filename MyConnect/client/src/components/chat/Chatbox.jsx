@@ -3,6 +3,7 @@ import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { blurImage } from "../../common/Utility";
 import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
@@ -35,9 +36,14 @@ const Chatbox = (props) => {
   const refTitleContainer = useRef();
   const refChatInput = useRef();
 
+  // useEffect(() => {
+  //   setFiles([]);
+  // }, []);
+
   useEffect(() => {
+    blurImage(".chatbox-content");
     setFiles([]);
-  }, []);
+  }, [messages]);
 
   useEffect(() => {
     // listenNotification((message) => {
@@ -130,68 +136,67 @@ const Chatbox = (props) => {
     );
   };
 
-  const sendMessage = async (text) => {
-    let body = {
-      contactId: info.data.id,
-      conversationId: messages.id,
-    };
-    if (files.length === 0) {
-      if (text === "") return;
-      body = {
-        ...body,
-        type: "text",
-        content: text,
-      };
-    } else {
-      const uploaded = await uploadFile().then((uploads) => {
-        return uploads.map((item) => ({
-          type: item.type,
-          mediaUrl: item.url,
-          mediaName: item.name,
-          mediaSize: item.size,
-        }));
-      });
-      body = {
-        ...body,
-        type: "media",
-        attachments: uploaded,
-        content: uploaded.map((item) => item.MediaName).join(","),
-      };
-    }
+  // const sendMessage = async (text) => {
+  //   let body = {
+  //     contactId: info.data.id,
+  //     conversationId: messages.id,
+  //   };
+  //   if (files.length === 0) {
+  //     if (text === "") return;
+  //     body = {
+  //       ...body,
+  //       type: "text",
+  //       content: text,
+  //     };
+  //   } else {
+  //     const uploaded = await uploadFile().then((uploads) => {
+  //       return uploads.map((item) => ({
+  //         type: item.type,
+  //         mediaUrl: item.url,
+  //         mediaName: item.name,
+  //         mediaSize: item.size,
+  //       }));
+  //     });
+  //     body = {
+  //       ...body,
+  //       type: "media",
+  //       attachments: uploaded,
+  //       content: uploaded.map((item) => item.MediaName).join(","),
+  //     };
+  //   }
 
-    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+  //   refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
 
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
-        "{id}",
-        messages.id,
-      ),
-      data: body,
-    }).then((res) => {
-      setFiles([]);
-    });
-  };
+  //   HttpRequest({
+  //     method: "post",
+  //     url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
+  //       "{id}",
+  //       messages.id,
+  //     ),
+  //     data: body,
+  //   }).then((res) => {
+  //     setFiles([]);
+  //   });
+  // };
 
   const {
     mutate: sendMutation,
     isPending,
     variables,
   } = useMutation({
-    mutationFn: async (content) => {
+    mutationFn: async (param) => {
       setTimeout(() => {
         scrollChatContentToBottom();
       }, 200);
       let body = {
         moderator: messages.participants.find((q) => q.isModerator === true)
           .contact.id,
+        type: param.type,
       };
-      if (files.length === 0) {
-        if (content === "") return;
+      if (files.length === 0 && param.content !== "") {
         body = {
           ...body,
-          type: "text",
-          content: content,
+          content: param.content,
         };
       } else {
         const uploaded = await uploadFile().then((uploads) => {
@@ -204,7 +209,6 @@ const Chatbox = (props) => {
         });
         body = {
           ...body,
-          type: "media",
           attachments: uploaded,
           content: uploaded.map((item) => item.MediaName).join(","),
         };
@@ -212,31 +216,31 @@ const Chatbox = (props) => {
 
       await send(messages.id, body);
 
-      queryClient.setQueryData(["message"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        if (cloned.id !== messages.id) return cloned;
-        cloned.messages = [
-          {
-            type: "text",
-            content: content,
-            contact: {
-              id: info.data.id,
-              name: info.data.name,
-              avatar: info.data.avatar,
-            },
-            attachments: [],
-          },
-          ...cloned.messages,
-        ];
-        return cloned;
-      });
+      // queryClient.setQueryData(["message"], (oldData) => {
+      //   const cloned = Object.assign({}, oldData);
+      //   if (cloned.id !== messages.id) return cloned;
+      //   cloned.messages = [
+      //     {
+      //       type: param.type,
+      //       content: param.content,
+      //       contact: {
+      //         id: info.data.id,
+      //         name: info.data.name,
+      //         avatar: info.data.avatar,
+      //       },
+      //       attachments: [],
+      //     },
+      //     ...cloned.messages,
+      //   ];
+      //   return cloned;
+      // });
       queryClient.setQueryData(["conversation"], (oldData) => {
         const cloned = oldData.map((item) => {
           return Object.assign({}, item);
         });
         var newData = cloned.map((conversation) => {
           if (conversation.id !== messages.id) return conversation;
-          conversation.lastMessage = content;
+          conversation.lastMessage = param.content;
           return conversation;
         });
         return newData;
@@ -311,7 +315,7 @@ const Chatbox = (props) => {
       ref={refChatboxContainer}
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
-      <div className="relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*:not(:first-child)]:px-[2rem]">
+      <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*:not(:first-child)]:px-[2rem]">
         <div
           ref={refScrollButton}
           className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center 
@@ -327,6 +331,26 @@ const Chatbox = (props) => {
                 onClick={() => {}}
               />
             ) : (
+              // <ImageWithLightBoxWithBorderAndShadow
+              //   src={
+              //     messages.participants?.find(
+              //       (item) => item.contact.id !== info.data.id,
+              //     )?.contact.avatar ?? ""
+              //   }
+              //   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+              //   // onClick={() => {
+              //   //   setUserId(profile?.Id);
+              //   //   setOpen(true);
+              //   // }}
+              //   slides={[
+              //     {
+              //       src:
+              //         messages.participants?.find(
+              //           (item) => item.contact.id !== info.data.id,
+              //         )?.contact.avatar ?? "",
+              //     },
+              //   ]}
+              // />
               <ImageWithLightBoxWithBorderAndShadow
                 src={
                   messages.participants?.find(
@@ -394,15 +418,15 @@ const Chatbox = (props) => {
         </div>
         <div
           ref={refChatContent}
-          className="hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
+          className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
         >
           {isPending && (
             <MessageContent
               pending={isPending}
               message={{
-                type: "text",
-                content: variables,
+                type: variables.type,
+                content: variables.content,
                 contact: {
                   id: info.data.id,
                   name: info.data.name,
@@ -479,12 +503,14 @@ const Chatbox = (props) => {
         {files.length !== 0 ? (
           <>
             <div
-              className={`${
-                files.length === 1
-                  ? "grid-cols-[50%]"
-                  : "laptop:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] desktop:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]"
-              } hide-scrollbar grid max-h-[10rem] w-full gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.2rem] 
-              border-[var(--main-color-normal)] p-[.5rem] laptop:w-[clamp(40rem,75%,70rem)] desktop:w-[clamp(70rem,75%,120rem)]`}
+              // className={`${
+              //   files.length === 1
+              //     ? "grid-cols-[12rem] p-[.5rem]"
+              //     : "p-[.7rem] laptop:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]"
+              // }
+              className={`hide-scrollbar grid max-h-[7rem]              
+              gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.2rem] border-[var(--main-color-normal)] p-[.7rem] laptop:w-[clamp(41rem,73%,61rem)] laptop:grid-cols-[repeat(auto-fill,9rem)] 
+              desktop:w-[clamp(70rem,75%,120rem)] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]`}
             >
               {files.map((item) => (
                 <div
@@ -499,7 +525,7 @@ const Chatbox = (props) => {
                       ? "url('images/imagenotfound.jpg')"
                       : `url('${URL.createObjectURL(item)}'`,
                   }}
-                  className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[length:100%_100%] bg-center`}
+                  className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[size:100%] bg-center`}
                   title={item.name.split(".")[0]}
                 >
                   <span
@@ -512,19 +538,22 @@ const Chatbox = (props) => {
                 </div>
               ))}
             </div>
-            <div className="flex grow">
+            <div className="flex grow items-center justify-center">
               <Tooltip title="Send">
                 <div
-                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer items-center justify-center rounded-[.8rem] 
+                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer  rounded-[.8rem] 
                   text-[var(--main-color-medium)]"
-                  onClick={sendMutation}
+                  onClick={() => sendMutation({ type: "media" })}
                 ></div>
               </Tooltip>
             </div>
           </>
         ) : (
           // <ChatInput send={sendMessage} refChatInputExpose={refChatInput} />
-          <ChatInput send={sendMutation} refChatInputExpose={refChatInput} />
+          <ChatInput
+            send={(text) => sendMutation({ type: "text", content: text })}
+            refChatInputExpose={refChatInput}
+          />
         )}
       </div>
     </div>

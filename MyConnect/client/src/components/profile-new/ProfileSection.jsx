@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { blurImage } from "../../common/Utility";
 import { useInfo } from "../../hook/CustomHooks";
 import { updateInfo } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
@@ -24,7 +25,8 @@ const ProfileSection = () => {
   useEffect(() => {
     refName.current.value = info.data.name;
     refBio.current.value = info.data.bio;
-  }, [info]);
+    blurImage(".user-avatar");
+  }, [info.data.id]);
 
   const chooseAvatar = (e) => {
     const chosenFiles = Array.from(e.target.files);
@@ -33,6 +35,8 @@ const ProfileSection = () => {
     setAvatar(URL.createObjectURL(e.target.files?.[0]));
     setFile(e.target.files?.[0]);
     e.target.value = null;
+
+    blurImage(".user-avatar");
   };
 
   const { mutate: updateInfoMutation } = useMutation({
@@ -83,7 +87,7 @@ const ProfileSection = () => {
     <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
       <p className="text-xl font-bold">Edit profile</p>
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
-        <div className="relative flex w-full">
+        <div className="user-avatar relative flex w-full">
           <ImageWithLightBoxWithBorderAndShadow
             src={avatar ?? ""}
             className="aspect-square cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem] laptop:w-[40%]"

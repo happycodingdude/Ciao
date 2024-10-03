@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
+import { blurImage } from "../../common/Utility";
 import { useConversation, useInfo, useMessage } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
@@ -42,56 +43,11 @@ const ListChat = () => {
 
   const handleSetConversation = (position, item) => {
     setSelected(item);
-    setTimeout(() => {
-      const blurredImageDivs = document.querySelectorAll(".blurred-img");
-      blurredImageDivs.forEach((lazyDiv) => {
-        const img = lazyDiv.querySelector("img");
-        if (img.complete) {
-          loaded(lazyDiv);
-        } else {
-          img.addEventListener("load", loaded);
-        }
-      });
-      function loaded(e) {
-        e.classList.add("loaded");
-      }
-    }, 2000);
-
-    // setTimeout(() => {
-    //   // duyệt tất cả tấm ảnh cần lazy-load
-    //   const lazyImages = document.querySelectorAll(".lazy");
-
-    //   // chờ các tấm ảnh này xuất hiện trên màn hình
-    //   const lazyImageObserver = new IntersectionObserver(
-    //     (entries, observer) => {
-    //       entries.forEach((entry) => {
-    //         // tấm ảnh này đã xuất hiện trên màn hình
-    //         if (entry.isIntersecting) {
-    //           const lazyImage = entry.target;
-    //           const src = lazyImage.dataset.src;
-
-    //           lazyImage.tagName.toLowerCase() === "img"
-    //             ? // <img>: copy data-src sang src
-    //               (lazyImage.src = src)
-    //             : // <div>: copy data-src sang background-image
-    //               (lazyImage.style.backgroundImage = "url('" + src + "')");
-
-    //           // copy xong rồi thì bỏ attribute lazy đi
-    //           lazyImage.removeAttribute("lazy");
-
-    //           // job done, không cần observe nó nữa
-    //           observer.unobserve(lazyImage);
-    //         }
-    //       });
-    //     },
-    //   );
-
-    //   // Observe từng tấm ảnh và chờ nó xuất hiện trên màn hình
-    //   lazyImages.forEach((lazyImage) => {
-    //     lazyImageObserver.observe(lazyImage);
-    //   });
-    // }, 2000);
   };
+
+  useEffect(() => {
+    blurImage(".list-chat");
+  }, [conversations]);
 
   useEffect(() => {
     if (selected) {
@@ -185,7 +141,7 @@ const ListChat = () => {
     <>
       <div
         ref={refChats}
-        className="hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
+        className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
         {isLoading || isRefetching ? <LocalLoading loading /> : ""}
         {conversations?.map((item, i) => (
