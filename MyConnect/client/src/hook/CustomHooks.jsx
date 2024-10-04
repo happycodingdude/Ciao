@@ -61,10 +61,10 @@ export const useParticipant = (conversationId) => {
   });
 };
 
-export const useMessage = (conversation) => {
+export const useMessage = (conversationId) => {
   return useQuery({
     queryKey: ["message"],
-    queryFn: () => getMessages(conversation),
+    queryFn: () => getMessages(conversationId),
     staleTime: Infinity,
     enabled: false,
   });

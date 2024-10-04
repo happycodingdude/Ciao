@@ -204,7 +204,7 @@ body,
     transition: opacity 250ms ease-in-out;
   } */
 
-  .lazy-background.blurred {
-    opacity: 0;
+  .lazy-image.blurred {
+    opacity: 0.5;
   }
 }

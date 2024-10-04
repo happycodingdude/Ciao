@@ -1,6 +1,7 @@
 import useMessage from "antd/es/message/useMessage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { blurImage } from "../../common/Utility";
 import { useAttachment } from "../../hook/CustomHooks";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 
@@ -14,29 +15,33 @@ const Attachment = (props) => {
   const refScrollAttachment = useRef();
 
   const [attachmentToggle, setAttachmentToggle] = useState("image");
-  const [displayAttachments, setDisplayAttachments] = useState();
+  const [displayAttachments, setDisplayAttachments] = useState([]);
+  const [show, setShow] = useState(false);
 
   const showAttachment = () => {
     toggleAttachmentActive("image");
     refAttachment.current.classList.remove("animate-flip-scale-down-vertical");
     refAttachment.current.classList.add("animate-flip-scale-up-vertical");
     refScrollAttachment.current.scrollTop = 0;
+    setAttachmentToggle("image");
+    setShow(true);
   };
 
-  const reset = () => {
-    refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
-    refAttachment.current.classList.add("animate-flip-scale-down-vertical");
-    setAttachmentToggle("image");
-  };
+  // const reset = () => {
+  //   refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
+  //   refAttachment.current.classList.add("animate-flip-scale-down-vertical");
+  //   setAttachmentToggle("image");
+  // };
 
   useEffect(() => {
     refAttachmentExposed.showAttachment = showAttachment;
-  }, [showAttachment, reset]);
+  }, [showAttachment]);
 
   const hideAttachment = () => {
     refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
     refAttachment.current.classList.add("animate-flip-scale-down-vertical");
     setAttachmentToggle("image");
+    setShow(false);
   };
 
   const showInformation = () => {
@@ -44,14 +49,12 @@ const Attachment = (props) => {
     hideAttachment();
   };
 
-  // useEffect(() => {
-  //   reset();
-  // }, [selected.Id]);
+  useEffect(() => {
+    if (show) showAttachment();
+  }, [attachments]);
 
   const toggleAttachmentActive = useCallback(
     (type) => {
-      console.log(messages);
-
       const cloned = attachments.map((item) => {
         return Object.assign({}, item);
       });
@@ -65,8 +68,12 @@ const Attachment = (props) => {
         newAttachments.filter((item) => item !== undefined),
       );
     },
-    [messages],
+    [attachments],
   );
+
+  useEffect(() => {
+    blurImage(".attachment-container");
+  }, [displayAttachments]);
 
   return (
     <div
@@ -119,10 +126,10 @@ const Attachment = (props) => {
       </div>
       <div
         ref={refScrollAttachment}
-        className="hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
+        className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
         [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
-        {displayAttachments?.map((date) => (
+        {displayAttachments.map((date) => (
           <div className="flex flex-col gap-[2rem]">
             <div className="font-bold text-[var(--text-main-color-blur)]">
               {moment(date.date).format("DD/MM/YYYY")}

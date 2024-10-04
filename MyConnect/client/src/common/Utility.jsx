@@ -100,9 +100,11 @@ export const blurImageOLD = (containerClass) => {
 };
 
 export const blurImage = (containerClass) => {
+  // setTimeout(() => {
+
   // Duyệt tất cả tấm ảnh cần lazy-load
   const container = document.querySelector(containerClass);
-  const lazyBackgrounds = container.querySelectorAll(".lazy-background");
+  const lazyBackgrounds = container.querySelectorAll(".lazy-image");
 
   // Chờ các tấm ảnh này xuất hiện trên màn hình
   const lazyImageObserver = new IntersectionObserver((entries, observer) => {
@@ -112,7 +114,10 @@ export const blurImage = (containerClass) => {
         const lazyImage = entry.target;
 
         // Nếu ảnh đã hiển thị rồi thì bỏ qua
-        // if (!lazyImage.classList.contains("blurred")) return;
+        // if (!lazyImage.classList.contains("blurred")) {
+        //   observer.unobserve(lazyImage);
+        //   return;
+        // }
 
         const src = lazyImage.dataset.src;
 
@@ -135,4 +140,6 @@ export const blurImage = (containerClass) => {
   lazyBackgrounds.forEach((lazyImage) => {
     lazyImageObserver.observe(lazyImage);
   });
+
+  // }, 500);
 };

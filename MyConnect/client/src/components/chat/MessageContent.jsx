@@ -44,7 +44,7 @@ const MessageContent = (props) => {
         ""
       )}
       <div
-        className={`flex flex-col gap-[.3rem] laptop:w-[clamp(40rem,70%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+        className={`flex flex-col gap-[.3rem] laptop:w-[clamp(50rem,70%,70rem)] desktop:w-[clamp(40rem,70%,80rem)] 
         ${message.contact.id === info.data.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
@@ -82,7 +82,7 @@ const MessageContent = (props) => {
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
-                className="my-auto aspect-[3/2] w-[50%] cursor-pointer rounded-2xl bg-[size:100%]"
+                className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[60%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer rounded-2xl bg-[size:120%]`}
                 slides={message.attachments.map((item) => ({
                   src:
                     item.type === "image"
@@ -90,6 +90,7 @@ const MessageContent = (props) => {
                       : "images/filenotfound.svg",
                 }))}
                 index={index}
+                immediate={pending}
               />
             ))}
           </div>

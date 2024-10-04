@@ -2,7 +2,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
-import { useConversation, useInfo, useMessage } from "../../hook/CustomHooks";
+import {
+  useAttachment,
+  useConversation,
+  useInfo,
+  useMessage,
+} from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import LocalLoading from "../common/LocalLoading";
@@ -39,7 +44,8 @@ const ListChat = () => {
 
   const { data: info } = useInfo();
   const { data: conversations, isLoading, isRefetching } = useConversation();
-  const { refetch: refetchMessage } = useMessage(selected);
+  const { refetch: refetchMessage } = useMessage(selected?.id);
+  const { refetch: refetchAttachments } = useAttachment(selected?.id);
 
   const handleSetConversation = (position, item) => {
     setSelected(item);
@@ -63,6 +69,7 @@ const ListChat = () => {
         return newData;
       });
       refetchMessage();
+      refetchAttachments();
     }
   }, [selected?.id]);
 
@@ -171,7 +178,7 @@ const ListChat = () => {
           >
             {item.isGroup ? (
               <ImageWithLightBox
-                src={item.avatar ?? ""}
+                src={item.avatar}
                 className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />
             ) : (
@@ -179,7 +186,7 @@ const ListChat = () => {
                 src={
                   item.participants.find(
                     (item) => item.contact.id !== info.data.id,
-                  )?.contact.avatar ?? ""
+                  )?.contact.avatar
                 }
                 className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
               />

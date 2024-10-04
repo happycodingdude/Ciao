@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
 import {
   useAttachment,
@@ -23,6 +23,7 @@ const Information = (props) => {
   const { data: messages } = useMessage();
   const { data: participants } = useParticipant();
   const { data: attachments } = useAttachment();
+  const [displayAttachments, setDisplayAttachments] = useState([]);
   // const { deleteChat } = useDeleteChat();
   // const { removeConversation } = useFetchConversations();
   // const { profile } = useFetchFriends();
@@ -37,8 +38,23 @@ const Information = (props) => {
   }, []);
 
   useEffect(() => {
+    if (attachments?.length !== 0) {
+      const mergedArr = attachments.reduce((result, item) => {
+        return result.concat(item.attachments);
+      }, []);
+      setDisplayAttachments(mergedArr.slice(0, 8));
+    } else {
+      setDisplayAttachments([]);
+    }
+  }, [attachments]);
+
+  useEffect(() => {
     blurImage(".information-container");
   }, [messages]);
+
+  useEffect(() => {
+    blurImage(".display-attachment-container");
+  }, [displayAttachments]);
 
   const refInformation = useRef();
 
@@ -113,10 +129,10 @@ const Information = (props) => {
         <p className="font-bold">Information</p>
       </div>
       <div
-        className="information-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
+        className=" hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
       [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]"
       >
-        <div className="flex flex-col gap-[1rem]">
+        <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             {/* <ImageWithLightBoxWithBorderAndShadow
               src={selected.Avatar ?? ""}
@@ -126,9 +142,10 @@ const Information = (props) => {
             {messages.isGroup ? (
               <>
                 <ImageWithLightBoxWithBorderAndShadow
-                  src={messages.avatar ?? ""}
+                  src={messages.avatar}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   onClick={() => {}}
+                  immediate={true}
                 />
                 <MediaPicker
                   className="absolute left-[42%] top-[-10%]"
@@ -141,9 +158,9 @@ const Information = (props) => {
                   title={messages.title}
                   tooltip
                 />
-                <div className="cursor-pointer text-[var(--text-main-color-blur)]">
+                {/* <div className="cursor-pointer text-[var(--text-main-color-blur)]">
                   {messages.participants.length} members
-                </div>
+                </div> */}
               </>
             ) : (
               <>
@@ -151,7 +168,7 @@ const Information = (props) => {
                   src={
                     messages.participants?.find(
                       (item) => item.contact.id !== info.data.id,
-                    )?.contact.avatar ?? ""
+                    )?.contact.avatar
                   }
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   slides={[
@@ -162,6 +179,7 @@ const Information = (props) => {
                         )?.contact.avatar ?? "",
                     },
                   ]}
+                  immediate={true}
                 />
                 <CustomLabel
                   className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
@@ -185,10 +203,10 @@ const Information = (props) => {
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-[1rem]">
+        <div className="display-attachment-container flex flex-col gap-[1rem]">
           <div className="flex justify-between">
             <label className="font-bold">Attachments</label>
-            {messages?.messages.length !== 0 ? (
+            {displayAttachments.length !== 0 ? (
               <div
                 onClick={showAllAttachment}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-bold)]"
@@ -200,7 +218,7 @@ const Information = (props) => {
             )}
           </div>
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {messages?.messages
+            {/* {messages?.messages
               .filter((mess) => mess.type === "media")
               .flatMap((mess) => mess.attachments)
               .map((item, index) => (
@@ -216,7 +234,22 @@ const Information = (props) => {
                   }))}
                   index={index}
                 />
-              ))}
+              ))} */}
+
+            {displayAttachments.map((item, index) => (
+              <ImageWithLightBox
+                src={item.mediaUrl}
+                title={item.mediaName?.split(".")[0]}
+                className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                slides={displayAttachments.map((item) => ({
+                  src:
+                    item.type === "image"
+                      ? item.mediaUrl
+                      : "images/filenotfound.svg",
+                }))}
+                index={index}
+              />
+            ))}
           </div>
         </div>
         <DeleteConfirmation

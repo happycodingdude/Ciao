@@ -3,13 +3,13 @@ import { HttpRequest } from "../common/Utility";
 const page = 1;
 const limit = 10;
 
-export const getMessages = async (conversation) => {
+export const getMessages = async (conversationId) => {
   const messages = (
     await HttpRequest({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace(
         "{id}",
-        conversation.id,
+        conversationId,
       )
         .replace("{page}", page)
         .replace("{limit}", limit),
