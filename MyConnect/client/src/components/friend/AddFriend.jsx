@@ -9,8 +9,8 @@ const AddFriend = () => {
     <>
       <div
         onClick={() => setOpen(true)}
-        className="fa fa-user-plus flex flex-1 cursor-pointer items-center justify-center rounded-lg text-sm font-normal 
-        transition-all duration-200 hover:bg-[var(--search-bg-color)] "
+        className="fa fa-user-plus flex cursor-pointer items-center justify-center  
+        text-sm font-normal text-[var(--text-main-color-normal)]"
       ></div>
       <BackgroundPortal
         open={open}

@@ -130,7 +130,7 @@ const UserProfileSetting = (props) => {
         />
         <div className="flex flex-col">
           <p className="text-lg font-bold">{profile?.Name}</p>
-          <p className="text-[var(--text-main-color-blur)]">{profile?.Bio}</p>
+          <p className="text-[var(--text-main-color-normal)]">{profile?.Bio}</p>
         </div>
         <div className="flex w-full">
           <FriendRequestButton

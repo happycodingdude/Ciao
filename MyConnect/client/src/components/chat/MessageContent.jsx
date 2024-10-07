@@ -49,7 +49,7 @@ const MessageContent = (props) => {
       >
         {/* Sender infor */}
         <div
-          className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-blur)]
+          className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-normal)]
           ${message.contact.id === info.data.id ? "flex-row-reverse" : ""}`}
         >
           {message.contact.id === info.data.id ? (

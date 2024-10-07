@@ -56,7 +56,7 @@ export const ChatSection = (props) => {
             />
             <div
               ref={refInformationContainer}
-              className="relative flex-1 origin-right overflow-hidden"
+              className="relative flex-1 origin-right overflow-hidden bg-[var(--bg-color-normal)]"
             >
               <Information
                 refAttachment={refAttachment}

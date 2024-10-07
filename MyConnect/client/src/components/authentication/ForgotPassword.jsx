@@ -59,7 +59,7 @@ const ForgotPassword = (props) => {
       className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)] duration-500 
         data-[state=false]:translate-y-0 data-[state=true]:translate-y-[-100%]"
     >
-      <p className="text-5xl">Reset</p>
+      <p className="text-5xl text-[var(--text-main-color)]">Reset</p>
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
@@ -93,7 +93,7 @@ const ForgotPassword = (props) => {
         />
 
         <div
-          className="cursor-pointer text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
+          className="cursor-pointer text-[var(--text-main-color-normal)] hover:text-[var(--text-main-color)]"
           onClick={() => {
             toggle();
           }}

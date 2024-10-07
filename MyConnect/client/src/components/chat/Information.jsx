@@ -9,7 +9,7 @@ import {
 import CustomLabel from "../common/CustomLabel";
 import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
-import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 import AddParticipants from "./AddParticipants";
 
@@ -38,7 +38,7 @@ const Information = (props) => {
   }, []);
 
   useEffect(() => {
-    if (attachments?.length !== 0) {
+    if (attachments && attachments?.length !== 0) {
       const mergedArr = attachments.reduce((result, item) => {
         return result.concat(item.attachments);
       }, []);
@@ -120,20 +120,22 @@ const Information = (props) => {
   return (
     <div
       ref={refInformation}
-      className="relative z-10 flex h-full flex-col bg-[var(--bg-color)]"
+      className="absolute z-10 flex h-full w-full flex-col"
     >
       <div
-        className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] 
+        className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
         px-[2rem] py-[.5rem]"
       >
-        <p className="font-bold">Information</p>
+        <p className="font-bold text-[var(--text-main-color-normal)]">
+          Information
+        </p>
       </div>
       <div
         className=" hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
-      [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]"
+      [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]"
       >
         <div className="information-container flex flex-col gap-[1rem]">
-          <div className="relative flex flex-col items-center gap-[.5rem]">
+          <div className="relative flex flex-col items-center gap-[.5rem] text-[var(--text-main-color-normal)]">
             {/* <ImageWithLightBoxWithBorderAndShadow
               src={selected.Avatar ?? ""}
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
@@ -141,7 +143,7 @@ const Information = (props) => {
             /> */}
             {messages.isGroup ? (
               <>
-                <ImageWithLightBoxWithBorderAndShadow
+                <ImageWithLightBoxWithShadowAndNoLazy
                   src={messages.avatar}
                   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                   onClick={() => {}}
@@ -164,7 +166,7 @@ const Information = (props) => {
               </>
             ) : (
               <>
-                <ImageWithLightBoxWithBorderAndShadow
+                <ImageWithLightBoxWithShadowAndNoLazy
                   src={
                     messages.participants?.find(
                       (item) => item.contact.id !== info.data.id,
@@ -205,7 +207,9 @@ const Information = (props) => {
         </div>
         <div className="display-attachment-container flex flex-col gap-[1rem]">
           <div className="flex justify-between">
-            <label className="font-bold">Attachments</label>
+            <label className="font-bold text-[var(--text-main-color-normal)]">
+              Attachments
+            </label>
             {displayAttachments.length !== 0 ? (
               <div
                 onClick={showAllAttachment}

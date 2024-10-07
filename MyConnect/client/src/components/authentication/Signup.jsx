@@ -64,7 +64,7 @@ const Signup = (props) => {
       data-[state=false]:translate-x-[-700%] data-[state=true]:translate-x-0"
     >
       <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)]">
-        <p className="text-5xl">Create account</p>
+        <p className="text-5xl text-[var(--text-main-color)]">Create account</p>
 
         <div className="flex flex-col gap-[3rem]">
           {/* <div className="flex flex-col gap-[3rem]"> */}

@@ -158,7 +158,7 @@ const ListFriend = (props) => {
             />
             <div className="flex h-full flex-col items-start">
               <p className="font-medium">{item.name}</p>
-              <p className="text-[var(--text-main-color-blur)]">{item.Bio}</p>
+              <p className="text-[var(--text-main-color-normal)]">{item.Bio}</p>
             </div>
             {
               {

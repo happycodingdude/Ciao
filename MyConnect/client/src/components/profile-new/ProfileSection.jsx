@@ -6,7 +6,7 @@ import { blurImage } from "../../common/Utility";
 import { useInfo } from "../../hook/CustomHooks";
 import { updateInfo } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
-import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 
 const ProfileSection = () => {
@@ -85,12 +85,14 @@ const ProfileSection = () => {
 
   return (
     <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
-      <p className="text-xl font-bold">Edit profile</p>
+      <p className="text-xl font-bold text-[var(--text-main-color)]">
+        Edit profile
+      </p>
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
         <div className="user-avatar relative flex w-full">
-          <ImageWithLightBoxWithBorderAndShadow
+          <ImageWithLightBoxWithShadowAndNoLazy
             src={avatar ?? ""}
-            className="aspect-square cursor-pointer rounded-[50%] border-l-[.4rem] border-r-[.4rem] border-t-[.4rem] laptop:w-[40%]"
+            className="aspect-square cursor-pointer rounded-[50%] bg-[size:160%] laptop:w-[40%]"
             slides={[
               {
                 src: avatar ?? "",
@@ -105,19 +107,19 @@ const ProfileSection = () => {
           />
         </div>
         <div className="flex flex-col gap-[.5rem]">
-          <p className="[var(--shadow-color-blur)]">Name</p>
+          <p className="text-[var(--text-main-color)]">Name</p>
           <input
             ref={refName}
-            className="rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-medium outline-none transition-all duration-200"
+            className="rounded-lg border-[.2rem] px-4 py-2 font-medium outline-none transition-all duration-200"
             type="text"
           />
         </div>
         <div className="flex flex-col gap-[.5rem]">
-          <p className="[var(--shadow-color-blur)]">Bio</p>
+          <p className="text-[var(--text-main-color)]">Bio</p>
           <textarea
             ref={refBio}
             rows={4}
-            className="hide-scrollbar resize-none rounded-lg border-[.2rem] border-[var(--shadow-color-blur)] px-4 py-2 font-medium outline-none transition-all duration-200"
+            className="hide-scrollbar resize-none rounded-lg border-[.2rem] px-4 py-2 font-medium outline-none transition-all duration-200"
             type="text"
           />
         </div>

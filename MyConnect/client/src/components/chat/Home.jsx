@@ -54,7 +54,7 @@ export const Home = () => {
       id="home"
       className="relative w-full text-[clamp(1.5rem,1.2vw,2.5rem)]"
     >
-      <div className="home-container absolute flex h-full w-full bg-gradient-to-r from-[var(--main-color-thin)] to-blue-100">
+      <div className="home-container absolute flex h-full w-full bg-[var(--bg-color-light)]">
         <SideBar page={page} setPage={setPage} />
         {
           {

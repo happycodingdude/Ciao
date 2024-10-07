@@ -87,7 +87,7 @@ const ChatInput = (props) => {
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
       {messages.isGroup ? (
-        <div className="rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16">
+        <div className="rounded-2xl bg-[var(--bg-color-thin)] py-2 pl-4 pr-16 text-[var(--text-main-color-normal)]">
           <Editor
             ref={editorRef}
             editorKey={"editor"}
@@ -111,7 +111,7 @@ const ChatInput = (props) => {
           ref={editorRef}
           value={directText}
           onChange={(e) => setDirectText(e.target.value)}
-          className="w-full rounded-2xl border-[.2rem] border-[var(--main-color-normal)] py-2 pl-4 pr-16 outline-none"
+          className="w-full rounded-2xl bg-[var(--bg-color-thin)] py-2 pl-4 pr-16 text-[var(--text-main-color-normal)] outline-none"
           onKeyDown={keyBindingFn}
         />
       )}

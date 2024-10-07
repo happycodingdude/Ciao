@@ -73,7 +73,7 @@ const Notification = () => {
 
   return (
     <div
-      className="fa fa-bell notification-trigger relative cursor-pointer text-xl font-thin"
+      className="fa fa-bell notification-trigger flex cursor-pointer items-center justify-center text-xl font-thin text-[var(--text-main-color-normal)]"
       onClick={showNotification}
     >
       <div

@@ -64,10 +64,10 @@ const Login = (props) => {
     <div
       ref={refLogin}
       data-state={show}
-      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)] duration-500 
+      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] duration-500 
       data-[state=false]:translate-y-[-100%] data-[state=true]:translate-y-0"
     >
-      <p className="text-5xl">Sign in</p>
+      <p className="text-5xl text-[var(--text-main-color)]">Sign in</p>
 
       <div className="flex flex-col gap-[3rem]">
         <CustomInput
@@ -94,7 +94,7 @@ const Login = (props) => {
         </div>
 
         <div
-          className="cursor-pointer self-end text-[var(--text-main-color-blur)] hover:text-[var(--text-main-color)]"
+          className="cursor-pointer self-end text-[var(--text-main-color-normal)] hover:text-[var(--text-main-color)]"
           onClick={() => {
             // reset();
             toggle();

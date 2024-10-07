@@ -10,13 +10,21 @@
 }
 
 [data-theme="light"] {
-  --main-color: #f472b6;
+  /* --main-color: #f472b6;
   --main-color-extrabold: #be185d;
   --main-color-bold: #db2777;
   --main-color-medium: #ec4899;
   --main-color-normal: #f9a8d4;
   --main-color-light: #fbcfe8;
-  --main-color-thin: #fce7f3;
+  --main-color-thin: #fce7f3; */
+  --main-color: #00AFB9;
+  --main-color-extrabold: #00464a;
+  --main-color-bold: #00696f;
+  --main-color-medium: #008c94;
+  --main-color-normal: #33bfc7;
+  --main-color-light: #66cfd5;
+  --main-color-thin: #99dfe3;
+  --main-color-extrathin: #cceff1;
   --sub-color: white;
   --bg-color: white;
   --text-main-color: black;
@@ -33,23 +41,38 @@
 }
 
 [data-theme="dark"] {
-  --main-color: #f472b6;
+  /* --main-color: #f472b6;
   --main-color-extrabold: #be185d;
   --main-color-bold: #db2777;
   --main-color-medium: #ec4899;
   --main-color-normal: #f9a8d4;
   --main-color-light: #fbcfe8;
-  --main-color-thin: #fce7f3;
-  --sub-color: white;
-  --bg-color: black;
+  --main-color-thin: #fce7f3; */
+  --main-color: #00AFB9;
+  --main-color-extrabold: #00464a;
+  --main-color-bold: #00696f;
+  --main-color-medium: #008c94;
+  --main-color-normal: #33bfc7;
+  --main-color-light: #66cfd5;
+  --main-color-thin: #99dfe3;
+  --main-color-extrathin: #cceff1;
+  --sub-color: #333333;
+  --bg-color: #333333;
+  --bg-color-normal: #424242;
+  --bg-color-light: #525252;
+  --bg-color-thin: #616161;
+  --bg-color-extrathin: #717171;
   --text-main-color: white;
-  --text-main-color-blur: #ffffffcb;
+  --text-main-color-normal: #e6e6e6;
+  --text-main-color-light: #cccccc;
+  --text-main-color-thin: #b3b3b3;
   --text-sub-color: black;
   --text-sub-color-blur: #0000007c;
   --shadow-color: gray;
   --border-color: #d1d5db;
   --icon-text-color: gray;
-  --portal-bg-color: #0000009c;
+  /* --portal-bg-color: #0000009c; */
+  --portal-bg-color: #afafaf9f;
   --search-bg-color: #f3f4f6;
 }
 
@@ -206,5 +229,27 @@ body,
 
   .lazy-image.blurred {
     opacity: 0.5;
+  }
+
+  .relight-background {
+    /* border-radius: 50%;
+    transition: all;
+    transition-duration: 200ms;
+    background-color: var(--bg-color-normal);
+    aspect-ratio: 1/1; */
+    /* padding: .8rem; */
+    width: 0;
+    height: 0;
+
+    &.lighten {
+      box-shadow: 0 0 20px 10px var(--main-color);
+    }
+
+    &:hover {
+      /* border-radius: 1rem; */
+      box-shadow: 0 0 20px 10px var(--main-color);
+      /* color: var(--text-main-color-normal); */
+      /* box-shadow: 0 0 20px 10px var(--text-main-color); */
+    }
   }
 }

@@ -8,7 +8,7 @@ import { blurImage } from "../../common/Utility";
 import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import FriendRequestButton from "../friend/FriendRequestButton";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
@@ -354,17 +354,17 @@ const Chatbox = (props) => {
       ref={refChatboxContainer}
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
-      <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden bg-[var(--bg-color)] [&>*:not(:first-child)]:px-[2rem]">
+      <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden [&>*:not(:first-child)]:px-[2rem]">
         <div
           ref={refScrollButton}
           className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center 
-          justify-center rounded-[50%] bg-[var(--main-color-normal)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
+          justify-center rounded-[50%] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
           onClick={scrollChatContentToBottom}
         ></div>
-        <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem]">
+        <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] py-[.5rem] text-[var(--text-main-color-normal)]">
           <div className="flex items-center gap-[1rem]">
             {messages.isGroup ? (
-              <ImageWithLightBoxWithBorderAndShadow
+              <ImageWithLightBoxWithShadowAndNoLazy
                 src={messages.avatar}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 onClick={() => {}}
@@ -391,7 +391,7 @@ const Chatbox = (props) => {
               //     },
               //   ]}
               // />
-              <ImageWithLightBoxWithBorderAndShadow
+              <ImageWithLightBoxWithShadowAndNoLazy
                 src={
                   messages.participants?.find(
                     (item) => item.contact.id !== info.data.id,
@@ -459,8 +459,9 @@ const Chatbox = (props) => {
         </div>
         <div
           ref={refChatContent}
-          className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
-          bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
+          // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
+          // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
+          className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth pb-4"
         >
           {isPending && (
             <MessageContent
@@ -491,8 +492,8 @@ const Chatbox = (props) => {
           </BackgroundPortal>
         </div>
       </div>
-      <div className="flex w-full items-center justify-center bg-[var(--bg-color)] px-8 py-3">
-        <div className="flex max-w-[10rem] grow items-center justify-evenly">
+      <div className="flex w-full items-center justify-center px-8 py-3">
+        <div className="flex max-w-[10rem] grow items-center justify-evenly text-[var(--text-main-color-normal)]">
           <input
             multiple
             type="file"

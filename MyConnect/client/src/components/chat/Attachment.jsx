@@ -1,4 +1,3 @@
-import useMessage from "antd/es/message/useMessage";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
@@ -9,7 +8,6 @@ const Attachment = (props) => {
   console.log("Attachment calling");
   const { refInformation, refAttachmentExposed } = props;
   const { data: attachments } = useAttachment();
-  const { data: messages } = useMessage();
 
   const refAttachment = useRef();
   const refScrollAttachment = useRef();
@@ -78,11 +76,11 @@ const Attachment = (props) => {
   return (
     <div
       ref={refAttachment}
-      className="absolute top-0 flex h-full w-full flex-col bg-[var(--bg-color)]"
+      className="absolute flex h-full w-full flex-col opacity-0"
     >
       <div
-        className="relative flex h-[7rem] shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--border-color)] 
-        px-[2rem] py-[.5rem]"
+        className="relative flex h-[7rem] shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] 
+        px-[2rem] py-[.5rem] text-[var(--text-main-color-normal)]"
       >
         <div
           className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
@@ -94,7 +92,7 @@ const Attachment = (props) => {
       <div className="relative flex">
         <div
           onClick={() => toggleAttachmentActive("image")}
-          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-[var(--text-main-color-normal)]"
         >
           Images
           <input
@@ -107,7 +105,7 @@ const Attachment = (props) => {
         </div>
         <div
           onClick={() => toggleAttachmentActive("file")}
-          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-[var(--text-main-color-normal)]"
         >
           Files
           <input
@@ -127,11 +125,11 @@ const Attachment = (props) => {
       <div
         ref={refScrollAttachment}
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
-        [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+        [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
         {displayAttachments.map((date) => (
           <div className="flex flex-col gap-[2rem]">
-            <div className="font-bold text-[var(--text-main-color-blur)]">
+            <div className="font-bold text-[var(--text-main-color-normal)]">
               {moment(date.date).format("DD/MM/YYYY")}
             </div>
             <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">

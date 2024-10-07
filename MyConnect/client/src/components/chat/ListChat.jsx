@@ -165,12 +165,11 @@ const ListChat = () => {
               refChatItem.current[i] = element;
             }}
             className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem]
-            bg-[var(--main-color-thin)] py-[.8rem] pl-[.5rem] pr-[1rem] hover:bg-[var(--main-color-light)]
+            py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
               selected?.id === item.id
-                ? `item-active bg-gradient-to-r from-[var(--main-color)] to-[var(--main-color-light)] text-[var(--text-sub-color)]
-                [&_.chat-content]:text-[var(--text-sub-color-blur)]`
-                : ""
+                ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-blur)]`
+                : "bg-[var(--bg-color-extrathin)] hover:bg-[var(--bg-color-thin)]"
             } `}
             onClick={() => {
               handleSetConversation(65 * i, item);
@@ -193,7 +192,7 @@ const ListChat = () => {
             )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
-                className={`text-base ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected?.id ? "font-bold" : ""} `}
+                className={`text-base text-[var(--text-main-color)] ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected?.id ? "font-bold" : ""} `}
                 title={
                   item.isGroup
                     ? item.title
@@ -208,7 +207,7 @@ const ListChat = () => {
                   item.unSeenMessages > 0 &&
                   item.id != selected?.id
                     ? "font-medium"
-                    : "text-[var(--text-main-color-blur)]"
+                    : "text-[var(--text-main-color-light)]"
                 }`}
                 title={item.lastMessage}
               />

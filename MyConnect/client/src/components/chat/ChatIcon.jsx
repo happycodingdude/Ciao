@@ -1,9 +1,9 @@
 const ChatIcon = (props) => {
-  const { show, focus } = props;
+  const { show } = props;
 
   return (
     <div
-      className={`${focus ? "text-[var(--main-color)]" : ""} fa fa-comment cursor-pointer text-xl font-thin`}
+      className={`fa fa-comment flex cursor-pointer items-center justify-center text-xl font-thin text-[var(--text-main-color-normal)]`}
       onClick={show}
     ></div>
   );
