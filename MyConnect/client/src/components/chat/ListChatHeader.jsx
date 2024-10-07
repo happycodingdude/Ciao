@@ -7,7 +7,7 @@ const ListChatHeader = () => {
   console.log("ListChatHeader calling");
 
   return (
-    <div className="flex h-[7rem] shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[1rem]">
+    <div className="flex h-[7rem] items-center gap-[1rem] border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[1rem]">
       <div className="flex h-[50%]">
         {/* <i
           className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[var(--bg-color-normal)] 
@@ -19,7 +19,7 @@ const ListChatHeader = () => {
           className="w-full rounded-[.5rem] bg-[var(--bg-color)] p-[1rem] text-[var(--text-main-color-normal)] focus:outline-none"
         ></input>
       </div>
-      <div className="flex h-[50%] gap-[.5rem]">
+      <div className="gap-[.5rem flex h-[50%] laptop:w-[7rem]">
         <RelightBackground>
           <AddFriend />
         </RelightBackground>

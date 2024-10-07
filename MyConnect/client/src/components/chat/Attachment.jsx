@@ -6,50 +6,14 @@ import ImageWithLightBox from "../common/ImageWithLightBox";
 
 const Attachment = (props) => {
   console.log("Attachment calling");
-  const { refInformation, refAttachmentExposed } = props;
+  const { show, toggle } = props;
   const { data: attachments } = useAttachment();
 
   const refAttachment = useRef();
-  const refScrollAttachment = useRef();
+  // const refScrollAttachment = useRef();
 
   const [attachmentToggle, setAttachmentToggle] = useState("image");
   const [displayAttachments, setDisplayAttachments] = useState([]);
-  const [show, setShow] = useState(false);
-
-  const showAttachment = () => {
-    toggleAttachmentActive("image");
-    refAttachment.current.classList.remove("animate-flip-scale-down-vertical");
-    refAttachment.current.classList.add("animate-flip-scale-up-vertical");
-    refScrollAttachment.current.scrollTop = 0;
-    setAttachmentToggle("image");
-    setShow(true);
-  };
-
-  // const reset = () => {
-  //   refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
-  //   refAttachment.current.classList.add("animate-flip-scale-down-vertical");
-  //   setAttachmentToggle("image");
-  // };
-
-  useEffect(() => {
-    refAttachmentExposed.showAttachment = showAttachment;
-  }, [showAttachment]);
-
-  const hideAttachment = () => {
-    refAttachment.current.classList.remove("animate-flip-scale-up-vertical");
-    refAttachment.current.classList.add("animate-flip-scale-down-vertical");
-    setAttachmentToggle("image");
-    setShow(false);
-  };
-
-  const showInformation = () => {
-    refInformation.showInformation();
-    hideAttachment();
-  };
-
-  useEffect(() => {
-    if (show) showAttachment();
-  }, [attachments]);
 
   const toggleAttachmentActive = useCallback(
     (type) => {
@@ -70,13 +34,23 @@ const Attachment = (props) => {
   );
 
   useEffect(() => {
+    toggleAttachmentActive("image");
+    // refAttachment.current.classList.remove("animate-flip-scale-down-vertical");
+    // refAttachment.current.classList.add("animate-flip-scale-up-vertical");
+    setAttachmentToggle("image");
+  }, [attachments]);
+
+  useEffect(() => {
     blurImage(".attachment-container");
+    // setTimeout(() => {
+    //   refScrollAttachment.current.scrollTop = 0;
+    // }, 1000);
   }, [displayAttachments]);
 
   return (
     <div
       ref={refAttachment}
-      className="absolute flex h-full w-full flex-col opacity-0"
+      className={`absolute top-0 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div
         className="relative flex h-[7rem] shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] 
@@ -85,7 +59,7 @@ const Attachment = (props) => {
         <div
           className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
           rounded-[1rem] text-lg font-normal"
-          onClick={showInformation}
+          onClick={toggle}
         ></div>
         <p className="font-bold">Attachments</p>
       </div>
@@ -123,7 +97,7 @@ const Attachment = (props) => {
         ></div>
       </div>
       <div
-        ref={refScrollAttachment}
+        // ref={refScrollAttachment}
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
         [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >

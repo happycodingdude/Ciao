@@ -15,27 +15,13 @@ import AddParticipants from "./AddParticipants";
 
 const Information = (props) => {
   console.log("Information calling");
-  const { refAttachment, refInformationExposed } = props;
+  const { show, toggle } = props;
 
-  // const auth = useAuth();
-  // const { selected, setSelected, setConversations } = useFetchConversations();
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
   const { data: participants } = useParticipant();
   const { data: attachments } = useAttachment();
   const [displayAttachments, setDisplayAttachments] = useState([]);
-  // const { deleteChat } = useDeleteChat();
-  // const { removeConversation } = useFetchConversations();
-  // const { profile } = useFetchFriends();
-
-  useEffect(() => {
-    refInformationExposed.showInformation = () => {
-      refInformation.current.classList.remove(
-        "animate-flip-scale-down-vertical",
-      );
-      refInformation.current.classList.add("animate-flip-scale-up-vertical");
-    };
-  }, []);
 
   useEffect(() => {
     if (attachments && attachments?.length !== 0) {
@@ -57,15 +43,10 @@ const Information = (props) => {
   }, [displayAttachments]);
 
   const refInformation = useRef();
-
-  const reset = () => {
+  const hideInformation = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
-    refInformation.current.classList.remove("animate-flip-scale-down-vertical");
+    refInformation.current.classList.add("animate-flip-scale-down-vertical");
   };
-
-  // useEffect(() => {
-  //   reset();
-  // }, [selected.id]);
 
   // const updateAvatar = async (e) => {
   //   // Create a root reference
@@ -107,20 +88,10 @@ const Information = (props) => {
   //   e.target.value = null;
   // };
 
-  const hideInformation = () => {
-    refInformation.current.classList.remove("animate-flip-scale-up-vertical");
-    refInformation.current.classList.add("animate-flip-scale-down-vertical");
-  };
-
-  const showAllAttachment = () => {
-    hideInformation();
-    refAttachment.showAttachment();
-  };
-
   return (
     <div
       ref={refInformation}
-      className="absolute z-10 flex h-full w-full flex-col"
+      className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div
         className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
@@ -212,7 +183,7 @@ const Information = (props) => {
             </label>
             {displayAttachments.length !== 0 ? (
               <div
-                onClick={showAllAttachment}
+                onClick={toggle}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-bold)]"
               >
                 See all

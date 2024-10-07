@@ -169,7 +169,7 @@ const ListChat = () => {
             ${
               selected?.id === item.id
                 ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-blur)]`
-                : "bg-[var(--bg-color-extrathin)] hover:bg-[var(--bg-color-thin)]"
+                : "bg-[var(--bg-color-normal)] hover:bg-[var(--bg-color-light)]"
             } `}
             onClick={() => {
               handleSetConversation(65 * i, item);

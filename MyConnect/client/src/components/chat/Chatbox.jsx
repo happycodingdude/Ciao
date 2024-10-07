@@ -6,14 +6,12 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
 import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
+import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
-import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
-import FriendRequestButton from "../friend/FriendRequestButton";
+import RelightBackground from "../common/RelightBackground";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
-import UpdateTitle from "./UpdateTitle";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
@@ -210,7 +208,7 @@ const Chatbox = (props) => {
           attachments: param.attachments,
         };
 
-      // await send(messages.id, body);
+      await send(messages.id, body);
 
       queryClient.setQueryData(["message"], (oldData) => {
         const cloned = Object.assign({}, oldData);
@@ -242,36 +240,38 @@ const Chatbox = (props) => {
         });
         return newData;
       });
-      queryClient.setQueryData(["attachment"], (oldData) => {
-        const cloned = oldData.map((item) => {
-          return Object.assign({}, item);
+      if (param.type === "media") {
+        queryClient.setQueryData(["attachment"], (oldData) => {
+          const cloned = oldData.map((item) => {
+            return Object.assign({}, item);
+          });
+          // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
+          var firstItem = cloned[0];
+          // Nếu undefined tức là chưa có attachment nào
+          // hoặc nếu ngày gần nhất không phải hôm nay
+          // -> tạo object mới
+          if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
+            cloned.unshift({
+              date: moment().format("MM/DD/YYYY"),
+              attachments: param.attachments,
+            });
+            return cloned;
+          }
+          // Ngược lại thì ngày gần nhất là hôm nay
+          else {
+            let newData = cloned.map((item) => {
+              if (item.date === moment().format("MM/DD/YYYY")) {
+                return {
+                  ...item,
+                  attachments: [...param.attachments, ...item.attachments],
+                };
+              }
+              return item;
+            });
+            return newData;
+          }
         });
-        // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
-        var firstItem = cloned[0];
-        // Nếu undefined tức là chưa có attachment nào
-        // hoặc nếu ngày gần nhất không phải hôm nay
-        // -> tạo object mới
-        if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
-          cloned.unshift({
-            date: moment().format("MM/DD/YYYY"),
-            attachments: param.attachments,
-          });
-          return cloned;
-        }
-        // Ngược lại thì ngày gần nhất là hôm nay
-        else {
-          let newData = cloned.map((item) => {
-            if (item.date === moment().format("MM/DD/YYYY")) {
-              return {
-                ...item,
-                attachments: [...param.attachments, ...item.attachments],
-              };
-            }
-            return item;
-          });
-          return newData;
-        }
-      });
+      }
     },
   });
 
@@ -355,13 +355,15 @@ const Chatbox = (props) => {
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
       <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden [&>*:not(:first-child)]:px-[2rem]">
-        <div
-          ref={refScrollButton}
-          className="fa fa-arrow-down absolute bottom-[1rem] right-[50%] flex hidden aspect-square w-[3rem] cursor-pointer items-center 
-          justify-center rounded-[50%] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
-          onClick={scrollChatContentToBottom}
-        ></div>
-        <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] py-[.5rem] text-[var(--text-main-color-normal)]">
+        <RelightBackground className="absolute bottom-[5%] right-[50%]">
+          <div
+            ref={refScrollButton}
+            className="fa fa-arrow-down flex hidden aspect-square cursor-pointer items-center 
+          justify-center rounded-[50%] text-xl font-normal text-[var(--text-main-color-normal)]"
+            onClick={scrollChatContentToBottom}
+          ></div>
+        </RelightBackground>
+        {/* <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] py-[.5rem] text-[var(--text-main-color-normal)]">
           <div className="flex items-center gap-[1rem]">
             {messages.isGroup ? (
               <ImageWithLightBoxWithShadowAndNoLazy
@@ -456,12 +458,12 @@ const Chatbox = (props) => {
               rounded-[1rem] text-lg font-normal"
             ></div>
           </div>
-        </div>
+        </div> */}
         <div
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth pb-4"
+          className="hide-scrollbar mt-4 flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth pb-4"
         >
           {isPending && (
             <MessageContent

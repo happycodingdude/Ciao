@@ -55,7 +55,7 @@ const MessageContent = (props) => {
           {message.contact.id === info.data.id ? (
             ""
           ) : (
-            <p>{message.contact.name}</p>
+            <p className="text-[#00AFB9]">{message.contact.name}</p>
           )}
 
           <p>
@@ -68,8 +68,10 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.type === "text" ? (
           <div
-            className={`break-all rounded-[3rem] bg-gradient-radial-to-bc from-[var(--sub-color)] ${pending ? "to-[var(--main-color-normal)]" : "to-[var(--main-color)]"}  
-          px-[1.5rem] py-[.7rem] text-[var(--text-sub-color)]`}
+            //   className={`break-all rounded-[3rem] bg-gradient-radial-to-tc from-[#00AFB9]  ${pending ? "to-[var(--main-color-normal)]" : "to-[#FED9B7]"}
+            // px-[1.5rem] py-[.7rem] text-[var(--text-main-color-normal)]`}
+            className={`break-all rounded-[3rem] ${pending ? "to-[var(--main-color-normal)]" : ""} 
+            text-[var(--text-main-color-normal)]`}
           >
             {/* {GenerateContent(participants, message.content)} */}
             {message.content}
