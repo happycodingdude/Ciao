@@ -148,7 +148,7 @@ const ListChat = () => {
     <>
       <div
         ref={refChats}
-        className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
+        className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] text-[var(--text-main-color-light)] desktop:h-[50rem]"
       >
         {isLoading || isRefetching ? <LocalLoading loading /> : ""}
         {conversations?.map((item, i) => (
@@ -207,7 +207,7 @@ const ListChat = () => {
                   item.unSeenMessages > 0 &&
                   item.id != selected?.id
                     ? "font-medium"
-                    : "text-[var(--text-main-color-light)]"
+                    : ""
                 }`}
                 title={item.lastMessage}
               />

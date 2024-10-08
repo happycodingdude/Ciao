@@ -1,23 +1,16 @@
-import React, { useState } from "react";
-import { useMessage } from "../../hook/CustomHooks";
-import LocalLoading from "../common/LocalLoading";
-import Attachment from "./Attachment";
-import Chatbox from "./Chatbox";
-import Information from "./Information";
+import React from "react";
+import ChatboxContainer from "./ChatboxContainer";
 import ListChatContainer from "./ListChatContainer";
 
 export const ChatSection = (props) => {
   console.log("ChatSection calling");
-  const { refListChat, refChatbox } = props;
-
-  const { data, isLoading, isRefetching } = useMessage();
+  const { refListChat } = props;
 
   // const refInformationContainer = useRef();
-  const [toggle, setToggle] = useState("information");
 
-  const removeInListChat = (id) => {
-    refListChat.removeChat(id);
-  };
+  // const removeInListChat = (id) => {
+  //   refListChat.removeChat(id);
+  // };
 
   // const showInformationContainer = () => {
   //   refInformationContainer.current.classList.remove(
@@ -45,35 +38,8 @@ export const ChatSection = (props) => {
 
   return (
     <section className={`flex grow overflow-hidden`}>
-      <ListChatContainer refListChat={refListChat} />
-      <div className="flex grow">
-        {data?.messages ? (
-          <>
-            <Chatbox
-              refChatbox={refChatbox}
-              // toggleInformation={toggleInformationContainer}
-            />
-            <div className="relative origin-right overflow-hidden laptop:w-[25rem]">
-              <Information
-                // refAttachment={refAttachment}
-                // refInformationExposed={refInformation}
-                removeInListChat={(val) => removeInListChat(val)}
-                show={toggle === "information"}
-                toggle={() => setToggle("attachment")}
-              />
-              <Attachment
-                // refInformation={refInformation}
-                // refAttachmentExposed={refAttachment}
-                show={toggle === "attachment"}
-                toggle={() => setToggle("information")}
-              />
-            </div>
-          </>
-        ) : (
-          ""
-        )}
-        {isLoading || isRefetching ? <LocalLoading loading /> : ""}
-      </div>
+      <ListChatContainer />
+      <ChatboxContainer />
     </section>
   );
 };

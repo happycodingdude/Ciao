@@ -34,6 +34,7 @@ const Attachment = (props) => {
   );
 
   useEffect(() => {
+    if (!attachments) return;
     toggleAttachmentActive("image");
     // refAttachment.current.classList.remove("animate-flip-scale-down-vertical");
     // refAttachment.current.classList.add("animate-flip-scale-up-vertical");
@@ -53,8 +54,8 @@ const Attachment = (props) => {
       className={`absolute top-0 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div
-        className="relative flex h-[7rem] shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] 
-        px-[2rem] py-[.5rem] text-[var(--text-main-color-normal)]"
+        className="relative flex shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
+        py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[5rem]"
       >
         <div
           className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
@@ -99,7 +100,7 @@ const Attachment = (props) => {
       <div
         // ref={refScrollAttachment}
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
-        [&>*:not(:last-child)]:border-b-[.5rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+        [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
         {displayAttachments.map((date) => (
           <div className="flex flex-col gap-[2rem]">
@@ -111,7 +112,7 @@ const Attachment = (props) => {
                 <ImageWithLightBox
                   src={item.mediaUrl}
                   title={item.mediaName?.split(".")[0]}
-                  className="aspect-square w-full cursor-pointer rounded-2xl"
+                  className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
                   slides={date.attachments.map((item) => ({
                     src:
                       item.type === "image"

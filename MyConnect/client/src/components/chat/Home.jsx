@@ -58,9 +58,7 @@ export const Home = () => {
         <SideBar page={page} setPage={setPage} />
         {
           {
-            chat: (
-              <ChatSection refListChat={refListChat} refChatbox={refChatbox} />
-            ),
+            chat: <ChatSection />,
             profile: <ProfileSection />,
           }[page]
         }

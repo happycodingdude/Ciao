@@ -24,7 +24,9 @@ const Information = (props) => {
   const [displayAttachments, setDisplayAttachments] = useState([]);
 
   useEffect(() => {
-    if (attachments && attachments?.length !== 0) {
+    if (!attachments) return;
+
+    if (attachments?.length !== 0) {
       const mergedArr = attachments.reduce((result, item) => {
         return result.concat(item.attachments);
       }, []);
@@ -94,8 +96,8 @@ const Information = (props) => {
       className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div
-        className="flex h-[7rem] shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
-        px-[2rem] py-[.5rem]"
+        className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
+        py-[.5rem] laptop:h-[5rem]"
       >
         <p className="font-bold text-[var(--text-main-color-normal)]">
           Information
