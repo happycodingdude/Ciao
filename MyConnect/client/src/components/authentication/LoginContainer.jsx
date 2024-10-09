@@ -21,7 +21,7 @@ const LoginContainer = (props) => {
   return (
     <div
       data-state={show}
-      className="absolute right-0 flex h-full w-[40%] flex-col justify-center overflow-hidden bg-[var(--bg-color)] transition-all duration-500
+      className="absolute right-0 flex h-full w-[40%] flex-col justify-center overflow-hidden transition-all duration-500
       data-[state=false]:translate-x-[700%] data-[state=true]:translate-x-0"
     >
       <div className="relative">

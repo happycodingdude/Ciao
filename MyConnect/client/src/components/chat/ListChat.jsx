@@ -148,7 +148,7 @@ const ListChat = () => {
     <>
       <div
         ref={refChats}
-        className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] text-[var(--text-main-color-light)] desktop:h-[50rem]"
+        className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
         {isLoading || isRefetching ? <LocalLoading loading /> : ""}
         {conversations?.map((item, i) => (
@@ -168,8 +168,8 @@ const ListChat = () => {
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
               selected?.id === item.id
-                ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-blur)]`
-                : "bg-[var(--bg-color-normal)] hover:bg-[var(--bg-color-light)]"
+                ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
+                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
             } `}
             onClick={() => {
               handleSetConversation(65 * i, item);
@@ -202,7 +202,7 @@ const ListChat = () => {
                 }
               />
               <CustomLabel
-                className={`chat-content ${
+                className={`chat-content text-[var(--text-main-color-thin)] ${
                   item.lastMessageContact !== info.data.id &&
                   item.unSeenMessages > 0 &&
                   item.id != selected?.id
@@ -230,7 +230,7 @@ const ListChat = () => {
       >
         <div
           className="fa fa-arrow-down flex aspect-square w-[3rem] cursor-pointer items-center justify-center rounded-full 
-          bg-[var(--main-color-normal)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color)]"
+          bg-[var(--main-color)] font-normal text-[var(--text-sub-color)] hover:bg-[var(--main-color-light)]"
           onClick={scrollListChatToBottom}
         ></div>
       </div>

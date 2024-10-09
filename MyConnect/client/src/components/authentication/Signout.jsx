@@ -43,7 +43,7 @@ const Signout = (props) => {
   return (
     <div
       onClick={signout}
-      className={`${className ?? ""} fa fa-sign-out flex cursor-pointer items-center justify-center text-xl font-thin text-[var(--text-main-color-normal)]`}
+      className={`${className ?? ""} fa fa-sign-out flex cursor-pointer items-center justify-center text-xl font-thin`}
     >
       {/* <div className="fa fa-sign-out w-full cursor-pointer font-light leading-8"></div> */}
     </div>

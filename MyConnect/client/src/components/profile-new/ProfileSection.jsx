@@ -110,7 +110,7 @@ const ProfileSection = () => {
           <p className="text-[var(--text-main-color)]">Name</p>
           <input
             ref={refName}
-            className="rounded-lg border-[.2rem] px-4 py-2 font-medium outline-none transition-all duration-200"
+            className="rounded-lg bg-[var(--bg-color)] px-4 py-2 font-medium outline-none"
             type="text"
           />
         </div>
@@ -119,7 +119,7 @@ const ProfileSection = () => {
           <textarea
             ref={refBio}
             rows={4}
-            className="hide-scrollbar resize-none rounded-lg border-[.2rem] px-4 py-2 font-medium outline-none transition-all duration-200"
+            className="hide-scrollbar resize-none rounded-lg bg-[var(--bg-color)] px-4 py-2 font-medium outline-none"
             type="text"
           />
         </div>

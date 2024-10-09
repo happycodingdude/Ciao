@@ -11,6 +11,7 @@ import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
+import RelightBackground from "../common/RelightBackground";
 import AddParticipants from "./AddParticipants";
 
 const Information = (props) => {
@@ -93,22 +94,17 @@ const Information = (props) => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color)]`}
+      className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color-light)] `}
     >
       <div
         className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
         py-[.5rem] laptop:h-[5rem]"
       >
-        <p className="font-bold text-[var(--text-main-color-normal)]">
-          Information
-        </p>
+        <p className="font-bold">Information</p>
       </div>
-      <div
-        className=" hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
-      [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]"
-      >
+      <div className="mt-[1rem] flex flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
-          <div className="relative flex flex-col items-center gap-[.5rem] text-[var(--text-main-color-normal)]">
+          <div className="relative flex flex-col items-center gap-[.5rem]">
             {/* <ImageWithLightBoxWithBorderAndShadow
               src={selected.Avatar ?? ""}
               className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
@@ -123,7 +119,7 @@ const Information = (props) => {
                   immediate={true}
                 />
                 <MediaPicker
-                  className="absolute left-[42%] top-[-10%]"
+                  className="absolute left-[40%] top-[-20%]"
                   accept="image/png, image/jpeg"
                   id="conversation-avatar"
                   // onChange={updateAvatar}
@@ -171,7 +167,9 @@ const Information = (props) => {
             {messages.isGroup ? (
               <>
                 {/* <ToggleNotification /> */}
-                <AddParticipants />
+                <RelightBackground>
+                  <AddParticipants />
+                </RelightBackground>
               </>
             ) : (
               ""
@@ -180,13 +178,11 @@ const Information = (props) => {
         </div>
         <div className="display-attachment-container flex flex-col gap-[1rem]">
           <div className="flex justify-between">
-            <label className="font-bold text-[var(--text-main-color-normal)]">
-              Attachments
-            </label>
+            <label className="font-bold">Attachments</label>
             {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
-                className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-bold)]"
+                className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
               >
                 See all
               </div>

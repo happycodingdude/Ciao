@@ -87,7 +87,7 @@ const ChatInput = (props) => {
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
       {messages.isGroup ? (
-        <div className="rounded-2xl bg-[var(--bg-color-light)] py-2 pl-4 pr-16 text-[var(--text-main-color-normal)]">
+        <div className="rounded-2xl bg-[var(--bg-color-light)] py-2 pl-4 pr-16">
           <Editor
             ref={editorRef}
             editorKey={"editor"}
@@ -111,14 +111,14 @@ const ChatInput = (props) => {
           ref={editorRef}
           value={directText}
           onChange={(e) => setDirectText(e.target.value)}
-          className="w-full rounded-2xl bg-[var(--bg-color-light)] py-2 pl-4 pr-16 text-[var(--text-main-color-normal)] outline-none"
+          className="w-full rounded-2xl bg-[var(--bg-color-light)] py-2 pl-4 pr-16 outline-none"
           onKeyDown={keyBindingFn}
         />
       )}
       <div className="absolute right-[1%] top-0 flex h-full grow cursor-pointer items-center justify-center">
         <Tooltip title="Send">
           <div
-            className="fa fa-paper-plane flex aspect-square h-full items-center justify-center rounded-[.8rem] text-[var(--main-color-medium)]"
+            className="fa fa-paper-plane flex aspect-square h-full items-center justify-center rounded-[.8rem] text-[var(--main-color-light)]"
             onClick={callToAction}
           ></div>
         </Tooltip>

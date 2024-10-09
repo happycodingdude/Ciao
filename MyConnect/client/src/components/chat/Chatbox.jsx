@@ -359,7 +359,7 @@ const Chatbox = (props) => {
           <div
             ref={refScrollButton}
             className="fa fa-arrow-down flex hidden aspect-square cursor-pointer items-center 
-          justify-center rounded-[50%] text-xl font-normal text-[var(--text-main-color-normal)]"
+          justify-center rounded-[50%] text-xl font-normal text-[var(--text-main-color)]"
             onClick={scrollChatContentToBottom}
           ></div>
         </RelightBackground>
@@ -495,7 +495,7 @@ const Chatbox = (props) => {
         </div>
       </div>
       <div className="flex w-full items-center justify-center px-8 py-3">
-        <div className="flex max-w-[10rem] grow items-center justify-evenly text-[var(--text-main-color-normal)]">
+        <div className="flex max-w-[10rem] grow items-center justify-evenly">
           <input
             multiple
             type="file"
@@ -553,7 +553,7 @@ const Chatbox = (props) => {
               //     : "p-[.7rem] laptop:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]"
               // }
               className={`hide-scrollbar grid max-h-[7rem]              
-              gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.2rem] border-[var(--main-color-normal)] p-[.7rem] laptop:w-[clamp(41rem,73%,61rem)] laptop:grid-cols-[repeat(auto-fill,9rem)] 
+              gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.2rem] border-[var(--main-color-light)] p-[.7rem] laptop:w-[clamp(41rem,73%,61rem)] laptop:grid-cols-[repeat(auto-fill,9rem)] 
               desktop:w-[clamp(70rem,75%,120rem)] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]`}
             >
               {files.map((item) => (
@@ -585,8 +585,8 @@ const Chatbox = (props) => {
             <div className="flex grow items-center justify-center">
               <Tooltip title="Send">
                 <div
-                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer  rounded-[.8rem] 
-                  text-[var(--main-color-medium)]"
+                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer rounded-[.8rem] 
+                  text-[var(--main-color-light)]"
                   onClick={sendMedia}
                 ></div>
               </Tooltip>

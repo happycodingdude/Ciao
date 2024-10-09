@@ -31,7 +31,7 @@ const CustomInput = (props) => {
     <div className="relative">
       <input
         tabIndex={tabIndex}
-        className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--sub-color)] !border-b-[var(--border-color)] bg-[var(--bg-color)]
+        className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--bg-color)] !border-b-[var(--border-color)] bg-[var(--bg-color)]
         p-[1rem] pb-[.2rem] pl-0 text-[var(--text-main-color)] outline-none
           transition-all duration-200`}
         // className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--sub-color)] !border-b-[var(--border-color)] p-[1rem] pb-[.2rem] pl-0 outline-none

@@ -18,7 +18,8 @@ const ChatboxContainer = (props) => {
   // }, [selected]);
 
   return (
-    <div className="flex grow">
+    <div className="relative flex grow">
+      {isLoading || isRefetching ? <LocalLoading loading /> : ""}
       {data?.messages ? (
         <>
           <Chatbox
@@ -43,7 +44,6 @@ const ChatboxContainer = (props) => {
       ) : (
         ""
       )}
-      {isLoading || isRefetching ? <LocalLoading loading /> : ""}
     </div>
   );
 };

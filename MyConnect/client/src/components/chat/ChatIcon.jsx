@@ -3,7 +3,7 @@ const ChatIcon = (props) => {
 
   return (
     <div
-      className={`fa fa-comment flex cursor-pointer items-center justify-center text-xl font-thin text-[var(--text-main-color-normal)]`}
+      className={`fa fa-comment flex cursor-pointer items-center justify-center text-xl font-thin`}
       onClick={show}
     ></div>
   );

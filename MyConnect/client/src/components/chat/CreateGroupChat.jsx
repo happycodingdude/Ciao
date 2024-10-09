@@ -76,8 +76,7 @@ const CreateGroupChat = () => {
     <>
       <div
         onClick={openCreateGroupChat}
-        className="fa fa-users flex cursor-pointer items-center justify-center  
-        text-sm font-normal text-[var(--text-main-color-normal)]"
+        className="fa fa-users flex cursor-pointer items-center justify-center text-sm font-normal"
       ></div>
       <CustomModal
         show={show}

@@ -8,7 +8,7 @@ const Loading = () => {
 
   return (
     <div
-      className="absolute z-[1000] flex h-full w-full items-center justify-center bg-[var(--portal-bg-color)] tracking-[.5rem] 
+      className="absolute z-[1000] flex h-full w-full items-center justify-center bg-[var(--bg-color)] tracking-[.5rem] 
     [&>*]:text-[clamp(2.3rem,1.2vw,3rem)] [&>*]:text-[var(--text-main-color)]"
     >
       <span style={{ "--i": 1 }} className="waving-text">

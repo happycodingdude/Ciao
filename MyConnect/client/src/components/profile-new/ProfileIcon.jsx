@@ -3,7 +3,7 @@ const ProfileIcon = (props) => {
 
   return (
     <div
-      className={`fa fa-user flex cursor-pointer items-center justify-center text-xl font-thin text-[var(--text-main-color-normal)]`}
+      className={`fa fa-user flex cursor-pointer items-center justify-center text-xl font-thin`}
       onClick={show}
     ></div>
   );

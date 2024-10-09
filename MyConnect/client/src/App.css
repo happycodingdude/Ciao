@@ -48,27 +48,30 @@
   --main-color-normal: #f9a8d4;
   --main-color-light: #fbcfe8;
   --main-color-thin: #fce7f3; */
-  --main-color: #00AFB9;
-  --main-color-extrabold: #00464a;
-  --main-color-bold: #00696f;
-  --main-color-medium: #008c94;
-  --main-color-normal: #33bfc7;
-  --main-color-light: #66cfd5;
-  --main-color-thin: #99dfe3;
-  --main-color-extrathin: #cceff1;
+  --main-color-extrabold: #125867;
+  --main-color-bold: #106a7a;
+  --main-color-medium: #088496;
+  --main-color: #00a1b3;
+  /* --main-color-normal: ##00ddde; */
+  --main-color-light: #00d2de;
+  --main-color-thin: #18eff8;
+  --main-color-extrathin: #60fcff;
   --sub-color: #333333;
-  --bg-color-medium: #232323;
-  --bg-color: #333333;
-  --bg-color-normal: #424242;
-  --bg-color-light: #525252;
-  --bg-color-thin: #616161;
-  --bg-color-extrathin: #717171;
-  --text-main-color: white;
-  --text-main-color-normal: #e6e6e6;
-  --text-main-color-light: #cccccc;
-  --text-main-color-thin: #b3b3b3;
-  --text-sub-color: black;
-  --text-sub-color-blur: #0000007c;
+  /* --bg-color-extrabold: #070707;
+  --bg-color-bold: #0b0b0b;
+  --bg-color-medium: #0e0e0e; */  
+  --bg-color: #121212;
+  /* --bg-color-normal: #282828; */
+  --bg-color-light: #3d3d3d;
+  --bg-color-thin: #454545;
+  --bg-color-extrathin: #4f4f4f;
+  --text-main-color: #ffffff;
+  /* --text-main-color-normal: #e6e6e6; */
+  --text-main-color-light: #dcdcdc;
+  --text-main-color-thin: #bdbdbd;
+  --text-sub-color: #000000;
+  --text-sub-color-light: #3d3d3d;
+  --text-sub-color-thin: #454545;
   --shadow-color: gray;
   --border-color: #d1d5db;
   --icon-text-color: gray;

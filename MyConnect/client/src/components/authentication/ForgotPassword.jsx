@@ -56,7 +56,7 @@ const ForgotPassword = (props) => {
     <div
       ref={refForgotPassword}
       data-state={show}
-      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)] duration-500 
+      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color-bold)] duration-500 
         data-[state=false]:translate-y-0 data-[state=true]:translate-y-[-100%]"
     >
       <p className="text-5xl text-[var(--text-main-color)]">Reset</p>
@@ -80,7 +80,7 @@ const ForgotPassword = (props) => {
           <div
             onClick={() => setShowPassword(!showPassword)}
             className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center 
-              hover:text-[var(--main-color-bold)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
+              hover:text-[var(--main-color-light)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
           ></div>
         </div>
 

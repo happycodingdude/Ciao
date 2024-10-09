@@ -60,10 +60,10 @@ const Signup = (props) => {
     <div
       ref={refSignup}
       data-state={show}
-      className="absolute left-0 h-full w-[40%] bg-[var(--bg-color)] transition-all duration-500
+      className="absolute left-0 h-full w-[40%] transition-all duration-500
       data-[state=false]:translate-x-[-700%] data-[state=true]:translate-x-0"
     >
-      <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color)]">
+      <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem]">
         <p className="text-5xl text-[var(--text-main-color)]">Create account</p>
 
         <div className="flex flex-col gap-[3rem]">
@@ -91,7 +91,7 @@ const Signup = (props) => {
             <div
               onClick={() => setShowPassword(!showPassword)}
               className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center 
-              hover:text-[var(--main-color-bold)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
+              hover:text-[var(--main-color-light)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
             ></div>
           </div>
           <ErrorComponent error={error} />
