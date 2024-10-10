@@ -2,9 +2,9 @@ namespace Presentation.Conversations;
 
 public static class GetConversationsWithUnseenMesages
 {
-    public record Request(int limit, int page) : IRequest<IEnumerable<object>>;
+    public record Request(int page) : IRequest<GetConversationsWithUnseenMesagesResponse>;
 
-    internal sealed class Handler : IRequestHandler<Request, IEnumerable<object>>
+    internal sealed class Handler : IRequestHandler<Request, GetConversationsWithUnseenMesagesResponse>
     {
         readonly IConversationRepository _conversationRepository;
 
@@ -13,9 +13,9 @@ public static class GetConversationsWithUnseenMesages
             _conversationRepository = service.Get();
         }
 
-        public async Task<IEnumerable<object>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<GetConversationsWithUnseenMesagesResponse> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(request.limit, request.page));
+            return await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(request.page));
         }
     }
 }
@@ -25,9 +25,9 @@ public class GetConversationsWithUnseenMesagesEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("",
-        async (ISender sender, int limit = AppConstants.DefaultLimit, int page = AppConstants.DefaultPage) =>
+        async (ISender sender, int page = AppConstants.DefaultPage) =>
         {
-            var query = new GetConversationsWithUnseenMesages.Request(limit, page);
+            var query = new GetConversationsWithUnseenMesages.Request(page);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

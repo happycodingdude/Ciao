@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Domain.Features;
 
 public class Contact : MongoBaseModel

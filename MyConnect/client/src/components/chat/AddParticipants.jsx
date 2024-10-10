@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import {
@@ -64,11 +65,12 @@ const AddParticipants = () => {
   };
   return (
     <>
-      <div
-        onClick={handleAddParticipant}
-        className={`fa fa-user-plus flex aspect-square w-[13%] cursor-pointer items-center justify-center rounded-[50%] 
-        bg-[var(--main-color-thin)] text-sm font-normal text-[var(--main-color-medium)] hover:bg-[var(--main-color-light)]`}
-      ></div>
+      <Tooltip title="Invite friends">
+        <div
+          onClick={handleAddParticipant}
+          className={`fa fa-user-plus flex items-center justify-center text-md font-thin`}
+        ></div>
+      </Tooltip>
       <CustomModal
         show={show}
         forms={formData}

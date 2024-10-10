@@ -2,13 +2,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { debounce } from "lodash";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImage } from "../../common/Utility";
-import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
+import { blurImage, HttpRequest } from "../../common/Utility";
+import {
+  useConversation,
+  useEventListener,
+  useInfo,
+  useMessage,
+} from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
-import RelightBackground from "../common/RelightBackground";
+import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
@@ -19,14 +25,6 @@ const Chatbox = (props) => {
 
   const queryClient = useQueryClient();
 
-  const { data: info } = useInfo();
-  const { data: messages } = useMessage();
-
-  const [files, setFiles] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [userId, setUserId] = useState();
-  const [openEmoji, setOpenEmoji] = useState(false);
-
   const refChatContent = useRef();
   const refScrollButton = useRef();
   const refToggleInformationContainer = useRef();
@@ -34,50 +32,28 @@ const Chatbox = (props) => {
   const refTitleContainer = useRef();
   const refChatInput = useRef();
 
-  // useEffect(() => {
-  //   setFiles([]);
-  // }, []);
+  const [files, setFiles] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState();
+  const [openEmoji, setOpenEmoji] = useState(false);
+  const [page, setPage] = useState(2);
+  const [fetching, setFetching] = useState(false);
+
+  const { data: info } = useInfo();
+  const { data: conversation } = useConversation();
+  const { data: messages, refetch } = useMessage(conversation?.selected, page);
 
   useEffect(() => {
     blurImage(".chatbox-content");
     setFiles([]);
-  }, [messages]);
+    if (conversation?.selected !== messages.id)
+      refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+  }, [messages, conversation]);
 
   useEffect(() => {
-    // listenNotification((message) => {
-    //   console.log("Chatbox receive message from worker");
-    //   const messageData = JSON.parse(message.data);
-    //   switch (message.event) {
-    //     case "NewMessage":
-    //       // add new message to current list
-    //       var newArr = messages?.map((item) => {
-    //         if (item.Messages.some((message) => message.Id === messageData.Id))
-    //           return item;
-    //         if (
-    //           item.Date !== moment(messageData.CreatedTime).format("MM/DD/YYYY")
-    //         )
-    //           return item;
-
-    //         item.Messages = [...item.Messages, messageData];
-    //         return item;
-    //       });
-    //       setMessages(newArr);
-
-    //       setTimeout(() => {
-    //         refChatContent.current.scrollTop =
-    //           refChatContent.current.scrollHeight;
-    //       }, 200);
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // });
-
-    // setTimeout(() => {
-    //   refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-    // }, 500);
-    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-  }, [messages]);
+    if (!conversation) return;
+    setPage(2);
+  }, [conversation?.selected]);
 
   const chooseFile = (e) => {
     const chosenFiles = Array.from(e.target.files);
@@ -134,53 +110,6 @@ const Chatbox = (props) => {
     );
   };
 
-  // const sendMessage = async (text) => {
-  //   let body = {
-  //     contactId: info.data.id,
-  //     conversationId: messages.id,
-  //   };
-  //   if (files.length === 0) {
-  //     if (text === "") return;
-  //     body = {
-  //       ...body,
-  //       type: "text",
-  //       content: text,
-  //     };
-  //   } else {
-  //     const uploaded = await uploadFile().then((uploads) => {
-  //       return uploads.map((item) => ({
-  //         type: item.type,
-  //         mediaUrl: item.url,
-  //         mediaName: item.name,
-  //         mediaSize: item.size,
-  //       }));
-  //     });
-  //     body = {
-  //       ...body,
-  //       type: "media",
-  //       attachments: uploaded,
-  //       content: uploaded.map((item) => item.MediaName).join(","),
-  //     };
-  //   }
-
-  //   refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-
-  //   HttpRequest({
-  //     method: "post",
-  //     url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
-  //       "{id}",
-  //       messages.id,
-  //     ),
-  //     data: body,
-  //   }).then((res) => {
-  //     setFiles([]);
-  //   });
-  // };
-
-  const delay = (delay) => {
-    return new Promise((resolve) => setTimeout(resolve, delay));
-  };
-
   const {
     mutate: sendMutation,
     isPending,
@@ -190,8 +119,6 @@ const Chatbox = (props) => {
       setTimeout(() => {
         scrollChatContentToBottom();
       }, 200);
-
-      // await delay(5000);
 
       if (param.type === "text" && param.content === "") return;
 
@@ -314,12 +241,44 @@ const Chatbox = (props) => {
     }
   };
 
+  const fetchMoreMessage = (conversationId, page) => {
+    setFetching(true);
+    HttpRequest({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
+        "{id}",
+        conversationId,
+      ).replace("{page}", page),
+    }).then((data) => {
+      queryClient.setQueryData(["message"], (oldData) => {
+        const cloned = Object.assign({}, oldData);
+        cloned.messages = [...cloned.messages, ...data.data.messages];
+        cloned.nextExist = data.data.nextExist;
+        return cloned;
+      });
+      setPage((current) => current + 1);
+      setFetching(false);
+    });
+  };
+
+  const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+
   // Event listener
-  const handleScroll = useCallback(() => {
+  const handleScroll = useCallback(async () => {
     if (refChatContent.current.scrollTop < -200)
-      refScrollButton.current.classList.remove("hidden");
-    else refScrollButton.current.classList.add("hidden");
-  }, []);
+      refScrollButton.current.setAttribute("data-show", "true");
+    else refScrollButton.current.setAttribute("data-show", "false");
+
+    if (
+      refChatContent.current.scrollTop !== 0 &&
+      Math.round(-refChatContent.current.scrollTop) >=
+        refChatContent.current.scrollHeight -
+          refChatContent.current.clientHeight -
+          1 &&
+      messages.nextExist
+    )
+      debounceFetch(messages.id, page);
+  }, [messages, page]);
   useEventListener("scroll", handleScroll);
 
   const closeProfile = useCallback((e) => {
@@ -354,15 +313,20 @@ const Chatbox = (props) => {
       ref={refChatboxContainer}
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
-      <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden [&>*:not(:first-child)]:px-[2rem]">
-        <RelightBackground className="absolute bottom-[5%] right-[50%]">
-          <div
-            ref={refScrollButton}
-            className="fa fa-arrow-down flex hidden aspect-square cursor-pointer items-center 
-          justify-center rounded-[50%] text-xl font-normal text-[var(--text-main-color)]"
-            onClick={scrollChatContentToBottom}
-          ></div>
-        </RelightBackground>
+      <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden p-8">
+        {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
+        {fetching ? <FetchingMoreMessages loading /> : ""}
+        <div
+          ref={refScrollButton}
+          data-show="false"
+          className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
+          items-center justify-center rounded-[50%] bg-[var(--main-color-medium)] text-lg font-light text-[var(--text-main-color)]
+          transition-all duration-200 hover:bg-[var(--main-color)]
+          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:z-0
+          data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
+          onClick={scrollChatContentToBottom}
+        ></div>
+        {/* </RelightBackground> */}
         {/* <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] py-[.5rem] text-[var(--text-main-color-normal)]">
           <div className="flex items-center gap-[1rem]">
             {messages.isGroup ? (
@@ -463,7 +427,7 @@ const Chatbox = (props) => {
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar mt-4 flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth pb-4"
+          className="hide-scrollbar mt-4 flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth"
         >
           {isPending && (
             <MessageContent

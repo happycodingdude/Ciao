@@ -44,11 +44,12 @@ export const useNotification = () => {
   });
 };
 
-export const useConversation = () => {
+export const useConversation = (page) => {
   return useQuery({
     queryKey: ["conversation"],
-    queryFn: getConversation,
+    queryFn: () => getConversation(page),
     staleTime: Infinity,
+    enabled: false,
   });
 };
 
@@ -61,10 +62,10 @@ export const useParticipant = (conversationId) => {
   });
 };
 
-export const useMessage = (conversationId) => {
+export const useMessage = (conversationId, page) => {
   return useQuery({
     queryKey: ["message"],
-    queryFn: () => getMessages(conversationId),
+    queryFn: () => getMessages(conversationId, page),
     staleTime: Infinity,
     enabled: false,
   });

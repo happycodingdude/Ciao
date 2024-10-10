@@ -41,32 +41,46 @@ const ListChat = () => {
   const refChatsScroll = useRef();
 
   const [selected, setSelected] = useState();
+  const [page, setPage] = useState(1);
 
   const { data: info } = useInfo();
-  const { data: conversations, isLoading, isRefetching } = useConversation();
-  const { refetch: refetchMessage } = useMessage(selected?.id);
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    refetch: refetchConversation,
+  } = useConversation(page);
+  const { refetch: refetchMessage } = useMessage(selected?.id, 1);
   const { refetch: refetchAttachments } = useAttachment(selected?.id);
+
+  useEffect(() => {
+    if (page) refetchConversation();
+  }, [page]);
+
+  useEffect(() => {
+    blurImage(".list-chat");
+  }, [data?.conversations]);
 
   const handleSetConversation = (position, item) => {
     setSelected(item);
   };
 
   useEffect(() => {
-    blurImage(".list-chat");
-  }, [conversations]);
-
-  useEffect(() => {
     if (selected) {
       queryClient.setQueryData(["conversation"], (oldData) => {
-        const cloned = oldData.map((item) => {
-          return Object.assign({}, item);
-        });
-        var newData = cloned.map((conversation) => {
+        // const cloned = oldData.map((item) => {
+        //   return Object.assign({}, item);
+        // });
+        const cloned = Object.assign({}, oldData);
+        var newConversations = cloned.conversations.map((conversation) => {
           if (conversation.id !== selected.id) return conversation;
           conversation.unSeenMessages = 0;
           return conversation;
         });
-        return newData;
+        return {
+          selected: selected.id,
+          conversations: newConversations,
+        };
       });
       refetchMessage();
       refetchAttachments();
@@ -151,7 +165,7 @@ const ListChat = () => {
         className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
         {isLoading || isRefetching ? <LocalLoading loading /> : ""}
-        {conversations?.map((item, i) => (
+        {data?.conversations.map((item, i) => (
           <div
             data-key={item.id}
             data-user={

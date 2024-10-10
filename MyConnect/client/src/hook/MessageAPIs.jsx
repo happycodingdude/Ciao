@@ -1,18 +1,19 @@
 import { HttpRequest } from "../common/Utility";
 
-const page = 1;
-const limit = 10;
-
-export const getMessages = async (conversationId) => {
+export const getMessages = async (conversationId, page) => {
   const messages = (
     await HttpRequest({
       method: "get",
-      url: import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace(
-        "{id}",
-        conversationId,
-      )
-        .replace("{page}", page)
-        .replace("{limit}", limit),
+      url:
+        page === 1
+          ? import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace(
+              "{id}",
+              conversationId,
+            )
+          : import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
+              "{id}",
+              conversationId,
+            ).replace("{page}", page),
     })
   ).data;
   return messages;

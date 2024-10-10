@@ -105,27 +105,25 @@ const Information = (props) => {
       <div className="mt-[1rem] flex flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
-            {/* <ImageWithLightBoxWithBorderAndShadow
-              src={selected.Avatar ?? ""}
-              className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-              onClick={() => {}}
-            /> */}
             {messages.isGroup ? (
               <>
                 <ImageWithLightBoxWithShadowAndNoLazy
                   src={messages.avatar}
-                  className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-                  onClick={() => {}}
-                  immediate={true}
+                  className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[7rem]"
+                  slides={[
+                    {
+                      src: messages.avatar,
+                    },
+                  ]}
                 />
                 <MediaPicker
-                  className="absolute left-[40%] top-[-20%]"
+                  className="absolute left-[30%] top-[-15%]"
                   accept="image/png, image/jpeg"
                   id="conversation-avatar"
                   // onChange={updateAvatar}
                 />
                 <CustomLabel
-                  className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
+                  className="text-base text-[var(--text-main-color)] laptop:max-w-[50%] desktop:max-w-[70%]"
                   title={messages.title}
                   tooltip
                 />
@@ -141,19 +139,17 @@ const Information = (props) => {
                       (item) => item.contact.id !== info.data.id,
                     )?.contact.avatar
                   }
-                  className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+                  className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[7rem]"
                   slides={[
                     {
-                      src:
-                        messages.participants?.find(
-                          (item) => item.contact.id !== info.data.id,
-                        )?.contact.avatar ?? "",
+                      src: messages.participants?.find(
+                        (item) => item.contact.id !== info.data.id,
+                      )?.contact.avatar,
                     },
                   ]}
-                  immediate={true}
                 />
                 <CustomLabel
-                  className="font-bold laptop:max-w-[50%] desktop:max-w-[70%]"
+                  className="text-base text-[var(--text-main-color)] laptop:max-w-[50%] desktop:max-w-[70%]"
                   title={
                     messages.participants?.find(
                       (item) => item.contact.id !== info.data.id,
@@ -167,7 +163,7 @@ const Information = (props) => {
             {messages.isGroup ? (
               <>
                 {/* <ToggleNotification /> */}
-                <RelightBackground>
+                <RelightBackground className="w-[15%] cursor-pointer">
                   <AddParticipants />
                 </RelightBackground>
               </>

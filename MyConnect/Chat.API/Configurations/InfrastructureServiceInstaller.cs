@@ -44,7 +44,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
         {
-            options.ExpireTimeSpan = TimeSpan.FromHours(1);
+            options.ExpireTimeSpan = TimeSpan.FromDays(1);
             options.Cookie = new CookieBuilder
             {
                 HttpOnly = true,

@@ -9,3 +9,4 @@ global using System.Reflection;
 global using MongoDB.Bson;
 global using Application.Specifications;
 global using Shared.Constants;
+global using System.Text.Json.Serialization;

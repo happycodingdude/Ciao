@@ -21,7 +21,10 @@ function CustomLightbox({ reference }) {
     <Lightbox
       open={reference.showLightbox}
       close={() => reference.setShowLightbox(false)}
-      slides={reference.slides}
+      slides={reference.slides.map((img) => {
+        if (!img.src) img.src = "images/imagenotfound.jpg";
+        return img;
+      })}
       plugins={[Zoom, Fullscreen]}
       animation={{ zoom: 500 }}
       zoom={{

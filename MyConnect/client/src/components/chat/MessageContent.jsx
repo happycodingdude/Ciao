@@ -44,7 +44,7 @@ const MessageContent = (props) => {
         ""
       )}
       <div
-        className={`flex flex-col gap-[.3rem] laptop:w-[clamp(50rem,70%,70rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+        className={`flex flex-col gap-[.3rem] laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
         ${message.contact.id === info.data.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
@@ -55,7 +55,9 @@ const MessageContent = (props) => {
           {message.contact.id === info.data.id ? (
             ""
           ) : (
-            <p className="text-[#00AFB9]">{message.contact.name}</p>
+            <p className="text-[var(--main-color-thin)]">
+              {message.contact.name}
+            </p>
           )}
 
           <p>
@@ -70,8 +72,7 @@ const MessageContent = (props) => {
           <div
             //   className={`break-all rounded-[3rem] bg-gradient-radial-to-tc from-[#00AFB9]  ${pending ? "to-[var(--main-color-normal)]" : "to-[#FED9B7]"}
             // px-[1.5rem] py-[.7rem] text-[var(--text-main-color-normal)]`}
-            className={`break-all rounded-[3rem] ${pending ? "to-[var(--main-color)]" : ""} 
-            text-[var(--text-main-color)]`}
+            className={`break-all rounded-[3rem] ${pending ? "text-[var(--text-main-color-thin)]" : "text-[var(--text-main-color)]"} `}
           >
             {/* {GenerateContent(participants, message.content)} */}
             {message.content}
@@ -84,7 +85,7 @@ const MessageContent = (props) => {
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
-                className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[60%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer rounded-2xl bg-[size:120%]`}
+                className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer rounded-2xl bg-[size:120%]`}
                 slides={message.attachments.map((item) => ({
                   src:
                     item.type === "image"

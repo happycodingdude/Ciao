@@ -18,7 +18,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         // UserWarehouseDB();
     }
 
-    public async Task<IEnumerable<ConversationWithTotalUnseen>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
+    public async Task<GetConversationsWithUnseenMesagesResponse> GetConversationsWithUnseenMesages(PagingParam pagingParam)
     {
         var userId = _contactRepository.GetUserId();
 
@@ -35,7 +35,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             .ToListAsync())
             .Select(bson => BsonSerializer.Deserialize<Conversation>(bson))
             .ToList();
-        if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
+        if (!conversations.Any()) return new GetConversationsWithUnseenMesagesResponse();
 
         var result = new List<ConversationWithTotalUnseen>(conversations.Count);
         foreach (var conversation in conversations)
@@ -56,44 +56,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             result.Add(convertedConversation);
         }
 
-        return result;
-    }
-
-    public async Task<Conversation> GetById(string id)
-    {
-        // Define aggregation pipeline
-        var pipeline = new BsonDocument[]
-        {
-            new BsonDocument("$match", new BsonDocument("_id", id)),
-            // Project to sort and slice the array
-            new BsonDocument("$project", new BsonDocument
-            {
-                { "Title", 1},
-                { "Avatar", 1},
-                { "IsGroup", 1},
-                { "Participants", 1},
-                { "Messages", new BsonDocument
-                    {
-                        // Sort the array by "id" field (ascending order)
-                        { "$slice", new BsonArray
-                            {
-                                new BsonDocument("$sortArray", new BsonDocument
-                                {
-                                    { "input", "$Messages" },
-                                    { "sortBy", new BsonDocument("CreatedTime", -1) }  // 1 for ascending, -1 for descending
-                                }),
-                                0,  // Skip the specified number of items
-                                AppConstants.DefaultLimit  // Limit the result to the specified number of items
-                            }
-                        }
-                    }
-                }
-            })
-        };
-        var conversation = await _collection.Aggregate<Conversation>(pipeline).SingleOrDefaultAsync();
-
-        await SeenAll(conversation);
-        return conversation;
+        return new GetConversationsWithUnseenMesagesResponse(result);
     }
 
     async Task SeenAll(Conversation conversation)
@@ -110,5 +73,56 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         }
         var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
         Update(filter, updates);
+    }
+
+    public async Task<ConversationWithMessages> GetById(string id, PagingParam pagingParam)
+    {
+        // Define aggregation pipeline
+        var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", id)),
+            // Project to sort and slice the array
+            new BsonDocument("$project", new BsonDocument
+            {
+                { "Title", 1},
+                { "Avatar", 1},
+                { "IsGroup", 1},
+                { "Participants", 1},
+                { "Messages", new BsonDocument
+                    {
+                        { "$slice", new BsonArray
+                            {
+                                new BsonDocument("$sortArray", new BsonDocument
+                                {
+                                    { "input", "$Messages" },
+                                    { "sortBy", new BsonDocument("CreatedTime", -1) }  // 1 for ascending, -1 for descending
+                                }),
+                                pagingParam.Skip,  // Skip the specified number of items
+                                pagingParam.Limit  // Limit the result to the specified number of items
+                            }
+                        }
+                    }
+                },
+                { "NextPage", new BsonDocument
+                    {
+                        { "$slice", new BsonArray
+                            {
+                                new BsonDocument("$sortArray", new BsonDocument
+                                {
+                                    { "input", "$Messages" },
+                                    { "sortBy", new BsonDocument("CreatedTime", -1) }
+                                }),
+                                pagingParam.NextSkip,
+                                pagingParam.Limit
+                            }
+                        }
+                    }
+                }
+            })
+        };
+        var conversation = await _collection.Aggregate<ConversationWithMessages>(pipeline).SingleOrDefaultAsync();
+        if (conversation.NextPage.Any()) conversation.NextExist = true;
+
+        return conversation;
     }
 }

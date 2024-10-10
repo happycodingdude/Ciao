@@ -23,6 +23,18 @@ public class ConversationToNotify
     public bool IsGroup { get; set; }
 }
 
+public class GetConversationsWithUnseenMesagesResponse
+{
+    public List<ConversationWithTotalUnseen> Conversations { get; set; } = new List<ConversationWithTotalUnseen>();
+
+    public GetConversationsWithUnseenMesagesResponse() { }
+
+    public GetConversationsWithUnseenMesagesResponse(List<ConversationWithTotalUnseen> conversations)
+    {
+        Conversations = conversations;
+    }
+}
+
 public class ConversationWithTotalUnseen : MongoBaseModel
 {
     public string Title { get; set; }
@@ -37,4 +49,11 @@ public class ConversationWithTotalUnseen : MongoBaseModel
     public string LastMessageContact { get; set; }
     public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
+}
+
+public class ConversationWithMessages : Conversation
+{
+    [JsonIgnore]
+    public List<Message> NextPage { get; set; } = new List<Message>();
+    public bool NextExist { get; set; }
 }

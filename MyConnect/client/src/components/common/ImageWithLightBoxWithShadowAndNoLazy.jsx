@@ -3,7 +3,7 @@ import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBoxWithShadowAndNoLazy = (props) => {
   console.log("ImageWithLightBoxWithBorderAndShadow calling...");
-  const { src, title, className, slides, index, onClick, immediate } = props;
+  const { src, title, className, slides, index, onClick } = props;
 
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = (e) => setShowLightbox(true);
@@ -15,7 +15,7 @@ const ImageWithLightBoxWithShadowAndNoLazy = (props) => {
         style={{
           "--image-url": `url(${src ?? "images/imagenotfound.jpg"})`,
         }}
-        className={`${className} bg-[image:var(--image-url)] bg-[size:160%] bg-[position:center_center] bg-no-repeat shadow-[0_0_10px_-5px_var(--main-color)] transition-all duration-500`}
+        className={`${className} bg-[image:var(--image-url)] bg-[size:160%] bg-[position:center_center] bg-no-repeat shadow-[0_0_10px_-5px_var(--main-color)]`}
         onClick={onClick ?? handleShowLightbox}
       ></div>
       <CustomLightbox

@@ -19,7 +19,7 @@ const SideBar = (props) => {
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
-  const { refetch } = useConversation();
+  const { refetch } = useConversation(1);
 
   useEffect(() => {
     blurImage(".info-container");

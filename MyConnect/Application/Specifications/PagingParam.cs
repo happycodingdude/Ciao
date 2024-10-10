@@ -2,12 +2,20 @@ namespace Application.Specifications;
 
 public class PagingParam
 {
-    public int Limit { get; private set; }
-    public int Skip { get; private set; }
+    private int limit { get; }
+    private int skip { get; }
+    private int nextSkip { get; }
 
-    public PagingParam(int limit, int page)
+    public PagingParam(int page)
     {
-        Limit = limit;
-        Skip = limit * (page - 1);
+        limit = AppConstants.DefaultLimit;
+        skip = AppConstants.DefaultLimit * (page - 1);
+        nextSkip = AppConstants.DefaultLimit * page;
     }
+
+    public int Limit { get { return limit; } }
+
+    public int Skip { get { return skip; } }
+
+    public int NextSkip { get { return nextSkip; } }
 }
