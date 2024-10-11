@@ -2,7 +2,7 @@ namespace Presentation.Conversations;
 
 public static class CreateConversation
 {
-    public record Request(CreateConversationRequest model) : IRequest<Unit>;
+    public record Request(CreateConversationRequest model) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -22,7 +22,8 @@ public static class CreateConversation
                 RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
                 When(c => c.model.IsGroup, () =>
                 {
-                    RuleFor(c => c.model.Participants.Count).GreaterThan(1).WithMessage("Group conversation should contain at least 1 participant");
+                    RuleFor(c => c).MustAsync((item, cancellation) => MustContainAtLeastOneContact(item.model.Participants.ToList()))
+                        .WithMessage("Group conversation should contain at least 1 participant");
                 });
                 When(c => !c.model.IsGroup, () =>
                 {
@@ -36,6 +37,12 @@ public static class CreateConversation
                 });
             });
             RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
+        }
+
+        async Task<bool> MustContainAtLeastOneContact(List<CreateConversation_Participant> participants)
+        {
+            var user = await _contactRepository.GetInfoAsync();
+            return participants.Where(q => q.ContactId != user.Id).Count() >= 1;
         }
 
         async Task<bool> MustContainOnlyOneContact(List<CreateConversation_Participant> participants)
@@ -60,31 +67,28 @@ public static class CreateConversation
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, string>
     {
         readonly IValidator<Request> _validator;
-        readonly IHttpContextAccessor _httpContextAccessor;
         readonly INotificationMethod _notificationMethod;
         readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator,
-            IHttpContextAccessor httpContextAccessor,
             INotificationMethod notificationMethod,
             IMapper mapper,
             IService<IConversationRepository> conversationService,
             IService<IContactRepository> contactService)
         {
             _validator = validator;
-            _httpContextAccessor = httpContextAccessor;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
         }
 
-        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
@@ -96,6 +100,8 @@ public static class CreateConversation
             // Remove this user from input
             var user = await _contactRepository.GetInfoAsync();
             request.model.Participants = request.model.Participants.Where(q => q.ContactId != user.Id).ToList();
+            // Also assign to list contactid to notify
+            var contactIdsToNotify = request.model.Participants.Select(q => q.ContactId).ToArray();
             // Assign contact info
             var conversation = _mapper.Map<CreateConversationRequest, Conversation>(request.model);
             foreach (var participant in conversation.Participants)
@@ -103,10 +109,11 @@ public static class CreateConversation
                 participant.IsModerator = false; // Only this user is moderator
                 participant.IsDeleted = false; // Every participants will have this conversation active
                 participant.IsNotifying = true; // Every participants will be notified
-                participant.Contact.Name = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id)?.Name;
-                participant.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id)?.Avatar;
+                participant.Contact.Name = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Name;
+                participant.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Avatar;
+                participant.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).IsOnline;
             }
-            // Add authenticated user
+            // Add this user
             conversation.Participants.Add(new Participant
             {
                 IsModerator = true,
@@ -116,7 +123,8 @@ public static class CreateConversation
                 {
                     Id = user.Id,
                     Name = user.Name,
-                    Avatar = user.Avatar
+                    Avatar = user.Avatar,
+                    IsOnline = true
                 }
             });
             // Change conversation title if direct message
@@ -125,18 +133,14 @@ public static class CreateConversation
 
             _conversationRepository.Add(conversation);
 
-            // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
+            // Push conversation
+            _ = _notificationMethod.Notify(
+                "NewConversation",
+                contactIdsToNotify,
+                request.model
+            );
 
-            // await _notificationMethod.Notify(
-            //     "NewConversation",
-            //     request.model.Participants
-            //         .Where(q => q.Contact.Id != userId)
-            //         .Select(q => q.Contact.Id)
-            //         .ToArray(),
-            //     request.model
-            // );
-
-            return Unit.Value;
+            return conversation.Id;
         }
     }
 }

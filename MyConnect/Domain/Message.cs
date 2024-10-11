@@ -10,9 +10,9 @@ public class Message : MongoBaseModel
     public int LikeCount { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? SeenTime { get; set; }
-    // public Guid ContactId { get; set; }
+    public string ContactId { get; set; }
     // public string ConversationId { get; set; }
-    public Message_Contact Contact { get; set; }
+    // public Message_Contact Contact { get; set; }
     // public Conversation? Conversation { get; set; }
     public ICollection<Attachment>? Attachments { get; set; } = new List<Attachment>();
 }
@@ -22,4 +22,5 @@ public class Message_Contact
     public string Id { get; set; }
     public string Name { get; set; }
     public string Avatar { get; set; }
+    public bool IsOnline { get; set; }
 }

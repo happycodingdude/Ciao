@@ -7,7 +7,6 @@ import {
   useParticipant,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
-import DeleteConfirmation from "../common/DeleteConfirmation";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
@@ -97,12 +96,12 @@ const Information = (props) => {
       className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color-light)] `}
     >
       <div
-        className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
+        className="flex items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
         py-[.5rem] laptop:h-[5rem]"
       >
-        <p className="font-bold">Information</p>
+        <p className="text-[var(--text-main-color)]">Information</p>
       </div>
-      <div className="mt-[1rem] flex flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
+      <div className="mt-[1rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[.5rem]">
             {messages.isGroup ? (
@@ -174,7 +173,7 @@ const Information = (props) => {
         </div>
         <div className="display-attachment-container flex flex-col gap-[1rem]">
           <div className="flex justify-between">
-            <label className="font-bold">Attachments</label>
+            <label className="text-[var(--text-main-color)]">Attachments</label>
             {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
@@ -187,24 +186,6 @@ const Information = (props) => {
             )}
           </div>
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {/* {messages?.messages
-              .filter((mess) => mess.type === "media")
-              .flatMap((mess) => mess.attachments)
-              .map((item, index) => (
-                <ImageWithLightBox
-                  src={item.mediaUrl}
-                  title={item.mediaName?.split(".")[0]}
-                  className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:150%]"
-                  slides={attachments?.map((item) => ({
-                    src:
-                      item.type === "image"
-                        ? item.mediaUrl
-                        : "images/filenotfound.svg",
-                  }))}
-                  index={index}
-                />
-              ))} */}
-
             {displayAttachments.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
@@ -221,7 +202,39 @@ const Information = (props) => {
             ))}
           </div>
         </div>
-        <DeleteConfirmation
+        {messages.isGroup ? (
+          <div className="flex grow flex-col gap-[2rem]">
+            <label className="text-[var(--text-main-color)]">Members</label>
+            <div className="hide-scrollbar flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
+              {messages.participants
+                .filter((item) => item.contact.id !== info.data.id)
+                .map((item) => (
+                  <div className="flex w-full cursor-pointer items-center gap-[1rem] py-2 hover:bg-[var(--bg-color-thin)]">
+                    <div className="relative">
+                      <ImageWithLightBoxWithShadowAndNoLazy
+                        src={item.contact.avatar}
+                        className="aspect-square cursor-pointer rounded-[50%] laptop:w-[4rem]"
+                        slides={[
+                          {
+                            src: item.contact.avatar,
+                          },
+                        ]}
+                      />
+                      <div
+                        className={`absolute bottom-0 right-[-10%] aspect-square w-[1rem] rounded-[50%] 
+                        ${item.contact.isOnline ? "bg-[var(--online-color)]" : "bg-[var(--offline-color)]"}`}
+                      ></div>
+                    </div>
+                    <p>{item.contact.name}</p>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
+
+        {/* <DeleteConfirmation
           title="Delete chat"
           message="Are you sure want to delete this chat?"
           onSubmit={() => {
@@ -230,7 +243,7 @@ const Information = (props) => {
             //   setSelected(undefined);
             // });
           }}
-        />
+        /> */}
       </div>
     </div>
   );

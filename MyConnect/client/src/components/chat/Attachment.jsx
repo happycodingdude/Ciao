@@ -62,12 +62,12 @@ const Attachment = (props) => {
           rounded-[1rem] text-lg font-normal"
           onClick={toggle}
         ></div>
-        <p className="font-bold">Attachments</p>
+        <p className="text-[var(--text-main-color)]">Attachments</p>
       </div>
       <div className="relative flex">
         <div
           onClick={() => toggleAttachmentActive("image")}
-          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-[var(--text-main-color-normal)]"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center"
         >
           Images
           <input
@@ -80,7 +80,7 @@ const Attachment = (props) => {
         </div>
         <div
           onClick={() => toggleAttachmentActive("file")}
-          className="peer relative flex-1 cursor-pointer py-[1rem] text-center font-bold text-[var(--text-main-color-normal)]"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center"
         >
           Files
           <input
@@ -104,7 +104,7 @@ const Attachment = (props) => {
       >
         {displayAttachments.map((date) => (
           <div className="flex flex-col gap-[2rem]">
-            <div className="font-bold text-[var(--text-main-color-normal)]">
+            <div className="text-[var(--text-main-color)] text-[var(--text-main-color-normal)]">
               {moment(date.date).format("DD/MM/YYYY")}
             </div>
             <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">

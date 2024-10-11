@@ -31,11 +31,11 @@ const SideBar = (props) => {
       <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
         <div className="info-container flex w-full flex-col items-center gap-[3rem]">
           <ImageWithLightBoxWithShadowAndNoLazy
-            src={info.data.avatar ?? ""}
+            src={info.data.avatar}
             className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
             slides={[
               {
-                src: info.data.avatar ?? "",
+                src: info.data.avatar,
               },
             ]}
           />

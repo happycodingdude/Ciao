@@ -16,7 +16,7 @@ const ListChatHeader = () => {
         <input
           type="text"
           placeholder="Find and connect"
-          className="w-full rounded-[.5rem] bg-[var(--bg-color)] p-[1rem] focus:outline-none"
+          className="w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] p-[1rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
         ></input>
       </div>
       <div className="gap-[.5rem flex h-[50%] laptop:w-[7rem]">

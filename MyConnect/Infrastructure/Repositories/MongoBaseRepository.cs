@@ -64,13 +64,22 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         return Task.CompletedTask;
     });
 
-    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter = null)
+    public void Replace(FilterDefinition<T> filter, T entity)
+    {
+        entity.UpdatedTime = DateTime.Now;
+        _uow.AddOperation((session) => _collection.ReplaceOneAsync(session, filter, entity));
+    }
+
+    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
         update = update.Set(q => q.UpdatedTime, DateTime.Now);
-        if (arrayFilter is null)
-            _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
-        else
-            _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
+        _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
+    }
+
+    public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter)
+    {
+        update = update.Set(q => q.UpdatedTime, DateTime.Now);
+        _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
     }
 
     public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation((session) => _collection.DeleteOneAsync(session, filter));

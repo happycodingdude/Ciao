@@ -39,7 +39,7 @@ public class MessageToNotify : Message
 public class CreateMessageRequest : Message
 {
     public string ConversationId { get; set; }
-    public string Moderator { get; set; }
+    // public string Moderator { get; set; }
 }
 
 // public class MessageWithAttachment : Message

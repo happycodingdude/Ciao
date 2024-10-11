@@ -2,7 +2,7 @@ namespace Presentation.Messages;
 
 public static class SendMessage
 {
-    public record Request(string conversationId, CreateMessageRequest model) : IRequest<Unit>;
+    public record Request(string conversationId, Message model) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -16,7 +16,7 @@ public static class SendMessage
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
                 _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
             }
-            RuleFor(c => c.model).ContactRelatedToConversationWhenSendMessage(_contactRepository, _conversationRepository).DependentRules(() =>
+            RuleFor(c => c.conversationId).ContactRelatedToConversation(_contactRepository, _conversationRepository).DependentRules(() =>
             {
                 RuleFor(c => c.conversationId).NotEmpty().WithMessage("Conversation should not be empty");
                 RuleFor(c => c.model.Type).Must(q => q == "text" || q == "media").WithMessage("Message type should be text or media");
@@ -68,35 +68,29 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // _conversationRepository.UseCollection(request.model.Moderator);
+            // Get current conversation
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
-            // Add message
+            // Prepare message
             var user = await _contactRepository.GetInfoAsync();
-            var message = _mapper.Map<CreateMessageRequest, Message>(request.model);
-            message.Contact = new Message_Contact
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Avatar = user.Avatar,
-            };
+            var message = request.model;
+            message.ContactId = user.Id;
             if (message.Type == "media")
                 message.Content = string.Join(",", message.Attachments.Select(q => q.MediaName));
-
             conversation.Messages.Add(message);
-            var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
 
             // When a message sent, all members of that group will be having that group conversation back
             // if contain any member has deleted the conversation
-            if (conversation.Participants.Any(q => q.IsDeleted))
-            {
-                // Update participants
-                foreach (var participant in conversation.Participants.Where(q => q.IsDeleted))
-                    participant.IsDeleted = false;
-                updates.Set(q => q.Participants, conversation.Participants);
-            }
+            foreach (var participant in conversation.Participants.Where(q => q.IsDeleted))
+                participant.IsDeleted = false;
+
+            // Update user infor in case changes
+            conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.Name = user.Name;
+            conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.Avatar = user.Avatar;
+            conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = user.IsOnline;
+
             // Update conversation
-            _conversationRepository.Update(filter, updates);
+            _conversationRepository.Replace(filter, conversation);
 
             // Push message            
             var notify = _mapper.Map<Message, MessageToNotify>(message);
@@ -120,9 +114,9 @@ public class SendMessageEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Conversation).MapPost("/{conversationId}/messages",
-        async (ISender sender, string conversationId, CreateMessageRequest model) =>
+        async (ISender sender, string conversationId, Message model) =>
         {
-            model.ConversationId = conversationId;
+            // model.ConversationId = conversationId;
             var query = new SendMessage.Request(conversationId, model);
             await sender.Send(query);
             return Results.Ok();

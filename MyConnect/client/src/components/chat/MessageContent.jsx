@@ -2,7 +2,7 @@ import moment from "moment";
 import React from "react";
 import { useInfo, useMessage } from "../../hook/CustomHooks";
 import ImageWithLightBox from "../common/ImageWithLightBox";
-import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
@@ -14,14 +14,17 @@ const MessageContent = (props) => {
   return (
     <div
       className={`flex items-end gap-[1rem] 
-      ${message.contact.id === info.data.id ? "flex-row-reverse" : ""}`}
+      ${message.contactId === info.data.id ? "flex-row-reverse" : ""}`}
     >
       {/* Sender avatar */}
-      {message.contact.id !== info.data.id ? (
+      {message.contactId !== info.data.id ? (
         <div className="relative w-[3rem]">
           {messages.isGroup ? (
-            <ImageWithLightBoxWithBorderAndShadow
-              src={message.contact.avatar ?? ""}
+            <ImageWithLightBoxWithShadowAndNoLazy
+              src={
+                messages.participants.find((q) => q.contact.id != info.data.id)
+                  .contact.avatar
+              }
               className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
               // onClick={() => {
               //   setUserId(message.contactId);
@@ -29,12 +32,17 @@ const MessageContent = (props) => {
               // }}
             />
           ) : (
-            <ImageWithLightBoxWithBorderAndShadow
-              src={message.contact.avatar ?? ""}
+            <ImageWithLightBoxWithShadowAndNoLazy
+              src={
+                messages.participants.find((q) => q.contact.id != info.data.id)
+                  .contact.avatar
+              }
               className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
               slides={[
                 {
-                  src: message.contact.avatar ?? "",
+                  src: messages.participants.find(
+                    (q) => q.contact.id != info.data.id,
+                  ).contact.avatar,
                 },
               ]}
             />
@@ -45,18 +53,21 @@ const MessageContent = (props) => {
       )}
       <div
         className={`flex flex-col gap-[.3rem] laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
-        ${message.contact.id === info.data.id ? "items-end" : "items-start"}`}
+        ${message.contactId === info.data.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
         <div
           className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-thin)]
-          ${message.contact.id === info.data.id ? "flex-row-reverse" : ""}`}
+          ${message.contactId === info.data.id ? "flex-row-reverse" : ""}`}
         >
-          {message.contact.id === info.data.id ? (
+          {message.contactId === info.data.id ? (
             ""
           ) : (
             <p className="text-[var(--main-color-thin)]">
-              {message.contact.name}
+              {
+                messages.participants.find((q) => q.contact.id != info.data.id)
+                  .contact.name
+              }
             </p>
           )}
 
@@ -79,7 +90,7 @@ const MessageContent = (props) => {
           </div>
         ) : (
           <div
-            className={`flex w-full flex-wrap ${message.contact.id === info.data.id ? "justify-end" : ""} gap-[1rem]`}
+            className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
           >
             {message.attachments?.map((item, index) => (
               <ImageWithLightBox

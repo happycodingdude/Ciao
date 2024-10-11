@@ -11,17 +11,20 @@ public static class SignIn
         readonly PasswordHasher<string> _passwordHasher = new();
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly IContactRepository _contactRepository;
+        readonly IConversationRepository _conversationRepository;
 
         public Handler(
             // SignInManager<AuthenticationUser> signInManager,
             // UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
-            IService<IContactRepository> service)
+            IService<IContactRepository> contactService,
+            IService<IConversationRepository> conversationService)
         {
             // _signInManager = signInManager;
             // _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
-            _contactRepository = service.Get();
+            _contactRepository = contactService.Get();
+            _conversationRepository = conversationService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -40,6 +43,16 @@ public static class SignIn
                 _contactRepository.Update(filter, updates);
             }
 
+            // Update contact infor in conversation
+            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
+            var conversationUpdates = Builders<Conversation>.Update
+                .Set("Participants.$[elem].Contact.IsOnline", true);
+            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+                new BsonDocument("elem.Contact._id", user.Id)
+                );
+            _conversationRepository.Update(conversationFilter, conversationUpdates, arrayFilter);
+
+            // Signin
             var claims = new List<Claim>
             {
                 new Claim("UserId", user.Id)
@@ -50,7 +63,6 @@ public static class SignIn
             {
                 IsPersistent = true, // for 'remember me' feature                        
             };
-
             await _httpContextAccessor.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,

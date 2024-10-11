@@ -42,7 +42,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         {
             var convertedConversation = _mapper.Map<Conversation, ConversationWithTotalUnseen>(conversation);
             convertedConversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
-            convertedConversation.UnSeenMessages = conversation.Messages.Where(q => q.Contact.Id != userId && q.Status == "received").Count();
+            convertedConversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
             if (lastMessage is not null)
@@ -50,7 +50,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 convertedConversation.LastMessageId = lastMessage.Id;
                 convertedConversation.LastMessage = lastMessage.Content;
                 convertedConversation.LastMessageTime = lastMessage.CreatedTime;
-                convertedConversation.LastMessageContact = lastMessage.Contact.Id;
+                convertedConversation.LastMessageContact = lastMessage.ContactId;
             }
 
             result.Add(convertedConversation);
@@ -63,10 +63,10 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
     {
         var user = await _contactRepository.GetInfoAsync();
         // No need to update when all messages were seen
-        if (!conversation.Messages.Any(q => q.Contact.Id != user.Id && q.Status == "received")) return;
+        if (!conversation.Messages.Any(q => q.ContactId != user.Id && q.Status == "received")) return;
 
         var filter = MongoQuery<Conversation>.IdFilter(conversation.Id);
-        foreach (var unseenMessage in conversation.Messages.Where(q => q.Contact.Id != user.Id && q.Status == "received"))
+        foreach (var unseenMessage in conversation.Messages.Where(q => q.ContactId != user.Id && q.Status == "received"))
         {
             unseenMessage.Status = "seen";
             unseenMessage.SeenTime = DateTime.Now;

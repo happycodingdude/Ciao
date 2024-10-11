@@ -60,16 +60,16 @@
   /* --bg-color-extrabold: #070707;
   --bg-color-bold: #0b0b0b;
   --bg-color-medium: #0e0e0e; */  
-  --bg-color: #121212;
+  --bg-color: #000000;
   /* --bg-color-normal: #282828; */
-  --bg-color-light: #3d3d3d;
-  --bg-color-thin: #454545;
-  --bg-color-extrathin: #4f4f4f;
+  --bg-color-light: #272727;
+  --bg-color-thin: #303030;
+  --bg-color-extrathin: #424242;
   --text-main-color: #ffffff;
   /* --text-main-color-normal: #e6e6e6; */
   --text-main-color-light: #dcdcdc;
   --text-main-color-thin: #bdbdbd;
-  --text-sub-color: #000000;
+  --text-sub-color: #121212;
   --text-sub-color-light: #3d3d3d;
   --text-sub-color-thin: #454545;
   --shadow-color: gray;
@@ -79,6 +79,8 @@
   /* --portal-bg-color: #0000009c; */
   --portal-bg-color: #afafaf9f;
   --search-bg-color: #f3f4f6;
+  --online-color: #00dd00;
+  --offline-color: #808080;
 }
 
 html,

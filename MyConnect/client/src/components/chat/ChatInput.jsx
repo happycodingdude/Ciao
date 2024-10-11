@@ -111,7 +111,7 @@ const ChatInput = (props) => {
           ref={editorRef}
           value={directText}
           onChange={(e) => setDirectText(e.target.value)}
-          className="w-full rounded-2xl bg-[var(--bg-color-light)] py-2 pl-4 pr-16 outline-none"
+          className="w-full rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none"
           onKeyDown={keyBindingFn}
         />
       )}

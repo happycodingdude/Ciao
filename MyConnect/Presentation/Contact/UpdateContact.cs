@@ -43,21 +43,14 @@ public static class UpdateContact
                 .Set(q => q.Avatar, request.model.Avatar);
             _contactRepository.Update(filter, updates);
 
-            // Update contact infor in conersation
+            // Update contact infor in conversation
             var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
-            // var conversations = await _conversationRepository.GetAllAsync(conversationFilter);
-            // foreach (var conversation in conversations)
-            // {
-            //     conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).Contact.Name = request.model.Name;
-            //     conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).Contact.Avatar = request.model.Avatar;
-            // }
             var conversationUpdates = Builders<Conversation>.Update
                 .Set("Participants.$[elem].Contact.Name", request.model.Name)
                 .Set("Participants.$[elem].Contact.Avatar", request.model.Avatar);
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
-
             _conversationRepository.Update(conversationFilter, conversationUpdates, arrayFilter);
 
             return Unit.Value;

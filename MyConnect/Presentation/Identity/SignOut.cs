@@ -10,17 +10,20 @@ public static class SignOut
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly IDistributedCache _distributedCache;
         readonly IContactRepository _contactRepository;
+        readonly IConversationRepository _conversationRepository;
 
         public Handler(
             // UserManager<AuthenticationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
             IDistributedCache distributedCache,
-            IService<IContactRepository> service)
+            IService<IContactRepository> contactService,
+            IService<IConversationRepository> conversationService)
         {
             // _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
-            _contactRepository = service.Get();
+            _contactRepository = contactService.Get();
+            _conversationRepository = conversationService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -41,6 +44,15 @@ public static class SignOut
                 .Set(q => q.IsOnline, false)
                 .Set(q => q.LastLogout, DateTime.Now);
             _contactRepository.Update(filter, updates);
+
+            // Update contact infor in conversation
+            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
+            var conversationUpdates = Builders<Conversation>.Update
+                .Set("Participants.$[elem].Contact.IsOnline", false);
+            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+                new BsonDocument("elem.Contact._id", user.Id)
+                );
+            _conversationRepository.Update(conversationFilter, conversationUpdates, arrayFilter);
 
             await _httpContextAccessor.HttpContext.SignOutAsync();
 
