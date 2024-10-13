@@ -83,7 +83,8 @@ const MessageContent = (props) => {
           <div
             //   className={`break-all rounded-[3rem] bg-gradient-radial-to-tc from-[#00AFB9]  ${pending ? "to-[var(--main-color-normal)]" : "to-[#FED9B7]"}
             // px-[1.5rem] py-[.7rem] text-[var(--text-main-color-normal)]`}
-            className={`break-all rounded-[3rem] ${pending ? "text-[var(--text-main-color-thin)]" : "text-[var(--text-main-color)]"} `}
+            // className={`break-all rounded-[3rem] ${pending ? "text-[var(--text-main-color-thin)]" : "text-[var(--text-main-color)]"} `}
+            className={`break-all rounded-[3rem] ${pending ? "opacity-50" : ""} `}
           >
             {/* {GenerateContent(participants, message.content)} */}
             {message.content}

@@ -38,6 +38,7 @@ const Chatbox = (props) => {
   const [openEmoji, setOpenEmoji] = useState(false);
   const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
+  const [emojiText, setEmojiText] = useState();
 
   const { data: info } = useInfo();
   const { data: conversation } = useConversation();
@@ -46,6 +47,7 @@ const Chatbox = (props) => {
   useEffect(() => {
     blurImage(".chatbox-content");
     setFiles([]);
+    setEmojiText("");
     if (conversation?.selected !== messages.id)
       refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
   }, [messages, conversation]);
@@ -143,11 +145,7 @@ const Chatbox = (props) => {
         cloned.messages = [
           {
             ...body,
-            contact: {
-              id: info.data.id,
-              name: info.data.name,
-              avatar: info.data.avatar,
-            },
+            contactId: info.data.id,
           },
           ...cloned.messages,
         ];
@@ -304,10 +302,6 @@ const Chatbox = (props) => {
   }, []);
   useEventListener("click", closeEmoji);
 
-  const onEmojiClick = (emoji) => {
-    refChatInput.setText(emoji.emoji);
-  };
-
   return (
     <div
       ref={refChatboxContainer}
@@ -435,11 +429,7 @@ const Chatbox = (props) => {
               message={{
                 type: variables.type,
                 content: variables.content,
-                contact: {
-                  id: info.data.id,
-                  name: info.data.name,
-                  avatar: info.data.avatar,
-                },
+                contactId: info.data.id,
                 attachments: variables.attachments,
               }}
             />
@@ -488,25 +478,25 @@ const Chatbox = (props) => {
               className="fa fa-file cursor-pointer font-normal"
             ></label>
           </Tooltip>
-          {messages.isGroup ? (
+          {/* {messages.isGroup ? (
             ""
-          ) : (
-            <div className="relative">
-              <Tooltip title="Emoji">
-                <label
-                  className="fa fa-smile choose-emoji cursor-pointer font-normal"
-                  onClick={() => setOpenEmoji(true)}
-                ></label>
-              </Tooltip>
-              <EmojiPicker
-                open={openEmoji}
-                width={300}
-                height={400}
-                className="!absolute !bottom-[3rem] !left-[1rem] !z-[1000]"
-                onEmojiClick={onEmojiClick}
-              />
-            </div>
-          )}
+          ) : ( */}
+          <div className="relative">
+            <Tooltip title="Emoji">
+              <label
+                className="fa fa-smile choose-emoji cursor-pointer font-normal"
+                onClick={() => setOpenEmoji(true)}
+              ></label>
+            </Tooltip>
+            <EmojiPicker
+              open={openEmoji}
+              width={300}
+              height={400}
+              className="!absolute !bottom-[3rem] !left-[1rem] !z-[1000]"
+              onEmojiClick={(emoji) => setEmojiText(emoji.emoji)}
+            />
+          </div>
+          {/* )} */}
         </div>
         {files.length !== 0 ? (
           <>
@@ -560,7 +550,8 @@ const Chatbox = (props) => {
           // <ChatInput send={sendMessage} refChatInputExpose={refChatInput} />
           <ChatInput
             send={(text) => sendMutation({ type: "text", content: text })}
-            refChatInputExpose={refChatInput}
+            // refChatInputExpose={refChatInput}
+            emoji={emojiText}
           />
         )}
       </div>

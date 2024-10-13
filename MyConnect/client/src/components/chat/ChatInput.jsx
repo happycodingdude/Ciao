@@ -6,21 +6,39 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import { Tooltip } from "antd";
 import { EditorState, convertToRaw, getDefaultKeyBinding } from "draft-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useFetchParticipants, useMessage } from "../../hook/CustomHooks";
+import { useInfo, useMessage } from "../../hook/CustomHooks";
 
 const ChatInput = (props) => {
-  const { send, refChatInputExpose } = props;
-  const { mentions } = useFetchParticipants();
+  const { send, refChatInputExpose, emoji } = props;
+
   const { data: messages } = useMessage();
+  const { data: info } = useInfo();
 
   const editorRef = useRef();
-  const [directText, setDirectText] = useState("");
 
+  const [directText, setDirectText] = useState("");
+  const [mentions, setMentions] = useState();
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty(),
   );
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState(mentions);
+
+  useEffect(() => {
+    setEditorState(EditorState.createEmpty());
+    setDirectText("");
+    setMentions(() => {
+      return messages?.participants
+        .filter((item) => item.contact.id !== info.data.id)
+        .map((item) => {
+          return {
+            name: item.contact.name,
+            avatar: item.contact.avatar,
+            userId: item.contact.id,
+          };
+        });
+    });
+  }, [messages]);
 
   const { plugins, MentionSuggestions } = useMemo(() => {
     const mentionPlugin = createMentionPlugin();
@@ -43,11 +61,17 @@ const ChatInput = (props) => {
     setSuggestions(mentions);
   }, [mentions]);
 
+  // useEffect(() => {
+  //   refChatInputExpose.setText = (text) => {
+  //     setDirectText((current) => (current += text));
+  //   };
+  // }, []);
   useEffect(() => {
-    refChatInputExpose.setText = (text) => {
-      setDirectText((current) => (current += text));
-    };
-  }, []);
+    if (!emoji) return;
+    // if (messages.isGroup) setEditorState((current) => (current += emoji));
+    if (messages.isGroup) setEditorState("abc");
+    else setDirectText((current) => (current += emoji));
+  }, [emoji]);
 
   const getContent = () => {
     const contentState = editorState.getCurrentContent();
@@ -56,19 +80,22 @@ const ChatInput = (props) => {
   };
 
   const groupChat = () => {
-    send(getContent());
-    setEditorState(EditorState.createEmpty());
-    setTimeout(() => {
-      editorRef.current.focus();
-    }, 200);
+    // send(getContent());
+    // setEditorState(EditorState.createEmpty());
+    setEditorState(EditorState.moveFocusToEnd(EditorState.createEmpty()));
+    // const moveToEnd = EditorState.moveFocusToEnd(EditorState.createEmpty());
+    // setEditorState(moveToEnd);
+    // setTimeout(() => {
+    // editorRef.current.focus();
+    // }, 200);
   };
 
   const directChat = () => {
     send(directText);
     setDirectText("");
-    setTimeout(() => {
-      editorRef.current.focus();
-    }, 200);
+    // setTimeout(() => {
+    // editorRef.current.focus();
+    // }, 200);
   };
 
   const callToAction = () => {
@@ -87,7 +114,7 @@ const ChatInput = (props) => {
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
       {messages.isGroup ? (
-        <div className="rounded-2xl bg-[var(--bg-color-light)] py-2 pl-4 pr-16">
+        <div className="w-full rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none">
           <Editor
             ref={editorRef}
             editorKey={"editor"}
