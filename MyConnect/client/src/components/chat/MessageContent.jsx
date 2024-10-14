@@ -93,21 +93,49 @@ const MessageContent = (props) => {
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {message.attachments?.map((item, index) => (
-              <ImageWithLightBox
-                src={item.mediaUrl}
-                title={item.mediaName?.split(".")[0]}
-                className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer rounded-2xl bg-[size:120%]`}
-                slides={message.attachments.map((item) => ({
-                  src:
-                    item.type === "image"
-                      ? item.mediaUrl
-                      : "images/filenotfound.svg",
-                }))}
-                index={index}
-                immediate={pending}
-              />
-            ))}
+            {message.attachments?.map(
+              (item, index) => (
+                <ImageWithLightBox
+                  src={item.mediaUrl}
+                  title={item.mediaName?.split(".")[0]}
+                  className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} cursor-pointer rounded-2xl bg-[size:120%]`}
+                  slides={message.attachments.map((item) => ({
+                    src:
+                      item.type === "image"
+                        ? item.mediaUrl
+                        : "images/filenotfound.svg",
+                  }))}
+                  index={index}
+                />
+              ),
+              // pending ? (
+              //   <ImageWithLightBoxWithShadowAndNoLazy
+              //     src={item.mediaUrl}
+              //     title={item.mediaName?.split(".")[0]}
+              //     className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} cursor-pointer rounded-2xl bg-[size:120%] opacity-50`}
+              //     slides={message.attachments.map((item) => ({
+              //       src:
+              //         item.type === "image"
+              //           ? item.mediaUrl
+              //           : "images/filenotfound.svg",
+              //     }))}
+              //     index={index}
+              //   />
+              // ) : (
+              //   <ImageWithLightBox
+              //     src={item.mediaUrl}
+              //     title={item.mediaName?.split(".")[0]}
+              //     className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} cursor-pointer rounded-2xl bg-[size:120%]`}
+              //     slides={message.attachments.map((item) => ({
+              //       src:
+              //         item.type === "image"
+              //           ? item.mediaUrl
+              //           : "images/filenotfound.svg",
+              //     }))}
+              //     index={index}
+              //   />
+              // ),
+            )}
           </div>
         )}
       </div>

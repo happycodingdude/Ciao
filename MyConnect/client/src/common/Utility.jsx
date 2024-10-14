@@ -93,8 +93,13 @@ export const blurImageOLD = (containerClass) => {
     } else {
       img.addEventListener("load", loaded);
     }
-    function loaded() {
+    async function loaded() {
+      // await delay();
       div.classList.add("loaded");
+    }
+
+    function delay() {
+      return new Promise((resolve) => setTimeout(resolve, 3000));
     }
   });
 };

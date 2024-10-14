@@ -3,16 +3,14 @@ import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
-import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImage, HttpRequest } from "../../common/Utility";
+import { blurImageOLD, HttpRequest } from "../../common/Utility";
 import {
   useConversation,
   useEventListener,
   useInfo,
   useMessage,
 } from "../../hook/CustomHooks";
-import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
@@ -45,7 +43,8 @@ const Chatbox = (props) => {
   const { data: messages, refetch } = useMessage(conversation?.selected, page);
 
   useEffect(() => {
-    blurImage(".chatbox-content");
+    // blurImage(".chatbox-content");
+    blurImageOLD(".chatbox-content");
     setFiles([]);
     setEmojiText("");
     if (conversation?.selected !== messages.id)
@@ -112,6 +111,10 @@ const Chatbox = (props) => {
     );
   };
 
+  const delay = (delay) => {
+    return new Promise((resolve) => setTimeout(resolve, delay));
+  };
+
   const {
     mutate: sendMutation,
     isPending,
@@ -121,6 +124,8 @@ const Chatbox = (props) => {
       setTimeout(() => {
         scrollChatContentToBottom();
       }, 200);
+
+      await delay(1000);
 
       if (param.type === "text" && param.content === "") return;
 
@@ -137,25 +142,24 @@ const Chatbox = (props) => {
           attachments: param.attachments,
         };
 
-      await send(messages.id, body);
+      // await send(messages.id, body);
 
       queryClient.setQueryData(["message"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        if (cloned.id !== messages.id) return cloned;
-        cloned.messages = [
+        if (oldData.id !== messages.id) return oldData;
+        oldData.messages = [
           {
             ...body,
             contactId: info.data.id,
           },
-          ...cloned.messages,
+          ...oldData.messages,
         ];
-        return cloned;
+        return oldData;
       });
       queryClient.setQueryData(["conversation"], (oldData) => {
-        const cloned = oldData.map((item) => {
+        const clonedConversations = oldData.conversations.map((item) => {
           return Object.assign({}, item);
         });
-        let newData = cloned.map((conversation) => {
+        const updatedConversations = clonedConversations.map((conversation) => {
           if (conversation.id !== messages.id) return conversation;
           conversation.lastMessage =
             param.type === "text"
@@ -163,53 +167,64 @@ const Chatbox = (props) => {
               : files.map((item) => item.name).join(",");
           return conversation;
         });
-        return newData;
+        return { ...oldData, conversations: updatedConversations };
       });
-      if (param.type === "media") {
-        queryClient.setQueryData(["attachment"], (oldData) => {
-          const cloned = oldData.map((item) => {
-            return Object.assign({}, item);
-          });
-          // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
-          var firstItem = cloned[0];
-          // Nếu undefined tức là chưa có attachment nào
-          // hoặc nếu ngày gần nhất không phải hôm nay
-          // -> tạo object mới
-          if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
-            cloned.unshift({
-              date: moment().format("MM/DD/YYYY"),
-              attachments: param.attachments,
-            });
-            return cloned;
-          }
-          // Ngược lại thì ngày gần nhất là hôm nay
-          else {
-            let newData = cloned.map((item) => {
-              if (item.date === moment().format("MM/DD/YYYY")) {
-                return {
-                  ...item,
-                  attachments: [...param.attachments, ...item.attachments],
-                };
-              }
-              return item;
-            });
-            return newData;
-          }
-        });
-      }
+      // if (param.type === "media") {
+      //   // const immediateAttachments = param.attachments.map((item) => {
+      //   //   return { ...item, immediate: true };
+      //   // });
+      //   queryClient.setQueryData(["attachment"], (oldData) => {
+      //     const cloned = oldData.map((item) => {
+      //       return Object.assign({}, item);
+      //     });
+      //     // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
+      //     var firstItem = cloned[0];
+      //     // Nếu undefined tức là chưa có attachment nào
+      //     // hoặc nếu ngày gần nhất không phải hôm nay
+      //     // -> tạo object mới
+      //     if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
+      //       cloned.unshift({
+      //         date: moment().format("MM/DD/YYYY"),
+      //         attachments: param.attachments,
+      //       });
+      //       return cloned;
+      //     }
+      //     // Ngược lại thì ngày gần nhất là hôm nay
+      //     else {
+      //       const newData = cloned.map((item) => {
+      //         if (item.date === moment().format("MM/DD/YYYY")) {
+      //           return {
+      //             ...item,
+      //             attachments: [...param.attachments, ...item.attachments],
+      //           };
+      //         }
+      //         return item;
+      //       });
+      //       return newData;
+      //     }
+      //   });
+      // }
     },
   });
 
   const sendMedia = async () => {
-    const uploaded = await uploadFile().then((uploads) => {
-      return uploads.map((item) => ({
-        type: item.type,
-        mediaUrl: item.url,
-        mediaName: item.name,
-        mediaSize: item.size,
-      }));
+    // const uploaded = await uploadFile().then((uploads) => {
+    //   return uploads.map((item) => ({
+    //     type: item.type,
+    //     mediaUrl: item.url,
+    //     mediaName: item.name,
+    //     mediaSize: item.size,
+    //   }));
+    // });
+
+    const updated = files.map((item) => {
+      console.log(URL.createObjectURL(item));
+      return {
+        type: "image",
+        mediaUrl: URL.createObjectURL(item),
+      };
     });
-    sendMutation({ type: "media", attachments: uploaded });
+    sendMutation({ type: "media", attachments: updated });
   };
 
   const scrollChatContentToBottom = () => {

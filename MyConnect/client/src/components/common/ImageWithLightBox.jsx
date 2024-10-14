@@ -10,16 +10,20 @@ const ImageWithLightBox = (props) => {
 
   return (
     <>
-      <div
+      {/* <div
         title={title}
         data-src={src ?? "images/imagenotfound.jpg"}
         style={{
           "--image-url": `url(${src ?? "images/imagenotfound.jpg"})`,
-        }}
-        // className={`${className}  ${immediate ? "bg-[image:var(--image-url)]" : "lazy-image"}  bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
+        }}        
         className={`${className} lazy-image blurred bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
         onClick={onClick ?? handleShowLightbox}
-      ></div>
+      ></div> */}
+
+      <div className="blurred-div">
+        <img src={src} loading="lazy"></img>
+      </div>
+
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}
       />

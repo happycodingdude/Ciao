@@ -94,7 +94,7 @@ const Login = (props) => {
         </div>
 
         <div
-          className="cursor-pointer self-end text-[var(--text-main-color-normal)] hover:text-[var(--text-main-color)]"
+          className="cursor-pointer self-end text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
           onClick={() => {
             // reset();
             toggle();

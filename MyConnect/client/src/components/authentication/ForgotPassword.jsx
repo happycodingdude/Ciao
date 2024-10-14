@@ -93,7 +93,7 @@ const ForgotPassword = (props) => {
         />
 
         <div
-          className="cursor-pointer text-[var(--text-main-color-normal)] hover:text-[var(--text-main-color)]"
+          className="cursor-pointer text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
           onClick={() => {
             toggle();
           }}

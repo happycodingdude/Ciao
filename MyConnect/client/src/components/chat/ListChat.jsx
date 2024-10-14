@@ -63,6 +63,12 @@ const ListChat = () => {
 
   const handleSetConversation = (position, item) => {
     setSelected(item);
+
+    // const container = document.querySelector(".chatbox-content");
+    // const blurredDivs = container.querySelectorAll(".blurred-div");
+    // blurredDivs.forEach((div) => {
+    //   div.classList.remove("loaded");
+    // });
   };
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { Tooltip } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useInfo, useMessage } from "../../hook/CustomHooks";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 
@@ -11,7 +11,8 @@ const ChatInput = (props) => {
 
   const [text, setText] = useState("");
   const [mentions, setMentions] = useState();
-  const [open, setOpen] = useState(false);
+  const [show, setShow] = useState(false);
+  const inputRef = useRef();
 
   useEffect(() => {
     setText("");
@@ -33,9 +34,13 @@ const ChatInput = (props) => {
     setText((current) => (current += emoji));
   }, [emoji]);
 
+  // const onChangeInput = (e) => {
+  //   setText(e.target.value)
+  // }
+
   const chat = () => {
-    send(text);
-    setText("");
+    send(inputRef.current.value);
+    inputRef.current.value = "";
   };
 
   const keyBindingFn = (e) => {
@@ -43,17 +48,35 @@ const ChatInput = (props) => {
       chat();
     } else if (e.key === "@") {
       console.log("show mentions");
+      setShow(true);
+    } else {
+      setShow(false);
     }
+  };
+
+  const chooseMention = (id) => {
+    console.log(id);
+    let user = mentions.find((item) => item.userId === id);
+    inputRef.current.value = inputRef.current.value.replace("@", "");
+    inputRef.current.value = inputRef.current.value += user.name;
+    inputRef.current.focus();
+    setShow(false);
   };
 
   return (
     <div className="relative max-h-[10rem] max-w-[50rem] grow">
       <div
-        className="hide-scrollbar absolute left-0 flex aspect-[4/3] flex-col items-center justify-center gap-[1rem] overflow-y-scroll 
-        scroll-smooth rounded-[.5rem] bg-[var(--bg-color-light)] text-sm laptop:top-[-16rem] laptop:w-[20rem]"
+        data-show={show}
+        className="hide-scrollbar absolute left-0 flex aspect-[4/3] flex-col gap-[1rem] overflow-y-scroll 
+        scroll-smooth rounded-[.5rem] bg-[var(--bg-color-light)] text-sm transition-all duration-200
+        data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:top-[-16rem] laptop:w-[20rem]"
       >
         {mentions?.map((item) => (
-          <div className="flex cursor-pointer gap-[1rem] hover:bg-[var(--bg-color-extrathin)]">
+          <div
+            className="flex cursor-pointer gap-[1rem] p-2 hover:bg-[var(--bg-color-extrathin)]"
+            // data-user={item.userId}
+            onClick={() => chooseMention(item.userId)}
+          >
             <ImageWithLightBoxWithShadowAndNoLazy
               src={item.avatar}
               className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
@@ -62,15 +85,16 @@ const ChatInput = (props) => {
                   src: item.avatar,
                 },
               ]}
+              onClick={() => {}}
             />
             <p>{item.name}</p>
           </div>
         ))}
       </div>
       <input
-        // ref={editorRef}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+        ref={inputRef}
+        // value={text}
+        // onChange={onChangeInput}
         className="w-full rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none"
         onKeyDown={keyBindingFn}
       />

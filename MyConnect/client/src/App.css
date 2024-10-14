@@ -183,9 +183,9 @@ body,
   .blurred-div {
     /* background-image: var(--image-url); */
     /* background-repeat: no-repeat; */
-    background-size: cover;
+    /* background-size: cover;
     background-position: center;
-    background-color: greenyellow;
+    background-color: greenyellow; */
     position: relative;
   }
   
@@ -196,22 +196,20 @@ body,
     /* width: 20rem;
     height: 12rem;
     scale:1.5; */
-    opacity: 0;
-    transition: opacity 250ms ease-in-out;
+    opacity: 0.3;
+    transition: opacity 500ms ease-in-out;
   }
   
   .blurred-div.loaded img {
     opacity: 1;
   }
 
-  .blurred-div::before {
+  /* .blurred-div::before {
     content: "";
     position: absolute;
     inset: 0;
-    /* opacity: 0; */
     animation: pulse 2.5s infinite;
-    /* background-color: var(--text-color); */
-  }
+  } */
   
   @keyframes pulse {
     0% {
