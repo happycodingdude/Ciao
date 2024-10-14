@@ -547,10 +547,8 @@ const Chatbox = (props) => {
             </div>
           </>
         ) : (
-          // <ChatInput send={sendMessage} refChatInputExpose={refChatInput} />
           <ChatInput
             send={(text) => sendMutation({ type: "text", content: text })}
-            // refChatInputExpose={refChatInput}
             emoji={emojiText}
           />
         )}
