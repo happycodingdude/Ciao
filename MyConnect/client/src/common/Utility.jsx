@@ -84,22 +84,44 @@ export const generateContent = (contacts, text) => {
 };
 
 export const blurImageOLD = (containerClass) => {
+  let observer = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.src = entry.target.dataset.src;
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.3,
+    },
+  );
+
+  const container = document.querySelector(containerClass);
+  container.querySelectorAll("img").forEach((img) => {
+    observer.observe(img);
+  });
+};
+
+export const blurImageOLD1 = (containerClass) => {
   const container = document.querySelector(containerClass);
   const blurredDivs = container.querySelectorAll(".blurred-div");
-  blurredDivs.forEach((div) => {
+  blurredDivs.forEach(async (div) => {
+    // await delay();
+    // if (div.classList.contains("loaded")) return;
     const img = div.querySelector("img");
     if (img.complete) {
       loaded();
     } else {
       img.addEventListener("load", loaded);
     }
-    async function loaded() {
-      // await delay();
+    function loaded() {
       div.classList.add("loaded");
     }
 
     function delay() {
-      return new Promise((resolve) => setTimeout(resolve, 3000));
+      return new Promise((resolve) => setTimeout(resolve, 500));
     }
   });
 };

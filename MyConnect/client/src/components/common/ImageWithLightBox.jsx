@@ -20,8 +20,8 @@ const ImageWithLightBox = (props) => {
         onClick={onClick ?? handleShowLightbox}
       ></div> */}
 
-      <div className="blurred-div">
-        <img src={src} loading="lazy"></img>
+      <div className={`${className} blurred-div`}>
+        <img data-src={src} loading="lazy"></img>
       </div>
 
       <CustomLightbox

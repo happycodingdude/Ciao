@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImage } from "../../common/Utility";
+import { blurImageOLD } from "../../common/Utility";
 import { useAttachment } from "../../hook/CustomHooks";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 
@@ -42,11 +42,11 @@ const Attachment = (props) => {
   }, [attachments]);
 
   useEffect(() => {
-    blurImage(".attachment-container");
+    if (show) blurImageOLD(".attachment-container");
     // setTimeout(() => {
     //   refScrollAttachment.current.scrollTop = 0;
     // }, 1000);
-  }, [displayAttachments]);
+  }, [displayAttachments, show]);
 
   return (
     <div
@@ -102,29 +102,31 @@ const Attachment = (props) => {
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
         [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
-        {displayAttachments.map((date) => (
-          <div className="flex flex-col gap-[2rem]">
-            <div className="text-[var(--text-main-color)] text-[var(--text-main-color-normal)]">
-              {moment(date.date).format("DD/MM/YYYY")}
-            </div>
-            <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
-              {date.attachments.map((item, index) => (
-                <ImageWithLightBox
-                  src={item.mediaUrl}
-                  title={item.mediaName?.split(".")[0]}
-                  className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
-                  slides={date.attachments.map((item) => ({
-                    src:
-                      item.type === "image"
-                        ? item.mediaUrl
-                        : "images/filenotfound.svg",
-                  }))}
-                  index={index}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+        {show
+          ? displayAttachments.map((date) => (
+              <div className="flex flex-col gap-[2rem]">
+                <div className="text-[var(--text-main-color)] text-[var(--text-main-color-normal)]">
+                  {moment(date.date).format("DD/MM/YYYY")}
+                </div>
+                <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
+                  {date.attachments.map((item, index) => (
+                    <ImageWithLightBox
+                      src={item.mediaUrl}
+                      title={item.mediaName?.split(".")[0]}
+                      className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                      slides={date.attachments.map((item) => ({
+                        src:
+                          item.type === "image"
+                            ? item.mediaUrl
+                            : "images/filenotfound.svg",
+                      }))}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
+          : ""}
       </div>
     </div>
   );

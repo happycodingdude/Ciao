@@ -55,7 +55,6 @@ const ChatInput = (props) => {
   };
 
   const chooseMention = (id) => {
-    console.log(id);
     let user = mentions.find((item) => item.userId === id);
     inputRef.current.value = inputRef.current.value.replace("@", "");
     inputRef.current.value = inputRef.current.value += user.name;
@@ -69,7 +68,8 @@ const ChatInput = (props) => {
         data-show={show}
         className="hide-scrollbar absolute left-0 flex aspect-[4/3] flex-col gap-[1rem] overflow-y-scroll 
         scroll-smooth rounded-[.5rem] bg-[var(--bg-color-light)] text-sm transition-all duration-200
-        data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:top-[-16rem] laptop:w-[20rem]"
+        data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
+        laptop:top-[-16rem] laptop:w-[20rem]"
       >
         {mentions?.map((item) => (
           <div

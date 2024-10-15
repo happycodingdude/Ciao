@@ -11,6 +11,7 @@ import {
   useInfo,
   useMessage,
 } from "../../hook/CustomHooks";
+import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
@@ -129,26 +130,40 @@ const Chatbox = (props) => {
 
       if (param.type === "text" && param.content === "") return;
 
-      let body = {
+      let bodyToCreate = {
         moderator: messages.participants.find((q) => q.isModerator === true)
           .contact.id,
         type: param.type,
         content: param.content,
       };
+      let bodyLocal = Object.assign({}, bodyToCreate);
 
-      if (param.type === "media")
-        body = {
-          ...body,
+      if (param.type === "media") {
+        // const uploaded = await uploadFile().then((uploads) => {
+        //   return uploads.map((item) => ({
+        //     type: item.type,
+        //     mediaUrl: item.url,
+        //     mediaName: item.name,
+        //     mediaSize: item.size,
+        //   }));
+        // });
+        // bodyToCreate = {
+        //   ...bodyToCreate,
+        //   attachments: uploaded,
+        // };
+        bodyLocal = {
+          ...bodyLocal,
           attachments: param.attachments,
         };
+      }
 
-      // await send(messages.id, body);
+      await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
         if (oldData.id !== messages.id) return oldData;
         oldData.messages = [
           {
-            ...body,
+            ...bodyLocal,
             contactId: info.data.id,
           },
           ...oldData.messages,
@@ -217,14 +232,15 @@ const Chatbox = (props) => {
     //   }));
     // });
 
-    const updated = files.map((item) => {
-      console.log(URL.createObjectURL(item));
+    const lazyImages = files.map((item) => {
+      // console.log(URL.createObjectURL(item));
       return {
         type: "image",
         mediaUrl: URL.createObjectURL(item),
       };
     });
-    sendMutation({ type: "media", attachments: updated });
+    setFiles([]);
+    sendMutation({ type: "media", attachments: lazyImages });
   };
 
   const scrollChatContentToBottom = () => {

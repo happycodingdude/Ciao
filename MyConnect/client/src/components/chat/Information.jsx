@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { blurImage } from "../../common/Utility";
 import {
   useAttachment,
   useInfo,
@@ -7,7 +6,6 @@ import {
   useParticipant,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 import RelightBackground from "../common/RelightBackground";
@@ -36,13 +34,13 @@ const Information = (props) => {
     }
   }, [attachments]);
 
-  useEffect(() => {
-    blurImage(".information-container");
-  }, [messages]);
+  // useEffect(() => {
+  //   blurImage(".information-container");
+  // }, [messages]);
 
-  useEffect(() => {
-    blurImage(".display-attachment-container");
-  }, [displayAttachments]);
+  // useEffect(() => {
+  //   blurImage(".display-attachment-container");
+  // }, [displayAttachments]);
 
   const refInformation = useRef();
   const hideInformation = () => {
@@ -186,7 +184,7 @@ const Information = (props) => {
             )}
           </div>
           <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {displayAttachments.map((item, index) => (
+            {/* {displayAttachments.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
@@ -199,7 +197,7 @@ const Information = (props) => {
                 }))}
                 index={index}
               />
-            ))}
+            ))} */}
           </div>
         </div>
         {messages.isGroup ? (
