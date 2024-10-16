@@ -4,16 +4,15 @@ name: Docker CI/CD Pipeline
 on:
   push:
     branches:
-      - master
-  workflow_dispatch:
+      - master  
 
 jobs:
-  build-chat-api:
+  build-api:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         # Sử dụng action "checkout" để sao copy code từ repository vào máy ảo Ubuntu
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Login to Docker Hub
           # Sử dụng action "docker/login-action" để đăng nhập vào Docker Hub
@@ -22,11 +21,35 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image to Docker Hub
-        uses: docker/build-push-action@v2
-        # Sử dụng action "docker/build-push-action" để đẩy image lên Docker Hub
+       # Set up .NET Core SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          context: ./MyConnect/Chat.API
-          file: ./MyConnect/Chat.API/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/myconnect-chat-api:latest
+          dotnet-version: '8.0'
+
+        # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+       # Build the project
+      - name: Build the project
+        run: dotnet build -c Release --no-restore
+
+       # Publish the application (for deployment)
+      - name: Publish the app
+        run: dotnet publish -c Release -o ./publish
+
+        # Build Docker image
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest .
+
+      # Log in to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Push Docker image to Docker Hub
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
