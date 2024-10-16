@@ -257,4 +257,13 @@ body,
       /* box-shadow: 0 0 20px 10px var(--text-main-color); */
     }
   }
+
+  .lazy-background {
+    background-image: url('images/svg-spinners--bars-rotate-fade.svg');
+  }
+
+  .lazy-background-sm {
+    background-image: url('images/svg-spinners--bars-rotate-fade.svg');
+    background-size: 10% !important;
+  }
 }

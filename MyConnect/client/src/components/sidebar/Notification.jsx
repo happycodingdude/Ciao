@@ -79,14 +79,15 @@ const Notification = () => {
       <div
         ref={refNotification}
         data-state="hide"
-        className="notification-body data-[state=show]:scale-1 absolute bottom-[100%] left-[100%] z-[1000] flex w-[30rem] origin-bottom-left cursor-auto flex-col 
-        rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color)] text-base shadow-[-5px_5px_20px_-10px_var(--shadow-color)]
+        className="notification-body data-[state=show]:scale-1 absolute bottom-[100%] left-[100%] z-[1000] flex w-[30rem] origin-bottom-left cursor-auto flex-col rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] text-base
         transition-all duration-200 data-[state=hide]:scale-0 laptop:h-[35rem] [&>*]:font-sans"
       >
         <div className="notification-body flex justify-between p-4 shadow-[0px_3px_10px_-10px]">
-          <p className="notification-body text-md font-bold">Notifications</p>
+          <p className="notification-body text-md font-medium text-[var(--text-main-color)]">
+            Notifications
+          </p>
           <div
-            className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color-medium)]"
+            className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color)] hover:text-[var(--main-color-light)]"
             onClick={() => readAllCTA()}
           >
             Mark all as read

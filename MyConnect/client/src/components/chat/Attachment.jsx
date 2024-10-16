@@ -114,6 +114,8 @@ const Attachment = (props) => {
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                      spinnerClassName="laptop:bg-[size:2rem]"
+                      imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({
                         src:
                           item.type === "image"

@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import { blurImage } from "../../common/Utility";
+import { blurImageOLD } from "../../common/Utility";
 import {
   useAttachment,
   useConversation,
@@ -58,7 +58,7 @@ const ListChat = () => {
   }, [page]);
 
   useEffect(() => {
-    blurImage(".list-chat");
+    blurImageOLD(".list-chat");
   }, [data?.conversations]);
 
   const handleSetConversation = (position, item) => {
@@ -198,7 +198,9 @@ const ListChat = () => {
             {item.isGroup ? (
               <ImageWithLightBox
                 src={item.avatar}
-                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+                className={`pointer-events-none aspect-square rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
+                spinnerClassName="laptop:bg-[size:2rem]"
+                imageClassName="bg-[size:150%]"
               />
             ) : (
               <ImageWithLightBox
@@ -207,7 +209,9 @@ const ListChat = () => {
                     (item) => item.contact.id !== info.data.id,
                   )?.contact.avatar
                 }
-                className={`pointer-events-none aspect-square w-[5rem] rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+                className={`pointer-events-none aspect-square rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
+                spinnerClassName="laptop:bg-[size:2rem]"
+                imageClassName="bg-[size:150%]"
               />
             )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>

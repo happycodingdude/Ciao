@@ -11,7 +11,6 @@ import {
   useInfo,
   useMessage,
 } from "../../hook/CustomHooks";
-import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
@@ -157,7 +156,7 @@ const Chatbox = (props) => {
         };
       }
 
-      await send(messages.id, bodyToCreate);
+      // await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
         if (oldData.id !== messages.id) return oldData;

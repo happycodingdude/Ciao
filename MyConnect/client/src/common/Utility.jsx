@@ -86,20 +86,27 @@ export const generateContent = (contacts, text) => {
 export const blurImageOLD = (containerClass) => {
   let observer = new IntersectionObserver(
     (entries, observer) => {
-      entries.forEach((entry) => {
+      entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
-          entry.target.src = entry.target.dataset.src;
+          await delay();
+          // entry.target.src = entry.target.dataset.src;
+          entry.target.style.backgroundImage =
+            "url('" + entry.target.dataset.src + "')";
+          // entry.target.classList.remove("lazy-image");
           observer.unobserve(entry.target);
         }
       });
     },
-    {
-      threshold: 0.3,
-    },
+    { threshold: 0.5 },
   );
 
+  function delay() {
+    return new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
   const container = document.querySelector(containerClass);
-  container.querySelectorAll("img").forEach((img) => {
+  const images = container.querySelectorAll(".lazy-image");
+  images.forEach((img) => {
     observer.observe(img);
   });
 };
