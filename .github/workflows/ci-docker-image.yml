@@ -29,15 +29,15 @@ jobs:
 
         # Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ./MyConnect/Chat.API
 
        # Build the project
       - name: Build the project
-        run: dotnet build -c Release --no-restore
+        run: dotnet build ./MyConnect/Chat.API -c Release --no-restore
 
        # Publish the application (for deployment)
       - name: Publish the app
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish ./MyConnect/Chat.API -c Release -o ./publish
 
         # Build Docker image
       - name: Build Docker image
