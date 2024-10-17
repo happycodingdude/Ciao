@@ -4,7 +4,7 @@ name: Docker CI/CD Pipeline
 on:
   push:
     branches:
-      - master  
+      - master
 
 jobs:
   build-api:
@@ -14,32 +14,33 @@ jobs:
         # Sử dụng action "checkout" để sao copy code từ repository vào máy ảo Ubuntu
         uses: actions/checkout@v3
 
-      - name: Login to Docker Hub
+      - name:
+          Login to Docker Hub
           # Sử dụng action "docker/login-action" để đăng nhập vào Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-       # Set up .NET Core SDK
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0'
+      #  # Set up .NET Core SDK
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v3
+      #   with:
+      #     dotnet-version: '8.0'
 
-        # Restore dependencies
-      - name: Restore dependencies
-        run: dotnet restore ./MyConnect/Chat.API
+      #   # Restore dependencies
+      # - name: Restore dependencies
+      #   run: dotnet restore
 
-       # Build the project
-      - name: Build the project
-        run: dotnet build ./MyConnect/Chat.API -c Release --no-restore
+      #  # Build the project
+      # - name: Build the project
+      #   run: dotnet build -c Release
 
-       # Publish the application (for deployment)
-      - name: Publish the app
-        run: dotnet publish ./MyConnect/Chat.API -c Release -o ./publish
+      #  # Publish the application (for deployment)
+      # - name: Publish the app
+      #   run: dotnet publish -c Release -o ./publish
 
-        # Build Docker image
+      # Build Docker image
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest .
 

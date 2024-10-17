@@ -1,324 +1,324 @@
-/MyConnect/Authentication.API/*.swp
-/MyConnect/Authentication.API/*.*~
-/MyConnect/Authentication.API/project.lock.json
-/MyConnect/Authentication.API/.DS_Store
-/MyConnect/Authentication.API/*.pyc
-/MyConnect/Authentication.API/nupkg/
+/Authentication.API/*.swp
+/Authentication.API/*.*~
+/Authentication.API/project.lock.json
+/Authentication.API/.DS_Store
+/Authentication.API/*.pyc
+/Authentication.API/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Authentication.API/.idea/
+/Authentication.API/.idea/
 
 # Visual Studio
-/MyConnect/Authentication.API/.vs/
+/Authentication.API/.vs/
 
 # Fleet
-/MyConnect/Authentication.API/.fleet/
+/Authentication.API/.fleet/
 
 # Code Rush
-/MyConnect/Authentication.API/.cr/
+/Authentication.API/.cr/
 
 # User-specific files
-/MyConnect/Authentication.API/*.suo
-/MyConnect/Authentication.API/*.user
-/MyConnect/Authentication.API/*.userosscache
-/MyConnect/Authentication.API/*.sln.docstates
+/Authentication.API/*.suo
+/Authentication.API/*.user
+/Authentication.API/*.userosscache
+/Authentication.API/*.sln.docstates
 
 # Build results
-/MyConnect/Authentication.API/[Dd]ebug/
-/MyConnect/Authentication.API/[Dd]ebugPublic/
-/MyConnect/Authentication.API/[Rr]elease/
-/MyConnect/Authentication.API/[Rr]eleases/
-/MyConnect/Authentication.API/x64/
-/MyConnect/Authentication.API/x86/
-/MyConnect/Authentication.API/build/
-/MyConnect/Authentication.API/bld/
-/MyConnect/Authentication.API/[Bb]in/
-/MyConnect/Authentication.API/[Oo]bj/
-/MyConnect/Authentication.API/[Oo]ut/
-/MyConnect/Authentication.API/msbuild.log
-/MyConnect/Authentication.API/msbuild.err
-/MyConnect/Authentication.API/msbuild.wrn
+/Authentication.API/[Dd]ebug/
+/Authentication.API/[Dd]ebugPublic/
+/Authentication.API/[Rr]elease/
+/Authentication.API/[Rr]eleases/
+/Authentication.API/x64/
+/Authentication.API/x86/
+/Authentication.API/build/
+/Authentication.API/bld/
+/Authentication.API/[Bb]in/
+/Authentication.API/[Oo]bj/
+/Authentication.API/[Oo]ut/
+/Authentication.API/msbuild.log
+/Authentication.API/msbuild.err
+/Authentication.API/msbuild.wrn
 
 
 
 
-/MyConnect/Chat.API/*.swp
-/MyConnect/Chat.API/*.*~
-/MyConnect/Chat.API/project.lock.json
-/MyConnect/Chat.API/.DS_Store
-/MyConnect/Chat.API/*.pyc
-/MyConnect/Chat.API/nupkg/
+/Chat.API/*.swp
+/Chat.API/*.*~
+/Chat.API/project.lock.json
+/Chat.API/.DS_Store
+/Chat.API/*.pyc
+/Chat.API/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Chat.API/.idea/
+/Chat.API/.idea/
 
 # Visual Studio
-/MyConnect/Chat.API/.vs/
+/Chat.API/.vs/
 
 # Fleet
-/MyConnect/Chat.API/.fleet/
+/Chat.API/.fleet/
 
 # Code Rush
-/MyConnect/Chat.API/.cr/
+/Chat.API/.cr/
 
 # User-specific files
-/MyConnect/Chat.API/*.suo
-/MyConnect/Chat.API/*.user
-/MyConnect/Chat.API/*.userosscache
-/MyConnect/Chat.API/*.sln.docstates
+/Chat.API/*.suo
+/Chat.API/*.user
+/Chat.API/*.userosscache
+/Chat.API/*.sln.docstates
 
 # Build results
-/MyConnect/Chat.API/[Dd]ebug/
-/MyConnect/Chat.API/[Dd]ebugPublic/
-/MyConnect/Chat.API/[Rr]elease/
-/MyConnect/Chat.API/[Rr]eleases/
-/MyConnect/Chat.API/x64/
-/MyConnect/Chat.API/x86/
-/MyConnect/Chat.API/build/
-/MyConnect/Chat.API/bld/
-/MyConnect/Chat.API/[Bb]in/
-/MyConnect/Chat.API/[Oo]bj/
-/MyConnect/Chat.API/[Oo]ut/
-/MyConnect/Chat.API/msbuild.log
-/MyConnect/Chat.API/msbuild.err
-/MyConnect/Chat.API/msbuild.wrn
+/Chat.API/[Dd]ebug/
+/Chat.API/[Dd]ebugPublic/
+/Chat.API/[Rr]elease/
+/Chat.API/[Rr]eleases/
+/Chat.API/x64/
+/Chat.API/x86/
+/Chat.API/build/
+/Chat.API/bld/
+/Chat.API/[Bb]in/
+/Chat.API/[Oo]bj/
+/Chat.API/[Oo]ut/
+/Chat.API/msbuild.log
+/Chat.API/msbuild.err
+/Chat.API/msbuild.wrn
 
 
-/MyConnect/Domain/*.swp
-/MyConnect/Domain/*.*~
-/MyConnect/Domain/project.lock.json
-/MyConnect/Domain/.DS_Store
-/MyConnect/Domain/*.pyc
-/MyConnect/Domain/nupkg/
+/Domain/*.swp
+/Domain/*.*~
+/Domain/project.lock.json
+/Domain/.DS_Store
+/Domain/*.pyc
+/Domain/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Domain/.idea/
+/Domain/.idea/
 
 # Visual Studio
-/MyConnect/Domain/.vs/
+/Domain/.vs/
 
 # Fleet
-/MyConnect/Domain/.fleet/
+/Domain/.fleet/
 
 # Code Rush
-/MyConnect/Domain/.cr/
+/Domain/.cr/
 
 # User-specific files
-/MyConnect/Domain/*.suo
-/MyConnect/Domain/*.user
-/MyConnect/Domain/*.userosscache
-/MyConnect/Domain/*.sln.docstates
+/Domain/*.suo
+/Domain/*.user
+/Domain/*.userosscache
+/Domain/*.sln.docstates
 
 # Build results
-/MyConnect/Domain/[Dd]ebug/
-/MyConnect/Domain/[Dd]ebugPublic/
-/MyConnect/Domain/[Rr]elease/
-/MyConnect/Domain/[Rr]eleases/
-/MyConnect/Domain/x64/
-/MyConnect/Domain/x86/
-/MyConnect/Domain/build/
-/MyConnect/Domain/bld/
-/MyConnect/Domain/[Bb]in/
-/MyConnect/Domain/[Oo]bj/
-/MyConnect/Domain/[Oo]ut/
-/MyConnect/Domain/msbuild.log
-/MyConnect/Domain/msbuild.err
-/MyConnect/Domain/msbuild.wrn
+/Domain/[Dd]ebug/
+/Domain/[Dd]ebugPublic/
+/Domain/[Rr]elease/
+/Domain/[Rr]eleases/
+/Domain/x64/
+/Domain/x86/
+/Domain/build/
+/Domain/bld/
+/Domain/[Bb]in/
+/Domain/[Oo]bj/
+/Domain/[Oo]ut/
+/Domain/msbuild.log
+/Domain/msbuild.err
+/Domain/msbuild.wrn
 
 
-/MyConnect/Infrastructure/*.swp
-/MyConnect/Infrastructure/*.*~
-/MyConnect/Infrastructure/project.lock.json
-/MyConnect/Infrastructure/.DS_Store
-/MyConnect/Infrastructure/*.pyc
-/MyConnect/Infrastructure/nupkg/
+/Infrastructure/*.swp
+/Infrastructure/*.*~
+/Infrastructure/project.lock.json
+/Infrastructure/.DS_Store
+/Infrastructure/*.pyc
+/Infrastructure/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Infrastructure/.idea/
+/Infrastructure/.idea/
 
 # Visual Studio
-/MyConnect/Infrastructure/.vs/
+/Infrastructure/.vs/
 
 # Fleet
-/MyConnect/Infrastructure/.fleet/
+/Infrastructure/.fleet/
 
 # Code Rush
-/MyConnect/Infrastructure/.cr/
+/Infrastructure/.cr/
 
 # User-specific files
-/MyConnect/Infrastructure/*.suo
-/MyConnect/Infrastructure/*.user
-/MyConnect/Infrastructure/*.userosscache
-/MyConnect/Infrastructure/*.sln.docstates
+/Infrastructure/*.suo
+/Infrastructure/*.user
+/Infrastructure/*.userosscache
+/Infrastructure/*.sln.docstates
 
 # Build results
-/MyConnect/Infrastructure/[Dd]ebug/
-/MyConnect/Infrastructure/[Dd]ebugPublic/
-/MyConnect/Infrastructure/[Rr]elease/
-/MyConnect/Infrastructure/[Rr]eleases/
-/MyConnect/Infrastructure/x64/
-/MyConnect/Infrastructure/x86/
-/MyConnect/Infrastructure/build/
-/MyConnect/Infrastructure/bld/
-/MyConnect/Infrastructure/[Bb]in/
-/MyConnect/Infrastructure/[Oo]bj/
-/MyConnect/Infrastructure/[Oo]ut/
-/MyConnect/Infrastructure/msbuild.log
-/MyConnect/Infrastructure/msbuild.err
-/MyConnect/Infrastructure/msbuild.wrn
+/Infrastructure/[Dd]ebug/
+/Infrastructure/[Dd]ebugPublic/
+/Infrastructure/[Rr]elease/
+/Infrastructure/[Rr]eleases/
+/Infrastructure/x64/
+/Infrastructure/x86/
+/Infrastructure/build/
+/Infrastructure/bld/
+/Infrastructure/[Bb]in/
+/Infrastructure/[Oo]bj/
+/Infrastructure/[Oo]ut/
+/Infrastructure/msbuild.log
+/Infrastructure/msbuild.err
+/Infrastructure/msbuild.wrn
 
 
-/MyConnect/Application/*.swp
-/MyConnect/Application/*.*~
-/MyConnect/Application/project.lock.json
-/MyConnect/Application/.DS_Store
-/MyConnect/Application/*.pyc
-/MyConnect/Application/nupkg/
+/Application/*.swp
+/Application/*.*~
+/Application/project.lock.json
+/Application/.DS_Store
+/Application/*.pyc
+/Application/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Application/.idea/
+/Application/.idea/
 
 # Visual Studio
-/MyConnect/Application/.vs/
+/Application/.vs/
 
 # Fleet
-/MyConnect/Application/.fleet/
+/Application/.fleet/
 
 # Code Rush
-/MyConnect/Application/.cr/
+/Application/.cr/
 
 # User-specific files
-/MyConnect/Application/*.suo
-/MyConnect/Application/*.user
-/MyConnect/Application/*.userosscache
-/MyConnect/Application/*.sln.docstates
+/Application/*.suo
+/Application/*.user
+/Application/*.userosscache
+/Application/*.sln.docstates
 
 # Build results
-/MyConnect/Application/[Dd]ebug/
-/MyConnect/Application/[Dd]ebugPublic/
-/MyConnect/Application/[Rr]elease/
-/MyConnect/Application/[Rr]eleases/
-/MyConnect/Application/x64/
-/MyConnect/Application/x86/
-/MyConnect/Application/build/
-/MyConnect/Application/bld/
-/MyConnect/Application/[Bb]in/
-/MyConnect/Application/[Oo]bj/
-/MyConnect/Application/[Oo]ut/
-/MyConnect/Application/msbuild.log
-/MyConnect/Application/msbuild.err
-/MyConnect/Application/msbuild.wrn
+/Application/[Dd]ebug/
+/Application/[Dd]ebugPublic/
+/Application/[Rr]elease/
+/Application/[Rr]eleases/
+/Application/x64/
+/Application/x86/
+/Application/build/
+/Application/bld/
+/Application/[Bb]in/
+/Application/[Oo]bj/
+/Application/[Oo]ut/
+/Application/msbuild.log
+/Application/msbuild.err
+/Application/msbuild.wrn
 
 
 
-/MyConnect/Shared/*.swp
-/MyConnect/Shared/*.*~
-/MyConnect/Shared/project.lock.json
-/MyConnect/Shared/.DS_Store
-/MyConnect/Shared/*.pyc
-/MyConnect/Shared/nupkg/
+/Shared/*.swp
+/Shared/*.*~
+/Shared/project.lock.json
+/Shared/.DS_Store
+/Shared/*.pyc
+/Shared/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Shared/.idea/
+/Shared/.idea/
 
 # Visual Studio
-/MyConnect/Shared/.vs/
+/Shared/.vs/
 
 # Fleet
-/MyConnect/Shared/.fleet/
+/Shared/.fleet/
 
 # Code Rush
-/MyConnect/Shared/.cr/
+/Shared/.cr/
 
 # User-specific files
-/MyConnect/Shared/*.suo
-/MyConnect/Shared/*.user
-/MyConnect/Shared/*.userosscache
-/MyConnect/Shared/*.sln.docstates
+/Shared/*.suo
+/Shared/*.user
+/Shared/*.userosscache
+/Shared/*.sln.docstates
 
 # Build results
-/MyConnect/Shared/[Dd]ebug/
-/MyConnect/Shared/[Dd]ebugPublic/
-/MyConnect/Shared/[Rr]elease/
-/MyConnect/Shared/[Rr]eleases/
-/MyConnect/Shared/x64/
-/MyConnect/Shared/x86/
-/MyConnect/Shared/build/
-/MyConnect/Shared/bld/
-/MyConnect/Shared/[Bb]in/
-/MyConnect/Shared/[Oo]bj/
-/MyConnect/Shared/[Oo]ut/
-/MyConnect/Shared/msbuild.log
-/MyConnect/Shared/msbuild.err
-/MyConnect/Shared/msbuild.wrn
+/Shared/[Dd]ebug/
+/Shared/[Dd]ebugPublic/
+/Shared/[Rr]elease/
+/Shared/[Rr]eleases/
+/Shared/x64/
+/Shared/x86/
+/Shared/build/
+/Shared/bld/
+/Shared/[Bb]in/
+/Shared/[Oo]bj/
+/Shared/[Oo]ut/
+/Shared/msbuild.log
+/Shared/msbuild.err
+/Shared/msbuild.wrn
 
 
-/MyConnect/Presentation/*.swp
-/MyConnect/Presentation/*.*~
-/MyConnect/Presentation/project.lock.json
-/MyConnect/Presentation/.DS_Store
-/MyConnect/Presentation/*.pyc
-/MyConnect/Presentation/nupkg/
+/Presentation/*.swp
+/Presentation/*.*~
+/Presentation/project.lock.json
+/Presentation/.DS_Store
+/Presentation/*.pyc
+/Presentation/nupkg/
 
 # Visual Studio Code
 #.vscode/
 
 # Rider
-/MyConnect/Presentation/.idea/
+/Presentation/.idea/
 
 # Visual Studio
-/MyConnect/Presentation/.vs/
+/Presentation/.vs/
 
 # Fleet
-/MyConnect/Presentation/.fleet/
+/Presentation/.fleet/
 
 # Code Rush
-/MyConnect/Presentation/.cr/
+/Presentation/.cr/
 
 # User-specific files
-/MyConnect/Presentation/*.suo
-/MyConnect/Presentation/*.user
-/MyConnect/Presentation/*.userosscache
-/MyConnect/Presentation/*.sln.docstates
+/Presentation/*.suo
+/Presentation/*.user
+/Presentation/*.userosscache
+/Presentation/*.sln.docstates
 
 # Build results
-/MyConnect/Presentation/[Dd]ebug/
-/MyConnect/Presentation/[Dd]ebugPublic/
-/MyConnect/Presentation/[Rr]elease/
-/MyConnect/Presentation/[Rr]eleases/
-/MyConnect/Presentation/x64/
-/MyConnect/Presentation/x86/
-/MyConnect/Presentation/build/
-/MyConnect/Presentation/bld/
-/MyConnect/Presentation/[Bb]in/
-/MyConnect/Presentation/[Oo]bj/
-/MyConnect/Presentation/[Oo]ut/
-/MyConnect/Presentation/msbuild.log
-/MyConnect/Presentation/msbuild.err
-/MyConnect/Presentation/msbuild.wrn
+/Presentation/[Dd]ebug/
+/Presentation/[Dd]ebugPublic/
+/Presentation/[Rr]elease/
+/Presentation/[Rr]eleases/
+/Presentation/x64/
+/Presentation/x86/
+/Presentation/build/
+/Presentation/bld/
+/Presentation/[Bb]in/
+/Presentation/[Oo]bj/
+/Presentation/[Oo]ut/
+/Presentation/msbuild.log
+/Presentation/msbuild.err
+/Presentation/msbuild.wrn
 
 
 # Test
-/MyConnect/test/[Bb]in/
-/MyConnect/test/[Oo]bj/
+/test/[Bb]in/
+/test/[Oo]bj/
 
 
 
@@ -351,26 +351,26 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/MyConnect/client/node_modules
-/MyConnect/client/.pnp
-/MyConnect/client.pnp.js
+/client/node_modules
+/client/.pnp
+/client.pnp.js
 
 # testing
-/MyConnect/client/coverage
+/client/coverage
 
 # production
-/MyConnect/client/build
+/client/build
 
 # misc
-/MyConnect/client/.DS_Store
-/MyConnect/client/.env.local
-/MyConnect/client/.env.development.local
-/MyConnect/client/.env.test.local
-/MyConnect/client/.env.production.local
+/client/.DS_Store
+/client/.env.local
+/client/.env.development.local
+/client/.env.test.local
+/client/.env.production.local
 
-/MyConnect/client/npm-debug.log*
-/MyConnect/client/yarn-debug.log*
-/MyConnect/client/yarn-error.log*
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
 
 
 /scripts
