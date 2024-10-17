@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 as build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy the solution file and restore the dependencies
@@ -9,17 +9,17 @@ COPY Infrastructure/Infrastructure.csproj Infrastructure/
 COPY Presentation/Presentation.csproj Presentation/
 COPY Domain/Domain.csproj Domain/
 COPY Shared/Shared.csproj Shared/
-RUN dotnet restore
+RUN dotnet restore -a $TARGETARCH
 
 # Copy everything else
 COPY . .
 
 # Build and publish the project
 WORKDIR /src/Chat.API
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish -a $TARGETARCH -c Release -o /app
 
 # Runtime stage
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app .
 
