@@ -41,8 +41,10 @@ jobs:
       #   run: dotnet publish -c Release -o ./publish
 
       # Build Docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Build Docker image
-        run: docker build --platform=linux/arm64,linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest .
+        run: docker buildx build --platform linux/arm64,linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest .
 
       # Log in to Docker Hub
       - name: Login to Docker Hub
