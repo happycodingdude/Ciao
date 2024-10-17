@@ -42,7 +42,7 @@ jobs:
 
       # Build Docker image
       - name: Build Docker image
-        run: docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest .
+        run: docker buildx build --platform=linux/arm64,linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest .
 
       # Log in to Docker Hub
       - name: Login to Docker Hub
