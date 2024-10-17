@@ -9,14 +9,14 @@ COPY Infrastructure/Infrastructure.csproj Infrastructure/
 COPY Presentation/Presentation.csproj Presentation/
 COPY Domain/Domain.csproj Domain/
 COPY Shared/Shared.csproj Shared/
-RUN dotnet restore -a $TARGETARCH
+RUN dotnet restore -a linux/arm64
 
 # Copy everything else
 COPY . .
 
 # Build and publish the project
 WORKDIR /src/Chat.API
-RUN dotnet publish -a $TARGETARCH -c Release -o /app
+RUN dotnet publish -a linux/arm64 -c Release -o /app
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
