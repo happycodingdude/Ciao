@@ -24,5 +24,4 @@ WORKDIR /app
 COPY --from=build /app .
 
 # Run the app
-EXPOSE 4000
 ENTRYPOINT ["dotnet", "Chat.API.dll"]
