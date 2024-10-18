@@ -77,4 +77,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
             docker stop ciao-api || true
             docker rm ciao-api || true
-            docker run --name ciao-api -p 4000:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
+            docker run -d --name ciao-api -p 4000:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
