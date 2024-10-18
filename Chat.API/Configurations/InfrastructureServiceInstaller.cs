@@ -14,6 +14,16 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSwaggerGen();
         services.AddSession();
 
+        // CORS
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:5000");
+                });
+        });
+
         // HttpClient
         services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
         {

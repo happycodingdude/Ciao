@@ -24,6 +24,7 @@ if (app.Environment.IsDevelopment())
 app.UseSession();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
