@@ -47,9 +47,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Run QEMU 
+      # Run QEMU
       #- name: Run QEMU
-       # run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      # run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
       # Build Docker image
       - name: Set up Docker Buildx
@@ -60,21 +60,21 @@ jobs:
 
       # Push Docker image to Docker Hub
       # - name: Push Docker image
-        # run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build-api
+      # run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-api
 
-  #   steps:
-  #     # SSH to the server and pull the latest image, then run it
-  #     - name: SSH into server and pull/run Docker image
-  #       uses: appleboy/ssh-action@v0.1.5
-  #       with:
-  #         host: ${{ secrets.SERVER_HOST }}
-  #         username: ${{ secrets.SERVER_USERNAME }}
-  #         password: ${{ secrets.SERVER_PASSWORD }} # You can use SSH key instead for better security
-  #         script: |
-  #           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
-  #           docker stop ciao-api || true
-  #           docker rm ciao-api || true
-  #           docker run --name ciao-api -p 4000:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
+    steps:
+      # SSH to the server and pull the latest image, then run it
+      - name: SSH into server and pull/run Docker image
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }} # You can use SSH key instead for better security
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
+            docker stop ciao-api || true
+            docker rm ciao-api || true
+            docker run --name ciao-api -p 4000:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
