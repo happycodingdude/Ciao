@@ -40,7 +40,6 @@ jobs:
       # - name: Publish the app
       #   run: dotnet publish -c Release -o ./publish
 
-
       # Log in to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -70,7 +69,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }} # You can use SSH key instead for better security
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
             docker stop ciao-api || true
             docker rm ciao-api || true
+            docker rmi $(docker images ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest -q)
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
             docker run -d --name ciao-api -p 4000:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ciao-api:latest
