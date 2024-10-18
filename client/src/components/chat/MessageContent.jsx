@@ -1,8 +1,7 @@
 import moment from "moment";
 import React from "react";
 import { useInfo, useMessage } from "../../hook/CustomHooks";
-import ImageWithLightBox from "../common/ImageWithLightBox";
-import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
@@ -13,6 +12,7 @@ const MessageContent = (props) => {
 
   return (
     <div
+      key={message.id}
       className={`flex items-end gap-[1rem] 
       ${message.contactId === info.data.id ? "flex-row-reverse" : ""}`}
     >
@@ -20,7 +20,7 @@ const MessageContent = (props) => {
       {message.contactId !== info.data.id ? (
         <div className="relative w-[3rem]">
           {messages.isGroup ? (
-            <ImageWithLightBoxWithShadowAndNoLazy
+            <ImageWithLightBoxAndNoLazy
               src={
                 messages.participants.find((q) => q.contact.id != info.data.id)
                   .contact.avatar
@@ -32,7 +32,7 @@ const MessageContent = (props) => {
               // }}
             />
           ) : (
-            <ImageWithLightBoxWithShadowAndNoLazy
+            <ImageWithLightBoxAndNoLazy
               src={
                 messages.participants.find((q) => q.contact.id != info.data.id)
                   .contact.avatar
@@ -93,52 +93,71 @@ const MessageContent = (props) => {
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {message.attachments?.map(
-              (item, index) => (
-                <ImageWithLightBox
-                  src={item.mediaUrl}
-                  title={item.mediaName?.split(".")[0]}
-                  className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer`}
-                  // spinnerClassName="laptop:bg-[size:100%]"
-                  spinnerClassName="laptop:bg-[size:5rem]"
-                  imageClassName="bg-[size:100%]"
-                  slides={message.attachments.map((item) => ({
-                    src:
-                      item.type === "image"
-                        ? item.mediaUrl
-                        : "images/filenotfound.svg",
-                  }))}
-                  index={index}
-                />
-              ),
-              // pending ? (
-              //   <ImageWithLightBoxWithShadowAndNoLazy
-              //     src={item.mediaUrl}
-              //     title={item.mediaName?.split(".")[0]}
-              //     className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} cursor-pointer rounded-2xl bg-[size:120%] opacity-50`}
-              //     slides={message.attachments.map((item) => ({
-              //       src:
-              //         item.type === "image"
-              //           ? item.mediaUrl
-              //           : "images/filenotfound.svg",
-              //     }))}
-              //     index={index}
-              //   />
-              // ) : (
-              //   <ImageWithLightBox
-              //     src={item.mediaUrl}
-              //     title={item.mediaName?.split(".")[0]}
-              //     className={`my-auto aspect-[3/2] ${message.attachments?.length === 1 ? "w-[80%]" : "w-[45%]"} cursor-pointer rounded-2xl bg-[size:120%]`}
-              //     slides={message.attachments.map((item) => ({
-              //       src:
-              //         item.type === "image"
-              //           ? item.mediaUrl
-              //           : "images/filenotfound.svg",
-              //     }))}
-              //     index={index}
-              //   />
-              // ),
-            )}
+            {/* {pending
+              ? message.attachments?.map((item, index) => (
+                  <ImageWithLightBoxWithShadowAndNoLazy
+                    src={item.mediaUrl}
+                    title={item.mediaName?.split(".")[0]}
+                    className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer opacity-50`}
+                    slides={message.attachments.map((item) => ({
+                      src:
+                        item.type === "image"
+                          ? item.mediaUrl
+                          : "images/filenotfound.svg",
+                    }))}
+                    index={index}
+                  />
+                ))
+              : message.attachments?.map((item, index) => (
+                  <ImageWithLightBox
+                    src={item.mediaUrl}
+                    title={item.mediaName?.split(".")[0]}
+                    className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer`}
+                    // spinnerClassName="laptop:bg-[size:100%]"
+                    spinnerClassName="laptop:bg-[size:5rem]"
+                    imageClassName="bg-[size:100%]"
+                    slides={message.attachments.map((item) => ({
+                      src:
+                        item.type === "image"
+                          ? item.mediaUrl
+                          : "images/filenotfound.svg",
+                    }))}
+                    index={index}
+                  />
+                ))} */}
+
+            {/* {message.attachments?.map((item, index) => (
+              <ImageWithLightBox
+                src={item.mediaUrl}
+                title={item.mediaName?.split(".")[0]}
+                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer`}
+                // spinnerClassName="laptop:bg-[size:100%]"
+                spinnerClassName="laptop:bg-[size:5rem]"
+                imageClassName="bg-[size:100%]"
+                slides={message.attachments.map((item) => ({
+                  src:
+                    item.type === "image"
+                      ? item.mediaUrl
+                      : "images/filenotfound.svg",
+                }))}
+                index={index}
+              />
+            ))} */}
+
+            {message.attachments?.map((item, index) => (
+              <ImageWithLightBoxAndNoLazy
+                src={item.mediaUrl}
+                title={item.mediaName?.split(".")[0]}
+                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer bg-[size:100%]`}
+                slides={message.attachments.map((item) => ({
+                  src:
+                    item.type === "image"
+                      ? item.mediaUrl
+                      : "images/filenotfound.svg",
+                }))}
+                index={index}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -146,4 +165,4 @@ const MessageContent = (props) => {
   );
 };
 
-export default MessageContent;
+export default React.memo(MessageContent);

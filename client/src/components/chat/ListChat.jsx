@@ -9,7 +9,7 @@ import {
   useMessage,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import LocalLoading from "../common/LocalLoading";
 
 moment.locale("en", {
@@ -196,14 +196,14 @@ const ListChat = () => {
             }}
           >
             {item.isGroup ? (
-              <ImageWithLightBox
+              <ImageWithLightBoxAndNoLazy
                 src={item.avatar}
                 className={`pointer-events-none aspect-square rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
                 spinnerClassName="laptop:bg-[size:2rem]"
                 imageClassName="bg-[size:150%]"
               />
             ) : (
-              <ImageWithLightBox
+              <ImageWithLightBoxAndNoLazy
                 src={
                   item.participants.find(
                     (item) => item.contact.id !== info.data.id,

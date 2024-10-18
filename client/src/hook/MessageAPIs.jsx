@@ -30,5 +30,5 @@ export const send = async (id, data) => {
       data: data,
       timeout: 500,
     })
-  ).data;
+  ).data?.reverse();
 };

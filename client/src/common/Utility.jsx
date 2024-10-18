@@ -88,11 +88,11 @@ export const blurImageOLD = (containerClass) => {
     (entries, observer) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
-          await delay();
+          // await delay();
           // entry.target.src = entry.target.dataset.src;
           entry.target.style.backgroundImage =
             "url('" + entry.target.dataset.src + "')";
-          // entry.target.classList.remove("lazy-image");
+          // entry.target.classList.add("loaded");
           observer.unobserve(entry.target);
         }
       });
@@ -101,7 +101,7 @@ export const blurImageOLD = (containerClass) => {
   );
 
   function delay() {
-    return new Promise((resolve) => setTimeout(resolve, 500));
+    return new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
   const container = document.querySelector(containerClass);

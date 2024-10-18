@@ -3,6 +3,7 @@ import { Tooltip } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
+import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImageOLD, HttpRequest } from "../../common/Utility";
 import {
@@ -24,7 +25,7 @@ const Chatbox = (props) => {
   const queryClient = useQueryClient();
 
   const refChatContent = useRef();
-  const refScrollButton = useRef();
+  const refScrollToBottom = useRef();
   const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
   const refTitleContainer = useRef();
@@ -37,6 +38,7 @@ const Chatbox = (props) => {
   const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [emojiText, setEmojiText] = useState();
+  const [autoScrollBottom, setAutoScrollBottom] = useState(true);
 
   const { data: info } = useInfo();
   const { data: conversation } = useConversation();
@@ -47,13 +49,13 @@ const Chatbox = (props) => {
     blurImageOLD(".chatbox-content");
     setFiles([]);
     setEmojiText("");
-    if (conversation?.selected !== messages.id)
-      refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-  }, [messages, conversation]);
+
+    if (autoScrollBottom) scrollChatContentToBottom();
+  }, [messages, autoScrollBottom]);
 
   useEffect(() => {
-    if (!conversation) return;
     setPage(2);
+    setAutoScrollBottom(true);
   }, [conversation?.selected]);
 
   const chooseFile = (e) => {
@@ -121,10 +123,6 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-      setTimeout(() => {
-        scrollChatContentToBottom();
-      }, 200);
-
       await delay(1000);
 
       if (param.type === "text" && param.content === "") return;
@@ -159,15 +157,28 @@ const Chatbox = (props) => {
       // await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
-        if (oldData.id !== messages.id) return oldData;
-        oldData.messages = [
-          {
-            ...bodyLocal,
-            contactId: info.data.id,
-          },
-          ...oldData.messages,
-        ];
-        return oldData;
+        // if (oldData.id !== messages.id) return oldData;
+        // oldData.messages = [
+        //   {
+        //     ...bodyLocal,
+        //     contactId: info.data.id,
+        //   },
+        //   ...oldData.messages,
+        // ];
+        // return oldData;
+
+        const newData = {
+          ...oldData,
+          messages: [
+            {
+              ...bodyLocal,
+              contactId: info.data.id,
+            },
+            ...oldData.messages,
+          ],
+        };
+
+        return newData;
       });
       queryClient.setQueryData(["conversation"], (oldData) => {
         const clonedConversations = oldData.conversations.map((item) => {
@@ -183,41 +194,41 @@ const Chatbox = (props) => {
         });
         return { ...oldData, conversations: updatedConversations };
       });
-      // if (param.type === "media") {
-      //   // const immediateAttachments = param.attachments.map((item) => {
-      //   //   return { ...item, immediate: true };
-      //   // });
-      //   queryClient.setQueryData(["attachment"], (oldData) => {
-      //     const cloned = oldData.map((item) => {
-      //       return Object.assign({}, item);
-      //     });
-      //     // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
-      //     var firstItem = cloned[0];
-      //     // Nếu undefined tức là chưa có attachment nào
-      //     // hoặc nếu ngày gần nhất không phải hôm nay
-      //     // -> tạo object mới
-      //     if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
-      //       cloned.unshift({
-      //         date: moment().format("MM/DD/YYYY"),
-      //         attachments: param.attachments,
-      //       });
-      //       return cloned;
-      //     }
-      //     // Ngược lại thì ngày gần nhất là hôm nay
-      //     else {
-      //       const newData = cloned.map((item) => {
-      //         if (item.date === moment().format("MM/DD/YYYY")) {
-      //           return {
-      //             ...item,
-      //             attachments: [...param.attachments, ...item.attachments],
-      //           };
-      //         }
-      //         return item;
-      //       });
-      //       return newData;
-      //     }
-      //   });
-      // }
+      if (param.type === "media") {
+        // const immediateAttachments = param.attachments.map((item) => {
+        //   return { ...item, immediate: true };
+        // });
+        queryClient.setQueryData(["attachment"], (oldData) => {
+          const cloned = oldData.map((item) => {
+            return Object.assign({}, item);
+          });
+          // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
+          var firstItem = cloned[0];
+          // Nếu undefined tức là chưa có attachment nào
+          // hoặc nếu ngày gần nhất không phải hôm nay
+          // -> tạo object mới
+          if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
+            cloned.unshift({
+              date: moment().format("MM/DD/YYYY"),
+              attachments: param.attachments,
+            });
+            return cloned;
+          }
+          // Ngược lại thì ngày gần nhất là hôm nay
+          else {
+            const newData = cloned.map((item) => {
+              if (item.date === moment().format("MM/DD/YYYY")) {
+                return {
+                  ...item,
+                  attachments: [...param.attachments, ...item.attachments],
+                };
+              }
+              return item;
+            });
+            return newData;
+          }
+        });
+      }
     },
   });
 
@@ -242,8 +253,13 @@ const Chatbox = (props) => {
     sendMutation({ type: "media", attachments: lazyImages });
   };
 
+  useEffect(() => {
+    scrollChatContentToBottom();
+  }, [isPending]);
+
   const scrollChatContentToBottom = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    // refChatContent.current.scrollTop = 0;
   };
 
   const toggleInformationContainer = () => {
@@ -269,46 +285,7 @@ const Chatbox = (props) => {
     }
   };
 
-  const fetchMoreMessage = (conversationId, page) => {
-    setFetching(true);
-    HttpRequest({
-      method: "get",
-      url: import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
-        "{id}",
-        conversationId,
-      ).replace("{page}", page),
-    }).then((data) => {
-      queryClient.setQueryData(["message"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        cloned.messages = [...cloned.messages, ...data.data.messages];
-        cloned.nextExist = data.data.nextExist;
-        return cloned;
-      });
-      setPage((current) => current + 1);
-      setFetching(false);
-    });
-  };
-
-  const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
-
   // Event listener
-  const handleScroll = useCallback(async () => {
-    if (refChatContent.current.scrollTop < -200)
-      refScrollButton.current.setAttribute("data-show", "true");
-    else refScrollButton.current.setAttribute("data-show", "false");
-
-    if (
-      refChatContent.current.scrollTop !== 0 &&
-      Math.round(-refChatContent.current.scrollTop) >=
-        refChatContent.current.scrollHeight -
-          refChatContent.current.clientHeight -
-          1 &&
-      messages.nextExist
-    )
-      debounceFetch(messages.id, page);
-  }, [messages, page]);
-  useEventListener("scroll", handleScroll);
-
   const closeProfile = useCallback((e) => {
     if (
       // e.keyCode === 27 ||
@@ -332,6 +309,51 @@ const Chatbox = (props) => {
   }, []);
   useEventListener("click", closeEmoji);
 
+  const fetchMoreMessage = (conversationId, page, currentScrollHeight) => {
+    setFetching(true);
+    HttpRequest({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
+        "{id}",
+        conversationId,
+      ).replace("{page}", page),
+    }).then((data) => {
+      queryClient.setQueryData(["message"], (oldData) => {
+        const cloned = Object.assign({}, oldData);
+        cloned.messages = [...cloned.messages, ...data.data.messages];
+        cloned.nextExist = data.data.nextExist;
+        return cloned;
+      });
+      setPage((current) => current + 1);
+      setFetching(false);
+      requestAnimationFrame(() => {
+        refChatContent.current.style.scrollBehavior = "auto";
+        refChatContent.current.scrollTop =
+          refChatContent.current.scrollHeight - currentScrollHeight;
+        refChatContent.current.style.scrollBehavior = "smooth";
+      });
+    });
+  };
+
+  const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+
+  const handleScroll = useCallback(async () => {
+    // Nếu scroll 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
+    const distanceFromBottom =
+      refChatContent.current.scrollHeight -
+      (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
+    if (distanceFromBottom >= refChatContent.current.clientHeight)
+      refScrollToBottom.current.setAttribute("data-show", "true");
+    else refScrollToBottom.current.setAttribute("data-show", "false");
+
+    if (refChatContent.current.scrollTop === 0 && messages.nextExist) {
+      setAutoScrollBottom(false);
+      const currentScrollHeight = refChatContent.current.scrollHeight;
+      debounceFetch(messages.id, page, currentScrollHeight);
+    }
+  }, [messages, page]);
+  useEventListener("scroll", handleScroll);
+
   return (
     <div
       ref={refChatboxContainer}
@@ -341,7 +363,7 @@ const Chatbox = (props) => {
         {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <div
-          ref={refScrollButton}
+          ref={refScrollToBottom}
           data-show="false"
           className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
           items-center justify-center rounded-[50%] bg-[var(--main-color-medium)] text-lg font-light text-[var(--text-main-color)]
@@ -451,8 +473,12 @@ const Chatbox = (props) => {
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar mt-4 flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth"
+          className="hide-scrollbar mt-4 flex grow flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
         >
+          {[...messages?.messages].reverse().map((message) => (
+            <MessageContent message={message} />
+          ))}
+
           {isPending && (
             <MessageContent
               pending={isPending}
@@ -465,9 +491,6 @@ const Chatbox = (props) => {
             />
           )}
 
-          {messages?.messages.map((message) => (
-            <MessageContent message={message} />
-          ))}
           <BackgroundPortal
             className="!w-[35%]"
             open={open}
@@ -578,7 +601,10 @@ const Chatbox = (props) => {
           </>
         ) : (
           <ChatInput
-            send={(text) => sendMutation({ type: "text", content: text })}
+            send={(text) => {
+              if (text.trim() === "") return;
+              sendMutation({ type: "text", content: text });
+            }}
             emoji={emojiText}
           />
         )}
