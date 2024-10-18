@@ -20,7 +20,11 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             options.AddDefaultPolicy(
                 policy =>
                 {
-                    policy.WithOrigins("http://localhost:5000");
+                    policy
+                        .WithOrigins("http://localhost:5000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
         });
 
