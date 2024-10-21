@@ -25,4 +25,5 @@ WORKDIR /app
 COPY --from=build /app .
 
 # Run the app
+ENV ASPNETCORE_ENVIRONMENT=Production
 ENTRYPOINT ["dotnet", "Chat.API.dll"]

@@ -173,11 +173,11 @@ const ListFriend = (props) => {
                   <AddButton
                     className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
                     id={item.id}
-                    onClose={(friend) => {
+                    onClose={(id) => {
                       setContacts((current) => {
                         return current.map((contact) => {
                           if (contact.id !== item.id) return contact;
-                          contact.friendId = friend.id;
+                          contact.friendId = id;
                           contact.friendStatus = "request_sent";
                           return contact;
                         });
