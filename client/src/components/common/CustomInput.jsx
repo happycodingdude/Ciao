@@ -1,7 +1,15 @@
 import React, { useEffect, useRef } from "react";
 
 const CustomInput = (props) => {
-  const { type, label, onKeyDown, reference, className, tabIndex = -1 } = props;
+  const {
+    type,
+    label,
+    onKeyDown,
+    reference,
+    className,
+    onChange,
+    tabIndex = -1,
+  } = props;
   const refPlaceHolder = useRef();
   const refBorder = useRef();
 
@@ -41,6 +49,7 @@ const CustomInput = (props) => {
         onFocus={(e) => handleFocus(e, true)}
         onBlur={(e) => handleFocus(e)}
         onKeyDown={onKeyDown}
+        onChange={onChange}
       />
       <div
         ref={refBorder}

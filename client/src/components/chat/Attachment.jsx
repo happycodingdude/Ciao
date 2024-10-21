@@ -105,7 +105,7 @@ const Attachment = (props) => {
         {show
           ? displayAttachments.map((date) => (
               <div className="flex flex-col gap-[2rem]">
-                <div className="text-[var(--text-main-color)] text-[var(--text-main-color-normal)]">
+                <div className="text-[var(--text-main-color-normal)]">
                   {moment(date.date).format("DD/MM/YYYY")}
                 </div>
                 <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
@@ -113,7 +113,7 @@ const Attachment = (props) => {
                     <ImageWithLightBox
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
-                      className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                      className="aspect-square w-full cursor-pointer rounded-2xl"
                       spinnerClassName="laptop:bg-[size:2rem]"
                       imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({

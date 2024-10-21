@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
-import React, { useCallback, useRef, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { blurImageOLD, HttpRequest } from "../../common/Utility";
 import { useAuth, useFetchConversations } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -19,8 +19,12 @@ const ListFriend = (props) => {
     setSelected,
   } = useFetchConversations();
 
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const [contacts, setContacts] = useState([]);
+
+  useEffect(() => {
+    blurImageOLD(".list-friend-container");
+  }, [contacts]);
 
   function fetchDropdownOptions(key) {
     HttpRequest({
@@ -36,12 +40,12 @@ const ListFriend = (props) => {
   }
 
   const debounceDropDown = useCallback(
-    debounce((nextValue) => fetchDropdownOptions(nextValue), 500),
+    debounce((nextValue) => fetchDropdownOptions(nextValue), 100),
     [],
   );
 
   const findContact = (name) => {
-    setName(name);
+    // setName(name);
     debounceDropDown(name);
   };
 
@@ -135,26 +139,29 @@ const ListFriend = (props) => {
   return (
     <div
       ref={refProfileWrapper}
-      className="flex flex-col bg-white p-10 pt-12 text-[90%] laptop:h-[45rem] desktop:h-[80rem]"
+      className="flex flex-col p-10 pt-12 text-[90%] laptop:h-[45rem] desktop:h-[80rem]"
     >
       <CustomInput
-        // ref={refUsername}
+        // className="bg-[var(--bg-color-extrathin)]"
         type="text"
         label="Search for name"
-        value={name}
-        onChange={(text) => {
-          findContact(text);
+        // value={name}
+        onChange={(e) => {
+          findContact(e.target.value);
         }}
       />
-      <div className="hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
+      <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth text-[var(--text-main-color)]">
         {contacts.map((item, i) => (
           <div
             data-key={item.id}
-            className="flex cursor-pointer items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--main-color-thin)]"
+            className="flex cursor-pointer items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-thin)]"
           >
             <ImageWithLightBox
-              src={item.avatar ?? ""}
-              className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+              src={item.avatar}
+              // className={`pointer-events-none aspect-square w-[5rem] rounded-2xl shadow-[0px_0px_10px_-7px_var(--shadow-color)]`}
+              className="aspect-square cursor-pointer rounded-2xl laptop:w-[5rem]"
+              spinnerClassName="laptop:bg-[size:2rem]"
+              imageClassName="bg-[size:150%]"
             />
             <div className="flex h-full flex-col items-start">
               <p className="font-medium">{item.name}</p>

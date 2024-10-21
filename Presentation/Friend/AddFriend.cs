@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class AddFriend
 {
-    public record Request(string contactId) : IRequest<Unit>;
+    public record Request(string contactId) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -41,7 +41,7 @@ public static class AddFriend
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, string>
     {
         readonly IValidator<Request> _validator;
         readonly INotificationMethod _notificationMethod;
@@ -65,7 +65,7 @@ public static class AddFriend
             _notificationRepository = notificationService.Get();
         }
 
-        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
@@ -90,6 +90,7 @@ public static class AddFriend
                 },
             };
             _friendRepository.Add(friend);
+            // Console.WriteLine($"friend.Id => {friend.Id}");
             // Add notification            
             var notification = new Notification
             {
@@ -98,7 +99,7 @@ public static class AddFriend
                 Content = $"{fromContact.Name} send you a request",
                 ContactId = request.contactId
             };
-            Console.WriteLine($"notification => {JsonConvert.SerializeObject(notification)}");
+            // Console.WriteLine($"notification => {JsonConvert.SerializeObject(notification)}");
             _notificationRepository.Add(notification);
 
             //     // Push friend request
@@ -119,7 +120,7 @@ public static class AddFriend
             //         notiDto
             //     );
 
-            return Unit.Value;
+            return friend.Id;
         }
     }
 }
@@ -132,8 +133,8 @@ public class AddFriendEndpoint : ICarterModule
         async (ISender sender, string contactId) =>
         {
             var query = new AddFriend.Request(contactId);
-            await sender.Send(query);
-            return Results.Ok();
+            var result = await sender.Send(query);
+            return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }

@@ -11,13 +11,13 @@ const AddFriend = () => {
       <Tooltip title="Find friends">
         <div
           onClick={() => setOpen(true)}
-          className="fa fa-user-plus flex cursor-pointer items-center justify-center text-sm font-normal"
+          className="fa fa-user-plus flex items-center justify-center text-sm font-normal"
         ></div>
       </Tooltip>
       <BackgroundPortal
         open={open}
         className="laptop:!w-[40rem] desktop:!w-[35%]"
-        title="Add friend"
+        title="Connect friend"
         onClose={() => setOpen(false)}
       >
         <ListFriend onClose={() => setOpen(false)} />
