@@ -85,7 +85,7 @@ const ProfileSection = () => {
 
   return (
     <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
-      <p className="text-xl font-bold text-[var(--text-main-color)]">
+      <p className="text-2xl font-medium text-[var(--text-main-color)]">
         Edit profile
       </p>
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">

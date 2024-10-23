@@ -78,7 +78,7 @@ const CreateGroupChat = () => {
       <Tooltip title="Create group chat">
         <div
           onClick={openCreateGroupChat}
-          className="fa fa-users flex cursor-pointer items-center justify-center text-sm font-normal"
+          className="fa fa-users flex items-center justify-center text-sm font-normal"
         ></div>
       </Tooltip>
       <CustomModal

@@ -50,95 +50,49 @@ const ListChat = () => {
     isRefetching,
     refetch: refetchConversation,
   } = useConversation(page);
-  const { refetch: refetchMessage } = useMessage(selected?.id, 1);
-  const { refetch: refetchAttachments } = useAttachment(selected?.id);
+  const { refetch: refetchMessage } = useMessage(selected, 1);
+  const { refetch: refetchAttachments } = useAttachment(selected);
 
-  useEffect(() => {
-    if (page) refetchConversation();
-  }, [page]);
+  // useEffect(() => {
+  //   if (page) refetchConversation();
+  // }, [page]);
 
   useEffect(() => {
     blurImageOLD(".list-chat");
   }, [data?.conversations]);
 
-  const handleSetConversation = (position, item) => {
-    setSelected(item);
-
-    // const container = document.querySelector(".chatbox-content");
-    // const blurredDivs = container.querySelectorAll(".blurred-div");
-    // blurredDivs.forEach((div) => {
-    //   div.classList.remove("loaded");
-    // });
+  const handleSetConversation = (id) => {
+    setSelected(id);
   };
 
   useEffect(() => {
-    if (selected) {
-      queryClient.setQueryData(["conversation"], (oldData) => {
-        // const cloned = oldData.map((item) => {
-        //   return Object.assign({}, item);
-        // });
-        const cloned = Object.assign({}, oldData);
-        var newConversations = cloned.conversations.map((conversation) => {
-          if (conversation.id !== selected.id) return conversation;
-          conversation.unSeenMessages = 0;
-          return conversation;
-        });
-        return {
-          selected: selected.id,
-          conversations: newConversations,
-        };
+    if (!selected) return;
+
+    queryClient.setQueryData(["conversation"], (oldData) => {
+      // const cloned = oldData.map((item) => {
+      //   return Object.assign({}, item);
+      // });
+      const cloned = Object.assign({}, oldData);
+      var newConversations = cloned.conversations.map((conversation) => {
+        if (conversation.id !== selected) return conversation;
+        conversation.unSeenMessages = 0;
+        return conversation;
       });
-      refetchMessage();
-      refetchAttachments();
-    }
-  }, [selected?.id]);
+      return {
+        selected: selected.id,
+        conversations: newConversations,
+      };
+    });
+    refetchMessage();
+    refetchAttachments();
+  }, [selected]);
 
-  // Get all chats when first time render
-  // useEffect(() => {
-  //   if (!auth.valid) return;
+  useEffect(() => {
+    if (!data?.selected || data?.selected === selected) return;
 
-  //   // const controller = new AbortController();
-  //   reFetchConversations();
-
-  //   // listenNotification((message) => {
-  //   //   console.log("Home receive message from worker");
-  //   //   const messageData = JSON.parse(message.data);
-  //   //   switch (message.event) {
-  //   //     case "AddMember":
-  //   //       console.log(messageData);
-  //   //       break;
-  //   //     default:
-  //   //       break;
-  //   //   }
-  //   // });
-  //   // return () => {
-  //   //   controller.abort();
-  //   // };
-  // }, [auth.valid]);
-
-  // if (isLoading || isRefetching) return <LocalLoading loading />;
-
-  // useEffect(() => {
-  //   // refChatItem.current = refChatItem.current.filter((item) => item !== null);
-
-  //   // if (refChats.current.scrollHeight <= refChats.current.clientHeight)
-  //   //   refChatsScroll.current.classList.add("hidden");
-  //   // else refChatsScroll.current.classList.remove("hidden");
-
-  //   // refListChat.newMessage = newMessage;
-
-  //   // listenNotification((message) => {
-  //   //   console.log("ListChat receive message from worker");
-  //   //   const messageData = JSON.parse(message.data);
-  //   //   switch (message.event) {
-  //   //     case "NewMessage":
-  //   //       if (!chats.some((item) => item.LastMessageId === messageData.Id))
-  //   //         notifyMessage(chats, messageData);
-  //   //       break;
-  //   //     default:
-  //   //       break;
-  //   //   }
-  //   // });
+    //console.log("CLick chat button from list friend");
+    handleSetConversation(data.selected);
+  }, [data]);
 
   //   moment.locale("en", {
   //     relativeTime: {
@@ -187,12 +141,13 @@ const ListChat = () => {
             className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem]
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
-              selected?.id === item.id
+              selected === item.id
                 ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
                 : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
             } `}
             onClick={() => {
-              handleSetConversation(65 * i, item);
+              // handleSetConversation(65 * i, item.id);
+              handleSetConversation(item.id);
             }}
           >
             {item.isGroup ? (
@@ -216,7 +171,7 @@ const ListChat = () => {
             )}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
               <CustomLabel
-                className={`text-base text-[var(--text-main-color)] ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected?.id ? "font-bold" : ""} `}
+                className={`text-base text-[var(--text-main-color)] ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected ? "font-bold" : ""} `}
                 title={
                   item.isGroup
                     ? item.title
@@ -229,7 +184,7 @@ const ListChat = () => {
                 className={`chat-content text-[var(--text-main-color-thin)] ${
                   item.lastMessageContact !== info.data.id &&
                   item.unSeenMessages > 0 &&
-                  item.id != selected?.id
+                  item.id != selected
                     ? "font-medium"
                     : ""
                 }`}

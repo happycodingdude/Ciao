@@ -1,31 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useAuth } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 
 const CancelButton = (props) => {
   const { id, onClose, className } = props;
 
-  const auth = useAuth();
-  // const { setProfile } = useFetchFriends();
+  const [processing, setProcessing] = useState(false);
 
   const cancelFriendRequest = () => {
+    setProcessing(true);
     HttpRequest({
       method: "delete",
       url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYID.replace(
         "{id}",
         id,
       ),
-      // token: auth.token,
     }).then((res) => {
-      // reFetchRequest(auth.id);
-      // setProfile((current) => {
-      //   return {
-      //     ...current,
-      //     friendStatus: "new",
-      //     friendId: null,
-      //   };
-      // });
       onClose();
     });
   };
@@ -33,8 +23,9 @@ const CancelButton = (props) => {
   return (
     <CustomButton
       title="Cancel"
-      className={`${className ?? ""} fa fa-user-plus`}
+      className={`${className} laptop:!w-[6rem]`}
       onClick={cancelFriendRequest}
+      processing={processing}
     />
   );
 };

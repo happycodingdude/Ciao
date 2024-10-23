@@ -49,7 +49,7 @@ export const useConversation = (page) => {
     queryKey: ["conversation"],
     queryFn: () => getConversation(page),
     staleTime: Infinity,
-    enabled: false,
+    // enabled: false,
   });
 };
 

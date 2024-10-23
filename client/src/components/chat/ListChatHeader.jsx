@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import React from "react";
 import RelightBackground from "../common/RelightBackground";
 import AddFriend from "../friend/AddFriend";
@@ -16,14 +17,16 @@ const ListChatHeader = () => {
         <input
           type="text"
           placeholder="Find and connect"
-          className="w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] p-[1rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
+          className="w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] p-[1rem] text-sm placeholder:text-[var(--text-main-color-light)] focus:outline-none"
         ></input>
       </div>
-      <div className="gap-[.5rem flex h-[50%] laptop:w-[7rem]">
-        <RelightBackground>
-          <AddFriend />
-        </RelightBackground>
-        <RelightBackground>
+      <div className="gap-[.5rem flex h-[50%]">
+        <Tooltip title="Find friends">
+          <RelightBackground>
+            <AddFriend />
+          </RelightBackground>
+        </Tooltip>
+        <RelightBackground className="pointer-events-none opacity-50">
           <CreateGroupChat />
         </RelightBackground>
       </div>

@@ -1,7 +1,7 @@
 import { HttpRequest } from "../common/Utility";
 
 export const getConversation = async (page) => {
-  return (
+  const data = (
     await HttpRequest({
       method: "get",
       url:
@@ -13,4 +13,7 @@ export const getConversation = async (page) => {
             ),
     })
   ).data;
+  return {
+    conversations: data,
+  };
 };

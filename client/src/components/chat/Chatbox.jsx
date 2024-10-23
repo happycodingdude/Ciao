@@ -136,25 +136,25 @@ const Chatbox = (props) => {
       let bodyLocal = Object.assign({}, bodyToCreate);
 
       if (param.type === "media") {
-        // const uploaded = await uploadFile().then((uploads) => {
-        //   return uploads.map((item) => ({
-        //     type: item.type,
-        //     mediaUrl: item.url,
-        //     mediaName: item.name,
-        //     mediaSize: item.size,
-        //   }));
-        // });
-        // bodyToCreate = {
-        //   ...bodyToCreate,
-        //   attachments: uploaded,
-        // };
+        const uploaded = await uploadFile().then((uploads) => {
+          return uploads.map((item) => ({
+            type: item.type,
+            mediaUrl: item.url,
+            mediaName: item.name,
+            mediaSize: item.size,
+          }));
+        });
+        bodyToCreate = {
+          ...bodyToCreate,
+          attachments: uploaded,
+        };
         bodyLocal = {
           ...bodyLocal,
           attachments: param.attachments,
         };
       }
 
-      // await send(messages.id, bodyToCreate);
+      await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
         // if (oldData.id !== messages.id) return oldData;

@@ -19,7 +19,10 @@ const ImageWithLightBox = (props) => {
   const handleShowLightbox = (e) => setShowLightbox(true);
 
   return (
-    <div className={`${className}`}>
+    <div
+      className={`${className} cursor-pointer`}
+      onClick={onClick ?? handleShowLightbox}
+    >
       <div
         className={`relative flex h-full w-full items-center justify-center rounded-2xl bg-[var(--bg-color-extrathin)]`}
       >
