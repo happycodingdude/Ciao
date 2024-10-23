@@ -4,12 +4,9 @@ public class FirebaseFunction : IFirebaseFunction
 {
     public FirebaseFunction()
     {
-        var enviroment = Environment.CurrentDirectory;
-        string projectDirectory = Directory.GetParent(enviroment).FullName;
         FirebaseApp.Create(new AppOptions()
         {
-            // Credential = GoogleCredential.FromFile($"{AppDomain.CurrentDomain.BaseDirectory}/service-account-config.json")
-            Credential = GoogleCredential.FromFile($"{projectDirectory}/Infrastructure/Notifications/service-account-config.json")
+            Credential = GoogleCredential.FromFile($"{AppContext.BaseDirectory}/service-account-config.json")
         });
     }
 
