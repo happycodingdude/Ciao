@@ -12,6 +12,8 @@ COPY Domain/Domain.csproj Domain/
 COPY Shared/Shared.csproj Shared/
 RUN dotnet restore -a $TARGETARCH
 
+COPY Infrastructure/Notifications/service-account-config.json .
+
 # Copy everything else
 COPY . .
 

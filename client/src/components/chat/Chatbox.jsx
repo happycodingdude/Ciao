@@ -493,7 +493,7 @@ const Chatbox = (props) => {
 
           <BackgroundPortal
             className="!w-[35%]"
-            open={open}
+            show={open}
             title="Profile"
             onClose={() => setOpen(false)}
           >

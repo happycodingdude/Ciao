@@ -42,16 +42,16 @@
       "type": "shell",
       "command": "cp",
       "args": [
-          "${workspaceFolder}/MyConnect/Infrastructure/Utils/Firebase/service-account-config.json",
-          "${workspaceFolder}/MyConnect/Chat.API/bin/Debug/net8.0/"
+        "${workspaceFolder}/Infrastructure/Notifications/service-account-config.json",
+        "${workspaceFolder}/Chat.API/bin/Debug/net8.0/"
       ],
       "problemMatcher": []
     },
     {
       "label": "build-all",
       "dependsOn": [
-          "build",          
-          "copy-firebase-serviceaccount-file"
+        "build",
+        "copy-firebase-serviceaccount-file"
       ],
       "problemMatcher": []
     }
