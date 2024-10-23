@@ -12,14 +12,15 @@ COPY Domain/Domain.csproj Domain/
 COPY Shared/Shared.csproj Shared/
 RUN dotnet restore -a $TARGETARCH
 
-COPY Infrastructure/Notifications/service-account-config.json .
-
 # Copy everything else
 COPY . .
 
 # Build and publish the project
 WORKDIR /src/Chat.API
 RUN dotnet publish -a $TARGETARCH -c Release -o /app
+
+# Copy additional configuration files
+COPY Infrastructure/Notifications/service-account-config.json /app
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
