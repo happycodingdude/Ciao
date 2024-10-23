@@ -18,7 +18,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         // UserWarehouseDB();
     }
 
-    public async Task<GetConversationsWithUnseenMesagesResponse> GetConversationsWithUnseenMesages(PagingParam pagingParam)
+    public async Task<IEnumerable<ConversationWithTotalUnseen>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
     {
         var userId = _contactRepository.GetUserId();
 
@@ -35,7 +35,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             .ToListAsync())
             .Select(bson => BsonSerializer.Deserialize<Conversation>(bson))
             .ToList();
-        if (!conversations.Any()) return new GetConversationsWithUnseenMesagesResponse();
+        if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
 
         var result = new List<ConversationWithTotalUnseen>(conversations.Count);
         foreach (var conversation in conversations)
@@ -56,7 +56,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             result.Add(convertedConversation);
         }
 
-        return new GetConversationsWithUnseenMesagesResponse(result);
+        return result;
     }
 
     async Task SeenAll(Conversation conversation)

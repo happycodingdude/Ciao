@@ -2,9 +2,9 @@ namespace Presentation.Conversations;
 
 public static class GetConversationsWithUnseenMesages
 {
-    public record Request(int page) : IRequest<GetConversationsWithUnseenMesagesResponse>;
+    public record Request(int page) : IRequest<IEnumerable<ConversationWithTotalUnseen>>;
 
-    internal sealed class Handler : IRequestHandler<Request, GetConversationsWithUnseenMesagesResponse>
+    internal sealed class Handler : IRequestHandler<Request, IEnumerable<ConversationWithTotalUnseen>>
     {
         readonly IConversationRepository _conversationRepository;
 
@@ -13,7 +13,7 @@ public static class GetConversationsWithUnseenMesages
             _conversationRepository = service.Get();
         }
 
-        public async Task<GetConversationsWithUnseenMesagesResponse> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Request request, CancellationToken cancellationToken)
         {
             return await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(request.page));
         }
