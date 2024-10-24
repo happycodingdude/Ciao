@@ -75,12 +75,10 @@ const CreateGroupChat = () => {
 
   return (
     <>
-      <Tooltip title="Create group chat">
         <div
           onClick={openCreateGroupChat}
           className="fa fa-users flex items-center justify-center text-sm font-normal"
         ></div>
-      </Tooltip>
       <CustomModal
         show={show}
         forms={formData}

@@ -23,7 +23,8 @@ const AcceptButton = (props) => {
   return (
     <CustomButton
       title="Accept"
-      className={`${className} laptop:!w-[6rem]`}
+      // className={`${className} laptop:!w-[6rem]`}
+      className={`!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs laptop:!w-[6rem] desktop:h-[4rem] desktop:text-md`}
       onClick={acceptFriendRequest}
       processing={processing}
     />

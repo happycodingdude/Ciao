@@ -26,8 +26,7 @@ const SideBar = (props) => {
   }, [info.data.avatar]);
 
   return (
-    <section className="shrink-0 bg-[var(--bg-color)] laptop:w-[7rem]">
-      {/* <section className="w-full max-w-[7%] shrink-0 bg-[var(--main-color-bold)]"> */}
+    <section className="shrink-0 bg-[var(--bg-color)] laptop:w-[7rem] lg desktop:w-[10rem]">      
       <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
         <div className="info-container flex w-full flex-col items-center gap-[3rem]">
           <ImageWithLightBoxWithShadowAndNoLazy

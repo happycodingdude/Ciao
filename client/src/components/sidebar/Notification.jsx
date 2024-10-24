@@ -111,7 +111,7 @@ const Notification = () => {
                 <div className="notification-body aspect-square w-[1rem] shrink-0 rounded-[50%] bg-[var(--main-color)]"></div>
               )}
 
-              {notification.sourceData.friendStatus === "friend" ? (
+              {/* {notification.sourceData.friendStatus === "friend" ? (
                 ""
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">
@@ -121,7 +121,7 @@ const Notification = () => {
                     onClose={() => {}}
                   />
                 </div>
-              )}
+              )} */}
             </div>
           ))}
         </div>

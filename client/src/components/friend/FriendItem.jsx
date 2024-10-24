@@ -107,7 +107,7 @@ const FriendItem = (props) => {
     <div
       key={key}
       // data-key={friend.id}
-      className="flex items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-thin)]"
+      className="flex items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-light)]"
     >
       <ImageWithLightBox
         src={friend.avatar}
@@ -128,7 +128,7 @@ const FriendItem = (props) => {
         {
           new: (
             <AddButton
-              className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
+              // className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
               id={friend.id}
               onClose={(id) => {
                 setContacts((current) => {
@@ -144,7 +144,7 @@ const FriendItem = (props) => {
           ),
           request_received: (
             <AcceptButton
-              className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
+              // className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
               id={friend.friendId}
               onClose={() => {
                 setContacts((current) => {
@@ -160,7 +160,7 @@ const FriendItem = (props) => {
           ),
           request_sent: (
             <CancelButton
-              className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
+              // className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
               id={friend.friendId}
               onClose={() => {
                 setContacts((current) => {

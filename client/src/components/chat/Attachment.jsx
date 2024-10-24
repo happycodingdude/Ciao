@@ -55,46 +55,46 @@ const Attachment = (props) => {
     >
       <div
         className="relative flex shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
-        py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[5rem]"
+        py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[5rem] laptop-lg:h-[7rem]"
       >
         <div
           className="fa fa-arrow-left absolute left-[5%] flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
-          rounded-[1rem] text-lg font-normal"
+          rounded-[1rem] font-normal"
           onClick={toggle}
         ></div>
-        <p className="text-[var(--text-main-color)]">Attachments</p>
+        <p className="text-md text-[var(--text-main-color)]">Attachments</p>
       </div>
       <div className="relative flex">
         <div
           onClick={() => toggleAttachmentActive("image")}
-          className="peer relative flex-1 cursor-pointer py-[1rem] text-center"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
         >
           Images
           <input
             type="radio"
             name="radio-attachment"
-            className="image-checked absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+            className="absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
             onChange={() => setAttachmentToggle("image")}
             checked={attachmentToggle === "image"}
           ></input>
         </div>
         <div
           onClick={() => toggleAttachmentActive("file")}
-          className="peer relative flex-1 cursor-pointer py-[1rem] text-center"
+          className="peer relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
         >
           Files
           <input
             type="radio"
             name="radio-attachment"
-            className="file-checked absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+            className="absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
             onChange={() => setAttachmentToggle("file")}
             checked={attachmentToggle === "file"}
           ></input>
         </div>
         <div
           data-tab={attachmentToggle}
-          className="absolute bottom-0 mx-[1rem] h-[.2rem] w-[calc(50%-2rem)] bg-[var(--main-color)] transition-all duration-200 
-          data-[tab=file]:translate-x-[calc(100%+2rem)] data-[tab=image]:translate-x-0"
+          className="absolute bottom-0 mx-[2rem] h-[.2rem] w-[calc(50%-4rem)] bg-[var(--main-color)] transition-all duration-200
+          data-[tab=file]:translate-x-[calc(100%+4rem)] data-[tab=image]:translate-x-0"
         ></div>
       </div>
       <div

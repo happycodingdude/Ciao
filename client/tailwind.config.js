@@ -8,8 +8,8 @@ export default {
       phone: "320px",
       tablet: "640px",
       laptop: "1024px",
-      desktop: "1281px",
-      "lg-desktop": "1536px",
+      "laptop-lg": "1536px",
+      desktop: "1920px",
     },
     // fontSize: {
     //   sm: ["14px", "20px"],

@@ -63,7 +63,7 @@ const ChatInput = (props) => {
   };
 
   return (
-    <div className="relative max-h-[10rem] max-w-[50rem] grow">
+    <div className="relative max-h-[10rem] grow laptop:max-w-[80rem]">
       <div
         data-show={show}
         className="hide-scrollbar absolute left-0 flex aspect-[4/3] flex-col gap-[1rem] overflow-y-scroll 

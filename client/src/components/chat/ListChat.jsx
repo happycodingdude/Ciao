@@ -11,6 +11,7 @@ import {
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import LocalLoading from "../common/LocalLoading";
+import OnlineStatusDot from "../common/OnlineStatusDot";
 
 moment.locale("en", {
   relativeTime: {
@@ -127,6 +128,7 @@ const ListChat = () => {
         {isLoading || isRefetching ? <LocalLoading loading /> : ""}
         {data?.conversations.map((item, i) => (
           <div
+            key={item.id}
             data-key={item.id}
             data-user={
               !item.isGroup
@@ -138,38 +140,44 @@ const ListChat = () => {
             ref={(element) => {
               refChatItem.current[i] = element;
             }}
-            className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1rem] overflow-hidden rounded-[1rem]
+            className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
               selected === item.id
                 ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
-                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
+                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-thin)]"
             } `}
             onClick={() => {
               // handleSetConversation(65 * i, item.id);
               handleSetConversation(item.id);
             }}
           >
-            {item.isGroup ? (
-              <ImageWithLightBoxAndNoLazy
-                src={item.avatar}
-                className={`pointer-events-none aspect-square rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
-                spinnerClassName="laptop:bg-[size:2rem]"
-                imageClassName="bg-[size:150%]"
-              />
-            ) : (
+            <div className="relative">
               <ImageWithLightBoxAndNoLazy
                 src={
-                  item.participants.find(
-                    (item) => item.contact.id !== info.data.id,
-                  )?.contact.avatar
+                  item.isGroup
+                    ? item.avatar
+                    : item.participants.find(
+                        (item) => item.contact.id !== info.data.id,
+                      )?.contact.avatar
                 }
-                className={`pointer-events-none aspect-square rounded-2xl bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
+                className={`pointer-events-none aspect-square rounded-[50%] bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
                 spinnerClassName="laptop:bg-[size:2rem]"
                 imageClassName="bg-[size:150%]"
               />
-            )}
-            <div className={`flex h-full w-1/2 grow flex-col gap-[.3rem]`}>
+              {!item.isGroup ? (
+                <OnlineStatusDot
+                  online={
+                    item.participants.find(
+                      (item) => item.contact.id !== info.data.id,
+                    )?.contact.isOnline
+                  }
+                />
+              ) : (
+                ""
+              )}
+            </div>
+            <div className={`flex h-full w-1/2 grow flex-col`}>
               <CustomLabel
                 className={`text-base text-[var(--text-main-color)] ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected ? "font-bold" : ""} `}
                 title={
@@ -181,7 +189,7 @@ const ListChat = () => {
                 }
               />
               <CustomLabel
-                className={`chat-content text-[var(--text-main-color-thin)] ${
+                className={`chat-content text-base text-[var(--text-main-color-thin)] ${
                   item.lastMessageContact !== info.data.id &&
                   item.unSeenMessages > 0 &&
                   item.id != selected
@@ -192,7 +200,7 @@ const ListChat = () => {
               />
             </div>
             <div
-              className={`flex h-full shrink-0 flex-col items-end laptop:min-w-[4rem]`}
+              className={`flex h-full shrink-0 flex-col items-end text-base laptop:min-w-[4rem]`}
             >
               <p>
                 {item.lastMessageTime === null

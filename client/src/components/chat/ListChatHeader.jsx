@@ -8,7 +8,7 @@ const ListChatHeader = () => {
   console.log("ListChatHeader calling");
 
   return (
-    <div className="flex items-center gap-[1rem] border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[1rem] laptop:h-[5rem]">
+    <div className="flex items-center gap-[1rem] border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[1rem] laptop:h-[5rem] laptop-lg:h-[7rem]">
       <div className="flex h-[50%]">
         {/* <i
           className="fa fa-search flex w-[3rem] shrink-0 items-center justify-center rounded-l-lg bg-[var(--bg-color-normal)] 
@@ -17,18 +17,20 @@ const ListChatHeader = () => {
         <input
           type="text"
           placeholder="Find and connect"
-          className="w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] p-[1rem] text-sm placeholder:text-[var(--text-main-color-light)] focus:outline-none"
+          className="w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] p-[1rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none laptop:text-sm laptop-lg:text-base"
         ></input>
       </div>
-      <div className="gap-[.5rem flex h-[50%]">
+      <div className="flex h-[50%]">
         <Tooltip title="Find friends">
           <RelightBackground>
             <AddFriend />
           </RelightBackground>
         </Tooltip>
-        <RelightBackground className="pointer-events-none opacity-50">
-          <CreateGroupChat />
-        </RelightBackground>
+        <Tooltip title="Create group chat">
+          <RelightBackground className="pointer-events-none opacity-50">
+            <CreateGroupChat />
+          </RelightBackground>
+        </Tooltip>
       </div>
     </div>
   );

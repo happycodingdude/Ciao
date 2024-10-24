@@ -1,4 +1,3 @@
-import { Tooltip } from "antd";
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import {
@@ -65,12 +64,10 @@ const AddParticipants = () => {
   };
   return (
     <>
-      <Tooltip title="Invite friends">
-        <div
-          onClick={handleAddParticipant}
-          className={`fa fa-user-plus flex items-center justify-center text-md font-thin`}
-        ></div>
-      </Tooltip>
+      <div
+        onClick={handleAddParticipant}
+        className={`fa fa-user-plus flex items-center justify-center text-md font-normal`}
+      ></div>
       <CustomModal
         show={show}
         forms={formData}

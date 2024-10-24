@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tooltip } from "antd";
-import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
 import moment from "moment";
@@ -15,6 +14,7 @@ import {
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
+import ChatboxMenu from "./ChatboxMenu";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
 
@@ -501,56 +501,8 @@ const Chatbox = (props) => {
           </BackgroundPortal>
         </div>
       </div>
-      <div className="flex w-full items-center justify-center px-8 py-3">
-        <div className="flex max-w-[10rem] grow items-center justify-evenly">
-          <input
-            multiple
-            type="file"
-            accept="image/png, image/jpeg"
-            className="hidden"
-            id="choose-image"
-            onChange={chooseFile}
-          ></input>
-          <Tooltip title="Choose image">
-            <label
-              for="choose-image"
-              className="fa fa-image cursor-pointer font-normal"
-            ></label>
-          </Tooltip>
-          <input
-            multiple
-            type="file"
-            accept=".doc,.docx,.xls,.xlsx,.pdf"
-            className="hidden"
-            id="choose-file"
-            onChange={chooseFile}
-          ></input>
-          <Tooltip title="Choose file">
-            <label
-              for="choose-file"
-              className="fa fa-file cursor-pointer font-normal"
-            ></label>
-          </Tooltip>
-          {/* {messages.isGroup ? (
-            ""
-          ) : ( */}
-          <div className="relative">
-            <Tooltip title="Emoji">
-              <label
-                className="fa fa-smile choose-emoji cursor-pointer font-normal"
-                onClick={() => setOpenEmoji(true)}
-              ></label>
-            </Tooltip>
-            <EmojiPicker
-              open={openEmoji}
-              width={300}
-              height={400}
-              className="!absolute !bottom-[3rem] !left-[1rem] !z-[1000]"
-              onEmojiClick={(emoji) => setEmojiText(emoji.emoji)}
-            />
-          </div>
-          {/* )} */}
-        </div>
+      <div className="flex w-full items-center justify-evenly py-3">
+        <ChatboxMenu chooseFile={chooseFile} setEmojiText={setEmojiText} />
         {files.length !== 0 ? (
           <>
             <div

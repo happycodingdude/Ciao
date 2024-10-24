@@ -7,12 +7,10 @@ const AddFriend = () => {
   const [open, setOpen] = useState(false);
   return (
     <>
-      {/* <Tooltip title="Find friends"> */}
       <div
         onClick={() => setOpen(true)}
         className="fa fa-user-plus flex items-center justify-center text-sm font-normal"
       ></div>
-      {/* </Tooltip> */}
       <BackgroundPortal
         show={open}
         className="laptop:!w-[40rem] desktop:!w-[35%]"

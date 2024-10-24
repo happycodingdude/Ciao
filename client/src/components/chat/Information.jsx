@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import {
   useAttachment,
@@ -8,6 +9,7 @@ import {
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
+import OnlineStatusDot from "../common/OnlineStatusDot";
 import RelightBackground from "../common/RelightBackground";
 import AddParticipants from "./AddParticipants";
 
@@ -95,13 +97,13 @@ const Information = (props) => {
     >
       <div
         className="flex items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
-        py-[.5rem] laptop:h-[5rem]"
+        py-[.5rem] laptop:h-[5rem] laptop-lg:h-[7rem]"
       >
-        <p className="text-[var(--text-main-color)]">Information</p>
+        <p className="text-md text-[var(--text-main-color)]">Information</p>
       </div>
-      <div className="mt-[1rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
+      <div className="mt-[2rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
-          <div className="relative flex flex-col items-center gap-[.5rem]">
+          <div className="relative flex flex-col items-center gap-[1rem]">
             {messages.isGroup ? (
               <>
                 <ImageWithLightBoxWithShadowAndNoLazy
@@ -120,7 +122,7 @@ const Information = (props) => {
                   // onChange={updateAvatar}
                 />
                 <CustomLabel
-                  className="text-base text-[var(--text-main-color)] laptop:max-w-[50%] desktop:max-w-[70%]"
+                  className="text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={messages.title}
                   tooltip
                 />
@@ -146,7 +148,7 @@ const Information = (props) => {
                   ]}
                 />
                 <CustomLabel
-                  className="text-base text-[var(--text-main-color)] laptop:max-w-[50%] desktop:max-w-[70%]"
+                  className="text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={
                     messages.participants?.find(
                       (item) => item.contact.id !== info.data.id,
@@ -156,13 +158,15 @@ const Information = (props) => {
               </>
             )}
           </div>
-          <div className="flex w-full justify-center gap-[2rem]">
+          <div className="flex justify-center laptop:h-[4rem]">
             {messages.isGroup ? (
               <>
                 {/* <ToggleNotification /> */}
-                <RelightBackground className="w-[15%] cursor-pointer">
-                  <AddParticipants />
-                </RelightBackground>
+                <Tooltip title="Invite friends">
+                  <RelightBackground className="w-[4rem]">
+                    <AddParticipants />
+                  </RelightBackground>
+                </Tooltip>
               </>
             ) : (
               ""
@@ -171,7 +175,7 @@ const Information = (props) => {
         </div>
         <div className="display-attachment-container flex flex-col gap-[1rem]">
           <div className="flex justify-between">
-            <label className="text-[var(--text-main-color)]">Attachments</label>
+            <p className="text-[var(--text-main-color)]">Attachments</p>
             {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
@@ -202,7 +206,7 @@ const Information = (props) => {
         </div>
         {messages.isGroup ? (
           <div className="flex grow flex-col gap-[2rem]">
-            <label className="text-[var(--text-main-color)]">Members</label>
+            <p className="text-[var(--text-main-color)]">Members</p>
             <div className="hide-scrollbar flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
               {messages.participants
                 .filter((item) => item.contact.id !== info.data.id)
@@ -218,10 +222,7 @@ const Information = (props) => {
                           },
                         ]}
                       />
-                      <div
-                        className={`absolute bottom-0 right-[-10%] aspect-square w-[1rem] rounded-[50%] 
-                        ${item.contact.isOnline ? "bg-[var(--online-color)]" : "bg-[var(--offline-color)]"}`}
-                      ></div>
+                      <OnlineStatusDot online={item.contact.isOnline} />
                     </div>
                     <p>{item.contact.name}</p>
                   </div>
