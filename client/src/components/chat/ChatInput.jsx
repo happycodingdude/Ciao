@@ -1,4 +1,5 @@
 import { Tooltip } from "antd";
+import EmojiPicker from "emoji-picker-react";
 import { useEffect, useRef, useState } from "react";
 import { useInfo, useMessage } from "../../hook/CustomHooks";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
@@ -9,10 +10,12 @@ const ChatInput = (props) => {
   const { data: messages } = useMessage();
   const { data: info } = useInfo();
 
+  const inputRef = useRef();
+
   const [text, setText] = useState("");
   const [mentions, setMentions] = useState();
   const [show, setShow] = useState(false);
-  const inputRef = useRef();
+  const [openEmoji, setOpenEmoji] = useState(true);
 
   useEffect(() => {
     setText("");
@@ -63,7 +66,7 @@ const ChatInput = (props) => {
   };
 
   return (
-    <div className="relative max-h-[10rem] grow laptop:max-w-[80rem]">
+    <div className="relative max-h-[10rem] grow laptop:max-w-[60rem]">
       <div
         data-show={show}
         className="hide-scrollbar absolute left-0 flex aspect-[4/3] flex-col gap-[1rem] overflow-y-scroll 
@@ -93,19 +96,33 @@ const ChatInput = (props) => {
       </div>
       <input
         ref={inputRef}
-        // value={text}
-        // onChange={onChangeInput}
         className="w-full rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none"
         onKeyDown={keyBindingFn}
       />
-      <div className="absolute right-[1%] top-0 flex h-full grow cursor-pointer items-center justify-center">
+      {/* <div className="absolute right-[1%] top-0 flex h-full grow cursor-pointer items-center justify-center">
         <Tooltip title="Send">
           <div
             className="fa fa-paper-plane flex aspect-square h-full items-center justify-center rounded-[.8rem] text-[var(--main-color-light)]"
             onClick={chat}
           ></div>
         </Tooltip>
-      </div>
+      </div> */}
+      {/* <div className="absolute right-[1rem] top-[.5rem]"> */}
+      <Tooltip title="Emoji">
+        <label
+          className="fa fa-smile choose-emoji absolute right-[1rem] top-[.5rem] cursor-pointer font-normal"
+          // onClick={() => setOpenEmoji(true)}
+        ></label>
+      </Tooltip>
+      <EmojiPicker
+        open={openEmoji}
+        width={300}
+        height={400}
+        // className="!absolute !bottom-[3rem] !left-[1rem] !z-[1000]"
+        onEmojiClick={(emoji) => setEmojiText(emoji.emoji)}
+        className="absolute right-0 top-[-50rem] origin-bottom-right"
+      />
+      {/* </div> */}
     </div>
   );
 };
