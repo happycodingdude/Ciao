@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import React, { useCallback, useRef, useState } from "react";
 import { useEventListener, useNotification } from "../../hook/CustomHooks";
 import { read, readAll } from "../../hook/NotificationAPIs";
-import AcceptButton from "../friend/AcceptButton";
 
 const Notification = () => {
   console.log("Notification calling");
@@ -72,46 +71,56 @@ const Notification = () => {
   };
 
   return (
-    <div
-      className="fa fa-bell notification-trigger flex cursor-pointer items-center justify-center text-xl font-thin"
-      onClick={showNotification}
-    >
+    <div className="relative">
       <div
-        ref={refNotification}
-        data-state="hide"
-        className="notification-body data-[state=show]:scale-1 absolute bottom-[100%] left-[100%] z-[1000] flex w-[30rem] origin-bottom-left cursor-auto flex-col rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] text-base
-        transition-all duration-200 data-[state=hide]:scale-0 laptop:h-[35rem] [&>*]:font-sans"
+        className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[2rem] items-center justify-center rounded-[50%] 
+      bg-red-500 text-[var(--text-main-color)]"
       >
-        <div className="notification-body flex justify-between p-4 shadow-[0px_3px_10px_-10px]">
-          <p className="notification-body text-md font-medium text-[var(--text-main-color)]">
-            Notifications
-          </p>
-          <div
-            className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color)] hover:text-[var(--main-color-light)]"
-            onClick={() => readAllCTA()}
-          >
-            Mark all as read
-          </div>
-        </div>
+        <span className="text-xs font-bold">
+          {notifications?.filter((item) => !item.read).length}
+        </span>
+      </div>
+      <div
+        className="fa fa-bell notification-trigger flex cursor-pointer items-center justify-center text-xl font-thin"
+        onClick={showNotification}
+      >
         <div
-          ref={refNotificationBody}
-          className="notification-body hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth [&>*]:p-4"
+          ref={refNotification}
+          data-state="hide"
+          className="notification-body data-[state=show]:scale-1 absolute z-[1000] flex 
+          w-[30rem] origin-bottom-left cursor-auto flex-col rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] text-base 
+          transition-all duration-200 data-[state=hide]:scale-0 laptop:bottom-[2rem] laptop:left-[4rem] laptop:h-[35rem] [&>*]:font-sans"
         >
-          {notifications?.map((notification) => (
+          <div className="notification-body border-b-[var(--border-color) flex justify-between border-b-[.1rem] p-4">
+            <p className="notification-body text-md font-medium text-[var(--text-main-color)]">
+              Notifications
+            </p>
             <div
-              className="notification-body border-b-[var(--border-color) flex cursor-pointer flex-wrap items-center justify-between gap-y-2 border-b-[.1rem] hover:bg-[var(--main-color-thin)]"
-              onClick={(e) => readCTA(e, notification)}
+              className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color)] hover:text-[var(--main-color-light)]"
+              onClick={() => readAllCTA()}
             >
-              <div className="notification-body py-2 font-normal">
-                {notification.content}
-              </div>
-              {notification.read ? (
-                ""
-              ) : (
-                <div className="notification-body aspect-square w-[1rem] shrink-0 rounded-[50%] bg-[var(--main-color)]"></div>
-              )}
+              Mark all as read
+            </div>
+          </div>
+          <div
+            ref={refNotificationBody}
+            className="notification-body hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth [&>*]:p-4"
+          >
+            {notifications?.map((notification) => (
+              <div
+                className="notification-body flex cursor-pointer flex-wrap items-center justify-between gap-y-2 hover:bg-[var(--bg-color-thin)]"
+                onClick={(e) => readCTA(e, notification)}
+              >
+                <div className="notification-body py-2 font-normal">
+                  {notification.content}
+                </div>
+                {notification.read ? (
+                  ""
+                ) : (
+                  <div className="notification-body aspect-square w-[1rem] shrink-0 rounded-[50%] bg-[var(--main-color)]"></div>
+                )}
 
-              {/* {notification.sourceData.friendStatus === "friend" ? (
+                {/* {notification.sourceData.friendStatus === "friend" ? (
                 ""
               ) : (
                 <div className="notification-body flex w-full gap-[1rem]">
@@ -122,8 +131,9 @@ const Notification = () => {
                   />
                 </div>
               )} */}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

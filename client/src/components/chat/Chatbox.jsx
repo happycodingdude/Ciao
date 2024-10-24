@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Tooltip } from "antd";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
 import moment from "moment";
@@ -11,6 +10,7 @@ import {
   useInfo,
   useMessage,
 } from "../../hook/CustomHooks";
+import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
@@ -37,7 +37,6 @@ const Chatbox = (props) => {
   const [openEmoji, setOpenEmoji] = useState(false);
   const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
-  const [emojiText, setEmojiText] = useState();
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
 
   const { data: info } = useInfo();
@@ -48,7 +47,6 @@ const Chatbox = (props) => {
     // blurImage(".chatbox-content");
     blurImageOLD(".chatbox-content");
     setFiles([]);
-    setEmojiText("");
 
     if (autoScrollBottom) scrollChatContentToBottom();
   }, [messages, autoScrollBottom]);
@@ -157,16 +155,6 @@ const Chatbox = (props) => {
       await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
-        // if (oldData.id !== messages.id) return oldData;
-        // oldData.messages = [
-        //   {
-        //     ...bodyLocal,
-        //     contactId: info.data.id,
-        //   },
-        //   ...oldData.messages,
-        // ];
-        // return oldData;
-
         const newData = {
           ...oldData,
           messages: [
@@ -194,10 +182,8 @@ const Chatbox = (props) => {
         });
         return { ...oldData, conversations: updatedConversations };
       });
+
       if (param.type === "media") {
-        // const immediateAttachments = param.attachments.map((item) => {
-        //   return { ...item, immediate: true };
-        // });
         queryClient.setQueryData(["attachment"], (oldData) => {
           const cloned = oldData.map((item) => {
             return Object.assign({}, item);
@@ -502,8 +488,8 @@ const Chatbox = (props) => {
         </div>
       </div>
       <div className="flex w-full items-center justify-evenly py-3">
-        <ChatboxMenu chooseFile={chooseFile} setEmojiText={setEmojiText} />
-        {files.length !== 0 ? (
+        <ChatboxMenu chooseFile={chooseFile} />
+        {/* {files.length !== 0 ? (
           <>
             <div
               // className={`${
@@ -557,9 +543,15 @@ const Chatbox = (props) => {
               if (text.trim() === "") return;
               sendMutation({ type: "text", content: text });
             }}
-            emoji={emojiText}
           />
-        )}
+        )} */}
+        <ChatInput
+          files={files}
+          send={(text) => {
+            if (text.trim() === "") return;
+            sendMutation({ type: "text", content: text });
+          }}
+        />
       </div>
     </div>
   );

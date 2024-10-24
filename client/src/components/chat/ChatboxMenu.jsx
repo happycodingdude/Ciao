@@ -4,22 +4,10 @@ import { useEventListener } from "../../hook/CustomHooks";
 
 const ChatboxMenu = (props) => {
   console.log("ChatboxMenu calling");
-  const { chooseFile, setEmojiText } = props;
+  const { chooseFile } = props;
 
-  const [openEmoji, setOpenEmoji] = useState(false);
   const [show, setShow] = useState(false);
 
-  // Event listener
-  const closeEmoji = useCallback((e) => {
-    const classList = Array.from(e.target.classList);
-    if (
-      classList.some((item) => item === "choose-emoji") ||
-      classList.some((item) => item.includes("epr"))
-    )
-      return;
-    setOpenEmoji(false);
-  }, []);
-  useEventListener("click", closeEmoji);
   // Event listener
   const hideMenuOnClick = useCallback((e) => {
     if (Array.from(e.target.classList).includes("chatbox-menu-item")) return;

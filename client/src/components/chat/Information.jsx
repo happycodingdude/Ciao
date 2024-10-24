@@ -101,7 +101,7 @@ const Information = (props) => {
       >
         <p className="text-md text-[var(--text-main-color)]">Information</p>
       </div>
-      <div className="mt-[2rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
+      <div className="mt-[1rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[1rem]">
             {messages.isGroup ? (
@@ -116,7 +116,7 @@ const Information = (props) => {
                   ]}
                 />
                 <MediaPicker
-                  className="absolute left-[30%] top-[-15%]"
+                  className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
                   accept="image/png, image/jpeg"
                   id="conversation-avatar"
                   // onChange={updateAvatar}
@@ -129,6 +129,14 @@ const Information = (props) => {
                 {/* <div className="cursor-pointer text-[var(--text-main-color-blur)]">
                   {messages.participants.length} members
                 </div> */}
+                <div className="flex justify-center laptop:h-[4rem]">
+                  {/* <ToggleNotification /> */}
+                  <Tooltip title="Invite friends">
+                    <RelightBackground className="w-[4rem]">
+                      <AddParticipants />
+                    </RelightBackground>
+                  </Tooltip>
+                </div>
               </>
             ) : (
               <>
@@ -156,20 +164,6 @@ const Information = (props) => {
                   }
                 />
               </>
-            )}
-          </div>
-          <div className="flex justify-center laptop:h-[4rem]">
-            {messages.isGroup ? (
-              <>
-                {/* <ToggleNotification /> */}
-                <Tooltip title="Invite friends">
-                  <RelightBackground className="w-[4rem]">
-                    <AddParticipants />
-                  </RelightBackground>
-                </Tooltip>
-              </>
-            ) : (
-              ""
             )}
           </div>
         </div>

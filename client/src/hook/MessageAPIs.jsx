@@ -1,7 +1,7 @@
 import { HttpRequest } from "../common/Utility";
 
 export const getMessages = async (conversationId, page) => {
-  const messages = (
+  return (
     await HttpRequest({
       method: "get",
       url:
@@ -16,7 +16,6 @@ export const getMessages = async (conversationId, page) => {
             ).replace("{page}", page),
     })
   ).data;
-  return messages;
 };
 
 export const send = async (id, data) => {
@@ -30,5 +29,5 @@ export const send = async (id, data) => {
       data: data,
       timeout: 500,
     })
-  ).data?.reverse();
+  ).data;
 };

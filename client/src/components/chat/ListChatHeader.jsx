@@ -21,7 +21,7 @@ const ListChatHeader = () => {
         ></input>
       </div>
       <div className="flex h-[50%]">
-        <Tooltip title="Find friends">
+        <Tooltip title="Connect friends">
           <RelightBackground>
             <AddFriend />
           </RelightBackground>
