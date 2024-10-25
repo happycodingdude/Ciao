@@ -14,7 +14,6 @@ import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
-import ChatboxMenu from "./ChatboxMenu";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
 
@@ -56,21 +55,21 @@ const Chatbox = (props) => {
     setAutoScrollBottom(true);
   }, [conversation?.selected]);
 
-  const chooseFile = (e) => {
-    const chosenFiles = Array.from(e.target.files);
-    if (chosenFiles.length === 0) return;
+  // const chooseFile = (e) => {
+  //   const chosenFiles = Array.from(e.target.files);
+  //   if (chosenFiles.length === 0) return;
 
-    const mergedFiles = chosenFiles.filter((item) => {
-      if (!files.some((file) => file.name === item.name)) return item;
-    });
-    setFiles([...files, ...mergedFiles]);
+  //   const mergedFiles = chosenFiles.filter((item) => {
+  //     if (!files.some((file) => file.name === item.name)) return item;
+  //   });
+  //   setFiles([...files, ...mergedFiles]);
 
-    e.target.value = null;
-  };
+  //   e.target.value = null;
+  // };
 
-  const removeFile = (e) => {
-    setFiles(files.filter((item) => item.name !== e.target.dataset.key));
-  };
+  // const removeFile = (e) => {
+  //   setFiles(files.filter((item) => item.name !== e.target.dataset.key));
+  // };
 
   const uploadFile = async () => {
     // Create a root reference
@@ -487,8 +486,7 @@ const Chatbox = (props) => {
           </BackgroundPortal>
         </div>
       </div>
-      <div className="flex w-full items-center justify-evenly py-3">
-        <ChatboxMenu chooseFile={chooseFile} />
+      <div className="flex w-full items-center justify-center py-3">
         {/* {files.length !== 0 ? (
           <>
             <div

@@ -66,6 +66,7 @@
   --bg-color-thin: #303030;
   --bg-color-extrathin: #424242;
   --text-main-color: #ffffff;
+  --text-main-color-blur: #ffffff38;
   /* --text-main-color-normal: #e6e6e6; */
   --text-main-color-light: #dcdcdc;
   --text-main-color-thin: #bdbdbd;
@@ -97,11 +98,30 @@ body,
 @layer components {
   .hide-scrollbar {
     &::-webkit-scrollbar {
-      display: none;
+      display: none;      
     }
 
     scrollbar-width: none;
     /* For Firefox */
+  }
+
+  .custom-scrollbar {
+    &::-webkit-scrollbar {
+      height: 10px;
+      /* width: 100px;       */
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+      background: var(--bg-color-thin); 
+      border-radius: 10px;
+    }
+    
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+      background: var(--bg-color); 
+      border-radius: 10px;
+    }    
   }
 
   .grid-transition {
@@ -266,4 +286,9 @@ body,
     background-image: url('images/svg-spinners--bars-rotate-fade.svg');
     background-size: 10% !important;
   }
+
+  /* [contentEditable=true]:empty:not(:focus)::before {
+    content: attr(data-text);
+    color: var(--text-main-color-blur);
+  } */
 }

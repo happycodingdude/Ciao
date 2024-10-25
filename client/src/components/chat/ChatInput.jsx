@@ -1,10 +1,12 @@
 import EmojiPicker from "emoji-picker-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
+import ChatboxMenu from "./ChatboxMenu";
 
 const ChatInput = (props) => {
-  const { files, send } = props;
+  const { send } = props;
 
   const { data: messages } = useMessage();
   const { data: info } = useInfo();
@@ -14,9 +16,11 @@ const ChatInput = (props) => {
   const [mentions, setMentions] = useState();
   const [showMention, setShowMention] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [files, setFiles] = useState([]);
 
   useEffect(() => {
-    inputRef.current.value = "";
+    inputRef.current.innerText = "";
+    setFiles([]);
     setMentions(() => {
       return messages?.participants
         .filter((item) => item.contact.id !== info.data.id)
@@ -32,19 +36,20 @@ const ChatInput = (props) => {
 
   const chooseMention = (id) => {
     let user = mentions.find((item) => item.userId === id);
-    inputRef.current.value = inputRef.current.value.replace("@", "");
-    inputRef.current.value = inputRef.current.value += user.name;
+    inputRef.current.innerText = inputRef.current.innerText.replace("@", "");
+    inputRef.current.innerText = inputRef.current.innerText += user.name;
     inputRef.current.focus();
     setShow(false);
   };
 
   const chat = () => {
-    send(inputRef.current.value);
-    inputRef.current.value = "";
+    send(inputRef.current.innerText);
+    inputRef.current.innerText = "";
   };
 
   const keyBindingFn = (e) => {
     if (e.keyCode === 13 && !e.shiftKey) {
+      e.preventDefault();
       chat();
     } else if (e.key === "@") {
       setShowMention(true);
@@ -54,10 +59,22 @@ const ChatInput = (props) => {
   };
 
   const keyupBindingFn = (e) => {
-    const cursorPosition = inputRef.current.selectionStart;
+    e.preventDefault();
+
+    // Cái này cho element input
+    // const cursorPosition = inputRef.current.selectionStart;
+
+    // Cái này cho element contenteditable
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const clonedRange = range.cloneRange();
+    clonedRange.selectNodeContents(inputRef.current);
+    clonedRange.setEnd(range.endContainer, range.endOffset);
+
+    const cursorPosition = clonedRange.toString().length;
     // Ensure the cursor is not at the start (index 0)
     if (cursorPosition > 0) {
-      const textBeforeCursor = inputRef.current.value.substring(
+      const textBeforeCursor = inputRef.current.innerText.substring(
         0,
         cursorPosition,
       );
@@ -103,30 +120,46 @@ const ChatInput = (props) => {
   }, []);
   useEventListener("keydown", hideEmojiOnKey);
 
-  useEffect(() => {
-    if (!files || files.length === 0) return;
+  const chooseFile = (e) => {
+    const chosenFiles = Array.from(e.target.files);
+    if (chosenFiles.length === 0) return;
 
-    const fileContainer = document.querySelector(".file-container");
-    const callback = (e) => {
-      e.preventDefault();
+    const mergedFiles = chosenFiles.filter((item) => {
+      if (!files.some((file) => file.name === item.name)) return item;
+    });
+    setFiles([...files, ...mergedFiles]);
 
-      fileContainer.scrollBy({
-        left: e.deltaY < 0 ? -30 : 30,
-      });
-    };
-    fileContainer.addEventListener("wheel", callback, true);
-    return () => {
-      fileContainer.removeEventListener("wheel", callback, true);
-    };
-  }, [files]);
+    e.target.value = null;
+  };
 
-  const expandTextarea = useCallback((e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }, []);
+  const removeFile = (e) => {
+    setFiles(files.filter((item) => item.name !== e.target.dataset.key));
+  };
+
+  // useEffect(() => {
+  //   if (!files || files.length === 0) return;
+
+  //   const fileContainer = document.querySelector(".file-container");
+  //   const callback = (e) => {
+  //     e.preventDefault();
+
+  //     fileContainer.scrollBy({
+  //       left: e.deltaY < 0 ? -100 : 100,
+  //     });
+  //   };
+  //   fileContainer.addEventListener("wheel", callback, true);
+  //   return () => {
+  //     fileContainer.removeEventListener("wheel", callback, true);
+  //   };
+  // }, [files]);
+
+  // const expandTextarea = useCallback((e) => {
+  //   e.target.style.height = "auto";
+  //   e.target.style.height = e.target.scrollHeight + "px";
+  // }, []);
 
   return (
-    <div className="relative grow laptop:max-w-[60rem]">
+    <div className="relative grow bg-[var(--bg-color-extrathin)] px-2 laptop:max-w-[65rem]">
       {messages.isGroup ? (
         <div
           data-show={showMention}
@@ -159,22 +192,24 @@ const ChatInput = (props) => {
         ""
       )}
       {files?.length !== 0 ? (
-        <>
-          <div
-            // className={`${
-            //   files.length === 1
-            //     ? "grid-cols-[12rem] p-[.5rem]"
-            //     : "p-[.7rem] laptop:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]"
-            // }
-            // className={`hide-scrollbar absolute top-0 grid max-h-[7rem] gap-[1rem] overflow-x-auto
-            //   rounded-[.8rem] p-[.7rem]
-            //   laptop:w-[clamp(41rem,73%,61rem)] laptop:grid-cols-[repeat(auto-fill,9rem)]
-            //   desktop:w-[clamp(70rem,75%,120rem)] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]`}
-            className={`file-container hide-scrollbar absolute top-0 flex max-h-[7rem] w-[90%] gap-[1rem]
-              overflow-x-scroll rounded-[.8rem] p-[.7rem] laptop:h-[7rem]`}
-          >
-            {files?.map((item) => (
-              <div
+        <div
+          className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
+        >
+          {files?.map((item) => (
+            <div
+              className="relative flex aspect-square shrink-0 flex-col items-center justify-between rounded-[.5rem] bg-[var(--bg-color-light)] 
+            px-3 pb-3 pt-4 laptop:w-[15rem]"
+            >
+              <ImageWithLightBoxAndNoLazy
+                src={URL.createObjectURL(item)}
+                className="aspect-[4/3] w-full rounded-[.5rem]"
+                slides={[
+                  {
+                    src: URL.createObjectURL(item),
+                  },
+                ]}
+              />
+              {/* <div
                 style={{
                   "--image-url": ["doc", "docx", "xls", "xlsx", "pdf"].includes(
                     item.name.split(".")[1],
@@ -182,7 +217,7 @@ const ChatInput = (props) => {
                     ? "url('images/imagenotfound.jpg')"
                     : `url('${URL.createObjectURL(item)}'`,
                 }}
-                className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[size:100%] bg-center laptop:w-[10rem]`}
+                className={`relative aspect-[4/3] w-full rounded-[.5rem] bg-[image:var(--image-url)] bg-[size:100%] bg-center bg-no-repeat`}
                 title={item.name.split(".")[0]}
               >
                 <span
@@ -192,27 +227,46 @@ const ChatInput = (props) => {
                     bg-white text-[var(--danger-text-color)] hover:text-[var(--danger-text-color-normal)]"
                   title="Clear image"
                 ></span>
-              </div>
-            ))}
-          </div>
-        </>
+              </div> */}
+              <p className="self-start text-xs">{item.name}</p>
+            </div>
+          ))}
+        </div>
       ) : (
         ""
       )}
-      <textarea
+      {/* <input
         ref={inputRef}
         // rows={files?.length !== 0 ? 4 : 1}
         // rows={4}
         onInput={expandTextarea}
-        className="mention-item hide-scrollbar w-full resize-none rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none laptop:max-h-[10rem]"
+        className="mention-item hide-scrollbar !h-[10rem] w-full resize-none break-words rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none laptop:max-h-[10rem]"
         onKeyDown={keyBindingFn}
         onKeyUp={keyupBindingFn}
-      />
-      <label
-        className="emoji-item fa fa-smile choose-emoji absolute right-[1rem] top-[40%] cursor-pointer text-lg
-          font-normal"
-        onClick={() => setShowEmoji((show) => !show)}
-      ></label>
+      /> */}
+      <div
+        className={`relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
+      >
+        <ChatboxMenu
+          chooseFile={chooseFile}
+          className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.5rem] " : "top-[1rem] "}`}
+        />
+        <div
+          ref={inputRef}
+          contentEditable={true}
+          // data-text="Type something.."
+          // aria-placeholder="Type something.."
+          className={`mention-item hide-scrollbar w-full resize-none overflow-y-auto break-words px-16 pb-2 outline-none
+            laptop:max-h-[10rem]`}
+          onKeyDown={keyBindingFn}
+          onKeyUp={keyupBindingFn}
+        ></div>
+        <label
+          className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.5rem] " : "top-[.8rem] "} 
+          cursor-pointer text-lg font-normal`}
+          onClick={() => setShowEmoji((show) => !show)}
+        ></label>
+      </div>
       <EmojiPicker
         open={showEmoji}
         width={300}
