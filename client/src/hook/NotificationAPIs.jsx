@@ -67,7 +67,7 @@ export const registerConnection = async (token) => {
   ).data;
 };
 
-export const notifyMessage = (message, queryClient) => {
+export const notifyMessage = (message, queryClient, info) => {
   const messageData =
     message.data === undefined ? undefined : JSON.parse(message.data);
   console.log(message);
@@ -75,37 +75,66 @@ export const notifyMessage = (message, queryClient) => {
   switch (message.event) {
     case "NewMessage":
       queryClient.setQueryData(["conversation"], (oldData) => {
-        // const cloned = oldData.map((item) => {
-        //   return Object.assign({}, item);
-        // });
-        // var newData = cloned.map((conversation) => {
-        //   if (conversation.id !== messageData.conversationId)
-        //     return conversation;
-        //   conversation.lastMessage = messageData.content;
-        //   conversation.lastMessageContact = messageData.contactId;
-        //   conversation.unSeenMessages++;
-        //   return conversation;
-        // });
-        // return newData;
-        const clonedConversations = oldData.conversations.map((item) => {
-          return Object.assign({}, item);
-        });
-        const updatedConversations = clonedConversations.map((conversation) => {
-          if (conversation.id !== messageData.conversationId)
-            return conversation;
-          conversation.lastMessage = messageData.content;
-          conversation.lastMessageContact = messageData.contactId;
-          conversation.unSeenMessages++;
-          return conversation;
-        });
-        return { ...oldData, conversations: updatedConversations };
+        // If exists conversation -> update state and return
+        if (
+          oldData.conversations.some(
+            (conversation) => conversation.id === messageData.conversationId,
+          )
+        ) {
+          const clonedConversations = oldData.conversations.map((item) => {
+            return Object.assign({}, item);
+          });
+          const updatedConversations = clonedConversations.map(
+            (conversation) => {
+              if (conversation.id !== messageData.conversationId)
+                return conversation;
+              conversation.lastMessage = messageData.content;
+              conversation.lastMessageContact = messageData.contactId;
+              conversation.unSeenMessages++;
+              return conversation;
+            },
+          );
+          return { ...oldData, conversations: updatedConversations };
+        }
+
+        // Else generate new conversation and update state
+        return {
+          ...oldData,
+          conversations: [
+            {
+              isGroup: false,
+              isNotifying: true,
+              id: messageData.conversationId,
+              lastMessage: messageData.content,
+              lastMessageContact: messageData.contactId,
+              unSeenMessages: 1,
+              participants: [
+                {
+                  contact: {
+                    id: info.data.id,
+                    name: info.data.name,
+                    avatar: info.data.avatar,
+                    isOnline: true,
+                  },
+                },
+                {
+                  contact: {
+                    id: messageData.contact.id,
+                    name: messageData.contact.name,
+                    avatar: messageData.contact.avatar,
+                    isOnline: messageData.contact.isOnline,
+                  },
+                },
+              ],
+            },
+            ...oldData.conversations,
+          ],
+        };
       });
       queryClient.setQueryData(["message"], (oldData) => {
-        // const cloned = Object.assign({}, oldData);
-        if (oldData.id !== messageData.conversationId) return cloned;
-        // cloned.messages = [messageData, ...cloned.messages];
-        // return cloned;
-        const newData = {
+        if (!oldData) return; // Case haven't click any conversation
+        if (oldData.id !== messageData.conversationId) return oldData;
+        return {
           ...oldData,
           messages: [
             {
@@ -115,8 +144,6 @@ export const notifyMessage = (message, queryClient) => {
             ...oldData.messages,
           ],
         };
-
-        return newData;
       });
       break;
     // case "AddMember":

@@ -162,47 +162,25 @@ const ChatInput = (props) => {
   // }, []);
 
   return (
-    <div className="relative grow bg-[var(--bg-color-extrathin)] px-2 laptop:max-w-[65rem]">
-      {messages.isGroup ? (
-        <div
-          data-show={showMention}
-          className="mention-item hide-scrollbar absolute left-0 flex flex-col gap-[1rem] overflow-y-scroll 
-          scroll-smooth rounded-[.5rem] bg-[var(--bg-color-light)] text-sm transition-all duration-200
-          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          laptop:top-[-20rem] laptop:h-[20rem] laptop:w-[20rem]"
-        >
-          {mentions?.map((item) => (
-            <div
-              className="flex cursor-pointer gap-[1rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
-              // data-user={item.userId}
-              onClick={() => chooseMention(item.userId)}
-            >
-              <ImageWithLightBoxWithShadowAndNoLazy
-                src={item.avatar}
-                className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
-                slides={[
-                  {
-                    src: item.avatar,
-                  },
-                ]}
-                onClick={() => {}}
-              />
-              <p>{item.name}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        ""
-      )}
+    <div className="relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] px-2 laptop:max-w-[65rem]">
       {files?.length !== 0 ? (
         <div
           className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
         >
           {files?.map((item) => (
             <div
-              className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem] 
-            bg-[var(--bg-color-light)] p-3 laptop:w-[15rem]"
+              className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
+              bg-[var(--bg-color-thin)] p-3 laptop:w-[15rem]"
+              //   className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
+              // bg-white p-3 laptop:w-[15rem]"
             >
+              <div className="absolute right-[-.5rem] top-[-.5rem] flex laptop:h-[3rem]">
+                <div
+                  data-key={item.name}
+                  className="fa fa-trash cursor-pointer text-md text-[var(--danger-text-color)]"
+                  onClick={removeFile}
+                ></div>
+              </div>
               <ImageWithLightBoxImgTag
                 src={URL.createObjectURL(item)}
                 // className="aspect-[4/3] w-full rounded-[.5rem] bg-[size:80%]"
@@ -250,6 +228,37 @@ const ChatInput = (props) => {
       <div
         className={`relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
       >
+        {messages.isGroup ? (
+          <div
+            data-show={showMention}
+            className="mention-item hide-scrollbar absolute left-0 flex flex-col gap-[1rem] overflow-y-scroll 
+          scroll-smooth rounded-[.5rem] bg-[var(--bg-color-light)] text-sm transition-all duration-200
+          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
+          laptop:top-[-20rem] laptop:h-[20rem] laptop:w-[20rem]"
+          >
+            {mentions?.map((item) => (
+              <div
+                className="flex cursor-pointer gap-[1rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
+                // data-user={item.userId}
+                onClick={() => chooseMention(item.userId)}
+              >
+                <ImageWithLightBoxWithShadowAndNoLazy
+                  src={item.avatar}
+                  className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+                  slides={[
+                    {
+                      src: item.avatar,
+                    },
+                  ]}
+                  onClick={() => {}}
+                />
+                <p>{item.name}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          ""
+        )}
         <ChatboxMenu
           chooseFile={chooseFile}
           className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.5rem] " : "top-[1rem] "}`}
@@ -259,8 +268,8 @@ const ChatInput = (props) => {
           contentEditable={true}
           // data-text="Type something.."
           // aria-placeholder="Type something.."
-          className={`mention-item hide-scrollbar w-full resize-none overflow-y-auto break-words px-16 pb-2 outline-none
-            laptop:max-h-[10rem]`}
+          className={`mention-item hide-scrollbar w-full resize-none overflow-y-auto break-words 
+            px-16 pb-2 outline-none laptop:max-h-[10rem]`}
           onKeyDown={keyBindingFn}
           onKeyUp={keyupBindingFn}
         ></div>

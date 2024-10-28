@@ -1,6 +1,12 @@
 import React from "react";
 
-const CustomButton = ({ title, className, onClick, processing }) => {
+const CustomButton = ({
+  title,
+  className,
+  leadingClass,
+  onClick,
+  processing,
+}) => {
   const handleClick = () => {
     onClick();
   };
@@ -16,9 +22,15 @@ const CustomButton = ({ title, className, onClick, processing }) => {
         onClick={handleClick}
       >
         {processing ? (
-          <div className="fa fa-spinner fa-spin leading-[4rem]"></div>
+          <div
+            className={`fa fa-spinner fa-spin ${leadingClass ?? "leading-[4rem]"}`}
+          ></div>
         ) : (
-          <span className="button-title font-sans leading-[4rem]">{title}</span>
+          <span
+            className={`button-title font-sans ${leadingClass ?? "leading-[4rem]"}`}
+          >
+            {title}
+          </span>
         )}
       </div>
     </div>

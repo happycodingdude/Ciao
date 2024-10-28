@@ -1,6 +1,4 @@
-import { Tooltip } from "antd";
 import React from "react";
-import RelightBackground from "../common/RelightBackground";
 import AddFriend from "../friend/AddFriend";
 import CreateGroupChat from "./CreateGroupChat";
 
@@ -20,17 +18,17 @@ const ListChatHeader = () => {
           className="w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] p-[1rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none laptop:text-sm laptop-lg:text-base"
         ></input>
       </div>
-      <div className="flex h-[50%]">
-        <Tooltip title="Connect friends">
-          <RelightBackground>
-            <AddFriend />
-          </RelightBackground>
-        </Tooltip>
-        <Tooltip title="Create group chat">
-          <RelightBackground className="pointer-events-none opacity-50">
-            <CreateGroupChat />
-          </RelightBackground>
-        </Tooltip>
+      <div className="flex h-[50%] [&>*]:laptop:w-[3rem]">
+        {/* <Tooltip title="Connect friends"> */}
+        {/* <RelightBackground> */}
+        <AddFriend />
+        {/* </RelightBackground> */}
+        {/* </Tooltip> */}
+        {/* <Tooltip title="Create group chat"> */}
+        <div className="pointer-events-none flex items-center justify-center opacity-50">
+          <CreateGroupChat />
+        </div>
+        {/* </Tooltip> */}
       </div>
     </div>
   );

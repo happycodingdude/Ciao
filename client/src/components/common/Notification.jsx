@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
@@ -16,7 +15,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export const requestPermission = (registerConnection, notifyMessage, queryClient) => {
+export const requestPermission = (
+  registerConnection,
+  notifyMessage,
+  queryClient,
+  info,
+) => {
   Notification.requestPermission().then((permission) => {
     if (permission == "granted") {
       return getToken(messaging, {
@@ -29,7 +33,7 @@ export const requestPermission = (registerConnection, notifyMessage, queryClient
             // Receive message
             onMessage(messaging, (payload) => {
               console.log("Message received. ", payload.data);
-              notifyMessage(payload.data, queryClient);
+              notifyMessage(payload.data, queryClient, info);
             });
 
             registerConnection({ token: token });

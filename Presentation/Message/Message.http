@@ -5,18 +5,13 @@ POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint4",
+    "Username":"trint",
     "Password":"Qwerty@123"
 }
 
 
 ###
-POST  {{host}}/conversations/66f2d628fa33f96c68fd71d9/messages
-Authorization: Bearer CfDJ8IE6k77TFy5BnhYCqdQ4BPgv3wzrN89M_396aS347AOc1Qio3sr43wcS9Q6fBruhXPCACGrDHyx1OAcKZu8mPy1iz3v9atheMPl5wYpFhep3oJJfZroS6sN568SnGPQBPVMT-_RBQZ5R9dG04obAN90WdmA9zem8M1ylAsBorIZkpnQ6POyRb7Sc5cSl2rBdhyso-ITzUsfH_uNJ26fenJ8sOa4iiOLzvjs9Qv9RLFOl5I_zBvnZhYxqDp46qVLHuu7vqJQ6ScpXwF7CVjlovgpYT92kT3MJD45IMvDEV3KxIE-Xrx682Arq65GadQdtxrcD76O-umXoW2W2J0nz-ED_26AzmLu4t1X0bYZyBwLeul0QPhuVG06x3PDLuLrlLLsi4dLQYk2YEZIwktjlgDalldw2TTO7gUy7C_w6CCnnX7wrAjZEk4StsFOjsW5Pn5Iw18J9AK2v3U0WdOQlH10M7QNYRq3A01lkofAiknMLUkaNzRxRfnBnkbcBlx4p3I0dZtRb5Ob55kAQszJk0AoAhntL7O9t2WH03895EkU4nSwSRyBRihHTh_S4ZxIJ0w
+POST  {{host}}/conversations/66f500cd2052c7a8a265af43/messages
 Content-Type: application/json
 
-{
-    "moderator":"66f270cf9423f7e5257a711e",
-    "type":"text",
-    "content":"hihi 4"
-}
+{"moderator":"66f270cf9423f7e5257a711e","type":"text","content":"hanoi","attachments":[{"type":"image","mediaUrl":"https://firebasestorage.googleapis.com/v0/b/myconnect-f2af8.appspot.com/o/img%2Fhanoi10.jpg?alt=media&token=1fe12324-d25b-4bd5-b473-f533298833fc","mediaName":"hanoi10.jpg","mediaSize":209036}]}

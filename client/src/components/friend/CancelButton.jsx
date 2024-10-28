@@ -23,8 +23,8 @@ const CancelButton = (props) => {
   return (
     <CustomButton
       title="Cancel"
-      // className={`${className} laptop:!w-[6rem]`}
-      className={`!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:text-xs laptop:!w-[6rem] desktop:h-[4rem] desktop:text-md`}
+      className={`!mr-0 laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
+      leadingClass="leading-[2.5rem]"
       onClick={cancelFriendRequest}
       processing={processing}
     />

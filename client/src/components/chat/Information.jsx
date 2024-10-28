@@ -130,10 +130,10 @@ const Information = (props) => {
                 {/* <div className="cursor-pointer text-[var(--text-main-color-blur)]">
                   {messages.participants.length} members
                 </div> */}
-                <div className="flex justify-center laptop:h-[4rem]">
+                <div className="flex justify-center">
                   {/* <ToggleNotification /> */}
                   <Tooltip title="Invite friends">
-                    <RelightBackground className="w-[4rem]">
+                    <RelightBackground>
                       <AddParticipants />
                     </RelightBackground>
                   </Tooltip>

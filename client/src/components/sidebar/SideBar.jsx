@@ -38,7 +38,7 @@ const SideBar = (props) => {
               },
             ]}
           />
-          <RelightBackground className="w-[50%]" lighten={page === "chat"}>
+          <RelightBackground lighten={page === "chat"}>
             <ChatIcon
               show={() => {
                 refetch();
@@ -46,7 +46,7 @@ const SideBar = (props) => {
               }}
             />
           </RelightBackground>
-          <RelightBackground className="w-[50%]" lighten={page === "profile"}>
+          <RelightBackground lighten={page === "profile"}>
             <ProfileIcon
               show={() => {
                 queryClient.resetQueries({

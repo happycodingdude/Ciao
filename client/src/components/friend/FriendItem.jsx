@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import { useConversation } from "../../hook/CustomHooks";
+import { HttpRequest } from "../../common/Utility";
+import { useConversation, useInfo } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import AcceptButton from "./AcceptButton";
@@ -12,19 +13,60 @@ const FriendItem = (props) => {
 
   const queryClient = useQueryClient();
 
+  const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
-  const chat = (contactId) => {
+  const chat = (contact) => {
     const existedConversation = conversations.conversations.find(
       (item) =>
         item.isGroup === false &&
-        item.participants.some((item) => item.contact.id === contactId),
+        item.participants.some((item) => item.contact.id === contact.id),
     );
     if (existedConversation) {
       queryClient.setQueryData(["conversation"], (oldData) => {
         return { ...oldData, selected: existedConversation.id };
       });
     } else {
+      HttpRequest({
+        method: "post",
+        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT.replace(
+          "{contact-id}",
+          contact.id,
+        ),
+      }).then((res) => {
+        queryClient.setQueryData(["conversation"], (oldData) => {
+          return {
+            ...oldData,
+            conversations: [
+              {
+                isGroup: false,
+                isNotifying: true,
+                id: res.data,
+                participants: [
+                  {
+                    contact: {
+                      id: info.data.id,
+                      name: info.data.name,
+                      avatar: info.data.avatar,
+                      isOnline: true,
+                    },
+                  },
+                  {
+                    contact: {
+                      id: contact.id,
+                      name: contact.name,
+                      avatar: contact.avatar,
+                      isOnline: contact.isOnline,
+                    },
+                  },
+                ],
+              },
+              ...oldData.conversations,
+            ],
+            selected: res.data,
+          };
+        });
+      });
     }
     onClose();
 
@@ -177,9 +219,10 @@ const FriendItem = (props) => {
           friend: (
             <CustomButton
               title="Chat"
-              className="!mr-0 w-auto px-[1rem] laptop:h-[3rem] laptop:!w-[6rem] laptop:text-xs desktop:h-[4rem] desktop:text-md"
+              className={`!mr-0 laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
+              leadingClass="leading-[2.5rem]"
               onClick={() => {
-                chat(friend.id);
+                chat(friend);
               }}
             />
           ),

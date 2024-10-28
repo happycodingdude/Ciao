@@ -28,7 +28,12 @@ export const Home = () => {
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
     if (info?.data)
-      requestPermission(registerConnectionMutation, notifyMessage, queryClient);
+      requestPermission(
+        registerConnectionMutation,
+        notifyMessage,
+        queryClient,
+        info,
+      );
   }, [info?.data?.id]);
 
   if (isLoading) {
