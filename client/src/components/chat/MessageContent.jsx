@@ -22,10 +22,12 @@ const MessageContent = (props) => {
           {messages.isGroup ? (
             <ImageWithLightBoxAndNoLazy
               src={
-                messages.participants.find((q) => q.contact.id != info.data.id)
-                  .contact.avatar
+                messages.participants.find(
+                  (q) => q.contact.id === message.contactId,
+                ).contact.avatar
               }
-              className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
+              // className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
+              className="aspect-square w-full cursor-pointer rounded-[50%]"
               // onClick={() => {
               //   setUserId(message.contactId);
               //   setOpen(true);
@@ -37,7 +39,8 @@ const MessageContent = (props) => {
                 messages.participants.find((q) => q.contact.id != info.data.id)
                   .contact.avatar
               }
-              className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
+              // className="aspect-square w-full cursor-pointer self-start rounded-[50%]"
+              className="aspect-square w-full cursor-pointer rounded-[50%]"
               slides={[
                 {
                   src: messages.participants.find(
@@ -79,71 +82,16 @@ const MessageContent = (props) => {
           </p>
         </div>
         {/* Content */}
-        {message.type === "text" ? (
+        {/* {message.type === "text" ? (
           <div
-            //   className={`break-all rounded-[3rem] bg-gradient-radial-to-tc from-[#00AFB9]  ${pending ? "to-[var(--main-color-normal)]" : "to-[#FED9B7]"}
-            // px-[1.5rem] py-[.7rem] text-[var(--text-main-color-normal)]`}
-            // className={`break-all rounded-[3rem] ${pending ? "text-[var(--text-main-color-thin)]" : "text-[var(--text-main-color)]"} `}
             className={`break-all rounded-[3rem] ${pending ? "opacity-50" : ""} `}
           >
-            {/* {GenerateContent(participants, message.content)} */}
             {message.content}
           </div>
         ) : (
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {/* {pending
-              ? message.attachments?.map((item, index) => (
-                  <ImageWithLightBoxWithShadowAndNoLazy
-                    src={item.mediaUrl}
-                    title={item.mediaName?.split(".")[0]}
-                    className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer opacity-50`}
-                    slides={message.attachments.map((item) => ({
-                      src:
-                        item.type === "image"
-                          ? item.mediaUrl
-                          : "images/filenotfound.svg",
-                    }))}
-                    index={index}
-                  />
-                ))
-              : message.attachments?.map((item, index) => (
-                  <ImageWithLightBox
-                    src={item.mediaUrl}
-                    title={item.mediaName?.split(".")[0]}
-                    className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer`}
-                    // spinnerClassName="laptop:bg-[size:100%]"
-                    spinnerClassName="laptop:bg-[size:5rem]"
-                    imageClassName="bg-[size:100%]"
-                    slides={message.attachments.map((item) => ({
-                      src:
-                        item.type === "image"
-                          ? item.mediaUrl
-                          : "images/filenotfound.svg",
-                    }))}
-                    index={index}
-                  />
-                ))} */}
-
-            {/* {message.attachments?.map((item, index) => (
-              <ImageWithLightBox
-                src={item.mediaUrl}
-                title={item.mediaName?.split(".")[0]}
-                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} cursor-pointer`}
-                // spinnerClassName="laptop:bg-[size:100%]"
-                spinnerClassName="laptop:bg-[size:5rem]"
-                imageClassName="bg-[size:100%]"
-                slides={message.attachments.map((item) => ({
-                  src:
-                    item.type === "image"
-                      ? item.mediaUrl
-                      : "images/filenotfound.svg",
-                }))}
-                index={index}
-              />
-            ))} */}
-
             {message.attachments?.map((item, index) => (
               <ImageWithLightBoxAndNoLazy
                 src={item.mediaUrl}
@@ -159,10 +107,47 @@ const MessageContent = (props) => {
               />
             ))}
           </div>
+        )} */}
+        {message.content ? (
+          <div
+            className={`break-all rounded-[1.2rem] ${pending ? "opacity-50" : ""} px-[1rem] leading-[4rem] 
+            ${
+              message.contactId === info.data.id
+                ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
+                : "rounded-bl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
+            }`}
+          >
+            {message.content}
+          </div>
+        ) : (
+          ""
+        )}
+
+        {message.attachments ? (
+          <div
+            className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
+          >
+            {message.attachments?.map((item, index) => (
+              <ImageWithLightBoxAndNoLazy
+                src={item.mediaUrl}
+                title={item.mediaName?.split(".")[0]}
+                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer bg-[size:100%]`}
+                slides={message.attachments.map((item) => ({
+                  src:
+                    item.type === "image"
+                      ? item.mediaUrl
+                      : "images/filenotfound.svg",
+                }))}
+                index={index}
+              />
+            ))}
+          </div>
+        ) : (
+          ""
         )}
       </div>
     </div>
   );
 };
 
-export default React.memo(MessageContent);
+export default MessageContent;

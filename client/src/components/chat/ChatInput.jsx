@@ -1,7 +1,7 @@
 import EmojiPicker from "emoji-picker-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import ImageWithLightBoxImgTag from "../common/ImageWithLightBoxImgTag";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import ChatboxMenu from "./ChatboxMenu";
 
@@ -43,8 +43,9 @@ const ChatInput = (props) => {
   };
 
   const chat = () => {
-    send(inputRef.current.innerText);
+    send(inputRef.current.innerText, files);
     inputRef.current.innerText = "";
+    setFiles([]);
   };
 
   const keyBindingFn = (e) => {
@@ -130,6 +131,8 @@ const ChatInput = (props) => {
     setFiles([...files, ...mergedFiles]);
 
     e.target.value = null;
+
+    inputRef.current.focus();
   };
 
   const removeFile = (e) => {
@@ -197,12 +200,12 @@ const ChatInput = (props) => {
         >
           {files?.map((item) => (
             <div
-              className="relative flex aspect-square shrink-0 flex-col items-center justify-between rounded-[.5rem] bg-[var(--bg-color-light)] 
-            px-3 pb-3 pt-4 laptop:w-[15rem]"
+              className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem] 
+            bg-[var(--bg-color-light)] p-3 laptop:w-[15rem]"
             >
-              <ImageWithLightBoxAndNoLazy
+              <ImageWithLightBoxImgTag
                 src={URL.createObjectURL(item)}
-                className="aspect-[4/3] w-full rounded-[.5rem]"
+                // className="aspect-[4/3] w-full rounded-[.5rem] bg-[size:80%]"
                 slides={[
                   {
                     src: URL.createObjectURL(item),

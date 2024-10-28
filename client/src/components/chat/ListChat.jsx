@@ -144,7 +144,7 @@ const ListChat = () => {
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
               selected === item.id
-                ? `item-active bg-gradient-to-br from-[#00AFB9] to-[#FED9B7] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
+                ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
                 : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-thin)]"
             } `}
             onClick={() => {
@@ -179,7 +179,11 @@ const ListChat = () => {
             </div>
             <div className={`flex h-full w-1/2 grow flex-col`}>
               <CustomLabel
-                className={`text-base text-[var(--text-main-color)] ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id != selected ? "font-bold" : ""} `}
+                // className={`text-base
+                //   ${item.id === selected ? "text-[var(--text-sub-color)]" : ""}
+                //   ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id !== selected ? "text-[var(--main-color)]" : ""}
+                //   `}
+                className={`text-base ${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
                 title={
                   item.isGroup
                     ? item.title
@@ -189,13 +193,15 @@ const ListChat = () => {
                 }
               />
               <CustomLabel
-                className={`chat-content text-base text-[var(--text-main-color-thin)] ${
-                  item.lastMessageContact !== info.data.id &&
-                  item.unSeenMessages > 0 &&
-                  item.id != selected
-                    ? "font-medium"
-                    : ""
-                }`}
+                className={`chat-content text-base 
+                  ${
+                    item.id === selected
+                      ? "text-[var(--text-sub-color-thin)]"
+                      : item.lastMessageContact !== info.data.id &&
+                          item.unSeenMessages > 0
+                        ? "text-[var(--main-color)]"
+                        : "text-[var(--text-main-color-blur)]"
+                  }`}
                 title={item.lastMessage}
               />
             </div>

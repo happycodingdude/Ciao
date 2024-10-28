@@ -59,7 +59,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         return result;
     }
 
-    async Task SeenAll(Conversation conversation)
+    async Task SeenAll(ConversationWithMessages conversation)
     {
         var user = await _contactRepository.GetInfoAsync();
         // No need to update when all messages were seen
@@ -122,6 +122,8 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         };
         var conversation = await _collection.Aggregate<ConversationWithMessages>(pipeline).SingleOrDefaultAsync();
         if (conversation.NextPage.Any()) conversation.NextExist = true;
+
+        await SeenAll(conversation);
 
         return conversation;
     }

@@ -7,6 +7,7 @@ import {
   useParticipant,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 import OnlineStatusDot from "../common/OnlineStatusDot";
@@ -207,7 +208,7 @@ const Information = (props) => {
                 .map((item) => (
                   <div className="flex w-full cursor-pointer items-center gap-[1rem] py-2 hover:bg-[var(--bg-color-thin)]">
                     <div className="relative">
-                      <ImageWithLightBoxWithShadowAndNoLazy
+                      <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
                         className="aspect-square cursor-pointer rounded-[50%] laptop:w-[4rem]"
                         slides={[

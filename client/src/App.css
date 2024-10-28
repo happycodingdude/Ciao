@@ -48,31 +48,33 @@
   --main-color-normal: #f9a8d4;
   --main-color-light: #fbcfe8;
   --main-color-thin: #fce7f3; */
-  --main-color-extrabold: #125867;
-  --main-color-bold: #106a7a;
-  --main-color-medium: #088496;
-  --main-color: #00a1b3;
+  --main-color-extrabold: #213a57;
+  --main-color-bold: #0b6477;
+  /* --main-color-medium: #088496; */
+  --main-color: #1fd6e3;
+  /* --main-color: #14919b; */
   /* --main-color-normal: ##00ddde; */
-  --main-color-light: #00d2de;
-  --main-color-thin: #18eff8;
-  --main-color-extrathin: #60fcff;
+  --main-color-light: #6df1b6;
+  /* --main-color-thin: #45dfb1; */
+  /* --main-color-extrathin: #62e981; */
+  --main-color-extrathin: #b9f58b;
   --sub-color: #333333;
   /* --bg-color-extrabold: #070707;
   --bg-color-bold: #0b0b0b;
   --bg-color-medium: #0e0e0e; */  
   --bg-color: #000000;
   /* --bg-color-normal: #282828; */
-  --bg-color-light: #272727;
-  --bg-color-thin: #303030;
-  --bg-color-extrathin: #424242;
+  --bg-color-light: #1b1b1b;
+  --bg-color-thin: #272727;
+  --bg-color-extrathin: #363636;
   --text-main-color: #ffffff;
-  --text-main-color-blur: #ffffff38;
+  --text-main-color-blur: #ffffff88;
   /* --text-main-color-normal: #e6e6e6; */
   --text-main-color-light: #dcdcdc;
   --text-main-color-thin: #bdbdbd;
   --text-sub-color: #121212;
-  --text-sub-color-light: #3d3d3d;
-  --text-sub-color-thin: #454545;
+  /* --text-sub-color-light: #3d3d3d; */
+  --text-sub-color-thin: #3e7c5b;
   --shadow-color: gray;
   --border-color: #d1d5db;
   --icon-text-color: gray;
@@ -87,6 +89,7 @@
 html,
 body,
 #root {
+  font-family: 'Roboto';
   font-size: 1.6rem;
   width: 100vw;
   height: 100vh;

@@ -70,13 +70,27 @@ export const registerConnection = async (token) => {
 export const notifyMessage = (message, queryClient) => {
   const messageData =
     message.data === undefined ? undefined : JSON.parse(message.data);
+  console.log(message);
+
   switch (message.event) {
     case "NewMessage":
       queryClient.setQueryData(["conversation"], (oldData) => {
-        const cloned = oldData.map((item) => {
+        // const cloned = oldData.map((item) => {
+        //   return Object.assign({}, item);
+        // });
+        // var newData = cloned.map((conversation) => {
+        //   if (conversation.id !== messageData.conversationId)
+        //     return conversation;
+        //   conversation.lastMessage = messageData.content;
+        //   conversation.lastMessageContact = messageData.contactId;
+        //   conversation.unSeenMessages++;
+        //   return conversation;
+        // });
+        // return newData;
+        const clonedConversations = oldData.conversations.map((item) => {
           return Object.assign({}, item);
         });
-        var newData = cloned.map((conversation) => {
+        const updatedConversations = clonedConversations.map((conversation) => {
           if (conversation.id !== messageData.conversationId)
             return conversation;
           conversation.lastMessage = messageData.content;
@@ -84,13 +98,25 @@ export const notifyMessage = (message, queryClient) => {
           conversation.unSeenMessages++;
           return conversation;
         });
-        return newData;
+        return { ...oldData, conversations: updatedConversations };
       });
       queryClient.setQueryData(["message"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        if (cloned.id !== messageData.conversationId) return cloned;
-        cloned.messages = [messageData, ...cloned.messages];
-        return cloned;
+        // const cloned = Object.assign({}, oldData);
+        if (oldData.id !== messageData.conversationId) return cloned;
+        // cloned.messages = [messageData, ...cloned.messages];
+        // return cloned;
+        const newData = {
+          ...oldData,
+          messages: [
+            {
+              ...messageData,
+              contactId: messageData.contactId,
+            },
+            ...oldData.messages,
+          ],
+        };
+
+        return newData;
       });
       break;
     // case "AddMember":

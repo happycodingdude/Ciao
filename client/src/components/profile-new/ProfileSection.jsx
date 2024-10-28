@@ -127,7 +127,7 @@ const ProfileSection = () => {
       <CustomButton
         processing={processing}
         title="Save"
-        className="!ml-0 h-[10%] !w-[30%]"
+        className="!ml-0 !w-[30%]"
         onClick={() => {
           updateInfoCTA();
         }}

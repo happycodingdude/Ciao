@@ -71,45 +71,6 @@ const Chatbox = (props) => {
   //   setFiles(files.filter((item) => item.name !== e.target.dataset.key));
   // };
 
-  const uploadFile = async () => {
-    // Create a root reference
-    const storage = getStorage();
-    return Promise.all(
-      files.map((item) => {
-        if (
-          ["doc", "docx", "xls", "xlsx", "pdf"].includes(
-            item.name.split(".")[1],
-          )
-        ) {
-          return uploadBytes(ref(storage, `file/${item.name}`), item).then(
-            (snapshot) => {
-              return getDownloadURL(snapshot.ref).then((url) => {
-                return {
-                  type: "file",
-                  url: url,
-                  name: item.name,
-                  size: item.size,
-                };
-              });
-            },
-          );
-        }
-        return uploadBytes(ref(storage, `img/${item.name}`), item).then(
-          (snapshot) => {
-            return getDownloadURL(snapshot.ref).then((url) => {
-              return {
-                type: "image",
-                url: url,
-                name: item.name,
-                size: item.size,
-              };
-            });
-          },
-        );
-      }),
-    );
-  };
-
   const delay = (delay) => {
     return new Promise((resolve) => setTimeout(resolve, delay));
   };
@@ -120,9 +81,9 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-      await delay(1000);
+      // await delay(1000);
 
-      if (param.type === "text" && param.content === "") return;
+      // if (param.type === "text" && param.content === "") return;
 
       let bodyToCreate = {
         moderator: messages.participants.find((q) => q.isModerator === true)
@@ -132,8 +93,8 @@ const Chatbox = (props) => {
       };
       let bodyLocal = Object.assign({}, bodyToCreate);
 
-      if (param.type === "media") {
-        const uploaded = await uploadFile().then((uploads) => {
+      if (param.files.length !== 0) {
+        const uploaded = await uploadFile(param.files).then((uploads) => {
           return uploads.map((item) => ({
             type: item.type,
             mediaUrl: item.url,
@@ -182,7 +143,7 @@ const Chatbox = (props) => {
         return { ...oldData, conversations: updatedConversations };
       });
 
-      if (param.type === "media") {
+      if (param.files.length !== 0) {
         queryClient.setQueryData(["attachment"], (oldData) => {
           const cloned = oldData.map((item) => {
             return Object.assign({}, item);
@@ -217,15 +178,54 @@ const Chatbox = (props) => {
     },
   });
 
+  const uploadFile = async (files) => {
+    // Create a root reference
+    const storage = getStorage();
+    return Promise.all(
+      files.map((item) => {
+        if (
+          ["doc", "docx", "xls", "xlsx", "pdf"].includes(
+            item.name.split(".")[1],
+          )
+        ) {
+          return uploadBytes(ref(storage, `file/${item.name}`), item).then(
+            (snapshot) => {
+              return getDownloadURL(snapshot.ref).then((url) => {
+                return {
+                  type: "file",
+                  url: url,
+                  name: item.name,
+                  size: item.size,
+                };
+              });
+            },
+          );
+        }
+        return uploadBytes(ref(storage, `img/${item.name}`), item).then(
+          (snapshot) => {
+            return getDownloadURL(snapshot.ref).then((url) => {
+              return {
+                type: "image",
+                url: url,
+                name: item.name,
+                size: item.size,
+              };
+            });
+          },
+        );
+      }),
+    );
+  };
+
   const sendMedia = async () => {
-    // const uploaded = await uploadFile().then((uploads) => {
-    //   return uploads.map((item) => ({
-    //     type: item.type,
-    //     mediaUrl: item.url,
-    //     mediaName: item.name,
-    //     mediaSize: item.size,
-    //   }));
-    // });
+    const uploaded = await uploadFile().then((uploads) => {
+      return uploads.map((item) => ({
+        type: item.type,
+        mediaUrl: item.url,
+        mediaName: item.name,
+        mediaSize: item.size,
+      }));
+    });
 
     const lazyImages = files.map((item) => {
       // console.log(URL.createObjectURL(item));
@@ -351,8 +351,8 @@ const Chatbox = (props) => {
           ref={refScrollToBottom}
           data-show="false"
           className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
-          items-center justify-center rounded-[50%] bg-[var(--main-color-medium)] text-lg font-light text-[var(--text-main-color)]
-          transition-all duration-200 hover:bg-[var(--main-color)]
+          items-center justify-center rounded-[50%] bg-[var(--main-color)] text-lg font-light text-[var(--text-main-color)]
+          transition-all duration-200 hover:bg-[var(--main-color-light)]
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:z-0
           data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
           onClick={scrollChatContentToBottom}
@@ -544,10 +544,24 @@ const Chatbox = (props) => {
           />
         )} */}
         <ChatInput
-          files={files}
-          send={(text) => {
-            if (text.trim() === "") return;
-            sendMutation({ type: "text", content: text });
+          send={async (text, files) => {
+            // if (text.trim() === "") return;
+
+            const lazyImages = files.map((item) => {
+              // console.log(URL.createObjectURL(item));
+              return {
+                type: "image",
+                mediaUrl: URL.createObjectURL(item),
+              };
+            });
+            setFiles([]);
+            // sendMutation({ type: "media", attachments: lazyImages });
+            sendMutation({
+              type: "text",
+              content: text,
+              attachments: lazyImages,
+              files: files,
+            });
           }}
         />
       </div>
