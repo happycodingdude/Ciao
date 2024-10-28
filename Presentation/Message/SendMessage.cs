@@ -24,7 +24,7 @@ public static class SendMessage
                 When(c => c.model.Type == "text", () =>
                 {
                     RuleFor(c => c.model.Content).NotEmpty().WithMessage("Text message should have content");
-                    RuleFor(c => c.model.Attachments).Empty().WithMessage("Text message should not have attachments");
+                    //RuleFor(c => c.model.Attachments).Empty().WithMessage("Text message should not have attachments");
                 });
                 When(c => c.model.Type == "media", () =>
                 {
