@@ -34,6 +34,7 @@ public class MessageNoReference : BaseModel
 public class MessageToNotify : Message
 {
     public string ConversationId { get; set; }
+    public Contact Contact { get; set; }
 }
 
 public class CreateMessageRequest : Message
