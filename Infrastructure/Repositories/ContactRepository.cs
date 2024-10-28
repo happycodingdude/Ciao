@@ -74,6 +74,7 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
                 {"Name", 1},
                 {"Avatar", 1},
                 {"Bio", 1},
+                {"IsOnline", 1},
                 {"FriendId", new BsonDocument("$first", "$friends._id")},
                 {"FriendStatus", new BsonDocument("$cond", new BsonDocument
                     {
