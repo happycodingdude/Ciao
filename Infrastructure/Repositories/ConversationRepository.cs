@@ -24,7 +24,12 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("Participants.Contact._id", new BsonDocument("$eq", userId))),
+            new BsonDocument("$match", new BsonDocument("Participants", new BsonDocument("$elemMatch",
+            new BsonDocument
+            {
+                {"Contact._id", userId},
+                {"IsDeleted", false},
+            }))),
             new BsonDocument("$sort", new BsonDocument("UpdatedTime", -1)),
             new BsonDocument("$skip", pagingParam.Skip),
             new BsonDocument("$limit", pagingParam.Limit)

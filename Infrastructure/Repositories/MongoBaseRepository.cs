@@ -60,6 +60,7 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public void Add(T entity) => _uow.AddOperation(async (session) =>
     {
+        entity.UpdatedTime = DateTime.Now;
         await _collection.InsertOneAsync(session, entity);
         return Task.CompletedTask;
     });
