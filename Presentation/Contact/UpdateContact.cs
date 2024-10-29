@@ -51,7 +51,7 @@ public static class UpdateContact
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
-            _conversationRepository.Update(conversationFilter, conversationUpdates, arrayFilter);
+            _conversationRepository.UpdateNoTracking(conversationFilter, conversationUpdates, arrayFilter);
 
             return Unit.Value;
         }

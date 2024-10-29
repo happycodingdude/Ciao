@@ -25,7 +25,7 @@ public static class DeleteParticipant
             conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsDeleted = true;
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
-            _conversationRepository.Update(filter, updates);
+            _conversationRepository.UpdateNoTracking(filter, updates);
 
             return Unit.Value;
         }

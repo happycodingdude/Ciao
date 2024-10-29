@@ -77,7 +77,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             unseenMessage.SeenTime = DateTime.Now;
         }
         var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
-        Update(filter, updates);
+        UpdateNoTracking(filter, updates);
     }
 
     public async Task<ConversationWithMessages> GetById(string id, PagingParam pagingParam)

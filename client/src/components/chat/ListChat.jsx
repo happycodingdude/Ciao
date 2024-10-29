@@ -161,9 +161,9 @@ const ListChat = () => {
                         (item) => item.contact.id !== info.data.id,
                       )?.contact.avatar
                 }
-                className={`pointer-events-none aspect-square rounded-[50%] bg-[size:150%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
-                spinnerClassName="laptop:bg-[size:2rem]"
-                imageClassName="bg-[size:150%]"
+                className={`pointer-events-none aspect-square rounded-[50%] bg-[size:170%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
+                // spinnerClassName="laptop:bg-[size:2rem]"
+                // imageClassName="bg-[size:150%]"
               />
               {!item.isGroup ? (
                 <OnlineStatusDot

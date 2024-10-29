@@ -44,7 +44,7 @@ public static class UpdateConversation
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Title, request.model.Title)
                 .Set(q => q.Avatar, request.model.Avatar);
-            _conversationRepository.Update(filter, updates);
+            _conversationRepository.UpdateNoTracking(filter, updates);
 
             return Unit.Value;
         }
