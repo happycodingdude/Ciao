@@ -34,7 +34,7 @@ export const Home = () => {
         queryClient,
         info,
       );
-  }, [info?.data?.id]);
+  }, [info?.data]);
 
   if (isLoading) {
     setLoading(true);

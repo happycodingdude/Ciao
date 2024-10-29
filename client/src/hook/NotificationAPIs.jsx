@@ -18,18 +18,11 @@ export const getNotification = async () => {
 export const read = async (id) => {
   return (
     await HttpRequest({
-      method: "patch",
+      method: "put",
       url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GETBYID.replace(
         "{id}",
         id,
       ),
-      data: [
-        {
-          op: "replace",
-          path: "read",
-          value: true,
-        },
-      ],
     })
   ).data;
 };
@@ -37,20 +30,8 @@ export const read = async (id) => {
 export const readAll = async (ids) => {
   return (
     await HttpRequest({
-      method: "patch",
-      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_BULKEDIT,
-      data: ids.map((id) => {
-        return {
-          id: id,
-          patchDocument: [
-            {
-              op: "replace",
-              path: "read",
-              value: true,
-            },
-          ],
-        };
-      }),
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GET,
     })
   ).data;
 };

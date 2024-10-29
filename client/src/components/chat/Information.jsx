@@ -8,7 +8,6 @@ import {
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 import OnlineStatusDot from "../common/OnlineStatusDot";
 import RelightBackground from "../common/RelightBackground";
@@ -107,7 +106,7 @@ const Information = (props) => {
           <div className="relative flex flex-col items-center gap-[1rem]">
             {messages.isGroup ? (
               <>
-                <ImageWithLightBoxWithShadowAndNoLazy
+                <ImageWithLightBoxAndNoLazy
                   src={messages.avatar}
                   className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[7rem]"
                   slides={[
@@ -141,13 +140,13 @@ const Information = (props) => {
               </>
             ) : (
               <>
-                <ImageWithLightBoxWithShadowAndNoLazy
+                <ImageWithLightBoxAndNoLazy
                   src={
                     messages.participants?.find(
                       (item) => item.contact.id !== info.data.id,
                     )?.contact.avatar
                   }
-                  className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[7rem]"
+                  className="aspect-square cursor-pointer rounded-[1rem] !bg-[size:170%] laptop:w-[7rem]"
                   slides={[
                     {
                       src: messages.participants?.find(
@@ -216,6 +215,7 @@ const Information = (props) => {
                             src: item.contact.avatar,
                           },
                         ]}
+                        onClick={() => {}}
                       />
                       <OnlineStatusDot online={item.contact.isOnline} />
                     </div>

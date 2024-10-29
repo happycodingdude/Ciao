@@ -49,13 +49,6 @@ const Notification = () => {
     },
   });
 
-  const readCTA = (e, notification) => {
-    if (notification.read) return;
-    readMutation({
-      id: notification.id,
-    });
-  };
-
   const { mutate: readAllMutation } = useMutation({
     mutationFn: ({ ids }) => readAll(ids),
     onSuccess: (res) => {
@@ -72,14 +65,18 @@ const Notification = () => {
 
   return (
     <div className="relative">
-      <div
-        className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[2rem] items-center justify-center rounded-[50%] 
-      bg-red-500 text-[var(--text-main-color)]"
-      >
-        <span className="text-xs font-bold">
-          {notifications?.filter((item) => !item.read).length}
-        </span>
-      </div>
+      {notifications?.some((item) => !item.read) ? (
+        <div
+          className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[2rem] items-center justify-center rounded-[50%] 
+        bg-red-500 text-[var(--text-main-color)]"
+        >
+          <span className="text-xs font-bold">
+            {notifications?.filter((item) => !item.read).length}
+          </span>
+        </div>
+      ) : (
+        ""
+      )}
       <div
         className="fa fa-bell notification-trigger flex cursor-pointer items-center justify-center text-xl font-thin"
         onClick={showNotification}
@@ -109,7 +106,12 @@ const Notification = () => {
             {notifications?.map((notification) => (
               <div
                 className="notification-body flex cursor-pointer flex-wrap items-center justify-between gap-y-2 hover:bg-[var(--bg-color-thin)]"
-                onClick={(e) => readCTA(e, notification)}
+                onClick={(e) => {
+                  if (notification.read) return;
+                  readMutation({
+                    id: notification.id,
+                  });
+                }}
               >
                 <div className="notification-body py-2 font-normal">
                   {notification.content}
