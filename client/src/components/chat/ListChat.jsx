@@ -145,7 +145,7 @@ const ListChat = () => {
             ${
               selected === item.id
                 ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
-                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-thin)]"
+                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
             } `}
             onClick={() => {
               // handleSetConversation(65 * i, item.id);
@@ -177,13 +177,14 @@ const ListChat = () => {
                 ""
               )}
             </div>
+            {/* Title & last message */}
             <div className={`flex h-full w-1/2 grow flex-col`}>
               <CustomLabel
                 // className={`text-base
                 //   ${item.id === selected ? "text-[var(--text-sub-color)]" : ""}
                 //   ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id !== selected ? "text-[var(--main-color)]" : ""}
                 //   `}
-                className={`text-base ${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
+                className={`text-[1.5rem] ${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
                 title={
                   item.isGroup
                     ? item.title
@@ -193,7 +194,7 @@ const ListChat = () => {
                 }
               />
               <CustomLabel
-                className={`chat-content text-base 
+                className={`chat-content
                   ${
                     item.id === selected
                       ? "text-[var(--text-sub-color-thin)]"

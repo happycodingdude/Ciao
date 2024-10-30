@@ -351,8 +351,8 @@ const Chatbox = (props) => {
           ref={refScrollToBottom}
           data-show="false"
           className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
-          items-center justify-center rounded-[50%] bg-[var(--main-color)] text-lg font-light text-[var(--text-main-color)]
-          transition-all duration-200 hover:bg-[var(--main-color-light)]
+          items-center justify-center rounded-[50%] bg-[var(--main-color-bold)] text-lg font-light text-[var(--text-main-color)]
+          transition-all duration-200 hover:bg-[var(--main-color)]
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:z-0
           data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
           onClick={scrollChatContentToBottom}

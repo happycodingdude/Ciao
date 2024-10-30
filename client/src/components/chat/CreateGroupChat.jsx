@@ -1,4 +1,3 @@
-import { Tooltip } from "antd";
 import React, { useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import {
@@ -75,10 +74,10 @@ const CreateGroupChat = () => {
 
   return (
     <>
-        <div
-          onClick={openCreateGroupChat}
-          className="fa fa-users flex items-center justify-center text-sm font-normal"
-        ></div>
+      <div
+        onClick={openCreateGroupChat}
+        className="fa fa-users base-icon-lg"
+      ></div>
       <CustomModal
         show={show}
         forms={formData}

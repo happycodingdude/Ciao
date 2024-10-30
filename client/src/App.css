@@ -294,4 +294,14 @@ body,
     content: attr(data-text);
     color: var(--text-main-color-blur);
   } */
+
+  .base-icon-lg {
+    @apply flex cursor-pointer items-center justify-center font-light laptop:text-base desktop:text-lg
+  }
+  .base-icon {
+    @apply flex cursor-pointer items-center justify-center font-light laptop:text-md desktop:text-xl
+  }
+  .base-icon-sm {
+    @apply flex cursor-pointer items-center justify-center font-light laptop:text-lg desktop:text-xl
+  }
 }

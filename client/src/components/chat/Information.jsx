@@ -1,10 +1,10 @@
 import { Tooltip } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   useAttachment,
+  useEventListener,
   useInfo,
   useMessage,
-  useParticipant,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
@@ -19,9 +19,11 @@ const Information = (props) => {
 
   const { data: info } = useInfo();
   const { data: messages } = useMessage();
-  const { data: participants } = useParticipant();
   const { data: attachments } = useAttachment();
   const [displayAttachments, setDisplayAttachments] = useState([]);
+  const [showQuickProfile, setShowQuickProfile] = useState(false);
+
+  const refQuickProfile = useRef();
 
   useEffect(() => {
     if (!attachments) return;
@@ -36,19 +38,26 @@ const Information = (props) => {
     }
   }, [attachments]);
 
-  // useEffect(() => {
-  //   blurImage(".information-container");
-  // }, [messages]);
-
-  // useEffect(() => {
-  //   blurImage(".display-attachment-container");
-  // }, [displayAttachments]);
-
   const refInformation = useRef();
   const hideInformation = () => {
     refInformation.current.classList.remove("animate-flip-scale-up-vertical");
     refInformation.current.classList.add("animate-flip-scale-down-vertical");
   };
+
+  // Event listener
+  const closeQuickProfileOnKey = useCallback((e) => {
+    if (e.keyCode === 27) {
+      setShowQuickProfile(false);
+    }
+  }, []);
+  useEventListener("keydown", closeQuickProfileOnKey);
+
+  const closeQuickProfileOnClick = useCallback((e) => {
+    const classList = Array.from(e.target.classList);
+    if (classList.some((item) => item === "quick-profile")) return;
+    setShowQuickProfile(false);
+  }, []);
+  useEventListener("click", closeQuickProfileOnClick);
 
   // const updateAvatar = async (e) => {
   //   // Create a root reference
@@ -96,8 +105,8 @@ const Information = (props) => {
       className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color-light)] `}
     >
       <div
-        className="flex items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
-        py-[.5rem] laptop:h-[5rem] laptop-lg:h-[7rem]"
+        className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
+        px-[2rem] py-[.5rem] laptop:h-[6rem]"
       >
         <p className="text-md text-[var(--text-main-color)]">Information</p>
       </div>
@@ -122,7 +131,7 @@ const Information = (props) => {
                   // onChange={updateAvatar}
                 />
                 <CustomLabel
-                  className="text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
+                  className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={messages.title}
                   tooltip
                 />
@@ -156,7 +165,7 @@ const Information = (props) => {
                   ]}
                 />
                 <CustomLabel
-                  className="text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
+                  className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={
                     messages.participants?.find(
                       (item) => item.contact.id !== info.data.id,
@@ -167,9 +176,11 @@ const Information = (props) => {
             )}
           </div>
         </div>
-        <div className="display-attachment-container flex flex-col gap-[1rem]">
+        <div className="display-attachment-container flex flex-col">
           <div className="flex justify-between">
-            <p className="text-[var(--text-main-color)]">Attachments</p>
+            <p className="text-base text-[var(--text-main-color)]">
+              Attachments
+            </p>
             {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
@@ -181,8 +192,8 @@ const Information = (props) => {
               ""
             )}
           </div>
-          <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {/* {displayAttachments.map((item, index) => (
+          {/* <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+            {displayAttachments.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
@@ -195,34 +206,63 @@ const Information = (props) => {
                 }))}
                 index={index}
               />
-            ))} */}
-          </div>
+            ))}
+          </div> */}
         </div>
         {messages.isGroup ? (
-          <div className="flex grow flex-col gap-[2rem]">
-            <p className="text-[var(--text-main-color)]">Members</p>
-            <div className="hide-scrollbar flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
+          <div className="flex grow flex-col gap-[1rem]">
+            <p className="text-base text-[var(--text-main-color)]">Members</p>
+            {/* Still don't know why scrolling not working without adding h-0 */}
+            <div className="hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
               {messages.participants
                 .filter((item) => item.contact.id !== info.data.id)
                 .map((item) => (
-                  <div className="flex w-full cursor-pointer items-center gap-[1rem] py-2 hover:bg-[var(--bg-color-thin)]">
+                  <div
+                    className="relative flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]"
+                    onClick={(e) => {
+                      // Toggle display
+                      setShowQuickProfile(true);
+
+                      // Get the bounding rectangle of the target element
+                      const rect = e.target.getBoundingClientRect();
+
+                      // Position the popup
+                      refQuickProfile.current.style.left = `${rect.left - refQuickProfile.current.offsetWidth}px`; // Position horizontally based on target
+                      refQuickProfile.current.style.top = `${rect.top + window.scrollY}px`; // Position below the target
+                    }}
+                  >
+                    {/* <div className="absolute left-[-2rem] top-[-2rem] z-[1000] aspect-square w-[3rem] bg-red-300"></div> */}
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="aspect-square cursor-pointer rounded-[50%] laptop:w-[4rem]"
+                        className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
                         slides={[
                           {
                             src: item.contact.avatar,
                           },
                         ]}
-                        onClick={() => {}}
+                        onClick={(e) => {}}
                       />
                       <OnlineStatusDot online={item.contact.isOnline} />
                     </div>
-                    <p>{item.contact.name}</p>
+                    <CustomLabel title={item.contact.name} />
+                    {/* <FriendCtaButton
+                      friend={{
+                        id: item.contact.id,
+                        friendId: item.friendId,
+                        friendStatus: item.friendStatus,
+                      }}
+                      onClose={() => {}}
+                    /> */}
                   </div>
                 ))}
             </div>
+            {/* Friend quick profile */}
+            <div
+              ref={refQuickProfile}
+              data-show={showQuickProfile}
+              className="quick-profile fixed left-[-150%] aspect-[1/0.8] w-[30rem] rounded-[.5rem] bg-red-300 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
+            ></div>
           </div>
         ) : (
           ""

@@ -190,25 +190,6 @@ const ChatInput = (props) => {
                   },
                 ]}
               />
-              {/* <div
-                style={{
-                  "--image-url": ["doc", "docx", "xls", "xlsx", "pdf"].includes(
-                    item.name.split(".")[1],
-                  )
-                    ? "url('images/imagenotfound.jpg')"
-                    : `url('${URL.createObjectURL(item)}'`,
-                }}
-                className={`relative aspect-[4/3] w-full rounded-[.5rem] bg-[image:var(--image-url)] bg-[size:100%] bg-center bg-no-repeat`}
-                title={item.name.split(".")[0]}
-              >
-                <span
-                  data-key={item.name}
-                  // onClick={removeFile}
-                  className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] 
-                    bg-white text-[var(--danger-text-color)] hover:text-[var(--danger-text-color-normal)]"
-                  title="Clear image"
-                ></span>
-              </div> */}
               <p className="self-start text-xs">{item.name}</p>
             </div>
           ))}
@@ -216,29 +197,20 @@ const ChatInput = (props) => {
       ) : (
         ""
       )}
-      {/* <input
-        ref={inputRef}
-        // rows={files?.length !== 0 ? 4 : 1}
-        // rows={4}
-        onInput={expandTextarea}
-        className="mention-item hide-scrollbar !h-[10rem] w-full resize-none break-words rounded-2xl bg-[var(--bg-color-extrathin)] py-2 pl-4 pr-16 outline-none laptop:max-h-[10rem]"
-        onKeyDown={keyBindingFn}
-        onKeyUp={keyupBindingFn}
-      /> */}
       <div
         className={`relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
       >
         {messages.isGroup ? (
           <div
             data-show={showMention}
-            className="mention-item hide-scrollbar absolute left-0 flex flex-col gap-[1rem] overflow-y-scroll 
-          scroll-smooth rounded-[.5rem] bg-[var(--bg-color-light)] text-sm transition-all duration-200
+            className="mention-item hide-scrollbar absolute left-0 flex flex-col overflow-y-scroll 
+          scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          laptop:top-[-20rem] laptop:h-[20rem] laptop:w-[20rem]"
+          laptop:top-[-16rem] laptop:max-h-[20rem] laptop:w-[20rem]"
           >
             {mentions?.map((item) => (
               <div
-                className="flex cursor-pointer gap-[1rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
+                className="flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
                 // data-user={item.userId}
                 onClick={() => chooseMention(item.userId)}
               >
@@ -261,7 +233,7 @@ const ChatInput = (props) => {
         )}
         <ChatboxMenu
           chooseFile={chooseFile}
-          className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.5rem] " : "top-[1rem] "}`}
+          className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "}`}
         />
         <div
           ref={inputRef}
@@ -274,8 +246,8 @@ const ChatInput = (props) => {
           onKeyUp={keyupBindingFn}
         ></div>
         <label
-          className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.5rem] " : "top-[.8rem] "} 
-          cursor-pointer text-lg font-normal`}
+          className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
+          cursor-pointer text-md font-normal`}
           onClick={() => setShowEmoji((show) => !show)}
         ></label>
       </div>

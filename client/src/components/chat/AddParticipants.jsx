@@ -66,7 +66,7 @@ const AddParticipants = () => {
     <>
       <div
         onClick={handleAddParticipant}
-        className={`fa fa-user-plus flex items-center justify-center font-normal`}
+        className={`fa fa-user-plus base-icon-lg`}
       ></div>
       <CustomModal
         show={show}

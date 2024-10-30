@@ -25,7 +25,7 @@ const ChatboxContainer = (props) => {
           <Chatbox
           // toggleInformation={toggleInformationContainer}
           />
-          <div className="relative origin-right overflow-hidden text-base laptop:w-[22rem] laptop-lg:w-[25rem]">
+          <div className="relative origin-right laptop:w-[22rem]">
             <Information
               // refAttachment={refAttachment}
               // refInformationExposed={refInformation}

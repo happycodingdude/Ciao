@@ -13,7 +13,7 @@ const RelightBackground = ({ children, lighten, className, ...props }) => {
       flex aspect-square cursor-pointer items-center 
       justify-center p-[1rem] text-[var(--text-main-color)]
       transition-all duration-200 hover:rounded-[1rem]
-      hover:bg-[var(--main-color-bold)] [&>*]:text-md`}
+      hover:bg-[var(--main-color-bold)]`}
     >
       {children}
     </div>

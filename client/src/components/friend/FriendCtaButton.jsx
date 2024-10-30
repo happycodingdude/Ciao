@@ -2,11 +2,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useConversation, useInfo } from "../../hook/CustomHooks";
-import ImageWithLightBox from "../common/ImageWithLightBox";
-import FriendCtaButton from "./FriendCtaButton";
+import CustomButton from "../common/CustomButton";
+import AcceptButton from "./AcceptButton";
+import AddButton from "./AddButton";
+import CancelButton from "./CancelButton";
 
-const FriendItem = (props) => {
-  const { key, friend, setContacts, onClose } = props;
+const FriendCtaButton = (props) => {
+  const { friend, setContacts, onClose } = props;
 
   const queryClient = useQueryClient();
 
@@ -68,34 +70,63 @@ const FriendItem = (props) => {
     onClose();
   };
 
-  return (
-    <div
-      key={key}
-      // data-key={friend.id}
-      className="flex items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-light)]"
-    >
-      <ImageWithLightBox
-        src={friend.avatar}
-        className="aspect-square rounded-2xl laptop:w-[5rem]"
-        spinnerClassName="laptop:bg-[size:2rem]"
-        imageClassName="bg-[size:150%]"
-        slides={[
-          {
-            src: friend.avatar,
-          },
-        ]}
+  return {
+    new: (
+      <AddButton
+        id={friend.id}
+        onClose={(id) => {
+          setContacts((current) => {
+            return current.map((contact) => {
+              if (contact.id !== friend.id) return contact;
+              contact.friendId = id;
+              contact.friendStatus = "request_sent";
+              return contact;
+            });
+          });
+        }}
       />
-      <div className="flex h-full flex-col items-start">
-        <p className="font-medium">{friend.name}</p>
-        <p className="text-[var(--text-main-color-normal)]">{friend.Bio}</p>
-      </div>
-      <FriendCtaButton
-        friend={friend}
-        setContacts={setContacts}
-        onClose={onClose}
+    ),
+    request_received: (
+      <AcceptButton
+        id={friend.friendId}
+        onClose={() => {
+          setContacts((current) => {
+            return current.map((contact) => {
+              if (contact.id !== friend.id) return contact;
+              contact.friendId = null;
+              contact.friendStatus = "friend";
+              return contact;
+            });
+          });
+        }}
       />
-    </div>
-  );
+    ),
+    request_sent: (
+      <CancelButton
+        id={friend.friendId}
+        onClose={() => {
+          setContacts((current) => {
+            return current.map((contact) => {
+              if (contact.id !== friend.id) return contact;
+              contact.friendId = null;
+              contact.friendStatus = "new";
+              return contact;
+            });
+          });
+        }}
+      />
+    ),
+    friend: (
+      <CustomButton
+        title="Chat"
+        className={`!mr-0 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
+        leadingClass="leading-[2.5rem]"
+        onClick={() => {
+          chat(friend);
+        }}
+      />
+    ),
+  }[friend.friendStatus];
 };
 
-export default FriendItem;
+export default FriendCtaButton;
