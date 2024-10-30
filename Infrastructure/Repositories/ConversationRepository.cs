@@ -64,23 +64,21 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         return result;
     }
 
-    async Task SeenAll(ConversationWithMessages conversation)
+    public async Task<object> GetById(string id, PagingParam pagingParam)
     {
-        var user = await _contactRepository.GetInfoAsync();
-        // No need to update when all messages were seen
-        if (!conversation.Messages.Any(q => q.ContactId != user.Id && q.Status == "received")) return;
-
-        var filter = MongoQuery<Conversation>.IdFilter(conversation.Id);
-        foreach (var unseenMessage in conversation.Messages.Where(q => q.ContactId != user.Id && q.Status == "received"))
+        var filter = MongoQuery<Conversation>.IdFilter(id);
+        var conversation = await GetItemAsync(filter);
+        if (conversation.IsGroup)
         {
-            unseenMessage.Status = "seen";
-            unseenMessage.SeenTime = DateTime.Now;
+            return await GetGroupConversation(id, pagingParam);
         }
-        var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
-        UpdateNoTracking(filter, updates);
+        else
+        {
+            return await GetDirectConversation(id, pagingParam);
+        }
     }
 
-    public async Task<ConversationWithMessages> GetById(string id, PagingParam pagingParam)
+    async Task<ConversationWithMessages> GetDirectConversation(string id, PagingParam pagingParam)
     {
         // Define aggregation pipeline
         var pipeline = new BsonDocument[]
@@ -131,5 +129,134 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         await SeenAll(conversation);
 
         return conversation;
+    }
+
+    async Task<ConversationWithMessagesAndFriendRequest> GetGroupConversation(string id, PagingParam pagingParam)
+    {
+        var user = await _contactRepository.GetInfoAsync();
+
+        // Define aggregation pipeline
+        var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", id)),
+
+            new BsonDocument("$unwind", "$Participants"),
+
+            // Lookup stage
+            new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "Friend" },
+                { "let", new BsonDocument("contactId", "$Participants.Contact._id") },  // Define variable contactId from Contact's _id
+                { "pipeline", new BsonArray
+                    {
+                        new BsonDocument("$match", new BsonDocument("$expr",
+                            new BsonDocument("$or", new BsonArray
+                            {
+                                new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", "$$contactId" }),
+                                    new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", user.Id })
+                                }),
+                                new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", user.Id }),
+                                    new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", "$$contactId" })
+                                })
+                            })
+                        ))
+                    }
+                },
+                { "as", "MatchingFriends" }
+            }),
+            
+            // group state
+            new BsonDocument("$group", new BsonDocument
+            {
+                { "_id", "$_id" },
+                { "Title", new BsonDocument("$first", "$Title") },
+                { "Avatar", new BsonDocument("$first", "$Avatar") },
+                { "IsGroup", new BsonDocument("$first", "$IsGroup") },
+                { "Messages", new BsonDocument("$first", "$Messages") },
+                { "Participants", new BsonDocument("$push", new BsonDocument
+                    {
+                        { "IsDeleted", "$Participants.IsDeleted" },
+                        { "IsModerator", "$Participants.IsModerator" },
+                        { "IsNotifying", "$Participants.IsNotifying" },
+                        { "Contact", "$Participants.Contact" },
+                        { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
+                        { "FriendStatus", new BsonDocument("$cond", new BsonArray
+                            {
+                                new BsonDocument("$eq", new BsonArray { new BsonDocument("$size", "$MatchingFriends"), 0 }),
+                                "new",
+                                new BsonDocument("$cond", new BsonArray
+                                {
+                                    new BsonDocument("$ne", new BsonArray { new BsonDocument("$first", "$MatchingFriends.AcceptTime"), BsonNull.Value }),
+                                    "friend",
+                                    new BsonDocument("$cond", new BsonArray
+                                    {
+                                        new BsonDocument("$eq", new BsonArray { new BsonDocument("$first", "$MatchingFriends.FromContact.ContactId"), user.Id }),
+                                        "request_sent",
+                                        "request_received"
+                                    })
+                                })
+                            })
+                        }
+                    })
+                },
+            }),
+            
+            // Project to sort and slice the array
+            new BsonDocument("$project", new BsonDocument
+            {
+                { "Title", 1},
+                { "Avatar", 1},
+                { "IsGroup", 1},
+                { "Participants", 1},
+                { "Messages", new BsonDocument("$slice", new BsonArray
+                            {
+                                new BsonDocument("$sortArray", new BsonDocument
+                                {
+                                    { "input", "$Messages" },
+                                    { "sortBy", new BsonDocument("CreatedTime", -1) }  // 1 for ascending, -1 for descending
+                                }),
+                                pagingParam.Skip,  // Skip the specified number of items
+                                pagingParam.Limit  // Limit the result to the specified number of items
+                            }
+                )},
+                { "NextPage", new BsonDocument("$slice", new BsonArray
+                            {
+                                new BsonDocument("$sortArray", new BsonDocument
+                                {
+                                    { "input", "$Messages" },
+                                    { "sortBy", new BsonDocument("CreatedTime", -1) }  // 1 for ascending, -1 for descending
+                                }),
+                                pagingParam.NextSkip,  // Skip the specified number of items
+                                pagingParam.Limit  // Limit the result to the specified number of items
+                            }
+                )}
+            })
+        };
+        var conversation = await _collection.Aggregate<ConversationWithMessagesAndFriendRequest>(pipeline).SingleOrDefaultAsync();
+        if (conversation.NextPage.Any()) conversation.NextExist = true;
+
+        await SeenAll(conversation);
+
+        return conversation;
+    }
+
+    async Task SeenAll(ConversationWithNextPage conversation)
+    {
+        var user = await _contactRepository.GetInfoAsync();
+        // No need to update when all messages were seen
+        if (!conversation.Messages.Any(q => q.ContactId != user.Id && q.Status == "received")) return;
+
+        var filter = MongoQuery<Conversation>.IdFilter(conversation.Id);
+        foreach (var unseenMessage in conversation.Messages.Where(q => q.ContactId != user.Id && q.Status == "received"))
+        {
+            unseenMessage.Status = "seen";
+            unseenMessage.SeenTime = DateTime.Now;
+        }
+        var updates = Builders<Conversation>.Update.Set(q => q.Messages, conversation.Messages);
+        UpdateNoTracking(filter, updates);
     }
 }

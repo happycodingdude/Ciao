@@ -2,7 +2,7 @@ namespace Presentation.Conversations;
 
 public static class GetById
 {
-    public record Request(string id, int page) : IRequest<ConversationWithMessages>;
+    public record Request(string id, int page) : IRequest<object>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -20,7 +20,7 @@ public static class GetById
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, ConversationWithMessages>
+    internal sealed class Handler : IRequestHandler<Request, object>
     {
         readonly IValidator<Request> _validator;
         readonly IConversationRepository _conversationRepository;
@@ -31,7 +31,7 @@ public static class GetById
             _conversationRepository = service.Get();
         }
 
-        public async Task<ConversationWithMessages> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<object> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
