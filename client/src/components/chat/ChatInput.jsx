@@ -6,7 +6,7 @@ import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWit
 import ChatboxMenu from "./ChatboxMenu";
 
 const ChatInput = (props) => {
-  const { send } = props;
+  const { send, className, quickChat, noMenu } = props;
 
   const { data: messages } = useMessage();
   const { data: info } = useInfo();
@@ -139,6 +139,10 @@ const ChatInput = (props) => {
     setFiles(files.filter((item) => item.name !== e.target.dataset.key));
   };
 
+  useEffect(() => {
+    if (quickChat) inputRef.current.focus();
+  }, [quickChat]);
+
   // useEffect(() => {
   //   if (!files || files.length === 0) return;
 
@@ -162,7 +166,9 @@ const ChatInput = (props) => {
   // }, []);
 
   return (
-    <div className="relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] px-2 laptop:max-w-[65rem]">
+    <div
+      className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
+    >
       {files?.length !== 0 ? (
         <div
           className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
@@ -200,10 +206,10 @@ const ChatInput = (props) => {
       <div
         className={`relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
       >
-        {messages.isGroup ? (
+        {messages.isGroup && !quickChat ? (
           <div
             data-show={showMention}
-            className="mention-item hide-scrollbar absolute left-0 flex flex-col overflow-y-scroll 
+            className="mention-item hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
           scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
           laptop:top-[-16rem] laptop:max-h-[20rem] laptop:w-[20rem]"
@@ -231,17 +237,21 @@ const ChatInput = (props) => {
         ) : (
           ""
         )}
-        <ChatboxMenu
-          chooseFile={chooseFile}
-          className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "}`}
-        />
+        {!noMenu ? (
+          <ChatboxMenu
+            chooseFile={chooseFile}
+            className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "}`}
+          />
+        ) : (
+          ""
+        )}
         <div
           ref={inputRef}
           contentEditable={true}
           // data-text="Type something.."
           // aria-placeholder="Type something.."
           className={`mention-item hide-scrollbar w-full resize-none overflow-y-auto break-words 
-            px-16 pb-2 outline-none laptop:max-h-[10rem]`}
+            pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
           onKeyDown={keyBindingFn}
           onKeyUp={keyupBindingFn}
         ></div>

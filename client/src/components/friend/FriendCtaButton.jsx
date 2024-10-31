@@ -10,10 +10,67 @@ import CancelButton from "./CancelButton";
 const FriendCtaButton = (props) => {
   const { friend, setContacts, onClose } = props;
 
+  if (!friend) return;
+
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
+
+  // const chat = (contact) => {
+  //   const existedConversation = conversations.conversations.find(
+  //     (item) =>
+  //       item.isGroup === false &&
+  //       item.participants.some((item) => item.contact.id === contact.id),
+  //   );
+  //   if (existedConversation) {
+  //     queryClient.setQueryData(["conversation"], (oldData) => {
+  //       return { ...oldData, selected: existedConversation.id };
+  //     });
+  //   } else {
+  //     HttpRequest({
+  //       method: "post",
+  //       url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT.replace(
+  //         "{contact-id}",
+  //         contact.id,
+  //       ),
+  //     }).then((res) => {
+  //       queryClient.setQueryData(["conversation"], (oldData) => {
+  //         return {
+  //           ...oldData,
+  //           conversations: [
+  //             {
+  //               isGroup: false,
+  //               isNotifying: true,
+  //               id: res.data,
+  //               participants: [
+  //                 {
+  //                   contact: {
+  //                     id: info.data.id,
+  //                     name: info.data.name,
+  //                     avatar: info.data.avatar,
+  //                     isOnline: true,
+  //                   },
+  //                 },
+  //                 {
+  //                   contact: {
+  //                     id: contact.id,
+  //                     name: contact.name,
+  //                     avatar: contact.avatar,
+  //                     isOnline: contact.isOnline,
+  //                   },
+  //                 },
+  //               ],
+  //             },
+  //             ...oldData.conversations,
+  //           ],
+  //           selected: res.data,
+  //         };
+  //       });
+  //     });
+  //   }
+  //   onClose();
+  // };
 
   const chat = (contact) => {
     const existedConversation = conversations.conversations.find(
