@@ -1,17 +1,19 @@
 import EmojiPicker from "emoji-picker-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useState } from "react";
 import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
 import ImageWithLightBoxImgTag from "../common/ImageWithLightBoxImgTag";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import ChatboxMenu from "./ChatboxMenu";
 
-const ChatInput = (props) => {
-  const { send, className, quickChat, noMenu } = props;
+const ChatInput = forwardRef((props, ref) => {
+  const { send, className, quickChat, noMenu, reFocus } = props;
+
+  if (!ref) return;
 
   const { data: messages } = useMessage();
   const { data: info } = useInfo();
 
-  const inputRef = useRef();
+  // const inputRef = useRef();
 
   const [mentions, setMentions] = useState();
   const [showMention, setShowMention] = useState(false);
@@ -19,7 +21,12 @@ const ChatInput = (props) => {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
-    inputRef.current.innerText = "";
+    ref.current.textContent = "";
+    ref.current.focus();
+    // setTimeout(() => {
+    //   if (ref.current) {
+    //   }
+    // }, 0);
     setFiles([]);
     setMentions(() => {
       return messages?.participants
@@ -34,17 +41,38 @@ const ChatInput = (props) => {
     });
   }, [messages]);
 
+  useEffect(() => {
+    if (reFocus) ref.current.focus();
+  }, [reFocus]);
+
+  const setCaretToEnd = () => {
+    // ref.current.textContent += " ";
+    ref.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
+    ref.current.focus();
+
+    // Create a range and set it to the end of the content
+    const range = document.createRange();
+    range.selectNodeContents(ref.current);
+    range.collapse(false); // Collapse the range to the end
+
+    // Create a selection and add the range to it
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
   const chooseMention = (id) => {
     let user = mentions.find((item) => item.userId === id);
-    inputRef.current.innerText = inputRef.current.innerText.replace("@", "");
-    inputRef.current.innerText = inputRef.current.innerText += user.name;
-    inputRef.current.focus();
-    setShow(false);
+    ref.current.textContent = ref.current.textContent.replace("@", "");
+    ref.current.textContent = ref.current.textContent += user.name;
+    // ref.current.focus();
+    setCaretToEnd();
+    setShowMention(false);
   };
 
   const chat = () => {
-    send(inputRef.current.innerText, files);
-    inputRef.current.innerText = "";
+    send(ref.current.textContent, files);
+    ref.current.textContent = "";
     setFiles([]);
   };
 
@@ -63,19 +91,19 @@ const ChatInput = (props) => {
     e.preventDefault();
 
     // Cái này cho element input
-    // const cursorPosition = inputRef.current.selectionStart;
+    // const cursorPosition = ref.current.selectionStart;
 
     // Cái này cho element contenteditable
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     const clonedRange = range.cloneRange();
-    clonedRange.selectNodeContents(inputRef.current);
+    clonedRange.selectNodeContents(ref.current);
     clonedRange.setEnd(range.endContainer, range.endOffset);
 
     const cursorPosition = clonedRange.toString().length;
     // Ensure the cursor is not at the start (index 0)
     if (cursorPosition > 0) {
-      const textBeforeCursor = inputRef.current.innerText.substring(
+      const textBeforeCursor = ref.current.textContent.substring(
         0,
         cursorPosition,
       );
@@ -89,6 +117,12 @@ const ChatInput = (props) => {
   };
 
   // Event listener
+  const closeMentionOnClick = useCallback((e) => {
+    if (e.target.closest(".mention-item")) return;
+    setShowMention(false);
+  }, []);
+  useEventListener("click", closeMentionOnClick);
+
   const hideMentionOnKey = useCallback((e) => {
     if (e.keyCode === 27) {
       setShowMention(false);
@@ -96,30 +130,23 @@ const ChatInput = (props) => {
   }, []);
   useEventListener("keydown", hideMentionOnKey);
 
-  const closeMentionOnClick = useCallback((e) => {
-    const classList = Array.from(e.target.classList);
-    if (classList.some((item) => item === "mention-item")) return;
-    setShowMention(false);
-  }, []);
-  useEventListener("click", closeMentionOnClick);
-
-  const hideEmojiOnClick = useCallback((e) => {
+  const closeEmojiOnClick = useCallback((e) => {
     const classList = Array.from(e.target.classList);
     if (
-      classList.some((item) => item === "emoji-item") ||
+      e.target.closest("emoji-item") ||
       classList.some((item) => item.includes("epr"))
     )
       return;
     setShowEmoji(false);
   }, []);
-  useEventListener("click", hideEmojiOnClick);
+  useEventListener("click", closeEmojiOnClick);
 
-  const hideEmojiOnKey = useCallback((e) => {
+  const closeEmojiOnKey = useCallback((e) => {
     if (e.keyCode === 27) {
       setShowEmoji(false);
     }
   }, []);
-  useEventListener("keydown", hideEmojiOnKey);
+  useEventListener("keydown", closeEmojiOnKey);
 
   const chooseFile = (e) => {
     const chosenFiles = Array.from(e.target.files);
@@ -132,16 +159,12 @@ const ChatInput = (props) => {
 
     e.target.value = null;
 
-    inputRef.current.focus();
+    ref.current.focus();
   };
 
   const removeFile = (e) => {
     setFiles(files.filter((item) => item.name !== e.target.dataset.key));
   };
-
-  useEffect(() => {
-    if (quickChat) inputRef.current.focus();
-  }, [quickChat]);
 
   // useEffect(() => {
   //   if (!files || files.length === 0) return;
@@ -204,12 +227,12 @@ const ChatInput = (props) => {
         ""
       )}
       <div
-        className={`relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
+        className={`mention-item relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
       >
         {messages.isGroup && !quickChat ? (
           <div
             data-show={showMention}
-            className="mention-item hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
+            className="hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
           scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
           laptop:top-[-16rem] laptop:max-h-[20rem] laptop:w-[20rem]"
@@ -246,11 +269,12 @@ const ChatInput = (props) => {
           ""
         )}
         <div
-          ref={inputRef}
+          // ref={inputRef}
+          ref={ref}
           contentEditable={true}
           // data-text="Type something.."
           // aria-placeholder="Type something.."
-          className={`mention-item hide-scrollbar w-full resize-none overflow-y-auto break-words 
+          className={`hide-scrollbar w-full resize-none overflow-y-auto break-words 
             pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
           onKeyDown={keyBindingFn}
           onKeyUp={keyupBindingFn}
@@ -265,11 +289,11 @@ const ChatInput = (props) => {
         open={showEmoji}
         width={300}
         height={400}
-        onEmojiClick={(emoji) => (inputRef.current.value += emoji.emoji)}
+        onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
         className="emoji-item !absolute right-[2rem] top-[-41rem]"
       />
     </div>
   );
-};
+});
 
 export default ChatInput;

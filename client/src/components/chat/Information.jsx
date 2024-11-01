@@ -228,10 +228,10 @@ const Information = (props) => {
                     }}
                   >
                     {/* <div className="absolute left-[-2rem] top-[-2rem] z-[1000] aspect-square w-[3rem] bg-red-300"></div> */}
-                    <div className="information-members relative">
+                    <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="information-members aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+                        className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
                         slides={[
                           {
                             src: item.contact.avatar,
@@ -241,10 +241,7 @@ const Information = (props) => {
                       />
                       <OnlineStatusDot online={item.contact.isOnline} />
                     </div>
-                    <CustomLabel
-                      title={item.contact.name}
-                      className="information-members"
-                    />
+                    <CustomLabel title={item.contact.name} />
                   </div>
                 ))}
             </div>

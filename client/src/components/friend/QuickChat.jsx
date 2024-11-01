@@ -21,6 +21,7 @@ const QuickChat = (props) => {
   const [show, setShow] = useState(false);
 
   const refQuickProfile = useRef();
+  const refInput = useRef();
 
   useEffect(() => {
     if (!profile && !rect) return;
@@ -31,6 +32,7 @@ const QuickChat = (props) => {
     }
 
     setShow(true);
+    refInput.current.focus();
 
     // Adjust offset as needed to center redBox vertically over the clicked item
     let offsetTop = rect.top - refQuickProfile.current.offsetHeight / 3;
@@ -110,13 +112,11 @@ const QuickChat = (props) => {
   useEventListener("keydown", closeQuickProfileOnKey);
 
   const closeQuickProfileOnClick = useCallback((e) => {
-    const classList = Array.from(e.target.classList);
     if (
-      classList.some((item) => item === "quick-profile") ||
-      classList.some((item) => item === "information-members")
+      e.target.closest(".quick-profile") ||
+      e.target.closest(".information-members")
     )
       return;
-    setShowQuickProfile(false);
     refQuickProfile.current.style.right = "-40rem";
   }, []);
   useEventListener("click", closeQuickProfileOnClick);
@@ -156,6 +156,7 @@ const QuickChat = (props) => {
               onClose();
               chat(profile);
             }}
+            ref={refInput}
           />
         </div>
       </div>

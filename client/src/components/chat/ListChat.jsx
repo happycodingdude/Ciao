@@ -80,7 +80,7 @@ const ListChat = () => {
         return conversation;
       });
       return {
-        selected: selected.id,
+        selected: selected,
         conversations: newConversations,
       };
     });

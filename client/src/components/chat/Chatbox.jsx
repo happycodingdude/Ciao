@@ -10,7 +10,6 @@ import {
   useInfo,
   useMessage,
 } from "../../hook/CustomHooks";
-import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
@@ -28,7 +27,7 @@ const Chatbox = (props) => {
   const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
   const refTitleContainer = useRef();
-  const refChatInput = useRef();
+  const refInput = useRef();
 
   const [files, setFiles] = useState([]);
   const [open, setOpen] = useState(false);
@@ -37,6 +36,7 @@ const Chatbox = (props) => {
   const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
+  const [reFocus, setReFocus] = useState(false);
 
   const { data: info } = useInfo();
   const { data: conversation } = useConversation();
@@ -53,6 +53,9 @@ const Chatbox = (props) => {
   useEffect(() => {
     setPage(2);
     setAutoScrollBottom(true);
+    setTimeout(() => {
+      refInput.current.focus();
+    }, 500);
   }, [conversation?.selected]);
 
   // const chooseFile = (e) => {
@@ -81,7 +84,7 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-      // await delay(1000);
+      await delay(10000);
 
       // if (param.type === "text" && param.content === "") return;
 
@@ -112,7 +115,7 @@ const Chatbox = (props) => {
         };
       }
 
-      await send(messages.id, bodyToCreate);
+      // await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
         const newData = {
@@ -271,28 +274,10 @@ const Chatbox = (props) => {
   };
 
   // Event listener
-  const closeProfile = useCallback((e) => {
-    if (
-      // e.keyCode === 27 ||
-      Array.from(e.target.classList).some(
-        (item) => item === "profile-container",
-      )
-    )
-      setOpen(false);
-  }, []);
-  // useEventListener("keydown", closeProfile);
-  useEventListener("click", closeProfile);
-
-  const closeEmoji = useCallback((e) => {
-    const classList = Array.from(e.target.classList);
-    if (
-      classList.some((item) => item === "choose-emoji") ||
-      classList.some((item) => item.includes("epr"))
-    )
-      return;
-    setOpenEmoji(false);
-  }, []);
-  useEventListener("click", closeEmoji);
+  // const closeProfile = useCallback((e) => {
+  //   if (e.target.closest(".profile-container")) setOpen(false);
+  // }, []);
+  // useEventListener("click", closeProfile);
 
   const fetchMoreMessage = (conversationId, page, currentScrollHeight) => {
     setFetching(true);
@@ -487,75 +472,17 @@ const Chatbox = (props) => {
         </div>
       </div>
       <div className="flex w-full items-center justify-center py-3">
-        {/* {files.length !== 0 ? (
-          <>
-            <div
-              // className={`${
-              //   files.length === 1
-              //     ? "grid-cols-[12rem] p-[.5rem]"
-              //     : "p-[.7rem] laptop:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]"
-              // }
-              className={`hide-scrollbar grid max-h-[7rem]              
-              gap-[1rem] overflow-y-auto rounded-[.8rem] border-[.2rem] border-[var(--main-color-light)] p-[.7rem] laptop:w-[clamp(41rem,73%,61rem)] laptop:grid-cols-[repeat(auto-fill,9rem)] 
-              desktop:w-[clamp(70rem,75%,120rem)] desktop:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]`}
-            >
-              {files.map((item) => (
-                <div
-                  style={{
-                    "--image-url": [
-                      "doc",
-                      "docx",
-                      "xls",
-                      "xlsx",
-                      "pdf",
-                    ].includes(item.name.split(".")[1])
-                      ? "url('images/imagenotfound.jpg')"
-                      : `url('${URL.createObjectURL(item)}'`,
-                  }}
-                  className={`relative aspect-video rounded-[.8rem] bg-[image:var(--image-url)] bg-[size:100%] bg-center`}
-                  title={item.name.split(".")[0]}
-                >
-                  <span
-                    data-key={item.name}
-                    onClick={removeFile}
-                    className="fa fa-times-circle absolute right-[0] top-[-5%] z-[1] aspect-square w-[1rem] cursor-pointer rounded-[50%] 
-                    bg-white text-[var(--danger-text-color)] hover:text-[var(--danger-text-color-normal)]"
-                    title="Clear image"
-                  ></span>
-                </div>
-              ))}
-            </div>
-            <div className="flex grow items-center justify-center">
-              <Tooltip title="Send">
-                <div
-                  className="fa fa-paper-plane flex aspect-square h-full cursor-pointer rounded-[.8rem] 
-                  text-[var(--main-color-light)]"
-                  onClick={sendMedia}
-                ></div>
-              </Tooltip>
-            </div>
-          </>
-        ) : (
-          <ChatInput
-            send={(text) => {
-              if (text.trim() === "") return;
-              sendMutation({ type: "text", content: text });
-            }}
-          />
-        )} */}
         <ChatInput
-          send={async (text, files) => {
+          send={(text, files) => {
             // if (text.trim() === "") return;
 
             const lazyImages = files.map((item) => {
-              // console.log(URL.createObjectURL(item));
               return {
                 type: "image",
                 mediaUrl: URL.createObjectURL(item),
               };
             });
             setFiles([]);
-            // sendMutation({ type: "media", attachments: lazyImages });
             sendMutation({
               type: "text",
               content: text,
@@ -563,6 +490,8 @@ const Chatbox = (props) => {
               files: files,
             });
           }}
+          reFocus={reFocus}
+          ref={refInput}
         />
       </div>
     </div>

@@ -75,7 +75,7 @@ const MessageContent = (props) => {
         ""
       )}
       <div
-        className={`flex flex-col gap-[.5rem] laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+        className={`flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
         ${message.contactId === info.data.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
