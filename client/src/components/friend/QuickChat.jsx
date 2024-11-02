@@ -5,6 +5,7 @@ import {
   useEventListener,
   useInfo,
 } from "../../hook/CustomHooks";
+import { send } from "../../hook/MessageAPIs";
 import ChatInput from "../chat/ChatInput";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import FriendCtaButton from "./FriendCtaButton";
@@ -48,15 +49,38 @@ const QuickChat = (props) => {
     refQuickProfile.current.style.right = `${window.scrollY + offset}px`; // Position horizontally based on target
   }, [profile, rect]);
 
-  const chat = (contact) => {
+  const chat = async (contact, content) => {
     const existedConversation = conversations.conversations.find(
       (item) =>
         item.isGroup === false &&
         item.participants.some((item) => item.contact.id === contact.id),
     );
     if (existedConversation) {
+      const bodyToCreate = {
+        moderator: existedConversation.participants.find(
+          (q) => q.isModerator === true,
+        ).contact.id,
+        type: "text",
+        content: content,
+      };
+      await send(existedConversation.id, bodyToCreate);
+      // queryClient.setQueryData(["conversation"], (oldData) => {
+      //   return { ...oldData, selected: existedConversation.id };
+      // });
       queryClient.setQueryData(["conversation"], (oldData) => {
-        return { ...oldData, selected: existedConversation.id };
+        const clonedConversations = oldData.conversations.map((item) => {
+          return Object.assign({}, item);
+        });
+        const updatedConversations = clonedConversations.map((conversation) => {
+          if (conversation.id !== existedConversation.id) return conversation;
+          conversation.lastMessage = content;
+          return conversation;
+        });
+        return {
+          ...oldData,
+          conversations: updatedConversations,
+          selected: existedConversation.id,
+        };
       });
     } else {
       HttpRequest({
@@ -151,10 +175,10 @@ const QuickChat = (props) => {
             className="grow-0"
             quickChat
             noMenu
-            send={() => {
+            send={(content) => {
               setShow(false);
               onClose();
-              chat(profile);
+              chat(profile, content);
             }}
             ref={refInput}
           />

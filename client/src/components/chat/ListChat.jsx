@@ -91,29 +91,27 @@ const ListChat = () => {
   useEffect(() => {
     if (!data?.selected || data?.selected === selected) return;
 
-    //console.log("CLick chat button from list friend");
     handleSetConversation(data.selected);
   }, [data]);
 
-  //   moment.locale("en", {
-  //     relativeTime: {
-  //       future: "in %s",
-  //       past: "%s",
-  //       s: "1m",
-  //       ss: "1m",
-  //       m: "%dm",
-  //       mm: "%dm",
-  //       h: "%dh",
-  //       hh: "%dh",
-  //       d: "a day",
-  //       dd: "%dd",
-  //       M: "a month",
-  //       MM: "%dM",
-  //       y: "a year",
-  //       yy: "%dY",
-  //     },
-  //   });
-  // }, [conversations]);
+  // moment.locale("en", {
+  //   relativeTime: {
+  //     future: "in %s",
+  //     past: "%s",
+  //     s: "1m",
+  //     ss: "1m",
+  //     m: "%dm",
+  //     mm: "%dm",
+  //     h: "%dh",
+  //     hh: "%dh",
+  //     d: "a day",
+  //     dd: "%dd",
+  //     M: "a month",
+  //     MM: "%dM",
+  //     y: "a year",
+  //     yy: "%dY",
+  //   },
+  // });
 
   const scrollListChatToBottom = () => {
     refChats.current.scrollTop = refChats.current.scrollHeight;
@@ -207,7 +205,7 @@ const ListChat = () => {
               />
             </div>
             <div
-              className={`flex h-full shrink-0 flex-col items-end text-base laptop:min-w-[4rem]`}
+              className={`flex h-full shrink-0 flex-col items-end laptop:min-w-[4rem]`}
             >
               <p>
                 {item.lastMessageTime === null

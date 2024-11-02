@@ -10,6 +10,7 @@ import {
   useInfo,
   useMessage,
 } from "../../hook/CustomHooks";
+import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import UserProfile from "../profile/UserProfile";
@@ -84,7 +85,7 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-      await delay(10000);
+      // await delay(10000);
 
       // if (param.type === "text" && param.content === "") return;
 
@@ -115,7 +116,7 @@ const Chatbox = (props) => {
         };
       }
 
-      // await send(messages.id, bodyToCreate);
+      await send(messages.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
         const newData = {
