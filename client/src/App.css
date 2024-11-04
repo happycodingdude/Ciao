@@ -89,7 +89,11 @@
 html,
 body,
 #root {
-  font-family: 'Roboto';
+  font-family: 'Mulish';
+  /* font-family: 'Roboto'; */
+  /* font-family: 'Montserrat'; */
+  /* font-family: SegoeuiPc,Segoe UI,San Francisco,Helvetica Neue,Helvetica,Lucida Grande,Roboto,Ubuntu,Tahoma,Microsoft Sans Serif,Arial,sans-serif; */
+  /* font-family: sans-serif; */
   font-size: 1.6rem;
   width: 100vw;
   height: 100vh;

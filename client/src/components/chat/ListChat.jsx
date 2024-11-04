@@ -70,9 +70,6 @@ const ListChat = () => {
     if (!selected) return;
 
     queryClient.setQueryData(["conversation"], (oldData) => {
-      // const cloned = oldData.map((item) => {
-      //   return Object.assign({}, item);
-      // });
       const cloned = Object.assign({}, oldData);
       var newConversations = cloned.conversations.map((conversation) => {
         if (conversation.id !== selected) return conversation;
@@ -80,7 +77,7 @@ const ListChat = () => {
         return conversation;
       });
       return {
-        selected: selected,
+        selected: cloned.conversations.find((item) => item.id === selected),
         conversations: newConversations,
       };
     });
@@ -89,10 +86,32 @@ const ListChat = () => {
   }, [selected]);
 
   useEffect(() => {
-    if (!data?.selected || data?.selected === selected) return;
+    if (!data?.selected || data?.selected.id === selected) return;
 
-    handleSetConversation(data.selected);
+    if (data?.quickChatAdd) {
+      setSelected(undefined);
+      return;
+    }
+
+    if (data?.selectAndAddMessage) {
+      selectAndAddMessage();
+      return;
+    }
+
+    handleSetConversation(data.selected.id);
   }, [data]);
+
+  const selectAndAddMessage = () => {
+    handleSetConversation(data.selected.id);
+    setTimeout(() => {
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: [data.message, ...oldData.messages],
+        };
+      });
+    }, 700);
+  };
 
   // moment.locale("en", {
   //   relativeTime: {
@@ -141,7 +160,7 @@ const ListChat = () => {
             className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
-              selected === item.id
+              selected === item.id || data?.selected?.id === item.id
                 ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
                 : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
             } `}

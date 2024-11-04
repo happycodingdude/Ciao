@@ -38,24 +38,30 @@ const SideBar = (props) => {
               },
             ]}
           />
-          <RelightBackground lighten={page === "chat"}>
-            <ChatIcon
-              show={() => {
-                refetch();
-                setPage("chat");
-              }}
-            />
+          <RelightBackground
+            lighten={page === "chat"}
+            onClick={() => {
+              refetch();
+              setPage("chat");
+            }}
+          >
+            <ChatIcon />
           </RelightBackground>
-          <RelightBackground lighten={page === "profile"}>
-            <ProfileIcon
-              show={() => {
-                queryClient.resetQueries({
-                  queryKey: ["message"],
-                  exact: true,
-                });
-                setPage("profile");
-              }}
-            />
+          <RelightBackground
+            lighten={page === "profile"}
+            onClick={() => {
+              queryClient.resetQueries({
+                queryKey: ["conversation"],
+                exact: true,
+              });
+              queryClient.resetQueries({
+                queryKey: ["message"],
+                exact: true,
+              });
+              setPage("profile");
+            }}
+          >
+            <ProfileIcon />
           </RelightBackground>
         </div>
         <div className="flex w-full flex-col items-center justify-between gap-[3rem]">

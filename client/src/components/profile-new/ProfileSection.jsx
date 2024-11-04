@@ -125,6 +125,7 @@ const ProfileSection = () => {
         </div>
       </div>
       <CustomButton
+        gradientClass="after:h-[115%] after:w-[107%]"
         processing={processing}
         title="Save"
         className="!ml-0 !w-[30%]"

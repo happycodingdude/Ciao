@@ -1,7 +1,5 @@
-const ChatIcon = (props) => {
-  const { show } = props;
-
-  return <div className={`fa fa-comment base-icon`} onClick={show}></div>;
+const ChatIcon = () => {
+  return <div className={`fa fa-comment base-icon`}></div>;
 };
 
 export default ChatIcon;

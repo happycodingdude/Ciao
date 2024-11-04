@@ -37,7 +37,6 @@ const Chatbox = (props) => {
   const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
-  const [reFocus, setReFocus] = useState(false);
 
   const { data: info } = useInfo();
   const { data: conversation } = useConversation();
@@ -491,7 +490,6 @@ const Chatbox = (props) => {
               files: files,
             });
           }}
-          reFocus={reFocus}
           ref={refInput}
         />
       </div>

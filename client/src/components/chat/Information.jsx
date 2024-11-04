@@ -1,6 +1,6 @@
 import { Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useAttachment, useInfo, useMessage } from "../../hook/CustomHooks";
+import { useConversation, useInfo } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
@@ -14,30 +14,31 @@ const Information = (props) => {
   const { show, toggle } = props;
 
   const { data: info } = useInfo();
-  const { data: messages } = useMessage();
-  const { data: attachments } = useAttachment();
+  // const { data: messages } = useMessage();
+  const { data: conversations } = useConversation();
+  // const { data: attachments } = useAttachment();
 
-  const [displayAttachments, setDisplayAttachments] = useState([]);
+  // const [displayAttachments, setDisplayAttachments] = useState([]);
   const [chosenProfile, setChosenProfile] = useState();
   const [quickChatRect, setQuickChatRect] = useState();
   const [informationoffsetWidth, setInformationoffsetWidth] = useState();
 
   useEffect(() => {
     setChosenProfile(undefined);
-  }, [messages?.id]);
+  }, [conversations.selected?.id]);
 
-  useEffect(() => {
-    if (!attachments) return;
+  // useEffect(() => {
+  //   if (!attachments) return;
 
-    if (attachments?.length !== 0) {
-      const mergedArr = attachments.reduce((result, item) => {
-        return result.concat(item.attachments);
-      }, []);
-      setDisplayAttachments(mergedArr.slice(0, 8));
-    } else {
-      setDisplayAttachments([]);
-    }
-  }, [attachments]);
+  //   if (attachments?.length !== 0) {
+  //     const mergedArr = attachments.reduce((result, item) => {
+  //       return result.concat(item.attachments);
+  //     }, []);
+  //     setDisplayAttachments(mergedArr.slice(0, 8));
+  //   } else {
+  //     setDisplayAttachments([]);
+  //   }
+  // }, [attachments]);
 
   const refInformation = useRef();
   const hideInformation = () => {
@@ -99,14 +100,14 @@ const Information = (props) => {
       <div className="mt-[1rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[1rem]">
-            {messages.isGroup ? (
+            {conversations.selected?.isGroup ? (
               <>
                 <ImageWithLightBoxAndNoLazy
-                  src={messages.avatar}
+                  src={conversations.selected?.avatar}
                   className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[7rem]"
                   slides={[
                     {
-                      src: messages.avatar,
+                      src: conversations.selected?.avatar,
                     },
                   ]}
                 />
@@ -118,7 +119,7 @@ const Information = (props) => {
                 />
                 <CustomLabel
                   className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
-                  title={messages.title}
+                  title={conversations.selected?.title}
                   tooltip
                 />
                 {/* <div className="cursor-pointer text-[var(--text-main-color-blur)]">
@@ -137,14 +138,14 @@ const Information = (props) => {
               <>
                 <ImageWithLightBoxAndNoLazy
                   src={
-                    messages.participants?.find(
+                    conversations.selected?.participants?.find(
                       (item) => item.contact.id !== info.data.id,
                     )?.contact.avatar
                   }
                   className="aspect-square cursor-pointer rounded-[1rem] !bg-[size:170%] laptop:w-[7rem]"
                   slides={[
                     {
-                      src: messages.participants?.find(
+                      src: conversations.selected?.participants?.find(
                         (item) => item.contact.id !== info.data.id,
                       )?.contact.avatar,
                     },
@@ -153,7 +154,7 @@ const Information = (props) => {
                 <CustomLabel
                   className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={
-                    messages.participants?.find(
+                    conversations.selected?.participants?.find(
                       (item) => item.contact.id !== info.data.id,
                     )?.contact.name
                   }
@@ -167,7 +168,7 @@ const Information = (props) => {
             <p className="text-base text-[var(--text-main-color)]">
               Attachments
             </p>
-            {displayAttachments.length !== 0 ? (
+            {/* {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
@@ -176,7 +177,7 @@ const Information = (props) => {
               </div>
             ) : (
               ""
-            )}
+            )} */}
           </div>
           {/* <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
             {displayAttachments.map((item, index) => (
@@ -195,12 +196,12 @@ const Information = (props) => {
             ))}
           </div> */}
         </div>
-        {messages.isGroup ? (
+        {conversations.selected?.isGroup ? (
           <div className="flex grow flex-col gap-[1rem]">
             <p className="text-base text-[var(--text-main-color)]">Members</p>
             {/* Still don't know why scrolling not working without adding h-0 */}
             <div className="hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
-              {messages.participants
+              {conversations.selected?.participants
                 .filter((item) => item.contact.id !== info.data.id)
                 .map((item) => (
                   <div

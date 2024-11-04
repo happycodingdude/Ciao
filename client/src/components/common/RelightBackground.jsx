@@ -1,4 +1,10 @@
-const RelightBackground = ({ children, lighten, className, ...props }) => {
+const RelightBackground = ({
+  children,
+  lighten,
+  className,
+  onClick,
+  ...props
+}) => {
   return (
     <div
       {...props}
@@ -14,6 +20,7 @@ const RelightBackground = ({ children, lighten, className, ...props }) => {
       justify-center p-[1rem] text-[var(--text-main-color)]
       transition-all duration-200 hover:rounded-[1rem]
       hover:bg-[var(--main-color-bold)]`}
+      onClick={onClick ?? (() => {})}
     >
       {children}
     </div>

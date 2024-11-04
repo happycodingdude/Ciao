@@ -25,6 +25,7 @@ const AcceptButton = (props) => {
       title="Accept"
       className={`!mr-0 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
       leadingClass="leading-[2.5rem]"
+      gradientClass="after:h-[115%] after:w-[107%]"
       onClick={acceptFriendRequest}
       processing={processing}
     />

@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
+import { HttpRequest } from "../../common/Utility";
 import {
   useConversation,
   useEventListener,
@@ -19,21 +20,14 @@ const QuickChat = (props) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
-  const [show, setShow] = useState(false);
-
   const refQuickProfile = useRef();
   const refInput = useRef();
 
   useEffect(() => {
-    if (!profile && !rect) return;
+    if (!profile || !rect) return;
 
-    if (!profile) {
-      setShow(false);
-      return;
-    }
-
-    setShow(true);
     refInput.current.focus();
+    refInput.current.textContent = "";
 
     // Adjust offset as needed to center redBox vertically over the clicked item
     let offsetTop = rect.top - refQuickProfile.current.offsetHeight / 3;
@@ -56,6 +50,28 @@ const QuickChat = (props) => {
         item.participants.some((item) => item.contact.id === contact.id),
     );
     if (existedConversation) {
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const cloned = Object.assign({}, oldData);
+        const updatedConversations = cloned.conversations.map(
+          (conversation) => {
+            if (conversation.id !== existedConversation.id) return conversation;
+            conversation.lastMessage = content;
+            return conversation;
+          },
+        );
+        return {
+          ...oldData,
+          conversations: updatedConversations,
+          selected: existedConversation,
+          selectAndAddMessage: true,
+          message: {
+            contactId: info.data.id,
+            type: "text",
+            content: content,
+          },
+        };
+      });
+
       const bodyToCreate = {
         moderator: existedConversation.participants.find(
           (q) => q.isModerator === true,
@@ -64,64 +80,110 @@ const QuickChat = (props) => {
         content: content,
       };
       await send(existedConversation.id, bodyToCreate);
-      // queryClient.setQueryData(["conversation"], (oldData) => {
-      //   return { ...oldData, selected: existedConversation.id };
-      // });
-      queryClient.setQueryData(["conversation"], (oldData) => {
-        const clonedConversations = oldData.conversations.map((item) => {
-          return Object.assign({}, item);
-        });
-        const updatedConversations = clonedConversations.map((conversation) => {
-          if (conversation.id !== existedConversation.id) return conversation;
-          conversation.lastMessage = content;
-          return conversation;
-        });
-        return {
-          ...oldData,
-          conversations: updatedConversations,
-          selected: existedConversation.id,
-        };
-      });
     } else {
+      let randomId = Math.random().toString(36).substring(2, 7);
+
       HttpRequest({
         method: "post",
         url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT.replace(
           "{contact-id}",
           contact.id,
-        ),
+        ).replace("{message}", content),
       }).then((res) => {
         queryClient.setQueryData(["conversation"], (oldData) => {
+          const cloned = Object.assign({}, oldData);
+          const updatedConversations = cloned.conversations.map(
+            (conversation) => {
+              if (conversation.id !== randomId) return conversation;
+              conversation.id = res.data;
+              return conversation;
+            },
+          );
           return {
             ...oldData,
-            conversations: [
-              {
-                isGroup: false,
-                isNotifying: true,
-                id: res.data,
-                participants: [
-                  {
-                    contact: {
-                      id: info.data.id,
-                      name: info.data.name,
-                      avatar: info.data.avatar,
-                      isOnline: true,
-                    },
-                  },
-                  {
-                    contact: {
-                      id: contact.id,
-                      name: contact.name,
-                      avatar: contact.avatar,
-                      isOnline: contact.isOnline,
-                    },
-                  },
-                ],
-              },
-              ...oldData.conversations,
-            ],
-            selected: res.data,
+            conversations: updatedConversations,
+            selected: {
+              id: res.data,
+            },
           };
         });
+        queryClient.setQueryData(["message"], (oldData) => {
+          return {
+            ...oldData,
+            id: res.data,
+          };
+        });
+      });
+
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        return {
+          ...oldData,
+          conversations: [
+            {
+              lastMessage: content,
+              isGroup: false,
+              isNotifying: true,
+              id: randomId,
+              participants: [
+                {
+                  isModerator: true,
+                  contact: {
+                    id: info.data.id,
+                    name: info.data.name,
+                    avatar: info.data.avatar,
+                    isOnline: true,
+                  },
+                },
+                {
+                  contact: {
+                    id: contact.id,
+                    name: contact.name,
+                    avatar: contact.avatar,
+                    isOnline: contact.isOnline,
+                  },
+                },
+              ],
+            },
+            ...oldData.conversations,
+          ],
+          selected: {
+            id: randomId,
+          },
+          quickChatAdd: true,
+        };
+      });
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          id: randomId,
+          title: contact.name,
+          isGroup: false,
+          participants: [
+            {
+              isModerator: true,
+              contact: {
+                id: info.data.id,
+                name: info.data.name,
+                avatar: info.data.avatar,
+                isOnline: true,
+              },
+            },
+            {
+              contact: {
+                id: contact.id,
+                name: contact.name,
+                avatar: contact.avatar,
+                isOnline: contact.isOnline,
+              },
+            },
+          ],
+          messages: [
+            {
+              contactId: info.data.id,
+              type: "text",
+              content: content,
+            },
+          ],
+        };
       });
     }
     onClose();
@@ -130,7 +192,7 @@ const QuickChat = (props) => {
   // Event listener
   const closeQuickProfileOnKey = useCallback((e) => {
     if (e.keyCode === 27) {
-      setShow(false);
+      refQuickProfile.current.style.right = "-40rem";
     }
   }, []);
   useEventListener("keydown", closeQuickProfileOnKey);
@@ -148,9 +210,7 @@ const QuickChat = (props) => {
   return (
     <div
       ref={refQuickProfile}
-      data-show={show}
-      className="quick-profile fixed right-[-40rem] aspect-[1/0.9] rounded-[.5rem] bg-[var(--bg-color)]
-              data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:w-[25rem]"
+      className="quick-profile fixed right-[-40rem] aspect-[1/0.9] rounded-[.5rem] bg-[var(--bg-color)] laptop:w-[25rem]"
     >
       <div className="relative flex h-full w-full flex-col">
         <div className="absolute right-[5%] top-[5%]">
@@ -176,8 +236,6 @@ const QuickChat = (props) => {
             quickChat
             noMenu
             send={(content) => {
-              setShow(false);
-              onClose();
               chat(profile, content);
             }}
             ref={refInput}

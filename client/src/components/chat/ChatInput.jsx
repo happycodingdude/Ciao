@@ -6,7 +6,7 @@ import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWit
 import ChatboxMenu from "./ChatboxMenu";
 
 const ChatInput = forwardRef((props, ref) => {
-  const { send, className, quickChat, noMenu, reFocus } = props;
+  const { send, className, quickChat, noMenu } = props;
 
   if (!ref) return;
 
@@ -40,10 +40,6 @@ const ChatInput = forwardRef((props, ref) => {
         });
     });
   }, [messages]);
-
-  useEffect(() => {
-    if (reFocus) ref.current.focus();
-  }, [reFocus]);
 
   const setCaretToEnd = () => {
     // ref.current.textContent += " ";
