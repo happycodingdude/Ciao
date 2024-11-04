@@ -79,7 +79,6 @@ public static class CreateConversationByContactId
             {
                 var updateFilter = MongoQuery<Conversation>.IdFilter(conversation.Id);
                 var currentUser = conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id);
-                // Update 
                 if (currentUser.IsDeleted)
                 {
                     conversation.Participants.ToList().ForEach(q =>
@@ -88,7 +87,7 @@ public static class CreateConversationByContactId
                     });
                 }
                 // If send with message -> add new message
-                if (request.message is not null)
+                if (!string.IsNullOrEmpty(request.message))
                 {
                     conversation.Messages.Add(new Message
                     {
