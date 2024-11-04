@@ -2,22 +2,15 @@ namespace Presentation.Friends;
 
 public static class CreateConversationByContactId
 {
-    public record Request(string contactId) : IRequest<string>;
+    public record Request(string contactId, string message) : IRequest<string>;
 
     internal sealed class Handler : IRequestHandler<Request, string>
     {
-        readonly IMapper _mapper;
-        readonly IFriendRepository _friendRepository;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IMapper mapper,
-            IService<IFriendRepository> friendService,
-            IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService)
+        public Handler(IService<IConversationRepository> conversationService, IService<IContactRepository> contactService)
         {
-            _mapper = mapper;
-            _friendRepository = friendService.Get();
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
         }
@@ -66,6 +59,16 @@ public static class CreateConversationByContactId
                         IsOnline = true
                     }
                 });
+                // If send with message -> add new message
+                if (request.message is not null)
+                {
+                    newConversation.Messages.Add(new Message
+                    {
+                        ContactId = user.Id,
+                        Type = "text",
+                        Content = request.message
+                    });
+                }
 
                 _conversationRepository.Add(newConversation);
 
@@ -74,17 +77,27 @@ public static class CreateConversationByContactId
             // If conversation exists -> update field IsDeleted if true then return
             else
             {
-                var currentUser = conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id);
+                var updateFilter = MongoQuery<Conversation>.IdFilter(conversation.Id);
+                var currentUser = conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id);
+                // Update 
                 if (currentUser.IsDeleted)
                 {
-                    var conversationFilter = Builders<Conversation>.Filter.Eq("Participants._id", currentUser.Id);
-                    var conversationUpdates = Builders<Conversation>.Update
-                        .Set("Participants.$[elem].IsDeleted", false);
-                    var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                        new BsonDocument("elem._id", currentUser.Id)
-                        );
-                    _conversationRepository.Update(conversationFilter, conversationUpdates, arrayFilter);
+                    conversation.Participants.ToList().ForEach(q =>
+                    {
+                        if (q.Contact.Id == user.Id) q.IsDeleted = false;
+                    });
                 }
+                // If send with message -> add new message
+                if (request.message is not null)
+                {
+                    conversation.Messages.Add(new Message
+                    {
+                        ContactId = user.Id,
+                        Type = "text",
+                        Content = request.message
+                    });
+                }
+                _conversationRepository.Replace(updateFilter, conversation);
                 return conversation.Id;
             }
         }
@@ -96,9 +109,9 @@ public class CreateConversationByContactIdEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Contact).MapPost("/{contactId}/conversations",
-        async (ISender sender, string contactId) =>
+        async (ISender sender, string contactId, string message) =>
         {
-            var query = new CreateConversationByContactId.Request(contactId);
+            var query = new CreateConversationByContactId.Request(contactId, message);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);
