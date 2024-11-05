@@ -127,7 +127,7 @@ const Chatbox = (props) => {
           messages: [
             {
               ...bodyLocal,
-              contactId: info.data.id,
+              contactId: info.id,
             },
             ...oldData.messages,
           ],
@@ -364,7 +364,7 @@ const Chatbox = (props) => {
               // <ImageWithLightBoxWithBorderAndShadow
               //   src={
               //     messages.participants?.find(
-              //       (item) => item.contact.id !== info.data.id,
+              //       (item) => item.contact.id !== info.id,
               //     )?.contact.avatar ?? ""
               //   }
               //   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
@@ -376,7 +376,7 @@ const Chatbox = (props) => {
               //     {
               //       src:
               //         messages.participants?.find(
-              //           (item) => item.contact.id !== info.data.id,
+              //           (item) => item.contact.id !== info.id,
               //         )?.contact.avatar ?? "",
               //     },
               //   ]}
@@ -384,7 +384,7 @@ const Chatbox = (props) => {
               <ImageWithLightBoxWithShadowAndNoLazy
                 src={
                   messages.participants?.find(
-                    (item) => item.contact.id !== info.data.id,
+                    (item) => item.contact.id !== info.id,
                   )?.contact.avatar
                 }
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
@@ -396,7 +396,7 @@ const Chatbox = (props) => {
                   {
                     src:
                       messages.participants?.find(
-                        (item) => item.contact.id !== info.data.id,
+                        (item) => item.contact.id !== info.id,
                       )?.contact.avatar ?? "",
                   },
                 ]}
@@ -426,7 +426,7 @@ const Chatbox = (props) => {
                     className="text-start text-lg font-bold"
                     title={
                       messages.participants?.find(
-                        (item) => item.contact.id !== info.data.id,
+                        (item) => item.contact.id !== info.id,
                       )?.contact.name
                     }
                   />
@@ -463,7 +463,7 @@ const Chatbox = (props) => {
               message={{
                 type: variables.type,
                 content: variables.content,
-                contactId: info.data.id,
+                contactId: info.id,
                 attachments: variables.attachments,
               }}
             />

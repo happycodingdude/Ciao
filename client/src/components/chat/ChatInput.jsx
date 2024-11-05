@@ -30,7 +30,7 @@ const ChatInput = forwardRef((props, ref) => {
     setFiles([]);
     setMentions(() => {
       return messages?.participants
-        .filter((item) => item.contact.id !== info.data.id)
+        .filter((item) => item.contact.id !== info.id)
         .map((item) => {
           return {
             name: item.contact.name,

@@ -46,9 +46,9 @@ const FriendCtaButton = (props) => {
   //               participants: [
   //                 {
   //                   contact: {
-  //                     id: info.data.id,
-  //                     name: info.data.name,
-  //                     avatar: info.data.avatar,
+  //                     id: info.id,
+  //                     name: info.name,
+  //                     avatar: info.avatar,
   //                     isOnline: true,
   //                   },
   //                 },
@@ -128,9 +128,9 @@ const FriendCtaButton = (props) => {
                 {
                   isModerator: true,
                   contact: {
-                    id: info.data.id,
-                    name: info.data.name,
-                    avatar: info.data.avatar,
+                    id: info.id,
+                    name: info.name,
+                    avatar: info.avatar,
                     isOnline: true,
                   },
                 },
@@ -154,9 +154,9 @@ const FriendCtaButton = (props) => {
               {
                 isModerator: true,
                 contact: {
-                  id: info.data.id,
-                  name: info.data.name,
-                  avatar: info.data.avatar,
+                  id: info.id,
+                  name: info.name,
+                  avatar: info.avatar,
                   isOnline: true,
                 },
               },

@@ -13,20 +13,20 @@ const ProfileSection = () => {
   console.log("ProfileSection calling");
 
   const queryClient = useQueryClient();
-  const { data: info, refetch } = useInfo();
+  const { data: info } = useInfo();
 
   const refName = useRef();
   const refBio = useRef();
 
   const [file, setFile] = useState();
-  const [avatar, setAvatar] = useState(info.data.avatar);
+  const [avatar, setAvatar] = useState(info.avatar);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    refName.current.value = info.data.name;
-    refBio.current.value = info.data.bio;
+    refName.current.value = info.name;
+    refBio.current.value = info.bio;
     blurImage(".user-avatar");
-  }, [info.data.id]);
+  }, [info.id]);
 
   const chooseAvatar = (e) => {
     const chosenFiles = Array.from(e.target.files);
@@ -41,21 +41,16 @@ const ProfileSection = () => {
 
   const { mutate: updateInfoMutation } = useMutation({
     mutationFn: ({ name, bio, avatar }) => updateInfo(name, bio, avatar),
-    onSuccess: (res) => {
+    onSuccess: (res, variables) => {
       setProcessing(false);
-      queryClient.setQueryData(["info"], (oldData) =>
-        oldData
-          ? {
-              ...oldData,
-              data: {
-                ...oldData.data,
-                avatar: res,
-              },
-            }
-          : oldData,
-      );
-      // queryClient.invalidateQueries(["info"]);
-      // refetch();
+      queryClient.setQueryData(["info"], (oldData) => {
+        return {
+          ...oldData,
+          name: variables.name,
+          bio: variables.bio,
+          avatar: variables.avatar,
+        };
+      });
     },
   });
 

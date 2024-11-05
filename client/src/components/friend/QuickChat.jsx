@@ -65,7 +65,7 @@ const QuickChat = (props) => {
           selected: existedConversation,
           clickAndAddMessage: true,
           message: {
-            contactId: info.data.id,
+            contactId: info.id,
             type: "text",
             content: content,
           },
@@ -124,9 +124,9 @@ const QuickChat = (props) => {
                 {
                   isModerator: true,
                   contact: {
-                    id: info.data.id,
-                    name: info.data.name,
-                    avatar: info.data.avatar,
+                    id: info.id,
+                    name: info.name,
+                    avatar: info.avatar,
                     isOnline: true,
                   },
                 },
@@ -150,9 +150,9 @@ const QuickChat = (props) => {
               {
                 isModerator: true,
                 contact: {
-                  id: info.data.id,
-                  name: info.data.name,
-                  avatar: info.data.avatar,
+                  id: info.id,
+                  name: info.name,
+                  avatar: info.avatar,
                   isOnline: true,
                 },
               },
@@ -175,9 +175,9 @@ const QuickChat = (props) => {
             {
               isModerator: true,
               contact: {
-                id: info.data.id,
-                name: info.data.name,
-                avatar: info.data.avatar,
+                id: info.id,
+                name: info.name,
+                avatar: info.avatar,
                 isOnline: true,
               },
             },
@@ -192,7 +192,7 @@ const QuickChat = (props) => {
           ],
           messages: [
             {
-              contactId: info.data.id,
+              contactId: info.id,
               type: "text",
               content: content,
             },

@@ -42,11 +42,13 @@ export const signout = async () => {
 };
 
 export const getInfo = async () => {
-  return await HttpRequest({
-    method: "get",
-    url: import.meta.env.VITE_ENDPOINT_INFO,
-    // timeout: 1000,
-  });
+  return (
+    await HttpRequest({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_INFO,
+      // timeout: 1000,
+    })
+  ).data;
 };
 
 export const updateInfo = async (name, bio, avatar) => {

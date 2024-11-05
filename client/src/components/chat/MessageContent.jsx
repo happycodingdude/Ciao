@@ -15,10 +15,10 @@ const MessageContent = (props) => {
     <div
       key={message.id}
       className={`flex items-end gap-[1rem] 
-      ${message.contactId === info.data.id ? "flex-row-reverse" : ""}`}
+      ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* Sender avatar */}
-      {message.contactId !== info.data.id ? (
+      {message.contactId !== info.id ? (
         <div className="relative w-[3rem] self-start">
           {/* {messages.isGroup ? (
             <ImageWithLightBoxAndNoLazy
@@ -43,14 +43,14 @@ const MessageContent = (props) => {
           ) : (
             <ImageWithLightBoxAndNoLazy
               src={
-                messages.participants.find((q) => q.contact.id != info.data.id)
+                messages.participants.find((q) => q.contact.id != info.id)
                   .contact.avatar
               }
               className="aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
               slides={[
                 {
                   src: messages.participants.find(
-                    (q) => q.contact.id != info.data.id,
+                    (q) => q.contact.id != info.id,
                   ).contact.avatar,
                 },
               ]}
@@ -77,14 +77,14 @@ const MessageContent = (props) => {
       )}
       <div
         className={`flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)]
-        ${message.contactId === info.data.id ? "items-end" : "items-start"}`}
+        ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
         <div
           className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-thin)]
-          ${message.contactId === info.data.id ? "flex-row-reverse" : ""}`}
+          ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
         >
-          {message.contactId === info.data.id ? (
+          {message.contactId === info.id ? (
             ""
           ) : (
             <p className="text-[var(--main-color-thin)]">
@@ -108,7 +108,7 @@ const MessageContent = (props) => {
           <div
             className={`break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3rem]
             ${
-              message.contactId === info.data.id
+              message.contactId === info.id
                 ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
                 : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
             }`}
@@ -121,7 +121,7 @@ const MessageContent = (props) => {
 
         {message.attachments?.length !== 0 ? (
           <div
-            className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
+            className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
           >
             {message.attachments?.map((item, index) => (
               <ImageWithLightBoxAndNoLazy

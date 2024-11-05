@@ -41,7 +41,7 @@ export const useNotification = () => {
     queryKey: ["notification"],
     queryFn: getNotification,
     staleTime: Infinity,
-    enabled: false,
+    // enabled: false,
   });
 };
 

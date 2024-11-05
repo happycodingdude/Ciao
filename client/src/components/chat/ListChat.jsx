@@ -155,9 +155,8 @@ const ListChat = () => {
             data-key={item.id}
             data-user={
               !item.isGroup
-                ? item.participants.find(
-                    (item) => item.contact.id !== info.data.id,
-                  )?.contact.id
+                ? item.participants.find((item) => item.contact.id !== info.id)
+                    ?.contact.id
                 : ""
             }
             ref={(element) => {
@@ -181,7 +180,7 @@ const ListChat = () => {
                   item.isGroup
                     ? item.avatar
                     : item.participants.find(
-                        (item) => item.contact.id !== info.data.id,
+                        (item) => item.contact.id !== info.id,
                       )?.contact.avatar
                 }
                 className={`pointer-events-none aspect-square rounded-[50%] bg-[size:160%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
@@ -192,7 +191,7 @@ const ListChat = () => {
                 <OnlineStatusDot
                   online={
                     item.participants.find(
-                      (item) => item.contact.id !== info.data.id,
+                      (item) => item.contact.id !== info.id,
                     )?.contact.isOnline
                   }
                 />
@@ -205,14 +204,14 @@ const ListChat = () => {
               <CustomLabel
                 // className={`text-base
                 //   ${item.id === selected ? "text-[var(--text-sub-color)]" : ""}
-                //   ${item.lastMessageContact !== info.data.id && item.unSeenMessages > 0 && item.id !== selected ? "text-[var(--main-color)]" : ""}
+                //   ${item.lastMessageContact !== info.id && item.unSeenMessages > 0 && item.id !== selected ? "text-[var(--main-color)]" : ""}
                 //   `}
                 className={`text-[1.5rem] ${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
                 title={
                   item.isGroup
                     ? item.title
                     : item.participants.find(
-                        (item) => item.contact.id !== info.data.id,
+                        (item) => item.contact.id !== info.id,
                       )?.contact.name
                 }
               />
@@ -221,7 +220,7 @@ const ListChat = () => {
                   ${
                     item.id === selected
                       ? "text-[var(--text-sub-color-thin)]"
-                      : item.lastMessageContact !== info.data.id &&
+                      : item.lastMessageContact !== info.id &&
                           item.unSeenMessages > 0
                         ? "text-[var(--main-color)]"
                         : "text-[var(--text-main-color-blur)]"

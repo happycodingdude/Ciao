@@ -19,18 +19,18 @@ const SideBar = (props) => {
 
   useEffect(() => {
     blurImage(".info-container");
-  }, [info?.data.avatar]);
+  }, [info?.avatar]);
 
   return (
     <section className="lg shrink-0 bg-[var(--bg-color)] laptop:w-[7rem] desktop:w-[10rem]">
       <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
         <div className="info-container flex w-full flex-col items-center gap-[3rem]">
           <ImageWithLightBoxWithShadowAndNoLazy
-            src={info?.data.avatar}
+            src={info?.avatar}
             className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
             slides={[
               {
-                src: info?.data.avatar,
+                src: info?.avatar,
               },
             ]}
           />

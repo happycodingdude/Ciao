@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { signin } from "../../hook/UserAPIs";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -10,6 +11,7 @@ const Login = (props) => {
   const { show, showContainer, toggle, onSuccess } = props;
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // const { refetch } = useInfo();
 
@@ -36,9 +38,10 @@ const Login = (props) => {
   const { mutate: signinMutation } = useMutation({
     mutationFn: ({ username, password }) => signin(username, password),
     onSuccess: (res) => {
-      queryClient.invalidateQueries(["info"]);
+      // queryClient.invalidateQueries(["info"]);
       // refetch();
-      onSuccess();
+      // onSuccess();
+      navigate("/");
     },
     onError: (error) => {
       setProcessing(false);

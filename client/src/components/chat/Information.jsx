@@ -139,14 +139,14 @@ const Information = (props) => {
                 <ImageWithLightBoxAndNoLazy
                   src={
                     conversations.selected?.participants?.find(
-                      (item) => item.contact.id !== info.data.id,
+                      (item) => item.contact.id !== info.id,
                     )?.contact.avatar
                   }
                   className="aspect-square cursor-pointer rounded-[1rem] !bg-[size:170%] laptop:w-[7rem]"
                   slides={[
                     {
                       src: conversations.selected?.participants?.find(
-                        (item) => item.contact.id !== info.data.id,
+                        (item) => item.contact.id !== info.id,
                       )?.contact.avatar,
                     },
                   ]}
@@ -155,7 +155,7 @@ const Information = (props) => {
                   className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={
                     conversations.selected?.participants?.find(
-                      (item) => item.contact.id !== info.data.id,
+                      (item) => item.contact.id !== info.id,
                     )?.contact.name
                   }
                 />
@@ -202,7 +202,7 @@ const Information = (props) => {
             {/* Still don't know why scrolling not working without adding h-0 */}
             <div className="hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
               {conversations.selected?.participants
-                .filter((item) => item.contact.id !== info.data.id)
+                .filter((item) => item.contact.id !== info.id)
                 .map((item) => (
                   <div
                     key={item}

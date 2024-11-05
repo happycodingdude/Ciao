@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useInfo, useLoading } from "../../hook/CustomHooks";
 import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
-import Authentication from "../authentication/Authentication";
 import { requestPermission } from "../common/Notification";
 import ProfileSection from "../profile-new/ProfileSection";
 import SideBar from "../sidebar/SideBar";
@@ -13,48 +13,54 @@ export const Home = () => {
 
   const queryClient = useQueryClient();
 
-  const refListChat = useRef();
-  const refChatbox = useRef();
+  // const refListChat = useRef();
+  // const refChatbox = useRef();
 
   const [page, setPage] = useState("chat");
   // const [backToLogin, setBackToLogin] = useState(false);
 
-  const { data: info, isLoading, error, refetch } = useInfo();
-  const { setLoading } = useLoading();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // refetch();
-  }, []);
+  // const { data: info, isLoading, error, refetch } = useInfo();
+  const { data: info, isLoading } = useInfo();
+
+  // useEffect(() => {
+  //   if (!info) navigate("/auth", { replace: true });
+  // }, [info]);
+
+  const { setLoading } = useLoading();
 
   const { mutate: registerConnectionMutation } = useMutation({
     mutationFn: ({ token }) => registerConnection(token),
   });
+
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
-    if (info?.data)
+    if (info)
       requestPermission(
         registerConnectionMutation,
         notifyMessage,
         queryClient,
         info,
       );
-  }, [info?.data]);
+    else navigate("/auth", { replace: true });
+  }, [info]);
 
   if (isLoading) {
     // setLoading(true);
     return;
   }
 
-  if (error?.response.status === 401) {
-    // setLoading(false);
-    return (
-      <Authentication
-        onSuccess={() => {
-          setPage("chat");
-        }}
-      />
-    );
-  }
+  // if (error?.response.status === 401) {
+  //   // setLoading(false);
+  //   return (
+  //     <Authentication
+  //       onSuccess={() => {
+  //         setPage("chat");
+  //       }}
+  //     />
+  //   );
+  // }
 
   // if (!info) return;
   // setLoading(false);
