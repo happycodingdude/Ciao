@@ -60,7 +60,7 @@ public static class CreateConversationByContactId
                     }
                 });
                 // If send with message -> add new message
-                if (request.message is not null)
+                if (!string.IsNullOrEmpty(request.message))
                 {
                     newConversation.Messages.Add(new Message
                     {
