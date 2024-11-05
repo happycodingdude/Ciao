@@ -63,7 +63,7 @@ const QuickChat = (props) => {
           ...oldData,
           conversations: updatedConversations,
           selected: existedConversation,
-          selectAndAddMessage: true,
+          clickAndAddMessage: true,
           message: {
             contactId: info.data.id,
             type: "text",
@@ -85,7 +85,7 @@ const QuickChat = (props) => {
 
       HttpRequest({
         method: "post",
-        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT.replace(
+        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT_WITH_MESSAGE.replace(
           "{contact-id}",
           contact.id,
         ).replace("{message}", content),
@@ -103,14 +103,10 @@ const QuickChat = (props) => {
             ...oldData,
             conversations: updatedConversations,
             selected: {
+              ...oldData.selected,
               id: res.data,
             },
-          };
-        });
-        queryClient.setQueryData(["message"], (oldData) => {
-          return {
-            ...oldData,
-            id: res.data,
+            quickChatAdd: false,
           };
         });
       });
@@ -148,15 +144,33 @@ const QuickChat = (props) => {
           ],
           selected: {
             id: randomId,
+            title: contact.name,
+            isGroup: false,
+            participants: [
+              {
+                isModerator: true,
+                contact: {
+                  id: info.data.id,
+                  name: info.data.name,
+                  avatar: info.data.avatar,
+                  isOnline: true,
+                },
+              },
+              {
+                contact: {
+                  id: contact.id,
+                  name: contact.name,
+                  avatar: contact.avatar,
+                  isOnline: contact.isOnline,
+                },
+              },
+            ],
           },
           quickChatAdd: true,
         };
       });
       queryClient.setQueryData(["message"], (oldData) => {
         return {
-          id: randomId,
-          title: contact.name,
-          isGroup: false,
           participants: [
             {
               isModerator: true,

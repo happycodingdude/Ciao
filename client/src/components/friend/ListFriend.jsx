@@ -1,12 +1,19 @@
 import { debounce } from "lodash";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImageOLD, HttpRequest } from "../../common/Utility";
 import CustomInput from "../common/CustomInput";
 import FriendItem from "./FriendItem";
 
 const ListFriend = (props) => {
   const { onClose } = props;
+
+  const refInput = useRef();
+
   const [contacts, setContacts] = useState([]);
+
+  useEffect(() => {
+    refInput.current.focus();
+  }, []);
 
   useEffect(() => {
     blurImageOLD(".list-friend-container");
@@ -38,6 +45,7 @@ const ListFriend = (props) => {
       <CustomInput
         type="text"
         label="Search for name"
+        reference={refInput}
         onChange={(e) => {
           findContact(e.target.value);
         }}

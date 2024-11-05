@@ -11,6 +11,8 @@ const Login = (props) => {
 
   const queryClient = useQueryClient();
 
+  // const { refetch } = useInfo();
+
   const refLogin = useRef();
   const refUsername = useRef();
   const refPassword = useRef();
@@ -35,6 +37,7 @@ const Login = (props) => {
     mutationFn: ({ username, password }) => signin(username, password),
     onSuccess: (res) => {
       queryClient.invalidateQueries(["info"]);
+      // refetch();
       onSuccess();
     },
     onError: (error) => {

@@ -80,9 +80,14 @@ const FriendCtaButton = (props) => {
     );
     if (existedConversation) {
       queryClient.setQueryData(["conversation"], (oldData) => {
-        return { ...oldData, selected: existedConversation.id };
+        return {
+          ...oldData,
+          selected: existedConversation,
+          fromListFriend: true,
+        };
       });
     } else {
+      let randomId = Math.random().toString(36).substring(2, 7);
       HttpRequest({
         method: "post",
         url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT.replace(
@@ -91,37 +96,82 @@ const FriendCtaButton = (props) => {
         ),
       }).then((res) => {
         queryClient.setQueryData(["conversation"], (oldData) => {
+          const cloned = Object.assign({}, oldData);
+          const updatedConversations = cloned.conversations.map(
+            (conversation) => {
+              if (conversation.id !== randomId) return conversation;
+              conversation.id = res.data;
+              return conversation;
+            },
+          );
           return {
             ...oldData,
-            conversations: [
-              {
-                isGroup: false,
-                isNotifying: true,
-                id: res.data,
-                participants: [
-                  {
-                    contact: {
-                      id: info.data.id,
-                      name: info.data.name,
-                      avatar: info.data.avatar,
-                      isOnline: true,
-                    },
-                  },
-                  {
-                    contact: {
-                      id: contact.id,
-                      name: contact.name,
-                      avatar: contact.avatar,
-                      isOnline: contact.isOnline,
-                    },
-                  },
-                ],
-              },
-              ...oldData.conversations,
-            ],
-            selected: res.data,
+            conversations: updatedConversations,
+            selected: {
+              ...oldData.selected,
+              id: res.data,
+            },
+            quickChatAdd: false,
+            fromListFriend: true,
           };
         });
+      });
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        return {
+          ...oldData,
+          conversations: [
+            {
+              isGroup: false,
+              isNotifying: true,
+              id: randomId,
+              participants: [
+                {
+                  isModerator: true,
+                  contact: {
+                    id: info.data.id,
+                    name: info.data.name,
+                    avatar: info.data.avatar,
+                    isOnline: true,
+                  },
+                },
+                {
+                  contact: {
+                    id: contact.id,
+                    name: contact.name,
+                    avatar: contact.avatar,
+                    isOnline: contact.isOnline,
+                  },
+                },
+              ],
+            },
+            ...oldData.conversations,
+          ],
+          selected: {
+            id: randomId,
+            title: contact.name,
+            isGroup: false,
+            participants: [
+              {
+                isModerator: true,
+                contact: {
+                  id: info.data.id,
+                  name: info.data.name,
+                  avatar: info.data.avatar,
+                  isOnline: true,
+                },
+              },
+              {
+                contact: {
+                  id: contact.id,
+                  name: contact.name,
+                  avatar: contact.avatar,
+                  isOnline: contact.isOnline,
+                },
+              },
+            ],
+          },
+          quickChatAdd: true,
+        };
       });
     }
     onClose();

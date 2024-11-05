@@ -1,6 +1,6 @@
 import moment from "moment";
 import React from "react";
-import { useInfo, useMessage } from "../../hook/CustomHooks";
+import { useConversation, useInfo } from "../../hook/CustomHooks";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 
 const MessageContent = (props) => {
@@ -8,7 +8,8 @@ const MessageContent = (props) => {
   const { message, pending } = props;
 
   const { data: info } = useInfo();
-  const { data: messages } = useMessage();
+  // const { data: messages } = useMessage();
+  const { data: conversations } = useConversation();
 
   return (
     <div
@@ -57,16 +58,16 @@ const MessageContent = (props) => {
           )} */}
           <ImageWithLightBoxAndNoLazy
             src={
-              messages.participants.find(
+              conversations.selected?.participants.find(
                 (q) => q.contact.id === message.contactId,
-              ).contact.avatar
+              )?.contact.avatar
             }
             className="aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
             slides={[
               {
-                src: messages.participants.find(
+                src: conversations.selected?.participants.find(
                   (q) => q.contact.id === message.contactId,
-                ).contact.avatar,
+                )?.contact.avatar,
               },
             ]}
           />
@@ -75,7 +76,7 @@ const MessageContent = (props) => {
         ""
       )}
       <div
-        className={`flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+        className={`flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)]
         ${message.contactId === info.data.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
@@ -88,9 +89,9 @@ const MessageContent = (props) => {
           ) : (
             <p className="text-[var(--main-color-thin)]">
               {
-                messages.participants.find(
+                conversations.selected?.participants.find(
                   (q) => q.contact.id === message.contactId,
-                ).contact.name
+                )?.contact.name
               }
             </p>
           )}
@@ -105,7 +106,7 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.content ? (
           <div
-            className={`break-all rounded-[1rem] ${pending ? "opacity-50" : ""} px-[1rem] leading-[3.5rem] 
+            className={`break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3rem]
             ${
               message.contactId === info.data.id
                 ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
@@ -118,7 +119,7 @@ const MessageContent = (props) => {
           ""
         )}
 
-        {message.attachments ? (
+        {message.attachments?.length !== 0 ? (
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.data.id ? "justify-end" : ""} gap-[1rem]`}
           >

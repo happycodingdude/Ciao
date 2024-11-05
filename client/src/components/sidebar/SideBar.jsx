@@ -3,10 +3,9 @@ import React from "react";
 import Signout from "../authentication/Signout";
 import ChatIcon from "../chat/ChatIcon";
 // import { requestPermission } from "../common/Notification";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { blurImage } from "../../common/Utility";
-import { useConversation, useInfo } from "../../hook/CustomHooks";
+import { useInfo } from "../../hook/CustomHooks";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import RelightBackground from "../common/RelightBackground";
 import ProfileIcon from "../profile-new/ProfileIcon";
@@ -16,32 +15,29 @@ const SideBar = (props) => {
   console.log("SideBar calling");
   const { page, setPage } = props;
 
-  const queryClient = useQueryClient();
-
   const { data: info } = useInfo();
-  const { refetch } = useConversation(1);
 
   useEffect(() => {
     blurImage(".info-container");
-  }, [info.data.avatar]);
+  }, [info?.data.avatar]);
 
   return (
     <section className="lg shrink-0 bg-[var(--bg-color)] laptop:w-[7rem] desktop:w-[10rem]">
       <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
         <div className="info-container flex w-full flex-col items-center gap-[3rem]">
           <ImageWithLightBoxWithShadowAndNoLazy
-            src={info.data.avatar}
+            src={info?.data.avatar}
             className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
             slides={[
               {
-                src: info.data.avatar,
+                src: info?.data.avatar,
               },
             ]}
           />
           <RelightBackground
             lighten={page === "chat"}
             onClick={() => {
-              refetch();
+              // refetch();
               setPage("chat");
             }}
           >
@@ -50,14 +46,14 @@ const SideBar = (props) => {
           <RelightBackground
             lighten={page === "profile"}
             onClick={() => {
-              queryClient.resetQueries({
-                queryKey: ["conversation"],
-                exact: true,
-              });
-              queryClient.resetQueries({
-                queryKey: ["message"],
-                exact: true,
-              });
+              // queryClient.resetQueries({
+              //   queryKey: ["conversation"],
+              //   exact: true,
+              // });
+              // queryClient.resetQueries({
+              //   queryKey: ["message"],
+              //   exact: true,
+              // });
               setPage("profile");
             }}
           >

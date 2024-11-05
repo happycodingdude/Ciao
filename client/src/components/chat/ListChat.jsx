@@ -62,12 +62,18 @@ const ListChat = () => {
     blurImageOLD(".list-chat");
   }, [data?.conversations]);
 
-  const handleSetConversation = (id) => {
+  const clickConversation = (id) => {
     setSelected(id);
   };
 
   useEffect(() => {
-    if (!selected) return;
+    if (
+      !selected ||
+      (data?.selected?.id === selected &&
+        !data?.clickAndAddMessage &&
+        !data?.fromListFriend)
+    )
+      return;
 
     queryClient.setQueryData(["conversation"], (oldData) => {
       const cloned = Object.assign({}, oldData);
@@ -89,20 +95,20 @@ const ListChat = () => {
     if (!data?.selected || data?.selected.id === selected) return;
 
     if (data?.quickChatAdd) {
-      setSelected(undefined);
+      // setSelected(undefined);
       return;
     }
 
-    if (data?.selectAndAddMessage) {
-      selectAndAddMessage();
+    if (data?.clickAndAddMessage) {
+      clickAndAddMessage();
       return;
     }
 
-    handleSetConversation(data.selected.id);
+    clickConversation(data.selected.id);
   }, [data]);
 
-  const selectAndAddMessage = () => {
-    handleSetConversation(data.selected.id);
+  const clickAndAddMessage = () => {
+    clickConversation(data.selected.id);
     setTimeout(() => {
       queryClient.setQueryData(["message"], (oldData) => {
         return {
@@ -160,13 +166,13 @@ const ListChat = () => {
             className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
-              selected === item.id || data?.selected?.id === item.id
+              selected === item.id
                 ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
                 : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
             } `}
             onClick={() => {
-              // handleSetConversation(65 * i, item.id);
-              handleSetConversation(item.id);
+              // clickConversation(65 * i, item.id);
+              clickConversation(item.id);
             }}
           >
             <div className="relative">
@@ -178,7 +184,7 @@ const ListChat = () => {
                         (item) => item.contact.id !== info.data.id,
                       )?.contact.avatar
                 }
-                className={`pointer-events-none aspect-square rounded-[50%] bg-[size:170%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
+                className={`pointer-events-none aspect-square rounded-[50%] bg-[size:160%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
                 // spinnerClassName="laptop:bg-[size:2rem]"
                 // imageClassName="bg-[size:150%]"
               />

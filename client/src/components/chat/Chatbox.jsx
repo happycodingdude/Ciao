@@ -39,8 +39,11 @@ const Chatbox = (props) => {
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
 
   const { data: info } = useInfo();
-  const { data: conversation } = useConversation();
-  const { data: messages, refetch } = useMessage(conversation?.selected, page);
+  const { data: conversations } = useConversation();
+  const { data: messages, refetch } = useMessage(
+    conversations?.selected?.id,
+    page,
+  );
 
   useEffect(() => {
     // blurImage(".chatbox-content");
@@ -56,7 +59,7 @@ const Chatbox = (props) => {
     setTimeout(() => {
       refInput.current.focus();
     }, 500);
-  }, [conversation?.selected]);
+  }, [conversations?.selected]);
 
   // const chooseFile = (e) => {
   //   const chosenFiles = Array.from(e.target.files);
@@ -89,8 +92,9 @@ const Chatbox = (props) => {
       // if (param.type === "text" && param.content === "") return;
 
       let bodyToCreate = {
-        moderator: messages.participants.find((q) => q.isModerator === true)
-          .contact.id,
+        moderator: conversations?.selected.participants.find(
+          (q) => q.isModerator === true,
+        ).contact.id,
         type: param.type,
         content: param.content,
       };
@@ -115,7 +119,7 @@ const Chatbox = (props) => {
         };
       }
 
-      await send(messages.id, bodyToCreate);
+      await send(conversations?.selected.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
         const newData = {
@@ -136,7 +140,8 @@ const Chatbox = (props) => {
           return Object.assign({}, item);
         });
         const updatedConversations = clonedConversations.map((conversation) => {
-          if (conversation.id !== messages.id) return conversation;
+          if (conversation.id !== conversations?.selected.id)
+            return conversation;
           conversation.lastMessage =
             param.type === "text"
               ? param.content
@@ -312,16 +317,19 @@ const Chatbox = (props) => {
     const distanceFromBottom =
       refChatContent.current.scrollHeight -
       (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
-    if (distanceFromBottom >= refChatContent.current.clientHeight)
+    if (
+      refChatContent.current.clientHeight !== 0 &&
+      distanceFromBottom >= refChatContent.current.clientHeight
+    )
       refScrollToBottom.current.setAttribute("data-show", "true");
     else refScrollToBottom.current.setAttribute("data-show", "false");
 
     if (refChatContent.current.scrollTop === 0 && messages.nextExist) {
       setAutoScrollBottom(false);
       const currentScrollHeight = refChatContent.current.scrollHeight;
-      debounceFetch(messages.id, page, currentScrollHeight);
+      debounceFetch(conversations?.selected.id, page, currentScrollHeight);
     }
-  }, [messages, page]);
+  }, [conversations?.selected, messages, page]);
   useEventListener("scroll", handleScroll);
 
   return (
@@ -329,7 +337,7 @@ const Chatbox = (props) => {
       ref={refChatboxContainer}
       className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
-      <div className="chatbox-content relative flex w-full grow flex-col overflow-hidden p-8">
+      <div className="chatbox-content relative flex w-full grow flex-col justify-end overflow-hidden p-8">
         {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <div
@@ -443,7 +451,7 @@ const Chatbox = (props) => {
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar mt-4 flex grow flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+          className="hide-scrollbar mt-4 flex flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
         >
           {[...messages?.messages].reverse().map((message) => (
             <MessageContent message={message} />

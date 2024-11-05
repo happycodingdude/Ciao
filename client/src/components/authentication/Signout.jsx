@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { HttpRequest } from "../../common/Utility";
 import { useInfo, useLocalStorage } from "../../hook/CustomHooks";
 
@@ -13,6 +14,7 @@ const Signout = (props) => {
   const [token, setToken] = useLocalStorage("token");
   const [refresh, setRefresh] = useLocalStorage("refresh");
   const { refetch } = useInfo();
+  const history = useNavigate();
   // const { setLoading } = useLoading();
 
   const signout = () => {
@@ -21,15 +23,20 @@ const Signout = (props) => {
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
     }).then((res) => {
-      refetch();
+      // refetch();
       // setPage("chat");
       // queryClient.invalidateQueries(["info"]);
-      setTimeout(() => {
-        queryClient.resetQueries({ queryKey: ["message"], exact: true });
-        queryClient.resetQueries({ queryKey: ["participant"], exact: true });
-        queryClient.resetQueries({ queryKey: ["attachment"], exact: true });
-        queryClient.resetQueries({ queryKey: ["notification"], exact: true });
-      }, 1000);
+      // setTimeout(() => {
+
+      // queryClient.removeQueries({ queryKey: ["conversation"], exact: true });
+      // queryClient.removeQueries({ queryKey: ["message"], exact: true });
+      // queryClient.removeQueries({ queryKey: ["attachment"], exact: true });
+      // queryClient.removeQueries({ queryKey: ["notification"], exact: true });
+      // queryClient.resetQueries({ queryKey: ["info"], exact: true });
+
+      history("");
+
+      // }, 1000);
       // queryClient.removeQueries();
       // queryClient.removeQueries({ queryKey: "conversation", exact: true });
       // queryClient.resetQueries({ queryKey: "message", exact: true });

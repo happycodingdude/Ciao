@@ -163,12 +163,12 @@ const Information = (props) => {
             )}
           </div>
         </div>
-        <div className="display-attachment-container flex flex-col">
+        {/* <div className="display-attachment-container flex flex-col">
           <div className="flex justify-between">
             <p className="text-base text-[var(--text-main-color)]">
               Attachments
-            </p>
-            {/* {displayAttachments.length !== 0 ? (
+            </p> */}
+        {/* {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
@@ -178,8 +178,8 @@ const Information = (props) => {
             ) : (
               ""
             )} */}
-          </div>
-          {/* <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+        {/* </div> */}
+        {/* <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
             {displayAttachments.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
@@ -195,7 +195,7 @@ const Information = (props) => {
               />
             ))}
           </div> */}
-        </div>
+        {/* </div> */}
         {conversations.selected?.isGroup ? (
           <div className="flex grow flex-col gap-[1rem]">
             <p className="text-base text-[var(--text-main-color)]">Members</p>

@@ -19,8 +19,12 @@ export const Home = () => {
   const [page, setPage] = useState("chat");
   // const [backToLogin, setBackToLogin] = useState(false);
 
-  const { data: info, isLoading, error } = useInfo();
+  const { data: info, isLoading, error, refetch } = useInfo();
   const { setLoading } = useLoading();
+
+  useEffect(() => {
+    // refetch();
+  }, []);
 
   const { mutate: registerConnectionMutation } = useMutation({
     mutationFn: ({ token }) => registerConnection(token),
@@ -37,12 +41,12 @@ export const Home = () => {
   }, [info?.data]);
 
   if (isLoading) {
-    setLoading(true);
+    // setLoading(true);
     return;
   }
 
   if (error?.response.status === 401) {
-    setLoading(false);
+    // setLoading(false);
     return (
       <Authentication
         onSuccess={() => {
@@ -52,7 +56,8 @@ export const Home = () => {
     );
   }
 
-  setLoading(false);
+  // if (!info) return;
+  // setLoading(false);
 
   return (
     <div

@@ -32,6 +32,7 @@ export const useInfo = () => {
     queryKey: ["info"],
     queryFn: getInfo,
     staleTime: Infinity,
+    // enabled: false,
   });
 };
 
@@ -40,7 +41,7 @@ export const useNotification = () => {
     queryKey: ["notification"],
     queryFn: getNotification,
     staleTime: Infinity,
-    // enabled: false,
+    enabled: false,
   });
 };
 
