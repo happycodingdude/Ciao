@@ -6,17 +6,11 @@ public static class GetListFriend
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<GetListFriendItem>>
     {
-        readonly IMapper _mapper;
         readonly IFriendRepository _friendRepository;
-        readonly IContactRepository _contactRepository;
 
-        public Handler(IMapper mapper,
-            IService<IFriendRepository> friendService,
-            IService<IContactRepository> contactService)
+        public Handler(IService<IFriendRepository> friendService)
         {
-            _mapper = mapper;
             _friendRepository = friendService.Get();
-            _contactRepository = contactService.Get();
         }
 
         public async Task<IEnumerable<GetListFriendItem>> Handle(Request request, CancellationToken cancellationToken)
