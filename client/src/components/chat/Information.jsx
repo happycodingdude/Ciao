@@ -159,11 +159,8 @@ const Information = (props) => {
                 <div className="flex justify-center">
                   {/* <ToggleNotification /> */}
                   {/* <Tooltip title="Invite friends"> */}
-                  <RelightBackground>
-                    <div
-                      className={`fa fa-user-plus base-icon-lg`}
-                      onClick={() => setOpenAddMembers(true)}
-                    ></div>
+                  <RelightBackground onClick={() => setOpenAddMembers(true)}>
+                    <div className={`fa fa-user-plus base-icon-lg`}></div>
                   </RelightBackground>
                   <BackgroundPortal
                     show={openAddMembers}
@@ -171,7 +168,10 @@ const Information = (props) => {
                     title="Add members"
                     onClose={() => setOpenAddMembers(false)}
                   >
-                    <AddMembers onClose={() => setOpenAddMembers(false)} />
+                    <AddMembers
+                      onClose={() => setOpenAddMembers(false)}
+                      members={conversations.selected?.participants}
+                    />
                   </BackgroundPortal>
                   {/* </Tooltip> */}
                 </div>

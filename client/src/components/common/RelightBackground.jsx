@@ -14,12 +14,19 @@ const RelightBackground = ({
       // bg-[var(--main-color-bold)] p-2 text-[var(--text-main-color)]
       // [&>*]:h-0 [&>*]:w-0 [&>*]:transition-all [&>*]:duration-500`}
 
-      className={`${className} 
-      ${lighten ? "rounded-[1rem] bg-[var(--main-color-bold)]" : "rounded-[50%] bg-[var(--bg-color-extrathin)]"} 
-      flex aspect-square cursor-pointer items-center 
+      className={`${className}
+      ${lighten ? "rounded-[1rem] bg-[var(--main-color-bold)]" : "rounded-[50%] bg-[var(--bg-color-extrathin)]"}
+      flex aspect-square cursor-pointer items-center
       justify-center p-[1rem] text-[var(--text-main-color)]
       transition-all duration-200 hover:rounded-[1rem]
       hover:bg-[var(--main-color-bold)]`}
+      // className={`${className}
+      // ${lighten ? "rounded-[1rem] bg-white" : "rounded-[50%] bg-[var(--bg-color-extrathin)]"}
+      // flex aspect-square cursor-pointer items-center
+      // justify-center p-[1rem] text-[var(--text-main-color)]
+      // transition-all duration-200 hover:rounded-[1rem]
+      // hover:bg-[var(--main-color-bold)]`}
+
       onClick={onClick ?? (() => {})}
     >
       {children}

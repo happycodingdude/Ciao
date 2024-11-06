@@ -1,66 +1,24 @@
-import React, { useState } from "react";
-import { HttpRequest } from "../../common/Utility";
-import {
-  useAuth,
-  useFetchConversations,
-  useFetchFriends,
-  useFetchParticipants,
-} from "../../hook/CustomHooks";
+import { useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useRef } from "react";
+import { useFriend } from "../../hook/CustomHooks";
+import CustomButton from "../common/CustomButton";
+import CustomInput from "../common/CustomInput";
+import CustomLabel from "../common/CustomLabel";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 
-const AddMembers = () => {
-  const auth = useAuth();
-  const { selected } = useFetchConversations();
-  const { participants, reFetch: reFetchParticipants } = useFetchParticipants();
-  const { friends } = useFetchFriends();
+const AddMembers = (props) => {
+  const { members } = props;
 
-  const [formData, setFormData] = useState();
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
+  const queryClient = useQueryClient();
 
-  const handleAddParticipant = () => {
-    setFormData({
-      title: "Add members",
-      data: [
-        {
-          label: "Friends",
-          name: "Friends",
-          type: "multiple",
-          options: friends
-            .filter(
-              (item) =>
-                !participants.some(
-                  (participant) => participant.ContactId === item.ContactId,
-                ),
-            )
-            .map((item) => {
-              return { label: item.ContactName, value: item.ContactId };
-            }),
-        },
-      ],
-    });
-    setShow(true);
-  };
+  const refInput = useRef();
 
-  const addParticipant = (data) => {
-    handleClose();
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_ADD.replace(
-        "{id}",
-        selected.Id,
-      ),
-      token: auth.token,
-      data: data.Friends.map((item) => {
-        return {
-          ConversationId: selected.Id,
-          ContactId: item,
-          IsNotifying: true,
-        };
-      }),
-    }).then((res) => {
-      reFetchParticipants(selected.Id);
-    });
-  };
+  const { data } = useFriend();
+
+  useEffect(() => {
+    refInput.current.focus();
+  }, []);
+
   return (
     <div className="flex flex-col p-10 pt-12 text-[90%] laptop:h-[45rem] desktop:h-[80rem]">
       <CustomInput
@@ -68,19 +26,72 @@ const AddMembers = () => {
         label="Search for name"
         reference={refInput}
         onChange={(e) => {
-          findContact(e.target.value);
+          // findContact(e.target.value);
         }}
       />
-      <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth text-[var(--text-main-color)]">
-        {contacts.map((item, i) => (
-          <FriendItem
-            key={item.id}
-            friend={item}
-            setContacts={setContacts}
-            onClose={onClose}
-          />
+      <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth text-[var(--text-main-color)]">
+        {data?.map((item) => (
+          <div
+            key={item}
+            className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-2 
+              ${
+                members.some((mem) => mem.contact.id === item.contact.id)
+                  ? "pointer-events-none"
+                  : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
+              } `}
+          >
+            <input
+              type="checkbox"
+              checked={members.some(
+                (mem) => mem.contact.id === item.contact.id,
+              )}
+              onChange={() => {
+                // queryClient.setQueryData(["conversation"], (oldData) => {
+                //   return {
+                //     ...oldData,
+                //     selected: {
+                //       ...oldData.selected,
+                //       participants: [
+                //         ...oldData.selected.participants,
+                //         {
+                //           contact: {
+                //             id: item.contact.id,
+                //           },
+                //         },
+                //       ],
+                //     },
+                //   };
+                // });
+              }}
+            ></input>
+            <ImageWithLightBoxAndNoLazy
+              src={item.contact.avatar}
+              className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+              slides={[
+                {
+                  src: item.contact.avatar,
+                },
+              ]}
+              onClick={(e) => {}}
+            />
+            <div>
+              <CustomLabel title={item.contact.name} />
+              {members.some((mem) => mem.contact.id === item.contact.id) ? (
+                <p className="text-[var(--text-main-color-blur)]">Joined</p>
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
         ))}
       </div>
+      <CustomButton
+        className={`!mr-0 mt-4 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
+        leadingClass="leading-[2.5rem]"
+        gradientClass="after:h-[115%] after:w-[107%]"
+        title="Save"
+        // onClick={updateTitle}
+      />
     </div>
   );
 };

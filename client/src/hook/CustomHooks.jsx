@@ -11,6 +11,7 @@ import ParticipantContext from "../context/ParticipantContext";
 import ProfileContext from "../context/ProfileContext";
 import { getAttachments } from "./AttachmentAPIs";
 import { getConversation } from "./ConversationAPIs";
+import { getFriends } from "./FriendAPIs";
 import { getMessages } from "./MessageAPIs";
 import { getNotification } from "./NotificationAPIs";
 import { getParticipants } from "./ParticipantAPIs";
@@ -81,6 +82,15 @@ export const useAttachment = (conversationId) => {
     staleTime: Infinity,
     enabled: false,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useFriend = () => {
+  return useQuery({
+    queryKey: ["friend"],
+    queryFn: () => getFriends(),
+    staleTime: Infinity,
+    // enabled: false,
   });
 };
 

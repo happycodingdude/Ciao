@@ -304,6 +304,7 @@ body,
   }
   .base-icon {
     @apply flex cursor-pointer items-center justify-center font-light laptop:text-md desktop:text-xl
+    /* @apply flex cursor-pointer items-center justify-center laptop:text-md desktop:text-xl */
   }
   .base-icon-sm {
     @apply flex cursor-pointer items-center justify-center font-light laptop:text-lg desktop:text-xl
