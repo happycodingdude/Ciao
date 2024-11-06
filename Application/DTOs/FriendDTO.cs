@@ -13,6 +13,18 @@ namespace Application.DTOs;
 //     public string ContactName { get; set; }
 // }
 
+public class GetListFriendItem : MongoBaseModel
+{
+    public GetListFriendItem_Contact Contact { get; set; }
+}
+
+public class GetListFriendItem_Contact
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public string Avatar { get; set; }
+}
+
 public class FriendWithStatus : Friend
 {
     public string Status { get; set; }

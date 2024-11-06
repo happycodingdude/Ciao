@@ -1,17 +1,23 @@
-import { Tooltip } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useConversation, useInfo } from "../../hook/CustomHooks";
+import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 import OnlineStatusDot from "../common/OnlineStatusDot";
 import RelightBackground from "../common/RelightBackground";
 import QuickChat from "../friend/QuickChat";
-import AddParticipants from "./AddParticipants";
+import AddMembers from "./AddMembers";
+import UpdateTitle from "./UpdateTitle";
 
 const Information = (props) => {
   console.log("Information calling");
   const { show, toggle } = props;
+
+  const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
   // const { data: messages } = useMessage();
@@ -22,6 +28,8 @@ const Information = (props) => {
   const [chosenProfile, setChosenProfile] = useState();
   const [quickChatRect, setQuickChatRect] = useState();
   const [informationoffsetWidth, setInformationoffsetWidth] = useState();
+  const [openUpdateTitle, setOpenUpdateTitle] = useState(false);
+  const [openAddMembers, setOpenAddMembers] = useState(false);
 
   useEffect(() => {
     setChosenProfile(undefined);
@@ -41,50 +49,58 @@ const Information = (props) => {
   // }, [attachments]);
 
   const refInformation = useRef();
-  const hideInformation = () => {
-    refInformation.current.classList.remove("animate-flip-scale-up-vertical");
-    refInformation.current.classList.add("animate-flip-scale-down-vertical");
-  };
-
-  // const updateAvatar = async (e) => {
-  //   // Create a root reference
-  //   const storage = getStorage();
-  //   const file = e.target.files[0];
-  //   const url = await uploadBytes(
-  //     ref(storage, `avatar/${file.name}`),
-  //     file,
-  //   ).then((snapshot) => {
-  //     return getDownloadURL(snapshot.ref).then((url) => {
-  //       return url;
-  //     });
-  //   });
-  //   const body = [
-  //     {
-  //       op: "replace",
-  //       path: "avatar",
-  //       value: url,
-  //     },
-  //   ];
-
-  //   HttpRequest({
-  //     method: "patch",
-  //     url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETBYID.replace(
-  //       "{id}",
-  //       selected.id,
-  //     ),
-  //     data: body,
-  //   }).then((res) => {
-  //     setSelected((current) => ({ ...current, avatar: url }));
-  //     setConversations((current) => {
-  //       return current.map((item) => {
-  //         if (item.id === selected.id) item.avatar = url;
-  //         return item;
-  //       });
-  //     });
-  //   });
-
-  //   e.target.value = null;
+  // const hideInformation = () => {
+  //   refInformation.current.classList.remove("animate-flip-scale-up-vertical");
+  //   refInformation.current.classList.add("animate-flip-scale-down-vertical");
   // };
+
+  const updateAvatar = async (e) => {
+    // Create a root reference
+    const storage = getStorage();
+    const file = e.target.files[0];
+
+    queryClient.setQueryData(["conversation"], (oldData) => {
+      const updatedConversations = oldData.conversations.map((conversation) => {
+        if (conversation.id !== conversations?.selected.id) return conversation;
+        return {
+          ...conversation,
+          avatar: URL.createObjectURL(file),
+        };
+      });
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        selected: {
+          ...oldData.selected,
+          avatar: URL.createObjectURL(file),
+        },
+      };
+    });
+
+    const url = await uploadBytes(
+      ref(storage, `avatar/${file.name}`),
+      file,
+    ).then((snapshot) => {
+      return getDownloadURL(snapshot.ref).then((url) => {
+        return url;
+      });
+    });
+    const body = {
+      title: conversations?.selected.title,
+      avatar: url,
+    };
+
+    HttpRequest({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GETBYID.replace(
+        "{id}",
+        conversations?.selected.id,
+      ),
+      data: body,
+    });
+
+    e.target.value = null;
+  };
 
   return (
     <div
@@ -115,23 +131,49 @@ const Information = (props) => {
                   className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
                   accept="image/png, image/jpeg"
                   id="conversation-avatar"
-                  // onChange={updateAvatar}
+                  onChange={updateAvatar}
                 />
                 <CustomLabel
-                  className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
+                  className="cursor-pointer text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={conversations.selected?.title}
                   tooltip
+                  onClick={() => setOpenUpdateTitle(true)}
                 />
+
+                <BackgroundPortal
+                  show={openUpdateTitle}
+                  className="laptop:!w-[40rem] desktop:!w-[35%]"
+                  title="Update title"
+                  onClose={() => setOpenUpdateTitle(false)}
+                >
+                  <UpdateTitle
+                    id={conversations.selected?.id}
+                    title={conversations.selected?.title}
+                    avatar={conversations.selected?.avatar}
+                    onClose={() => setOpenUpdateTitle(false)}
+                  />
+                </BackgroundPortal>
                 {/* <div className="cursor-pointer text-[var(--text-main-color-blur)]">
                   {messages.participants.length} members
                 </div> */}
                 <div className="flex justify-center">
                   {/* <ToggleNotification /> */}
-                  <Tooltip title="Invite friends">
-                    <RelightBackground>
-                      <AddParticipants />
-                    </RelightBackground>
-                  </Tooltip>
+                  {/* <Tooltip title="Invite friends"> */}
+                  <RelightBackground>
+                    <div
+                      className={`fa fa-user-plus base-icon-lg`}
+                      onClick={() => setOpenAddMembers(true)}
+                    ></div>
+                  </RelightBackground>
+                  <BackgroundPortal
+                    show={openAddMembers}
+                    className="laptop:!w-[40rem] desktop:!w-[35%]"
+                    title="Add members"
+                    onClose={() => setOpenAddMembers(false)}
+                  >
+                    <AddMembers onClose={() => setOpenAddMembers(false)} />
+                  </BackgroundPortal>
+                  {/* </Tooltip> */}
                 </div>
               </>
             ) : (

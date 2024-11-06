@@ -20,6 +20,7 @@ public class MyMapping : Profile
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
         // CreateMap<Conversation, ConversationWithMessages>().ReverseMap();
         CreateMap<FriendWithStatus, Friend>().ReverseMap();
+        CreateMap<GetListFriendItem, Friend>().ReverseMap();
         // CreateMap<FriendDto, FriendToNotify>().ReverseMap();
         CreateMap<Friend, NotificationSourceDataType_Friend>()
             .ForMember(q => q.FriendId, s => s.MapFrom(w => w.Id))

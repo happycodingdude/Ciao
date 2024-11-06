@@ -4,7 +4,7 @@ import ListChatContainer from "./ListChatContainer";
 
 export const ChatSection = (props) => {
   console.log("ChatSection calling");
-  const { refListChat } = props;
+  // const { refListChat } = props;
 
   // const refInformationContainer = useRef();
 

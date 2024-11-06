@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useInfo, useLoading } from "../../hook/CustomHooks";
+import React, { useEffect, useRef, useState } from "react";
+import { useInfo } from "../../hook/CustomHooks";
 import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
 import { requestPermission } from "../common/Notification";
 import ProfileSection from "../profile-new/ProfileSection";
@@ -13,22 +12,11 @@ export const Home = () => {
 
   const queryClient = useQueryClient();
 
-  // const refListChat = useRef();
-  // const refChatbox = useRef();
+  const { data: info } = useInfo();
+
+  const isRegistered = useRef(false);
 
   const [page, setPage] = useState("chat");
-  // const [backToLogin, setBackToLogin] = useState(false);
-
-  const navigate = useNavigate();
-
-  // const { data: info, isLoading, error, refetch } = useInfo();
-  const { data: info, isLoading } = useInfo();
-
-  // useEffect(() => {
-  //   if (!info) navigate("/auth", { replace: true });
-  // }, [info]);
-
-  const { setLoading } = useLoading();
 
   const { mutate: registerConnectionMutation } = useMutation({
     mutationFn: ({ token }) => registerConnection(token),
@@ -36,34 +24,16 @@ export const Home = () => {
 
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
-    if (info)
+    if (info && !isRegistered.current) {
+      isRegistered.current = true;
       requestPermission(
         registerConnectionMutation,
         notifyMessage,
         queryClient,
         info,
       );
-    else navigate("/auth", { replace: true });
+    }
   }, [info]);
-
-  if (isLoading) {
-    // setLoading(true);
-    return;
-  }
-
-  // if (error?.response.status === 401) {
-  //   // setLoading(false);
-  //   return (
-  //     <Authentication
-  //       onSuccess={() => {
-  //         setPage("chat");
-  //       }}
-  //     />
-  //   );
-  // }
-
-  // if (!info) return;
-  // setLoading(false);
 
   return (
     <div

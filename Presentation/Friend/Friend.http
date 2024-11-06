@@ -1,4 +1,5 @@
 @host = http://localhost:4000/api
+# @host = https://chat.happycoding.click/chat/api
 
 ###
 POST {{host}}/identity/signin

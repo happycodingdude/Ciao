@@ -6,9 +6,8 @@ import {
   useFetchFriends,
   useFetchParticipants,
 } from "../../hook/CustomHooks";
-import CustomModal from "../common/CustomModal";
 
-const AddParticipants = () => {
+const AddMembers = () => {
   const auth = useAuth();
   const { selected } = useFetchConversations();
   const { participants, reFetch: reFetchParticipants } = useFetchParticipants();
@@ -63,19 +62,27 @@ const AddParticipants = () => {
     });
   };
   return (
-    <>
-      <div
-        onClick={handleAddParticipant}
-        className={`fa fa-user-plus base-icon-lg`}
-      ></div>
-      <CustomModal
-        show={show}
-        forms={formData}
-        onClose={handleClose}
-        onSubmit={addParticipant}
+    <div className="flex flex-col p-10 pt-12 text-[90%] laptop:h-[45rem] desktop:h-[80rem]">
+      <CustomInput
+        type="text"
+        label="Search for name"
+        reference={refInput}
+        onChange={(e) => {
+          findContact(e.target.value);
+        }}
       />
-    </>
+      <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth text-[var(--text-main-color)]">
+        {contacts.map((item, i) => (
+          <FriendItem
+            key={item.id}
+            friend={item}
+            setContacts={setContacts}
+            onClose={onClose}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
 
-export default AddParticipants;
+export default AddMembers;

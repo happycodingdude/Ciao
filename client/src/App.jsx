@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Authentication from "./components/authentication/Authentication";
 import { Home } from "./components/chat/Home";
 import { registerSW } from "./components/common/Notification";
 import { LoadingProvider } from "./context/LoadingContext";
-import { useInfo } from "./hook/CustomHooks";
+import AuthRoute from "./route/AuthRoute";
+import ProtectedRoute from "./route/ProtectedRoute";
 
 function App() {
   if (typeof setImmediate === "undefined") {
@@ -16,46 +17,38 @@ function App() {
     registerSW();
   }, []);
 
-  const { data: info, isLoading } = useInfo();
-  const authenticated = info;
-
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/auth"
-          element={
-            isLoading ? null : authenticated ? (
-              <Navigate to="/" replace />
-            ) : (
-              <Authentication />
-            )
-          }
-        ></Route>
-        <Route
-          path="/"
-          element={
-            <LoadingProvider>
-              <Home />
-            </LoadingProvider>
+    <LoadingProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AuthRoute />}>
+            <Route path="/auth" element={<Authentication />}></Route>
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="/"
+              element={
+                <Home />
 
-            // <ToastContainer
-            //   position="bottom-right"
-            //   autoClose={1000}
-            //   hideProgressBar={false}
-            //   newestOnTop={false}
-            //   closeOnClick
-            //   rtl={false}
-            //   pauseOnFocusLoss
-            //   draggable
-            //   pauseOnHover
-            //   theme="colored"
-            //   transition:Bounce
-            // />
-          }
-        ></Route>
-      </Routes>
-    </BrowserRouter>
+                // <ToastContainer
+                //   position="bottom-right"
+                //   autoClose={1000}
+                //   hideProgressBar={false}
+                //   newestOnTop={false}
+                //   closeOnClick
+                //   rtl={false}
+                //   pauseOnFocusLoss
+                //   draggable
+                //   pauseOnHover
+                //   theme="colored"
+                //   transition:Bounce
+                // />
+              }
+            ></Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </LoadingProvider>
   );
 }
 

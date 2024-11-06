@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import { blurImageOLD } from "../../common/Utility";
 import {
   useAttachment,
   useConversation,
@@ -45,12 +44,7 @@ const ListChat = () => {
   const [page, setPage] = useState(1);
 
   const { data: info } = useInfo();
-  const {
-    data,
-    isLoading,
-    isRefetching,
-    refetch: refetchConversation,
-  } = useConversation(page);
+  const { data, isLoading, isRefetching } = useConversation(page);
   const { refetch: refetchMessage } = useMessage(selected, 1);
   const { refetch: refetchAttachments } = useAttachment(selected);
 
@@ -59,7 +53,7 @@ const ListChat = () => {
   // }, [page]);
 
   useEffect(() => {
-    blurImageOLD(".list-chat");
+    // blurImageOLD(".list-chat");
   }, [data?.conversations]);
 
   const clickConversation = (id) => {

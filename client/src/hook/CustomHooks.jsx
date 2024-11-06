@@ -27,12 +27,12 @@ export const useLocalStorage = (key) => {
   return [value, setValue];
 };
 
-export const useInfo = () => {
+export const useInfo = (signedOut) => {
   return useQuery({
     queryKey: ["info"],
     queryFn: getInfo,
     staleTime: Infinity,
-    // enabled: false,
+    enabled: !signedOut,
   });
 };
 
@@ -51,6 +51,7 @@ export const useConversation = (page) => {
     queryFn: () => getConversation(page),
     staleTime: Infinity,
     // enabled: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -69,6 +70,7 @@ export const useMessage = (conversationId, page) => {
     queryFn: () => getMessages(conversationId, page),
     staleTime: Infinity,
     enabled: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -78,6 +80,7 @@ export const useAttachment = (conversationId) => {
     queryFn: () => getAttachments(conversationId),
     staleTime: Infinity,
     enabled: false,
+    refetchOnWindowFocus: false,
   });
 };
 
