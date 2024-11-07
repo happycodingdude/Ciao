@@ -41,7 +41,7 @@ const ListFriend = (props) => {
   };
 
   return (
-    <div className="flex flex-col p-10 pt-12 text-[90%] laptop:h-[45rem] desktop:h-[80rem]">
+    <div className="flex flex-col p-10 pt-12 laptop:h-[45rem] desktop:h-[80rem]">
       <CustomInput
         type="text"
         label="Search for name"

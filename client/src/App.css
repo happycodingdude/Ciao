@@ -309,4 +309,21 @@ body,
   .base-icon-sm {
     @apply flex cursor-pointer items-center justify-center font-light laptop:text-lg desktop:text-xl
   }
+
+  .gradient-item::after{
+    content: '';
+    position: absolute;
+    z-index: -1;
+    /* border-radius: 3rem; */
+    border-radius: var(--rounded);
+    background-image: linear-gradient(to top right,var(--main-color),var(--main-color-extrathin));
+    /* background-color: red; */
+    height: var(--height);
+    width: var(--width);
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+
+    /* @apply absolute z-[-1] rounded-[3rem]  bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] ${gradientClass ?? "after:h-[112%] after:w-[102%]"} */
+  }
 }

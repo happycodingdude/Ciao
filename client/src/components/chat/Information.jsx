@@ -164,13 +164,16 @@ const Information = (props) => {
                   </RelightBackground>
                   <BackgroundPortal
                     show={openAddMembers}
-                    className="laptop:!w-[40rem] desktop:!w-[35%]"
+                    className="laptop:!w-[50rem] desktop:!w-[70rem]"
                     title="Add members"
                     onClose={() => setOpenAddMembers(false)}
                   >
                     <AddMembers
+                      id={conversations.selected?.id}
+                      members={conversations.selected?.participants.map(
+                        (item) => item.contact,
+                      )}
                       onClose={() => setOpenAddMembers(false)}
-                      members={conversations.selected?.participants}
                     />
                   </BackgroundPortal>
                   {/* </Tooltip> */}

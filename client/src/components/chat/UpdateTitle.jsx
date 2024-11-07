@@ -54,7 +54,7 @@ const UpdateTitle = (props) => {
   };
 
   return (
-    <div className="flex flex-col gap-[3rem] p-10 pt-12 text-[90%]">
+    <div className="flex flex-col gap-[3rem] p-10 pt-12">
       <CustomInput type="text" reference={refInput} />
       <CustomButton
         className={`!mr-0 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}

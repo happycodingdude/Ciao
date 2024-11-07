@@ -200,7 +200,7 @@ const ListChat = () => {
                 //   ${item.id === selected ? "text-[var(--text-sub-color)]" : ""}
                 //   ${item.lastMessageContact !== info.id && item.unSeenMessages > 0 && item.id !== selected ? "text-[var(--main-color)]" : ""}
                 //   `}
-                className={`text-[1.5rem] ${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
+                className={`${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
                 title={
                   item.isGroup
                     ? item.title

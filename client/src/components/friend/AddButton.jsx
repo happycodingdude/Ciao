@@ -25,7 +25,9 @@ const AddButton = (props) => {
       title="Add"
       className={`!mr-0 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
       leadingClass="leading-[2.5rem]"
-      gradientClass="after:h-[115%] after:w-[107%]"
+      gradientWidth="107%"
+      gradientHeight="115%"
+      rounded="3rem"
       onClick={addFriend}
       processing={processing}
     />

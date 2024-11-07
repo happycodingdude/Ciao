@@ -90,7 +90,7 @@ export const useFriend = () => {
     queryKey: ["friend"],
     queryFn: () => getFriends(),
     staleTime: Infinity,
-    // enabled: false,
+    enabled: false,
   });
 };
 

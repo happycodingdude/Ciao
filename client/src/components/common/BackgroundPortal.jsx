@@ -36,7 +36,7 @@ const BackgroundPortal = ({ children, show, title, onClose, className }) => {
         {children}
       </div>
     </div>,
-    document.getElementById("root"),
+    document.getElementById("portal"),
   );
 };
 
