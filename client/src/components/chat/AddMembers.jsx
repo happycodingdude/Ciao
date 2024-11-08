@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import { HttpRequest } from "../../common/Utility";
 import { useFriend } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
@@ -11,7 +12,7 @@ const AddMembers = (props) => {
   const { id, members, onClose } = props;
 
   const queryClient = useQueryClient();
-  const { data, refetch } = useFriend();
+  const { data } = useFriend();
 
   const refInput = useRef();
 
@@ -20,9 +21,9 @@ const AddMembers = (props) => {
   );
   const [membersToAdd, setMembersToAdd] = useState([]);
 
-  useEffect(() => {
-    refetch();
-  }, []);
+  // useEffect(() => {
+  //   refetch();
+  // }, []);
 
   useEffect(() => {
     if (!data) return;
@@ -201,11 +202,14 @@ const AddMembers = (props) => {
           }}
           // className={`gradient-item relative ${membersToAdd.length === 0 ? "translate-x-full opacity-0" : "translate-x-0 opacity-100"} w-[35%]
           // overflow-hidden rounded-[.5rem] bg-[var(--bg-color)] p-2 transition-all duration-300`}
-          className={`gradient-item relative h-[95%] rounded-[.5rem] bg-[var(--bg-color)] transition-all duration-300
-            ${membersToAdd.length === 0 ? "w-0 translate-x-full opacity-0" : "w-[40%] translate-x-0 opacity-100"}`}
 
-          // className={twMerge('gradient-item relative h-[95%] rounded-[.5rem] bg-[var(--bg-color)] transition-all duration-300 w-[40%] translate-x-0 opacity-100',
-          //   membersToAdd.length === 0 && "w-0 translate-x-full opacity-0")}
+          // className={`gradient-item relative h-[95%] rounded-[.5rem] bg-[var(--bg-color)] transition-all duration-300
+          //   ${membersToAdd.length === 0 ? "w-0 translate-x-full opacity-0" : "w-[40%] translate-x-0 opacity-100"}`}
+
+          className={twMerge(
+            "gradient-item relative h-[95%] w-[40%] translate-x-0 rounded-[.5rem] bg-[var(--bg-color)] opacity-100 transition-all duration-300",
+            membersToAdd.length === 0 && "w-0 translate-x-full opacity-0",
+          )}
         >
           <div className="flex h-full w-full flex-col gap-[1rem] rounded-[.5rem] bg-[var(--bg-color)] p-2">
             <p>
@@ -218,7 +222,7 @@ const AddMembers = (props) => {
             <div className="hide-scrollbar flex flex-col gap-[.5rem] overflow-y-scroll scroll-smooth text-xs">
               {membersToAdd?.map((item) => (
                 <div className="flex items-center justify-between rounded-[1rem] bg-[var(--bg-color-extrathin)] p-2 !pr-4">
-                  <div className="inline-flex items-center gap-[.5rem]">
+                  <div className="pointer-events-none inline-flex items-center gap-[.5rem]">
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
                       className="aspect-square cursor-pointer rounded-[50%] laptop:w-[2.5rem]"

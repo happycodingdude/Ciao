@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import { useInfo } from "../../hook/CustomHooks";
+import { useFriend, useInfo } from "../../hook/CustomHooks";
 import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
 import { requestPermission } from "../common/Notification";
 import ProfileSection from "../profile-new/ProfileSection";
@@ -13,6 +13,7 @@ export const Home = () => {
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
+  const { refetch: refetchFriend } = useFriend();
 
   const isRegistered = useRef(false);
 
@@ -32,6 +33,7 @@ export const Home = () => {
         queryClient,
         info,
       );
+      refetchFriend();
     }
   }, [info]);
 

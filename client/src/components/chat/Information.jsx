@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
-import { useConversation, useInfo } from "../../hook/CustomHooks";
+import { useConversation, useFriend, useInfo } from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
@@ -23,6 +23,7 @@ const Information = (props) => {
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
   // const { data: attachments } = useAttachment();
+  const { data: friends } = useFriend();
 
   // const [displayAttachments, setDisplayAttachments] = useState([]);
   const [chosenProfile, setChosenProfile] = useState();
@@ -250,7 +251,7 @@ const Information = (props) => {
                 .filter((item) => item.contact.id !== info.id)
                 .map((item) => (
                   <div
-                    key={item}
+                    key={item.id}
                     className="information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]"
                     onClick={(e) => {
                       // Get the bounding rectangle of the target element
@@ -265,7 +266,9 @@ const Information = (props) => {
                         avatar: item.contact.avatar,
                         isOnline: item.contact.isOnline,
                         name: item.contact.name,
-                        friendId: item.friendId,
+                        friendId: friends.find(
+                          (friend) => friend.contact.id === item.contact.id,
+                        ).id,
                         friendStatus:
                           item.friendStatus === "friend"
                             ? null
