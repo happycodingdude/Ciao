@@ -30,6 +30,72 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                     {"Contact._id", userId},
                     {"IsDeleted", false},
                 }))),
+            new BsonDocument("$unwind", "$Participants"),
+            
+            // Lookup stage
+            new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "Friend" },
+                { "let", new BsonDocument("contactId", "$Participants.Contact._id") },  // Define variable contactId from Contact's _id
+                { "pipeline", new BsonArray
+                    {
+                        new BsonDocument("$match", new BsonDocument("$expr",
+                            new BsonDocument("$or", new BsonArray
+                            {
+                                new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", "$$contactId" }),
+                                    new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", userId })
+                                }),
+                                new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", userId }),
+                                    new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", "$$contactId" })
+                                })
+                            })
+                        ))
+                    }
+                },
+                { "as", "MatchingFriends" }
+            }),
+                        
+            // group state
+            new BsonDocument("$group", new BsonDocument
+            {
+                { "_id", "$_id" },
+                { "Title", new BsonDocument("$first", "$Title") },
+                { "Avatar", new BsonDocument("$first", "$Avatar") },
+                { "IsGroup", new BsonDocument("$first", "$IsGroup") },
+                { "UpdatedTime", new BsonDocument("$first", "$UpdatedTime") },
+                { "Messages", new BsonDocument("$first", "$Messages") },
+                { "Participants", new BsonDocument("$push", new BsonDocument
+                    {
+                        { "IsDeleted", "$Participants.IsDeleted" },
+                        { "IsModerator", "$Participants.IsModerator" },
+                        { "IsNotifying", "$Participants.IsNotifying" },
+                        { "Contact", "$Participants.Contact" },
+                        { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
+                        { "FriendStatus", new BsonDocument("$cond", new BsonArray
+                            {
+                                new BsonDocument("$eq", new BsonArray { new BsonDocument("$size", "$MatchingFriends"), 0 }),
+                                "new",
+                                new BsonDocument("$cond", new BsonArray
+                                {
+                                    new BsonDocument("$ne", new BsonArray { new BsonDocument("$first", "$MatchingFriends.AcceptTime"), BsonNull.Value }),
+                                    "friend",
+                                    new BsonDocument("$cond", new BsonArray
+                                    {
+                                        new BsonDocument("$eq", new BsonArray { new BsonDocument("$first", "$MatchingFriends.FromContact.ContactId"), userId }),
+                                        "request_sent",
+                                        "request_received"
+                                    })
+                                })
+                            })
+                        }
+                    })
+                },
+            }),
+
             new BsonDocument("$sort", new BsonDocument("UpdatedTime", -1)),
             new BsonDocument("$skip", pagingParam.Skip),
             new BsonDocument("$limit", pagingParam.Limit)
@@ -38,14 +104,14 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         var conversations = (await _collection
             .Aggregate<BsonDocument>(pipeline)
             .ToListAsync())
-            .Select(bson => BsonSerializer.Deserialize<Conversation>(bson))
+            .Select(bson => BsonSerializer.Deserialize<ConversationWithMessagesAndFriendRequest>(bson))
             .ToList();
         if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
 
         var result = new List<ConversationWithTotalUnseen>(conversations.Count);
         foreach (var conversation in conversations)
         {
-            var convertedConversation = _mapper.Map<Conversation, ConversationWithTotalUnseen>(conversation);
+            var convertedConversation = _mapper.Map<ConversationWithMessagesAndFriendRequest, ConversationWithTotalUnseen>(conversation);
             convertedConversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
             convertedConversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
@@ -66,17 +132,22 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
     public async Task<object> GetById(string id, PagingParam pagingParam)
     {
-        var filter = MongoQuery<Conversation>.IdFilter(id);
-        var conversation = await GetItemAsync(filter);
-        if (conversation.IsGroup)
-        {
-            return await GetGroupConversation(id, pagingParam);
-        }
-        else
-        {
-            return await GetDirectConversation(id, pagingParam);
-        }
+        return await GetDirectConversation(id, pagingParam);
     }
+
+    // public async Task<object> GetById(string id, PagingParam pagingParam)
+    // {
+    //     var filter = MongoQuery<Conversation>.IdFilter(id);
+    //     var conversation = await GetItemAsync(filter);
+    //     if (conversation.IsGroup)
+    //     {
+    //         return await GetGroupConversation(id, pagingParam);
+    //     }
+    //     else
+    //     {
+    //         return await GetDirectConversation(id, pagingParam);
+    //     }
+    // }
 
     async Task<ConversationWithMessages> GetDirectConversation(string id, PagingParam pagingParam)
     {
@@ -126,14 +197,14 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         var conversation = await _collection.Aggregate<ConversationWithMessages>(pipeline).SingleOrDefaultAsync();
         if (conversation.NextPage.Any()) conversation.NextExist = true;
 
-        await SeenAll(conversation);
+        SeenAll(conversation);
 
         return conversation;
     }
 
     async Task<ConversationWithMessagesAndFriendRequest> GetGroupConversation(string id, PagingParam pagingParam)
     {
-        var user = await _contactRepository.GetInfoAsync();
+        var userId = _contactRepository.GetUserId();
 
         // Define aggregation pipeline
         var pipeline = new BsonDocument[]
@@ -155,11 +226,11 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                 new BsonDocument("$and", new BsonArray
                                 {
                                     new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", "$$contactId" }),
-                                    new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", user.Id })
+                                    new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", userId })
                                 }),
                                 new BsonDocument("$and", new BsonArray
                                 {
-                                    new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", user.Id }),
+                                    new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", userId }),
                                     new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", "$$contactId" })
                                 })
                             })
@@ -194,7 +265,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                     "friend",
                                     new BsonDocument("$cond", new BsonArray
                                     {
-                                        new BsonDocument("$eq", new BsonArray { new BsonDocument("$first", "$MatchingFriends.FromContact.ContactId"), user.Id }),
+                                        new BsonDocument("$eq", new BsonArray { new BsonDocument("$first", "$MatchingFriends.FromContact.ContactId"), userId }),
                                         "request_sent",
                                         "request_received"
                                     })
@@ -239,19 +310,19 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         var conversation = await _collection.Aggregate<ConversationWithMessagesAndFriendRequest>(pipeline).SingleOrDefaultAsync();
         if (conversation.NextPage.Any()) conversation.NextExist = true;
 
-        await SeenAll(conversation);
+        SeenAll(conversation);
 
         return conversation;
     }
 
-    async Task SeenAll(ConversationWithNextPage conversation)
+    void SeenAll(ConversationWithNextPage conversation)
     {
-        var user = await _contactRepository.GetInfoAsync();
+        var userId = _contactRepository.GetUserId();
         // No need to update when all messages were seen
-        if (!conversation.Messages.Any(q => q.ContactId != user.Id && q.Status == "received")) return;
+        if (!conversation.Messages.Any(q => q.ContactId != userId && q.Status == "received")) return;
 
         var filter = MongoQuery<Conversation>.IdFilter(conversation.Id);
-        foreach (var unseenMessage in conversation.Messages.Where(q => q.ContactId != user.Id && q.Status == "received"))
+        foreach (var unseenMessage in conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received"))
         {
             unseenMessage.Status = "seen";
             unseenMessage.SeenTime = DateTime.Now;
