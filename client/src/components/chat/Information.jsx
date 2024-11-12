@@ -1,10 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
-import { useConversation, useFriend, useInfo } from "../../hook/CustomHooks";
+import { blurImageOLD, HttpRequest } from "../../common/Utility";
+import { useConversation, useInfo } from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 import OnlineStatusDot from "../common/OnlineStatusDot";
@@ -23,7 +24,7 @@ const Information = (props) => {
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
   // const { data: attachments } = useAttachment();
-  const { data: friends } = useFriend();
+  // const { data: friends } = useFriend();
 
   // const [displayAttachments, setDisplayAttachments] = useState([]);
   const [chosenProfile, setChosenProfile] = useState();
@@ -34,6 +35,7 @@ const Information = (props) => {
 
   useEffect(() => {
     setChosenProfile(undefined);
+    blurImageOLD(".members-image-container");
   }, [conversations.selected?.id]);
 
   // useEffect(() => {
@@ -246,7 +248,7 @@ const Information = (props) => {
           <div className="flex grow flex-col gap-[1rem]">
             <p className="text-base text-[var(--text-main-color)]">Members</p>
             {/* Still don't know why scrolling not working without adding h-0 */}
-            <div className="hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
+            <div className="members-image-container hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
               {conversations.selected?.participants
                 .filter((item) => item.contact.id !== info.id)
                 .map((item) => (
@@ -266,21 +268,19 @@ const Information = (props) => {
                         avatar: item.contact.avatar,
                         isOnline: item.contact.isOnline,
                         name: item.contact.name,
-                        friendId: friends.find(
-                          (friend) => friend.contact.id === item.contact.id,
-                        ).id,
-                        friendStatus:
-                          item.friendStatus === "friend"
-                            ? null
-                            : item.friendStatus,
+                        friendId: item.friendId,
+                        friendStatus: item.friendStatus,
                       });
                     }}
                   >
                     {/* <div className="absolute left-[-2rem] top-[-2rem] z-[1000] aspect-square w-[3rem] bg-red-300"></div> */}
                     <div className="relative">
-                      <ImageWithLightBoxAndNoLazy
+                      <ImageWithLightBox
                         src={item.contact.avatar}
-                        className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+                        className="aspect-square laptop:w-[3rem]"
+                        spinnerClassName="laptop:bg-[size:2rem]"
+                        imageClassName="bg-[size:160%]"
+                        roundedClassName="rounded-[50%]"
                         slides={[
                           {
                             src: item.contact.avatar,

@@ -15,7 +15,7 @@ const FriendItem = (props) => {
         src={friend.avatar}
         className="aspect-square rounded-2xl laptop:w-[5rem]"
         spinnerClassName="laptop:bg-[size:2rem]"
-        imageClassName="bg-[size:150%]"
+        imageClassName="bg-[size:160%]"
         slides={[
           {
             src: friend.avatar,

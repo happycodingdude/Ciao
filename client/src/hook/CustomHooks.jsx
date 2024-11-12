@@ -52,7 +52,7 @@ export const useConversation = (page) => {
     queryFn: () => getConversation(page),
     staleTime: Infinity,
     // enabled: false,
-    refetchOnWindowFocus: false,
+    // refetchOnWindowFocus: false,
   });
 };
 
@@ -71,7 +71,7 @@ export const useMessage = (conversationId, page) => {
     queryFn: () => getMessages(conversationId, page),
     staleTime: Infinity,
     enabled: false,
-    refetchOnWindowFocus: false,
+    // refetchOnWindowFocus: false,
   });
 };
 
@@ -81,7 +81,7 @@ export const useAttachment = (conversationId) => {
     queryFn: () => getAttachments(conversationId),
     staleTime: Infinity,
     enabled: false,
-    refetchOnWindowFocus: false,
+    // refetchOnWindowFocus: false,
   });
 };
 

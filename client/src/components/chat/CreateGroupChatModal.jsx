@@ -9,7 +9,7 @@ import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 
-const AddMembers = (props) => {
+const CreateGroupChatModal = (props) => {
   const { id, members, onClose } = props;
 
   const queryClient = useQueryClient();
@@ -112,12 +112,7 @@ const AddMembers = (props) => {
           {membersToSearch?.map((item) => (
             <div
               key={item}
-              className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]
-              ${
-                members.some((mem) => mem.id === item.id)
-                  ? "pointer-events-none"
-                  : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
-              } `}
+              className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]`}
               onClick={() => {
                 setMembersToAdd((members) => {
                   return members.map((mem) => mem.id).includes(item.id)
@@ -133,8 +128,7 @@ const AddMembers = (props) => {
                 });
               }}
             >
-              {members.some((mem) => mem.id === item.id) ||
-              membersToAdd.some((mem) => mem.id === item.id) ? (
+              {membersToAdd.some((mem) => mem.id === item.id) ? (
                 <div
                   className="fa fa-check flex aspect-square w-[1.7rem] items-center justify-center rounded-full bg-gradient-to-tr
                   from-[var(--main-color)] to-[var(--main-color-extrathin)] text-xs font-normal text-[var(--text-sub-color)]"
@@ -163,14 +157,7 @@ const AddMembers = (props) => {
                 ]}
                 onClick={(e) => {}}
               />
-              <div>
-                <CustomLabel title={item.name} />
-                {members.some((mem) => mem.id === item.id) ? (
-                  <p className="text-[var(--text-main-color-blur)]">Joined</p>
-                ) : (
-                  ""
-                )}
-              </div>
+              <CustomLabel title={item.name} />
             </div>
           ))}
         </div>
@@ -238,4 +225,4 @@ const AddMembers = (props) => {
   );
 };
 
-export default AddMembers;
+export default CreateGroupChatModal;

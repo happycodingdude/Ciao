@@ -9,10 +9,10 @@ const ImageWithLightBox = (props) => {
     className,
     spinnerClassName,
     imageClassName,
-    roundedClassName,
     slides,
     index,
     onClick,
+    immediate,
   } = props;
 
   const [showLightbox, setShowLightbox] = useState(false);
@@ -20,10 +20,13 @@ const ImageWithLightBox = (props) => {
 
   return (
     <div
-      className={`${className} ${roundedClassName ?? "rounded-2xl"} relative flex h-full w-full cursor-pointer items-center justify-center bg-[var(--bg-color-extrathin)]`}
+      className={`${className} cursor-pointer`}
       onClick={onClick ?? handleShowLightbox}
     >
-      {/* <div
+      <div
+        className={`relative flex h-full w-full items-center justify-center bg-[var(--bg-color-extrathin)]`}
+      >
+        {/* <div
         title={title}
         data-src={src ?? "images/imagenotfound.jpg"}
         style={{
@@ -33,32 +36,34 @@ const ImageWithLightBox = (props) => {
         onClick={onClick ?? handleShowLightbox}
       ></div> */}
 
-      <div
-        className={`${spinnerClassName} ${roundedClassName ?? "rounded-2xl"} spinner-image absolute
+        <div className="absolute h-full w-full"></div>
+        <div
+          className={`${spinnerClassName} spinner-image absolute
         h-1/2 w-1/2 bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}
-      ></div>
+        ></div>
 
-      <div
-        // className={`${className} bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}
-        data-src={src ?? "images/imagenotfound.jpg"}
-        className={`${imageClassName} ${roundedClassName ?? "rounded-2xl"} lazy-image absolute h-full w-full bg-[position:center_center] bg-no-repeat`}
-      >
-        {/* <img
+        <div
+          // className={`${className} bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}
+          data-src={src ?? "images/imagenotfound.jpg"}
+          className={`${imageClassName} lazy-image absolute h-full w-full bg-[position:center_center] bg-no-repeat`}
+        >
+          {/* <img
           src="images/svg-spinners--bars-rotate-fade.svg"
           title={title}
           data-src={src}
           loading="lazy"
           className="h-full w-full rounded-2xl"
         ></img> */}
-        {/* <div
+          {/* <div
           data-src={src}
           className="lazy-background h-full w-full rounded-2xl"
         ></div> */}
-      </div>
+        </div>
 
-      <CustomLightbox
-        reference={{ showLightbox, slides, index, setShowLightbox }}
-      />
+        <CustomLightbox
+          reference={{ showLightbox, slides, index, setShowLightbox }}
+        />
+      </div>
     </div>
   );
 };

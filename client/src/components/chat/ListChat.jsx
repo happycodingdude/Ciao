@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
+import { blurImageOLD } from "../../common/Utility";
 import {
   useAttachment,
   useConversation,
@@ -8,7 +9,7 @@ import {
   useMessage,
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 import LocalLoading from "../common/LocalLoading";
 import OnlineStatusDot from "../common/OnlineStatusDot";
 
@@ -31,8 +32,9 @@ moment.locale("en", {
   },
 });
 
-const ListChat = () => {
+const ListChat = (props) => {
   console.log("ListChat calling");
+  const { search } = props;
 
   const queryClient = useQueryClient();
 
@@ -48,12 +50,33 @@ const ListChat = () => {
   const { refetch: refetchMessage } = useMessage(selected, 1);
   const { refetch: refetchAttachments } = useAttachment(selected);
 
-  // useEffect(() => {
-  //   if (page) refetchConversation();
-  // }, [page]);
+  const refAllConversation = useRef();
 
   useEffect(() => {
-    // blurImageOLD(".list-chat");
+    if (!refAllConversation.current) return;
+
+    queryClient.setQueryData(["conversation"], (oldData) => {
+      return {
+        ...oldData,
+        conversations:
+          search === ""
+            ? refAllConversation.current
+            : refAllConversation.current.filter((conv) =>
+                conv.isGroup
+                  ? conv.title.toLowerCase().includes(search.toLowerCase())
+                  : conv.participants
+                      .find((item) => item.contact.id !== info.id)
+                      ?.contact.name.toLowerCase()
+                      .includes(search.toLowerCase()),
+              ),
+      };
+    });
+  }, [search]);
+
+  useEffect(() => {
+    blurImageOLD(".list-chat");
+    if (!refAllConversation.current)
+      refAllConversation.current = data?.conversations;
   }, [data?.conversations]);
 
   const clickConversation = (id) => {
@@ -70,14 +93,15 @@ const ListChat = () => {
       return;
 
     queryClient.setQueryData(["conversation"], (oldData) => {
-      const cloned = Object.assign({}, oldData);
-      var newConversations = cloned.conversations.map((conversation) => {
+      var newConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== selected) return conversation;
-        conversation.unSeenMessages = 0;
-        return conversation;
+        return {
+          ...conversation,
+          unSeenMessages: 0,
+        };
       });
       return {
-        selected: cloned.conversations.find((item) => item.id === selected),
+        selected: oldData.conversations.find((item) => item.id === selected),
         conversations: newConversations,
       };
     });
@@ -169,7 +193,7 @@ const ListChat = () => {
             }}
           >
             <div className="relative">
-              <ImageWithLightBoxAndNoLazy
+              <ImageWithLightBox
                 src={
                   item.isGroup
                     ? item.avatar
@@ -177,9 +201,9 @@ const ListChat = () => {
                         (item) => item.contact.id !== info.id,
                       )?.contact.avatar
                 }
-                className={`pointer-events-none aspect-square rounded-[50%] bg-[size:160%] shadow-[0px_0px_10px_-7px_var(--shadow-color)] laptop:w-[5rem]`}
-                // spinnerClassName="laptop:bg-[size:2rem]"
-                // imageClassName="bg-[size:150%]"
+                className={`pointer-events-none aspect-square laptop:w-[5rem]`}
+                spinnerClassName="laptop:bg-[size:2rem]"
+                imageClassName="bg-[size:160%]"
               />
               {!item.isGroup ? (
                 <OnlineStatusDot

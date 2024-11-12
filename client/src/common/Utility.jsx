@@ -100,11 +100,12 @@ export const blurImageOLD = (containerClass) => {
     { threshold: 0.5 },
   );
 
-  function delay() {
-    return new Promise((resolve) => setTimeout(resolve, 5000));
-  }
+  // function delay() {
+  //   return new Promise((resolve) => setTimeout(resolve, 10000));
+  // }
 
   const container = document.querySelector(containerClass);
+  if (!container) return;
   const images = container.querySelectorAll(".lazy-image");
   images.forEach((img) => {
     observer.observe(img);
