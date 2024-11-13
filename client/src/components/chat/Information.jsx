@@ -1,3 +1,4 @@
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
@@ -108,15 +109,15 @@ const Information = (props) => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 ${show ? "z-10" : "z-0"}  flex h-full w-full flex-col bg-[var(--bg-color-light)] `}
+      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color-light)] `}
     >
-      <div
+      {/* <div
         className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
         px-[2rem] py-[.5rem] laptop:h-[6rem]"
       >
         <p className="text-md text-[var(--text-main-color)]">Information</p>
-      </div>
-      <div className="mt-[1rem] flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
+      </div> */}
+      <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[1rem]">
             {conversations.selected?.isGroup ? (
@@ -163,7 +164,12 @@ const Information = (props) => {
                   {/* <ToggleNotification /> */}
                   {/* <Tooltip title="Invite friends"> */}
                   <RelightBackground onClick={() => setOpenAddMembers(true)}>
-                    <div className={`fa fa-user-plus base-icon-lg`}></div>
+                    {/* <div className={`fa fa-user-plus base-icon-lg`}></div> */}
+                    <PersonAddAltOutlinedIcon
+                      // fontSize="large"
+                      sx={{ fontSize: "2.5rem" }}
+                      className="cursor-pointer"
+                    />
                   </RelightBackground>
                   <BackgroundPortal
                     show={openAddMembers}

@@ -1,4 +1,5 @@
 // import { Tooltip } from "antd";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import React, { useState } from "react";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ListFriend from "./ListFriend";
@@ -7,10 +8,15 @@ const AddFriend = () => {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <div
+      {/* <div
         onClick={() => setOpen(true)}
         className="fa fa-user-plus base-icon-lg"
-      ></div>
+      ></div> */}
+      <PersonAddAltOutlinedIcon
+        fontSize="large"
+        className="cursor-pointer"
+        onClick={() => setOpen(true)}
+      />
       <BackgroundPortal
         show={open}
         className="laptop:!w-[40rem] desktop:!w-[35%]"

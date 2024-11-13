@@ -112,7 +112,7 @@ const CreateGroupChatModal = (props) => {
           {membersToSearch?.map((item) => (
             <div
               key={item}
-              className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]`}
+              className={`information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-[.7rem] hover:bg-[var(--bg-color-extrathin)]`}
               onClick={() => {
                 setMembersToAdd((members) => {
                   return members.map((mem) => mem.id).includes(item.id)

@@ -51,9 +51,9 @@ const Attachment = (props) => {
   return (
     <div
       ref={refAttachment}
-      className={`absolute top-0 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color-light)]`}
+      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color-light)]`}
     >
-      <div
+      {/* <div
         className="relative flex shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 
         py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[5rem] laptop-lg:h-[7rem]"
       >
@@ -63,7 +63,7 @@ const Attachment = (props) => {
           onClick={toggle}
         ></div>
         <p className="text-md text-[var(--text-main-color)]">Attachments</p>
-      </div>
+      </div> */}
       <div className="relative flex">
         <div
           onClick={() => toggleAttachmentActive("image")}
