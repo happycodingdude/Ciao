@@ -75,8 +75,10 @@ public static class SendMessage
             var user = await _contactRepository.GetInfoAsync();
             var message = request.model;
             message.ContactId = user.Id;
+            // if (message.Type == "media")
+            //     message.Content = string.Join(",", message.Attachments.Select(q => q.MediaName));
             if (message.Type == "media")
-                message.Content = string.Join(",", message.Attachments.Select(q => q.MediaName));
+                message.Content = null;
             conversation.Messages.Add(message);
 
             // When a message sent, all members of that group will be having that group conversation back

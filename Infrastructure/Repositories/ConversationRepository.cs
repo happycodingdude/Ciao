@@ -119,7 +119,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             if (lastMessage is not null)
             {
                 convertedConversation.LastMessageId = lastMessage.Id;
-                convertedConversation.LastMessage = lastMessage.Content;
+                convertedConversation.LastMessage = lastMessage.Type == "text" ? lastMessage.Content : string.Join(",", lastMessage.Attachments.Select(q => q.MediaName));
                 convertedConversation.LastMessageTime = lastMessage.CreatedTime;
                 convertedConversation.LastMessageContact = lastMessage.ContactId;
             }
