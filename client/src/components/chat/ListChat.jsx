@@ -10,8 +10,8 @@ import {
 } from "../../hook/CustomHooks";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import LocalLoading from "../common/LocalLoading";
-import OnlineStatusDot from "../common/OnlineStatusDot";
 
 moment.locale("en", {
   relativeTime: {
@@ -184,8 +184,8 @@ const ListChat = (props) => {
             py-[.8rem] pl-[.5rem] pr-[1rem] 
             ${
               selected === item.id
-                ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)] [&_.chat-content]:text-[var(--text-sub-color-thin)]`
-                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-extrathin)]"
+                ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)]`
+                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-thin)]"
             } `}
             onClick={() => {
               // clickConversation(65 * i, item.id);
@@ -193,7 +193,34 @@ const ListChat = (props) => {
             }}
           >
             <div className="relative">
-              <ImageWithLightBox
+              {item.noLazy ? (
+                <ImageWithLightBoxAndNoLazy
+                  src={
+                    item.isGroup
+                      ? item.avatar
+                      : item.participants.find(
+                          (item) => item.contact.id !== info.id,
+                        )?.contact.avatar
+                  }
+                  className={`pointer-events-none aspect-square laptop:w-[5rem]`}
+                  spinnerClassName="laptop:bg-[size:2rem]"
+                  imageClassName="bg-[size:160%]"
+                />
+              ) : (
+                <ImageWithLightBox
+                  src={
+                    item.isGroup
+                      ? item.avatar
+                      : item.participants.find(
+                          (item) => item.contact.id !== info.id,
+                        )?.contact.avatar
+                  }
+                  className={`pointer-events-none aspect-square laptop:w-[5rem]`}
+                  spinnerClassName="laptop:bg-[size:2rem]"
+                  imageClassName="bg-[size:160%]"
+                />
+              )}
+              {/* <ImageWithLightBox
                 src={
                   item.isGroup
                     ? item.avatar
@@ -204,8 +231,8 @@ const ListChat = (props) => {
                 className={`pointer-events-none aspect-square laptop:w-[5rem]`}
                 spinnerClassName="laptop:bg-[size:2rem]"
                 imageClassName="bg-[size:160%]"
-              />
-              {!item.isGroup ? (
+              /> */}
+              {/* {!item.isGroup ? (
                 <OnlineStatusDot
                   online={
                     item.participants.find(
@@ -215,7 +242,7 @@ const ListChat = (props) => {
                 />
               ) : (
                 ""
-              )}
+              )} */}
             </div>
             {/* Title & last message */}
             <div className={`flex h-full w-1/2 grow flex-col`}>
@@ -234,7 +261,7 @@ const ListChat = (props) => {
                 }
               />
               <CustomLabel
-                className={`chat-content
+                className={`
                   ${
                     item.id === selected
                       ? "text-[var(--text-sub-color-thin)]"
@@ -243,6 +270,7 @@ const ListChat = (props) => {
                         ? "text-[var(--main-color)]"
                         : "text-[var(--text-main-color-blur)]"
                   }`}
+                // className={`chat-content`}
                 title={item.lastMessage}
               />
             </div>

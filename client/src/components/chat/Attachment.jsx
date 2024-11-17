@@ -51,7 +51,7 @@ const Attachment = (props) => {
   return (
     <div
       ref={refAttachment}
-      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color-light)]`}
+      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       {/* <div
         className="relative flex shrink-0 items-center justify-center border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[2rem] 

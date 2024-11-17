@@ -14,6 +14,7 @@ const AddFriend = () => {
       ></div> */}
       <PersonAddAltOutlinedIcon
         fontSize="large"
+        // sx={{ stroke: "#000000", strokeWidth: 0.1 }}
         className="cursor-pointer"
         onClick={() => setOpen(true)}
       />

@@ -41,9 +41,9 @@ const ChatInput = forwardRef((props, ref) => {
     });
   }, [messages]);
 
-  const setCaretToEnd = () => {
+  const setCaretToEnd = (addSpace) => {
     // ref.current.textContent += " ";
-    ref.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
+    if (addSpace) ref.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
     ref.current.focus();
 
     // Create a range and set it to the end of the content
@@ -62,7 +62,7 @@ const ChatInput = forwardRef((props, ref) => {
     ref.current.textContent = ref.current.textContent.replace("@", "");
     ref.current.textContent = ref.current.textContent += user.name;
     // ref.current.focus();
-    setCaretToEnd();
+    setCaretToEnd(true);
     setShowMention(false);
   };
 
@@ -154,13 +154,15 @@ const ChatInput = forwardRef((props, ref) => {
     setFiles([...files, ...mergedFiles]);
 
     e.target.value = null;
-
-    ref.current.focus();
   };
 
   const removeFile = (e) => {
     setFiles(files.filter((item) => item.name !== e.target.dataset.key));
   };
+
+  useEffect(() => {
+    setCaretToEnd();
+  }, [files]);
 
   // useEffect(() => {
   //   if (!files || files.length === 0) return;

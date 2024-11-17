@@ -70,7 +70,7 @@ const Notification = () => {
           className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[1.7rem] items-center justify-center rounded-[50%] 
         bg-red-500 text-[var(--text-main-color)]"
         >
-          <p className="text-xs font-bold">
+          <p className="text-xs font-bold text-white">
             {notifications?.filter((item) => !item.read).length}
           </p>
         </div>

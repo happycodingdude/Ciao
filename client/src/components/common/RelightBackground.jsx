@@ -9,11 +9,11 @@ const RelightBackground = ({
     <div
       {...props}
       className={`${className}
-      ${lighten ? "rounded-[1rem] bg-[var(--main-color-bold)]" : "rounded-[50%] bg-[var(--bg-color-extrathin)]"}
+      ${lighten ? "rounded-[1rem] bg-[var(--main-color-light)]" : "rounded-[50%] bg-[var(--bg-color-extrathin)]"}
       flex aspect-square cursor-pointer items-center
       justify-center p-[1rem] text-[var(--text-main-color)]
       transition-all duration-200 hover:rounded-[1rem]
-      hover:bg-[var(--main-color-bold)]`}
+      hover:bg-[var(--main-color-light)]`}
       // className={`${className}
       // ${lighten ? "rounded-[1rem] bg-[var(--main-color-light)] text-[var(--text-sub-color)]" : "rounded-[50%] bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"}
       // flex aspect-square cursor-pointer items-center

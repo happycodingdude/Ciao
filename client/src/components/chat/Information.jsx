@@ -3,7 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { blurImageOLD, HttpRequest } from "../../common/Utility";
-import { useConversation, useInfo } from "../../hook/CustomHooks";
+import {
+  useAttachment,
+  useConversation,
+  useInfo,
+} from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
@@ -24,10 +28,10 @@ const Information = (props) => {
   const { data: info } = useInfo();
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
-  // const { data: attachments } = useAttachment();
+  const { data: attachments } = useAttachment();
   // const { data: friends } = useFriend();
 
-  // const [displayAttachments, setDisplayAttachments] = useState([]);
+  const [displayAttachments, setDisplayAttachments] = useState([]);
   const [chosenProfile, setChosenProfile] = useState();
   const [quickChatRect, setQuickChatRect] = useState();
   const [informationoffsetWidth, setInformationoffsetWidth] = useState();
@@ -39,18 +43,22 @@ const Information = (props) => {
     blurImageOLD(".members-image-container");
   }, [conversations.selected?.id]);
 
-  // useEffect(() => {
-  //   if (!attachments) return;
+  useEffect(() => {
+    if (!attachments) return;
 
-  //   if (attachments?.length !== 0) {
-  //     const mergedArr = attachments.reduce((result, item) => {
-  //       return result.concat(item.attachments);
-  //     }, []);
-  //     setDisplayAttachments(mergedArr.slice(0, 8));
-  //   } else {
-  //     setDisplayAttachments([]);
-  //   }
-  // }, [attachments]);
+    if (attachments?.length !== 0) {
+      const mergedArr = attachments.reduce((result, item) => {
+        return result.concat(item.attachments);
+      }, []);
+      setDisplayAttachments(mergedArr.slice(0, 8));
+    } else {
+      setDisplayAttachments([]);
+    }
+  }, [attachments]);
+
+  useEffect(() => {
+    blurImageOLD(".display-attachment-container");
+  }, [displayAttachments]);
 
   const refInformation = useRef();
   // const hideInformation = () => {
@@ -109,7 +117,7 @@ const Information = (props) => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color-light)] `}
+      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       {/* <div
         className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
@@ -217,12 +225,12 @@ const Information = (props) => {
             )}
           </div>
         </div>
-        {/* <div className="display-attachment-container flex flex-col">
+        <div className="flex flex-col gap-[1rem]">
           <div className="flex justify-between">
             <p className="text-base text-[var(--text-main-color)]">
               Attachments
-            </p> */}
-        {/* {displayAttachments.length !== 0 ? (
+            </p>
+            {displayAttachments.length !== 0 ? (
               <div
                 onClick={toggle}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
@@ -231,14 +239,17 @@ const Information = (props) => {
               </div>
             ) : (
               ""
-            )} */}
-        {/* </div> */}
-        {/* <div className="grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+            )}
+          </div>
+          <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
             {displayAttachments.map((item, index) => (
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
-                className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                className={`aspect-square w-full`}
+                spinnerClassName="laptop:bg-[size:1.5rem]"
+                imageClassName="bg-[size:160%]"
                 slides={displayAttachments.map((item) => ({
                   src:
                     item.type === "image"
@@ -248,8 +259,8 @@ const Information = (props) => {
                 index={index}
               />
             ))}
-          </div> */}
-        {/* </div> */}
+          </div>
+        </div>
         {conversations.selected?.isGroup ? (
           <div className="flex grow flex-col gap-[1rem]">
             <p className="text-base text-[var(--text-main-color)]">Members</p>
@@ -311,7 +322,6 @@ const Information = (props) => {
         ) : (
           ""
         )}
-
         {/* <DeleteConfirmation
           title="Delete chat"
           message="Are you sure want to delete this chat?"

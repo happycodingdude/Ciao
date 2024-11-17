@@ -11,14 +11,14 @@ const ListChatHeader = (props) => {
   const [text, setText] = useState("");
 
   return (
-    <div className="flex items-center gap-[1rem] border-b-[.1rem] border-b-[var(--text-main-color-light)] px-[1rem] laptop:h-[6rem]">
+    <div className="flex shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-[var(--border-color)] px-[1rem] laptop:h-[6rem]">
       <div className="relative flex h-[60%] w-[70%] items-center">
         <input
           // ref={refInput}
           value={text}
           type="text"
           placeholder="Find and connect"
-          className="h-full w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] pl-[1rem] pr-[3rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
+          className="h-full w-full rounded-[.5rem] bg-[var(--placehoder-color)] pl-[1rem] pr-[3rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
           // onChange={(e) => onChange(e.target.value)}
           // onChange={(e) => setText((current) => current + e.target.value)}
           onChange={(e) => {
@@ -27,7 +27,7 @@ const ListChatHeader = (props) => {
           }}
         ></input>
         <CloseOutlined
-          className={`absolute right-[1rem] rounded-full bg-[var(--bg-color-thin)] p-[.4rem] text-xs text-[var(--text-main-color)]
+          className={`absolute right-[1rem] rounded-full bg-[var(--bg-color-extrathin)] p-[.4rem] text-xs text-[var(--text-main-color)]
             ${text === "" ? "pointer-events-none opacity-0" : "cursor-pointer opacity-100"} `}
           onClick={() => {
             // refInput.current.value = "";

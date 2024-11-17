@@ -30,7 +30,7 @@ const Chatbox = (props) => {
   const refTitleContainer = useRef();
   const refInput = useRef();
 
-  const [files, setFiles] = useState([]);
+  // const [files, setFiles] = useState([]);
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState();
   const [openEmoji, setOpenEmoji] = useState(false);
@@ -48,7 +48,7 @@ const Chatbox = (props) => {
   useEffect(() => {
     // blurImage(".chatbox-content");
     blurImageOLD(".chatbox-content");
-    setFiles([]);
+    // setFiles([]);
 
     if (autoScrollBottom) scrollChatContentToBottom();
   }, [messages, autoScrollBottom]);
@@ -58,7 +58,7 @@ const Chatbox = (props) => {
     setAutoScrollBottom(true);
     setTimeout(() => {
       refInput.current.focus();
-    }, 500);
+    }, 100);
   }, [conversations?.selected]);
 
   // const chooseFile = (e) => {
@@ -145,7 +145,7 @@ const Chatbox = (props) => {
           conversation.lastMessage =
             param.type === "text"
               ? param.content
-              : files.map((item) => item.name).join(",");
+              : param.files.map((item) => item.name).join(",");
           return conversation;
         });
         return { ...oldData, conversations: updatedConversations };
@@ -225,26 +225,26 @@ const Chatbox = (props) => {
     );
   };
 
-  const sendMedia = async () => {
-    const uploaded = await uploadFile().then((uploads) => {
-      return uploads.map((item) => ({
-        type: item.type,
-        mediaUrl: item.url,
-        mediaName: item.name,
-        mediaSize: item.size,
-      }));
-    });
+  // const sendMedia = async () => {
+  //   const uploaded = await uploadFile().then((uploads) => {
+  //     return uploads.map((item) => ({
+  //       type: item.type,
+  //       mediaUrl: item.url,
+  //       mediaName: item.name,
+  //       mediaSize: item.size,
+  //     }));
+  //   });
 
-    const lazyImages = files.map((item) => {
-      // console.log(URL.createObjectURL(item));
-      return {
-        type: "image",
-        mediaUrl: URL.createObjectURL(item),
-      };
-    });
-    setFiles([]);
-    sendMutation({ type: "media", attachments: lazyImages });
-  };
+  //   const lazyImages = files.map((item) => {
+  //     // console.log(URL.createObjectURL(item));
+  //     return {
+  //       type: "image",
+  //       mediaUrl: URL.createObjectURL(item),
+  //     };
+  //   });
+  //   setFiles([]);
+  //   sendMutation({ type: "media", attachments: lazyImages });
+  // };
 
   useEffect(() => {
     scrollChatContentToBottom();
@@ -482,7 +482,7 @@ const Chatbox = (props) => {
       <div className="flex w-full items-center justify-center py-3">
         <ChatInput
           send={(text, files) => {
-            // if (text.trim() === "") return;
+            if (text.trim() === "" && files.length === 0) return;
 
             const lazyImages = files.map((item) => {
               return {
@@ -490,9 +490,9 @@ const Chatbox = (props) => {
                 mediaUrl: URL.createObjectURL(item),
               };
             });
-            setFiles([]);
+            // setFiles([]);
             sendMutation({
-              type: "text",
+              type: text.trim() === "" ? "media" : "text",
               content: text,
               attachments: lazyImages,
               files: files,

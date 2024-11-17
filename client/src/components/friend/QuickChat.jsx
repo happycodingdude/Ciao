@@ -139,6 +139,7 @@ const QuickChat = (props) => {
                   },
                 },
               ],
+              noLazy: true,
             },
             ...oldData.conversations,
           ],

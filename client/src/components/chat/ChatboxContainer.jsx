@@ -12,6 +12,7 @@ const ChatboxContainer = (props) => {
   // const [selected] = useSelected();
   const { data, isLoading, isRefetching } = useMessage();
   const [toggle, setToggle] = useState("information");
+  // const [toggle, setToggle] = useState("attachment");
 
   // useEffect(() => {
   //   console.log(`selected => ${selected}`);
