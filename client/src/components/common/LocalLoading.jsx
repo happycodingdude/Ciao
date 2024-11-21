@@ -1,9 +1,9 @@
 import React from "react";
 
 const LocalLoading = (props) => {
-  const { loading } = props;
+  // const { loading } = props;
 
-  if (!loading) return;
+  // if (!loading) return;
 
   return (
     <div

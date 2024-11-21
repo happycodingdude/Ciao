@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useMessage } from "../../hook/CustomHooks";
+import React, { useEffect, useState } from "react";
+import { useConversation, useMessage } from "../../hook/CustomHooks";
 import LocalLoading from "../common/LocalLoading";
 import Attachment from "./Attachment";
 import Chatbox from "./Chatbox";
@@ -10,29 +10,38 @@ const ChatboxContainer = (props) => {
   // const { removeInListChat, refChatbox } = props;
 
   // const [selected] = useSelected();
-  const { data, isLoading, isRefetching } = useMessage();
+  const { data: messages } = useMessage();
+  // const { isLoading, isRefetching, isFetched } = useAttachment();
   const [toggle, setToggle] = useState("information");
   // const [toggle, setToggle] = useState("attachment");
 
-  // useEffect(() => {
-  //   console.log(`selected => ${selected}`);
-  // }, [selected]);
+  const [loading, setLoading] = useState();
+
+  const { data: conversations } = useConversation();
+  useEffect(() => {
+    if (!conversations?.selected) return;
+    setLoading(true);
+  }, [conversations?.selected]);
 
   return (
     <div className="relative flex grow">
-      {isLoading || isRefetching ? <LocalLoading loading /> : ""}
-      {data?.messages ? (
+      {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
+      {loading ? <LocalLoading /> : ""}
+      {messages?.messages ? (
         <>
           <Chatbox
           // toggleInformation={toggleInformationContainer}
           />
           <div className="relative origin-right laptop:w-[22rem]">
+            {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
+            {/* {!isFetched ? <LocalLoading /> : ""} */}
             <Information
               // refAttachment={refAttachment}
               // refInformationExposed={refInformation}
               // removeInListChat={removeInListChat}
               show={toggle === "information"}
               toggle={() => setToggle("attachment")}
+              onLoaded={() => setLoading(false)}
             />
             <Attachment
               // refInformation={refInformation}

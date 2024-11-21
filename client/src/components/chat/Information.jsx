@@ -21,14 +21,14 @@ import UpdateTitle from "./UpdateTitle";
 
 const Information = (props) => {
   console.log("Information calling");
-  const { show, toggle } = props;
+  const { show, toggle, onLoaded } = props;
 
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
-  const { data: attachments } = useAttachment();
+  const { data: attachments, isLoading, isRefetching } = useAttachment();
   // const { data: friends } = useFriend();
 
   const [displayAttachments, setDisplayAttachments] = useState([]);
@@ -58,6 +58,9 @@ const Information = (props) => {
 
   useEffect(() => {
     blurImageOLD(".display-attachment-container");
+    setTimeout(() => {
+      onLoaded();
+    }, 10);
   }, [displayAttachments]);
 
   const refInformation = useRef();
@@ -225,42 +228,80 @@ const Information = (props) => {
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-[1rem]">
-          <div className="flex justify-between">
-            <p className="text-base text-[var(--text-main-color)]">
-              Attachments
-            </p>
-            {displayAttachments.length !== 0 ? (
+        {displayAttachments.length !== 0 ? (
+          <div className="flex flex-col gap-[1rem]">
+            <div className="flex justify-between">
+              <p className="text-base text-[var(--text-main-color)]">
+                Attachments
+              </p>
               <div
                 onClick={toggle}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
               >
                 See all
               </div>
-            ) : (
-              ""
-            )}
+            </div>
+            <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+              {displayAttachments.map((item, index) => (
+                <ImageWithLightBox
+                  src={item.mediaUrl}
+                  title={item.mediaName?.split(".")[0]}
+                  // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                  className={`aspect-square w-full`}
+                  spinnerClassName="laptop:bg-[size:1.5rem]"
+                  imageClassName="bg-[size:160%]"
+                  slides={displayAttachments.map((item) => ({
+                    src:
+                      item.type === "image"
+                        ? item.mediaUrl
+                        : "images/filenotfound.svg",
+                  }))}
+                  index={index}
+                />
+              ))}
+            </div>
           </div>
-          <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
-            {displayAttachments.map((item, index) => (
-              <ImageWithLightBox
-                src={item.mediaUrl}
-                title={item.mediaName?.split(".")[0]}
-                // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
-                className={`aspect-square w-full`}
-                spinnerClassName="laptop:bg-[size:1.5rem]"
-                imageClassName="bg-[size:160%]"
-                slides={displayAttachments.map((item) => ({
-                  src:
-                    item.type === "image"
-                      ? item.mediaUrl
-                      : "images/filenotfound.svg",
-                }))}
-                index={index}
-              />
-            ))}
+        ) : (
+          ""
+        )}
+        {/* {displayAttachments.length !== 0 ? (
+          <div className="flex flex-col gap-[1rem]">
+            <div className="flex justify-between">
+              <p className="text-base text-[var(--text-main-color)]">
+                Attachments
+              </p>
+              <div
+                onClick={toggle}
+                className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
+              >
+                See all
+              </div>
+            </div>
+            <div className="display-attachment-container relative grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+              <LocalLoading />
+              {displayAttachments.map((item, index) => (
+                <ImageWithLightBox
+                  src={item.mediaUrl}
+                  title={item.mediaName?.split(".")[0]}
+                  // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
+                  className={`aspect-square w-full`}
+                  spinnerClassName="laptop:bg-[size:1.5rem]"
+                  imageClassName="bg-[size:160%]"
+                  slides={displayAttachments.map((item) => ({
+                    src:
+                      item.type === "image"
+                        ? item.mediaUrl
+                        : "images/filenotfound.svg",
+                  }))}
+                  index={index}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          ""
+        )} */}
+
         {conversations.selected?.isGroup ? (
           <div className="flex grow flex-col gap-[1rem]">
             <p className="text-base text-[var(--text-main-color)]">Members</p>

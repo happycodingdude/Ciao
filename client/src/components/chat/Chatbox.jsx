@@ -13,6 +13,7 @@ import {
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
+import RelightBackground from "../common/RelightBackground";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
@@ -40,17 +41,22 @@ const Chatbox = (props) => {
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { data: messages, refetch } = useMessage(
-    conversations?.selected?.id,
-    page,
-  );
+  const {
+    data: messages,
+    isLoading,
+    isRefetching,
+  } = useMessage(conversations?.selected?.id, page);
 
   useEffect(() => {
     // blurImage(".chatbox-content");
     blurImageOLD(".chatbox-content");
+    refChatContent.current.classList.remove("scroll-smooth");
     // setFiles([]);
 
-    if (autoScrollBottom) scrollChatContentToBottom();
+    if (autoScrollBottom) {
+      scrollChatContentToBottom();
+      refChatContent.current.classList.add("scroll-smooth");
+    }
   }, [messages, autoScrollBottom]);
 
   useEffect(() => {
@@ -335,21 +341,34 @@ const Chatbox = (props) => {
   return (
     <div
       ref={refChatboxContainer}
-      className="mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
+      className="relative mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
     >
+      {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       <div className="chatbox-content relative flex w-full grow flex-col justify-end overflow-hidden p-8">
         {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
         {fetching ? <FetchingMoreMessages loading /> : ""}
-        <div
-          ref={refScrollToBottom}
-          data-show="false"
-          className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
-          items-center justify-center rounded-[50%] bg-[var(--main-color-bold)] text-lg font-light text-[var(--text-main-color)]
-          transition-all duration-200 hover:bg-[var(--main-color)]
-          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:z-0
-          data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
+        <RelightBackground
           onClick={scrollChatContentToBottom}
-        ></div>
+          className="absolute bottom-[5%] right-[50%]"
+        >
+          <div
+            ref={refScrollToBottom}
+            data-show="false"
+            className="fa fa-chevron-down base-icon"
+          ></div>
+        </RelightBackground>
+
+        {/* <div
+            ref={refScrollToBottom}
+            data-show="false"
+            className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
+            items-center justify-center rounded-[50%] bg-[var(--main-color-bold)] text-lg font-light text-[var(--text-main-color)]
+            transition-all duration-200 hover:bg-[var(--main-color)]
+            data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:z-0
+            data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
+            onClick={scrollChatContentToBottom}
+          ></div> */}
+
         {/* </RelightBackground> */}
         {/* <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] py-[.5rem] text-[var(--text-main-color-normal)]">
           <div className="flex items-center gap-[1rem]">
@@ -451,7 +470,7 @@ const Chatbox = (props) => {
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar mt-4 flex flex-col gap-[2rem] overflow-y-scroll scroll-smooth"
+          className="hide-scrollbar mt-4 flex flex-col gap-[2rem] overflow-y-scroll"
         >
           {[...messages?.messages].reverse().map((message) => (
             <MessageContent message={message} />

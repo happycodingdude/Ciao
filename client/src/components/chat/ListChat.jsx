@@ -166,7 +166,7 @@ const ListChat = (props) => {
         ref={refChats}
         className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
-        {isLoading || isRefetching ? <LocalLoading loading /> : ""}
+        {isLoading || isRefetching ? <LocalLoading /> : ""}
         {data?.conversations.map((item, i) => (
           <div
             key={item.id}
