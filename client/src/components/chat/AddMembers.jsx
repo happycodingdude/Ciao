@@ -136,8 +136,8 @@ const AddMembers = (props) => {
               {members.some((mem) => mem.id === item.id) ||
               membersToAdd.some((mem) => mem.id === item.id) ? (
                 <div
-                  className="fa fa-check flex aspect-square w-[1.7rem] items-center justify-center rounded-full bg-gradient-to-tr
-                  from-[var(--main-color)] to-[var(--main-color-extrathin)] text-xs font-normal text-[var(--text-sub-color)]"
+                  className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
+                  from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
                 ></div>
               ) : (
                 <div className="relative z-10">
@@ -147,7 +147,7 @@ const AddMembers = (props) => {
                       "--height": `120%`,
                       "--rounded": "50%",
                     }}
-                    className="gradient-item relative aspect-square w-[1.7rem] rounded-full bg-[var(--bg-color)]"
+                    className="gradient-item relative aspect-square w-[1.8rem] rounded-full bg-[var(--bg-color)]"
                   ></div>
                 </div>
               )}
@@ -227,9 +227,9 @@ const AddMembers = (props) => {
       </div>
       <CustomButton
         className={`!mr-0 !p-[.2rem] laptop:!w-[7rem] laptop:text-base desktop:text-md`}
-        leadingClass="leading-[3rem]"
-        gradientWidth="107%"
-        gradientHeight="115%"
+        padding="py-[.5rem]"
+        gradientWidth="110%"
+        gradientHeight="120%"
         rounded="3rem"
         title="Save"
         onClick={addMembers}

@@ -80,9 +80,7 @@ const ProfileSection = () => {
 
   return (
     <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
-      <p className="text-2xl font-medium text-[var(--text-main-color)]">
-        Edit profile
-      </p>
+      <p className="text-2xl font-[600]">Edit profile</p>
       <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
         <div className="user-avatar relative flex w-full">
           <ImageWithLightBoxWithShadowAndNoLazy
@@ -102,26 +100,27 @@ const ProfileSection = () => {
           />
         </div>
         <div className="flex flex-col gap-[.5rem]">
-          <p className="text-[var(--text-main-color)]">Name</p>
+          <p className="font-[600]">Name</p>
           <input
             ref={refName}
-            className="rounded-lg bg-[var(--bg-color)] px-4 py-2 font-medium outline-none"
+            className="rounded-lg bg-[var(--main-color-extrathin)] px-4 py-2 font-medium outline-none"
             type="text"
           />
         </div>
         <div className="flex flex-col gap-[.5rem]">
-          <p className="text-[var(--text-main-color)]">Bio</p>
+          <p className="font-[600]">Bio</p>
           <textarea
             ref={refBio}
             rows={4}
-            className="hide-scrollbar resize-none rounded-lg bg-[var(--bg-color)] px-4 py-2 font-medium outline-none"
+            className="hide-scrollbar resize-none rounded-lg bg-[var(--main-color-extrathin)] px-4 py-2 font-medium outline-none"
             type="text"
           />
         </div>
       </div>
       <CustomButton
-        gradientWidth="107%"
-        gradientHeight="115%"
+        padding="py-[.5rem]"
+        gradientWidth="110%"
+        gradientHeight="125%"
         processing={processing}
         title="Save"
         className="!ml-0 !w-[30%]"

@@ -68,9 +68,9 @@ const Notification = () => {
       {notifications?.some((item) => !item.read) ? (
         <div
           className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[1.7rem] items-center justify-center rounded-[50%] 
-        bg-red-500 text-[var(--text-main-color)]"
+        bg-red-500"
         >
-          <p className="text-xs font-bold text-white">
+          <p className="text-xs font-bold text-[var(--sub-color)]">
             {notifications?.filter((item) => !item.read).length}
           </p>
         </div>
@@ -88,10 +88,8 @@ const Notification = () => {
           origin-bottom-left cursor-auto flex-col rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] transition-all
           duration-200 data-[state=hide]:scale-0 laptop:bottom-[2rem] laptop:left-[4rem] laptop:h-[30rem] laptop:w-[27rem]"
       >
-        <div className="notification-body border-b-[var(--border-color) flex justify-between border-b-[.1rem] px-4 py-3">
-          <p className="notification-body text-md text-[var(--text-main-color)]">
-            Notifications
-          </p>
+        <div className="notification-body flex justify-between border-b-[.1rem] border-b-[var(--border-color)] px-4 py-3">
+          <p className="notification-body text-md">Notifications</p>
           <div
             className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color)] hover:text-[var(--main-color-light)]"
             onClick={() => readAllCTA()}

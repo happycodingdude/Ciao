@@ -185,7 +185,7 @@ const ListChat = (props) => {
             ${
               selected === item.id
                 ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)]`
-                : "bg-[var(--bg-color-light)] hover:bg-[var(--bg-color-thin)]"
+                : "bg-[var(--bg-color)] hover:bg-[var(--bg-color-extrathin)]"
             } `}
             onClick={() => {
               // clickConversation(65 * i, item.id);

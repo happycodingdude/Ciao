@@ -19,7 +19,7 @@ const ChatboxContainer = (props) => {
 
   const { data: conversations } = useConversation();
   useEffect(() => {
-    if (!conversations?.selected) return;
+    if (!conversations?.selected || conversations?.fromEditProfile) return;
     setLoading(true);
   }, [conversations?.selected]);
 

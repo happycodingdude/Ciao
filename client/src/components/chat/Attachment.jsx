@@ -100,7 +100,7 @@ const Attachment = (props) => {
       <div
         // ref={refScrollAttachment}
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
-        [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+        [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
         {show
           ? displayAttachments.map((date) => (

@@ -38,6 +38,7 @@ const Chatbox = (props) => {
   const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -327,8 +328,8 @@ const Chatbox = (props) => {
       refChatContent.current.clientHeight !== 0 &&
       distanceFromBottom >= refChatContent.current.clientHeight
     )
-      refScrollToBottom.current.setAttribute("data-show", "true");
-    else refScrollToBottom.current.setAttribute("data-show", "false");
+      setShowScrollToBottom(true);
+    else setShowScrollToBottom(false);
 
     if (refChatContent.current.scrollTop === 0 && messages.nextExist) {
       setAutoScrollBottom(false);
@@ -341,21 +342,20 @@ const Chatbox = (props) => {
   return (
     <div
       ref={refChatboxContainer}
-      className="relative mx-[.1rem] flex flex-1 grow-[2] flex-col items-center"
+      className="relative mx-[.1rem] flex flex-1 grow-[2] flex-col items-center border-x-[.1rem] border-x-[var(--border-color)]"
     >
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       <div className="chatbox-content relative flex w-full grow flex-col justify-end overflow-hidden p-8">
         {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <RelightBackground
+          data-show={showScrollToBottom}
           onClick={scrollChatContentToBottom}
-          className="absolute bottom-[5%] right-[50%]"
+          className={`absolute bottom-[5%] right-[50%]
+            data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
+            data-[show=false]:opacity-0  data-[show=true]:opacity-100`}
         >
-          <div
-            ref={refScrollToBottom}
-            data-show="false"
-            className="fa fa-chevron-down base-icon"
-          ></div>
+          <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground>
 
         {/* <div

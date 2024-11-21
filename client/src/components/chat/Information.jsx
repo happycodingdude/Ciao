@@ -60,7 +60,7 @@ const Information = (props) => {
     blurImageOLD(".display-attachment-container");
     setTimeout(() => {
       onLoaded();
-    }, 10);
+    }, 100);
   }, [displayAttachments]);
 
   const refInformation = useRef();
@@ -128,7 +128,7 @@ const Information = (props) => {
       >
         <p className="text-md text-[var(--text-main-color)]">Information</p>
       </div> */}
-      <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--text-main-color-light)] [&>*]:p-[1rem]">
+      <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
         <div className="information-container flex flex-col gap-[1rem]">
           <div className="relative flex flex-col items-center gap-[1rem]">
             {conversations.selected?.isGroup ? (
@@ -217,7 +217,7 @@ const Information = (props) => {
                   ]}
                 />
                 <CustomLabel
-                  className="text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
+                  className="text-base laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
                   title={
                     conversations.selected?.participants?.find(
                       (item) => item.contact.id !== info.id,
@@ -231,9 +231,7 @@ const Information = (props) => {
         {displayAttachments.length !== 0 ? (
           <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between">
-              <p className="text-base text-[var(--text-main-color)]">
-                Attachments
-              </p>
+              <p className="text-base">Attachments</p>
               <div
                 onClick={toggle}
                 className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
@@ -304,7 +302,7 @@ const Information = (props) => {
 
         {conversations.selected?.isGroup ? (
           <div className="flex grow flex-col gap-[1rem]">
-            <p className="text-base text-[var(--text-main-color)]">Members</p>
+            <p className="text-base">Members</p>
             {/* Still don't know why scrolling not working without adding h-0 */}
             <div className="members-image-container hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
               {conversations.selected?.participants
@@ -327,7 +325,10 @@ const Information = (props) => {
                         isOnline: item.contact.isOnline,
                         name: item.contact.name,
                         friendId: item.friendId,
-                        friendStatus: item.friendStatus,
+                        friendStatus:
+                          item.friendStatus === "friend"
+                            ? null
+                            : item.friendStatus,
                       });
                     }}
                   >

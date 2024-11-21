@@ -106,7 +106,7 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.content ? (
           <div
-            className={`break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3rem]
+            className={`break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3.5rem]
             ${
               message.contactId === info.id
                 ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"

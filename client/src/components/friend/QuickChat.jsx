@@ -231,9 +231,9 @@ const QuickChat = (props) => {
         <div className="absolute right-[5%] top-[5%]">
           <FriendCtaButton friend={profile} onClose={() => {}} />
         </div>
-        <div className="basis-[40%] rounded-t-[.5rem] bg-[var(--main-color-extrabold)]"></div>
-        <div className="relative flex grow flex-col justify-evenly rounded-b-[.5rem] bg-[var(--main-color-bold)] px-4 pt-16">
-          <div className="absolute left-[1rem] top-[-4rem] rounded-[50%] bg-[var(--main-color-bold)] p-[.5rem]">
+        <div className="basis-[40%] rounded-t-[.5rem] bg-[var(--main-color-extrathin)]"></div>
+        <div className="relative flex grow flex-col justify-evenly rounded-b-[.5rem] bg-[var(--main-color-light)] px-4 pt-16">
+          <div className="absolute left-[1rem] top-[-4rem] rounded-[50%] bg-[var(--main-color-light)] p-[.5rem]">
             <ImageWithLightBoxAndNoLazy
               src={profile?.avatar}
               className="aspect-square cursor-pointer rounded-[50%] laptop:w-[7rem]"

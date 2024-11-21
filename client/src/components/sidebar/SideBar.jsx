@@ -3,6 +3,7 @@ import React from "react";
 import Signout from "../authentication/Signout";
 import ChatIcon from "../chat/ChatIcon";
 // import { requestPermission } from "../common/Notification";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { blurImage } from "../../common/Utility";
 import { useInfo } from "../../hook/CustomHooks";
@@ -15,6 +16,8 @@ const SideBar = (props) => {
   console.log("SideBar calling");
   const { page, setPage } = props;
 
+  const queryClient = useQueryClient();
+
   const { data: info } = useInfo();
 
   useEffect(() => {
@@ -22,7 +25,7 @@ const SideBar = (props) => {
   }, [info?.avatar]);
 
   return (
-    <section className="lg shrink-0 bg-[var(--bg-color)] laptop:w-[7rem] desktop:w-[10rem]">
+    <section className="lg shrink-0 border-r-[.1rem] border-r-[var(--border-color)] bg-[var(--bg-color)] laptop:w-[7rem] desktop:w-[10rem]">
       <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
         <div className="info-container flex w-full flex-col items-center gap-[3rem]">
           <ImageWithLightBoxWithShadowAndNoLazy
@@ -39,6 +42,12 @@ const SideBar = (props) => {
             onClick={() => {
               // refetch();
               setPage("chat");
+              queryClient.setQueryData(["conversation"], (oldData) => {
+                return {
+                  ...oldData,
+                  fromEditProfile: true,
+                };
+              });
             }}
           >
             <ChatIcon />
