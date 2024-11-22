@@ -1,4 +1,4 @@
-import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
+import { UserAddOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
@@ -57,10 +57,15 @@ const Information = (props) => {
   }, [attachments]);
 
   useEffect(() => {
+    if (!isRefetching) {
+      setTimeout(() => {
+        onLoaded();
+      }, 100);
+    }
+  }, [isRefetching]);
+
+  useEffect(() => {
     blurImageOLD(".display-attachment-container");
-    setTimeout(() => {
-      onLoaded();
-    }, 100);
   }, [displayAttachments]);
 
   const refInformation = useRef();
@@ -176,11 +181,12 @@ const Information = (props) => {
                   {/* <Tooltip title="Invite friends"> */}
                   <RelightBackground onClick={() => setOpenAddMembers(true)}>
                     {/* <div className={`fa fa-user-plus base-icon-lg`}></div> */}
-                    <PersonAddAltOutlinedIcon
+                    {/* <PersonAddAltOutlinedIcon
                       // fontSize="large"
-                      sx={{ fontSize: "2.5rem" }}
+                      sx={{ fontSize: "2rem" }}
                       className="cursor-pointer"
-                    />
+                    /> */}
+                    <UserAddOutlined style={{ fontSize: "16px" }} />
                   </RelightBackground>
                   <BackgroundPortal
                     show={openAddMembers}

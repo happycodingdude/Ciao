@@ -500,6 +500,7 @@ const Chatbox = (props) => {
       </div>
       <div className="flex w-full items-center justify-center py-3">
         <ChatInput
+          className="chatbox"
           send={(text, files) => {
             if (text.trim() === "" && files.length === 0) return;
 

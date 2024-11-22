@@ -12,7 +12,7 @@ const ListChatHeader = (props) => {
 
   return (
     <div className="flex shrink-0 items-center gap-[1rem] border-b-[.1rem] border-b-[var(--border-color)] px-[1rem] laptop:h-[6rem]">
-      <div className="relative flex h-[60%] w-[70%] items-center">
+      <div className="relative flex h-[60%] w-[70%] grow items-center">
         <input
           // ref={refInput}
           value={text}

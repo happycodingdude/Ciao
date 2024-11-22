@@ -213,8 +213,8 @@ const CreateGroupChatModal = (props) => {
         </div>
       </div>
       <CustomButton
-        className={`!mr-0 !p-[.2rem] laptop:!w-[7rem] laptop:text-base desktop:text-md`}
-        padding="py-[.5rem]"
+        className={`!mr-0 laptop:!w-[7rem] laptop:text-base desktop:text-md`}
+        padding="py-[.3rem]"
         gradientWidth="110%"
         gradientHeight="120%"
         rounded="3rem"

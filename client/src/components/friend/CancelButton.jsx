@@ -23,10 +23,10 @@ const CancelButton = (props) => {
   return (
     <CustomButton
       title="Cancel"
-      className={`!mr-0 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
+      className={`!mr-0  laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
       padding="py-[.3rem]"
       gradientWidth="110%"
-      gradientHeight="125%"
+      gradientHeight="120%"
       rounded="3rem"
       onClick={cancelFriendRequest}
       processing={processing}

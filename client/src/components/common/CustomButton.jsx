@@ -20,10 +20,10 @@ const CustomButton = ({
         style={{
           // Default width and height for auth page
           "--width": `${gradientWidth ?? "102%"}`,
-          "--height": `${gradientHeight ?? "115%"}`,
+          "--height": `${gradientHeight ?? "117%"}`,
           "--rounded": `${rounded ?? "3rem"}`,
         }}
-        className={`gradient-item relative cursor-pointer rounded-[2rem] bg-[var(--bg-color)] text-center font-medium text-[var(--text-main-color)]
+        className={`gradient-item relative cursor-pointer rounded-[2rem] bg-[var(--bg-color)] text-center font-medium 
           transition-all data-[process=true]:pointer-events-none`}
         onClick={handleClick}
       >

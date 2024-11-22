@@ -1,4 +1,4 @@
-import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
+import { UsergroupAddOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CreateGroupChatModal from "./CreateGroupChatModal";
@@ -11,9 +11,13 @@ const CreateGroupChat = () => {
         onClick={() => setOpen(true)}
         className="fa fa-user-group base-icon-lg"
       ></div> */}
-      <GroupAddOutlinedIcon
-        fontSize="large"
+      {/* <GroupAddOutlinedIcon
+        sx={{ fontSize: "2rem" }}
         className="cursor-pointer"
+        onClick={() => setOpen(true)}
+      /> */}
+      <UsergroupAddOutlined
+        style={{ fontSize: "16px" }}
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal

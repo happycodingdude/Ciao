@@ -8,5 +8,13 @@ public class Participant : MongoBaseModel
     // public Guid ConversationId { get; set; }
     // public string ContactId { get; set; }
     // public Conversation? Conversation { get; set; }
-    public Message_Contact Contact { get; set; }
+    public Participant_Contact Contact { get; set; }
+}
+
+public class Participant_Contact
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public string Avatar { get; set; }
+    public bool IsOnline { get; set; }
 }

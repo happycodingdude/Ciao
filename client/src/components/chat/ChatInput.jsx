@@ -22,7 +22,7 @@ const ChatInput = forwardRef((props, ref) => {
 
   useEffect(() => {
     ref.current.textContent = "";
-    ref.current.focus();
+    if (ref.current.classList.contains("chatbox")) ref.current.focus();
     // setTimeout(() => {
     //   if (ref.current) {
     //   }
@@ -161,7 +161,7 @@ const ChatInput = forwardRef((props, ref) => {
   };
 
   useEffect(() => {
-    setCaretToEnd();
+    if (files?.length !== 0) setCaretToEnd();
   }, [files]);
 
   // useEffect(() => {
@@ -289,6 +289,7 @@ const ChatInput = forwardRef((props, ref) => {
         height={400}
         onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
         className="emoji-item !absolute right-[2rem] top-[-41rem]"
+        icons="solid"
       />
     </div>
   );

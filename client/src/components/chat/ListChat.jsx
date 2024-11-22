@@ -267,7 +267,7 @@ const ListChat = (props) => {
                       ? "text-[var(--text-sub-color-thin)]"
                       : item.lastMessageContact !== info.id &&
                           item.unSeenMessages > 0
-                        ? "text-[var(--main-color)]"
+                        ? "font-[600] text-[var(--main-color-light)]"
                         : "text-[var(--text-main-color-blur)]"
                   }`}
                 // className={`chat-content`}

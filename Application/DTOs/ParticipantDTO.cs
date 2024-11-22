@@ -26,7 +26,7 @@ public class ParticipantWithFriendRequest : MongoBaseModel
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
-    public Message_Contact Contact { get; set; }
+    public Participant_Contact Contact { get; set; }
     public string FriendId { get; set; }
     public string FriendStatus { get; set; }
 }

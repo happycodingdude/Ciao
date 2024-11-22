@@ -119,7 +119,7 @@ public static class CreateConversation
                 IsModerator = true,
                 IsDeleted = false,
                 IsNotifying = true,
-                Contact = new Message_Contact
+                Contact = new Participant_Contact
                 {
                     Id = user.Id,
                     Name = user.Name,

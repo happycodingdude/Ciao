@@ -54,7 +54,7 @@ const CustomInput = (props) => {
       <div
         ref={refBorder}
         data-focus="false"
-        className="absolute bottom-0 h-[.1rem] w-full origin-left bg-[var(--main-color-light)] transition-all duration-200
+        className="absolute bottom-0 h-[.1rem] w-full origin-left bg-[var(--main-color)] transition-all duration-200
           data-[focus=false]:scale-x-0 data-[focus=true]:scale-x-[0.99]"
       ></div>
       <p
@@ -63,7 +63,7 @@ const CustomInput = (props) => {
         className="pointer-events-none absolute left-0 top-[50%] z-10 origin-left transition-all duration-200 
           data-[focus=false]:translate-y-[-50%] data-[focus=true]:translate-y-[-150%]
           data-[focus=true]:scale-[.9] data-[focus=true]:bg-[var(--bg-color)] data-[focus=false]:text-[var(--text-main-color-light)]
-          data-[focus=true]:text-[var(--main-color-light)]
+          data-[focus=true]:text-[var(--main-color)]
         "
       >
         {label}

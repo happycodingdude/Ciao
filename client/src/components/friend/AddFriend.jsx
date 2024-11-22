@@ -1,5 +1,5 @@
 // import { Tooltip } from "antd";
-import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
+import { UserAddOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ListFriend from "./ListFriend";
@@ -12,10 +12,14 @@ const AddFriend = () => {
         onClick={() => setOpen(true)}
         className="fa fa-user-plus base-icon-lg"
       ></div> */}
-      <PersonAddAltOutlinedIcon
-        fontSize="large"
+      {/* <PersonAddAltOutlinedIcon
+        sx={{ fontSize: "2rem" }}
         // sx={{ stroke: "#000000", strokeWidth: 0.1 }}
         className="cursor-pointer"
+        onClick={() => setOpen(true)}
+      /> */}
+      <UserAddOutlined
+        style={{ fontSize: "16px" }}
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal

@@ -6,21 +6,25 @@ public class Message : MongoBaseModel
     public string Content { get; set; }
     public string Status { get; set; } = "received";
     public bool IsPinned { get; set; }
-    public bool IsLike { get; set; }
-    public int LikeCount { get; set; }
+    // public bool IsReact { get; set; }
+    public int ReactionCount { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? SeenTime { get; set; }
     public string ContactId { get; set; }
+    public List<MessageReaction> Reactions { get; set; }
     // public string ConversationId { get; set; }
     // public Message_Contact Contact { get; set; }
     // public Conversation? Conversation { get; set; }
     public ICollection<Attachment>? Attachments { get; set; } = new List<Attachment>();
 }
 
-public class Message_Contact
+public class MessageReaction
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string Avatar { get; set; }
-    public bool IsOnline { get; set; }
+    public string ContactId { get; set; }
+    public bool IsLike { get; set; }
+    public bool IsLove { get; set; }
+    public bool IsCare { get; set; }
+    public bool IsWow { get; set; }
+    public bool IsSad { get; set; }
+    public bool IsAngry { get; set; }
 }

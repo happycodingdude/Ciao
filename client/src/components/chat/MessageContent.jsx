@@ -2,6 +2,7 @@ import moment from "moment";
 import React from "react";
 import { useConversation, useInfo } from "../../hook/CustomHooks";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import MessageReaction from "../common/MessageReaction";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
@@ -87,7 +88,7 @@ const MessageContent = (props) => {
           {message.contactId === info.id ? (
             ""
           ) : (
-            <p className="text-[var(--main-color-thin)]">
+            <p className="">
               {
                 conversations.selected?.participants.find(
                   (q) => q.contact.id === message.contactId,
@@ -106,7 +107,7 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.content ? (
           <div
-            className={`break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3.5rem]
+            className={`relative break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3.5rem]
             ${
               message.contactId === info.id
                 ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
@@ -114,6 +115,7 @@ const MessageContent = (props) => {
             }`}
           >
             {message.content}
+            <MessageReaction />
           </div>
         ) : (
           ""

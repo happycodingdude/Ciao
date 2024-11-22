@@ -37,7 +37,7 @@ public static class CreateConversationByContactId
                     IsModerator = false,
                     IsDeleted = false,
                     IsNotifying = true,
-                    Contact = new Message_Contact
+                    Contact = new Participant_Contact
                     {
                         Id = contact.Id,
                         Name = contact.Name,
@@ -51,7 +51,7 @@ public static class CreateConversationByContactId
                     IsModerator = true,
                     IsDeleted = false,
                     IsNotifying = true,
-                    Contact = new Message_Contact
+                    Contact = new Participant_Contact
                     {
                         Id = user.Id,
                         Name = user.Name,
