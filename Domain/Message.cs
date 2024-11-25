@@ -7,7 +7,7 @@ public class Message : MongoBaseModel
     public string Status { get; set; } = "received";
     public bool IsPinned { get; set; }
     // public bool IsReact { get; set; }
-    public int ReactionCount { get; set; }
+    // public int ReactionCount { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? SeenTime { get; set; }
     public string ContactId { get; set; }

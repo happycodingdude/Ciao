@@ -83,7 +83,7 @@ public static class CreateParticipant
             Console.WriteLine($"participantsToUpdate => {participantsToUpdate.Count()}");
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, participantsToUpdate);
-            _conversationRepository.UpdateNoTracking(filter, updates);
+            _conversationRepository.UpdateNoTrackingTime(filter, updates);
 
             return Unit.Value;
         }

@@ -2,7 +2,8 @@ namespace Presentation.Messages;
 
 public static class ReactMessage
 {
-    public record Request(string id, bool? isLike, bool? isLove, bool? isCare, bool? isWow, bool? isSad, bool? isAngry) : IRequest<Unit>;
+    public record Request(string conversationId, string id,
+        bool? isLike, bool? isLove, bool? isCare, bool? isWow, bool? isSad, bool? isAngry) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -11,96 +12,102 @@ public static class ReactMessage
 
         public Validator(IServiceProvider serviceProvider)
         {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
+                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
+            }
+            RuleFor(c => c.conversationId).ContactRelatedToConversation(_contactRepository, _conversationRepository);
         }
     }
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
-        readonly INotificationMethod _notificationMethod;
-        readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator,
-            INotificationMethod notificationMethod,
-            IMapper mapper,
             IService<IConversationRepository> conversationService,
             IService<IContactRepository> contactService)
         {
             _validator = validator;
-            _notificationMethod = notificationMethod;
-            _mapper = mapper;
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                throw new BadRequestException(validationResult.ToString());
+
+            var fieldsToUpdate = new Dictionary<string, bool?>
+            {
+                { "Messages.$.Reactions.$[elem].IsLike", request.isLike },
+                { "Messages.$.Reactions.$[elem].IsLove", request.isLove },
+                { "Messages.$.Reactions.$[elem].IsCare", request.isCare },
+                { "Messages.$.Reactions.$[elem].IsWow", request.isWow },
+                { "Messages.$.Reactions.$[elem].IsSad", request.isSad },
+                { "Messages.$.Reactions.$[elem].IsAngry", request.isAngry }
+            };
+            var updates = fieldsToUpdate
+                .Where(field => field.Value.HasValue) // Only include non-null fields
+                .Select(field => Builders<Conversation>.Update.Set(field.Key, field.Value.Value)) // Create update definitions
+                .ToList();
+            if (!updates.Any()) return Unit.Value;
+
+            // Ensure Reactions is an empty array if not present
+            var initializationFilter = Builders<Conversation>.Filter.And(
+                Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
+                Builders<Conversation>.Filter.ElemMatch(q => q.Messages,
+                    w => w.Id == request.id && (w.Reactions == null || !w.Reactions.Any()))
+            );
+            var initializeReactions = Builders<Conversation>.Update.Set(
+                "Messages.$.Reactions",
+                new List<MessageReaction>()
+            );
+            _conversationRepository.UpdateNoTrackingTime(initializationFilter, initializeReactions);
+
+            var key = Guid.NewGuid();
+            // Update if exists
             var userId = _contactRepository.GetUserId();
-            var conversationFilter = Builders<Conversation>.Filter.Eq("Messages._id", request.id);
-
-            // UpdateDefinition<Conversation> conversationUpdates;
-            // if (request.isLike.HasValue)
-            // {
-            //     conversationUpdates = Builders<Conversation>.Update.Set("Messages.$[elem].Reactions.IsLike", request.isLike);
-            // }
-            // else if (request.isLove.HasValue)
-            // {
-            //     conversationUpdates = Builders<Conversation>.Update.Set("Messages.$[elem].Reactions.isLove", request.isLove);
-            // }
-            // else if (request.isCare.HasValue)
-            // {
-            //     conversationUpdates = Builders<Conversation>.Update.Set("Messages.$[elem].Reactions.isCare", request.isCare);
-            // }
-            // else if (request.isWow.HasValue)
-            // {
-            //     conversationUpdates = Builders<Conversation>.Update.Set("Messages.$[elem].Reactions.isWow", request.isWow);
-            // }
-            // else if (request.isSad.HasValue)
-            // {
-            //     conversationUpdates = Builders<Conversation>.Update.Set("Messages.$[elem].Reactions.isSad", request.isSad);
-            // }
-            // else if (request.isAngry.HasValue)
-            // {
-            //     conversationUpdates = Builders<Conversation>.Update.Set("Messages.$[elem].Reactions.isAngry", request.isAngry);
-            // }
-            // else
-            // {
-            //     return Unit.Value;
-            // }
-
-            var conversationUpdates = Builders<Conversation>.Update.Combine(
-    // Update the fields of an existing reaction
-    Builders<Conversation>.Update.Set(
-        "Messages.$.Reactions.$[elem].IsLike", request.isLike ?? false
-    )
-    .Set("Messages.$.Reactions.$[elem].IsLove", request.isLove ?? false)
-    .Set("Messages.$.Reactions.$[elem].IsCare", request.isCare ?? false)
-    .Set("Messages.$.Reactions.$[elem].IsWow", request.isWow ?? false)
-    .Set("Messages.$.Reactions.$[elem].IsSad", request.isSad ?? false)
-    .Set("Messages.$.Reactions.$[elem].IsAngry", request.isAngry ?? false),
-
-    // Add a new reaction if it doesn't exist
-    Builders<Conversation>.Update.Push(
-        "Messages.$.Reactions",
-        new MessageReaction
-        {
-            ContactId = userId,
-            IsLike = request.isLike ?? false,
-            IsLove = request.isLove ?? false,
-            IsCare = request.isCare ?? false,
-            IsWow = request.isWow ?? false,
-            IsSad = request.isSad ?? false,
-            IsAngry = request.isAngry ?? false
-        }
-    )
-);
-
+            var conversationFilter = Builders<Conversation>.Filter.And(
+                Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
+                Builders<Conversation>.Filter.ElemMatch(q => q.Messages, w => w.Id == request.id)
+            ); ;
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem.Reactions.ContactId", userId)
+                new BsonDocument("elem.ContactId", userId)
                 );
-            _conversationRepository.UpdateNoTracking(conversationFilter, conversationUpdates, arrayFilter);
+            _conversationRepository.Update(key, conversationFilter, Builders<Conversation>.Update.Combine(updates), arrayFilter);
+
+            // Fallback: add a new reaction if it doesn't exist
+            var fallbackFilter = Builders<Conversation>.Filter.And(
+                Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
+                Builders<Conversation>.Filter.ElemMatch(
+                    c => c.Messages,
+                    Builders<Message>.Filter.And(
+                        Builders<Message>.Filter.Eq(m => m.Id, request.id),
+                        Builders<Message>.Filter.Not(
+                            Builders<Message>.Filter.ElemMatch(m => m.Reactions, r => r.ContactId == userId)
+                        )
+                    )
+                )
+            );
+            var create = Builders<Conversation>.Update.Push(
+                "Messages.$.Reactions",
+                new MessageReaction
+                {
+                    ContactId = userId,
+                    IsLike = request.isLike ?? false,
+                    IsLove = request.isLove ?? false,
+                    IsCare = request.isCare ?? false,
+                    IsWow = request.isWow ?? false,
+                    IsSad = request.isSad ?? false,
+                    IsAngry = request.isAngry ?? false
+                }
+            );
+            _conversationRepository.AddFallback(key, fallbackFilter, create);
 
             return Unit.Value;
         }
@@ -111,11 +118,11 @@ public class ReactMessageEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Message).MapPut("{id}/react",
-        async (ISender sender, string id,
+        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("{conversationId}/messages/{id}/react",
+        async (ISender sender, string conversationId, string id,
         bool? isLike, bool? isLove, bool? isCare, bool? isWow, bool? isSad, bool? isAngry) =>
         {
-            var query = new ReactMessage.Request(id, isLike, isLove, isCare, isWow, isSad, isAngry);
+            var query = new ReactMessage.Request(conversationId, id, isLike, isLove, isCare, isWow, isSad, isAngry);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);

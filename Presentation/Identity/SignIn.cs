@@ -50,7 +50,7 @@ public static class SignIn
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
-            _conversationRepository.UpdateNoTracking(conversationFilter, conversationUpdates, arrayFilter);
+            _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
 
             // Signin
             var claims = new List<Claim>

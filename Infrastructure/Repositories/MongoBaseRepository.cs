@@ -83,14 +83,34 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
     }
 
-    public void UpdateNoTracking(FilterDefinition<T> filter, UpdateDefinition<T> update)
+    public void UpdateNoTrackingTime(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
         _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
     }
 
-    public void UpdateNoTracking(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter)
+    public void UpdateNoTrackingTime(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter)
     {
         _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
+    }
+
+    public void Update(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> update)
+    {
+        _uow.AddOperation(key, (session) => _collection.UpdateManyAsync(session, filter, update));
+    }
+
+    public void Update(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter)
+    {
+        _uow.AddOperation(key, (session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
+    }
+
+    public void AddFallback(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> fallback)
+    {
+        _uow.AddFallback(key, (session) => _collection.UpdateManyAsync(session, filter, fallback));
+    }
+
+    public void AddFallback(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> fallback, ArrayFilterDefinition<T> arrayFilter)
+    {
+        _uow.AddFallback(key, (session) => _collection.UpdateManyAsync(session, filter, fallback, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
     }
 
     public void DeleteOne(FilterDefinition<T> filter) => _uow.AddOperation((session) => _collection.DeleteOneAsync(session, filter));

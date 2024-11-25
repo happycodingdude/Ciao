@@ -57,7 +57,7 @@ public class ConversationWithNextPage : MongoBaseModel
     public string Avatar { get; set; }
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
-    public ICollection<Message> Messages { get; set; } = new List<Message>();
+    public ICollection<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
     [JsonIgnore]
     public List<Message> NextPage { get; set; } = new List<Message>();
     public bool NextExist { get; set; }

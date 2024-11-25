@@ -28,6 +28,7 @@ public class MyMapping : Profile
         CreateMap<MessageDto, Message>().ReverseMap();
         CreateMap<MessageDto, MessageToNotify>().ReverseMap();
         CreateMap<Message, MessageToNotify>().ReverseMap();
+        CreateMap<Message, MessageWithReactions>().ReverseMap();
         // CreateMap<MessageDto, MessageNoReference>().ReverseMap();
         // CreateMap<Message, MessageNoReference>().ReverseMap();
         // CreateMap<Message, MessageWithAttachment>().ReverseMap();

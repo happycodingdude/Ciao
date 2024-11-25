@@ -52,7 +52,7 @@ public static class SignOut
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
-            _conversationRepository.UpdateNoTracking(conversationFilter, conversationUpdates, arrayFilter);
+            _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
 
             await _httpContextAccessor.HttpContext.SignOutAsync();
 

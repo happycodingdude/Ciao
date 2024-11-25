@@ -13,8 +13,12 @@ public interface IMongoRepository<T> : IInitDatabase where T : MongoBaseModel
     void Replace(FilterDefinition<T> filter, T entity);
     void Update(FilterDefinition<T> filter, UpdateDefinition<T> update);
     void Update(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter);
-    void UpdateNoTracking(FilterDefinition<T> filter, UpdateDefinition<T> update);
-    void UpdateNoTracking(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter);
+    void UpdateNoTrackingTime(FilterDefinition<T> filter, UpdateDefinition<T> update);
+    void UpdateNoTrackingTime(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter);
+    void Update(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> update);
+    void Update(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter);
+    void AddFallback(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> fallback);
+    void AddFallback(Guid key, FilterDefinition<T> filter, UpdateDefinition<T> fallback, ArrayFilterDefinition<T> arrayFilter);
     void DeleteOne(FilterDefinition<T> filter);
     // Task TrackChangeAsync(Func<ChangeStreamDocument<T>, Task> action);
 }

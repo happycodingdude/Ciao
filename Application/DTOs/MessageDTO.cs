@@ -67,3 +67,21 @@ public class CreateMessageRequest : Message
 //     public double? MediaSize { get; set; }
 //     public string MediaUrl { get; set; }
 // }
+
+
+public class MessageWithReactions : MongoBaseModel
+{
+    public string Type { get; set; }
+    public string Content { get; set; }
+    public string Status { get; set; }
+    public bool IsPinned { get; set; }
+    public DateTime? SeenTime { get; set; }
+    public string ContactId { get; set; }
+    public ICollection<Attachment>? Attachments { get; set; } = new List<Attachment>();
+    public int LikeCount { get; set; }
+    public int LoveCount { get; set; }
+    public int CareCount { get; set; }
+    public int WowCount { get; set; }
+    public int SadCount { get; set; }
+    public int AngryCount { get; set; }
+}
