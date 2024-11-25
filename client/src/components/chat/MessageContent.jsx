@@ -15,7 +15,7 @@ const MessageContent = (props) => {
   return (
     <div
       key={message.id}
-      className={`flex items-end gap-[1rem] 
+      className={`flex gap-[1rem] laptop:h-[10rem]
       ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* Sender avatar */}
@@ -107,7 +107,7 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.content ? (
           <div
-            className={`relative break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[3.5rem]
+            className={`relative break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
             ${
               message.contactId === info.id
                 ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
@@ -115,7 +115,19 @@ const MessageContent = (props) => {
             }`}
           >
             {message.content}
-            <MessageReaction />
+            <MessageReaction
+              message={{
+                mine: message.contactId === info.id,
+                totalReaction:
+                  message.likeCount +
+                  message.loveCount +
+                  message.careCount +
+                  message.wowCount +
+                  message.sadCount +
+                  message.angryCount,
+                reactions: ["like", "love", "care"],
+              }}
+            />
           </div>
         ) : (
           ""

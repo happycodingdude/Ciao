@@ -9,9 +9,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/MyConnect/Chat.API/bin/Debug/net8.0/Chat.API.dll",
+      "program": "${workspaceFolder}/Chat.API/bin/Debug/net8.0/Chat.API.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/MyConnect/Chat.API",
+      "cwd": "${workspaceFolder}/Chat.API",
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
