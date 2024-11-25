@@ -70,6 +70,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "Messages", new BsonDocument("$first", "$Messages") },
                 { "Participants", new BsonDocument("$push", new BsonDocument
                     {
+                        { "_id", "$Participants._id" },
                         { "IsDeleted", "$Participants.IsDeleted" },
                         { "IsModerator", "$Participants.IsModerator" },
                         { "IsNotifying", "$Participants.IsNotifying" },
@@ -94,6 +95,35 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         }
                     })
                 },
+            }),
+            
+            // project state
+            new BsonDocument("$project", new BsonDocument
+            {
+                { "Title", 1 },
+                { "Avatar", 1 },
+                { "IsGroup", 1 },
+                { "UpdatedTime", 1 },
+                { "Participants", 1 },
+                { "Messages", new BsonDocument("$map", new BsonDocument
+                    {
+                        { "input", "$Messages" }, // Process the collected Messages array
+                        { "as", "message" },
+                        { "in", new BsonDocument
+                            {
+                                { "_id", "$$message._id" },
+                                { "Type", "$$message.Type" },
+                                { "Content", "$$message.Content" },
+                                { "Status", "$$message.Status" },
+                                { "IsPinned", "$$message.IsPinned" },
+                                { "SeenTime", "$$message.SeenTime" },
+                                { "ContactId", "$$message.ContactId" },
+                                { "Attachments", "$$message.Attachments" },
+                                { "CreatedTime", "$$message.CreatedTime" }
+                            }
+                        }
+                    })
+                }
             }),
 
             new BsonDocument("$sort", new BsonDocument("UpdatedTime", -1)),
