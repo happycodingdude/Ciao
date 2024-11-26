@@ -6,14 +6,14 @@ const MessageReaction = (props) => {
   return (
     <>
       <div
-        className={`absolute bottom-[-2.5rem] flex justify-between laptop:w-[11rem]
-      ${message.mine ? "laptop:left-[-6.5rem]" : ""}
-      ${(message.mine && message.totalReaction) || (!message.mine && !message.totalReaction) ? "" : "flex-row-reverse "}`}
+        className={`absolute bottom-[-1rem] flex items-center justify-between gap-[.5rem] laptop:h-[2.5rem]
+      
+      ${(message.mine && message.totalReaction) || (!message.mine && !message.totalReaction) ? "" : "flex-row-reverse"}`}
       >
         {message.totalReaction ? (
           <div
-            className={` flex cursor-pointer items-center justify-evenly rounded-[2rem]
-            border-[.2rem] border-[var(--main-color)] bg-[var(--sub-color)] leading-[2rem] laptop:w-[8.5rem]
+            className={`flex cursor-pointer items-center gap-[.5rem] rounded-[2rem]
+            border-[.2rem] border-[var(--main-color)] bg-[var(--sub-color)] px-[.5rem] leading-[2rem]
             `}
           >
             <div className="inline-flex">
@@ -49,12 +49,22 @@ const MessageReaction = (props) => {
         ) : (
           ""
         )}
-        <LikeOutlined
-          className={`peer cursor-pointer`}
-          style={{ fontSize: "16px" }}
-        />
+        {
+          {
+            like: (
+              <div className="aspect-square cursor-pointer bg-[url('images/like.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"></div>
+            ),
+            null: (
+              <LikeOutlined
+                className={`peer flex aspect-square cursor-pointer items-center justify-center rounded-full border-[.2rem] border-[var(--main-color)] 
+                  bg-[var(--sub-color)] laptop:h-[2rem]`}
+                style={{ fontSize: "12px" }}
+              />
+            ),
+          }[message.currentReaction]
+        }
         <div
-          className={`absolute bottom-[2.5rem] z-10 flex scale-100 items-center justify-evenly rounded-[2rem] border-[.2rem] border-[var(--main-color)] 
+          className={`absolute bottom-[2.5rem] z-10 flex scale-0 items-center justify-evenly rounded-[2rem] border-[.2rem] border-[var(--main-color)] 
           bg-[var(--sub-color)] transition-all duration-200 hover:scale-100 peer-hover:scale-100 laptop:h-[4rem] laptop:w-[20rem]
           ${message.mine ? "origin-bottom-right laptop:right-[-.1rem]" : "origin-bottom-left laptop:left-0"}`}
         >

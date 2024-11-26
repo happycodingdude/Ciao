@@ -12,10 +12,27 @@ const MessageContent = (props) => {
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
 
+  const generateMostReaction = () => {
+    const reactions = {
+      like: message.likeCount,
+      love: message.loveCount,
+      care: message.careCount,
+      wow: message.wowCount,
+      sad: message.sadCount,
+      angry: message.angryCount,
+    };
+
+    return Object.entries(reactions)
+      .filter(([_, count]) => count > 0) // Exclude zero counts
+      .sort((a, b) => b[1] - a[1]) // Sort by count
+      .slice(0, 3) // Get the top 3
+      .map(([key]) => key); // Extract reaction names
+  };
+
   return (
     <div
       key={message.id}
-      className={`flex gap-[1rem] laptop:h-[10rem]
+      className={`flex shrink-0 gap-[1rem] 
       ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* Sender avatar */}
@@ -77,7 +94,7 @@ const MessageContent = (props) => {
         ""
       )}
       <div
-        className={`flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)]
+        className={`relative flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)]
         ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
@@ -107,7 +124,7 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.content ? (
           <div
-            className={`relative break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
+            className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
             ${
               message.contactId === info.id
                 ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
@@ -115,19 +132,6 @@ const MessageContent = (props) => {
             }`}
           >
             {message.content}
-            <MessageReaction
-              message={{
-                mine: message.contactId === info.id,
-                totalReaction:
-                  message.likeCount +
-                  message.loveCount +
-                  message.careCount +
-                  message.wowCount +
-                  message.sadCount +
-                  message.angryCount,
-                reactions: ["like", "love", "care"],
-              }}
-            />
           </div>
         ) : (
           ""
@@ -155,6 +159,22 @@ const MessageContent = (props) => {
         ) : (
           ""
         )}
+
+        <MessageReaction
+          message={{
+            mine: message.contactId === info.id,
+            totalReaction:
+              message.likeCount +
+              message.loveCount +
+              message.careCount +
+              message.wowCount +
+              message.sadCount +
+              message.angryCount,
+            // totalReaction: 0,
+            reactions: generateMostReaction(),
+            currentReaction: message.currentReaction,
+          }}
+        />
       </div>
     </div>
   );

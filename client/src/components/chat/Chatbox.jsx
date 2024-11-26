@@ -56,7 +56,9 @@ const Chatbox = (props) => {
 
     if (autoScrollBottom) {
       scrollChatContentToBottom();
-      refChatContent.current.classList.add("scroll-smooth");
+      setTimeout(() => {
+        refChatContent.current.classList.add("scroll-smooth");
+      }, 500);
     }
   }, [messages, autoScrollBottom]);
 
@@ -351,9 +353,9 @@ const Chatbox = (props) => {
         <RelightBackground
           data-show={showScrollToBottom}
           onClick={scrollChatContentToBottom}
-          className={`absolute bottom-[5%] right-[50%]
+          className={`absolute bottom-[5%] right-[50%] z-10
             data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
-            data-[show=false]:opacity-0  data-[show=true]:opacity-100`}
+            data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
         >
           <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground>

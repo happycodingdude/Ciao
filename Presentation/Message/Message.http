@@ -20,4 +20,10 @@ Content-Type: application/json
 
 
 ###
-PUT  {{host}}/conversations/673a0d03a419d4c14ea59b39/messages/673a0d03a419d4c14ea59b3c/react?isLove=true&isCare=true
+PUT  {{host}}/conversations/673a0d03a419d4c14ea59b39/messages/673a0d03a419d4c14ea59b3c/react
+Content-Type: application/json
+
+{
+    "currentReaction":"like",
+    "isLike":false
+}
