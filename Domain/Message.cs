@@ -27,4 +27,5 @@ public class MessageReaction
     public bool IsWow { get; set; }
     public bool IsSad { get; set; }
     public bool IsAngry { get; set; }
+    public string CurrentReaction { get; set; }
 }

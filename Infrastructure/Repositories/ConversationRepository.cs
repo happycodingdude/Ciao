@@ -162,6 +162,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
     public async Task<object> GetById(string id, PagingParam pagingParam)
     {
+        var userId = _contactRepository.GetUserId();
         var pipeline = new BsonDocument[]
         {
             new BsonDocument("$match", new BsonDocument("_id", id)),
@@ -199,6 +200,22 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                         { "ContactId", "$$message.ContactId" },
                                         { "Attachments", "$$message.Attachments" },
                                         { "CreatedTime", "$$message.CreatedTime" },
+                                        {"CurrentReaction", new BsonDocument("$arrayElemAt", new BsonArray
+                                        {
+                                            new BsonDocument("$map", new BsonDocument
+                                            {
+                                                { "input", new BsonDocument("$filter", new BsonDocument
+                                                    {
+                                                        { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Safeguard for null
+                                                        { "as", "reaction" }, // Alias
+                                                        { "cond", new BsonDocument("$eq", new BsonArray { "$$reaction.ContactId", userId }) } // Match ContactId
+                                                    })
+                                                },
+                                                { "as", "filteredReaction" },
+                                                { "in", "$$filteredReaction.CurrentReaction" }
+                                            }),
+                                            0
+                                        })},
                                         { "LikeCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
                                             {
                                                 { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null

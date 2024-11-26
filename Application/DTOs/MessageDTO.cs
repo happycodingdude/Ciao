@@ -84,4 +84,16 @@ public class MessageWithReactions : MongoBaseModel
     public int WowCount { get; set; }
     public int SadCount { get; set; }
     public int AngryCount { get; set; }
+    public string CurrentReaction { get; set; }
+}
+
+public class ReactMessageRequest
+{
+    public string CurrentReaction { get; set; }
+    public bool? IsLove { get; set; }
+    public bool? IsCare { get; set; }
+    public bool? IsLike { get; set; }
+    public bool? IsWow { get; set; }
+    public bool? IsSad { get; set; }
+    public bool? IsAngry { get; set; }
 }

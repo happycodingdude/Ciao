@@ -2,8 +2,7 @@ namespace Presentation.Messages;
 
 public static class ReactMessage
 {
-    public record Request(string conversationId, string id,
-        bool? isLike, bool? isLove, bool? isCare, bool? isWow, bool? isSad, bool? isAngry) : IRequest<Unit>;
+    public record Request(string conversationId, string id, ReactMessageRequest model) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -44,12 +43,12 @@ public static class ReactMessage
 
             var fieldsToUpdate = new Dictionary<string, bool?>
             {
-                { "Messages.$.Reactions.$[elem].IsLike", request.isLike },
-                { "Messages.$.Reactions.$[elem].IsLove", request.isLove },
-                { "Messages.$.Reactions.$[elem].IsCare", request.isCare },
-                { "Messages.$.Reactions.$[elem].IsWow", request.isWow },
-                { "Messages.$.Reactions.$[elem].IsSad", request.isSad },
-                { "Messages.$.Reactions.$[elem].IsAngry", request.isAngry }
+                { "Messages.$.Reactions.$[elem].IsLike", request.model.IsLike },
+                { "Messages.$.Reactions.$[elem].IsLove", request.model.IsLove },
+                { "Messages.$.Reactions.$[elem].IsCare", request.model.IsCare },
+                { "Messages.$.Reactions.$[elem].IsWow", request.model.IsWow },
+                { "Messages.$.Reactions.$[elem].IsSad", request.model.IsSad },
+                { "Messages.$.Reactions.$[elem].IsAngry", request.model.IsAngry }
             };
             var updates = fieldsToUpdate
                 .Where(field => field.Value.HasValue) // Only include non-null fields
@@ -57,6 +56,7 @@ public static class ReactMessage
                 .ToList();
             if (!updates.Any()) return Unit.Value;
 
+            updates.Add(Builders<Conversation>.Update.Set("Messages.$.Reactions.$[elem].CurrentReaction", request.model.CurrentReaction));
             // Ensure Reactions is an empty array if not present
             var initializationFilter = Builders<Conversation>.Filter.And(
                 Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
@@ -79,7 +79,9 @@ public static class ReactMessage
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem.ContactId", userId)
                 );
-            _conversationRepository.Update(key, conversationFilter, Builders<Conversation>.Update.Combine(updates), arrayFilter);
+            _conversationRepository.Update(key, conversationFilter,
+                Builders<Conversation>.Update.Combine(updates),
+                arrayFilter);
 
             // Fallback: add a new reaction if it doesn't exist
             var fallbackFilter = Builders<Conversation>.Filter.And(
@@ -99,12 +101,13 @@ public static class ReactMessage
                 new MessageReaction
                 {
                     ContactId = userId,
-                    IsLike = request.isLike ?? false,
-                    IsLove = request.isLove ?? false,
-                    IsCare = request.isCare ?? false,
-                    IsWow = request.isWow ?? false,
-                    IsSad = request.isSad ?? false,
-                    IsAngry = request.isAngry ?? false
+                    CurrentReaction = request.model.CurrentReaction,
+                    IsLike = request.model.IsLike ?? false,
+                    IsLove = request.model.IsLove ?? false,
+                    IsCare = request.model.IsCare ?? false,
+                    IsWow = request.model.IsWow ?? false,
+                    IsSad = request.model.IsSad ?? false,
+                    IsAngry = request.model.IsAngry ?? false
                 }
             );
             _conversationRepository.AddFallback(key, fallbackFilter, create);
@@ -119,10 +122,9 @@ public class ReactMessageEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("{conversationId}/messages/{id}/react",
-        async (ISender sender, string conversationId, string id,
-        bool? isLike, bool? isLove, bool? isCare, bool? isWow, bool? isSad, bool? isAngry) =>
+        async (ISender sender, string conversationId, string id, ReactMessageRequest model) =>
         {
-            var query = new ReactMessage.Request(conversationId, id, isLike, isLove, isCare, isWow, isSad, isAngry);
+            var query = new ReactMessage.Request(conversationId, id, model);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization(AppConstants.Authentication_Basic);
