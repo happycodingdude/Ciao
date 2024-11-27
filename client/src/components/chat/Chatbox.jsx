@@ -475,7 +475,7 @@ const Chatbox = (props) => {
           className="hide-scrollbar mt-4 flex flex-col gap-[2rem] overflow-y-scroll"
         >
           {[...messages?.messages].reverse().map((message) => (
-            <MessageContent message={message} />
+            <MessageContent message={message} id={conversations.selected.id} />
           ))}
 
           {isPending && (

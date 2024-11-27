@@ -1,25 +1,66 @@
 import moment from "moment";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { HttpRequest } from "../../common/Utility";
 import { useConversation, useInfo } from "../../hook/CustomHooks";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../common/MessageReaction";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
-  const { message, pending } = props;
+  const { message, id, pending } = props;
 
   const { data: info } = useInfo();
-  // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
 
-  const generateMostReaction = () => {
+  const [reaction, setReaction] = useState(() => {
+    return {
+      likeCount: message.likeCount,
+      loveCount: message.loveCount,
+      careCount: message.careCount,
+      wowCount: message.wowCount,
+      sadCount: message.sadCount,
+      angryCount: message.angryCount,
+      total:
+        message.likeCount +
+        message.loveCount +
+        message.careCount +
+        message.wowCount +
+        message.sadCount +
+        message.angryCount,
+      currentReaction: message.currentReaction,
+    };
+  });
+
+  useEffect(() => {
+    setReaction((current) => {
+      return {
+        ...current,
+        likeCount: message.likeCount,
+        loveCount: message.loveCount,
+        careCount: message.careCount,
+        wowCount: message.wowCount,
+        sadCount: message.sadCount,
+        angryCount: message.angryCount,
+        total:
+          message.likeCount +
+          message.loveCount +
+          message.careCount +
+          message.wowCount +
+          message.sadCount +
+          message.angryCount,
+        currentReaction: message.currentReaction,
+      };
+    });
+  }, [message]);
+
+  const generateMostReaction = useCallback(() => {
     const reactions = {
-      like: message.likeCount,
-      love: message.loveCount,
-      care: message.careCount,
-      wow: message.wowCount,
-      sad: message.sadCount,
-      angry: message.angryCount,
+      like: reaction.likeCount,
+      love: reaction.loveCount,
+      care: reaction.careCount,
+      wow: reaction.wowCount,
+      sad: reaction.sadCount,
+      angry: reaction.angryCount,
     };
 
     return Object.entries(reactions)
@@ -27,6 +68,65 @@ const MessageContent = (props) => {
       .sort((a, b) => b[1] - a[1]) // Sort by count
       .slice(0, 3) // Get the top 3
       .map(([key]) => key); // Extract reaction names
+  }, [reaction]);
+
+  const [topReactions, setTopReactions] = useState(() =>
+    generateMostReaction(),
+  );
+
+  useEffect(() => {
+    setTopReactions(generateMostReaction());
+  }, [reaction]);
+
+  const react = (type) => {
+    console.log(`reaction type => ${type}...`);
+    const desc = reaction.currentReaction === type;
+    HttpRequest({
+      method: "put",
+      url: desc
+        ? import.meta.env.VITE_ENDPOINT_MESSAGE_UNREACT.replace(
+            "{conversationId}",
+            id,
+          ).replace("{id}", message.id)
+        : import.meta.env.VITE_ENDPOINT_MESSAGE_REACT.replace(
+            "{conversationId}",
+            id,
+          )
+            .replace("{id}", message.id)
+            .replace("{type}", type),
+    });
+    setReaction((current) => {
+      const reactionKeys = {
+        like: "likeCount",
+        love: "loveCount",
+        care: "careCount",
+        wow: "wowCount",
+        sad: "sadCount",
+        angry: "angryCount",
+      };
+
+      const previousReaction = current.currentReaction;
+      const previousKey = reactionKeys[previousReaction];
+      const newKey = reactionKeys[type];
+
+      return {
+        ...current,
+        total:
+          previousReaction && !desc
+            ? current.total
+            : desc
+              ? current.total - 1
+              : current.total + 1,
+        currentReaction: desc ? null : type,
+        ...(previousKey && {
+          [previousKey]: current[previousKey] - 1,
+        }),
+        ...(newKey &&
+          !desc && {
+            [newKey]: (current[newKey] || 0) + 1,
+          }),
+      };
+    });
   };
 
   return (
@@ -163,17 +263,10 @@ const MessageContent = (props) => {
         <MessageReaction
           message={{
             mine: message.contactId === info.id,
-            totalReaction:
-              message.likeCount +
-              message.loveCount +
-              message.careCount +
-              message.wowCount +
-              message.sadCount +
-              message.angryCount,
-            // totalReaction: 0,
-            reactions: generateMostReaction(),
-            currentReaction: message.currentReaction,
+            reaction: reaction,
+            topReactions: topReactions,
           }}
+          react={react}
         />
       </div>
     </div>
