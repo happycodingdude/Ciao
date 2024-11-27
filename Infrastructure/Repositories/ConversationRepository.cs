@@ -160,6 +160,159 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         return result;
     }
 
+    // public async Task<object> GetById(string id, PagingParam pagingParam)
+    // {
+    //     var userId = _contactRepository.GetUserId();
+    //     var pipeline = new BsonDocument[]
+    //     {
+    //         new BsonDocument("$match", new BsonDocument("_id", id)),
+    //         // Project to sort and slice the array
+    //         new BsonDocument("$project", new BsonDocument
+    //         {
+    //             { "Title", 1},
+    //             { "Avatar", 1},
+    //             { "IsGroup", 1},
+    //             { "Participants", 1},
+    //             { "Messages", new BsonDocument
+    //                 {
+    //                     { "$map", new BsonDocument
+    //                         {
+    //                             { "input", new BsonDocument("$slice", new BsonArray
+    //                                 {
+    //                                     new BsonDocument("$sortArray", new BsonDocument
+    //                                     {
+    //                                         { "input", "$Messages" },
+    //                                         { "sortBy", new BsonDocument("CreatedTime", -1) }
+    //                                     }),
+    //                                     pagingParam.Skip,
+    //                                     pagingParam.Limit
+    //                                 })
+    //                             },
+    //                             { "as", "message" },
+    //                             { "in", new BsonDocument
+    //                                 {
+    //                                     { "_id", "$$message._id" },
+    //                                     { "Type", "$$message.Type" },
+    //                                     { "Content", "$$message.Content" },
+    //                                     { "Status", "$$message.Status" },
+    //                                     { "IsPinned", "$$message.IsPinned" },
+    //                                     { "SeenTime", "$$message.SeenTime" },
+    //                                     { "ContactId", "$$message.ContactId" },
+    //                                     { "Attachments", "$$message.Attachments" },
+    //                                     { "CreatedTime", "$$message.CreatedTime" },
+    //                                     {"CurrentReaction", new BsonDocument("$arrayElemAt", new BsonArray
+    //                                     {
+    //                                         new BsonDocument("$map", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$filter", new BsonDocument
+    //                                                 {
+    //                                                     { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Safeguard for null
+    //                                                     { "as", "reaction" }, // Alias
+    //                                                     { "cond", new BsonDocument("$eq", new BsonArray { "$$reaction.ContactId", userId }) } // Match ContactId
+    //                                                 })
+    //                                             },
+    //                                             { "as", "filteredReaction" },
+    //                                             { "in", "$$filteredReaction.CurrentReaction" }
+    //                                         }),
+    //                                         0
+    //                                     })},
+    //                                     { "LikeCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null
+    //                                             { "as", "reaction" },
+    //                                             { "cond", new BsonDocument("$eq", new BsonArray
+    //                                                 {
+    //                                                     "$$reaction.IsLike", true
+    //                                                 })
+    //                                             }
+    //                                         }))
+    //                                     },
+    //                                     { "LoveCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null
+    //                                             { "as", "reaction" },
+    //                                             { "cond", new BsonDocument("$eq", new BsonArray
+    //                                                 {
+    //                                                     "$$reaction.IsLove", true
+    //                                                 })
+    //                                             }
+    //                                         }))
+    //                                     },
+    //                                     { "CareCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null
+    //                                             { "as", "reaction" },
+    //                                             { "cond", new BsonDocument("$eq", new BsonArray
+    //                                                 {
+    //                                                     "$$reaction.IsCare", true
+    //                                                 })
+    //                                             }
+    //                                         }))
+    //                                     },
+    //                                     { "WowCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null
+    //                                             { "as", "reaction" },
+    //                                             { "cond", new BsonDocument("$eq", new BsonArray
+    //                                                 {
+    //                                                     "$$reaction.IsWow", true
+    //                                                 })
+    //                                             }
+    //                                         }))
+    //                                     },
+    //                                     { "SadCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null
+    //                                             { "as", "reaction" },
+    //                                             { "cond", new BsonDocument("$eq", new BsonArray
+    //                                                 {
+    //                                                     "$$reaction.IsSad", true
+    //                                                 })
+    //                                             }
+    //                                         }))
+    //                                     },
+    //                                     { "AngryCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
+    //                                         {
+    //                                             { "input", new BsonDocument("$ifNull", new BsonArray { "$$message.Reactions", new BsonArray() }) }, // Default to empty array if null
+    //                                             { "as", "reaction" },
+    //                                             { "cond", new BsonDocument("$eq", new BsonArray
+    //                                                 {
+    //                                                     "$$reaction.IsAngry", true
+    //                                                 })
+    //                                             }
+    //                                         }))
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             },
+    //             { "NextPage", new BsonDocument
+    //                 {
+    //                     { "$slice", new BsonArray
+    //                         {
+    //                             new BsonDocument("$sortArray", new BsonDocument
+    //                             {
+    //                                 { "input", "$Messages" },
+    //                                 { "sortBy", new BsonDocument("CreatedTime", -1) }
+    //                             }),
+    //                             pagingParam.NextSkip,
+    //                             pagingParam.Limit
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         })
+    //     };
+    //     var conversation = await _collection.Aggregate<ConversationWithMessages>(pipeline).SingleOrDefaultAsync();
+    //     if (conversation.NextPage.Any()) conversation.NextExist = true;
+
+    //     SeenAll(conversation);
+
+    //     return conversation;
+    // }
+
     public async Task<object> GetById(string id, PagingParam pagingParam)
     {
         var userId = _contactRepository.GetUserId();
@@ -212,7 +365,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                     })
                                                 },
                                                 { "as", "filteredReaction" },
-                                                { "in", "$$filteredReaction.CurrentReaction" }
+                                                { "in", "$$filteredReaction.Type" }
                                             }),
                                             0
                                         })},
@@ -222,7 +375,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                 { "as", "reaction" },
                                                 { "cond", new BsonDocument("$eq", new BsonArray
                                                     {
-                                                        "$$reaction.IsLike", true
+                                                        "$$reaction.Type", AppConstants.MessageReactionType_Like
                                                     })
                                                 }
                                             }))
@@ -233,7 +386,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                 { "as", "reaction" },
                                                 { "cond", new BsonDocument("$eq", new BsonArray
                                                     {
-                                                        "$$reaction.IsLove", true
+                                                        "$$reaction.Type", AppConstants.MessageReactionType_Love
                                                     })
                                                 }
                                             }))
@@ -244,7 +397,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                 { "as", "reaction" },
                                                 { "cond", new BsonDocument("$eq", new BsonArray
                                                     {
-                                                        "$$reaction.IsCare", true
+                                                        "$$reaction.Type", AppConstants.MessageReactionType_Care
                                                     })
                                                 }
                                             }))
@@ -255,7 +408,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                 { "as", "reaction" },
                                                 { "cond", new BsonDocument("$eq", new BsonArray
                                                     {
-                                                        "$$reaction.IsWow", true
+                                                        "$$reaction.Type", AppConstants.MessageReactionType_Wow
                                                     })
                                                 }
                                             }))
@@ -266,7 +419,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                 { "as", "reaction" },
                                                 { "cond", new BsonDocument("$eq", new BsonArray
                                                     {
-                                                        "$$reaction.IsSad", true
+                                                        "$$reaction.Type", AppConstants.MessageReactionType_Sad
                                                     })
                                                 }
                                             }))
@@ -277,7 +430,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                                 { "as", "reaction" },
                                                 { "cond", new BsonDocument("$eq", new BsonArray
                                                     {
-                                                        "$$reaction.IsAngry", true
+                                                        "$$reaction.Type", AppConstants.MessageReactionType_Angry
                                                     })
                                                 }
                                             }))

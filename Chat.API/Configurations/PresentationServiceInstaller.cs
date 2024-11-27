@@ -1,10 +1,8 @@
-using Presentation.Friends;
-
 namespace Chat.API.Configurations;
 
 public class PresentationServiceInstaller : IServiceInstaller
 {
-    public void Install(IServiceCollection services, IConfiguration configuration)
+    public void Install(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         // Mapper
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

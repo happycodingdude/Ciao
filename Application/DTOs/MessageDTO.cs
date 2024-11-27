@@ -87,7 +87,7 @@ public class MessageWithReactions : MongoBaseModel
     public string CurrentReaction { get; set; }
 }
 
-public class ReactMessageRequest
+public class ReactMessageRequestOld
 {
     public string CurrentReaction { get; set; }
     public bool? IsLove { get; set; }
@@ -96,4 +96,9 @@ public class ReactMessageRequest
     public bool? IsWow { get; set; }
     public bool? IsSad { get; set; }
     public bool? IsAngry { get; set; }
+}
+
+public class ReactMessageRequest
+{
+    public string Type { get; set; }
 }

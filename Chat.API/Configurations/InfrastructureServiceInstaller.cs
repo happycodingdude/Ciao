@@ -2,7 +2,7 @@ namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
 {
-    public void Install(IServiceCollection services, IConfiguration configuration)
+    public void Install(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         // Serializer
         // var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("<>f__AnonymousType"));
@@ -62,7 +62,9 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             options.Cookie = new CookieBuilder
             {
                 HttpOnly = true,
-                SecurePolicy = CookieSecurePolicy.Always,
+                SecurePolicy = environment.IsDevelopment()
+                    ? CookieSecurePolicy.None
+                    : CookieSecurePolicy.Always,
                 Name = "Ciao-cookie",
                 MaxAge = TimeSpan.FromDays(7),
             };

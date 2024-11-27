@@ -5,6 +5,7 @@ public static class DependencyInjection
     public static IServiceCollection InstallServices(
         this IServiceCollection services,
         IConfiguration configuration,
+        IHostEnvironment environment,
         params Assembly[] assemblies)
     {
         IEnumerable<IServiceInstaller> serviceInstallers = assemblies
@@ -15,7 +16,7 @@ public static class DependencyInjection
 
         foreach (IServiceInstaller serviceInstaller in serviceInstallers)
         {
-            serviceInstaller.Install(services, configuration);
+            serviceInstaller.Install(services, configuration, environment);
         }
 
         return services;

@@ -18,14 +18,20 @@ public class Message : MongoBaseModel
     public ICollection<Attachment>? Attachments { get; set; } = new List<Attachment>();
 }
 
+// public class MessageReaction
+// {
+//     public string ContactId { get; set; }
+//     public bool IsLike { get; set; }
+//     public bool IsLove { get; set; }
+//     public bool IsCare { get; set; }
+//     public bool IsWow { get; set; }
+//     public bool IsSad { get; set; }
+//     public bool IsAngry { get; set; }
+//     public string CurrentReaction { get; set; }
+// }
+
 public class MessageReaction
 {
     public string ContactId { get; set; }
-    public bool IsLike { get; set; }
-    public bool IsLove { get; set; }
-    public bool IsCare { get; set; }
-    public bool IsWow { get; set; }
-    public bool IsSad { get; set; }
-    public bool IsAngry { get; set; }
-    public string CurrentReaction { get; set; }
+    public string Type { get; set; }
 }

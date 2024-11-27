@@ -10,7 +10,7 @@ var configuration = new ConfigurationBuilder()
             .AddCommandLine(args)
             .Build();
 
-builder.Services.InstallServices(builder.Configuration, typeof(IServiceInstaller).Assembly);
+builder.Services.InstallServices(builder.Configuration, builder.Environment, typeof(IServiceInstaller).Assembly);
 
 var app = builder.Build();
 // app.UseCookiePolicy(new CookiePolicyOptions
