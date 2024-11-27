@@ -22,3 +22,4 @@ global using Microsoft.AspNetCore.Http.Json;
 global using Microsoft.AspNetCore.Authentication.Cookies;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Shared.Utils;
+global using Microsoft.AspNetCore.DataProtection;
