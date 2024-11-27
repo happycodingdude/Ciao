@@ -61,7 +61,7 @@ public static class SignIn
             var principal = new ClaimsPrincipal(identity);
             var properties = new AuthenticationProperties
             {
-                IsPersistent = true, // for 'remember me' feature                        
+                IsPersistent = true, // for 'remember me' feature                          
             };
             await _httpContextAccessor.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,

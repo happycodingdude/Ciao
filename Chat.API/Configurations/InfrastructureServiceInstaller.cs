@@ -62,16 +62,17 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             options.Cookie = new CookieBuilder
             {
                 HttpOnly = true,
-                Name = "Ciao-cookie"
+                SecurePolicy = CookieSecurePolicy.Always,
+                Name = "Ciao-cookie",
+                MaxAge = TimeSpan.FromDays(7),
             };
+            options.SlidingExpiration = true;
             options.Events.OnRedirectToLogin = context =>
             {
                 Console.WriteLine("OnRedirectToLogin...");
                 context.Response.StatusCode = 401;
                 return Task.CompletedTask;
             };
-            // options.SlidingExpiration = true;
-            // options.AccessDeniedPath = "/Forbidden/";
         });
 
         // Authorization
