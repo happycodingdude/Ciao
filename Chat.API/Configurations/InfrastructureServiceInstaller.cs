@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.DataProtection;
+
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
@@ -74,6 +76,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                 return Task.CompletedTask;
             };
         });
+        services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
 
         // Authorization
         services.AddScoped<IAuthorizationHandler, BasicAuthenticationHandle>();
