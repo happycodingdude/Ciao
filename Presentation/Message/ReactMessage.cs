@@ -101,7 +101,7 @@ public class ReactMessageEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("{conversationId}/messages/{id}/react",
-        async (ISender sender, string conversationId, string id, string type) =>
+        async (ISender sender, string conversationId, string id, string type = null) =>
         {
             var query = new ReactMessage.Request(conversationId, id, type);
             await sender.Send(query);
