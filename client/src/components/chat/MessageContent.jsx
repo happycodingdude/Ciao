@@ -132,7 +132,7 @@ const MessageContent = (props) => {
   return (
     <div
       key={message.id}
-      className={`flex shrink-0 gap-[1rem] 
+      className={`flex shrink-0 gap-[1rem]
       ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* Sender avatar */}
@@ -237,11 +237,11 @@ const MessageContent = (props) => {
           ""
         )}
 
-        {message.attachments?.length !== 0 ? (
+        {message.attachments && message.attachments.length !== 0 ? (
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {message.attachments?.map((item, index) => (
+            {message.attachments.map((item, index) => (
               <ImageWithLightBoxAndNoLazy
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
@@ -259,7 +259,6 @@ const MessageContent = (props) => {
         ) : (
           ""
         )}
-
         <MessageReaction
           message={{
             mine: message.contactId === info.id,
@@ -267,7 +266,20 @@ const MessageContent = (props) => {
             topReactions: topReactions,
           }}
           react={react}
+          pending={pending}
         />
+        {/* {!pending ? (
+          <MessageReaction
+            message={{
+              mine: message.contactId === info.id,
+              reaction: reaction,
+              topReactions: topReactions,
+            }}
+            react={react}
+          />
+        ) : (
+          ""
+        )} */}
       </div>
     </div>
   );

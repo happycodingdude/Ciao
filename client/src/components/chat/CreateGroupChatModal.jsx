@@ -2,20 +2,23 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { blurImageOLD, HttpRequest } from "../../common/Utility";
-import { useFriend } from "../../hook/CustomHooks";
+import { useFriend, useInfo } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import MediaPicker from "../common/MediaPicker";
 
 const CreateGroupChatModal = (props) => {
   const { id, members, onClose } = props;
 
   const queryClient = useQueryClient();
   const { data } = useFriend();
+  const { data: info } = useInfo();
 
-  const refInput = useRef();
+  const refInputSearch = useRef();
+  const refInputTitle = useRef();
 
   const [membersToSearch, setMembersToSearch] = useState(
     data?.map((item) => item.contact),
@@ -25,61 +28,119 @@ const CreateGroupChatModal = (props) => {
   useEffect(() => {
     if (!data) return;
     setMembersToSearch(data.map((item) => item.contact));
-    refInput.current.focus();
+    refInputTitle.current.focus();
     blurImageOLD(".list-friend-container");
   }, [data]);
 
-  const addMembers = () => {
+  const createGroupChat = () => {
     if (membersToAdd.length === 0) return;
 
-    queryClient.setQueryData(["conversation"], (oldData) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== id) return conversation;
+    HttpRequest({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET,
+      data: {
+        title: refInputTitle.current.value,
+        isGroup: true,
+        participants: membersToAdd.map((mem) => {
+          return {
+            contactId: mem.id,
+          };
+        }),
+      },
+    }).then((res) => {
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const cloned = Object.assign({}, oldData);
+        const updatedConversations = cloned.conversations.map(
+          (conversation) => {
+            if (conversation.id !== randomId) return conversation;
+            conversation.id = res.data;
+            return conversation;
+          },
+        );
         return {
-          ...conversation,
-          participants: [
-            ...conversation.participants,
-            ...membersToAdd.map((mem) => {
-              return {
-                contact: {
-                  id: mem.id,
-                  name: mem.name,
-                  avatar: mem.avatar,
-                },
-              };
-            }),
-          ],
+          ...oldData,
+          conversations: updatedConversations,
+          selected: {
+            ...oldData.selected,
+            id: res.data,
+          },
         };
       });
+    });
+
+    let randomId = Math.random().toString(36).substring(2, 7);
+    queryClient.setQueryData(["conversation"], (oldData) => {
       return {
         ...oldData,
-        conversations: updatedConversations,
+        conversations: [
+          {
+            title: refInputTitle.current.value,
+            isGroup: true,
+            isNotifying: true,
+            id: randomId,
+            participants: [
+              {
+                isModerator: true,
+                contact: {
+                  id: info.id,
+                  name: info.name,
+                  avatar: info.avatar,
+                  isOnline: true,
+                },
+              },
+              ...membersToAdd.map((mem) => {
+                return {
+                  contact: {
+                    id: mem.id,
+                    name: mem.name,
+                    avatar: mem.avatar,
+                    // isOnline: contact.isOnline,
+                  },
+                };
+              }),
+            ],
+            noLazy: true,
+          },
+          ...oldData.conversations,
+        ],
         selected: {
-          ...oldData.selected,
+          id: randomId,
+          title: refInputTitle.current.value,
+          isGroup: true,
           participants: [
-            ...oldData.selected.participants,
+            {
+              isModerator: true,
+              contact: {
+                id: info.id,
+                name: info.name,
+                avatar: info.avatar,
+                isOnline: true,
+              },
+            },
             ...membersToAdd.map((mem) => {
               return {
                 contact: {
                   id: mem.id,
                   name: mem.name,
                   avatar: mem.avatar,
+                  // isOnline: contact.isOnline,
                 },
               };
             }),
           ],
         },
+        noLoading: true,
+        createGroupChat: true,
       };
     });
+    // queryClient.removeQueries({ queryKey: ["message"], exact: true });
+    queryClient.setQueryData(["message"], (oldData) => {
+      const newData = {
+        ...oldData,
+        messages: [],
+      };
 
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GET.replace("{id}", id),
-      data: membersToAdd.map((mem) => {
-        return {
-          contactId: mem.id,
-        };
-      }),
+      return newData;
     });
 
     onClose();
@@ -87,10 +148,24 @@ const CreateGroupChatModal = (props) => {
 
   return (
     <div className="flex flex-col justify-between p-10 pt-12 text-[var(--text-main-color)] laptop:h-[45rem] desktop:h-[80rem]">
+      <div className="relative flex shrink-0 items-end gap-[5rem] pb-[.5rem]">
+        <ImageWithLightBoxAndNoLazy className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[5rem]" />
+        <MediaPicker
+          className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
+          accept="image/png, image/jpeg"
+          id="new-conversation-avatar"
+        />
+        <CustomInput
+          type="text"
+          reference={refInputTitle}
+          className="laptop:w-[30rem]"
+          // label="Type group name"
+        />
+      </div>
       <CustomInput
         type="text"
         label="Search for name"
-        reference={refInput}
+        reference={refInputSearch}
         onChange={(e) => {
           // findContact(e.target.value);
           console.log(e.target.value);
@@ -107,7 +182,7 @@ const CreateGroupChatModal = (props) => {
             });
         }}
       />
-      <div className="flex gap-[2rem] border-b-[.1rem] border-[var(--border-color)] laptop:h-[30rem]">
+      <div className="flex gap-[2rem] border-b-[.1rem] border-[var(--border-color)] laptop:h-[20rem]">
         <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
           {membersToSearch?.map((item) => (
             <div
@@ -219,7 +294,7 @@ const CreateGroupChatModal = (props) => {
         gradientHeight="120%"
         rounded="3rem"
         title="Save"
-        onClick={addMembers}
+        onClick={createGroupChat}
       />
     </div>
   );

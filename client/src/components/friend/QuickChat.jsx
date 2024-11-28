@@ -68,6 +68,7 @@ const QuickChat = (props) => {
             contactId: info.id,
             type: "text",
             content: content,
+            currentReaction: null,
           },
         };
       });
@@ -168,6 +169,7 @@ const QuickChat = (props) => {
             ],
           },
           quickChatAdd: true,
+          noLoading: true,
         };
       });
       queryClient.setQueryData(["message"], (oldData) => {
@@ -196,6 +198,7 @@ const QuickChat = (props) => {
               contactId: info.id,
               type: "text",
               content: content,
+              currentReaction: null,
             },
           ],
         };

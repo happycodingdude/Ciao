@@ -9,7 +9,7 @@ const FriendItem = (props) => {
     <div
       key={key}
       // data-key={friend.id}
-      className="flex items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-light)]"
+      className="flex items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-extrathin)]"
     >
       <ImageWithLightBox
         src={friend.avatar}

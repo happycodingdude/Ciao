@@ -19,7 +19,12 @@ const ChatboxContainer = (props) => {
 
   const { data: conversations } = useConversation();
   useEffect(() => {
-    if (!conversations?.selected || conversations?.fromEditProfile) return;
+    if (
+      !conversations?.selected ||
+      conversations?.fromEditProfile ||
+      conversations?.noLoading
+    )
+      return;
     setLoading(true);
   }, [conversations?.selected]);
 
@@ -27,7 +32,7 @@ const ChatboxContainer = (props) => {
     <div className="relative flex grow">
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       {loading ? <LocalLoading /> : ""}
-      {messages?.messages ? (
+      {messages?.messages || conversations?.createGroupChat ? (
         <>
           <Chatbox
           // toggleInformation={toggleInformationContainer}

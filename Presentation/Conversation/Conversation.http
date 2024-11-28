@@ -24,16 +24,7 @@ POST  {{host}}/conversations
 Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7OOEWHhn-LFYT-9RLNDnhi1FtId02D3pNd-p923_les-mJiG02NcS1rv4fFJarTf7cr-ifjsrjnNqX9S7ekzUng6QwwRPJ0O42sFVJTmUOBRZM86QFmTUAsbh_uhM1rIppDiqgahqd03wENW8S1WjQO90POg80Khyr4ILK4hpiKxtU0qB7hb1FuC0HhAdIelSYGLaV4ufjWo6HvCmBjn0r5ZzKx0gaF5WlHBB5TkNmfH2ii9z14fq1VSf-S9zcsg68sKHHmN_zlPgLtgWSe00w9PIRjt6jyxQzftbRyPsZyJOrCkSHmD21ssUfubpKWIQ9a2ZxrOxJo3JUFSKiRbH25T-femn7Pslq8jp9FlPUMs2g7p8kir-zAyTdlaRLIiYwYPVk1PNJzpRYGUzdiVbSTm0vCQRKn9_q3HhoSuG4yWTf4yWP_IOsiJk5q8nUijss4ZA7FxjuVfsbrwkMlLKKcqTK9iSG6gaGEpFd4mD5JnNVz2oCVIYZWs48L0myy8rWzv_3xM4OsW5Cc1ZArZrfOMUpZaBP6OJqsskCpj7YicA
 Content-Type: application/json
 
-{
-    "title":"Happy coding",
-    "isGroup": false,
-    "participants":[
-        {
-            "ContactId":"66f28326c469ba88ce1924dc"
-        }
-    ]
-}
-
+{"title":"test 4","isGroup":true,"participants":[{"contactId":"66f271809423f7e5257a712f"}]}
 ###
 PUT    {{host}}/conversations/66f28e4dcc3495638bee8770
 Authorization: Bearer CfDJ8IE6k77TFy5BnhYCqdQ4BPi1ux1YTkq-wPcmmg9QuIAnf3JtYXiwAW521aHZjtgLXCxslHdnEfPN8XSMI3wQpFCkuTPrXgsnLV61T3FqxhX5h3qfNMj0f8Gmxh_Wj3i5T0bcoWoP-bm8rJbcMQOux7Xhi_7uWwmN3rcP2zYjX_lo58kQEmGHkDF5NiBTZjDnRYcyo3T4Bt_2mP-QowOAWNc5MXvf_Svrho7bJARQjibAl59D6gyOJAEC6xVGQhR0PrrzMOcwPx2xTuob6MNYQgsKW_3Ha_b1j-EAtCkg8OcKTh0x0iYnnaX_i2Jk4UAEXvOkO5lpinGxVdsBQfF2XuLUmHgoGx09Y5R_I2gOg1NQGA_I40u-oVSJRubOuUHlwLri17CxrtvaVe7LLH049Zi5qNHKdAVsGp9P-qmnSfIO-PJD1wZE8JPcTdikXSqag0XWuTV5X92wf677wtrW37lVM5vxFq7qoJzX412rvpsfstVoG3tj0bPxxR1Km_idg0UqQTm1D5xJZSzDUniB-hawpP_E-Wnw73vntlViAJB9w2QC5MpTdKLFT3ruPN5nAg

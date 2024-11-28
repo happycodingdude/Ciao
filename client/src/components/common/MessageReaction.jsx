@@ -1,11 +1,8 @@
 import { LikeOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import React from "react";
 
 const MessageReaction = (props) => {
-  const { message, react } = props;
-  const [currentReaction, setCurrentReaction] = useState(
-    message.reaction.currentReaction,
-  );
+  const { message, react, pending } = props;
   return (
     <>
       <div
@@ -94,8 +91,9 @@ const MessageReaction = (props) => {
             ),
             null: (
               <LikeOutlined
-                className={`peer flex aspect-square cursor-pointer items-center justify-center rounded-full border-[.2rem] border-[var(--main-color)] 
-                  bg-[var(--sub-color)] laptop:h-[2rem]`}
+                className={`peer flex aspect-square cursor-pointer items-center justify-center rounded-full border-[.15rem] border-[var(--main-color)] 
+                  bg-[var(--sub-color)] laptop:h-[2rem]
+                  ${pending ? "pointer-events-none opacity-50" : ""}`}
                 style={{ fontSize: "12px" }}
                 onClick={() => react("like")}
               />

@@ -94,6 +94,7 @@ const Information = (props) => {
           ...oldData.selected,
           avatar: URL.createObjectURL(file),
         },
+        noLoading: true,
       };
     });
 

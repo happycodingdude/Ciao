@@ -96,7 +96,7 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-      // await delay(10000);
+      // await delay(5000);
 
       // if (param.type === "text" && param.content === "") return;
 
@@ -137,6 +137,7 @@ const Chatbox = (props) => {
             {
               ...bodyLocal,
               contactId: info.id,
+              currentReaction: null,
             },
             ...oldData.messages,
           ],
@@ -472,11 +473,18 @@ const Chatbox = (props) => {
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar mt-4 flex flex-col gap-[2rem] overflow-y-scroll"
+          className="hide-scrollbar flex flex-col gap-[2rem] overflow-y-scroll pb-[1rem]"
         >
-          {[...messages?.messages].reverse().map((message) => (
-            <MessageContent message={message} id={conversations.selected.id} />
-          ))}
+          {messages?.messages
+            ? [...messages?.messages]
+                .reverse()
+                .map((message) => (
+                  <MessageContent
+                    message={message}
+                    id={conversations.selected.id}
+                  />
+                ))
+            : ""}
 
           {isPending && (
             <MessageContent
@@ -486,6 +494,7 @@ const Chatbox = (props) => {
                 content: variables.content,
                 contactId: info.id,
                 attachments: variables.attachments,
+                currentReaction: null,
               }}
             />
           )}

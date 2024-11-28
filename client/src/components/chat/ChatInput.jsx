@@ -1,6 +1,11 @@
 import EmojiPicker from "emoji-picker-react";
 import { forwardRef, useCallback, useEffect, useState } from "react";
-import { useEventListener, useInfo, useMessage } from "../../hook/CustomHooks";
+import {
+  useConversation,
+  useEventListener,
+  useInfo,
+  useMessage,
+} from "../../hook/CustomHooks";
 import ImageWithLightBoxImgTag from "../common/ImageWithLightBoxImgTag";
 import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
 import ChatboxMenu from "./ChatboxMenu";
@@ -11,6 +16,7 @@ const ChatInput = forwardRef((props, ref) => {
   if (!ref) return;
 
   const { data: messages } = useMessage();
+  const { data: conversations } = useConversation();
   const { data: info } = useInfo();
 
   // const inputRef = useRef();
@@ -227,7 +233,7 @@ const ChatInput = forwardRef((props, ref) => {
       <div
         className={`mention-item relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
       >
-        {messages.isGroup && !quickChat ? (
+        {conversations?.selected?.isGroup && !quickChat ? (
           <div
             data-show={showMention}
             className="hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
