@@ -153,8 +153,8 @@ public class CreateConversationEndpoint : ICarterModule
         async (ISender sender, CreateConversationRequest model) =>
         {
             var query = new CreateConversation.Request(model);
-            await sender.Send(query);
-            return Results.Ok();
+            var result = await sender.Send(query);
+            return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }
