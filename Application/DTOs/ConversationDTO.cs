@@ -2,8 +2,9 @@ namespace Application.DTOs;
 
 public class CreateConversationRequest
 {
-    public string Title { get; set; }
     public bool IsGroup { get; set; }
+    public string Title { get; set; }
+    public string Avatar { get; set; }
     public ICollection<CreateConversation_Participant> Participants { get; set; }
 }
 
