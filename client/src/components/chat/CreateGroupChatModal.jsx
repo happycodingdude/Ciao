@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { blurImageOLD, HttpRequest } from "../../common/Utility";
@@ -24,6 +25,8 @@ const CreateGroupChatModal = (props) => {
     data?.map((item) => item.contact),
   );
   const [membersToAdd, setMembersToAdd] = useState([]);
+  const [avatar, setAvatar] = useState();
+  const [file, setFile] = useState();
 
   useEffect(() => {
     if (!data) return;
@@ -32,8 +35,32 @@ const CreateGroupChatModal = (props) => {
     blurImageOLD(".list-friend-container");
   }, [data]);
 
-  const createGroupChat = () => {
+  const chooseAvatar = (e) => {
+    const chosenFiles = Array.from(e.target.files);
+    if (chosenFiles.length === 0) return;
+
+    setAvatar(URL.createObjectURL(e.target.files?.[0]));
+    setFile(e.target.files?.[0]);
+    e.target.value = null;
+  };
+
+  const createGroupChat = async () => {
     if (membersToAdd.length === 0) return;
+
+    let url = "";
+    if (file === undefined) {
+      url = avatar;
+    } else {
+      // Create a root reference
+      const storage = getStorage();
+      url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
+        (snapshot) => {
+          return getDownloadURL(snapshot.ref).then((url) => {
+            return url;
+          });
+        },
+      );
+    }
 
     HttpRequest({
       method: "post",
@@ -41,6 +68,7 @@ const CreateGroupChatModal = (props) => {
       data: {
         title: refInputTitle.current.value,
         isGroup: true,
+        avatar: url,
         participants: membersToAdd.map((mem) => {
           return {
             contactId: mem.id,
@@ -74,10 +102,11 @@ const CreateGroupChatModal = (props) => {
         ...oldData,
         conversations: [
           {
+            id: randomId,
             title: refInputTitle.current.value,
+            avatar: avatar,
             isGroup: true,
             isNotifying: true,
-            id: randomId,
             participants: [
               {
                 isModerator: true,
@@ -106,6 +135,7 @@ const CreateGroupChatModal = (props) => {
         selected: {
           id: randomId,
           title: refInputTitle.current.value,
+          avatar: avatar,
           isGroup: true,
           participants: [
             {
@@ -138,6 +168,27 @@ const CreateGroupChatModal = (props) => {
       const newData = {
         ...oldData,
         messages: [],
+        participants: [
+          {
+            isModerator: true,
+            contact: {
+              id: info.id,
+              name: info.name,
+              avatar: info.avatar,
+              isOnline: true,
+            },
+          },
+          ...membersToAdd.map((mem) => {
+            return {
+              contact: {
+                id: mem.id,
+                name: mem.name,
+                avatar: mem.avatar,
+                // isOnline: contact.isOnline,
+              },
+            };
+          }),
+        ],
       };
 
       return newData;
@@ -149,11 +200,15 @@ const CreateGroupChatModal = (props) => {
   return (
     <div className="flex flex-col justify-between p-10 pt-12 text-[var(--text-main-color)] laptop:h-[45rem] desktop:h-[80rem]">
       <div className="relative flex shrink-0 items-end gap-[5rem] pb-[.5rem]">
-        <ImageWithLightBoxAndNoLazy className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[5rem]" />
+        <ImageWithLightBoxAndNoLazy
+          src={avatar ?? ""}
+          className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[5rem]"
+        />
         <MediaPicker
           className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
           accept="image/png, image/jpeg"
           id="new-conversation-avatar"
+          onChange={chooseAvatar}
         />
         <CustomInput
           type="text"

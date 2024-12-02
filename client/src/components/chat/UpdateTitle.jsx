@@ -57,10 +57,11 @@ const UpdateTitle = (props) => {
     <div className="flex flex-col gap-[3rem] p-10 pt-12">
       <CustomInput type="text" reference={refInput} />
       <CustomButton
-        className={`!mr-0 !p-[.2rem] laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
-        leadingClass="leading-[2.5rem]"
-        gradientWidth="107%"
-        gradientHeight="115%"
+        className={`!mr-0 laptop:!w-[7rem] laptop:text-base desktop:text-md`}
+        padding="py-[.3rem]"
+        gradientWidth="110%"
+        gradientHeight="120%"
+        rounded="3rem"
         title="Save"
         onClick={updateTitle}
       />

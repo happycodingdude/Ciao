@@ -107,7 +107,7 @@ const AddMembers = (props) => {
             });
         }}
       />
-      <div className="flex gap-[2rem] border-b-[.1rem] border-[var(--text-main-color)] laptop:h-[30rem]">
+      <div className="flex gap-[2rem] border-b-[.1rem] border-[var(--border-color)] laptop:h-[30rem]">
         <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
           {membersToSearch?.map((item) => (
             <div
