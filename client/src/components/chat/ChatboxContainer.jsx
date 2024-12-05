@@ -13,6 +13,7 @@ const ChatboxContainer = (props) => {
   const { data: messages } = useMessage();
   // const { isLoading, isRefetching, isFetched } = useAttachment();
   const [toggle, setToggle] = useState("information");
+  const [showInfo, setShowInfo] = useState(true);
   // const [toggle, setToggle] = useState("attachment");
 
   const [loading, setLoading] = useState();
@@ -34,10 +35,11 @@ const ChatboxContainer = (props) => {
       {loading ? <LocalLoading /> : ""}
       {messages?.messages || conversations?.createGroupChat ? (
         <>
-          <Chatbox
-          // toggleInformation={toggleInformationContainer}
-          />
-          <div className="relative origin-right laptop:w-[22rem]">
+          <Chatbox toggleInformation={setShowInfo} showInfo={showInfo} />
+          <div
+            className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[22rem] 
+            ${showInfo ? "opacity-100" : "opacity-0"}`}
+          >
             {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
             {/* {!isFetched ? <LocalLoading /> : ""} */}
             <Information

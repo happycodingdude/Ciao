@@ -1,3 +1,4 @@
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
@@ -12,7 +13,9 @@ import {
 } from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
+import CustomLabel from "../common/CustomLabel";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import RelightBackground from "../common/RelightBackground";
 import UserProfile from "../profile/UserProfile";
 import ChatInput from "./ChatInput";
@@ -20,7 +23,7 @@ import MessageContent from "./MessageContent";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
-  const { refChatbox, toggleInformation } = props;
+  const { refChatbox, toggleInformation, showInfo } = props;
 
   const queryClient = useQueryClient();
 
@@ -267,25 +270,25 @@ const Chatbox = (props) => {
 
   const toggleInformationContainer = () => {
     toggleInformation();
-    if (
-      refToggleInformationContainer.current.classList.contains(
-        "animate-information-hide-arrow",
-      )
-    ) {
-      refToggleInformationContainer.current.classList.remove(
-        "animate-information-hide-arrow",
-      );
-      refToggleInformationContainer.current.classList.add(
-        "animate-information-show-arrow",
-      );
-    } else {
-      refToggleInformationContainer.current.classList.remove(
-        "animate-information-show-arrow",
-      );
-      refToggleInformationContainer.current.classList.add(
-        "animate-information-hide-arrow",
-      );
-    }
+    // if (
+    //   refToggleInformationContainer.current.classList.contains(
+    //     "animate-information-hide-arrow",
+    //   )
+    // ) {
+    //   refToggleInformationContainer.current.classList.remove(
+    //     "animate-information-hide-arrow",
+    //   );
+    //   refToggleInformationContainer.current.classList.add(
+    //     "animate-information-show-arrow",
+    //   );
+    // } else {
+    //   refToggleInformationContainer.current.classList.remove(
+    //     "animate-information-show-arrow",
+    //   );
+    //   refToggleInformationContainer.current.classList.add(
+    //     "animate-information-hide-arrow",
+    //   );
+    // }
   };
 
   // Event listener
@@ -345,10 +348,11 @@ const Chatbox = (props) => {
   return (
     <div
       ref={refChatboxContainer}
-      className="relative mx-[.1rem] flex flex-1 grow-[2] flex-col items-center border-x-[.1rem] border-x-[var(--border-color)]"
+      className={`relative mx-[.1rem] flex w-full grow flex-col items-center border-x-[.1rem] border-x-[var(--border-color)]
+        ${showInfo ? "" : "shrink-0"}`}
     >
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
-      <div className="chatbox-content relative flex w-full grow flex-col justify-end overflow-hidden p-8">
+      <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
         {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <RelightBackground
@@ -360,7 +364,6 @@ const Chatbox = (props) => {
         >
           <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground>
-
         {/* <div
             ref={refScrollToBottom}
             data-show="false"
@@ -371,16 +374,17 @@ const Chatbox = (props) => {
             data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             onClick={scrollChatContentToBottom}
           ></div> */}
-
         {/* </RelightBackground> */}
-        {/* <div className="flex h-[7rem] w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] py-[.5rem] text-[var(--text-main-color-normal)]">
+        <div
+          className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem] 
+          text-[var(--text-main-color-normal)] laptop:h-[6rem]"
+        >
           <div className="flex items-center gap-[1rem]">
             {messages.isGroup ? (
-              <ImageWithLightBoxWithShadowAndNoLazy
+              <ImageWithLightBoxAndNoLazy
                 src={messages.avatar}
                 className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
                 onClick={() => {}}
-                immediate={true}
               />
             ) : (
               // <ImageWithLightBoxWithBorderAndShadow
@@ -403,7 +407,7 @@ const Chatbox = (props) => {
               //     },
               //   ]}
               // />
-              <ImageWithLightBoxWithShadowAndNoLazy
+              <ImageWithLightBoxAndNoLazy
                 src={
                   messages.participants?.find(
                     (item) => item.contact.id !== info.id,
@@ -422,7 +426,6 @@ const Chatbox = (props) => {
                       )?.contact.avatar ?? "",
                   },
                 ]}
-                immediate={true}
               />
             )}
 
@@ -438,7 +441,7 @@ const Chatbox = (props) => {
                       title={messages.title}
                       tooltip
                     />
-                    <UpdateTitle />
+                    {/* <UpdateTitle /> */}
                   </div>
                   <p>{messages.participants.length} members</p>
                 </>
@@ -452,28 +455,36 @@ const Chatbox = (props) => {
                       )?.contact.name
                     }
                   />
-                  <FriendRequestButton
+                  {/* <FriendRequestButton
                     className="fa fa-user-plus !ml-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
                     onClose={() => {}}
-                  />
+                  /> */}
                 </>
               )}
             </div>
           </div>
-          <div className="flex justify-end gap-[1rem]">
-            <div
+          <div
+            className={`flex justify-end gap-[1rem] rounded-full
+            ${showInfo ? "text-[var(--main-color)]" : ""}`}
+          >
+            <InfoCircleOutlined
+              ref={refToggleInformationContainer}
+              onClick={() => toggleInformation((current) => !current)}
+              style={{ fontSize: "20px" }}
+            />
+            {/* <div
               ref={refToggleInformationContainer}
               onClick={toggleInformationContainer}
-              className="fa fa-arrow-right flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
+              className="fa fa-info flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
               rounded-[1rem] text-lg font-normal"
-            ></div>
+            ></div> */}
           </div>
-        </div> */}
+        </div>
         <div
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar flex flex-col gap-[2rem] overflow-y-scroll pb-[1rem]"
+          className="hide-scrollbar flex grow flex-col justify-end gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[1rem]"
         >
           {messages?.messages
             ? [...messages?.messages]

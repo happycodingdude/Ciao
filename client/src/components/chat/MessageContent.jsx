@@ -224,11 +224,17 @@ const MessageContent = (props) => {
         {/* Content */}
         {message.content ? (
           <div
-            className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
+            // className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
+            // ${
+            //   message.contactId === info.id
+            //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
+            //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
+            // }`}
+            className={` break-all rounded-[2rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
-                ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
-                : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
+                ? "bg-[var(--main-color)] text-[var(--text-sub-color)]"
+                : "bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
             }`}
           >
             {message.content}

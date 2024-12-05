@@ -18,7 +18,7 @@ const ListChatHeader = (props) => {
           value={text}
           type="text"
           placeholder="Find and connect"
-          className="h-full w-full rounded-[.5rem] bg-[var(--placehoder-color)] pl-[1rem] pr-[3rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
+          className="h-full w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] pl-[1rem] pr-[3rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
           // onChange={(e) => onChange(e.target.value)}
           // onChange={(e) => setText((current) => current + e.target.value)}
           onChange={(e) => {
