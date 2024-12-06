@@ -8,6 +8,7 @@ const CustomInput = (props) => {
     reference,
     className,
     onChange,
+    placeholder,
     tabIndex = -1,
   } = props;
   const refPlaceHolder = useRef();
@@ -50,6 +51,7 @@ const CustomInput = (props) => {
         onBlur={(e) => handleFocus(e)}
         onKeyDown={onKeyDown}
         onChange={onChange}
+        placeholder={placeholder}
       />
       <div
         ref={refBorder}

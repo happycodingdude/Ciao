@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
+import LocalLoading from "./LocalLoading";
 
 const ImageWithLightBox = (props) => {
   console.log("ImageWithLightBox calling...");
@@ -33,10 +34,11 @@ const ImageWithLightBox = (props) => {
         onClick={onClick ?? handleShowLightbox}
       ></div> */}
 
-      <div
+      {/* <div
         className={`${spinnerClassName} ${roundedClassName ?? "rounded-2xl"} spinner-image absolute
         h-1/2 w-1/2 bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}
-      ></div>
+      ></div> */}
+      <LocalLoading sm />
 
       <div
         // className={`${className} bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}

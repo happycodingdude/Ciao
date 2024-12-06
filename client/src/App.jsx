@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
+import "./Loading.css";
 import Authentication from "./components/authentication/Authentication";
 import { Home } from "./components/chat/Home";
 import { registerSW } from "./components/common/Notification";

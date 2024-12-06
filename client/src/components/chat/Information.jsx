@@ -1,4 +1,3 @@
-import { UserAddOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
@@ -8,16 +7,10 @@ import {
   useConversation,
   useInfo,
 } from "../../hook/CustomHooks";
-import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import MediaPicker from "../common/MediaPicker";
 import OnlineStatusDot from "../common/OnlineStatusDot";
-import RelightBackground from "../common/RelightBackground";
 import QuickChat from "../friend/QuickChat";
-import AddMembers from "./AddMembers";
-import UpdateTitle from "./UpdateTitle";
 
 const Information = (props) => {
   console.log("Information calling");
@@ -126,7 +119,7 @@ const Information = (props) => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 py-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
+      className={`absolute top-0 pb-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       {/* <div
         className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
@@ -135,106 +128,70 @@ const Information = (props) => {
         <p className="text-md text-[var(--text-main-color)]">Information</p>
       </div> */}
       <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
-        <div className="information-container flex flex-col gap-[1rem]">
-          <div className="relative flex flex-col items-center gap-[1rem]">
-            {conversations.selected?.isGroup ? (
-              <>
-                <ImageWithLightBoxAndNoLazy
-                  src={conversations.selected?.avatar}
-                  className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[7rem]"
-                  slides={[
-                    {
-                      src: conversations.selected?.avatar,
-                    },
-                  ]}
-                />
-                <MediaPicker
-                  className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
-                  accept="image/png, image/jpeg"
-                  id="conversation-avatar"
-                  onChange={updateAvatar}
-                />
-                <CustomLabel
-                  className="cursor-pointer text-base text-[var(--text-main-color)] laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
-                  title={conversations.selected?.title}
-                  tooltip
-                  onClick={() => setOpenUpdateTitle(true)}
-                />
+        {conversations.selected?.isGroup ? (
+          <div className="flex flex-col gap-[1rem] laptop:h-[30rem]">
+            <p className="text-base">Members</p>
+            {/* Still don't know why scrolling not working without adding h-0 */}
+            <div className="members-image-container hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
+              {conversations.selected?.participants
+                .filter((item) => item.contact.id !== info.id)
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]"
+                    onClick={(e) => {
+                      // Get the bounding rectangle of the target element
+                      const rect = e.target.getBoundingClientRect();
+                      setQuickChatRect(rect);
+                      setInformationoffsetWidth(
+                        refInformation.current.offsetWidth,
+                      );
 
-                <BackgroundPortal
-                  show={openUpdateTitle}
-                  className="laptop:!w-[40rem] desktop:!w-[35%]"
-                  title="Update title"
-                  onClose={() => setOpenUpdateTitle(false)}
-                >
-                  <UpdateTitle
-                    id={conversations.selected?.id}
-                    title={conversations.selected?.title}
-                    avatar={conversations.selected?.avatar}
-                    onClose={() => setOpenUpdateTitle(false)}
-                  />
-                </BackgroundPortal>
-                {/* <div className="cursor-pointer text-[var(--text-main-color-blur)]">
-                  {messages.participants.length} members
-                </div> */}
-                <div className="flex justify-center">
-                  {/* <ToggleNotification /> */}
-                  {/* <Tooltip title="Invite friends"> */}
-                  <RelightBackground onClick={() => setOpenAddMembers(true)}>
-                    {/* <div className={`fa fa-user-plus base-icon-lg`}></div> */}
-                    {/* <PersonAddAltOutlinedIcon
-                      // fontSize="large"
-                      sx={{ fontSize: "2rem" }}
-                      className="cursor-pointer"
-                    /> */}
-                    <UserAddOutlined style={{ fontSize: "16px" }} />
-                  </RelightBackground>
-                  <BackgroundPortal
-                    show={openAddMembers}
-                    className="laptop:!w-[50rem] desktop:!w-[70rem]"
-                    title="Add members"
-                    onClose={() => setOpenAddMembers(false)}
+                      setChosenProfile({
+                        id: item.contact.id,
+                        avatar: item.contact.avatar,
+                        isOnline: item.contact.isOnline,
+                        name: item.contact.name,
+                        friendId: item.friendId,
+                        friendStatus:
+                          item.friendStatus === "friend"
+                            ? null
+                            : item.friendStatus,
+                      });
+                    }}
                   >
-                    <AddMembers
-                      id={conversations.selected?.id}
-                      members={conversations.selected?.participants.map(
-                        (item) => item.contact,
-                      )}
-                      onClose={() => setOpenAddMembers(false)}
-                    />
-                  </BackgroundPortal>
-                  {/* </Tooltip> */}
-                </div>
-              </>
-            ) : (
-              <>
-                <ImageWithLightBoxAndNoLazy
-                  src={
-                    conversations.selected?.participants?.find(
-                      (item) => item.contact.id !== info.id,
-                    )?.contact.avatar
-                  }
-                  className="aspect-square cursor-pointer rounded-[1rem] !bg-[size:170%] laptop:w-[7rem]"
-                  slides={[
-                    {
-                      src: conversations.selected?.participants?.find(
-                        (item) => item.contact.id !== info.id,
-                      )?.contact.avatar,
-                    },
-                  ]}
-                />
-                <CustomLabel
-                  className="text-base laptop:max-w-[15rem] laptop-lg:max-w-[20rem] desktop:max-w-[30rem]"
-                  title={
-                    conversations.selected?.participants?.find(
-                      (item) => item.contact.id !== info.id,
-                    )?.contact.name
-                  }
-                />
-              </>
-            )}
+                    {/* <div className="absolute left-[-2rem] top-[-2rem] z-[1000] aspect-square w-[3rem] bg-red-300"></div> */}
+                    <div className="relative">
+                      <ImageWithLightBox
+                        src={item.contact.avatar}
+                        className="aspect-square laptop:w-[3rem]"
+                        spinnerClassName="laptop:bg-[size:2rem]"
+                        imageClassName="bg-[size:160%]"
+                        roundedClassName="rounded-[50%]"
+                        slides={[
+                          {
+                            src: item.contact.avatar,
+                          },
+                        ]}
+                        onClick={(e) => {}}
+                      />
+                      <OnlineStatusDot online={item.contact.isOnline} />
+                    </div>
+                    <CustomLabel title={item.contact.name} />
+                  </div>
+                ))}
+            </div>
+            {/* Profile quick chat */}
+            <QuickChat
+              profile={chosenProfile}
+              rect={quickChatRect}
+              offset={informationoffsetWidth}
+              onClose={() => setChosenProfile(undefined)}
+            />
           </div>
-        </div>
+        ) : (
+          ""
+        )}
         {displayAttachments.length !== 0 ? (
           <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between">
@@ -307,70 +264,6 @@ const Information = (props) => {
           ""
         )} */}
 
-        {conversations.selected?.isGroup ? (
-          <div className="flex grow flex-col gap-[1rem]">
-            <p className="text-base">Members</p>
-            {/* Still don't know why scrolling not working without adding h-0 */}
-            <div className="members-image-container hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
-              {conversations.selected?.participants
-                .filter((item) => item.contact.id !== info.id)
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    className="information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]"
-                    onClick={(e) => {
-                      // Get the bounding rectangle of the target element
-                      const rect = e.target.getBoundingClientRect();
-                      setQuickChatRect(rect);
-                      setInformationoffsetWidth(
-                        refInformation.current.offsetWidth,
-                      );
-
-                      setChosenProfile({
-                        id: item.contact.id,
-                        avatar: item.contact.avatar,
-                        isOnline: item.contact.isOnline,
-                        name: item.contact.name,
-                        friendId: item.friendId,
-                        friendStatus:
-                          item.friendStatus === "friend"
-                            ? null
-                            : item.friendStatus,
-                      });
-                    }}
-                  >
-                    {/* <div className="absolute left-[-2rem] top-[-2rem] z-[1000] aspect-square w-[3rem] bg-red-300"></div> */}
-                    <div className="relative">
-                      <ImageWithLightBox
-                        src={item.contact.avatar}
-                        className="aspect-square laptop:w-[3rem]"
-                        spinnerClassName="laptop:bg-[size:2rem]"
-                        imageClassName="bg-[size:160%]"
-                        roundedClassName="rounded-[50%]"
-                        slides={[
-                          {
-                            src: item.contact.avatar,
-                          },
-                        ]}
-                        onClick={(e) => {}}
-                      />
-                      <OnlineStatusDot online={item.contact.isOnline} />
-                    </div>
-                    <CustomLabel title={item.contact.name} />
-                  </div>
-                ))}
-            </div>
-            {/* Profile quick chat */}
-            <QuickChat
-              profile={chosenProfile}
-              rect={quickChatRect}
-              offset={informationoffsetWidth}
-              onClose={() => setChosenProfile(undefined)}
-            />
-          </div>
-        ) : (
-          ""
-        )}
         {/* <DeleteConfirmation
           title="Delete chat"
           message="Are you sure want to delete this chat?"

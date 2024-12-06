@@ -180,13 +180,20 @@ const ListChat = (props) => {
             ref={(element) => {
               refChatItem.current[i] = element;
             }}
+            // className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
+            // py-[.8rem] pl-[.5rem] pr-[1rem]
+            // ${
+            //   selected === item.id
+            //     ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)]`
+            //     : "bg-[var(--bg-color)] hover:bg-[var(--bg-color-extrathin)]"
+            // } `}
             className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
-            py-[.8rem] pl-[.5rem] pr-[1rem] 
-            ${
-              selected === item.id
-                ? `item-active bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)]`
-                : "bg-[var(--bg-color)] hover:bg-[var(--bg-color-extrathin)]"
-            } `}
+              py-[.8rem] pl-[.5rem] pr-[1rem] 
+              ${
+                selected === item.id
+                  ? `item-active bg-[var(--main-color)]`
+                  : "bg-[var(--bg-color)] hover:bg-[var(--bg-color-extrathin)]"
+              } `}
             onClick={() => {
               // clickConversation(65 * i, item.id);
               clickConversation(item.id);

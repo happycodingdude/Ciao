@@ -1,4 +1,3 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
@@ -13,11 +12,10 @@ import {
 } from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
 import BackgroundPortal from "../common/BackgroundPortal";
-import CustomLabel from "../common/CustomLabel";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import RelightBackground from "../common/RelightBackground";
 import UserProfile from "../profile/UserProfile";
+import ChatboxTitle from "./ChatboxTitle";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
 
@@ -375,116 +373,17 @@ const Chatbox = (props) => {
             onClick={scrollChatContentToBottom}
           ></div> */}
         {/* </RelightBackground> */}
-        <div
-          className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] py-[.5rem] 
-          text-[var(--text-main-color-normal)] laptop:h-[6rem]"
-        >
-          <div className="flex items-center gap-[1rem]">
-            {messages.isGroup ? (
-              <ImageWithLightBoxAndNoLazy
-                src={messages.avatar}
-                className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-                onClick={() => {}}
-              />
-            ) : (
-              // <ImageWithLightBoxWithBorderAndShadow
-              //   src={
-              //     messages.participants?.find(
-              //       (item) => item.contact.id !== info.id,
-              //     )?.contact.avatar ?? ""
-              //   }
-              //   className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-              //   // onClick={() => {
-              //   //   setUserId(profile?.Id);
-              //   //   setOpen(true);
-              //   // }}
-              //   slides={[
-              //     {
-              //       src:
-              //         messages.participants?.find(
-              //           (item) => item.contact.id !== info.id,
-              //         )?.contact.avatar ?? "",
-              //     },
-              //   ]}
-              // />
-              <ImageWithLightBoxAndNoLazy
-                src={
-                  messages.participants?.find(
-                    (item) => item.contact.id !== info.id,
-                  )?.contact.avatar
-                }
-                className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
-                // onClick={() => {
-                //   setUserId(profile?.Id);
-                //   setOpen(true);
-                // }}
-                slides={[
-                  {
-                    src:
-                      messages.participants?.find(
-                        (item) => item.contact.id !== info.id,
-                      )?.contact.avatar ?? "",
-                  },
-                ]}
-              />
-            )}
-
-            <div
-              ref={refTitleContainer}
-              className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]"
-            >
-              {messages.isGroup ? (
-                <>
-                  <div className="flex w-full gap-[.5rem]">
-                    <CustomLabel
-                      className="text-start text-lg font-bold"
-                      title={messages.title}
-                      tooltip
-                    />
-                    {/* <UpdateTitle /> */}
-                  </div>
-                  <p>{messages.participants.length} members</p>
-                </>
-              ) : (
-                <>
-                  <CustomLabel
-                    className="text-start text-lg font-bold"
-                    title={
-                      messages.participants?.find(
-                        (item) => item.contact.id !== info.id,
-                      )?.contact.name
-                    }
-                  />
-                  {/* <FriendRequestButton
-                    className="fa fa-user-plus !ml-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
-                    onClose={() => {}}
-                  /> */}
-                </>
-              )}
-            </div>
-          </div>
-          <div
-            className={`flex justify-end gap-[1rem] rounded-full
-            ${showInfo ? "text-[var(--main-color)]" : ""}`}
-          >
-            <InfoCircleOutlined
-              ref={refToggleInformationContainer}
-              onClick={() => toggleInformation((current) => !current)}
-              style={{ fontSize: "20px" }}
-            />
-            {/* <div
-              ref={refToggleInformationContainer}
-              onClick={toggleInformationContainer}
-              className="fa fa-info flex aspect-square w-[3rem] cursor-pointer items-center justify-center 
-              rounded-[1rem] text-lg font-normal"
-            ></div> */}
-          </div>
-        </div>
+        <ChatboxTitle
+          toggleInformation={toggleInformation}
+          showInfo={showInfo}
+          messages={messages}
+          selected={conversations?.selected}
+        />
         <div
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
           // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
-          className="hide-scrollbar flex grow flex-col justify-end gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[1rem]"
+          className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         >
           {messages?.messages
             ? [...messages?.messages]

@@ -35,6 +35,7 @@ const UpdateTitle = (props) => {
           ...oldData.selected,
           title: refInput.current.value,
         },
+        noLoading: true,
       };
     });
 

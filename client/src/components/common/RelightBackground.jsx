@@ -3,6 +3,7 @@ const RelightBackground = ({
   lighten,
   className,
   onClick,
+  paddingClassName,
   ...props
 }) => {
   return (
@@ -11,7 +12,8 @@ const RelightBackground = ({
       className={`${className} rounded-[1rem]
       ${lighten ? "bg-[var(--main-color)] text-[var(--sub-color)]" : "bg-[var(--bg-color-thin)]"}
       flex aspect-square cursor-pointer items-center
-      justify-center p-[1rem] 
+      justify-center 
+      ${paddingClassName ?? "p-[1rem]"}
       transition-all duration-200
       hover:bg-[var(--main-color)] hover:text-[var(--sub-color)]`}
       // className={`${className}

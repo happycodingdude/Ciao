@@ -3,8 +3,9 @@ import { createPortal } from "react-dom";
 import { useEventListener } from "../../hook/CustomHooks";
 import PortalHeader from "./PortalHeader";
 
-const BackgroundPortal = ({ children, show, title, onClose, className }) => {
+const BackgroundPortal = (props) => {
   console.log("BackgroundPortal rendering");
+  const { children, show, title, onClose, className } = props;
 
   if (!show) return null;
 

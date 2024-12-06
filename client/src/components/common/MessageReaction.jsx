@@ -51,55 +51,57 @@ const MessageReaction = (props) => {
           ""
         )}
         {/* Current reaction */}
-        {
+        <div className="peer flex aspect-square items-center justify-center laptop:w-[2rem]">
           {
-            like: (
-              <div
-                className="peer aspect-square cursor-pointer bg-[url('images/like.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"
-                onClick={() => react("like")}
-              ></div>
-            ),
-            love: (
-              <div
-                className="peer aspect-square cursor-pointer bg-[url('images/love.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"
-                onClick={() => react("love")}
-              ></div>
-            ),
-            care: (
-              <div
-                className="peer aspect-square cursor-pointer bg-[url('images/care.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"
-                onClick={() => react("care")}
-              ></div>
-            ),
-            wow: (
-              <div
-                className="peer aspect-square cursor-pointer bg-[url('images/wow.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"
-                onClick={() => react("wow")}
-              ></div>
-            ),
-            sad: (
-              <div
-                className="peer aspect-square cursor-pointer bg-[url('images/sad.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"
-                onClick={() => react("sad")}
-              ></div>
-            ),
-            angry: (
-              <div
-                className="peer aspect-square cursor-pointer bg-[url('images/angry.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[2rem]"
-                onClick={() => react("angry")}
-              ></div>
-            ),
-            null: (
-              <LikeOutlined
-                className={`peer flex aspect-square cursor-pointer items-center justify-center rounded-full border-[.15rem] border-[var(--main-color)] 
+            {
+              like: (
+                <div
+                  className="aspect-square cursor-pointer bg-[url('images/like.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  onClick={() => react("like")}
+                ></div>
+              ),
+              love: (
+                <div
+                  className="aspect-square cursor-pointer bg-[url('images/love.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  onClick={() => react("love")}
+                ></div>
+              ),
+              care: (
+                <div
+                  className="aspect-square cursor-pointer bg-[url('images/care.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  onClick={() => react("care")}
+                ></div>
+              ),
+              wow: (
+                <div
+                  className="aspect-square cursor-pointer bg-[url('images/wow.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  onClick={() => react("wow")}
+                ></div>
+              ),
+              sad: (
+                <div
+                  className="aspect-square cursor-pointer bg-[url('images/sad.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  onClick={() => react("sad")}
+                ></div>
+              ),
+              angry: (
+                <div
+                  className="aspect-square cursor-pointer bg-[url('images/angry.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  onClick={() => react("angry")}
+                ></div>
+              ),
+              null: (
+                <LikeOutlined
+                  className={`flex aspect-square cursor-pointer items-center justify-center rounded-full border-[.15rem] border-[var(--main-color)] 
                   bg-[var(--sub-color)] laptop:h-[2rem]
                   ${pending ? "pointer-events-none opacity-50" : ""}`}
-                style={{ fontSize: "12px" }}
-                onClick={() => react("like")}
-              />
-            ),
-          }[message.reaction.currentReaction]
-        }
+                  style={{ fontSize: "12px" }}
+                  onClick={() => react("like")}
+                />
+              ),
+            }[message.reaction.currentReaction]
+          }
+        </div>
         {/* List reactions */}
         <div
           className={`absolute bottom-[2.2rem] z-10 flex scale-0 items-center justify-evenly rounded-[2rem] border-[.2rem] border-[var(--main-color)] 

@@ -6,7 +6,7 @@ const ListChatContainer = () => {
   console.log("ListChatContainer calling");
   const [search, setSearch] = useState("");
   return (
-    <div className="flex flex-col laptop:w-[27rem] laptop-lg:w-[30rem]">
+    <div className="flex flex-col bg-[var(--bg-color)] laptop:w-[27rem] laptop-lg:w-[30rem]">
       <ListChatHeader onChange={(text) => setSearch(text)} />
       <ListChat search={search} />
     </div>

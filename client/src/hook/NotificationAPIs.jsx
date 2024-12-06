@@ -121,6 +121,7 @@ export const notifyMessage = (message, queryClient, info) => {
             {
               ...messageData,
               contactId: messageData.contactId,
+              currentReaction: null,
             },
             ...oldData.messages,
           ],

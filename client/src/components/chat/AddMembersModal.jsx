@@ -1,196 +1,85 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { blurImageOLD, HttpRequest } from "../../common/Utility";
-import { useFriend, useInfo } from "../../hook/CustomHooks";
+import { useFriend } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import MediaPicker from "../common/MediaPicker";
 
-const CreateGroupChatModal = (props) => {
-  const { onClose } = props;
+const AddMembersModal = (props) => {
+  const { id, members, onClose } = props;
 
   const queryClient = useQueryClient();
   const { data } = useFriend();
-  const { data: info } = useInfo();
 
-  const refInputSearch = useRef();
-  const refInputTitle = useRef();
+  const refInput = useRef();
 
   const [membersToSearch, setMembersToSearch] = useState(
     data?.map((item) => item.contact),
   );
   const [membersToAdd, setMembersToAdd] = useState([]);
-  const [avatar, setAvatar] = useState();
-  const [file, setFile] = useState();
 
   useEffect(() => {
     if (!data) return;
     setMembersToSearch(data.map((item) => item.contact));
-    refInputTitle.current.focus();
+    refInput.current.focus();
     blurImageOLD(".list-friend-container");
   }, [data]);
 
-  const chooseAvatar = (e) => {
-    const chosenFiles = Array.from(e.target.files);
-    if (chosenFiles.length === 0) return;
-
-    setAvatar(URL.createObjectURL(e.target.files?.[0]));
-    setFile(e.target.files?.[0]);
-    e.target.value = null;
-  };
-
-  const createGroupChat = async () => {
+  const addMembers = () => {
     if (membersToAdd.length === 0) return;
 
-    let url = "";
-    if (file === undefined) {
-      url = avatar;
-    } else {
-      // Create a root reference
-      const storage = getStorage();
-      url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
-        (snapshot) => {
-          return getDownloadURL(snapshot.ref).then((url) => {
-            return url;
-          });
-        },
-      );
-    }
-
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET,
-      data: {
-        title: refInputTitle.current.value,
-        isGroup: true,
-        avatar: url,
-        participants: membersToAdd.map((mem) => {
-          return {
-            contactId: mem.id,
-          };
-        }),
-      },
-    }).then((res) => {
-      queryClient.setQueryData(["conversation"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        const updatedConversations = cloned.conversations.map(
-          (conversation) => {
-            if (conversation.id !== randomId) return conversation;
-            conversation.id = res.data;
-            return conversation;
-          },
-        );
-        return {
-          ...oldData,
-          conversations: updatedConversations,
-          selected: {
-            ...oldData.selected,
-            id: res.data,
-          },
-        };
-      });
-    });
-
-    let randomId = Math.random().toString(36).substring(2, 7);
     queryClient.setQueryData(["conversation"], (oldData) => {
-      return {
-        ...oldData,
-        conversations: [
-          {
-            id: randomId,
-            title: refInputTitle.current.value,
-            avatar: avatar,
-            isGroup: true,
-            isNotifying: true,
-            participants: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              ...membersToAdd.map((mem) => {
-                return {
-                  contact: {
-                    id: mem.id,
-                    name: mem.name,
-                    avatar: mem.avatar,
-                    // isOnline: contact.isOnline,
-                  },
-                };
-              }),
-            ],
-            noLazy: true,
-          },
-          ...oldData.conversations,
-        ],
-        selected: {
-          id: randomId,
-          title: refInputTitle.current.value,
-          avatar: avatar,
-          isGroup: true,
+      const updatedConversations = oldData.conversations.map((conversation) => {
+        if (conversation.id !== id) return conversation;
+        return {
+          ...conversation,
           participants: [
-            {
-              isModerator: true,
-              contact: {
-                id: info.id,
-                name: info.name,
-                avatar: info.avatar,
-                isOnline: true,
-              },
-            },
+            ...conversation.participants,
             ...membersToAdd.map((mem) => {
               return {
                 contact: {
                   id: mem.id,
                   name: mem.name,
                   avatar: mem.avatar,
-                  // isOnline: contact.isOnline,
+                },
+              };
+            }),
+          ],
+        };
+      });
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        selected: {
+          ...oldData.selected,
+          participants: [
+            ...oldData.selected.participants,
+            ...membersToAdd.map((mem) => {
+              return {
+                contact: {
+                  id: mem.id,
+                  name: mem.name,
+                  avatar: mem.avatar,
                 },
               };
             }),
           ],
         },
-        noLoading: true,
-        createGroupChat: true,
       };
     });
-    queryClient.setQueryData(["message"], (oldData) => {
-      const newData = {
-        ...oldData,
-        messages: [],
-        participants: [
-          {
-            isModerator: true,
-            contact: {
-              id: info.id,
-              name: info.name,
-              avatar: info.avatar,
-              isOnline: true,
-            },
-          },
-          ...membersToAdd.map((mem) => {
-            return {
-              contact: {
-                id: mem.id,
-                name: mem.name,
-                avatar: mem.avatar,
-                // isOnline: contact.isOnline,
-              },
-            };
-          }),
-        ],
-      };
 
-      return newData;
+    HttpRequest({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GET.replace("{id}", id),
+      data: membersToAdd.map((mem) => {
+        return {
+          contactId: mem.id,
+        };
+      }),
     });
 
     onClose();
@@ -198,28 +87,10 @@ const CreateGroupChatModal = (props) => {
 
   return (
     <div className="flex flex-col justify-between p-10 pt-12 text-[var(--text-main-color)] laptop:h-[45rem] desktop:h-[80rem]">
-      <div className="relative flex shrink-0 items-end gap-[5rem] pb-[.5rem]">
-        <ImageWithLightBoxAndNoLazy
-          src={avatar ?? ""}
-          className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[5rem]"
-        />
-        <MediaPicker
-          className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
-          accept="image/png, image/jpeg"
-          id="new-conversation-avatar"
-          onChange={chooseAvatar}
-        />
-        <CustomInput
-          type="text"
-          reference={refInputTitle}
-          className="laptop:w-[30rem]"
-          placeholder="Type group name"
-        />
-      </div>
       <CustomInput
         type="text"
         placeholder="Search for name"
-        reference={refInputSearch}
+        reference={refInput}
         onChange={(e) => {
           // findContact(e.target.value);
           console.log(e.target.value);
@@ -236,12 +107,17 @@ const CreateGroupChatModal = (props) => {
             });
         }}
       />
-      <div className="flex gap-[2rem] border-b-[.1rem] border-[var(--border-color)] laptop:h-[20rem]">
+      <div className="flex gap-[2rem] border-b-[.1rem] border-[var(--border-color)] laptop:h-[30rem]">
         <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
           {membersToSearch?.map((item) => (
             <div
               key={item}
-              className={`information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-[.7rem] hover:bg-[var(--bg-color-extrathin)]`}
+              className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]
+              ${
+                members.some((mem) => mem.id === item.id)
+                  ? "pointer-events-none"
+                  : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
+              } `}
               onClick={() => {
                 setMembersToAdd((members) => {
                   return members.map((mem) => mem.id).includes(item.id)
@@ -257,7 +133,8 @@ const CreateGroupChatModal = (props) => {
                 });
               }}
             >
-              {membersToAdd.some((mem) => mem.id === item.id) ? (
+              {members.some((mem) => mem.id === item.id) ||
+              membersToAdd.some((mem) => mem.id === item.id) ? (
                 <div
                   className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
                   from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
@@ -270,7 +147,7 @@ const CreateGroupChatModal = (props) => {
                       "--height": `120%`,
                       "--rounded": "50%",
                     }}
-                    className="gradient-item relative aspect-square w-[1.8rem]  rounded-full bg-[var(--bg-color)]"
+                    className="gradient-item relative aspect-square w-[1.8rem] rounded-full bg-[var(--bg-color)]"
                   ></div>
                 </div>
               )}
@@ -286,7 +163,14 @@ const CreateGroupChatModal = (props) => {
                 ]}
                 onClick={(e) => {}}
               />
-              <CustomLabel title={item.name} />
+              <div>
+                <CustomLabel title={item.name} />
+                {members.some((mem) => mem.id === item.id) ? (
+                  <p className="text-[var(--text-main-color-blur)]">Joined</p>
+                ) : (
+                  ""
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -348,10 +232,10 @@ const CreateGroupChatModal = (props) => {
         gradientHeight="120%"
         rounded="3rem"
         title="Save"
-        onClick={createGroupChat}
+        onClick={addMembers}
       />
     </div>
   );
 };
 
-export default CreateGroupChatModal;
+export default AddMembersModal;

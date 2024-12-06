@@ -7,15 +7,6 @@ const CreateGroupChat = () => {
   const [open, setOpen] = useState(false);
   return (
     <>
-      {/* <div
-        onClick={() => setOpen(true)}
-        className="fa fa-user-group base-icon-lg"
-      ></div> */}
-      {/* <GroupAddOutlinedIcon
-        sx={{ fontSize: "2rem" }}
-        className="cursor-pointer"
-        onClick={() => setOpen(true)}
-      /> */}
       <UsergroupAddOutlined
         style={{ fontSize: "16px" }}
         onClick={() => setOpen(true)}

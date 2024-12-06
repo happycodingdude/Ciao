@@ -30,14 +30,15 @@ const ChatboxContainer = (props) => {
   }, [conversations?.selected]);
 
   return (
-    <div className="relative flex grow">
+    <div className="relative flex grow bg-[var(--bg-color)]">
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       {loading ? <LocalLoading /> : ""}
+      {/* <LocalLoading /> */}
       {messages?.messages || conversations?.createGroupChat ? (
         <>
           <Chatbox toggleInformation={setShowInfo} showInfo={showInfo} />
           <div
-            className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[22rem] 
+            className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
             ${showInfo ? "opacity-100" : "opacity-0"}`}
           >
             {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}

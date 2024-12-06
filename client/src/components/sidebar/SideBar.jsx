@@ -26,8 +26,8 @@ const SideBar = (props) => {
 
   return (
     <section className="lg shrink-0 border-r-[.1rem] border-r-[var(--border-color)] bg-[var(--bg-color)] laptop:w-[7rem] desktop:w-[10rem]">
-      <div className="flex h-full flex-col items-center justify-between px-[1rem] py-[2rem]">
-        <div className="info-container flex w-full flex-col items-center gap-[3rem]">
+      <div className="flex h-full flex-col items-center px-[1rem]">
+        <div className="flex w-full items-center justify-center laptop:h-[6rem]">
           <ImageWithLightBoxWithShadowAndNoLazy
             src={info?.avatar}
             className="aspect-square w-[80%] cursor-pointer rounded-[50%]"
@@ -37,45 +37,49 @@ const SideBar = (props) => {
               },
             ]}
           />
-          <RelightBackground
-            lighten={page === "chat"}
-            onClick={() => {
-              // refetch();
-              setPage("chat");
-              queryClient.setQueryData(["conversation"], (oldData) => {
-                return {
-                  ...oldData,
-                  fromEditProfile: true,
-                };
-              });
-            }}
-          >
-            <ChatIcon />
-          </RelightBackground>
-          <RelightBackground
-            lighten={page === "profile"}
-            onClick={() => {
-              // queryClient.resetQueries({
-              //   queryKey: ["conversation"],
-              //   exact: true,
-              // });
-              // queryClient.resetQueries({
-              //   queryKey: ["message"],
-              //   exact: true,
-              // });
-              setPage("profile");
-            }}
-          >
-            <ProfileIcon />
-          </RelightBackground>
         </div>
-        <div className="flex w-full flex-col items-center justify-between gap-[3rem]">
-          {/* <RelightBackground className="relative w-[50%]"> */}
-          <Notification />
-          {/* </RelightBackground> */}
-          {/* <RelightBackground className="w-[50%]"> */}
-          <Signout />
-          {/* </RelightBackground> */}
+        <div className="inline-flex grow flex-col justify-between py-[2.5rem]">
+          <div className="info-container flex w-full flex-col items-center gap-[3rem]">
+            <RelightBackground
+              lighten={page === "chat"}
+              onClick={() => {
+                // refetch();
+                setPage("chat");
+                queryClient.setQueryData(["conversation"], (oldData) => {
+                  return {
+                    ...oldData,
+                    fromEditProfile: true,
+                  };
+                });
+              }}
+            >
+              <ChatIcon />
+            </RelightBackground>
+            <RelightBackground
+              lighten={page === "profile"}
+              onClick={() => {
+                // queryClient.resetQueries({
+                //   queryKey: ["conversation"],
+                //   exact: true,
+                // });
+                // queryClient.resetQueries({
+                //   queryKey: ["message"],
+                //   exact: true,
+                // });
+                setPage("profile");
+              }}
+            >
+              <ProfileIcon />
+            </RelightBackground>
+          </div>
+          <div className="flex w-full flex-col items-center justify-between gap-[3rem]">
+            {/* <RelightBackground className="relative w-[50%]"> */}
+            <Notification />
+            {/* </RelightBackground> */}
+            {/* <RelightBackground className="w-[50%]"> */}
+            <Signout />
+            {/* </RelightBackground> */}
+          </div>
         </div>
       </div>
     </section>

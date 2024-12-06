@@ -132,7 +132,7 @@ const MessageContent = (props) => {
   return (
     <div
       key={message.id}
-      className={`flex shrink-0 gap-[1rem]
+      className={`mt-auto flex shrink-0 gap-[1rem]
       ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* Sender avatar */}
@@ -233,8 +233,8 @@ const MessageContent = (props) => {
             className={` break-all rounded-[2rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
-                ? "bg-[var(--main-color)] text-[var(--text-sub-color)]"
-                : "bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
+                ? "bg-[var(--main-color)]"
+                : "bg-[var(--bg-color-light)]"
             }`}
           >
             {message.content}
