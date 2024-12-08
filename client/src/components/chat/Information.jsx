@@ -39,6 +39,10 @@ const Information = (props) => {
   }, [conversations.selected?.id]);
 
   useEffect(() => {
+    blurImage(".members-image-container");
+  }, [conversations.selected?.participants]);
+
+  useEffect(() => {
     if (!attachments) return;
 
     if (attachments?.length !== 0) {

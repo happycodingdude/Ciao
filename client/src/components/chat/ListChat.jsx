@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
 import { useLoading } from "../../context/LoadingContext";
 import {
@@ -39,8 +39,8 @@ const ListChat = (props) => {
 
   const queryClient = useQueryClient();
 
-  const refChatItem = useRef([]);
-  const refChats = useRef();
+  const refChatItems = useRef({});
+  const refChats = useRef([]);
   const refChatsScroll = useRef();
 
   const [selected, setSelected] = useState();
@@ -77,24 +77,46 @@ const ListChat = (props) => {
 
   useEffect(() => {
     blurImage(".list-chat");
+    // Kiểm tra để khi tìm kiếm sẽ không thay đổi danh sách ban đầu
     if (!refAllConversation.current)
       refAllConversation.current = data?.conversations;
   }, [data?.conversations]);
 
   const clickConversation = (id) => {
-    setLoading(true);
     setSelected(id);
   };
 
+  const scrollToCenterOfSelected = useCallback(() => {
+    // if (!selected) return;
+    const chatElement = refChatItems.current[selected];
+    const chatList = refChats.current;
+
+    // Calculate the offset to center the chat
+    const chatTop = chatElement.offsetTop;
+    const chatHeight = chatElement.offsetHeight;
+    const listHeight = chatList.offsetHeight;
+    const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
+    chatList.scrollTop = scrollTop;
+    // chatList.scrollTo({
+    //   top: scrollTop,
+    //   behavior: "smooth",
+    // });
+  }, [selected]);
+
   useEffect(() => {
+    if (!selected) return;
     if (
       !selected ||
       (data?.selected?.id === selected &&
         !data?.clickAndAddMessage &&
         !data?.fromListFriend)
-    )
+    ) {
+      scrollToCenterOfSelected();
       return;
+    }
 
+    scrollToCenterOfSelected();
+    setLoading(true);
     queryClient.setQueryData(["conversation"], (oldData) => {
       var newConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== selected) return conversation;
@@ -126,6 +148,7 @@ const ListChat = (props) => {
     }
 
     clickConversation(data.selected.id);
+    refAllConversation.current = data?.conversations;
   }, [data]);
 
   const clickAndAddMessage = () => {
@@ -174,15 +197,16 @@ const ListChat = (props) => {
           <div
             key={item.id}
             data-key={item.id}
+            ref={(el) => (refChatItems.current[item.id] = el)}
             data-user={
               !item.isGroup
                 ? item.participants.find((item) => item.contact.id !== info.id)
                     ?.contact.id
                 : ""
             }
-            ref={(element) => {
-              refChatItem.current[i] = element;
-            }}
+            // ref={(element) => {
+            //   refChatItem.current[i] = element;
+            // }}
             // className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
             // py-[.8rem] pl-[.5rem] pr-[1rem]
             // ${

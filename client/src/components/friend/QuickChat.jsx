@@ -203,6 +203,9 @@ const QuickChat = (props) => {
           ],
         };
       });
+      queryClient.setQueryData(["attachment"], (oldData) => {
+        return [];
+      });
     }
     onClose();
   };

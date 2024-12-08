@@ -25,7 +25,11 @@ const CustomButton = ({
         }}
         className={`gradient-item relative cursor-pointer rounded-[2rem] bg-[var(--bg-color)] text-center font-medium 
           transition-all data-[process=true]:pointer-events-none`}
-        onClick={handleClick}
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent bubbling to parent
+          handleClick();
+        }}
+        // onClick={handleClick}
       >
         {processing ? (
           <div
