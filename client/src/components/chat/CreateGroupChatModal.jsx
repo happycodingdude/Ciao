@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { blurImageOLD, HttpRequest } from "../../common/Utility";
+import { blurImage, HttpRequest } from "../../common/Utility";
 import { useFriend, useInfo } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -32,7 +32,7 @@ const CreateGroupChatModal = (props) => {
     if (!data) return;
     setMembersToSearch(data.map((item) => item.contact));
     refInputTitle.current.focus();
-    blurImageOLD(".list-friend-container");
+    blurImage(".list-friend-container");
   }, [data]);
 
   const chooseAvatar = (e) => {

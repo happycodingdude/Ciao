@@ -1,7 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
-import { blurImageOLD, HttpRequest } from "../../common/Utility";
+import { blurImage, HttpRequest } from "../../common/Utility";
+import { useLoading } from "../../context/LoadingContext";
 import {
   useAttachment,
   useConversation,
@@ -23,6 +24,7 @@ const Information = (props) => {
   const { data: conversations } = useConversation();
   const { data: attachments, isLoading, isRefetching } = useAttachment();
   // const { data: friends } = useFriend();
+  const { setLoading } = useLoading();
 
   const [displayAttachments, setDisplayAttachments] = useState([]);
   const [chosenProfile, setChosenProfile] = useState();
@@ -33,7 +35,7 @@ const Information = (props) => {
 
   useEffect(() => {
     setChosenProfile(undefined);
-    blurImageOLD(".members-image-container");
+    blurImage(".members-image-container");
   }, [conversations.selected?.id]);
 
   useEffect(() => {
@@ -52,13 +54,13 @@ const Information = (props) => {
   useEffect(() => {
     if (!isRefetching) {
       setTimeout(() => {
-        onLoaded();
+        setLoading(false);
       }, 100);
     }
   }, [isRefetching]);
 
   useEffect(() => {
-    blurImageOLD(".display-attachment-container");
+    blurImage(".display-attachment-container");
   }, [displayAttachments]);
 
   const refInformation = useRef();

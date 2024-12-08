@@ -1,19 +1,18 @@
-import React, { createContext, useState } from "react";
-import Loading from "../components/common/Loading";
+import React, { createContext, useContext, useState } from "react";
 
-const LoadingContext = createContext({});
+// Create the context
+const LoadingContext = createContext();
 
-export const LoadingProvider = ({ children }) => {
-  console.log("LoadingProvider calling");
+// Custom hook to use the LoadingContext
+export const useLoading = () => useContext(LoadingContext);
 
+// Provider component
+export function LoadingProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   return (
     <LoadingContext.Provider value={{ loading, setLoading }}>
-      <Loading />
       {children}
     </LoadingContext.Provider>
   );
-};
-
-export default LoadingContext;
+}

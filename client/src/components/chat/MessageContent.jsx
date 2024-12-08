@@ -2,12 +2,13 @@ import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { HttpRequest } from "../../common/Utility";
 import { useConversation, useInfo } from "../../hook/CustomHooks";
+import ImageWithLightBox from "../common/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../common/MessageReaction";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
-  const { message, id, pending } = props;
+  const { message, id, pending, mt } = props;
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -132,8 +133,9 @@ const MessageContent = (props) => {
   return (
     <div
       key={message.id}
-      className={`mt-auto flex shrink-0 gap-[1rem]
-      ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
+      className={`flex shrink-0 gap-[1rem]
+      ${message.contactId === info.id ? "flex-row-reverse" : ""}
+      ${mt ? "mt-auto" : ""}`}
     >
       {/* Sender avatar */}
       {message.contactId !== info.id ? (
@@ -248,10 +250,22 @@ const MessageContent = (props) => {
             className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
           >
             {message.attachments.map((item, index) => (
-              <ImageWithLightBoxAndNoLazy
+              // <ImageWithLightBoxAndNoLazy
+              //   src={item.mediaUrl}
+              //   title={item.mediaName?.split(".")[0]}
+              //   className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer !bg-[size:110%]`}
+              //   slides={message.attachments.map((item) => ({
+              //     src:
+              //       item.type === "image"
+              //         ? item.mediaUrl
+              //         : "images/filenotfound.svg",
+              //   }))}
+              //   index={index}
+              // />
+              <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
-                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer !bg-[size:110%]`}
+                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "!w-[30%]"} ${pending ? "opacity-50" : ""} cursor-pointer `}
                 slides={message.attachments.map((item) => ({
                   src:
                     item.type === "image"
@@ -259,6 +273,7 @@ const MessageContent = (props) => {
                       : "images/filenotfound.svg",
                 }))}
                 index={index}
+                imageClassName="!bg-[size:100%]"
               />
             ))}
           </div>

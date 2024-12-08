@@ -17,7 +17,7 @@ const ListChatHeader = (props) => {
           // ref={refInput}
           value={text}
           type="text"
-          placeholder="Find and connect"
+          placeholder="Find and chat"
           className="h-full w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] pl-[1rem] pr-[3rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
           // onChange={(e) => onChange(e.target.value)}
           // onChange={(e) => setText((current) => current + e.target.value)}

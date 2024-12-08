@@ -3,7 +3,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImageOLD, HttpRequest } from "../../common/Utility";
+import { blurImage, HttpRequest } from "../../common/Utility";
 import {
   useConversation,
   useEventListener,
@@ -15,7 +15,7 @@ import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import RelightBackground from "../common/RelightBackground";
 import UserProfile from "../profile/UserProfile";
-import ChatboxTitle from "./ChatboxTitle";
+import ChatboxHeader from "./ChatboxHeader";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
 
@@ -51,7 +51,7 @@ const Chatbox = (props) => {
 
   useEffect(() => {
     // blurImage(".chatbox-content");
-    blurImageOLD(".chatbox-content");
+    blurImage(".chatbox-content");
     refChatContent.current.classList.remove("scroll-smooth");
     // setFiles([]);
 
@@ -373,12 +373,13 @@ const Chatbox = (props) => {
             onClick={scrollChatContentToBottom}
           ></div> */}
         {/* </RelightBackground> */}
-        <ChatboxTitle
+        <ChatboxHeader
           toggleInformation={toggleInformation}
           showInfo={showInfo}
           messages={messages}
           selected={conversations?.selected}
         />
+        {/* <div className="grow bg-[var(--bg-color-extrathin)]"> */}
         <div
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
@@ -388,10 +389,11 @@ const Chatbox = (props) => {
           {messages?.messages
             ? [...messages?.messages]
                 .reverse()
-                .map((message) => (
+                .map((message, index) => (
                   <MessageContent
                     message={message}
                     id={conversations.selected.id}
+                    mt={index === 0}
                   />
                 ))
             : ""}
@@ -418,6 +420,7 @@ const Chatbox = (props) => {
             <UserProfile id={userId} onClose={() => setOpen(false)} />
           </BackgroundPortal>
         </div>
+        {/* </div> */}
       </div>
       <div className="flex w-full items-center justify-center py-3">
         <ChatInput

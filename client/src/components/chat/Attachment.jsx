@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImageOLD } from "../../common/Utility";
+import { blurImage } from "../../common/Utility";
 import { useAttachment } from "../../hook/CustomHooks";
 import ImageWithLightBox from "../common/ImageWithLightBox";
 
@@ -42,7 +42,7 @@ const Attachment = (props) => {
   }, [attachments]);
 
   useEffect(() => {
-    if (show) blurImageOLD(".attachment-container");
+    if (show) blurImage(".attachment-container");
     // setTimeout(() => {
     //   refScrollAttachment.current.scrollTop = 0;
     // }, 1000);

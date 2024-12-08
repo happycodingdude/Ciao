@@ -83,7 +83,7 @@ export const generateContent = (contacts, text) => {
   return text;
 };
 
-export const blurImageOLD = (containerClass) => {
+export const blurImage = (containerClass) => {
   let observer = new IntersectionObserver(
     (entries, observer) => {
       entries.forEach(async (entry) => {
@@ -93,6 +93,14 @@ export const blurImageOLD = (containerClass) => {
           entry.target.style.backgroundImage =
             "url('" + entry.target.dataset.src + "')";
           // entry.target.classList.add("loaded");
+
+          // Find the previous sibling with the 'loading' class
+          let sibling = entry.target.previousElementSibling;
+
+          if (sibling && sibling.classList.contains("loading")) {
+            sibling.style.opacity = 0;
+          }
+
           observer.unobserve(entry.target);
         }
       });
@@ -100,9 +108,9 @@ export const blurImageOLD = (containerClass) => {
     { threshold: 0.5 },
   );
 
-  // function delay() {
-  //   return new Promise((resolve) => setTimeout(resolve, 10000));
-  // }
+  function delay() {
+    return new Promise((resolve) => setTimeout(resolve, 3000));
+  }
 
   const container = document.querySelector(containerClass);
   if (!container) return;
@@ -134,7 +142,7 @@ export const blurImageOLD1 = (containerClass) => {
   });
 };
 
-export const blurImage = (containerClass) => {
+export const blurImageOld = (containerClass) => {
   // setTimeout(() => {
 
   // Duyệt tất cả tấm ảnh cần lazy-load

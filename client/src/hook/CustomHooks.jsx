@@ -5,7 +5,7 @@ import AttachmentContext from "../context/AttachmentContext";
 import AuthContext from "../context/AuthContext";
 import ConversationContext from "../context/ConversationContext";
 import FriendContext from "../context/FriendContext";
-import LoadingContext from "../context/LoadingContext";
+// import LoadingContext from "../context/LoadingContext";
 import MessageContext from "../context/MessageContext";
 import ParticipantContext from "../context/ParticipantContext";
 import ProfileContext from "../context/ProfileContext";
@@ -132,9 +132,9 @@ export const useFetchFriends = () => {
   return useContext(FriendContext);
 };
 
-export const useLoading = () => {
-  return useContext(LoadingContext);
-};
+// export const useLoading = () => {
+//   return useContext(LoadingContext);
+// };
 
 export const useDeleteChat = () => {
   const auth = useAuth();

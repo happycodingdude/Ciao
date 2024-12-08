@@ -228,7 +228,7 @@ const QuickChat = (props) => {
   return (
     <div
       ref={refQuickProfile}
-      className="quick-profile fixed right-[-40rem] aspect-[1/0.9] rounded-[.5rem] bg-[var(--bg-color)] laptop:w-[25rem]"
+      className="quick-profile fixed right-[-40rem] aspect-[1/0.9] rounded-[.5rem] laptop:w-[25rem]"
     >
       <div className="relative flex h-full w-full flex-col">
         <div className="absolute right-[5%] top-[5%]">

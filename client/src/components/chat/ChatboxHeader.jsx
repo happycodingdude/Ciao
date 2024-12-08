@@ -8,8 +8,8 @@ import RelightBackground from "../common/RelightBackground";
 import AddMembers from "./AddMembers";
 import UpdateTitle from "./UpdateTitle";
 
-const ChatboxTitle = (props) => {
-  console.log("ChatboxTitle calling");
+const ChatboxHeader = (props) => {
+  console.log("ChatboxHeader calling");
   const { toggleInformation, showInfo, selected } = props;
   const { data: info } = useInfo();
 
@@ -79,16 +79,20 @@ const ChatboxTitle = (props) => {
         </div>
       </div>
       <div className="flex gap-[2rem]">
-        <RelightBackground
-          paddingClassName="p-[.7rem]"
-          onClick={() => setShowAddMembers(true)}
-        >
-          <AddMembers
-            selected={selected}
-            show={showAddMembers}
-            onClose={() => setShowAddMembers(false)}
-          />
-        </RelightBackground>
+        {selected?.isGroup ? (
+          <RelightBackground
+            paddingClassName="p-[.7rem]"
+            onClick={() => setShowAddMembers(true)}
+          >
+            <AddMembers
+              selected={selected}
+              show={showAddMembers}
+              onClose={() => setShowAddMembers(false)}
+            />
+          </RelightBackground>
+        ) : (
+          ""
+        )}
         <div
           className={`flex justify-end gap-[1rem] rounded-full
       ${showInfo ? "text-[var(--main-color)]" : ""}`}
@@ -103,4 +107,4 @@ const ChatboxTitle = (props) => {
   );
 };
 
-export default ChatboxTitle;
+export default ChatboxHeader;

@@ -1,7 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import { blurImageOLD } from "../../common/Utility";
+import { blurImage } from "../../common/Utility";
+import { useLoading } from "../../context/LoadingContext";
 import {
   useAttachment,
   useConversation,
@@ -46,6 +47,7 @@ const ListChat = (props) => {
   const [page, setPage] = useState(1);
 
   const { data: info } = useInfo();
+  const { setLoading } = useLoading();
   const { data, isLoading, isRefetching } = useConversation(page);
   const { refetch: refetchMessage } = useMessage(selected, 1);
   const { refetch: refetchAttachments } = useAttachment(selected);
@@ -74,12 +76,13 @@ const ListChat = (props) => {
   }, [search]);
 
   useEffect(() => {
-    blurImageOLD(".list-chat");
+    blurImage(".list-chat");
     if (!refAllConversation.current)
       refAllConversation.current = data?.conversations;
   }, [data?.conversations]);
 
   const clickConversation = (id) => {
+    setLoading(true);
     setSelected(id);
   };
 
@@ -167,7 +170,7 @@ const ListChat = (props) => {
         className="list-chat hide-scrollbar relative flex grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] desktop:h-[50rem]"
       >
         {isLoading || isRefetching ? <LocalLoading /> : ""}
-        {data?.conversations.map((item, i) => (
+        {data?.conversations?.map((item, i) => (
           <div
             key={item.id}
             data-key={item.id}
@@ -192,7 +195,7 @@ const ListChat = (props) => {
               ${
                 selected === item.id
                   ? `item-active bg-[var(--main-color)]`
-                  : "bg-[var(--bg-color)] hover:bg-[var(--bg-color-extrathin)]"
+                  : "hover:bg-[var(--bg-color-extrathin)]"
               } `}
             onClick={() => {
               // clickConversation(65 * i, item.id);

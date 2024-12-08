@@ -25,7 +25,7 @@ const SideBar = (props) => {
   }, [info?.avatar]);
 
   return (
-    <section className="lg shrink-0 border-r-[.1rem] border-r-[var(--border-color)] bg-[var(--bg-color)] laptop:w-[7rem] desktop:w-[10rem]">
+    <section className="lg shrink-0 border-r-[.1rem] border-r-[var(--border-color)] laptop:w-[7rem] desktop:w-[10rem]">
       <div className="flex h-full flex-col items-center px-[1rem]">
         <div className="flex w-full items-center justify-center laptop:h-[6rem]">
           <ImageWithLightBoxWithShadowAndNoLazy

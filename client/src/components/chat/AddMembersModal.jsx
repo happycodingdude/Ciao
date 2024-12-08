@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { blurImageOLD, HttpRequest } from "../../common/Utility";
+import { blurImage, HttpRequest } from "../../common/Utility";
 import { useFriend } from "../../hook/CustomHooks";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
@@ -26,7 +26,7 @@ const AddMembersModal = (props) => {
     if (!data) return;
     setMembersToSearch(data.map((item) => item.contact));
     refInput.current.focus();
-    blurImageOLD(".list-friend-container");
+    blurImage(".list-friend-container");
   }, [data]);
 
   const addMembers = () => {

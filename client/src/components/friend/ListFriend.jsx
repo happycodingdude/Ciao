@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImageOLD, HttpRequest } from "../../common/Utility";
+import { blurImage, HttpRequest } from "../../common/Utility";
 import CustomInput from "../common/CustomInput";
 import FriendItem from "./FriendItem";
 
@@ -16,7 +16,7 @@ const ListFriend = (props) => {
   }, []);
 
   useEffect(() => {
-    blurImageOLD(".list-friend-container");
+    blurImage(".list-friend-container");
   }, [contacts]);
 
   function fetchDropdownOptions(key) {
