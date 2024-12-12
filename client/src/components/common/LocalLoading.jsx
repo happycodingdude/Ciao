@@ -4,11 +4,11 @@ const LocalLoading = (props) => {
   const { sm, zindex } = props;
   return (
     <div
-      class={`loading absolute flex h-full w-full items-center justify-center bg-[var(--loading-color)]
-    ${sm ? "p-[1rem]" : ""}
-    ${zindex ?? "z-10"}`}
+      className={`loading absolute flex h-full w-full items-center justify-center bg-[var(--loading-color)]
+        ${sm ? "p-[1rem]" : ""}
+        ${zindex ?? "z-10"}`}
     >
-      <div class="loader">
+      <div className="loader">
         <svg class="circular" viewBox="25 25 50 50">
           <circle
             class="path"
