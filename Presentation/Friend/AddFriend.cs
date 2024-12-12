@@ -90,7 +90,6 @@ public static class AddFriend
                 },
             };
             _friendRepository.Add(friend);
-            // Console.WriteLine($"friend.Id => {friend.Id}");
             // Add notification            
             var notification = new Notification
             {
@@ -99,7 +98,6 @@ public static class AddFriend
                 Content = $"{fromContact.Name} send you a request",
                 ContactId = request.contactId
             };
-            // Console.WriteLine($"notification => {JsonConvert.SerializeObject(notification)}");
             _notificationRepository.Add(notification);
 
             //     // Push friend request

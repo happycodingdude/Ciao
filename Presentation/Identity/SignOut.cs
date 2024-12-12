@@ -6,15 +6,12 @@ public static class SignOut
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        // readonly UserManager<AuthenticationUser> _userManager;
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly IDistributedCache _distributedCache;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(
-            // UserManager<AuthenticationUser> userManager,
-            IHttpContextAccessor httpContextAccessor,
+        public Handler(IHttpContextAccessor httpContextAccessor,
             IDistributedCache distributedCache,
             IService<IContactRepository> contactService,
             IService<IConversationRepository> conversationService)
@@ -28,11 +25,6 @@ public static class SignOut
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            // // Delete all cookies
-            // foreach (var cookie in _httpContextAccessor.HttpContext.Request.Cookies.Keys)
-            //     _httpContextAccessor.HttpContext.Response.Cookies.Delete(cookie);
-
-            // var identity = await _userManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
             var user = await _contactRepository.GetInfoAsync();
 
             // Delete Firebase connection

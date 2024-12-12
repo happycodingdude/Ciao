@@ -7,3 +7,9 @@ public class AttachmentDto : MongoBaseModel
     public double MediaSize { get; set; }
     public string MediaUrl { get; set; } = null!;
 }
+
+public class AttachmentGroupByCreatedTime
+{
+    public string Date { get; set; } = null!;
+    public List<Attachment> Attachments { get; set; } = null!;
+}

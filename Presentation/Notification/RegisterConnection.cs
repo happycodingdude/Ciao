@@ -36,7 +36,6 @@ public static class RegisterConnection
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // var userId = _httpContextAccessor.HttpContext.Items["UserId"]?.ToString();
             var user = await _contactRepository.GetInfoAsync();
             await _distributedCache.SetStringAsync($"connection-{user.Id}", request.token);
 

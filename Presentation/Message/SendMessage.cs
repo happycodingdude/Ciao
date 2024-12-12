@@ -75,8 +75,6 @@ public static class SendMessage
             var user = await _contactRepository.GetInfoAsync();
             var message = request.model;
             message.ContactId = user.Id;
-            // if (message.Type == "media")
-            //     message.Content = string.Join(",", message.Attachments.Select(q => q.MediaName));
             if (message.Type == "media")
                 message.Content = null;
             conversation.Messages.Add(message);
@@ -119,7 +117,6 @@ public class SendMessageEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/messages",
         async (ISender sender, string conversationId, Message model) =>
         {
-            // model.ConversationId = conversationId;
             var query = new SendMessage.Request(conversationId, model);
             await sender.Send(query);
             return Results.Ok();

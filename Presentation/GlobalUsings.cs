@@ -1,4 +1,4 @@
-global using Domain.Features;
+global using Domain.Entities;
 global using MediatR;
 global using Carter;
 global using FluentValidation;

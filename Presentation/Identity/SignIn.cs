@@ -6,22 +6,15 @@ public static class SignIn
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        // readonly SignInManager<AuthenticationUser> _signInManager;
-        // readonly UserManager<AuthenticationUser> _userManager;
         readonly PasswordHasher<string> _passwordHasher = new();
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(
-            // SignInManager<AuthenticationUser> signInManager,
-            // UserManager<AuthenticationUser> userManager,
-            IHttpContextAccessor httpContextAccessor,
+        public Handler(IHttpContextAccessor httpContextAccessor,
             IService<IContactRepository> contactService,
             IService<IConversationRepository> conversationService)
         {
-            // _signInManager = signInManager;
-            // _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _contactRepository = contactService.Get();
             _conversationRepository = conversationService.Get();
@@ -71,49 +64,6 @@ public static class SignIn
 
             return Unit.Value;
         }
-
-        // public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
-        // {
-        //     // Stream originalBodyStream = httpContextAccessor.HttpContext.Response.Body;
-        //     using (var ms = new MemoryStream())
-        //     {
-        //         _httpContextAccessor.HttpContext.Response.Body = ms;
-
-        //         _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
-        //         await _signInManager.PasswordSignInAsync(request.model.Username, request.model.Password, false, lockoutOnFailure: false);
-
-        //         ms.Seek(0, SeekOrigin.Begin);
-        //         var responseBody = new StreamReader(ms).ReadToEnd();
-        //         if (string.IsNullOrEmpty(responseBody))
-        //             throw new UnauthorizedException();
-
-        //         var responseModel = JsonConvert.DeserializeObject<SignInResponse>(responseBody);
-        //         _httpContextAccessor.HttpContext.Response.Headers.Append("access_token", responseModel.accessToken);
-        //         _httpContextAccessor.HttpContext.Response.Headers.Append("refresh_token", responseModel.refreshToken);
-
-        //         // ms.Seek(0, SeekOrigin.Begin);
-        //         // await ms.CopyToAsync(originalBodyStream);
-
-        //         // Another way
-        //         // context.Response.Body = originalBodyStream;
-        //         // await context.Response.Body.WriteAsync(ms.ToArray());
-
-        //         // Update IsOnline true
-        //         var user = await _userManager.FindByNameAsync(request.model.Username);
-        //         // _contactRepository.UseDatabase(user.Id);
-        //         // var filter = MongoQuery<Contact>.EmptyFilter();
-        //         var filter = Builders<Contact>.Filter.Where(q => q.UserId == user.Id);
-        //         var contact = await _contactRepository.GetItemAsync(filter);
-        //         if (!contact.IsOnline)
-        //         {
-        //             var updates = Builders<Contact>.Update
-        //                 .Set(q => q.IsOnline, true);
-        //             _contactRepository.Update(filter, updates);
-        //         }
-        //     }
-
-        //     return Unit.Value;
-        // }
     }
 }
 
