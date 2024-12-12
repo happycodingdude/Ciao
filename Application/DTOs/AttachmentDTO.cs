@@ -1,20 +1,9 @@
 namespace Application.DTOs;
 
-public class AttachmentDto : BaseModel
+public class AttachmentDto : MongoBaseModel
 {
-    public string? Type { get; set; }
-    public string? MediaName { get; set; }
-    public double? MediaSize { get; set; }
-    public string? MediaUrl { get; set; }
-    public Guid MessageId { get; set; }
-    public Message? Message { get; set; }
-}
-
-public class AttachmentNoReference : BaseModel
-{
-    public string? Type { get; set; }
-    public string? MediaName { get; set; }
-    public double? MediaSize { get; set; }
-    public string? MediaUrl { get; set; }
-    public Guid MessageId { get; set; }
+    public string Type { get; set; } = null!;
+    public string MediaName { get; set; } = null!;
+    public double MediaSize { get; set; }
+    public string MediaUrl { get; set; } = null!;
 }

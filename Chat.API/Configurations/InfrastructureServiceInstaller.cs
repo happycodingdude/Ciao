@@ -4,10 +4,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
-        // Serializer
-        // var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("<>f__AnonymousType"));
-        // BsonSerializer.RegisterSerializer(objectSerializer);
-
         // Common
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
@@ -28,16 +24,9 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                 });
         });
 
-        // HttpClient
-        services.AddHttpClient(AppConstants.HttpClient_Auth, client =>
-        {
-            client.BaseAddress = new Uri(AppConstants.ApiDomain_Auth);
-        });
-
         // Json formatter
         services.Configure<JsonOptions>(opt =>
         {
-            // opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
             opt.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         });
@@ -104,9 +93,10 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddMemoryCache();
         services.AddSingleton<IRedisCaching, Redis>();
 
-        // services.AddScoped<IService, Service>();
+        // Core
         services.AddScoped(typeof(IService<>), typeof(Service<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
@@ -115,24 +105,12 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         services.AddScoped<IFriendRepository, FriendRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
-        // services.AddSingleton(typeof(INotificationRepository<>), typeof(NotificationRepository<>));
         services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
-        services.AddSingleton(typeof(IChangeTracking<>), typeof(ChangeTracking<>));
 
-        // Business logics
-        // services.AddSingleton<IContactService, ContactService>();
-        // services.AddSingleton<IConversationService, ConversationService>();
-        // services.AddSingleton<IParticipantService, ParticipantService>();
-        // services.AddSingleton<INotificationService, NotificationService>();
-        // services.AddSingleton<IFriendService, FriendService>();
-        // services.AddSingleton<IMessageService, MessageService>();
+        // External logic
         services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<IPasswordValidator, PasswordValidator>();
-        // services.AddScoped<IIdentityService, IdentityService>();
-
-        // Background jobs
-        // services.AddHostedService<SyncContactAllCollection>();
     }
 }

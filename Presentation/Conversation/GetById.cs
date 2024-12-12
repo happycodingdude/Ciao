@@ -46,7 +46,7 @@ public class GetByIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("/{id}",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}",
         async (ISender sender, string id, int page = AppConstants.DefaultPage) =>
         {
             var query = new GetById.Request(id, page);

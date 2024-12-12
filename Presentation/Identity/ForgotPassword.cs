@@ -44,7 +44,7 @@ public class ForgotPasswordEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Identity).MapPost("/forgot",
+        app.MapGroup(AppConstants.ApiGroup_Identity).MapPost("/forgot",
         async (ISender sender, IdentityRequest model) =>
         {
             var request = new ForgotPassword.Request(model);

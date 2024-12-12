@@ -80,7 +80,7 @@ public class AcceptFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Friend).MapPut("{id}",
+        app.MapGroup(AppConstants.ApiGroup_Friend).MapPut("{id}",
         async (ISender sender, string id) =>
         {
             var query = new AcceptFriend.Request(id);

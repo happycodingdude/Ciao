@@ -7,21 +7,21 @@ namespace Chat.API.MinimalAPI;
 // {
 //     public static void ConfigureFriendAPI(WebApplication app)
 //     {
-//         app.MapGroup(Constants.ApiRoute_Friend).MapGet("/{id}",
+//         app.MapGroup(Constants.ApiGroup_Friend).MapGet("/{id}",
 //          (IFriendService friendService, Guid id) =>
 //         {
 //             var response = friendService.GetById(id);
 //             return Results.Ok(response);
 //         }).RequireAuthorization("AllUser");
 
-//         app.MapGroup(Constants.ApiRoute_Friend).MapPost("/",
+//         app.MapGroup(Constants.ApiGroup_Friend).MapPost("/",
 //         async (IFriendService friendService, FriendDto model, [FromQuery] bool includeNotify = false) =>
 //         {
 //             var response = await friendService.AddAsync(model, includeNotify);
 //             return Results.Ok(response);
 //         }).RequireAuthorization("AllUser");
 
-//         app.MapGroup(Constants.ApiRoute_Friend).MapPatch("/{id}",
+//         app.MapGroup(Constants.ApiGroup_Friend).MapPatch("/{id}",
 //         async (IFriendService friendService, Guid id, JsonElement jsonElement, [FromQuery] bool includeNotify = false) =>
 //         {
 //             var json = jsonElement.GetRawText();
@@ -30,7 +30,7 @@ namespace Chat.API.MinimalAPI;
 //             return Results.Ok(response);
 //         }).RequireAuthorization("AllUser");
 
-//         app.MapGroup(Constants.ApiRoute_Friend).MapDelete("/{id}",
+//         app.MapGroup(Constants.ApiGroup_Friend).MapDelete("/{id}",
 //         async (IFriendService friendService, Guid id, [FromQuery] bool includeNotify = false) =>
 //         {
 //             await friendService.DeleteAsync(id, includeNotify);

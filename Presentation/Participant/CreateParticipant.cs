@@ -94,7 +94,7 @@ public class CreateParticipantEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPost("/{conversationId}/participants",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/participants",
         async (ISender sender, string conversationId, List<CreateConversation_Participant> model, bool includeNotify = false) =>
         {
             var query = new CreateParticipant.Request(conversationId, model);

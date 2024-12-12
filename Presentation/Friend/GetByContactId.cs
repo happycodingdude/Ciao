@@ -38,7 +38,7 @@ public class GetByContactIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("/{contactId}/friends",
+        app.MapGroup(AppConstants.ApiGroup_Contact).MapGet("/{contactId}/friends",
         async (ISender sender, string contactId) =>
         {
             var query = new GetByContactId.Request(contactId);

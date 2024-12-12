@@ -24,7 +24,7 @@ public class GetListFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Friend).MapGet("",
+        app.MapGroup(AppConstants.ApiGroup_Friend).MapGet("",
         async (ISender sender) =>
         {
             var query = new GetListFriend.Request();

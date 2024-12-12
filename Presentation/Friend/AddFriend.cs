@@ -129,7 +129,7 @@ public class AddFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapPost("{contactId}/friends",
+        app.MapGroup(AppConstants.ApiGroup_Contact).MapPost("{contactId}/friends",
         async (ISender sender, string contactId) =>
         {
             var query = new AddFriend.Request(contactId);

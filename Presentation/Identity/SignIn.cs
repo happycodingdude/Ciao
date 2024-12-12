@@ -121,7 +121,7 @@ public class SignInEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Identity).MapPost("/signin",
+        app.MapGroup(AppConstants.ApiGroup_Identity).MapPost("/signin",
         async (ISender sender, IdentityRequest model) =>
         {
             var request = new SignIn.Request(model);

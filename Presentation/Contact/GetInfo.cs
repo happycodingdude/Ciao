@@ -24,7 +24,7 @@ public class GetInfoEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("/info",
+        app.MapGroup(AppConstants.ApiGroup_Contact).MapGet("/info",
         async (ISender sender) =>
         {
             var query = new GetInfo.Request();

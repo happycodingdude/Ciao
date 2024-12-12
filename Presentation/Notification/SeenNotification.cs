@@ -54,7 +54,7 @@ public class SeenNotificationEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Notification).MapPut("/{id}",
+        app.MapGroup(AppConstants.ApiGroup_Notification).MapPut("/{id}",
         async (string id, ISender sender) =>
         {
             var query = new SeenNotification.Request(id);

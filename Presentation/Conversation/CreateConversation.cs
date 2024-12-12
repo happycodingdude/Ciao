@@ -149,7 +149,7 @@ public class CreateConversationEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPost("",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("",
         async (ISender sender, CreateConversationRequest model) =>
         {
             var query = new CreateConversation.Request(model);

@@ -35,7 +35,7 @@ public class UpdateParticipantEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("/{conversationId}/participants",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPut("/{conversationId}/participants",
         async (ISender sender, string conversationId, Participant model) =>
         {
             var query = new UpdateParticipant.Request(conversationId, model);

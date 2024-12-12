@@ -116,7 +116,7 @@ public class SendMessageEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPost("/{conversationId}/messages",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/messages",
         async (ISender sender, string conversationId, Message model) =>
         {
             // model.ConversationId = conversationId;

@@ -36,7 +36,7 @@ public class DeleteParticipantEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapDelete("/{conversationId}/participants",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapDelete("/{conversationId}/participants",
         async (ISender sender, string conversationId) =>
         {
             var query = new DeleteParticipant.Request(conversationId);

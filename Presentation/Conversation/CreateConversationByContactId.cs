@@ -107,7 +107,7 @@ public class CreateConversationByContactIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapPost("/{contactId}/conversations",
+        app.MapGroup(AppConstants.ApiGroup_Contact).MapPost("/{contactId}/conversations",
         async (ISender sender, string contactId, string message) =>
         {
             var query = new CreateConversationByContactId.Request(contactId, message);

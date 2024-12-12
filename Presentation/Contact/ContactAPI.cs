@@ -4,7 +4,7 @@ public partial class MinimalAPI
 {
     public static void ConfigureContactAPI(WebApplication app)
     {
-        // app.MapGroup(Constants.ApiRoute_Contact).MapGet(Constants.ApiEndpoint_Info,
+        // app.MapGroup(Constants.ApiGroup_Contact).MapGet(Constants.ApiEndpoint_Info,
         // (IContactService contactService, HttpContext context) =>
         // {
         //     var userId = Guid.Parse(context.Session.GetString("UserId"));
@@ -12,7 +12,7 @@ public partial class MinimalAPI
         //     return Results.Ok(response);
         // }).RequireAuthorization("AllUser");
 
-        // app.MapGroup(Constants.ApiRoute_Contact).MapGet("",
+        // app.MapGroup(Constants.ApiGroup_Contact).MapGet("",
         // (HttpContext context, IMapper mapper, IUnitOfWork unitOfWork, IFriendService friendService, [FromQuery] string name) =>
         // {
         //     if (string.IsNullOrEmpty(name)) return Results.Ok(Enumerable.Empty<Contact>());
@@ -28,7 +28,7 @@ public partial class MinimalAPI
         //     return Results.Ok(dtos);
         // }).RequireAuthorization("AllUser");
 
-        // app.MapGroup(Constants.ApiRoute_Contact).MapGet("/{id}",
+        // app.MapGroup(Constants.ApiGroup_Contact).MapGet("/{id}",
         // (IContactService contactService, IFriendService friendService, HttpContext context
         // , Guid id, [FromQuery] bool includeFriend = false) =>
         // {
@@ -43,21 +43,21 @@ public partial class MinimalAPI
         //     return Results.Ok(response);
         // }).RequireAuthorization("AllUser");
 
-        // app.MapGroup(Constants.ApiRoute_Contact).MapGet("/{id}/friends/{friendId}",
+        // app.MapGroup(Constants.ApiGroup_Contact).MapGet("/{id}/friends/{friendId}",
         // (IFriendService friendService, Guid id, Guid friendId) =>
         // {
         //     var response = friendService.GetByTwoContactId(id, friendId);
         //     return Results.Ok(response);
         // }).RequireAuthorization("AllUser");
 
-        // app.MapGroup(Constants.ApiRoute_Contact).MapGet("/{id}/friends",
+        // app.MapGroup(Constants.ApiGroup_Contact).MapGet("/{id}/friends",
         // (IFriendService friendService, Guid id) =>
         // {
         //     var response = friendService.GetAllFriendByContactId(id);
         //     return Results.Ok(response);
         // }).RequireAuthorization("AllUser");
 
-        // app.MapGroup(Constants.ApiRoute_Contact).MapPatch("/{id}",
+        // app.MapGroup(Constants.ApiGroup_Contact).MapPatch("/{id}",
         // async (IContactService contactService, Guid id, JsonElement jsonElement) =>
         // {
         //     var json = jsonElement.GetRawText();
@@ -66,7 +66,7 @@ public partial class MinimalAPI
         //     return Results.Ok(response);
         // }).RequireAuthorization("AllUser");
 
-        // app.MapGroup(Constants.ApiRoute_Contact).MapPost("",
+        // app.MapGroup(Constants.ApiGroup_Contact).MapPost("",
         // async (IMapper mapper, IUnitOfWork unitOfWork, ContactDto model) =>
         // {
         //     var entity = mapper.Map<ContactDto, Contact>(model);

@@ -1,10 +1,10 @@
 namespace Application.DTOs;
 
-public class ScheduleContactDto : BaseModel
+public class ScheduleContactDto : MongoBaseModel
 {
-    public bool? IsDeleted { get; set; }
-    public Guid ScheduleId { get; set; }
-    public Guid ContactId { get; set; }
-    public Schedule? Schedule { get; set; }
-    public Contact? Contact { get; set; }
+    public bool IsDeleted { get; set; }
+    public string ScheduleId { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+    public Schedule Schedule { get; set; } = null!;
+    public Contact Contact { get; set; } = null!;
 }

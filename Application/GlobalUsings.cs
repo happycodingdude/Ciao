@@ -1,12 +1,10 @@
-global using Domain.Features;
-global using Microsoft.AspNetCore.JsonPatch;
-global using Shared.Configurations;
 global using Application.DTOs;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Identity;
 global using MongoDB.Driver;
 global using System.Reflection;
-global using MongoDB.Bson;
 global using Application.Specifications;
 global using Shared.Constants;
 global using System.Text.Json.Serialization;
+global using Domain.Base;
+global using Domain.Entities;

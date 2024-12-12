@@ -6,11 +6,12 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
 
     public FriendRepository(MongoDbContext context,
         IUnitOfWork uow,
-        IHttpContextAccessor httpContextAccessor,
-        IService<IContactRepository> contactService)
-        : base(context, uow, httpContextAccessor)
+        // IService<IContactRepository> contactService),
+        IContactRepository contactRepository)
+        : base(context, uow)
     {
-        _contactRepository = contactService.Get();
+        // _contactRepository = contactService.Get();
+        _contactRepository = contactRepository;
     }
 
     public async Task<string> GetFriendStatusAsync(Friend friend)

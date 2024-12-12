@@ -24,7 +24,7 @@ public class GetConversationsWithUnseenMesagesEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("",
         async (ISender sender, int page = AppConstants.DefaultPage) =>
         {
             var query = new GetConversationsWithUnseenMesages.Request(page);

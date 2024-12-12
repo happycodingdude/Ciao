@@ -3,9 +3,9 @@ namespace Application.DTOs;
 public class CreateConversationRequest
 {
     public bool IsGroup { get; set; }
-    public string Title { get; set; }
-    public string Avatar { get; set; }
-    public ICollection<CreateConversation_Participant> Participants { get; set; }
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public ICollection<CreateConversation_Participant> Participants { get; set; } = null!;
 }
 
 public class CreateConversation_Participant
@@ -13,49 +13,29 @@ public class CreateConversation_Participant
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
-    public string ContactId { get; set; }
-}
-
-public class ConversationToNotify
-{
-    public Guid Id { get; set; }
-    public string Title { get; set; }
-    public string Avatar { get; set; }
-    public bool IsGroup { get; set; }
-}
-
-public class GetConversationsWithUnseenMesagesResponse
-{
-    public List<ConversationWithTotalUnseen> Conversations { get; set; } = new List<ConversationWithTotalUnseen>();
-
-    public GetConversationsWithUnseenMesagesResponse() { }
-
-    public GetConversationsWithUnseenMesagesResponse(List<ConversationWithTotalUnseen> conversations)
-    {
-        Conversations = conversations;
-    }
+    public string ContactId { get; set; } = null!;
 }
 
 public class ConversationWithTotalUnseen : MongoBaseModel
 {
-    public string Title { get; set; }
-    public string Avatar { get; set; }
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
-    public ICollection<ParticipantWithFriendRequest>? Participants { get; set; }
+    public ICollection<ParticipantWithFriendRequest> Participants { get; set; } = null!;
     public int UnSeenMessages { get; set; }
-    public string LastMessageId { get; set; }
-    public string LastMessage { get; set; }
+    public string LastMessageId { get; set; } = null!;
+    public string LastMessage { get; set; } = null!;
     public DateTime? LastMessageTime { get; set; }
-    public string LastMessageContact { get; set; }
+    public string LastMessageContact { get; set; } = null!;
     public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
 }
 
 public class ConversationWithNextPage : MongoBaseModel
 {
-    public string Title { get; set; }
-    public string Avatar { get; set; }
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
     public ICollection<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
@@ -66,10 +46,10 @@ public class ConversationWithNextPage : MongoBaseModel
 
 public class ConversationWithMessages : ConversationWithNextPage
 {
-    public ICollection<Participant>? Participants { get; set; } = new List<Participant>();
+    public ICollection<Participant> Participants { get; set; } = new List<Participant>();
 }
 
 public class ConversationWithMessagesAndFriendRequest : ConversationWithNextPage
 {
-    public ICollection<ParticipantWithFriendRequest>? Participants { get; set; } = new List<ParticipantWithFriendRequest>();
+    public ICollection<ParticipantWithFriendRequest> Participants { get; set; } = new List<ParticipantWithFriendRequest>();
 }

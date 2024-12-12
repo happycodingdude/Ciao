@@ -3,7 +3,7 @@ namespace Infrastructure.Caching;
 /// <summary>
 /// Description: Lớp này triển khai các hàm đã khai báo ở IRedisCaching
 /// </summary>
-public class Redis(IDistributedCache distributedCache) : IRedisCaching
+public class Redis(IDistributedCache distributedCache, ISubscriber publisher) : IRedisCaching
 {
     public async Task<T> GetAsync<T>(string key, string hashtag, CancellationToken cancellationToken)
     {
@@ -23,4 +23,6 @@ public class Redis(IDistributedCache distributedCache) : IRedisCaching
         var cachedKey = hashtag != null ? $"{{{hashtag}}}-{key}" : key;
         await distributedCache.RemoveAsync(cachedKey);
     }
+
+    public async Task PublishAsync(string channel, object value) => await publisher.PublishAsync(channel, JsonConvert.SerializeObject(value));
 }

@@ -31,7 +31,7 @@ public class GetByConversationIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("/{id}/participants",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}/participants",
         async (ISender sender, string id) =>
         {
             var query = new GetByConversationId.Request(id);

@@ -3,54 +3,13 @@ namespace Infrastructure.Repositories;
 public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseModel
 {
     internal protected IMongoCollection<T> _collection;
-    MongoDbContext _context;
     IUnitOfWork _uow;
 
-    // public MongoBaseRepository(MongoDbContext context, IHttpContextAccessor httpContextAccessor)
-    // {
-    //     _context = context;
-    //     var collection = httpContextAccessor.HttpContext?.Items["UserId"]?.ToString();
-    //     if (collection is not null)
-    //         UseDatabase(typeof(T).Name, collection);
-    //     // UseDatabase(typeof(T).Name, collection);
-    // }
-
-    public MongoBaseRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor)
+    public MongoBaseRepository(MongoDbContext context, IUnitOfWork uow)
     {
-        _context = context;
         _uow = uow;
-        // var userId = httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(q => q.Type == "UserId").Value;
-        // if (userId is not null)
-        // {
-        //     var collection = _context.Client.GetDatabase(AppConstants.WarehouseDB).GetCollection<Contact>(nameof(Contact));
-        //     var contact = collection.Find(q => q.Id == userId).SingleOrDefault();
-        //     UseCollection(contact.Id);
-        // }
-
-        UseDatabase(AppConstants.WarehouseDB, typeof(T).Name);
-        // UseDatabase(typeof(T).Name, collection);
+        _collection = context.Client.GetDatabase(AppConstants.WarehouseDB).GetCollection<T>(typeof(T).Name);
     }
-
-    #region Init Database
-    // public void UseDatabase(string collection)
-    // {
-    //     _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
-    // }
-
-    void UseDatabase(string dbName, string collection)
-    {
-        Console.WriteLine($"dbName => {dbName} and collection => {collection}");
-        _collection = _context.Client.GetDatabase(dbName).GetCollection<T>(collection);
-    }
-    // public void UseCollection(string collection)
-    // {
-    //     _collection = _context.Client.GetDatabase(typeof(T).Name).GetCollection<T>(collection);
-    // }
-
-    // public void UseUOW(IUnitOfWork uow) => _uow = uow;
-
-    //internal protected void UserWarehouseDB() => UseDatabase(AppConstants.WarehouseDB, typeof(T).Name);
-    #endregion
 
     #region CRUD
     public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await _collection.Find(filter).ToListAsync();

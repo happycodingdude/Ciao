@@ -121,7 +121,7 @@
 // {
 //     public void AddRoutes(IEndpointRouteBuilder app)
 //     {
-//         app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("{conversationId}/messages/{id}/react",
+//         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPut("{conversationId}/messages/{id}/react",
 //         async (ISender sender, string conversationId, string id, ReactMessageRequest model) =>
 //         {
 //             var query = new ReactMessage.Request(conversationId, id, model);

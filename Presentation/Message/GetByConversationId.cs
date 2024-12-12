@@ -87,7 +87,7 @@
 // {
 //     public void AddRoutes(IEndpointRouteBuilder app)
 //     {
-//         app.MapGroup(AppConstants.ApiRoute_Conversation).MapGet("/{conversationId}/messages",
+//         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{conversationId}/messages",
 //         async (ISender sender, string conversationId, int page = 0, int limit = 0) =>
 //         {
 //             var query = new GetByConversationId.Request(conversationId, page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);

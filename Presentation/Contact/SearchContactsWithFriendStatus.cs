@@ -24,7 +24,7 @@ public class SearchContactsWithFriendStatusEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapGet("",
+        app.MapGroup(AppConstants.ApiGroup_Contact).MapGet("",
         async (ISender sender, string name) =>
         {
             var query = new SearchContactsWithFriendStatus.Request(name);

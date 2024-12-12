@@ -74,7 +74,7 @@ public class SignUpEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Identity).MapPost("/signup",
+        app.MapGroup(AppConstants.ApiGroup_Identity).MapPost("/signup",
         async (ISender sender, IdentityRequest model) =>
         {
             var request = new SignUp.Request(model);

@@ -62,7 +62,7 @@ public class UpdateContactEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Contact).MapPut("",
+        app.MapGroup(AppConstants.ApiGroup_Contact).MapPut("",
         async (ISender sender, Contact model) =>
         {
             var query = new UpdateContact.Request(model);

@@ -11,6 +11,5 @@ public class PresentationServiceInstaller : IServiceInstaller
         services.AddCarter();
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Presentation.AssemblyReference.Assembly));
         services.AddValidatorsFromAssembly(Presentation.AssemblyReference.Assembly, ServiceLifetime.Scoped);
-        // services.AddScoped<IValidator<AcceptFriend.Request>, AcceptFriend.Validator>();
     }
 }

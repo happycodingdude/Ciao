@@ -60,7 +60,7 @@ public class GetByConversationIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Notification).MapGet("",
+        app.MapGroup(AppConstants.ApiGroup_Notification).MapGet("",
         async (HttpContext context, ISender sender, int page = 0, int limit = 0) =>
         {
             var query = new GetByConversationId.Request(page != 0 ? page : AppConstants.DefaultPage, limit != 0 ? limit : AppConstants.DefaultLimit);

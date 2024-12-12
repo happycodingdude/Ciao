@@ -65,7 +65,7 @@ public class SignOutEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Identity).MapGet("/signout",
+        app.MapGroup(AppConstants.ApiGroup_Identity).MapGet("/signout",
         async (ISender sender) =>
         {
             var request = new SignOut.Request();

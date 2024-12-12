@@ -12,7 +12,6 @@ public class InvokeResult
 public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposable
 {
     IClientSessionHandle session;
-    // private List<Func<IClientSessionHandle, Task<object>>> operations = new List<Func<IClientSessionHandle, Task<object>>>();
     Dictionary<Guid, Func<IClientSessionHandle, Task<object>>> operations = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
     Dictionary<Guid, Func<IClientSessionHandle, Task<object>>> fallbacks = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
 
@@ -23,13 +22,11 @@ public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposabl
 
     public void AddOperation<TResult>(Guid key, Func<IClientSessionHandle, Task<TResult>> operation) where TResult : class
     {
-        // Console.WriteLine($"operation key => {key}");
         operations.Add(key, async (session) => await operation(session));
     }
 
     public void AddFallback<TResult>(Guid key, Func<IClientSessionHandle, Task<TResult>> fallback) where TResult : class
     {
-        // Console.WriteLine($"fallback key => {key}");
         fallbacks.Add(key, async (session) => await fallback(session));
     }
 

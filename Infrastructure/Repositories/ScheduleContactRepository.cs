@@ -1,5 +1,3 @@
 namespace Infrastructure.Repositories;
 
-public class ScheduleContactRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor)
-    : MongoBaseRepository<ScheduleContact>(context, uow, httpContextAccessor), IScheduleContactRepository
-{ }
+public class ScheduleContactRepository(MongoDbContext context, IUnitOfWork uow) : MongoBaseRepository<ScheduleContact>(context, uow), IScheduleContactRepository { }

@@ -31,8 +31,6 @@ public class FirebaseFunction : IFirebaseFunction
                 }
             }
         };
-        // Console.WriteLine($"message => {JsonConvert.SerializeObject(message)}");
         var response = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message);
-        Console.WriteLine($"response => {JsonConvert.SerializeObject(response)}");
     }
 }

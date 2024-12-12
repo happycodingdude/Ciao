@@ -77,7 +77,7 @@ public class CancelFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Friend).MapDelete("{id}",
+        app.MapGroup(AppConstants.ApiGroup_Friend).MapDelete("{id}",
         async (ISender sender, string id) =>
         {
             var query = new CancelFriend.Request(id);

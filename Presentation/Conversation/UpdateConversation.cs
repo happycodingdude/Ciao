@@ -55,7 +55,7 @@ public class UpdateConversationEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Conversation).MapPut("/{id}",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPut("/{id}",
         async (ISender sender, string id, Conversation model) =>
         {
             var query = new UpdateConversation.Request(id, model);

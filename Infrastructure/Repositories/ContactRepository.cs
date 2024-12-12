@@ -4,11 +4,12 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
 {
     readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ContactRepository(MongoDbContext context, IUnitOfWork uow, IHttpContextAccessor httpContextAccessor)
-        : base(context, uow, httpContextAccessor)
+    public ContactRepository(MongoDbContext context,
+        IUnitOfWork uow,
+        IHttpContextAccessor httpContextAccessor)
+        : base(context, uow)
     {
         _httpContextAccessor = httpContextAccessor;
-        // UserWarehouseDB();
     }
 
     public async Task<Contact> GetByUsername(string username)
@@ -97,23 +98,6 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
                                 // {"else","xxx"}
                                 {"else", new BsonDocument("$cond", new BsonDocument
                                     {
-                                        // {"if", new BsonDocument("$eq", new BsonArray
-                                        //     {
-                                        //         new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
-                                        //         {
-                                        //             {"input","$friends"},
-                                        //             {"as","friend"},
-                                        //             {
-                                        //                 "cond", new BsonDocument("$eq", new BsonArray
-                                        //                 {
-                                        //                     "$$friend.FromContact.ContactId",
-                                        //                     user.Id
-                                        //                 })
-                                        //             }
-                                        //         })),
-                                        //         1
-                                        //     })
-                                        // },
                                         {"if", new BsonDocument("$eq", new BsonArray
                                             {
                                                 new BsonDocument("$first", "$friends.FromContact.ContactId"),

@@ -36,7 +36,7 @@ public static class SeenAllNotification
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGroup(AppConstants.ApiRoute_Notification).MapPut("",
+            app.MapGroup(AppConstants.ApiGroup_Notification).MapPut("",
             async (ISender sender) =>
             {
                 var query = new SeenAllNotification.Request();

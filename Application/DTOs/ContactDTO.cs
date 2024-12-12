@@ -1,20 +1,14 @@
 namespace Application.DTOs;
 
-public class ContactDto : Contact
+public class ContactDto : MongoBaseModel
 {
-    public string FriendId { get; set; }
-    public string FriendStatus { get; set; }
-}
-
-public class ContactNoReference : BaseModel
-{
-    public string? Name { get; set; }
-    [Newtonsoft.Json.JsonIgnore]
-    public string? Username { get; set; }
-    [Newtonsoft.Json.JsonIgnore]
-    public string? Password { get; set; }
-    public string? Avatar { get; set; }
+    public string Username { get; set; } = null!;
+    public string Password { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public string Bio { get; set; } = null!;
     public bool IsOnline { get; set; }
-    [Newtonsoft.Json.JsonIgnore]
     public DateTime? LastLogout { get; set; }
+    public string FriendId { get; set; } = null!;
+    public string FriendStatus { get; set; } = null!;
 }

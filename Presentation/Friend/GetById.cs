@@ -52,7 +52,7 @@ public class GetByIdEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiRoute_Friend).MapGet("/{id}",
+        app.MapGroup(AppConstants.ApiGroup_Friend).MapGet("/{id}",
         async (ISender sender, string id) =>
         {
             var query = new GetById.Request(id);

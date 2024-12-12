@@ -13,9 +13,7 @@ public class PagingParam
         nextSkip = AppConstants.DefaultLimit * page;
     }
 
-    public int Limit { get { return limit; } }
-
-    public int Skip { get { return skip; } }
-
-    public int NextSkip { get { return nextSkip; } }
+    public int Limit => limit;
+    public int Skip => skip;
+    public int NextSkip => nextSkip;
 }
