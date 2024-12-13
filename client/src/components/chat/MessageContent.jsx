@@ -265,7 +265,7 @@ const MessageContent = (props) => {
               <ImageWithLightBox
                 src={item.mediaUrl}
                 title={item.mediaName?.split(".")[0]}
-                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "!w-[30%]"} ${pending ? "opacity-50" : ""} cursor-pointer `}
+                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} ${pending ? "opacity-50" : ""} cursor-pointer `}
                 slides={message.attachments.map((item) => ({
                   src:
                     item.type === "image"

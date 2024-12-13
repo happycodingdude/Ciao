@@ -194,7 +194,6 @@ const ListchatContent = (props) => {
                       )?.contact.avatar
                 }
                 className={`pointer-events-none aspect-square laptop:w-[5rem]`}
-                spinnerClassName="laptop:bg-[size:2rem]"
                 imageClassName="bg-[size:160%]"
               />
             ) : (
@@ -207,7 +206,6 @@ const ListchatContent = (props) => {
                       )?.contact.avatar
                 }
                 className={`pointer-events-none aspect-square laptop:w-[5rem]`}
-                spinnerClassName="laptop:bg-[size:2rem]"
                 imageClassName="bg-[size:160%]"
               />
             )}

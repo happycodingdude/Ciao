@@ -1,12 +1,10 @@
 import React from "react";
 
 const LocalLoading = (props) => {
-  const { sm, zindex } = props;
+  const { className } = props;
   return (
     <div
-      className={`loading absolute flex h-full w-full items-center justify-center bg-[var(--loading-color)]
-        ${sm ? "p-[1rem]" : ""}
-        ${zindex ?? "z-10"}`}
+      className={`${className} loading absolute z-[10] flex h-full w-full items-center justify-center bg-[var(--loading-color)] transition-opacity duration-[2000ms]`}
     >
       <div className="loader">
         <svg class="circular" viewBox="25 25 50 50">

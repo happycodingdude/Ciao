@@ -6,9 +6,9 @@ const ImageWithLightBox = (props) => {
   console.log("ImageWithLightBox calling...");
   const {
     src,
-    title,
+    // title,
     className,
-    spinnerClassName,
+    // spinnerClassName,
     imageClassName,
     roundedClassName,
     slides,
@@ -38,7 +38,9 @@ const ImageWithLightBox = (props) => {
         className={`${spinnerClassName} ${roundedClassName ?? "rounded-2xl"} spinner-image absolute
         h-1/2 w-1/2 bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}
       ></div> */}
-      <LocalLoading sm />
+      <LocalLoading
+        className={`${roundedClassName ?? "rounded-2xl"} p-[1rem]`}
+      />
 
       <div
         // className={`${className} bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}

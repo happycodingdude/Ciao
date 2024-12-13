@@ -19,7 +19,7 @@ const ChatboxContainer = (props) => {
   return (
     <div className="relative flex grow">
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
-      {loading ? <LocalLoading zindex="z-[11]" /> : ""}
+      {loading ? <LocalLoading className="!z-[11]" /> : ""}
       {/* <LocalLoading  /> */}
       {messages?.messages || conversations?.createGroupChat ? (
         <>
