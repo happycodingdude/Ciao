@@ -1,27 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLoading } from "../../context/LoadingContext";
-import { useConversation, useMessage } from "../../hook/CustomHooks";
+import {
+  useAttachment,
+  useConversation,
+  useMessage,
+} from "../../hook/CustomHooks";
 import LocalLoading from "../common/LocalLoading";
 import Attachment from "./Attachment";
 import Chatbox from "./Chatbox";
 import Information from "./Information";
 
-const ChatboxContainer = (props) => {
+const ChatboxContainer = () => {
   console.log("ChatboxContainer calling");
-  const { data: messages } = useMessage();
-  const [toggle, setToggle] = useState("information");
+  const {
+    data: messages,
+    isLoading: isLoadingMessage,
+    isRefetching: isRefetchingMessage,
+  } = useMessage();
+  const {
+    isLoading: isLoadingAttachment,
+    isRefetching: isRefetchingAttachment,
+  } = useAttachment();
   const [showInfo, setShowInfo] = useState(true);
-
-  const { loading } = useLoading();
-
   const { data: conversations } = useConversation();
+
+  const [toggle, setToggle] = useState("information");
+  const { loading, setLoading } = useLoading();
+
+  const isLoading = isLoadingMessage || isLoadingAttachment;
+  const isRefetching = isRefetchingMessage || isRefetchingAttachment;
+
+  useEffect(() => {
+    if (!isLoading && !isRefetching) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    }
+  }, [isLoading, isRefetching]);
 
   return (
     <div className="relative flex grow">
-      {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
-      {loading ? <LocalLoading className="!z-[11]" /> : ""}
-      {/* <LocalLoading  /> */}
-      {messages?.messages || conversations?.createGroupChat ? (
+      {loading ? (
+        <LocalLoading className="!z-[11]" />
+      ) : messages?.messages || conversations?.createGroupChat ? (
         <>
           <Chatbox toggleInformation={setShowInfo} showInfo={showInfo} />
           <div

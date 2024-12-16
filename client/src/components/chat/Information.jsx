@@ -55,13 +55,13 @@ const Information = (props) => {
     }
   }, [attachments]);
 
-  useEffect(() => {
-    if (!isRefetching) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 100);
-    }
-  }, [isRefetching]);
+  // useEffect(() => {
+  //   if (!isRefetching) {
+  //     setTimeout(() => {
+  //       setLoading(false);
+  //     }, 100);
+  //   }
+  // }, [isRefetching]);
 
   useEffect(() => {
     blurImage(".display-attachment-container");
@@ -204,7 +204,7 @@ const Information = (props) => {
               <p className="text-base">Attachments</p>
               <div
                 onClick={toggle}
-                className="cursor-pointer text-[var(--main-color)] hover:text-[var(--main-color-light)]"
+                className="cursor-pointer text-[var(--main-color-bold)] hover:text-[var(--main-color)]"
               >
                 See all
               </div>

@@ -2,16 +2,9 @@ import React, { useRef } from "react";
 import { useConversation } from "../../hook/CustomHooks";
 import LocalLoading from "../common/LocalLoading";
 import ListchatContent from "./ListchatContent";
+import ListChatFilter from "./ListChatFilter";
 
-// const ListchatLazy = React.lazy(() => {
-//   return new Promise((resolve) => setTimeout(resolve, 0)).then(
-//     () => import("./ListchatContent"),
-//   );
-// });
-
-const ListChat = (props) => {
-  const { search } = props;
-
+const ListChat = () => {
   const { isLoading, isRefetching } = useConversation();
 
   const refChatsScroll = useRef();
@@ -23,9 +16,8 @@ const ListChat = (props) => {
   return (
     <div className="relative grow">
       {isLoading || isRefetching ? <LocalLoading /> : ""}
-      {/* <Suspense fallback={<LocalLoading />}> */}
-      <ListchatContent search={search} />
-      {/* </Suspense> */}
+      <ListChatFilter />
+      <ListchatContent />
       <div
         ref={refChatsScroll}
         className="mx-auto my-[.5rem] hidden items-center text-center"

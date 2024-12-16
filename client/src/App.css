@@ -12,13 +12,13 @@
 }
 
 [data-theme="light"] {
-  --main-color-extrabold: #c3c7f3;
-  --main-color-bold: #c8a8e9;
-  --main-color: #e3aadd;
+  --main-color-extrabold: #cca1ba;
+  --main-color-bold: #e6acce;
+  --main-color: #ffb7e1;
   /* --main-color-light: #f5bcba; */
-  --main-color-light: #f5bcba;
-  --main-color-thin: #d3dcdc;
-  --main-color-extrathin: #f4e7fb;
+  --main-color-light: #ffc5e7;
+  --main-color-thin: #ffd4ed;
+  --main-color-extrathin: #ffe2f3;
   --sub-color: #ffffff;
 
   --bg-color: #ffffff;
@@ -41,6 +41,7 @@
   --portal-container-bg-color: #e8e8e8;
   --search-bg-color: #f3f4f6;
   --placehoder-color: #eeeeee;
+  --loading-bg-color: #808080ca;
 }
 
 [data-theme="dark"] {

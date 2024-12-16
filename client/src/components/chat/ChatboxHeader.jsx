@@ -94,8 +94,8 @@ const ChatboxHeader = (props) => {
           ""
         )}
         <div
-          className={`flex justify-end gap-[1rem] rounded-full
-      ${showInfo ? "text-[var(--main-color)]" : ""}`}
+          className={`flex justify-end gap-[1rem] rounded-full 
+            ${showInfo ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : ""}`}
         >
           <InfoCircleOutlined
             onClick={() => toggleInformation((current) => !current)}

@@ -15,5 +15,6 @@ export const getConversation = async (page) => {
   ).data;
   return {
     conversations: data,
+    filterConversations: data,
   };
 };

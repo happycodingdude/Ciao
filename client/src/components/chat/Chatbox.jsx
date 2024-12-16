@@ -50,7 +50,6 @@ const Chatbox = (props) => {
   } = useMessage(conversations?.selected?.id, page);
 
   useEffect(() => {
-    // blurImage(".chatbox-content");
     blurImage(".chatbox-content");
     refChatContent.current.classList.remove("scroll-smooth");
     // setFiles([]);

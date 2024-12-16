@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
+import { useListchatFilter } from "../../context/ListchatFilterContext";
 import { useLoading } from "../../context/LoadingContext";
 import {
   useAttachment,
@@ -32,9 +33,9 @@ moment.locale("en", {
   },
 });
 
-const ListchatContent = (props) => {
+const ListchatContent = () => {
   console.log("ListChat calling");
-  const { search } = props;
+  const { listChat } = useListchatFilter();
 
   const queryClient = useQueryClient();
 
@@ -50,35 +51,17 @@ const ListchatContent = (props) => {
   const { refetch: refetchMessage } = useMessage(selected, 1);
   const { refetch: refetchAttachments } = useAttachment(selected);
 
-  const refAllConversation = useRef();
-
   useEffect(() => {
-    if (!refAllConversation.current) return;
-
-    queryClient.setQueryData(["conversation"], (oldData) => {
-      return {
-        ...oldData,
-        conversations:
-          search === ""
-            ? refAllConversation.current
-            : refAllConversation.current.filter((conv) =>
-                conv.isGroup
-                  ? conv.title.toLowerCase().includes(search.toLowerCase())
-                  : conv.participants
-                      .find((item) => item.contact.id !== info.id)
-                      ?.contact.name.toLowerCase()
-                      .includes(search.toLowerCase()),
-              ),
-      };
-    });
-  }, [search]);
-
-  useEffect(() => {
+    if (!data?.filterConversations) return;
     blurImage(".list-chat");
+
     // Kiểm tra để khi tìm kiếm sẽ không thay đổi danh sách ban đầu
-    if (!refAllConversation.current)
-      refAllConversation.current = data?.conversations;
-  }, [data?.conversations]);
+    // setListChat((current) => {
+    //   if (current.length === 0) return data.conversations;
+    //   return current;
+    // });
+    // if (listChat.current.length === 0) listChat.current = data.conversations;
+  }, [data?.filterConversations]);
 
   const clickConversation = (id) => {
     setSelected(id);
@@ -108,8 +91,8 @@ const ListchatContent = (props) => {
       return;
     }
 
-    scrollToCenterOfSelected();
     setLoading(true);
+    scrollToCenterOfSelected();
     queryClient.setQueryData(["conversation"], (oldData) => {
       var newConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== selected) return conversation;
@@ -119,29 +102,32 @@ const ListchatContent = (props) => {
         };
       });
       return {
+        ...oldData,
         selected: oldData.conversations.find((item) => item.id === selected),
         conversations: newConversations,
       };
     });
+
     refetchMessage();
     refetchAttachments();
   }, [selected]);
 
   useEffect(() => {
-    if (!data?.selected || data?.selected.id === selected) return;
+    if (!data || !data?.selected || data?.selected.id === selected) return;
 
-    if (data?.quickChatAdd) {
-      // setSelected(undefined);
+    if (data.quickChatAdd) {
+      setSelected(undefined);
       return;
     }
 
-    if (data?.clickAndAddMessage) {
+    if (data.clickAndAddMessage) {
       clickAndAddMessage();
       return;
     }
 
     clickConversation(data.selected.id);
-    refAllConversation.current = data?.conversations;
+    // listChat.current = data.conversations;
+    // setListChat(data.conversations);
   }, [data]);
 
   const clickAndAddMessage = () => {
@@ -161,7 +147,7 @@ const ListchatContent = (props) => {
       ref={refChats}
       className="list-chat hide-scrollbar relative flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:h-[55rem]"
     >
-      {data?.conversations?.map((item, i) => (
+      {data?.filterConversations?.map((item) => (
         <div
           key={item.id}
           data-key={item.id}
@@ -184,7 +170,7 @@ const ListchatContent = (props) => {
           }}
         >
           <div className="relative">
-            {item.noLazy ? (
+            {data?.noLazy ? (
               <ImageWithLightBoxAndNoLazy
                 src={
                   item.isGroup
