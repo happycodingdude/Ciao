@@ -2,7 +2,7 @@ namespace Presentation.Messages;
 
 public static class SendMessage
 {
-    public record Request(string conversationId, Message model) : IRequest<Unit>;
+    public record Request(string conversationId, Message model) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -41,7 +41,7 @@ public static class SendMessage
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, Unit>
+    internal sealed class Handler : IRequestHandler<Request, string>
     {
         readonly IValidator<Request> _validator;
         readonly INotificationMethod _notificationMethod;
@@ -62,7 +62,7 @@ public static class SendMessage
             _contactRepository = contactService.Get();
         }
 
-        public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
@@ -105,7 +105,7 @@ public static class SendMessage
                 notify
             );
 
-            return Unit.Value;
+            return message.Id;
         }
     }
 }
@@ -118,8 +118,8 @@ public class SendMessageEndpoint : ICarterModule
         async (ISender sender, string conversationId, Message model) =>
         {
             var query = new SendMessage.Request(conversationId, model);
-            await sender.Send(query);
-            return Results.Ok();
+            var result = await sender.Send(query);
+            return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);
     }
 }
