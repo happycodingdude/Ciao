@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { blurImage } from "../../common/Utility";
-import { useListchatFilter } from "../../context/ListchatFilterContext";
 import { useLoading } from "../../context/LoadingContext";
 import {
   useAttachment,
@@ -35,7 +34,7 @@ moment.locale("en", {
 
 const ListchatContent = () => {
   console.log("ListChat calling");
-  const { listChat } = useListchatFilter();
+  // const { listChat } = useListchatFilter();
 
   const queryClient = useQueryClient();
 

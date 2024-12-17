@@ -15,7 +15,7 @@ const ImageWithLightBoxAndNoLazy = (props) => {
         style={{
           "--image-url": `url(${src && src !== "" ? src : "images/imagenotfound.jpg"})`,
         }}
-        className={`${className} cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[size:150%] bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
+        className={`${className} cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[size:100%] bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
         onClick={onClick ?? handleShowLightbox}
       ></div>
       <CustomLightbox

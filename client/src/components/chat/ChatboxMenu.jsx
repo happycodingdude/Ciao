@@ -20,11 +20,11 @@ const ChatboxMenu = (props) => {
       <div className="relative flex h-full items-center">
         <div
           data-show={show}
-          className="chatbox-menu-item data-[show=true]:scale-1 absolute left-0 top-[-10rem] flex w-[20rem] origin-bottom-left
-        flex-col rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-[var(--text-main-color)] transition-all
-        duration-200 data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0"
+          className="chatbox-menu-item absolute left-0 top-[-10rem] flex w-[20rem] origin-bottom-left flex-col gap-[.5rem]
+        rounded-[.7rem] bg-[var(--bg-color-light)] text-[var(--text-main-color)] transition-all duration-200
+        data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100"
         >
-          <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-thin)]">
+          <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] pl-[1rem] leading-[4rem] hover:bg-[var(--main-color-extrathin)]">
             <input
               multiple
               type="file"
@@ -35,13 +35,13 @@ const ChatboxMenu = (props) => {
             ></input>
             <label
               for="choose-image"
-              className="chatbox-menu-item cursor-pointer"
+              className="chatbox-menu-item w-full cursor-pointer"
             >
-              <i className="fa fa-image relative top-[.2rem] w-[3rem] text-lg font-light"></i>
+              <i className="fa fa-image relative top-[.2rem] w-[3rem] text-md font-light"></i>
               Upload an image
             </label>
           </div>
-          <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-thin)]">
+          <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] pl-[1rem] leading-[4rem] hover:bg-[var(--main-color-extrathin)]">
             <input
               multiple
               type="file"
@@ -52,9 +52,9 @@ const ChatboxMenu = (props) => {
             ></input>
             <label
               for="choose-file"
-              className="chatbox-menu-item cursor-pointer"
+              className="chatbox-menu-item w-full cursor-pointer"
             >
-              <i className="fa fa-file relative left-[.3rem] w-[3rem] text-lg font-light"></i>
+              <i className="fa fa-file relative left-[.3rem] w-[3rem] text-md font-light"></i>
               Upload a file
             </label>
           </div>

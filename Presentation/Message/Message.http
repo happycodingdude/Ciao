@@ -16,7 +16,7 @@ GET  {{host}}/conversations/673a0d03a419d4c14ea59b39
 POST  {{host}}/conversations/673a0d03a419d4c14ea59b39/messages
 Content-Type: application/json
 
-{"moderator":"66f270cf9423f7e5257a711e","type":"media","content":"","attachments":[{"type":"image","mediaUrl":"https://firebasestorage.googleapis.com/v0/b/myconnect-f2af8.appspot.com/o/img%2Fhanoi7.jpg?alt=media&token=5658e0df-e8fe-4d4e-b2d5-cb099c586e01","mediaName":"test.jpg","mediaSize":208973}]}
+{"moderator":"66f270cf9423f7e5257a711e","type":"text","content":"myy"}
 
 
 ###

@@ -132,10 +132,9 @@ const MessageContent = (props) => {
 
   return (
     <div
+      data-id={message.id}
       key={message.id}
-      className={`flex shrink-0 gap-[1rem]
-      ${message.contactId === info.id ? "flex-row-reverse" : ""}
-      ${mt ? "mt-auto" : ""}`}
+      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
     >
       {/* Sender avatar */}
       {message.contactId !== info.id ? (
@@ -196,13 +195,11 @@ const MessageContent = (props) => {
         ""
       )}
       <div
-        className={`relative flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)]
-        ${message.contactId === info.id ? "items-end" : "items-start"}`}
+        className={`relative flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
         <div
-          className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-thin)]
-          ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
+          className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
         >
           {message.contactId === info.id ? (
             ""
@@ -249,7 +246,33 @@ const MessageContent = (props) => {
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {message.attachments.map((item, index) => (
+            {
+              message.attachments.map((item, index) => {
+                return message.noLazy ? (
+                  <ImageWithLightBoxAndNoLazy
+                    src={item.mediaUrl}
+                    title={item.mediaName?.split(".")[0]}
+                    className={`aspect-[3/2] cursor-pointer !bg-[size:110%] 
+                      ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}
+                      ${message.loaded ? "opacity-100" : "opacity-50"}`}
+                    slides={message.attachments.map((item) => ({
+                      src: item.type === "image" ? item.mediaUrl : "",
+                    }))}
+                    index={index}
+                  />
+                ) : (
+                  <ImageWithLightBox
+                    src={item.mediaUrl}
+                    title={item.mediaName?.split(".")[0]}
+                    className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} cursor-pointer`}
+                    slides={message.attachments.map((item) => ({
+                      src: item.type === "image" ? item.mediaUrl : "",
+                    }))}
+                    index={index}
+                    imageClassName="!bg-[size:100%]"
+                  />
+                );
+              })
               // <ImageWithLightBoxAndNoLazy
               //   src={item.mediaUrl}
               //   title={item.mediaName?.split(".")[0]}
@@ -262,20 +285,19 @@ const MessageContent = (props) => {
               //   }))}
               //   index={index}
               // />
-              <ImageWithLightBox
-                src={item.mediaUrl}
-                title={item.mediaName?.split(".")[0]}
-                className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} ${pending ? "opacity-50" : ""} cursor-pointer `}
-                slides={message.attachments.map((item) => ({
-                  src:
-                    item.type === "image"
-                      ? item.mediaUrl
-                      : "images/filenotfound.svg",
-                }))}
-                index={index}
-                imageClassName="!bg-[size:100%]"
-              />
-            ))}
+
+              // <ImageWithLightBox
+              //   src={item.mediaUrl}
+              //   title={item.mediaName?.split(".")[0]}
+              //   className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} ${pending ? "opacity-50" : ""} cursor-pointer `}
+              //   slides={message.attachments.map((item) => ({
+              //     src: item.type === "image" ? item.mediaUrl : "",
+              //   }))}
+              //   index={index}
+              //   imageClassName="!bg-[size:100%]"
+              //   loaded={pending}
+              // />
+            }
           </div>
         ) : (
           ""

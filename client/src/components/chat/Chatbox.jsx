@@ -11,10 +11,8 @@ import {
   useMessage,
 } from "../../hook/CustomHooks";
 import { send } from "../../hook/MessageAPIs";
-import BackgroundPortal from "../common/BackgroundPortal";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import RelightBackground from "../common/RelightBackground";
-import UserProfile from "../profile/UserProfile";
 import ChatboxHeader from "./ChatboxHeader";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
@@ -96,7 +94,7 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-      // await delay(5000);
+      // await delay(2000);
 
       // if (param.type === "text" && param.content === "") return;
 
@@ -128,22 +126,22 @@ const Chatbox = (props) => {
         };
       }
 
-      await send(conversations?.selected.id, bodyToCreate);
+      var id = await send(conversations?.selected.id, bodyToCreate);
 
       queryClient.setQueryData(["message"], (oldData) => {
-        const newData = {
+        return {
           ...oldData,
           messages: [
             {
               ...bodyLocal,
               contactId: info.id,
               currentReaction: null,
+              id: id,
+              noLazy: true,
             },
             ...oldData.messages,
           ],
         };
-
-        return newData;
       });
       queryClient.setQueryData(["conversation"], (oldData) => {
         const clonedConversations = oldData.conversations.map((item) => {
@@ -158,7 +156,11 @@ const Chatbox = (props) => {
               : param.files.map((item) => item.name).join(",");
           return conversation;
         });
-        return { ...oldData, conversations: updatedConversations };
+        return {
+          ...oldData,
+          conversations: updatedConversations,
+          filterConversations: updatedConversations,
+        };
       });
 
       if (param.files.length !== 0) {
@@ -396,6 +398,13 @@ const Chatbox = (props) => {
                   />
                 ))
             : ""}
+          {/* {messages?.messages.map((message, index) => (
+            <MessageContent
+              message={message}
+              id={conversations.selected.id}
+              mt={index === 0}
+            />
+          ))} */}
 
           {isPending && (
             <MessageContent
@@ -406,18 +415,19 @@ const Chatbox = (props) => {
                 contactId: info.id,
                 attachments: variables.attachments,
                 currentReaction: null,
+                noLazy: true,
               }}
             />
           )}
 
-          <BackgroundPortal
+          {/* <BackgroundPortal
             className="!w-[35%]"
             show={open}
             title="Profile"
             onClose={() => setOpen(false)}
           >
             <UserProfile id={userId} onClose={() => setOpen(false)} />
-          </BackgroundPortal>
+          </BackgroundPortal> */}
         </div>
         {/* </div> */}
       </div>

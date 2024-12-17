@@ -13,6 +13,7 @@ const ImageWithLightBox = (props) => {
     slides,
     index,
     onClick,
+    // loaded,
   } = props;
 
   const [showLightbox, setShowLightbox] = useState(false);
@@ -34,7 +35,10 @@ const ImageWithLightBox = (props) => {
 
       <div
         data-src={src ?? "images/imagenotfound.jpg"}
-        className={`${imageClassName} ${roundedClassName ?? "rounded-2xl"} lazy-image absolute h-full w-full bg-[position:center_center] bg-no-repeat`}
+        className={`${imageClassName} 
+        ${roundedClassName ?? "rounded-2xl"} 
+        
+        lazy-image absolute h-full w-full bg-[position:center_center] bg-no-repeat`}
       ></div>
 
       <CustomLightbox
