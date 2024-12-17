@@ -2,7 +2,7 @@ namespace Presentation.Conversations;
 
 public static class GetById
 {
-    public record Request(string id, int page) : IRequest<object>;
+    public record Request(string id, int page, int limit) : IRequest<object>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -37,7 +37,7 @@ public static class GetById
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            return await _conversationRepository.GetById(request.id, new PagingParam(request.page));
+            return await _conversationRepository.GetById(request.id, new PagingParam(request.page, request.limit));
         }
     }
 }
@@ -47,9 +47,9 @@ public class GetByIdEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}",
-        async (ISender sender, string id, int page = AppConstants.DefaultPage) =>
+        async (ISender sender, string id, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit) =>
         {
-            var query = new GetById.Request(id, page);
+            var query = new GetById.Request(id, page, limit);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization(AppConstants.Authentication_Basic);

@@ -6,11 +6,11 @@ public class PagingParam
     private int skip { get; }
     private int nextSkip { get; }
 
-    public PagingParam(int page)
+    public PagingParam(int page, int limit)
     {
-        limit = AppConstants.DefaultLimit;
-        skip = AppConstants.DefaultLimit * (page - 1);
-        nextSkip = AppConstants.DefaultLimit * page;
+        this.limit = limit;
+        skip = limit * (page - 1);
+        nextSkip = limit * page;
     }
 
     public int Limit => limit;
