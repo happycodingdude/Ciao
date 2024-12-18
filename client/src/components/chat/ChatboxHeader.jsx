@@ -30,7 +30,7 @@ const ChatboxHeader = (props) => {
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
-          className="aspect-square w-[4rem] cursor-pointer rounded-[50%]"
+          className="aspect-square w-[4rem] cursor-pointer rounded-[50%] bg-[size:150%]"
           onClick={() => setOpenUpdateTitle(true)}
         />
         <BackgroundPortal

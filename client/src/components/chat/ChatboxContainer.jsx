@@ -34,7 +34,7 @@ const ChatboxContainer = () => {
     if (!isLoading && !isRefetching) {
       setTimeout(() => {
         setLoading(false);
-      }, 500);
+      }, 100);
     }
   }, [isLoading, isRefetching]);
 

@@ -253,8 +253,7 @@ const MessageContent = (props) => {
                     src={item.mediaUrl}
                     title={item.mediaName?.split(".")[0]}
                     className={`aspect-[3/2] cursor-pointer !bg-[size:110%] 
-                      ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}
-                      ${message.loaded ? "opacity-100" : "opacity-50"}`}
+                      ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
                     slides={message.attachments.map((item) => ({
                       src: item.type === "image" ? item.mediaUrl : "",
                     }))}

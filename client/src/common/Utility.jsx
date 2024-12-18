@@ -87,15 +87,12 @@ export const blurImage = (containerClass) => {
   let observer = new IntersectionObserver(
     (entries, observer) => {
       entries.forEach(async (entry) => {
-        if (
-          entry.isIntersecting &&
-          !entry.target.classList.contains("loaded")
-        ) {
+        if (entry.isIntersecting) {
           // await delay();
           // entry.target.src = entry.target.dataset.src;
           entry.target.style.backgroundImage =
             "url('" + entry.target.dataset.src + "')";
-          entry.target.classList.add("loaded");
+          // entry.target.classList.add("loaded");
 
           // Find the previous sibling with the 'loading' class
           let sibling = entry.target.previousElementSibling;

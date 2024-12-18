@@ -96,6 +96,25 @@ const Chatbox = (props) => {
     mutationFn: async (param) => {
       // await delay(2000);
 
+      let randomId = Math.random().toString(36).substring(2, 7);
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: [
+            {
+              id: randomId,
+              type: param.type,
+              content: param.content,
+              contactId: info.id,
+              attachments: param.attachments,
+              currentReaction: null,
+              noLazy: true,
+            },
+            ...oldData.messages,
+          ],
+        };
+      });
+
       // if (param.type === "text" && param.content === "") return;
 
       let bodyToCreate = {
@@ -127,22 +146,25 @@ const Chatbox = (props) => {
       }
 
       var id = await send(conversations?.selected.id, bodyToCreate);
+      // await delay(3000);
 
       queryClient.setQueryData(["message"], (oldData) => {
+        const updatedMessages = oldData.messages.map((message) => {
+          if (message.id !== randomId) return message;
+          message.id = id;
+          message.loaded = true;
+          return message;
+        });
         return {
           ...oldData,
-          messages: [
-            {
-              ...bodyLocal,
-              contactId: info.id,
-              currentReaction: null,
-              id: id,
-              noLazy: true,
-            },
-            ...oldData.messages,
-          ],
+          messages: updatedMessages,
         };
       });
+
+      const element = document.querySelector(`[data-id="${randomId}"]`);
+      const image = element.querySelector(".nolazy-image");
+      image.classList.add("loaded");
+
       queryClient.setQueryData(["conversation"], (oldData) => {
         const clonedConversations = oldData.conversations.map((item) => {
           return Object.assign({}, item);
@@ -352,35 +374,22 @@ const Chatbox = (props) => {
     >
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
-        {/* <RelightBackground className="absolute bottom-[5%] right-[50%]"> */}
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <RelightBackground
           data-show={showScrollToBottom}
           onClick={scrollChatContentToBottom}
-          className={`absolute bottom-[5%] right-[50%] z-10
+          className={`absolute bottom-[5%] right-[50%] z-20
             data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
         >
           <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground>
-        {/* <div
-            ref={refScrollToBottom}
-            data-show="false"
-            className="fa fa-chevron-down absolute bottom-[5%] right-[50%] flex aspect-square w-[3rem] cursor-pointer
-            items-center justify-center rounded-[50%] bg-[var(--main-color-bold)] text-lg font-light text-[var(--text-main-color)]
-            transition-all duration-200 hover:bg-[var(--main-color)]
-            data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:z-0
-            data-[show=true]:z-10 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
-            onClick={scrollChatContentToBottom}
-          ></div> */}
-        {/* </RelightBackground> */}
         <ChatboxHeader
           toggleInformation={toggleInformation}
           showInfo={showInfo}
           messages={messages}
           selected={conversations?.selected}
         />
-        {/* <div className="grow bg-[var(--bg-color-extrathin)]"> */}
         <div
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
@@ -406,7 +415,7 @@ const Chatbox = (props) => {
             />
           ))} */}
 
-          {isPending && (
+          {/* {isPending && (
             <MessageContent
               pending={isPending}
               message={{
@@ -418,7 +427,7 @@ const Chatbox = (props) => {
                 noLazy: true,
               }}
             />
-          )}
+          )} */}
 
           {/* <BackgroundPortal
             className="!w-[35%]"

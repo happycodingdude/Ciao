@@ -325,4 +325,12 @@ body,
 
     /* @apply absolute z-[-1] rounded-[3rem]  bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] ${gradientClass ?? "after:h-[112%] after:w-[102%]"} */
   }
+
+  .nolazy-image {
+    opacity: 0.5;
+
+    &.loaded {
+      opacity: 1;
+    }
+  }
 }
