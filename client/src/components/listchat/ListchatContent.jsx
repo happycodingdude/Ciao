@@ -112,6 +112,10 @@ const ListchatContent = () => {
   }, [selected]);
 
   useEffect(() => {
+    if (!data) return;
+
+    refChatItems.current = data.filterConversations;
+
     if (!data || !data?.selected || data?.selected.id === selected) return;
 
     if (data.quickChatAdd) {
@@ -125,6 +129,7 @@ const ListchatContent = () => {
     }
 
     clickConversation(data.selected.id);
+
     // listChat.current = data.conversations;
     // setListChat(data.conversations);
   }, [data]);

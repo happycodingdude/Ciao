@@ -37,7 +37,9 @@ const QuickChat = (props) => {
       refQuickProfile.current.offsetHeight;
     offsetTop = Math.min(offsetTop, maxTopPosition);
 
-    refQuickProfile.current.style.top = offsetTop + "px";
+    // If the offsetTop is less than 0, set the top to 0
+    refQuickProfile.current.style.top =
+      offsetTop < 0 ? "0px" : offsetTop + "px";
 
     // Position the popup
     refQuickProfile.current.style.right = `${window.scrollY + offset}px`; // Position horizontally based on target
@@ -62,6 +64,7 @@ const QuickChat = (props) => {
         return {
           ...oldData,
           conversations: updatedConversations,
+          filterConversations: updatedConversations,
           selected: existedConversation,
           clickAndAddMessage: true,
           message: {
@@ -103,6 +106,7 @@ const QuickChat = (props) => {
           return {
             ...oldData,
             conversations: updatedConversations,
+            filterConversations: updatedConversations,
             selected: {
               ...oldData.selected,
               id: res.data,
@@ -143,6 +147,35 @@ const QuickChat = (props) => {
               noLazy: true,
             },
             ...oldData.conversations,
+          ],
+          filterConversations: [
+            {
+              lastMessage: content,
+              isGroup: false,
+              isNotifying: true,
+              id: randomId,
+              participants: [
+                {
+                  isModerator: true,
+                  contact: {
+                    id: info.id,
+                    name: info.name,
+                    avatar: info.avatar,
+                    isOnline: true,
+                  },
+                },
+                {
+                  contact: {
+                    id: contact.id,
+                    name: contact.name,
+                    avatar: contact.avatar,
+                    isOnline: contact.isOnline,
+                  },
+                },
+              ],
+              noLazy: true,
+            },
+            ...oldData.filterConversations,
           ],
           selected: {
             id: randomId,
@@ -242,7 +275,7 @@ const QuickChat = (props) => {
           <div className="absolute left-[1rem] top-[-4rem] rounded-[50%] bg-[var(--main-color-light)] p-[.5rem]">
             <ImageWithLightBoxAndNoLazy
               src={profile?.avatar}
-              className="aspect-square cursor-pointer rounded-[50%] laptop:w-[7rem]"
+              className="loaded aspect-square cursor-pointer rounded-[50%] bg-[size:170%] laptop:w-[7rem]"
               slides={[
                 {
                   src: profile?.avatar,

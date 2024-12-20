@@ -171,7 +171,6 @@ const Information = (props) => {
                       <ImageWithLightBox
                         src={item.contact.avatar}
                         className="aspect-square laptop:w-[3rem]"
-                        spinnerClassName="laptop:bg-[size:2rem]"
                         imageClassName="bg-[size:160%]"
                         roundedClassName="rounded-[50%]"
                         slides={[
@@ -216,7 +215,6 @@ const Information = (props) => {
                   title={item.mediaName?.split(".")[0]}
                   // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
                   className={`aspect-square w-full`}
-                  spinnerClassName="laptop:bg-[size:1.5rem]"
                   imageClassName="bg-[size:160%]"
                   slides={displayAttachments.map((item) => ({
                     src:
