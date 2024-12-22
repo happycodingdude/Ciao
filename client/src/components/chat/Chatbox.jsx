@@ -148,22 +148,24 @@ const Chatbox = (props) => {
       var id = await send(conversations?.selected.id, bodyToCreate);
       // await delay(3000);
 
-      queryClient.setQueryData(["message"], (oldData) => {
-        const updatedMessages = oldData.messages.map((message) => {
-          if (message.id !== randomId) return message;
-          message.id = id;
-          message.loaded = true;
-          return message;
-        });
-        return {
-          ...oldData,
-          messages: updatedMessages,
-        };
-      });
+      // queryClient.setQueryData(["message"], (oldData) => {
+      //   const updatedMessages = oldData.messages.map((message) => {
+      //     if (message.id !== randomId) return message;
+      //     message.id = id;
+      //     // message.loaded = true;
+      //     return message;
+      //   });
+      //   return {
+      //     ...oldData,
+      //     messages: updatedMessages,
+      //   };
+      // });
 
-      const element = document.querySelector(`[data-id="${randomId}"]`);
-      const image = element.querySelector(".nolazy-image");
-      image.classList.add("loaded");
+      if(param.files.length !== 0) {
+        const element = document.querySelector(`[data-id="${randomId}"]`);
+        const image = element.querySelector(".nolazy-image");
+        image.classList.add("loaded");
+      }
 
       queryClient.setQueryData(["conversation"], (oldData) => {
         const clonedConversations = oldData.conversations.map((item) => {
@@ -460,7 +462,7 @@ const Chatbox = (props) => {
               files: files,
             });
           }}
-          ref={refInput}
+          ref={refInput}          
         />
       </div>
     </div>

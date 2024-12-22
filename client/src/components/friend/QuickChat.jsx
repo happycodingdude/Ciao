@@ -289,6 +289,7 @@ const QuickChat = (props) => {
             className="grow-0"
             quickChat
             noMenu
+            noEmoji
             send={(content) => {
               chat(profile, content);
             }}

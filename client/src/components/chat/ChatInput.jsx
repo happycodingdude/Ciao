@@ -11,7 +11,7 @@ import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWit
 import ChatboxMenu from "./ChatboxMenu";
 
 const ChatInput = forwardRef((props, ref) => {
-  const { send, className, quickChat, noMenu } = props;
+  const { send, className, quickChat, noMenu, noEmoji} = props;
 
   if (!ref) return;
 
@@ -283,19 +283,23 @@ const ChatInput = forwardRef((props, ref) => {
           onKeyDown={keyBindingFn}
           onKeyUp={keyupBindingFn}
         ></div>
+        {!noEmoji ? (
         <label
           className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
           cursor-pointer text-md font-normal`}
-          onClick={() => setShowEmoji((show) => !show)}
-        ></label>
+            onClick={() => setShowEmoji((show) => !show)}
+          ></label>
+        ) : (
+          ""
+        )}
       </div>
-      <EmojiPicker
-        open={showEmoji}
-        width={300}
-        height={400}
-        onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
-        className="emoji-item !absolute right-[2rem] top-[-41rem]"
-        icons="solid"
+        <EmojiPicker
+          open={showEmoji}
+          width={300}
+          height={400}
+          onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
+          className="emoji-item !absolute right-[2rem] top-[-41rem]"
+          icons="solid"
       />
     </div>
   );
