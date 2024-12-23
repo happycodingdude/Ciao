@@ -3,7 +3,8 @@ import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBoxAndNoLazy = (props) => {
   console.log("ImageWithLightBoxAndNoLazy calling...");
-  const { src, title, className, slides, index, onClick } = props;
+  const { src, title, className, imageClassName, slides, index, onClick } =
+    props;
 
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = (e) => setShowLightbox(true);
@@ -15,7 +16,7 @@ const ImageWithLightBoxAndNoLazy = (props) => {
         style={{
           "--image-url": `url(${src && src !== "" ? src : "images/imagenotfound.jpg"})`,
         }}
-        className={`${className} nolazy-image cursor-pointer rounded-2xl bg-[image:var(--image-url)] bg-[size:100%] bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
+        className={`${className} ${imageClassName ?? "bg-[size:100%]"}  nolazy-image cursor-pointer rounded-2xl bg-[image:var(--image-url)]  bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
         onClick={onClick ?? handleShowLightbox}
       ></div>
       <CustomLightbox

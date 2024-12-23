@@ -13,21 +13,17 @@ import {
 import { send } from "../../hook/MessageAPIs";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import RelightBackground from "../common/RelightBackground";
-import ChatboxHeader from "./ChatboxHeader";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
-  const { refChatbox, toggleInformation, showInfo } = props;
+  const { isToggle } = props;
 
   const queryClient = useQueryClient();
 
   const refChatContent = useRef();
-  const refScrollToBottom = useRef();
-  const refToggleInformationContainer = useRef();
   const refChatboxContainer = useRef();
-  const refTitleContainer = useRef();
   const refInput = useRef();
 
   // const [files, setFiles] = useState([]);
@@ -161,7 +157,7 @@ const Chatbox = (props) => {
       //   };
       // });
 
-      if(param.files.length !== 0) {
+      if (param.files.length !== 0) {
         const element = document.querySelector(`[data-id="${randomId}"]`);
         const image = element.querySelector(".nolazy-image");
         image.classList.add("loaded");
@@ -291,29 +287,6 @@ const Chatbox = (props) => {
     // refChatContent.current.scrollTop = 0;
   };
 
-  const toggleInformationContainer = () => {
-    toggleInformation();
-    // if (
-    //   refToggleInformationContainer.current.classList.contains(
-    //     "animate-information-hide-arrow",
-    //   )
-    // ) {
-    //   refToggleInformationContainer.current.classList.remove(
-    //     "animate-information-hide-arrow",
-    //   );
-    //   refToggleInformationContainer.current.classList.add(
-    //     "animate-information-show-arrow",
-    //   );
-    // } else {
-    //   refToggleInformationContainer.current.classList.remove(
-    //     "animate-information-show-arrow",
-    //   );
-    //   refToggleInformationContainer.current.classList.add(
-    //     "animate-information-hide-arrow",
-    //   );
-    // }
-  };
-
   // Event listener
   // const closeProfile = useCallback((e) => {
   //   if (e.target.closest(".profile-container")) setOpen(false);
@@ -371,8 +344,8 @@ const Chatbox = (props) => {
   return (
     <div
       ref={refChatboxContainer}
-      className={`relative mx-[.1rem] flex w-full grow flex-col items-center border-x-[.1rem] border-x-[var(--border-color)]
-        ${showInfo ? "" : "shrink-0"}`}
+      className={`relative flex w-full grow flex-col items-center border-r-[.1rem] border-r-[var(--border-color)]
+        ${isToggle ? "" : "shrink-0"}`}
     >
       {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
@@ -386,12 +359,6 @@ const Chatbox = (props) => {
         >
           <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground>
-        <ChatboxHeader
-          toggleInformation={toggleInformation}
-          showInfo={showInfo}
-          messages={messages}
-          selected={conversations?.selected}
-        />
         <div
           ref={refChatContent}
           // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
@@ -462,7 +429,7 @@ const Chatbox = (props) => {
               files: files,
             });
           }}
-          ref={refInput}          
+          ref={refInput}
         />
       </div>
     </div>

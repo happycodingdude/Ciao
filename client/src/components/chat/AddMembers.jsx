@@ -1,23 +1,28 @@
 import { UsergroupAddOutlined } from "@ant-design/icons";
-import React from "react";
+import React, { useState } from "react";
 import BackgroundPortal from "../common/BackgroundPortal";
 import AddMembersModal from "./AddMembersModal";
 
 const AddMembers = React.memo((props) => {
   const { selected, show, onClose } = props;
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <UsergroupAddOutlined style={{ fontSize: "16px" }} />
+      <UsergroupAddOutlined
+        className="hover:text-[var(--main-color-bold)]"
+        style={{ fontSize: "18px", transition: "all 0.2s" }}
+        onClick={() => setOpen(true)}
+      />
       <BackgroundPortal
-        show={show}
+        show={open}
         className="laptop:!w-[50rem] desktop:!w-[70rem]"
         title="Add members"
-        onClose={onClose}
+        onClose={() => setOpen(false)}
       >
         <AddMembersModal
           id={selected?.id}
           members={selected?.participants.map((item) => item.contact)}
-          onClose={onClose}
+          onClose={() => setOpen(false)}
         />
       </BackgroundPortal>
     </>

@@ -1,16 +1,20 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
-import { useInfo } from "../../hook/CustomHooks";
+import { useConversation, useInfo } from "../../hook/CustomHooks";
 import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import RelightBackground from "../common/RelightBackground";
 import AddMembers from "./AddMembers";
+import AttachmentIcon from "./AttachmentIcon";
 import UpdateTitle from "./UpdateTitle";
 
 const ChatboxHeader = (props) => {
   console.log("ChatboxHeader calling");
-  const { toggleInformation, showInfo, selected } = props;
+  const { setToggle, toggle } = props;
+
+  const { data: conversations } = useConversation();
+  if (!conversations || !conversations.selected) return;
+
   const { data: info } = useInfo();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState(false);
@@ -24,48 +28,48 @@ const ChatboxHeader = (props) => {
       <div className="flex items-center gap-[1rem]">
         <ImageWithLightBoxAndNoLazy
           src={
-            selected?.isGroup
-              ? selected?.avatar
-              : selected?.participants?.find(
+            conversations.selected.isGroup
+              ? conversations.selected.avatar
+              : conversations.selected.participants?.find(
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
           className="loaded aspect-square w-[4rem] cursor-pointer rounded-[50%] bg-[size:150%]"
-          onClick={() => setOpenUpdateTitle(true)}
+          onClick={() => {
+            if (conversations.selected.isGroup) setOpenUpdateTitle(true);
+          }}
         />
         <BackgroundPortal
           show={openUpdateTitle}
-          className="laptop:!w-[40rem] desktop:!w-[35%]"
+          className="laptop:!w-[45rem] desktop:!w-[35%]"
           title="Update title"
           onClose={() => setOpenUpdateTitle(false)}
         >
           <UpdateTitle
-            id={selected?.id}
-            title={selected?.title}
-            avatar={selected?.avatar}
+            selected={conversations.selected}
             onClose={() => setOpenUpdateTitle(false)}
           />
         </BackgroundPortal>
 
         <div className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]">
-          {selected?.isGroup ? (
+          {conversations.selected.isGroup ? (
             <>
               <div className="flex w-full gap-[.5rem]">
                 <CustomLabel
                   className="text-start text-lg font-bold"
-                  title={selected?.title}
+                  title={conversations.selected.title}
                   tooltip
                 />
                 {/* <UpdateTitle /> */}
               </div>
-              <p>{selected?.participants.length} members</p>
+              <p>{conversations.selected.participants.length} members</p>
             </>
           ) : (
             <>
               <CustomLabel
                 className="text-start text-lg font-bold"
                 title={
-                  selected?.participants?.find(
+                  conversations.selected.participants?.find(
                     (item) => item.contact.id !== info.id,
                   )?.contact.name
                 }
@@ -79,29 +83,48 @@ const ChatboxHeader = (props) => {
         </div>
       </div>
       <div className="flex gap-[2rem]">
-        {selected?.isGroup ? (
-          <RelightBackground
-            paddingClassName="p-[.7rem]"
-            onClick={() => setShowAddMembers(true)}
-          >
-            <AddMembers
-              selected={selected}
-              show={showAddMembers}
-              onClose={() => setShowAddMembers(false)}
-            />
-          </RelightBackground>
+        {conversations.selected.isGroup ? (
+          // <RelightBackground
+          //   paddingClassName="p-[.7rem]"
+          //   onClick={() => setShowAddMembers(true)}
+          // >
+          <AddMembers
+            selected={conversations.selected}
+            show={showAddMembers}
+            onClose={() => setShowAddMembers(false)}
+          />
         ) : (
+          // </RelightBackground>
           ""
         )}
         <div
           className={`flex justify-end gap-[1rem] rounded-full 
-            ${showInfo ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : ""}`}
+            ${toggle === "information" ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : "hover:text-[var(--main-color-bold)]"}`}
         >
           <InfoCircleOutlined
-            onClick={() => toggleInformation((current) => !current)}
-            style={{ fontSize: "20px" }}
+            onClick={() =>
+              setToggle((current) =>
+                current === "information" ? "" : "information",
+              )
+            }
+            style={{
+              fontSize: "18px",
+              transition: "all 0.2s",
+            }}
           />
         </div>
+        {/* <div
+          className="cursor-pointer bg-[url('images/attachment-svg.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat transition-all
+        duration-500 laptop:w-[2rem]"
+        ></div> */}
+        <AttachmentIcon
+          onClick={() =>
+            setToggle((current) =>
+              current === "attachment" ? "" : "attachment",
+            )
+          }
+          toggle={toggle === "attachment"}
+        />
       </div>
     </div>
   );

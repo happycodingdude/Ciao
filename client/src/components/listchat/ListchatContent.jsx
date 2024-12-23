@@ -33,7 +33,7 @@ moment.locale("en", {
 });
 
 const ListchatContent = () => {
-  console.log("ListChat calling");
+  console.log("ListchatContent calling");
   // const { listChat } = useListchatFilter();
 
   const queryClient = useQueryClient();
@@ -46,7 +46,7 @@ const ListchatContent = () => {
 
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
-  const { data, isLoading, isRefetching } = useConversation(page);
+  const { data } = useConversation(page);
   const { refetch: refetchMessage } = useMessage(selected, 1);
   const { refetch: refetchAttachments } = useAttachment(selected);
 
@@ -183,8 +183,8 @@ const ListchatContent = () => {
                         (item) => item.contact.id !== info.id,
                       )?.contact.avatar
                 }
-                className={`pointer-events-none aspect-square laptop:w-[5rem]`}
-                imageClassName="bg-[size:160%]"
+                className={`loaded pointer-events-none aspect-square laptop:w-[5rem]`}
+                imageClassName="bg-[size:170%]"
               />
             ) : (
               <ImageWithLightBox
@@ -196,7 +196,7 @@ const ListchatContent = () => {
                       )?.contact.avatar
                 }
                 className={`pointer-events-none aspect-square laptop:w-[5rem]`}
-                imageClassName="bg-[size:160%]"
+                imageClassName="bg-[size:170%]"
               />
             )}
           </div>

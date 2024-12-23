@@ -19,7 +19,8 @@ const AddFriend = () => {
         onClick={() => setOpen(true)}
       /> */}
       <UserAddOutlined
-        style={{ fontSize: "16px" }}
+        className="hover:text-[var(--main-color-bold)]"
+        style={{ fontSize: "16px", transition: "all 0.2s" }}
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal
