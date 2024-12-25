@@ -229,7 +229,7 @@ const MessageContent = (props) => {
             //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
             //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
             // }`}
-            className={` break-all rounded-[2rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+            className={` break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
@@ -253,6 +253,7 @@ const MessageContent = (props) => {
                     src={item.mediaUrl}
                     title={item.mediaName?.split(".")[0]}
                     className={`aspect-[3/2] cursor-pointer !bg-[size:110%] 
+                      ${message.loaded ? 'loaded' : ''}
                       ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
                     slides={message.attachments.map((item) => ({
                       src: item.type === "image" ? item.mediaUrl : "",
