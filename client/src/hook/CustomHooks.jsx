@@ -159,3 +159,13 @@ export const useDeleteChat = () => {
   };
   return { deleteChat };
 };
+
+export const useToggleChatDetail = () => {
+  const [toggle, setToggle] = useState(
+    localStorage.getItem("toggleChatDetail"),
+  );
+  useEffect(() => {
+    localStorage.setItem("toggleChatDetail", toggle);
+  }, [toggle]);
+  return { toggle, setToggle };
+};

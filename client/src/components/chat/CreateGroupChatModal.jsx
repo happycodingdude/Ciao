@@ -61,6 +61,7 @@ const CreateGroupChatModal = (props) => {
         },
       );
     }
+    let randomId = Math.random().toString(36).substring(2, 7);
 
     HttpRequest({
       method: "post",
@@ -88,6 +89,7 @@ const CreateGroupChatModal = (props) => {
         return {
           ...oldData,
           conversations: updatedConversations,
+          filterConversations: updatedConversations,
           selected: {
             ...oldData.selected,
             id: res.data,
@@ -96,11 +98,42 @@ const CreateGroupChatModal = (props) => {
       });
     });
 
-    let randomId = Math.random().toString(36).substring(2, 7);
     queryClient.setQueryData(["conversation"], (oldData) => {
       return {
         ...oldData,
         conversations: [
+          {
+            id: randomId,
+            title: refInputTitle.current.value,
+            avatar: avatar,
+            isGroup: true,
+            isNotifying: true,
+            participants: [
+              {
+                isModerator: true,
+                contact: {
+                  id: info.id,
+                  name: info.name,
+                  avatar: info.avatar,
+                  isOnline: true,
+                },
+              },
+              ...membersToAdd.map((mem) => {
+                return {
+                  contact: {
+                    id: mem.id,
+                    name: mem.name,
+                    avatar: mem.avatar,
+                    // isOnline: contact.isOnline,
+                  },
+                };
+              }),
+            ],
+            noLazy: true,
+          },
+          ...oldData.conversations,
+        ],
+        filterConversations: [
           {
             id: randomId,
             title: refInputTitle.current.value,

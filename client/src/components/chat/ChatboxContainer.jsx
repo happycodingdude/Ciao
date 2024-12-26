@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useLoading } from "../../context/LoadingContext";
 import {
   useAttachment,
   useConversation,
   useMessage,
+  useToggleChatDetail,
 } from "../../hook/CustomHooks";
 import LocalLoading from "../common/LocalLoading";
 import Attachment from "./Attachment";
@@ -24,7 +25,7 @@ const ChatboxContainer = () => {
   } = useAttachment();
   const { data: conversations } = useConversation();
 
-  const [toggle, setToggle] = useState("");
+  const { toggle, setToggle } = useToggleChatDetail();
   const { loading, setLoading } = useLoading();
 
   const isLoading = isLoadingMessage || isLoadingAttachment;
@@ -42,7 +43,9 @@ const ChatboxContainer = () => {
     <div className="relative grow">
       {loading ? (
         <LocalLoading className="!z-[11]" />
-      ) : messages?.messages || conversations?.createGroupChat ? (
+      ) : messages?.messages ||
+        conversations?.createGroupChat ||
+        conversations?.quickChatAdd ? (
         <div className="flex h-full w-full flex-col border-l-[.1rem] border-l-[var(--border-color)]">
           <ChatboxHeader
             toggle={toggle}

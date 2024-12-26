@@ -32,7 +32,7 @@ moment.locale("en", {
   },
 });
 
-const ListchatContent = () => {
+const ListchatContent1 = () => {
   console.log("ListchatContent calling");
   // const { listChat } = useListchatFilter();
 
@@ -41,14 +41,14 @@ const ListchatContent = () => {
   const refChatItems = useRef({});
   const refChats = useRef([]);
 
-  // const [selected, setSelected] = useState();
+  const [selected, setSelected] = useState();
   const [page, setPage] = useState(1);
 
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
   const { data } = useConversation(page);
-  const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
-  const { refetch: refetchAttachments } = useAttachment(data?.selected?.id);
+  const { refetch: refetchMessage } = useMessage(selected, 1);
+  const { refetch: refetchAttachments } = useAttachment(selected);
 
   useEffect(() => {
     if (!data?.filterConversations) return;
@@ -56,31 +56,11 @@ const ListchatContent = () => {
   }, [data?.filterConversations]);
 
   const clickConversation = (id) => {
-    queryClient.setQueryData(["conversation"], (oldData) => {
-      var newConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== id) return conversation;
-        return {
-          ...conversation,
-          unSeenMessages: 0,
-        };
-      });
-      return {
-        ...oldData,
-        selected: oldData.conversations.find((item) => item.id === id),
-        conversations: newConversations,
-        // filterConversations: newConversations,
-        quickChatAdd: false,
-        clickAndAddMessage: false,
-      };
-    });
+    setSelected(id);
   };
 
   const scrollToCenterOfSelected = useCallback(() => {
-    if (!data?.selected) return;
-
-    const chatElement = refChatItems.current[data?.selected.id];
-    if (!chatElement) return;
-
+    const chatElement = refChatItems.current[selected];
     const chatList = refChats.current;
 
     // Calculate the offset to center the chat
@@ -89,25 +69,51 @@ const ListchatContent = () => {
     const listHeight = chatList.offsetHeight;
     const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
     chatList.scrollTop = scrollTop;
-  }, [data?.selected?.id]);
+  }, [selected]);
 
   useEffect(() => {
-    if (!data?.selected || (data?.quickChatAdd && !data?.fromListFriend)) {
+    if (!selected) return;
+    if (
+      !selected ||
+      (data?.selected?.id === selected &&
+        data?.quickChatAdd &&
+        !data?.fromListFriend)
+    ) {
       scrollToCenterOfSelected();
       return;
     }
 
     setLoading(true);
     scrollToCenterOfSelected();
+    queryClient.setQueryData(["conversation"], (oldData) => {
+      var newConversations = oldData.conversations.map((conversation) => {
+        if (conversation.id !== selected) return conversation;
+        return {
+          ...conversation,
+          unSeenMessages: 0,
+        };
+      });
+      return {
+        ...oldData,
+        selected: oldData.conversations.find((item) => item.id === selected),
+        conversations: newConversations,
+        filterConversations: newConversations,
+      };
+    });
+
     refetchMessage();
     refetchAttachments();
-  }, [data?.selected?.id]);
+  }, [selected]);
 
   useEffect(() => {
-    if (!data || !data?.selected) return;
+    if (!data) return;
+
+    refChatItems.current = data.filterConversations;
+
+    if (!data || !data?.selected || data?.selected.id === selected) return;
 
     if (data.quickChatAdd) {
-      // setSelected(undefined);
+      setSelected(undefined);
       return;
     }
 
@@ -121,13 +127,6 @@ const ListchatContent = () => {
     // listChat.current = data.conversations;
     // setListChat(data.conversations);
   }, [data]);
-
-  useEffect(() => {
-    if (!data?.filterConversations) return;
-    data.filterConversations.forEach((item) => {
-      refChatItems.current[item.id] = item;
-    });
-  }, [data?.filterConversations]);
 
   const clickAndAddMessage = () => {
     clickConversation(data.selected.id);
@@ -144,7 +143,7 @@ const ListchatContent = () => {
   return (
     <div
       ref={refChats}
-      className="list-chat hide-scrollbar relative flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:h-[50rem]"
+      className="list-chat hide-scrollbar relative flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:h-[55rem]"
     >
       {data?.filterConversations?.map((item) => (
         <div
@@ -160,7 +159,7 @@ const ListchatContent = () => {
           className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
         py-[.8rem] pl-[.5rem] pr-[1rem] 
         ${
-          data?.selected?.id === item.id
+          selected === item.id
             ? `item-active bg-[var(--main-color)]`
             : "hover:bg-[var(--bg-color-extrathin)]"
         } `}
@@ -198,7 +197,7 @@ const ListchatContent = () => {
           {/* Title & last message */}
           <div className={`flex h-full w-1/2 grow flex-col`}>
             <CustomLabel
-              className={`${item.id === data?.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
+              className={`${item.id === selected ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
               title={
                 item.isGroup
                   ? item.title
@@ -210,7 +209,7 @@ const ListchatContent = () => {
             <CustomLabel
               className={`
             ${
-              item.id === data?.selected?.id
+              item.id === selected
                 ? "text-[var(--text-sub-color-thin)]"
                 : item.lastMessageContact !== info.id && item.unSeenMessages > 0
                   ? "font-[600] text-[var(--main-color-light)]"
@@ -234,4 +233,4 @@ const ListchatContent = () => {
   );
 };
 
-export default ListchatContent;
+export default ListchatContent1;

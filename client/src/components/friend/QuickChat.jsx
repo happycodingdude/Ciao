@@ -111,7 +111,7 @@ const QuickChat = (props) => {
               ...oldData.selected,
               id: res.data,
             },
-            quickChatAdd: false,
+            // quickChatAdd: false,
           };
         });
       });
@@ -202,6 +202,7 @@ const QuickChat = (props) => {
             ],
           },
           quickChatAdd: true,
+          clickAndAddMessage: false,
           noLoading: true,
         };
       });

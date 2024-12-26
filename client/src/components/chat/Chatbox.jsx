@@ -45,16 +45,17 @@ const Chatbox = (props) => {
 
   useEffect(() => {
     blurImage(".chatbox-content");
-    refChatContent.current.classList.remove("scroll-smooth");
-    // setFiles([]);
+  }, [messages]);
 
+  useEffect(() => {
+    refChatContent.current.classList.remove("scroll-smooth");
     if (autoScrollBottom) {
       scrollChatContentToBottom();
       setTimeout(() => {
         refChatContent.current.classList.add("scroll-smooth");
       }, 500);
     }
-  }, [messages, autoScrollBottom]);
+  }, [autoScrollBottom]);
 
   useEffect(() => {
     setPage(2);
@@ -90,7 +91,6 @@ const Chatbox = (props) => {
     variables,
   } = useMutation({
     mutationFn: async (param) => {
-
       let randomId = Math.random().toString(36).substring(2, 7);
       queryClient.setQueryData(["message"], (oldData) => {
         return {
@@ -111,7 +111,7 @@ const Chatbox = (props) => {
         };
       });
 
-      await delay(2000);
+      // await delay(2000);
       // if (param.type === "text" && param.content === "") return;
 
       let bodyToCreate = {
