@@ -100,6 +100,6 @@ public class CreateParticipantEndpoint : ICarterModule
             var query = new CreateParticipant.Request(conversationId, model);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

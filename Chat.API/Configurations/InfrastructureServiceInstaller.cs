@@ -1,3 +1,6 @@
+using Infrastructure.Middleware.Authentication;
+using Microsoft.AspNetCore.Authentication;
+
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
@@ -44,37 +47,44 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<MongoDbContext>();
 
         // Authentication
-        // services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
-        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-        {
-            options.ExpireTimeSpan = TimeSpan.FromDays(1);
-            options.Cookie = new CookieBuilder
-            {
-                HttpOnly = true,
-                SecurePolicy = environment.IsDevelopment()
-                    ? CookieSecurePolicy.None
-                    : CookieSecurePolicy.Always,
-                Name = "Ciao-cookie",
-                MaxAge = TimeSpan.FromDays(7),
-            };
-            options.SlidingExpiration = true;
-            options.Events.OnRedirectToLogin = context =>
-            {
-                Console.WriteLine("OnRedirectToLogin...");
-                context.Response.StatusCode = 401;
-                return Task.CompletedTask;
-            };
-        });
-        services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
+        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+        // services.AddAuthentication("Basic")
+        //     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandle>("Basic", options => { });
+
+
+        // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+        // {
+        //     options.ExpireTimeSpan = TimeSpan.FromDays(1);
+        //     options.Cookie = new CookieBuilder
+        //     {
+        //         HttpOnly = true,
+        //         SecurePolicy = environment.IsDevelopment()
+        //             ? CookieSecurePolicy.None
+        //             : CookieSecurePolicy.Always,
+        //         Name = "Ciao-cookie",
+        //         MaxAge = TimeSpan.FromDays(7),
+        //     };
+        //     options.SlidingExpiration = true;
+        //     options.Events.OnRedirectToLogin = context =>
+        //     {
+        //         Console.WriteLine("OnRedirectToLogin...");
+        //         context.Response.StatusCode = 401;
+        //         return Task.CompletedTask;
+        //     };
+        // });
+        // services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
 
         // Authorization
         services.AddScoped<IAuthorizationHandler, BasicAuthenticationHandle>();
-        services.AddAuthorization(option =>
+        services.AddAuthorization(options =>
         {
-            option.AddPolicy(AppConstants.Authentication_Basic, policy =>
+            options.AddPolicy(AppConstants.Authentication_Basic, policy =>
             {
                 policy.AddRequirements(new BasicAuthenticationRequirement());
             });
+
+            // Set default authorization policy
+            options.DefaultPolicy = options.GetPolicy(AppConstants.Authentication_Basic);
         });
 
         // HttpClient
@@ -108,6 +118,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Core
         services.AddScoped(typeof(IService<>), typeof(Service<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IJwtService, JwtService>();
 
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();

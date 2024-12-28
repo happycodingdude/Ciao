@@ -30,6 +30,6 @@ public class SearchContactsWithFriendStatusEndpoint : ICarterModule
             var query = new SearchContactsWithFriendStatus.Request(name);
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

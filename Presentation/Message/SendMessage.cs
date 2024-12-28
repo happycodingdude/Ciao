@@ -120,6 +120,6 @@ public class SendMessageEndpoint : ICarterModule
             var query = new SendMessage.Request(conversationId, model);
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

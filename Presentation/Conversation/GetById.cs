@@ -52,6 +52,6 @@ public class GetByIdEndpoint : ICarterModule
             var query = new GetById.Request(id, page, limit);
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

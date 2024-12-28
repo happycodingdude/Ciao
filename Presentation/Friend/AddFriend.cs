@@ -133,6 +133,6 @@ public class AddFriendEndpoint : ICarterModule
             var query = new AddFriend.Request(contactId);
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

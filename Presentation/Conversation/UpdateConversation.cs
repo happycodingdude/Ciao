@@ -61,6 +61,6 @@ public class UpdateConversationEndpoint : ICarterModule
             var query = new UpdateConversation.Request(id, model);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

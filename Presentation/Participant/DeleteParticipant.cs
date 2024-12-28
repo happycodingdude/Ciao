@@ -42,6 +42,6 @@ public class DeleteParticipantEndpoint : ICarterModule
             var query = new DeleteParticipant.Request(conversationId);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

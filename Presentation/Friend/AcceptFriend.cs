@@ -86,6 +86,6 @@ public class AcceptFriendEndpoint : ICarterModule
             var query = new AcceptFriend.Request(id);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

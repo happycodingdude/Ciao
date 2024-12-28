@@ -83,6 +83,6 @@ public class CancelFriendEndpoint : ICarterModule
             var query = new CancelFriend.Request(id);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

@@ -68,6 +68,6 @@ public class UpdateContactEndpoint : ICarterModule
             var query = new UpdateContact.Request(model);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

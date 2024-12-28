@@ -42,7 +42,7 @@ public static class SeenAllNotification
                 var query = new SeenAllNotification.Request();
                 await sender.Send(query);
                 return Results.Ok();
-            }).RequireAuthorization(AppConstants.Authentication_Basic);
+            }).RequireAuthorization();
         }
     }
 }

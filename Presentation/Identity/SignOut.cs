@@ -6,18 +6,14 @@ public static class SignOut
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        readonly IHttpContextAccessor _httpContextAccessor;
         readonly IDistributedCache _distributedCache;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor,
-            IDistributedCache distributedCache,
+        public Handler(IDistributedCache distributedCache,
             IService<IContactRepository> contactService,
             IService<IConversationRepository> conversationService)
         {
-            // _userManager = userManager;
-            _httpContextAccessor = httpContextAccessor;
             _distributedCache = distributedCache;
             _contactRepository = contactService.Get();
             _conversationRepository = conversationService.Get();
@@ -27,17 +23,20 @@ public static class SignOut
         {
             var user = await _contactRepository.GetInfoAsync();
 
-            // Delete Firebase connection
+            // Remove redis data
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
+            await _distributedCache.RemoveAsync($"token-{user.Id}");
 
-            // Update IsOnline false
+            // Update contact info
             var filter = Builders<Contact>.Filter.Where(q => q.Id == user.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
-                .Set(q => q.LastLogout, DateTime.Now);
+                .Set(q => q.LastLogout, DateTime.Now)
+                .Set(q => q.RefreshToken, null)
+                .Set(q => q.ExpiryDate, null);
             _contactRepository.Update(filter, updates);
 
-            // Update contact infor in conversation
+            // Update contact info in conversation
             var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
             var conversationUpdates = Builders<Conversation>.Update
                 .Set("Participants.$[elem].Contact.IsOnline", false);
@@ -45,8 +44,6 @@ public static class SignOut
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
             _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
-
-            await _httpContextAccessor.HttpContext.SignOutAsync();
 
             return Unit.Value;
         }

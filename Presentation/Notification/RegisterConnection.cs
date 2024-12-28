@@ -54,6 +54,6 @@ public class RegisterConnectionEndpoint : ICarterModule
             var query = new RegisterConnection.Request(token);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

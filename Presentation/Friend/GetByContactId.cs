@@ -44,6 +44,6 @@ public class GetByContactIdEndpoint : ICarterModule
             var query = new GetByContactId.Request(contactId);
             var result = await sender.Send(query);
             return Results.Ok(result);
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

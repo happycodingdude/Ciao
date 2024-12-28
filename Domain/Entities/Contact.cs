@@ -12,4 +12,9 @@ public class Contact : MongoBaseModel
     public bool IsOnline { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? LastLogout { get; set; }
+    [JsonIgnore]
+    public string RefreshToken { get; set; } = null!;
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    [JsonIgnore]
+    public DateTime? ExpiryDate { get; set; }
 }

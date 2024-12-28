@@ -106,6 +106,6 @@ public class ReactMessageEndpoint : ICarterModule
             var query = new ReactMessage.Request(conversationId, id, type);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }

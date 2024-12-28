@@ -4,7 +4,7 @@ global using Microsoft.AspNetCore.Identity;
 global using MongoDB.Driver;
 global using System.Reflection;
 global using Application.Specifications;
-global using Shared.Constants;
 global using System.Text.Json.Serialization;
 global using Domain.Base;
 global using Domain.Entities;
+global using System.Security.Claims;

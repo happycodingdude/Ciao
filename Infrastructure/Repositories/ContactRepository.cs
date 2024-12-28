@@ -20,12 +20,12 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
 
     public string GetUserId()
     {
-        return _httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(q => q.Type == "UserId").Value;
+        return _httpContextAccessor.HttpContext.Items["UserId"].ToString();
     }
 
     public async Task<Contact> GetInfoAsync()
     {
-        var userId = _httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(q => q.Type == "UserId").Value;
+        var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();
         var filter = MongoQuery<Contact>.IdFilter(userId);
         return await GetItemAsync(filter);
     }

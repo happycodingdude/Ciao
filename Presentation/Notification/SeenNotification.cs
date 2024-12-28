@@ -60,6 +60,6 @@ public class SeenNotificationEndpoint : ICarterModule
             var query = new SeenNotification.Request(id);
             await sender.Send(query);
             return Results.Ok();
-        }).RequireAuthorization(AppConstants.Authentication_Basic);
+        }).RequireAuthorization();
     }
 }
