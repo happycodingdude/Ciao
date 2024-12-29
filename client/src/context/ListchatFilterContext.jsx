@@ -1,15 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useInfo } from "../hook/CustomHooks";
+import React, { createContext, useEffect, useState } from "react";
+import useInfo from "../features/authentication/hooks/useInfo";
 
 // Create the context
-const ListchatFilterContext = createContext();
-
-// Custom hook to use the LoadingContext
-export const useListchatFilter = () => useContext(ListchatFilterContext);
+export const ListchatFilterContext = createContext();
 
 // Provider component
-export function ListchatFilterProvider({ children }) {
+const ListchatFilterProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
 
@@ -52,4 +49,6 @@ export function ListchatFilterProvider({ children }) {
       {children}
     </ListchatFilterContext.Provider>
   );
-}
+};
+
+export default ListchatFilterProvider;
