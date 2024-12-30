@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import getInfo from "../services/getInfo";
 
-const useInfo = (signedOut) => {
+const useInfo = (enabled = false) => {
   return useQuery({
     queryKey: ["info"],
     queryFn: getInfo,
     staleTime: Infinity,
-    enabled: !signedOut,
+    enabled: enabled,
+    // enabled: false,
   });
 };
 export default useInfo;

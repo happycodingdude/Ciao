@@ -1,8 +1,8 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImage } from "../../common/Utility";
-import { useAttachment } from "../../hook/CustomHooks";
-import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import blurImage from "../../../utils/blurImage";
+import useAttachment from "../hooks/useAttachment";
 
 const Attachment = (props) => {
   console.log("Attachment calling");

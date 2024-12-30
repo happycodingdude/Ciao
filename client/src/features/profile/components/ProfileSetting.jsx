@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
+import ImageWithLightBoxWithBorderAndShadow from "../../../components/ImageWithLightBoxWithBorderAndShadow";
 import ProfileSettingMenu from "./ProfileSettingMenu";
 
 const ProfileSetting = (props) => {

@@ -13,6 +13,11 @@ export default defineConfig({
         secure: false,
         // rewrite: (path) => path.replace("/chat", ""),
       },
+      "/auth/src/assets": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/auth/, ""),
+      },
     },
   },
   define: {

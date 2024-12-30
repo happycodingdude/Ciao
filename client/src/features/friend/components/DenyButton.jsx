@@ -1,8 +1,8 @@
 import moment from "moment";
 import React from "react";
-import { HttpRequest } from "../../common/Utility";
+import CustomButton from "../../../components/CustomButton";
+import HttpRequest from "../../../lib/fetch";
 import { useAuth } from "../../hook/CustomHooks";
-import CustomButton from "../common/CustomButton";
 
 const DenyButton = (props) => {
   const { request, onClose, className } = props;

@@ -1,9 +1,9 @@
 import React from "react";
-import LoadingProvider from "../../../context/loadingContext";
-import ChatboxContainer from "../../pages/ChatboxContainer";
-import ListChatContainer from "../listchat/ListChatContainer";
+import LoadingProvider from "../context/loadingContext";
+import ChatboxContainer from "./ChatboxContainer";
+import ListChatContainer from "./ListChatContainer";
 
-export const ChatSection = () => {
+const ChatSection = () => {
   return (
     <LoadingProvider>
       <section className={`flex grow overflow-hidden`}>
@@ -13,3 +13,5 @@ export const ChatSection = () => {
     </LoadingProvider>
   );
 };
+
+export default ChatSection;

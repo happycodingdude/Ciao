@@ -1,19 +1,36 @@
 import React, { useRef, useState } from "react";
-import LoginContainer from "./LoginContainer";
+import { useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
+import useInfo from "../features/authentication/hooks/useInfo";
+import useLocalStorage from "../hooks/useLocalStorage";
+import SigninContainer from "../layouts/SigninContainer";
 import Signup from "./Signup";
 
 const Authentication = (props) => {
   console.log("Authentication calling");
   const { onSuccess } = props;
+  const { data: info } = useInfo(true);
 
   const refBgContainer = useRef();
   const refBgSignUpLabelContainer = useRef();
   const refBgSignInLabelContainer = useRef();
-  const refLoginContainer = useRef();
+  const refSigninContainer = useRef();
   const refLoginWrapper = useRef();
 
   const [showLogin, setShowLogin] = useState(true);
   const [showSignup, setShowSignup] = useState(false);
+
+  // const [refreshToken] = useLocalStorage("refreshToken");
+  const [accessToken] = useLocalStorage("accessToken");
+  const navigate = useNavigate();
+
+  if (info) navigate("/");
+
+  if (accessToken) return <Loading />;
+
+  // if (!info && refreshToken) {
+  //   return <RefreshToken />;
+  // }
 
   const toggleBg = () => {
     // Animate background container
@@ -29,7 +46,7 @@ const Authentication = (props) => {
     refBgSignInLabelContainer.current?.classList.toggle("translate-x-[-150%]");
     refBgSignInLabelContainer.current?.classList.toggle("opacity-0");
     // Animate form
-    refLoginContainer.current?.classList.toggle("opacity-0");
+    refSigninContainer.current?.classList.toggle("opacity-0");
     refLoginWrapper.current?.classList.toggle("translate-x-[-150%]");
   };
 
@@ -50,13 +67,13 @@ const Authentication = (props) => {
       <section className="relative flex h-full w-full transition-all duration-500">
         <div
           ref={refBgContainer}
-          className="absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] rounded-tr-[20rem] 
-            bg-[url('images/hoian10.png')] bg-[size:120%] bg-[position:center_center] bg-no-repeat transition-all duration-500
+          className={`absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] rounded-tr-[20rem] 
+            bg-[url('src/assets/hoian10.png')] bg-[size:120%] bg-[position:center_center] bg-no-repeat transition-all duration-500
             before:absolute before:bottom-0 before:left-0 before:right-0 before:top-0
-            before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]"
+            before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]`}
         ></div>
 
-        <LoginContainer show={showLogin} onSuccess={onSuccess} />
+        <SigninContainer show={showLogin} onSuccess={onSuccess} />
         <Signup show={showSignup} onSuccess={toggleLogin} />
 
         <div

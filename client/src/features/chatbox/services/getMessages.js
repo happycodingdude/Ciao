@@ -1,4 +1,4 @@
-import { HttpRequest } from "../../../lib/fetch";
+import HttpRequest from "../../../lib/fetch";
 
 const getMessages = async (conversationId, page) => {
   return (

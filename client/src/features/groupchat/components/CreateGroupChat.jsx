@@ -1,6 +1,6 @@
 import { UsergroupAddOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
-import BackgroundPortal from "../common/BackgroundPortal";
+import BackgroundPortal from "../../../components/BackgroundPortal";
 import CreateGroupChatModal from "./CreateGroupChatModal";
 
 const CreateGroupChat = () => {

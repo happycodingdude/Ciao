@@ -1,10 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-
-const queryClient = useQueryClient();
-const navigate = useNavigate();
+import HttpRequest from "../../../lib/fetch";
 
 const signout = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   HttpRequest({
     method: "get",
     url: import.meta.env.VITE_ENDPOINT_SIGNOUT,

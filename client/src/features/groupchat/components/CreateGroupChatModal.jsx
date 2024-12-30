@@ -2,14 +2,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { blurImage, HttpRequest } from "../../common/Utility";
-import { useFriend, useInfo } from "../../hook/CustomHooks";
-import CustomButton from "../common/CustomButton";
-import CustomInput from "../common/CustomInput";
-import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBox from "../common/ImageWithLightBox";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import MediaPicker from "../common/MediaPicker";
+import CustomButton from "../../../components/CustomButton";
+import CustomInput from "../../../components/CustomInput";
+import CustomLabel from "../../../components/CustomLabel";
+import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import MediaPicker from "../../../components/MediaPicker";
+import blurImage from "../../../utils/blurImage";
+import useInfo from "../../authentication/hooks/useInfo";
+import useFriend from "../../friend/hooks/useFriend";
+import createGroupChat from "../services/createGroupChat";
 
 const CreateGroupChatModal = (props) => {
   const { onClose } = props;
@@ -44,7 +46,7 @@ const CreateGroupChatModal = (props) => {
     e.target.value = null;
   };
 
-  const createGroupChat = async () => {
+  const createGroupChatCTA = async () => {
     if (membersToAdd.length === 0) return;
 
     let url = "";
@@ -63,40 +65,29 @@ const CreateGroupChatModal = (props) => {
     }
     let randomId = Math.random().toString(36).substring(2, 7);
 
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET,
-      data: {
-        title: refInputTitle.current.value,
-        isGroup: true,
-        avatar: url,
-        participants: membersToAdd.map((mem) => {
+    createGroupChat(refInputTitle.current.value, url, membersToAdd).then(
+      (res) => {
+        queryClient.setQueryData(["conversation"], (oldData) => {
+          const cloned = Object.assign({}, oldData);
+          const updatedConversations = cloned.conversations.map(
+            (conversation) => {
+              if (conversation.id !== randomId) return conversation;
+              conversation.id = res.data;
+              return conversation;
+            },
+          );
           return {
-            contactId: mem.id,
+            ...oldData,
+            conversations: updatedConversations,
+            filterConversations: updatedConversations,
+            selected: {
+              ...oldData.selected,
+              id: res.data,
+            },
           };
-        }),
+        });
       },
-    }).then((res) => {
-      queryClient.setQueryData(["conversation"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        const updatedConversations = cloned.conversations.map(
-          (conversation) => {
-            if (conversation.id !== randomId) return conversation;
-            conversation.id = res.data;
-            return conversation;
-          },
-        );
-        return {
-          ...oldData,
-          conversations: updatedConversations,
-          filterConversations: updatedConversations,
-          selected: {
-            ...oldData.selected,
-            id: res.data,
-          },
-        };
-      });
-    });
+    );
 
     queryClient.setQueryData(["conversation"], (oldData) => {
       return {
@@ -381,7 +372,7 @@ const CreateGroupChatModal = (props) => {
         gradientHeight="120%"
         rounded="3rem"
         title="Save"
-        onClick={createGroupChat}
+        onClick={createGroupChatCTA}
       />
     </div>
   );

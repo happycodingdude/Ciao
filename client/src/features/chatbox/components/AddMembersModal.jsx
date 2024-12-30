@@ -1,13 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { blurImage, HttpRequest } from "../../common/Utility";
-import { useFriend } from "../../hook/CustomHooks";
-import CustomButton from "../common/CustomButton";
-import CustomInput from "../common/CustomInput";
-import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBox from "../common/ImageWithLightBox";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import CustomButton from "../../../components/CustomButton";
+import CustomInput from "../../../components/CustomInput";
+import CustomLabel from "../../../components/CustomLabel";
+import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import HttpRequest from "../../../lib/fetch";
+import blurImage from "../../../utils/blurImage";
+import useFriend from "../../friend/hooks/useFriend";
 
 const AddMembersModal = (props) => {
   const { id, members, onClose } = props;

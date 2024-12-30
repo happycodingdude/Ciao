@@ -1,17 +1,15 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
-import { blurImage, HttpRequest } from "../../common/Utility";
-import { useLoading } from "../../context/LoadingContext";
-import {
-  useAttachment,
-  useConversation,
-  useInfo,
-} from "../../hook/CustomHooks";
-import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBox from "../common/ImageWithLightBox";
-import OnlineStatusDot from "../common/OnlineStatusDot";
-import QuickChat from "../friend/QuickChat";
+import CustomLabel from "../../../components/CustomLabel";
+import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import OnlineStatusDot from "../../../components/OnlineStatusDot";
+import useLoading from "../../../hooks/useLoading";
+import blurImage from "../../../utils/blurImage";
+import useInfo from "../../authentication/hooks/useInfo";
+import QuickChat from "../../friend/components/QuickChat";
+import useConversation from "../../listchat/hooks/useConversation";
+import useAttachment from "../hooks/useAttachment";
 
 const Information = (props) => {
   console.log("Information calling");

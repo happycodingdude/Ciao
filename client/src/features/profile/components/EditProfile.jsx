@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CustomButton from "../common/CustomButton";
+import CustomButton from "../../../components/CustomButton";
 
 const EditProfile = (props) => {
   const { profile, onChange, onSave } = props;

@@ -4,10 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import { useAttachment } from "../../../hooks/CustomHooks";
 import useLoading from "../../../hooks/useLoading";
+import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import useMessage from "../../chatbox/hooks/useMessage";
+import useAttachment from "../../chatdetail/hooks/useAttachment";
 import useConversation from "../hooks/useConversation";
 
 moment.locale("en", {
@@ -35,6 +36,8 @@ const ListchatContent = () => {
 
   const queryClient = useQueryClient();
 
+  const [page, setPage] = useState(1);
+
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
   const { data } = useConversation(page);
@@ -43,9 +46,6 @@ const ListchatContent = () => {
 
   const refChatItems = useRef({});
   const refChats = useRef([]);
-
-  // const [selected, setSelected] = useState();
-  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (!data?.filterConversations) return;

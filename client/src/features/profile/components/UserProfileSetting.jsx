@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { HttpRequest } from "../../common/Utility";
+import CustomButton from "../../../components/CustomButton";
+import ImageWithLightBoxWithBorderAndShadow from "../../../components/ImageWithLightBoxWithBorderAndShadow";
+import HttpRequest from "../../../lib/fetch";
 import {
   useAuth,
   useFetchConversations,
   useFetchFriends,
 } from "../../hook/CustomHooks";
-import CustomButton from "../common/CustomButton";
-import ImageWithLightBoxWithBorderAndShadow from "../common/ImageWithLightBoxWithBorderAndShadow";
 import FriendRequestButton from "../friend/FriendRequestButton";
 
 const UserProfileSetting = (props) => {

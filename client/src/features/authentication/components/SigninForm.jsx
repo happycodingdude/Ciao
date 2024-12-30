@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "../../../hooks/useLocalStorage";
-import CustomButton from "../common/CustomButton";
-import CustomInput from "../common/CustomInput";
-import ErrorComponent from "../common/ErrorComponent";
+import CustomButton from "../../../components/CustomButton";
+import CustomInput from "../../../components/CustomInput";
+import ErrorComponent from "../../../components/ErrorComponent";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 import signin from "../services/signin";
 
 const SigninForm = (props) => {
@@ -41,9 +41,11 @@ const SigninForm = (props) => {
       // queryClient.invalidateQueries(["info"]);
       // refetch();
       // onSuccess();
-      navigate("/");
       setAccessToken(res.data.accessToken);
       setRefreshToken(res.data.refreshToken);
+      setTimeout(() => {
+        navigate("/");
+      }, 0);
       //   localStorage.setItem("accessToken", res.data.accessToken);
       //   localStorage.setItem("refreshToken", res.data.refreshToken);
     },

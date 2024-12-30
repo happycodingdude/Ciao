@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import React, { useCallback, useRef, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
-import { read, readAll } from "../../hook/NotificationAPIs";
-import useNotification from "../hooks/useNotification";
+import useNotification from "../../notification/hooks/useNotification";
+import read from "../../notification/services/read";
+import readAll from "../../notification/services/readAll";
 
 const Notification = () => {
   console.log("Notification calling");

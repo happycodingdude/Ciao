@@ -1,8 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import { HttpRequest } from "../../common/Utility";
-import { useConversation, useInfo } from "../../hook/CustomHooks";
-import CustomButton from "../common/CustomButton";
+import CustomButton from "../../../components/CustomButton";
+import HttpRequest from "../../../lib/fetch";
+import useInfo from "../../authentication/hooks/useInfo";
+import useConversation from "../../listchat/hooks/useConversation";
 import AcceptButton from "./AcceptButton";
 import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";

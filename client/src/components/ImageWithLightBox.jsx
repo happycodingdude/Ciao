@@ -34,7 +34,7 @@ const ImageWithLightBox = (props) => {
       {/* <div className="lazy-image h-full w-full bg-red-500"></div> */}
 
       <div
-        data-src={src ?? "images/imagenotfound.jpg"}
+        data-src={src ?? "src/assets/imagenotfound.jpg"}
         className={`${imageClassName} 
         ${roundedClassName ?? "rounded-2xl"} 
         

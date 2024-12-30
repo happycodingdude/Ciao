@@ -2,12 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { blurImage } from "../../common/Utility";
-import { useInfo } from "../../hook/CustomHooks";
-import { updateInfo } from "../../hook/UserAPIs";
-import CustomButton from "../common/CustomButton";
-import ImageWithLightBoxWithShadowAndNoLazy from "../common/ImageWithLightBoxWithShadowAndNoLazy";
-import MediaPicker from "../common/MediaPicker";
+import CustomButton from "../../components/CustomButton";
+import ImageWithLightBoxWithShadowAndNoLazy from "../../components/ImageWithLightBoxWithShadowAndNoLazy";
+import MediaPicker from "../../components/MediaPicker";
+import blurImage from "../../utils/blurImage";
+import useInfo from "../authentication/hooks/useInfo";
+import updateInfo from "../authentication/services/updateInfo";
 
 const ProfileSection = () => {
   console.log("ProfileSection calling");

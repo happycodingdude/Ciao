@@ -28,9 +28,9 @@ const ImageWithLightBox = (props) => {
       >
         {/* <div
         title={title}
-        data-src={src ?? "images/imagenotfound.jpg"}
+        data-src={src ?? "src/assets/imagenotfound.jpg"}
         style={{
-          "--image-url": `url(${src ?? "images/imagenotfound.jpg"})`,
+          "--image-url": `url(${src ?? "src/assets/imagenotfound.jpg"})`,
         }}        
         className={`${className} lazy-image blurred bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
         onClick={onClick ?? handleShowLightbox}
@@ -44,7 +44,7 @@ const ImageWithLightBox = (props) => {
 
         <div
           // className={`${className} bg-[url('images/svg-spinners--bars-rotate-fade.svg')] bg-[position:center_center] bg-no-repeat`}
-          data-src={src ?? "images/imagenotfound.jpg"}
+          data-src={src ?? "src/assets/imagenotfound.jpg"}
           className={`${imageClassName} lazy-image absolute h-full w-full bg-[position:center_center] bg-no-repeat`}
         >
           {/* <img

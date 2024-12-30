@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { createPortal } from "react-dom";
-import { useEventListener } from "../../hook/CustomHooks";
+import useEventListener from "../hooks/useEventListener";
 import PortalHeader from "./PortalHeader";
 
 const BackgroundPortal = (props) => {

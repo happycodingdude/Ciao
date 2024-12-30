@@ -1,9 +1,9 @@
 import React from "react";
 import SigninForm from "../features/authentication/components/SigninForm";
 
-const Login = (props) => {
-  console.log("Login calling");
-  const { show, showContainer, toggle, onSuccess } = props;
+const Signin = (props) => {
+  console.log("Signin calling");
+  const { show, showContainer, toggle } = props;
 
   return (
     <div
@@ -13,9 +13,9 @@ const Login = (props) => {
     >
       <p className="text-5xl text-[var(--text-main-color)]">Sign in</p>
 
-      <SigninForm />
+      <SigninForm show={show} showContainer={showContainer} toggle={toggle} />
     </div>
   );
 };
 
-export default Login;
+export default Signin;

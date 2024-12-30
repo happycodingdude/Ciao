@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import ForgotPassword from "./ForgotPassword";
-import Login from "./Login";
+import ForgotPassword from "../pages/ForgotPassword";
+import Login from "../pages/Signin";
 
-const LoginContainer = (props) => {
+const SigninContainer = (props) => {
   const { show, onSuccess } = props;
   const [showLogin, setShowLogin] = useState(true);
   const [showForgot, setShowFotgot] = useState(false);
@@ -46,4 +46,4 @@ const LoginContainer = (props) => {
   );
 };
 
-export default LoginContainer;
+export default SigninContainer;

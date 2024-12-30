@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { HttpRequest } from "../../common/Utility";
+import HttpRequest from "../../../lib/fetch";
 import { useAuth, useFetchParticipants } from "../../hook/CustomHooks";
 
 const ToggleNotification = () => {
@@ -32,7 +32,7 @@ const ToggleNotification = () => {
       ),
       token: auth.token,
       data: body,
-    }).then((res) => {      
+    }).then((res) => {
       setIsNotifying(checked);
     });
   };

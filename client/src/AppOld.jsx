@@ -5,6 +5,7 @@ import { registerSW } from "./components/Notification";
 import LoadingProvider from "./context/LoadingContext";
 import "./Loading.css";
 import Authentication from "./pages/Authentication";
+import AuthRoute from "./pages/AuthRoute";
 import Home from "./pages/Home";
 import ProtectedRoute from "./pages/ProtectedRoute";
 
@@ -21,14 +22,20 @@ function App() {
     <LoadingProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/auth" element={<Authentication />}></Route>
+          <Route element={<AuthRoute />}>
+            <Route path="/auth" element={<Authentication />}></Route>
+          </Route>
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Home />}></Route>
+            <Route
+              path="/"
+              element={
+                <Home />                
+              }
+            ></Route>
           </Route>
         </Routes>
       </BrowserRouter>
     </LoadingProvider>
   );
-}
 
 export default App;

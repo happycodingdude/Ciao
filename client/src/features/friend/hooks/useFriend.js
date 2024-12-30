@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import getFriends from "../services/getFriends";
 
 const useFriend = () => {
   return useQuery({

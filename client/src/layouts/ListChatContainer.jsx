@@ -1,7 +1,7 @@
 import React from "react";
-import { ListchatFilterProvider } from "../../../context/ListchatFilterContext";
-import ListChat from "./ListChat";
-import ListChatHeader from "./ListChatHeader";
+import ListchatFilterProvider from "../context/ListchatFilterContext";
+import ListChat from "../features/listchat/components/ListChat";
+import ListChatHeader from "../features/listchat/components/ListChatHeader";
 
 const ListChatContainer = () => {
   console.log("ListChatContainer calling");

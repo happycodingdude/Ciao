@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import CustomButton from "../../common/CustomButton";
-import CustomInput from "../../common/CustomInput";
-import ErrorComponent from "../../common/ErrorComponent";
+import CustomButton from "../../../components/CustomButton";
+import CustomInput from "../../../components/CustomInput";
+import ErrorComponent from "../../../components/ErrorComponent";
 import signup from "../services/signup";
 
 const SignupForm = (props) => {

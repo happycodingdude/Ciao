@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
-import CustomButton from "../common/CustomButton";
-import CustomInput from "../common/CustomInput";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import MediaPicker from "../common/MediaPicker";
+import CustomButton from "../../../components/CustomButton";
+import CustomInput from "../../../components/CustomInput";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import MediaPicker from "../../../components/MediaPicker";
 
 const UpdateConversation = (props) => {
   const { selected, onClose } = props;

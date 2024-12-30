@@ -1,6 +1,6 @@
 import React from "react";
 // import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
-// import { requestPermission } from "../common/Notification";
+// import { requestPermission } from "../../../components/Notification";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import ImageWithLightBox from "../components/ImageWithLightBox";
@@ -8,6 +8,7 @@ import RelightBackground from "../components/RelightBackground";
 import SignoutIcon from "../features/authentication/components/SignoutIcon";
 import useInfo from "../features/authentication/hooks/useInfo";
 import ProfileIcon from "../features/profile-new/ProfileIcon";
+import ChatIcon from "../features/sidebar/components/ChatIcon";
 import Notification from "../features/sidebar/components/Notification";
 import blurImage from "../utils/blurImage";
 

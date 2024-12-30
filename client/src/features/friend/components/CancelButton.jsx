@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { HttpRequest } from "../../common/Utility";
-import CustomButton from "../common/CustomButton";
+import CustomButton from "../../../components/CustomButton";
+import HttpRequest from "../../../lib/fetch";
 
 const CancelButton = (props) => {
   const { id, onClose, className } = props;

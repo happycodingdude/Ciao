@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import useConversation from "../../../hooks/useConversation";
-import useInfo from "../../../hooks/useInfo";
+import useInfo from "../../authentication/hooks/useInfo";
+import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
+import useConversation from "../../listchat/hooks/useConversation";
 import AddMembers from "./AddMembers";
-import AttachmentIcon from "./AttachmentIcon";
 import UpdateConversation from "./UpdateConversation";
 
 const ChatboxHeader = (props) => {

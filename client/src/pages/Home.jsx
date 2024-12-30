@@ -1,17 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import { useFriend, useInfo } from "../../hook/CustomHooks";
-import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
-import { requestPermission } from "../common/Notification";
+import { requestPermission } from "../components/Notification";
+import useInfo from "../features/authentication/hooks/useInfo";
+import useFriend from "../features/friend/hooks/useFriend";
+import notifyMessage from "../features/notification/services/notifyMessage";
 import ProfileSection from "../features/profile-new/ProfileSection";
-import SideBar from "../features/sidebar/components/SideBar";
-import { ChatSection } from "./ChatSection";
+import useLocalStorage from "../hooks/useLocalStorage";
+import ChatSection from "../layouts/ChatSection";
+import SideBar from "../layouts/SideBar";
 
-export const Home = () => {
+const Home = () => {
   console.log("Home calling");
 
   const queryClient = useQueryClient();
 
+  const [userId, setUserId] = useLocalStorage("userId");
   const { data: info } = useInfo();
   const { refetch: refetchFriend } = useFriend();
 
@@ -25,15 +28,18 @@ export const Home = () => {
 
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
-    if (info && !isRegistered.current) {
-      isRegistered.current = true;
-      requestPermission(
-        registerConnectionMutation,
-        notifyMessage,
-        queryClient,
-        info,
-      );
+    if (info) {
+      setUserId(info.id);
       refetchFriend();
+      if (!isRegistered.current) {
+        isRegistered.current = true;
+        requestPermission(
+          registerConnectionMutation,
+          notifyMessage,
+          queryClient,
+          info,
+        );
+      }
     }
   }, [info]);
 
@@ -56,3 +62,5 @@ export const Home = () => {
     </div>
   );
 };
+
+export default Home;

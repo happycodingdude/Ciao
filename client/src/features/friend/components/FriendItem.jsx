@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithLightBox from "../common/ImageWithLightBox";
+import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import FriendCtaButton from "./FriendCtaButton";
 
 const FriendItem = (props) => {

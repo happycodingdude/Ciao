@@ -1,4 +1,4 @@
-import { HttpRequest } from "../../../lib/fetch";
+import HttpRequest from "../../../lib/fetch";
 
 const updateInfo = async (name, bio, avatar) => {
   const body = {

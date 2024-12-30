@@ -3,12 +3,13 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { debounce } from "lodash";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import FetchingMoreMessages from "../../../components/FetchingMoreMessages";
+import RelightBackground from "../../../components/RelightBackground";
+import useEventListener from "../../../hooks/useEventListener";
 import HttpRequest from "../../../lib/fetch";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
-import FetchingMoreMessages from "../common/FetchingMoreMessages";
-import RelightBackground from "../common/RelightBackground";
 import useMessage from "../hooks/useMessage";
 import sendMessage from "../services/sendMessage";
 import ChatInput from "./ChatInput";
@@ -20,23 +21,16 @@ const Chatbox = (props) => {
 
   const queryClient = useQueryClient();
 
+  const [page, setPage] = useState(2);
+
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const {
-    data: messages,
-    isLoading,
-    isRefetching,
-  } = useMessage(conversations?.selected?.id, page);
+  const { data: messages } = useMessage(conversations?.selected?.id, page);
 
   const refChatContent = useRef();
   const refChatboxContainer = useRef();
   const refInput = useRef();
 
-  // const [files, setFiles] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [userId, setUserId] = useState();
-  const [openEmoji, setOpenEmoji] = useState(false);
-  const [page, setPage] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);

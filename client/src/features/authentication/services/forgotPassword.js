@@ -1,4 +1,4 @@
-import { HttpRequest } from "../../../lib/fetch";
+import HttpRequest from "../../../lib/fetch";
 
 const forgotPassword = async (username, password) => {
   return await HttpRequest({

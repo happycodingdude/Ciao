@@ -1,4 +1,4 @@
-import { HttpRequest } from "../../../lib/fetch";
+import HttpRequest from "../../../lib/fetch";
 
 const getConversations = async (page) => {
   const data = (

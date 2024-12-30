@@ -1,5 +1,7 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
+import refreshToken from "../features/authentication/services/refreshToken";
 
 const HttpRequest = async ({
   method,
@@ -35,23 +37,24 @@ const HttpRequest = async ({
     });
 };
 
-export default HttpRequest;
-
-// axiosRetry(axios, {
-//   retries: 1,
-//   retryCondition: async (error) => {
-//     if (
-//       !(error.config.url === import.meta.env.VITE_ENDPOINT_REFRESH) &&
-//       error.response.status === 401 &&
-//       localStorage.getItem("refresh")
-//     ) {
-//       const newToken = await refreshToken();
-//       error.config.headers["Authorization"] = "Bearer " + newToken;
-//       return true;
-//     }
-//     return false;
-//   },
-// });
+axiosRetry(axios, {
+  retries: 1,
+  retryCondition: async (error) => {
+    if (
+      error.config.url !== import.meta.env.VITE_ENDPOINT_REFRESH &&
+      error.response.status === 401 &&
+      localStorage.getItem("refreshToken")
+    ) {
+      const response = await refreshToken();
+      error.config.headers["Authorization"] =
+        "Bearer " + response.data.accessToken;
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      return true;
+    }
+    return false;
+  },
+});
 
 // const refreshToken = () => {
 //   return axios({
@@ -66,3 +69,5 @@ export default HttpRequest;
 //     return res.data.accessToken;
 //   });
 // };
+
+export default HttpRequest;

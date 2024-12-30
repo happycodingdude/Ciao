@@ -1,6 +1,6 @@
 import React from "react";
-import BackgroundPortal from "../common/BackgroundPortal";
-import CustomButton from "../common/CustomButton";
+import BackgroundPortal from "../../../components/BackgroundPortal";
+import CustomButton from "../../../components/CustomButton";
 
 const ExpiredSession = (props) => {
   console.log("ExpiredSession calling");

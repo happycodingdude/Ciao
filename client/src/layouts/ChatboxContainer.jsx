@@ -1,16 +1,14 @@
 import React, { useEffect } from "react";
-import {
-  useAttachment,
-  useConversation,
-  useMessage,
-  useToggleChatDetail,
-} from "../../hook/CustomHooks";
-import LocalLoading from "../common/LocalLoading";
-import { useLoading } from "../context/LoadingContext";
-import Attachment from "../features/chatbox/Attachment";
-import Chatbox from "../features/chatbox/Chatbox";
-import ChatboxHeader from "../features/chatbox/ChatboxHeader";
-import Information from "../features/chatbox/Information";
+import LocalLoading from "../components/LocalLoading";
+import Chatbox from "../features/chatbox/components/Chatbox";
+import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
+import useMessage from "../features/chatbox/hooks/useMessage";
+import useToggleChatDetail from "../features/chatbox/hooks/useToggleChatDetail";
+import Attachment from "../features/chatdetail/components/Attachment";
+import Information from "../features/chatdetail/components/Information";
+import useAttachment from "../features/chatdetail/hooks/useAttachment";
+import useConversation from "../features/listchat/hooks/useConversation";
+import useLoading from "../hooks/useLoading";
 
 const ChatboxContainer = () => {
   console.log("ChatboxContainer calling");
@@ -56,7 +54,7 @@ const ChatboxContainer = () => {
             <Chatbox isToggle={toggle !== ""} />
             <div
               className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
-            ${toggle !== "" ? "opacity-100" : "opacity-0"}`}
+            ${toggle === "" || toggle === nulll ? "opacity-0" : "opacity-100"}`}
             >
               <Information
                 show={toggle === "information"}

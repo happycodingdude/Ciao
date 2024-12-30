@@ -13,7 +13,7 @@ const ForgotPassword = (props) => {
     >
       <p className="text-5xl text-[var(--text-main-color)]">Reset</p>
 
-      <ForgotPasswordForm />
+      <ForgotPasswordForm show={show} toggle={toggle} />
     </div>
   );
 };

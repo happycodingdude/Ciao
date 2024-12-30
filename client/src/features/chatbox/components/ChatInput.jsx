@@ -38,7 +38,7 @@ const ChatInput = forwardRef((props, ref) => {
         .map((item) => {
           return {
             name: item.contact.name,
-            avatar: item.contact.avatar ?? "images/imagenotfound.jpg",
+            avatar: item.contact.avatar ?? "src/assets/imagenotfound.jpg",
             userId: item.contact.id,
           };
         });

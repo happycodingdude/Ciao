@@ -1,7 +1,8 @@
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { blurImage, HttpRequest } from "../../common/Utility";
-import CustomInput from "../common/CustomInput";
+import CustomInput from "../../../components/CustomInput";
+import HttpRequest from "../../../lib/fetch";
+import blurImage from "../../../utils/blurImage";
 import FriendItem from "./FriendItem";
 
 const ListFriend = (props) => {

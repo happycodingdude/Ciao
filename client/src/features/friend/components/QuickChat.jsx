@@ -1,14 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef } from "react";
-import { HttpRequest } from "../../common/Utility";
-import {
-  useConversation,
-  useEventListener,
-  useInfo,
-} from "../../hook/CustomHooks";
-import { send } from "../../hook/MessageAPIs";
-import ChatInput from "../chatbox/ChatInput";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import useEventListener from "../../../hooks/useEventListener";
+import HttpRequest from "../../../lib/fetch";
+import useInfo from "../../authentication/hooks/useInfo";
+import ChatInput from "../../chatbox/components/ChatInput";
+import sendMessage from "../../chatbox/services/sendMessage";
+import useConversation from "../../listchat/hooks/useConversation";
 import FriendCtaButton from "./FriendCtaButton";
 
 const QuickChat = (props) => {
@@ -83,7 +81,7 @@ const QuickChat = (props) => {
         type: "text",
         content: content,
       };
-      await send(existedConversation.id, bodyToCreate);
+      await sendMessage(existedConversation.id, bodyToCreate);
     } else {
       let randomId = Math.random().toString(36).substring(2, 7);
 
