@@ -13,11 +13,13 @@ public class TokenModel
 {
     public string AccessToken { get; set; } = null!;
     public string RefreshToken { get; set; } = null!;
+    public string UserId { get; set; } = null!;
 
-    public TokenModel(string accessToken, string refreshToken)
+    public TokenModel(string accessToken, string refreshToken, string userId)
     {
         AccessToken = accessToken;
         RefreshToken = refreshToken;
+        UserId = userId;
     }
 }
 

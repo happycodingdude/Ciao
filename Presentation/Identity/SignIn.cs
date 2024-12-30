@@ -68,7 +68,7 @@ public static class SignIn
                 refreshToken = user.RefreshToken;
             }
 
-            return new TokenModel(token, refreshToken);
+            return new TokenModel(token, refreshToken, user.Id);
         }
     }
 }

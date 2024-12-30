@@ -42,7 +42,7 @@ public static class RefreshToken
                 .Set(q => q.ExpiryDate, expiryDate);
             _contactRepository.Update(filter, updates);
 
-            return new TokenModel(token, refreshToken);
+            return new TokenModel(token, refreshToken, user.Id);
         }
     }
 }
