@@ -1,10 +1,11 @@
-import HttpRequest from "../../../lib/fetch";
+import { HttpRequestNew } from "../../../lib/fetch";
 
-const getInfo = async () => {
+const getInfo = async (axios) => {
   return (
-    await HttpRequest({
+    await HttpRequestNew({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_INFO,
+      axiosInstance: axios,
       // timeout: 1000,
     })
   ).data;

@@ -141,7 +141,7 @@ const ListchatContent = () => {
   return (
     <div
       ref={refChats}
-      className="list-chat hide-scrollbar relative flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:h-[50rem]"
+      className="list-chat hide-scrollbar relative flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:h-[50rem] laptop-lg:h-[70rem]"
     >
       {data?.filterConversations?.map((item) => (
         <div

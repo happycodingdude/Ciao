@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 // const plugin = require("tailwindcss/plugin");
-import plugin from 'tailwindcss/plugin';
+import plugin from "tailwindcss/plugin";
 
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
@@ -9,7 +9,7 @@ export default {
       phone: "320px",
       tablet: "640px",
       laptop: "1024px",
-      "laptop-lg": "1536px",
+      "laptop-lg": "1512px",
       desktop: "1920px",
     },
     // fontSize: {

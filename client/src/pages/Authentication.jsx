@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
 import useInfo from "../features/authentication/hooks/useInfo";
+import useAxiosRetry from "../hooks/useAxiosRetry";
 import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import Signup from "./Signup";
@@ -9,7 +10,8 @@ import Signup from "./Signup";
 const Authentication = (props) => {
   console.log("Authentication calling");
   const { onSuccess } = props;
-  const { data: info } = useInfo(true);
+  const axios = useAxiosRetry();
+  const { data: info } = useInfo(true, axios);
 
   const refBgContainer = useRef();
   const refBgSignUpLabelContainer = useRef();
@@ -20,17 +22,12 @@ const Authentication = (props) => {
   const [showLogin, setShowLogin] = useState(true);
   const [showSignup, setShowSignup] = useState(false);
 
-  // const [refreshToken] = useLocalStorage("refreshToken");
   const [accessToken] = useLocalStorage("accessToken");
   const navigate = useNavigate();
 
   if (info) navigate("/");
 
   if (accessToken) return <Loading />;
-
-  // if (!info && refreshToken) {
-  //   return <RefreshToken />;
-  // }
 
   const toggleBg = () => {
     // Animate background container

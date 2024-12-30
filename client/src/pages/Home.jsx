@@ -4,6 +4,7 @@ import { requestPermission } from "../components/Notification";
 import useInfo from "../features/authentication/hooks/useInfo";
 import useFriend from "../features/friend/hooks/useFriend";
 import notifyMessage from "../features/notification/services/notifyMessage";
+import registerConnection from "../features/notification/services/registerConnection";
 import ProfileSection from "../features/profile-new/ProfileSection";
 import useLocalStorage from "../hooks/useLocalStorage";
 import ChatSection from "../layouts/ChatSection";

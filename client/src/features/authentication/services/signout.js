@@ -1,11 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import HttpRequest from "../../../lib/fetch";
 
-const signout = () => {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
+const signout = (queryClient, navigate) => {
   HttpRequest({
     method: "get",
     url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
@@ -16,7 +11,11 @@ const signout = () => {
     queryClient.removeQueries({ queryKey: ["notification"], exact: true });
     queryClient.removeQueries({ queryKey: ["info"], exact: true });
 
-    navigate("/auth", { state: { signedOut: true } });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userId");
+
+    navigate("/auth");
   });
 };
 

@@ -15,6 +15,7 @@ const SigninForm = (props) => {
 
   const [accessToken, setAccessToken] = useLocalStorage("accessToken");
   const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken");
+  const [userId, setUserId] = useLocalStorage("userId");
 
   const refUsername = useRef();
   const refPassword = useRef();
@@ -43,9 +44,10 @@ const SigninForm = (props) => {
       // onSuccess();
       setAccessToken(res.data.accessToken);
       setRefreshToken(res.data.refreshToken);
+      setUserId(res.data.userId);
       setTimeout(() => {
         navigate("/");
-      }, 0);
+      }, 100);
       //   localStorage.setItem("accessToken", res.data.accessToken);
       //   localStorage.setItem("refreshToken", res.data.refreshToken);
     },
