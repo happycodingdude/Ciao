@@ -25,7 +25,10 @@ public static class RefreshToken
         {
             // Check user id and refresh token valid
             var user = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.model.UserId));
-            if (user is null || user.RefreshToken != request.model.RefreshToken || user.ExpiryDate == null || user.ExpiryDate < DateTime.Now)
+            var invalidUser = user is null;
+            var wrongRefreshToken = user?.RefreshToken != request.model.RefreshToken;
+            var userSignedOut = user?.IsOnline == false;
+            if (invalidUser || wrongRefreshToken || userSignedOut)
                 throw new UnauthorizedException();
 
             // Generate token and refresh token
