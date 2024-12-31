@@ -225,7 +225,7 @@ const CreateGroupChatModal = (props) => {
       <div className="relative flex shrink-0 items-end gap-[5rem] pb-[.5rem]">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
-          className="aspect-square cursor-pointer rounded-[1rem] laptop:w-[5rem]"
+          className="loaded aspect-square cursor-pointer rounded-[1rem] bg-[size:150%] laptop:w-[5rem]"
         />
         <MediaPicker
           className="absolute laptop:left-[5rem] laptop:top-[-1rem]"

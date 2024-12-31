@@ -1,6 +1,6 @@
 import HttpRequest from "../../../lib/fetch";
 
-const getAttachments = async (conversationId) => {
+const getAttachments = async (axios, conversationId) => {
   return (
     await HttpRequest({
       method: "get",
@@ -8,6 +8,7 @@ const getAttachments = async (conversationId) => {
         "{id}",
         conversationId,
       ),
+      axiosInstance: axios,
     })
   ).data;
 };

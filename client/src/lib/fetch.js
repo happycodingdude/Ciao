@@ -1,7 +1,13 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
+import refreshToken from "../features/authentication/services/refreshToken";
 
-const HttpRequest = async ({
+function delay(timeout) {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+}
+
+export const HttpRequestNoRetry = async ({
   method,
   url,
   header = {},
@@ -35,10 +41,54 @@ const HttpRequest = async ({
     });
 };
 
-export const HttpRequestNew = async ({
+axiosRetry(axios, {
+  retries: 1,
+  retryCondition: (error) => {
+    if (
+      error.config.url !== import.meta.env.VITE_ENDPOINT_REFRESH &&
+      error.response?.status === 401 &&
+      localStorage.getItem("refreshToken")
+    ) {
+      return refreshToken()
+        .then((data) => {
+          // Update the failed request's config with the new token
+          error.config.headers["Authorization"] =
+            "Bearer " + data.data.accessToken;
+          // setAccessToken(data.data.accessToken);
+          // setRefreshToken(data.data.refreshToken);
+          // setUserId(data.data.userId);
+
+          localStorage.setItem("accessToken", data.data.accessToken);
+          localStorage.setItem("refreshToken", data.data.refreshToken);
+          localStorage.setItem("userId", data.data.userId);
+
+          // Retry the request
+          return true;
+        })
+        .catch((err) => {
+          console.error("Failed to refresh token:", err);
+          // setAccessToken(undefined);
+          // setRefreshToken(undefined);
+          // setUserId(undefined);
+
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userId");
+
+          // Navigate back to the login page
+          // navigate("/auth");
+          window.location.href = "/auth";
+          return false;
+        });
+    }
+    return false; // No retry if condition not met
+  },
+});
+
+const HttpRequest = async ({
   method,
   url,
-  axiosInstance,
+  // axiosInstance,
   header = {},
   data = null,
   controller = new AbortController(),
@@ -47,7 +97,7 @@ export const HttpRequestNew = async ({
 }) => {
   if (timeout !== 0) await delay(timeout);
 
-  return await axiosInstance({
+  return await axios({
     method: method,
     url: url,
     data: data,
@@ -69,53 +119,5 @@ export const HttpRequestNew = async ({
       throw err;
     });
 };
-
-// axiosRetry(axios, {
-//   retries: 1,
-//   retryCondition: async (error) => {
-//     if (
-//       error.config.url !== import.meta.env.VITE_ENDPOINT_REFRESH &&
-//       error.response.status === 401 &&
-//       localStorage.getItem("refreshToken")
-//     ) {
-//       refreshToken()
-//         .then((data) => {
-//           error.config.headers["Authorization"] =
-//             "Bearer " + data.data.accessToken;
-//           localStorage.setItem("accessToken", data.data.accessToken);
-//           localStorage.setItem("refreshToken", data.data.refreshToken);
-//           return true;
-//         })
-//         .catch((err) => {
-//           console.log(err);
-//           forceSignin();
-//         });
-//     }
-//     return false;
-//   },
-// });
-
-// const forceSignin = () => {
-//   const navigate = useNavigate();
-//   const [accessToken, setAccessToken] = useLocalStorage("accessToken");
-//   const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken");
-//   setAccessToken(undefined);
-//   setRefreshToken(undefined);
-//   navigate("/auth");
-// };
-
-// const refreshToken = () => {
-//   return axios({
-//     method: "post",
-//     url: import.meta.env.VITE_ENDPOINT_REFRESH,
-//     data: {
-//       refreshToken: localStorage.getItem("refresh"),
-//     },
-//   }).then((res) => {
-//     localStorage.setItem("token", res.data.accessToken);
-//     localStorage.setItem("refresh", res.data.refreshToken);
-//     return res.data.accessToken;
-//   });
-// };
 
 export default HttpRequest;

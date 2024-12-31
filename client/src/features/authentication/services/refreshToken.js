@@ -1,7 +1,7 @@
-import HttpRequest from "../../../lib/fetch";
+import { HttpRequestNoRetry } from "../../../lib/fetch";
 
 const refreshToken = async () => {
-  return await HttpRequest({
+  return await HttpRequestNoRetry({
     method: "post",
     url: import.meta.env.VITE_ENDPOINT_REFRESH,
     data: {

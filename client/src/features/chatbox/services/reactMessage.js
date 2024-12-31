@@ -1,19 +1,19 @@
 import HttpRequest from "../../../lib/fetch";
 
-const reactMessage = async (id, type) => {
+const reactMessage = async (conversationId, messageId, type, desc) => {
   return (
     await HttpRequest({
       method: "put",
       url: desc
         ? import.meta.env.VITE_ENDPOINT_MESSAGE_UNREACT.replace(
             "{conversationId}",
-            id,
-          ).replace("{id}", id)
+            conversationId,
+          ).replace("{id}", messageId)
         : import.meta.env.VITE_ENDPOINT_MESSAGE_REACT.replace(
             "{conversationId}",
-            id,
+            conversationId,
           )
-            .replace("{id}", id)
+            .replace("{id}", messageId)
             .replace("{type}", type),
     })
   ).data;

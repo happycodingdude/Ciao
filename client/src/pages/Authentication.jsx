@@ -1,8 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Loading from "../components/Loading";
 import useInfo from "../features/authentication/hooks/useInfo";
-import useAxiosRetry from "../hooks/useAxiosRetry";
 import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import Signup from "./Signup";
@@ -10,8 +8,7 @@ import Signup from "./Signup";
 const Authentication = (props) => {
   console.log("Authentication calling");
   const { onSuccess } = props;
-  const axios = useAxiosRetry();
-  const { data: info } = useInfo(true, axios);
+  const { data: info } = useInfo(true);
 
   const refBgContainer = useRef();
   const refBgSignUpLabelContainer = useRef();

@@ -83,7 +83,7 @@ const MessageContent = (props) => {
   const react = (type) => {
     console.log(`reaction type => ${type}...`);
     const desc = reaction.currentReaction === type;
-    reactMessage(message.id, type);
+    reactMessage(id, message.id, type, desc);
     setReaction((current) => {
       const reactionKeys = {
         like: "likeCount",

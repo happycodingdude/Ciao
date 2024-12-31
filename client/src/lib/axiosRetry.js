@@ -1,10 +1,13 @@
-import axios from "axios";
 import axiosRetry from "axios-retry";
 import refreshToken from "../features/authentication/services/refreshToken";
 
-const axiosInstance = axios.create();
-
-const setupAxiosRetry = (navigate) => {
+const setupAxiosRetry = (
+  axiosInstance,
+  navigate,
+  setAccessToken,
+  setRefreshToken,
+  setUserId,
+) => {
   axiosRetry(axiosInstance, {
     retries: 1,
     retryCondition: (error) => {
@@ -18,14 +21,18 @@ const setupAxiosRetry = (navigate) => {
             // Update the failed request's config with the new token
             error.config.headers["Authorization"] =
               "Bearer " + data.data.accessToken;
-            localStorage.setItem("accessToken", data.data.accessToken);
-            localStorage.setItem("refreshToken", data.data.refreshToken);
+            setAccessToken(data.data.accessToken);
+            setRefreshToken(data.data.refreshToken);
+            setUserId(data.data.userId);
 
             // Retry the request
             return true;
           })
           .catch((err) => {
             console.error("Failed to refresh token:", err);
+            setAccessToken(undefined);
+            setRefreshToken(undefined);
+            setUserId(undefined);
 
             // Navigate back to the login page
             navigate("/auth");
@@ -37,13 +44,4 @@ const setupAxiosRetry = (navigate) => {
   });
 };
 
-const useAxiosRetry = () => {
-  const navigate = useNavigate();
-
-  // Setup axios retry with navigate reference
-  setupAxiosRetry(navigate);
-
-  return axiosInstance;
-};
-
-export default useAxiosRetry;
+export default setupAxiosRetry;

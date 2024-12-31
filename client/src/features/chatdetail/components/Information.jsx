@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
-import useLoading from "../../../hooks/useLoading";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import QuickChat from "../../friend/components/QuickChat";
@@ -13,23 +12,20 @@ import useAttachment from "../hooks/useAttachment";
 
 const Information = (props) => {
   console.log("Information calling");
-  const { show, toggle, onLoaded } = props;
+  const { show, toggle } = props;
 
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
-  // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
-  const { data: attachments, isLoading, isRefetching } = useAttachment();
-  // const { data: friends } = useFriend();
-  const { setLoading } = useLoading();
+  const { data: attachments } = useAttachment();
+
+  const refInformation = useRef();
 
   const [displayAttachments, setDisplayAttachments] = useState([]);
   const [chosenProfile, setChosenProfile] = useState();
   const [quickChatRect, setQuickChatRect] = useState();
   const [informationoffsetWidth, setInformationoffsetWidth] = useState();
-  const [openUpdateTitle, setOpenUpdateTitle] = useState(false);
-  const [openAddMembers, setOpenAddMembers] = useState(false);
 
   useEffect(() => {
     setChosenProfile(undefined);
@@ -53,23 +49,9 @@ const Information = (props) => {
     }
   }, [attachments]);
 
-  // useEffect(() => {
-  //   if (!isRefetching) {
-  //     setTimeout(() => {
-  //       setLoading(false);
-  //     }, 100);
-  //   }
-  // }, [isRefetching]);
-
   useEffect(() => {
     blurImage(".display-attachment-container");
   }, [displayAttachments]);
-
-  const refInformation = useRef();
-  // const hideInformation = () => {
-  //   refInformation.current.classList.remove("animate-flip-scale-up-vertical");
-  //   refInformation.current.classList.add("animate-flip-scale-down-vertical");
-  // };
 
   const updateAvatar = async (e) => {
     // Create a root reference

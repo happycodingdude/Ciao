@@ -20,27 +20,27 @@ const MessageReaction = (props) => {
               {message.topReactions.map((item) => {
                 if (item === "like")
                   return (
-                    <div className="aspect-square bg-[url('images/like.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
+                    <div className="aspect-square bg-[url('src/assets/like.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
                   );
                 if (item === "love")
                   return (
-                    <div className="aspect-square bg-[url('images/love.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
+                    <div className="aspect-square bg-[url('src/assets/love.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
                   );
                 if (item === "care")
                   return (
-                    <div className="aspect-square bg-[url('images/care.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
+                    <div className="aspect-square bg-[url('src/assets/care.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
                   );
                 if (item === "wow")
                   return (
-                    <div className="aspect-square bg-[url('images/wow.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
+                    <div className="aspect-square bg-[url('src/assets/wow.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
                   );
                 if (item === "sad")
                   return (
-                    <div className="aspect-square bg-[url('images/sad.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
+                    <div className="aspect-square bg-[url('src/assets/sad.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
                   );
                 if (item === "angry")
                   return (
-                    <div className="aspect-square bg-[url('images/angry.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
+                    <div className="aspect-square bg-[url('src/assets/angry.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat laptop:h-[1.7rem]"></div>
                   );
               })}
             </div>
@@ -55,37 +55,37 @@ const MessageReaction = (props) => {
             {
               like: (
                 <div
-                  className="aspect-square cursor-pointer bg-[url('images/like.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  className="aspect-square cursor-pointer bg-[url('src/assets/like.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
                   onClick={() => react("like")}
                 ></div>
               ),
               love: (
                 <div
-                  className="aspect-square cursor-pointer bg-[url('images/love.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  className="aspect-square cursor-pointer bg-[url('src/assets/love.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
                   onClick={() => react("love")}
                 ></div>
               ),
               care: (
                 <div
-                  className="aspect-square cursor-pointer bg-[url('images/care.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  className="aspect-square cursor-pointer bg-[url('src/assets/care.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
                   onClick={() => react("care")}
                 ></div>
               ),
               wow: (
                 <div
-                  className="aspect-square cursor-pointer bg-[url('images/wow.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  className="aspect-square cursor-pointer bg-[url('src/assets/wow.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
                   onClick={() => react("wow")}
                 ></div>
               ),
               sad: (
                 <div
-                  className="aspect-square cursor-pointer bg-[url('images/sad.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  className="aspect-square cursor-pointer bg-[url('src/assets/sad.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
                   onClick={() => react("sad")}
                 ></div>
               ),
               angry: (
                 <div
-                  className="aspect-square cursor-pointer bg-[url('images/angry.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
+                  className="aspect-square cursor-pointer bg-[url('src/assets/angry.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat laptop:h-[1.5rem]"
                   onClick={() => react("angry")}
                 ></div>
               ),
@@ -108,27 +108,27 @@ const MessageReaction = (props) => {
           ${message.mine ? "origin-bottom-right laptop:right-[-.1rem]" : "origin-bottom-left laptop:left-0"}`}
         >
           <div
-            className="aspect-square cursor-pointer bg-[url('images/like.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
+            className="aspect-square cursor-pointer bg-[url('src/assets/like.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
             onClick={() => react("like")}
           ></div>
           <div
-            className="aspect-square cursor-pointer bg-[url('images/love.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
+            className="aspect-square cursor-pointer bg-[url('src/assets/love.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
             onClick={() => react("love")}
           ></div>
           <div
-            className="aspect-square cursor-pointer bg-[url('images/care.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
+            className="aspect-square cursor-pointer bg-[url('src/assets/care.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
             onClick={() => react("care")}
           ></div>
           <div
-            className="aspect-square cursor-pointer bg-[url('images/wow.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
+            className="aspect-square cursor-pointer bg-[url('src/assets/wow.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
             onClick={() => react("wow")}
           ></div>
           <div
-            className="aspect-square cursor-pointer bg-[url('images/sad.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
+            className="aspect-square cursor-pointer bg-[url('src/assets/sad.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
             onClick={() => react("sad")}
           ></div>
           <div
-            className="aspect-square cursor-pointer bg-[url('images/angry.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
+            className="aspect-square cursor-pointer bg-[url('src/assets/angry.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat transition-all duration-200  hover:scale-125 laptop:h-[2.5rem]"
             onClick={() => react("angry")}
           ></div>
         </div>

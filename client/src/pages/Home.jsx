@@ -6,7 +6,6 @@ import useFriend from "../features/friend/hooks/useFriend";
 import notifyMessage from "../features/notification/services/notifyMessage";
 import registerConnection from "../features/notification/services/registerConnection";
 import ProfileSection from "../features/profile-new/ProfileSection";
-import useLocalStorage from "../hooks/useLocalStorage";
 import ChatSection from "../layouts/ChatSection";
 import SideBar from "../layouts/SideBar";
 
@@ -15,7 +14,7 @@ const Home = () => {
 
   const queryClient = useQueryClient();
 
-  const [userId, setUserId] = useLocalStorage("userId");
+  // const [userId, setUserId] = useLocalStorage("userId");
   const { data: info } = useInfo();
   const { refetch: refetchFriend } = useFriend();
 
@@ -30,7 +29,7 @@ const Home = () => {
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
     if (info) {
-      setUserId(info.id);
+      // setUserId(info.id);
       refetchFriend();
       if (!isRegistered.current) {
         isRegistered.current = true;

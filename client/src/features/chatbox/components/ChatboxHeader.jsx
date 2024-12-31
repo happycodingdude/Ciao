@@ -43,7 +43,7 @@ const ChatboxHeader = (props) => {
         <BackgroundPortal
           show={openUpdateTitle}
           className="laptop:!w-[45rem] desktop:!w-[35%]"
-          title="Update title"
+          title="Update group"
           onClose={() => setOpenUpdateTitle(false)}
         >
           <UpdateConversation

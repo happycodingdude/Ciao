@@ -53,6 +53,8 @@ const ListchatContent = () => {
   }, [data?.filterConversations]);
 
   const clickConversation = (id) => {
+    if (data?.selected?.id === id) return;
+    setLoading(true);
     queryClient.setQueryData(["conversation"], (oldData) => {
       var newConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== id) return conversation;
@@ -97,7 +99,7 @@ const ListchatContent = () => {
     setLoading(true);
     scrollToCenterOfSelected();
     refetchMessage();
-    refetchAttachments();
+    // refetchAttachments();
   }, [data?.selected?.id]);
 
   useEffect(() => {
