@@ -143,7 +143,7 @@ const ListchatContent = () => {
   return (
     <div
       ref={refChats}
-      className="list-chat hide-scrollbar relative flex flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:h-[50rem] laptop-lg:h-[70rem]"
+      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem]"
     >
       {data?.filterConversations?.map((item) => (
         <div
@@ -212,7 +212,7 @@ const ListchatContent = () => {
               item.id === data?.selected?.id
                 ? "text-[var(--text-sub-color-thin)]"
                 : item.lastMessageContact !== info.id && item.unSeenMessages > 0
-                  ? "font-[600] text-[var(--main-color-light)]"
+                  ? "text-[var(--main-color-bold)]"
                   : "text-[var(--text-main-color-blur)]"
             }`}
               title={item.lastMessage}

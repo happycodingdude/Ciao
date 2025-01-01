@@ -51,10 +51,10 @@ const ChatboxContainer = () => {
             messages={messages}
           />
           <div className="flex h-0 w-full grow">
-            <Chatbox isToggle={toggle !== "" && toggle !== "null"} />
+            <Chatbox isToggle={toggle && toggle !== "" && toggle !== "null"} />
             <div
               className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
-            ${toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
+            ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
             >
               <Information
                 show={toggle === "information"}

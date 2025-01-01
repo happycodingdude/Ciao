@@ -5,8 +5,12 @@ public class MyMapping : Profile
     public MyMapping()
     {
         CreateMap<AttachmentDto, Attachment>().ReverseMap();
-        CreateMap<ContactDto, Contact>().ReverseMap();
+        CreateMap<Contact, ContactDto>().ReverseMap();
+        CreateMap<Contact, MessageToNotify_Contact>().ReverseMap();
         CreateMap<Conversation, CreateConversationRequest>().ReverseMap();
+        CreateMap<Conversation, ConversationToNotify>().ReverseMap();
+        CreateMap<ConversationToNotify, CreateConversationRequest>().ReverseMap();
+        CreateMap<Conversation, MessageToNotify_Conversation>().ReverseMap();
         CreateMap<Participant, CreateConversation_Participant>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();

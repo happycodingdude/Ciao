@@ -37,6 +37,7 @@ const Chatbox = (props) => {
 
   useEffect(() => {
     blurImage(".chatbox-content");
+    scrollChatContentToBottom();
   }, [messages]);
 
   useEffect(() => {

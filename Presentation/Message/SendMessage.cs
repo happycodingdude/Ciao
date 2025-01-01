@@ -94,8 +94,8 @@ public static class SendMessage
 
             // Push message            
             var notify = _mapper.Map<Message, MessageToNotify>(message);
-            notify.ConversationId = conversation.Id;
-            notify.Contact = user;
+            notify.Conversation = _mapper.Map<MessageToNotify_Conversation>(conversation);
+            notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
             _ = _notificationMethod.Notify(
                 "NewMessage",
                 conversation.Participants

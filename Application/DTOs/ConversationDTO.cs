@@ -1,6 +1,6 @@
 namespace Application.DTOs;
 
-public class CreateConversationRequest
+public class CreateConversationRequest : MongoBaseModel
 {
     public bool IsGroup { get; set; }
     public string Title { get; set; } = null!;
@@ -14,6 +14,11 @@ public class CreateConversation_Participant
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
     public string ContactId { get; set; } = null!;
+}
+
+public class ConversationToNotify : CreateConversationRequest
+{
+
 }
 
 public class ConversationWithTotalUnseen : MongoBaseModel

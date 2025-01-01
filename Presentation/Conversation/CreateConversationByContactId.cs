@@ -8,16 +8,30 @@ public static class CreateConversationByContactId
     {
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
+        readonly IMapper _mapper;
+        readonly INotificationMethod _notificationMethod;
 
-        public Handler(IService<IConversationRepository> conversationService, IService<IContactRepository> contactService)
+        public Handler(IService<IConversationRepository> conversationService,
+            IService<IContactRepository> contactService,
+            IMapper mapper,
+            INotificationMethod notificationMethod)
         {
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
+            _mapper = mapper;
+            _notificationMethod = notificationMethod;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
+            var conversationId = "";
             var user = await _contactRepository.GetInfoAsync();
+            var message = new Message
+            {
+                ContactId = user.Id,
+                Type = "text",
+                Content = request.message
+            };
             var filter = Builders<Conversation>.Filter.And(
                 Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == user.Id),
                 Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == request.contactId),
@@ -25,7 +39,7 @@ public static class CreateConversationByContactId
             );
             var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
             // If no conversation exists -> create and return
-            if (conversation == null)
+            if (conversation is null)
             {
                 var contactFilter = MongoQuery<Contact>.IdFilter(request.contactId);
                 var contact = await _contactRepository.GetItemAsync(contactFilter);
@@ -61,18 +75,21 @@ public static class CreateConversationByContactId
                 });
                 // If send with message -> add new message
                 if (!string.IsNullOrEmpty(request.message))
-                {
-                    newConversation.Messages.Add(new Message
-                    {
-                        ContactId = user.Id,
-                        Type = "text",
-                        Content = request.message
-                    });
-                }
+                    newConversation.Messages.Add(message);
 
                 _conversationRepository.Add(newConversation);
+                conversationId = newConversation.Id;
 
-                return newConversation.Id;
+                // Push conversation
+                var notify = _mapper.Map<ConversationToNotify>(newConversation);
+                _ = _notificationMethod.Notify(
+                    "NewConversation",
+                    newConversation.Participants
+                        .Where(q => q.Contact.Id != user.Id)
+                        .Select(q => q.Contact.Id)
+                    .ToArray(),
+                    notify
+                );
             }
             // If conversation exists -> update field IsDeleted if true then return
             else
@@ -88,17 +105,29 @@ public static class CreateConversationByContactId
                 }
                 // If send with message -> add new message
                 if (!string.IsNullOrEmpty(request.message))
-                {
-                    conversation.Messages.Add(new Message
-                    {
-                        ContactId = user.Id,
-                        Type = "text",
-                        Content = request.message
-                    });
-                }
+                    conversation.Messages.Add(message);
+
                 _conversationRepository.Replace(updateFilter, conversation);
-                return conversation.Id;
+                conversationId = conversation.Id;
+
+                // Push message            
+                var notify = _mapper.Map<Message, MessageToNotify>(message);
+                notify.Conversation = new MessageToNotify_Conversation
+                {
+                    Id = conversationId
+                };
+                notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
+                _ = _notificationMethod.Notify(
+                    "NewMessage",
+                    conversation.Participants
+                        .Where(q => q.Contact.Id != user.Id)
+                        .Select(q => q.Contact.Id)
+                    .ToArray(),
+                    notify
+                );
             }
+
+            return conversationId;
         }
     }
 }

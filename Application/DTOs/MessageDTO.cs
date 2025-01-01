@@ -1,9 +1,28 @@
 namespace Application.DTOs;
 
-public class MessageToNotify : Message
+public class MessageToNotify
 {
-    public string ConversationId { get; set; } = null!;
-    public Contact Contact { get; set; } = null!;
+    public string Id { get; set; } = null!;
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public MessageToNotify_Conversation Conversation { get; set; } = null!;
+    public MessageToNotify_Contact Contact { get; set; } = null!;
+    public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+}
+
+public class MessageToNotify_Conversation
+{
+    public string Id { get; set; } = null!;
+    public bool IsGroup { get; set; }
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+}
+
+public class MessageToNotify_Contact
+{
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
 }
 
 public class MessageWithReactions : MongoBaseModel

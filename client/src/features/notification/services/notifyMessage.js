@@ -25,7 +25,11 @@ const notifyMessage = (message, queryClient, info) => {
               return conversation;
             },
           );
-          return { ...oldData, conversations: updatedConversations };
+          return {
+            ...oldData,
+            conversations: updatedConversations,
+            filterConversations: updatedConversations,
+          };
         }
 
         // Else generate new conversation and update state

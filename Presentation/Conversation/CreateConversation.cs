@@ -103,7 +103,8 @@ public static class CreateConversation
             // Also assign to list contactid to notify
             var contactIdsToNotify = request.model.Participants.Select(q => q.ContactId).ToArray();
             // Assign contact info
-            var conversation = _mapper.Map<CreateConversationRequest, Conversation>(request.model);
+            // var conversation = new Conversation();            
+            var conversation = _mapper.Map<Conversation>(request.model);
             foreach (var participant in conversation.Participants)
             {
                 participant.IsModerator = false; // Only this user is moderator
@@ -134,10 +135,11 @@ public static class CreateConversation
             _conversationRepository.Add(conversation);
 
             // Push conversation
+            var notify = _mapper.Map<ConversationToNotify>(conversation);
             _ = _notificationMethod.Notify(
                 "NewConversation",
                 contactIdsToNotify,
-                request.model
+                notify
             );
 
             return conversation.Id;
