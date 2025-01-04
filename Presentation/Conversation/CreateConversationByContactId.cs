@@ -24,7 +24,7 @@ public static class CreateConversationByContactId
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
-            var conversationId = "";
+            // var conversationId = "";
             var user = await _contactRepository.GetInfoAsync();
             var message = new Message
             {
@@ -78,20 +78,20 @@ public static class CreateConversationByContactId
                     newConversation.Messages.Add(message);
 
                 _conversationRepository.Add(newConversation);
-                conversationId = newConversation.Id;
+
+                conversation = newConversation;
+                // conversationId = newConversation.Id;
 
                 // Push conversation
-                var notify = _mapper.Map<ConversationToNotify>(newConversation);
-                // Exclude this user
-                // notify.Participants = notify.Participants.Where(q => q.Contact.Id == user.Id).ToList();
-                _ = _notificationMethod.Notify(
-                    "NewConversation",
-                    newConversation.Participants
-                        .Where(q => q.Contact.Id != user.Id)
-                        .Select(q => q.Contact.Id)
-                    .ToArray(),
-                    notify
-                );
+                // var notify = _mapper.Map<ConversationToNotify>(newConversation);
+                // _ = _notificationMethod.Notify(
+                //     "NewConversation",
+                //     newConversation.Participants
+                //         .Where(q => q.Contact.Id != user.Id)
+                //         .Select(q => q.Contact.Id)
+                //     .ToArray(),
+                //     notify
+                // );
             }
             // If conversation exists -> update field IsDeleted if true then return
             else
@@ -110,26 +110,41 @@ public static class CreateConversationByContactId
                     conversation.Messages.Add(message);
 
                 _conversationRepository.Replace(updateFilter, conversation);
-                conversationId = conversation.Id;
+                // conversationId = conversation.Id;
 
                 // Push message            
-                var notify = _mapper.Map<Message, MessageToNotify>(message);
-                notify.Conversation = new MessageToNotify_Conversation
-                {
-                    Id = conversationId
-                };
-                notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-                _ = _notificationMethod.Notify(
-                    "NewMessage",
-                    conversation.Participants
-                        .Where(q => q.Contact.Id != user.Id)
-                        .Select(q => q.Contact.Id)
-                    .ToArray(),
-                    notify
-                );
+                // var notify = _mapper.Map<Message, MessageToNotify>(message);
+                // notify.Conversation = new MessageToNotify_Conversation
+                // {
+                //     Id = conversationId
+                // };
+                // notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
+                // _ = _notificationMethod.Notify(
+                //     "NewMessage",
+                //     conversation.Participants
+                //         .Where(q => q.Contact.Id != user.Id)
+                //         .Select(q => q.Contact.Id)
+                //     .ToArray(),
+                //     notify
+                // );
             }
 
-            return conversationId;
+            // Push message            
+            var notify = _mapper.Map<MessageToNotify>(message);
+            notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
+            // notify.Conversation.LastMessage = message.Content;
+            // notify.Conversation.LastMessageContact = user.Id;
+            notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
+            _ = _notificationMethod.Notify(
+                "NewMessage",
+                conversation.Participants
+                    .Where(q => q.Contact.Id != user.Id)
+                    .Select(q => q.Contact.Id)
+                .ToArray(),
+                notify
+            );
+
+            return conversation.Id;
         }
     }
 }

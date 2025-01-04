@@ -37,16 +37,19 @@ public static class CreateParticipant
         readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
+        readonly INotificationMethod _notificationMethod;
 
         public Handler(IValidator<Request> validator,
             IMapper mapper,
             IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService)
+            IService<IContactRepository> contactService,
+            INotificationMethod notificationMethod)
         {
             _validator = validator;
             _mapper = mapper;
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
+            _notificationMethod = notificationMethod;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -80,10 +83,23 @@ public static class CreateParticipant
             }
             // Concatenate to existed items
             var participantsToUpdate = conversation.Participants.Concat(convertedParticipants);
-            Console.WriteLine($"participantsToUpdate => {participantsToUpdate.Count()}");
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, participantsToUpdate);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
+
+            // Push conversation
+            var notify = _mapper.Map<ConversationToNotify>(conversation);
+            var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
+            if (lastMessage is not null)
+            {
+                notify.LastMessage = lastMessage.Content;
+                notify.LastMessageContact = lastMessage.ContactId;
+            }
+            _ = _notificationMethod.Notify(
+                "NewConversation",
+                convertedParticipants.Select(q => q.Contact.Id).ToArray(),
+                notify
+            );
 
             return Unit.Value;
         }

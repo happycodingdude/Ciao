@@ -93,8 +93,8 @@ public static class SendMessage
             _conversationRepository.Replace(filter, conversation);
 
             // Push message            
-            var notify = _mapper.Map<Message, MessageToNotify>(message);
-            notify.Conversation = _mapper.Map<MessageToNotify_Conversation>(conversation);
+            var notify = _mapper.Map<MessageToNotify>(message);
+            notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
             notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
             _ = _notificationMethod.Notify(
                 "NewMessage",

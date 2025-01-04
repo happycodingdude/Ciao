@@ -22,6 +22,8 @@ public class ConversationToNotify
     public bool IsGroup { get; set; }
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
+    public string LastMessage { get; set; } = null!;
+    public string LastMessageContact { get; set; } = null!;
     public ICollection<Participant> Participants { get; set; } = null!;
 }
 

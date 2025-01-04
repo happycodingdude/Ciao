@@ -10,7 +10,7 @@ public class MyMapping : Profile
         CreateMap<Conversation, CreateConversationRequest>().ReverseMap();
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
         CreateMap<ConversationToNotify, CreateConversationRequest>().ReverseMap();
-        CreateMap<Conversation, MessageToNotify_Conversation>().ReverseMap();
+        // CreateMap<Conversation, MessageToNotify_Conversation>().ReverseMap();
         CreateMap<Participant, CreateConversation_Participant>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
