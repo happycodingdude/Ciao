@@ -90,99 +90,50 @@ const CreateGroupChatModal = (props) => {
     );
 
     queryClient.setQueryData(["conversation"], (oldData) => {
+      const newConversation = {
+        id: randomId,
+        title: refInputTitle.current.value,
+        avatar: avatar,
+        isGroup: true,
+        participants: [
+          {
+            isModerator: true,
+            contact: {
+              id: info.id,
+              name: info.name,
+              avatar: info.avatar,
+              isOnline: true,
+            },
+          },
+          ...membersToAdd.map((mem) => {
+            return {
+              contact: {
+                id: mem.id,
+                name: mem.name,
+                avatar: mem.avatar,
+                // isOnline: contact.isOnline,
+              },
+            };
+          }),
+        ],
+      };
       return {
         ...oldData,
         conversations: [
           {
-            id: randomId,
-            title: refInputTitle.current.value,
-            avatar: avatar,
-            isGroup: true,
-            isNotifying: true,
-            participants: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              ...membersToAdd.map((mem) => {
-                return {
-                  contact: {
-                    id: mem.id,
-                    name: mem.name,
-                    avatar: mem.avatar,
-                    // isOnline: contact.isOnline,
-                  },
-                };
-              }),
-            ],
+            ...newConversation,
             noLazy: true,
           },
           ...oldData.conversations,
         ],
         filterConversations: [
           {
-            id: randomId,
-            title: refInputTitle.current.value,
-            avatar: avatar,
-            isGroup: true,
-            isNotifying: true,
-            participants: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              ...membersToAdd.map((mem) => {
-                return {
-                  contact: {
-                    id: mem.id,
-                    name: mem.name,
-                    avatar: mem.avatar,
-                    // isOnline: contact.isOnline,
-                  },
-                };
-              }),
-            ],
+            ...newConversation,
             noLazy: true,
           },
           ...oldData.conversations,
         ],
-        selected: {
-          id: randomId,
-          title: refInputTitle.current.value,
-          avatar: avatar,
-          isGroup: true,
-          participants: [
-            {
-              isModerator: true,
-              contact: {
-                id: info.id,
-                name: info.name,
-                avatar: info.avatar,
-                isOnline: true,
-              },
-            },
-            ...membersToAdd.map((mem) => {
-              return {
-                contact: {
-                  id: mem.id,
-                  name: mem.name,
-                  avatar: mem.avatar,
-                  // isOnline: contact.isOnline,
-                },
-              };
-            }),
-          ],
-        },
+        selected: newConversation,
         noLoading: true,
         createGroupChat: true,
       };
@@ -339,7 +290,7 @@ const CreateGroupChatModal = (props) => {
                   <div className="pointer-events-none inline-flex items-center gap-[.5rem]">
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="aspect-square cursor-pointer rounded-[50%] laptop:w-[2.5rem]"
+                      className="loaded aspect-square cursor-pointer rounded-[50%] bg-[size:150%] laptop:w-[2.5rem]"
                       slides={[
                         {
                           src: item.avatar,

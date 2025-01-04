@@ -190,7 +190,7 @@ const ListchatContent = () => {
                       )?.contact.avatar
                 }
                 className={`pointer-events-none aspect-square laptop:w-[5rem]`}
-                imageClassName="bg-[size:170%]"
+                imageClassName="bg-[size:160%]"
               />
             )}
           </div>

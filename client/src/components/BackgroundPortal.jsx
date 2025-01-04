@@ -13,7 +13,7 @@ const BackgroundPortal = (props) => {
   const hidePortalOnClick = useCallback((e) => {
     if (Array.from(e.target.classList).includes("portal-container")) onClose();
   }, []);
-  useEventListener("click", hidePortalOnClick);
+  // useEventListener("click", hidePortalOnClick);
   const hidePortalOnKey = useCallback((e) => {
     if (e.keyCode === 27) {
       onClose();

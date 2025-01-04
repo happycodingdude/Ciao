@@ -9,18 +9,15 @@ const notifyMessage = (message, queryClient, info) => {
         // If exists conversation -> update state and return
         if (
           oldData.conversations.some(
-            (conversation) => conversation.id === messageData.conversationId,
+            (conversation) => conversation.id === messageData.conversation.id,
           )
         ) {
-          const clonedConversations = oldData.conversations.map((item) => {
-            return Object.assign({}, item);
-          });
-          const updatedConversations = clonedConversations.map(
+          const updatedConversations = oldData.conversations.map(
             (conversation) => {
-              if (conversation.id !== messageData.conversationId)
+              if (conversation.id !== messageData.conversation.id)
                 return conversation;
               conversation.lastMessage = messageData.content;
-              conversation.lastMessageContact = messageData.contactId;
+              conversation.lastMessageContact = messageData.contact.id;
               conversation.unSeenMessages++;
               return conversation;
             },
@@ -33,52 +30,62 @@ const notifyMessage = (message, queryClient, info) => {
         }
 
         // Else generate new conversation and update state
+        const newConversation = [
+          {
+            isGroup: messageData.conversation.isGroup,
+            title: messageData.conversation.title,
+            avatar: messageData.conversation.avatar,
+            isNotifying: true,
+            id: messageData.conversation.id,
+            lastMessage: messageData.content,
+            lastMessageContact: messageData.contact.id,
+            unSeenMessages: 1,
+            participants: messageData.conversation.participants,
+          },
+          ...oldData.conversations,
+        ];
         return {
           ...oldData,
-          conversations: [
-            {
-              isGroup: false,
-              isNotifying: true,
-              id: messageData.conversationId,
-              lastMessage: messageData.content,
-              lastMessageContact: messageData.contactId,
-              unSeenMessages: 1,
-              participants: [
-                {
-                  contact: {
-                    id: info.data.id,
-                    name: info.data.name,
-                    avatar: info.data.avatar,
-                    isOnline: true,
-                  },
-                },
-                {
-                  contact: {
-                    id: messageData.contact.id,
-                    name: messageData.contact.name,
-                    avatar: messageData.contact.avatar,
-                    isOnline: messageData.contact.isOnline,
-                  },
-                },
-              ],
-            },
-            ...oldData.conversations,
-          ],
+          conversations: newConversation,
+          filterConversations: newConversation,
         };
       });
       queryClient.setQueryData(["message"], (oldData) => {
         if (!oldData) return; // Case haven't click any conversation
-        if (oldData.id !== messageData.conversationId) return oldData;
+        if (oldData.id !== messageData.conversation.id) return oldData;
         return {
           ...oldData,
           messages: [
             {
               ...messageData,
-              contactId: messageData.contactId,
+              contactId: messageData.contact.id,
               currentReaction: null,
             },
             ...oldData.messages,
           ],
+        };
+      });
+      break;
+    case "NewConversation":
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const newConversation = [
+          {
+            isGroup: messageData.isGroup,
+            isNotifying: true,
+            id: messageData.id,
+            title: messageData.title,
+            avatar: messageData.avatar,
+            unSeenMessages: 1,
+            lastMessage: messageData.lastMessage,
+            lastMessageContact: messageData.lastMessageContact,
+            participants: messageData.participants,
+          },
+          ...oldData.conversations,
+        ];
+        return {
+          ...oldData,
+          conversations: newConversation,
+          filterConversations: newConversation,
         };
       });
       break;
@@ -91,9 +98,6 @@ const notifyMessage = (message, queryClient, info) => {
     //   if (oldChat && oldChat.classList.contains("item-active"))
     //     reFetchParticipants(messageData.Id);
     //   else reFetchConversations();
-    //   break;
-    // case "NewConversation":
-    //   reFetchConversations();
     //   break;
     // case "NewFriendRequest":
     //   reFetchRequestById(messageData.RequestId);

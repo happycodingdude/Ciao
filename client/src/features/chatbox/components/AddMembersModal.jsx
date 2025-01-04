@@ -6,9 +6,9 @@ import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import HttpRequest from "../../../lib/fetch";
 import blurImage from "../../../utils/blurImage";
 import useFriend from "../../friend/hooks/useFriend";
+import createParticipants from "../services/createParticipants";
 
 const AddMembersModal = (props) => {
   const { id, members, onClose } = props;
@@ -73,15 +73,14 @@ const AddMembersModal = (props) => {
       };
     });
 
-    HttpRequest({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_PARTICIPANT_GET.replace("{id}", id),
-      data: membersToAdd.map((mem) => {
+    createParticipants(
+      id,
+      membersToAdd.map((mem) => {
         return {
           contactId: mem.id,
         };
       }),
-    });
+    );
 
     onClose();
   };
@@ -200,7 +199,7 @@ const AddMembersModal = (props) => {
                   <div className="pointer-events-none inline-flex items-center gap-[.5rem]">
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="aspect-square cursor-pointer rounded-[50%] laptop:w-[2.5rem]"
+                      className="loaded aspect-square cursor-pointer rounded-[50%] bg-[size:150%] laptop:w-[2.5rem]"
                       slides={[
                         {
                           src: item.avatar,

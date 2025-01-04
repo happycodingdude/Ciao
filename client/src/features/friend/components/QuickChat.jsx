@@ -2,11 +2,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
-import HttpRequest from "../../../lib/fetch";
 import useInfo from "../../authentication/hooks/useInfo";
 import ChatInput from "../../chatbox/components/ChatInput";
 import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
+import sendQuickChat from "../services/sendQuickChat";
 import FriendCtaButton from "./FriendCtaButton";
 
 const QuickChat = (props) => {
@@ -51,8 +51,7 @@ const QuickChat = (props) => {
     );
     if (existedConversation) {
       queryClient.setQueryData(["conversation"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        const updatedConversations = cloned.conversations.map(
+        const updatedConversations = oldData.conversations.map(
           (conversation) => {
             if (conversation.id !== existedConversation.id) return conversation;
             conversation.lastMessage = content;
@@ -85,16 +84,9 @@ const QuickChat = (props) => {
     } else {
       let randomId = Math.random().toString(36).substring(2, 7);
 
-      HttpRequest({
-        method: "post",
-        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT_WITH_MESSAGE.replace(
-          "{contact-id}",
-          contact.id,
-        ).replace("{message}", content),
-      }).then((res) => {
+      sendQuickChat(contact.id, content).then((res) => {
         queryClient.setQueryData(["conversation"], (oldData) => {
-          const cloned = Object.assign({}, oldData);
-          const updatedConversations = cloned.conversations.map(
+          const updatedConversations = oldData.conversations.map(
             (conversation) => {
               if (conversation.id !== randomId) return conversation;
               conversation.id = res.data;
@@ -112,93 +104,46 @@ const QuickChat = (props) => {
             // quickChatAdd: false,
           };
         });
+        queryClient.setQueryData(["message"], (oldData) => {
+          return {
+            ...oldData,
+            id: res.data,
+          };
+        });
       });
 
       queryClient.setQueryData(["conversation"], (oldData) => {
+        var newConversation = {
+          lastMessage: content,
+          isGroup: false,
+          isNotifying: true,
+          id: randomId,
+          participants: [
+            {
+              isModerator: true,
+              contact: {
+                id: info.id,
+                name: info.name,
+                avatar: info.avatar,
+                isOnline: true,
+              },
+            },
+            {
+              contact: {
+                id: contact.id,
+                name: contact.name,
+                avatar: contact.avatar,
+                isOnline: contact.isOnline,
+              },
+            },
+          ],
+          noLazy: true,
+        };
         return {
           ...oldData,
-          conversations: [
-            {
-              lastMessage: content,
-              isGroup: false,
-              isNotifying: true,
-              id: randomId,
-              participants: [
-                {
-                  isModerator: true,
-                  contact: {
-                    id: info.id,
-                    name: info.name,
-                    avatar: info.avatar,
-                    isOnline: true,
-                  },
-                },
-                {
-                  contact: {
-                    id: contact.id,
-                    name: contact.name,
-                    avatar: contact.avatar,
-                    isOnline: contact.isOnline,
-                  },
-                },
-              ],
-              noLazy: true,
-            },
-            ...oldData.conversations,
-          ],
-          filterConversations: [
-            {
-              lastMessage: content,
-              isGroup: false,
-              isNotifying: true,
-              id: randomId,
-              participants: [
-                {
-                  isModerator: true,
-                  contact: {
-                    id: info.id,
-                    name: info.name,
-                    avatar: info.avatar,
-                    isOnline: true,
-                  },
-                },
-                {
-                  contact: {
-                    id: contact.id,
-                    name: contact.name,
-                    avatar: contact.avatar,
-                    isOnline: contact.isOnline,
-                  },
-                },
-              ],
-              noLazy: true,
-            },
-            ...oldData.filterConversations,
-          ],
-          selected: {
-            id: randomId,
-            title: contact.name,
-            isGroup: false,
-            participants: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              {
-                contact: {
-                  id: contact.id,
-                  name: contact.name,
-                  avatar: contact.avatar,
-                  isOnline: contact.isOnline,
-                },
-              },
-            ],
-          },
+          conversations: [newConversation, ...oldData.conversations],
+          filterConversations: [newConversation, ...oldData.conversations],
+          selected: newConversation,
           quickChatAdd: true,
           clickAndAddMessage: false,
           noLoading: true,

@@ -127,49 +127,13 @@ const MessageContent = (props) => {
       {/* Sender avatar */}
       {message.contactId !== info.id ? (
         <div className="relative w-[3rem] self-start">
-          {/* {messages.isGroup ? (
-            <ImageWithLightBoxAndNoLazy
-              className="aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
-              src={
-                messages.participants.find(
-                  (q) => q.contact.id === message.contactId,
-                ).contact.avatar
-              }
-              slides={[
-                {
-                  src: messages.participants.find(
-                    (q) => q.contact.id === message.contactId,
-                  ).contact.avatar,
-                },
-              ]}
-              // onClick={() => {
-              //   setUserId(message.contactId);
-              //   setOpen(true);
-              // }}
-            />
-          ) : (
-            <ImageWithLightBoxAndNoLazy
-              src={
-                messages.participants.find((q) => q.contact.id != info.id)
-                  .contact.avatar
-              }
-              className="aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
-              slides={[
-                {
-                  src: messages.participants.find(
-                    (q) => q.contact.id != info.id,
-                  ).contact.avatar,
-                },
-              ]}
-            />
-          )} */}
           <ImageWithLightBoxAndNoLazy
             src={
               conversations.selected?.participants.find(
                 (q) => q.contact.id === message.contactId,
               )?.contact.avatar
             }
-            className="aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
+            className="loaded aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
             slides={[
               {
                 src: conversations.selected?.participants.find(
