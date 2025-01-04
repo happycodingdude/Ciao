@@ -16,9 +16,13 @@ public class CreateConversation_Participant
     public string ContactId { get; set; } = null!;
 }
 
-public class ConversationToNotify : CreateConversationRequest
+public class ConversationToNotify
 {
-
+    public string Id { get; set; } = null!;
+    public bool IsGroup { get; set; }
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public ICollection<Participant> Participants { get; set; } = null!;
 }
 
 public class ConversationWithTotalUnseen : MongoBaseModel

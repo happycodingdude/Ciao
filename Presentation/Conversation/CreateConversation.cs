@@ -100,8 +100,6 @@ public static class CreateConversation
             // Remove this user from input
             var user = await _contactRepository.GetInfoAsync();
             request.model.Participants = request.model.Participants.Where(q => q.ContactId != user.Id).ToList();
-            // Also assign to list contactid to notify
-            var contactIdsToNotify = request.model.Participants.Select(q => q.ContactId).ToArray();
             // Assign contact info
             // var conversation = new Conversation();            
             var conversation = _mapper.Map<Conversation>(request.model);
@@ -138,7 +136,10 @@ public static class CreateConversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
             _ = _notificationMethod.Notify(
                 "NewConversation",
-                contactIdsToNotify,
+                conversation.Participants
+                        .Where(q => q.Contact.Id != user.Id)
+                        .Select(q => q.Contact.Id)
+                    .ToArray(),
                 notify
             );
 
