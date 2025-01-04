@@ -134,6 +134,8 @@ public static class CreateConversation
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
+            // Exclude this user
+            // notify.Participants = notify.Participants.Where(q => q.Contact.Id == user.Id).ToList();
             _ = _notificationMethod.Notify(
                 "NewConversation",
                 conversation.Participants
