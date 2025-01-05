@@ -26,6 +26,7 @@ public static class SignOut
             // Remove redis data
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
             await _distributedCache.RemoveAsync($"token-{user.Id}");
+            await _distributedCache.RemoveAsync($"conversations-{user.Id}");
 
             // Update contact info
             var filter = Builders<Contact>.Filter.Where(q => q.Id == user.Id);

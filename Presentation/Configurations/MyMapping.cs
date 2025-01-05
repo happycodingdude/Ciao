@@ -15,6 +15,7 @@ public class MyMapping : Profile
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
         CreateMap<ConversationWithMessagesAndFriendRequest, ConversationWithTotalUnseen>().ReverseMap();
+        CreateMap<ConversationWithMessages, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<FriendWithStatus, Friend>().ReverseMap();
         CreateMap<GetListFriendItem, Friend>().ReverseMap();
         CreateMap<Friend, NotificationSourceDataType_Friend>()
@@ -24,6 +25,7 @@ public class MyMapping : Profile
         CreateMap<Message, MessageWithReactions>().ReverseMap();
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<ParticipantDto, Participant>().ReverseMap();
+        CreateMap<ParticipantWithFriendRequest, Participant>().ReverseMap();
         CreateMap<ScheduleDto, Schedule>().ReverseMap();
         CreateMap<ScheduleContactDto, ScheduleContact>().ReverseMap();
     }

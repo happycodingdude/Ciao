@@ -50,7 +50,6 @@ public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor,
             if (token != storedToken)
                 throw new UnauthorizedException();
 
-            // Console.WriteLine("UserId => " + principal?.FindFirst("UserId")?.Value);
             httpContextAccessor.HttpContext.Items["UserId"] = userId;
 
             context.Succeed(requirement);

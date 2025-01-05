@@ -6,16 +6,20 @@ public static class GetConversationsWithUnseenMesages
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<ConversationWithTotalUnseen>>
     {
-        readonly IConversationRepository _conversationRepository;
+        readonly IContactRepository _contactRepository;
+        readonly IDistributedCache _distributedCache;
 
-        public Handler(IService<IConversationRepository> service)
+        public Handler(IContactRepository contactRepository, IDistributedCache distributedCache)
         {
-            _conversationRepository = service.Get();
+            _contactRepository = contactRepository;
+            _distributedCache = distributedCache;
         }
 
         public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(request.page, request.limit));
+            var userId = _contactRepository.GetUserId();
+            var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
+            return JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
         }
     }
 }

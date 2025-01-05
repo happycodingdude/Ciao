@@ -14,7 +14,7 @@ const Signup = (props) => {
       <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem]">
         <p className="text-5xl text-[var(--text-main-color)]">Create account</p>
 
-        <SignupForm />
+        <SignupForm show={show} onSuccess={onSuccess} />
       </div>
     </div>
   );

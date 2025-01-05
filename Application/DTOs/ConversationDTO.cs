@@ -41,6 +41,7 @@ public class ConversationWithTotalUnseen : MongoBaseModel
     public string LastMessageContact { get; set; } = null!;
     public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
+    public ICollection<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
 }
 
 public class ConversationWithNextPage : MongoBaseModel
@@ -50,8 +51,8 @@ public class ConversationWithNextPage : MongoBaseModel
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
     public ICollection<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
-    [JsonIgnore]
-    public List<Message> NextPage { get; set; } = new List<Message>();
+    // [JsonIgnore]
+    // public List<Message> NextPage { get; set; } = new List<Message>();
     public bool NextExist { get; set; }
 }
 

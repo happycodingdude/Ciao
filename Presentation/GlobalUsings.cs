@@ -24,3 +24,4 @@ global using Microsoft.AspNetCore.Authentication.Cookies;
 global using MongoDB.Bson;
 global using Shared.Utils;
 global using Application.Jwt;
+global using Newtonsoft.Json;
