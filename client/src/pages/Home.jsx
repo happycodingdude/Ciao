@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { requestPermission } from "../components/Notification";
 import useInfo from "../features/authentication/hooks/useInfo";
 import useFriend from "../features/friend/hooks/useFriend";
@@ -14,32 +14,34 @@ const Home = () => {
 
   const queryClient = useQueryClient();
 
-  // const [userId, setUserId] = useLocalStorage("userId");
   const { data: info } = useInfo();
-  const { refetch: refetchFriend } = useFriend();
+  const { data: friends } = useFriend();
 
-  const isRegistered = useRef(false);
+  // const isRegistered = useRef(false);
 
   const [page, setPage] = useState("chat");
 
   const { mutate: registerConnectionMutation } = useMutation({
     mutationFn: ({ token }) => registerConnection(token),
+    onSuccess: () => {
+      setIsRegistered(true);
+    },
   });
 
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
-    if (info) {
-      // setUserId(info.id);
-      refetchFriend();
-      if (!isRegistered.current) {
-        isRegistered.current = true;
-        requestPermission(
-          registerConnectionMutation,
-          notifyMessage,
-          queryClient,
-          info,
-        );
-      }
+    if (!info) return;
+    // setUserId(info.id);
+    // refetchFriend();
+    const isRegistered = localStorage.getItem("isRegistered");
+    if (!isRegistered) {
+      localStorage.setItem("isRegistered", true);
+      requestPermission(
+        registerConnectionMutation,
+        notifyMessage,
+        queryClient,
+        info,
+      );
     }
   }, [info]);
 

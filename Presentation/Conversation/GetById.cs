@@ -54,6 +54,7 @@ public static class GetById
 
             // Update db
             SeenAll(conversation);
+
             // Update cache
             conversation.UnSeenMessages = 0;
             await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
