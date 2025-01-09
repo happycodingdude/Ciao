@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import CustomButton from "../../../components/CustomButton";
-import HttpRequest from "../../../lib/fetch";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
+import createDirectChat from "../services/createDirectChat";
 import AcceptButton from "./AcceptButton";
 import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";
@@ -34,16 +34,10 @@ const FriendCtaButton = (props) => {
       });
     } else {
       let randomId = Math.random().toString(36).substring(2, 7);
-      HttpRequest({
-        method: "post",
-        url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE_DIRECT.replace(
-          "{contact-id}",
-          contact.id,
-        ),
-      }).then((res) => {
+
+      createDirectChat(contact.id).then((res) => {
         queryClient.setQueryData(["conversation"], (oldData) => {
-          const cloned = Object.assign({}, oldData);
-          const updatedConversations = cloned.conversations.map(
+          const updatedConversations = oldData.conversations.map(
             (conversation) => {
               if (conversation.id !== randomId) return conversation;
               conversation.id = res.data;
@@ -53,6 +47,7 @@ const FriendCtaButton = (props) => {
           return {
             ...oldData,
             conversations: updatedConversations,
+            filterConversations: updatedConversations,
             selected: {
               ...oldData.selected,
               id: res.data,
@@ -62,60 +57,36 @@ const FriendCtaButton = (props) => {
           };
         });
       });
+      var newConversation = {
+        isGroup: false,
+        isNotifying: true,
+        id: randomId,
+        participants: [
+          {
+            isModerator: true,
+            contact: {
+              id: info.id,
+              name: info.name,
+              avatar: info.avatar,
+              isOnline: true,
+            },
+          },
+          {
+            contact: {
+              id: contact.id,
+              name: contact.name,
+              avatar: contact.avatar,
+              isOnline: contact.isOnline,
+            },
+          },
+        ],
+      };
       queryClient.setQueryData(["conversation"], (oldData) => {
         return {
           ...oldData,
-          conversations: [
-            {
-              isGroup: false,
-              isNotifying: true,
-              id: randomId,
-              participants: [
-                {
-                  isModerator: true,
-                  contact: {
-                    id: info.id,
-                    name: info.name,
-                    avatar: info.avatar,
-                    isOnline: true,
-                  },
-                },
-                {
-                  contact: {
-                    id: contact.id,
-                    name: contact.name,
-                    avatar: contact.avatar,
-                    isOnline: contact.isOnline,
-                  },
-                },
-              ],
-            },
-            ...oldData.conversations,
-          ],
-          selected: {
-            id: randomId,
-            title: contact.name,
-            isGroup: false,
-            participants: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              {
-                contact: {
-                  id: contact.id,
-                  name: contact.name,
-                  avatar: contact.avatar,
-                  isOnline: contact.isOnline,
-                },
-              },
-            ],
-          },
+          conversations: [newConversation, ...oldData.conversations],
+          filterConversations: [newConversation, ...oldData.conversations],
+          selected: newConversation,
           quickChatAdd: true,
         };
       });

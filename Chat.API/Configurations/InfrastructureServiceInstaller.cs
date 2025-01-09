@@ -1,6 +1,3 @@
-using Infrastructure.Middleware.Authentication;
-using Microsoft.AspNetCore.Authentication;
-
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
@@ -119,6 +116,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped(typeof(IService<>), typeof(Service<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<ICaching, Caching>();
 
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();

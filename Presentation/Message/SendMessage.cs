@@ -49,6 +49,7 @@ public static class SendMessage
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
         readonly IDistributedCache _distributedCache;
+        readonly ICaching _caching;
 
 
         public Handler(IValidator<Request> validator,
@@ -56,7 +57,8 @@ public static class SendMessage
             IMapper mapper,
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            ICaching caching)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
@@ -64,6 +66,7 @@ public static class SendMessage
             _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
             _distributedCache = distributedCache;
+            _caching = caching;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -97,15 +100,7 @@ public static class SendMessage
             _conversationRepository.Replace(filter, conversation);
 
             // Update cache
-            var cachedData = await _distributedCache.GetStringAsync($"conversations-{user.Id}");
-            var conversations = JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
-            var selectedConversation = conversations.SingleOrDefault(q => q.Id == conversation.Id);
-            selectedConversation.LastMessageId = message.Id;
-            selectedConversation.LastMessage = message.Type == "text" ? message.Content : string.Join(",", message.Attachments.Select(q => q.MediaName));
-            selectedConversation.LastMessageTime = message.CreatedTime;
-            selectedConversation.LastMessageContact = user.Id;
-            selectedConversation.Messages = _mapper.Map<List<MessageWithReactions>>(conversation.Messages);
-            await _distributedCache.SetStringAsync($"conversations-{user.Id}", JsonConvert.SerializeObject(conversations));
+            await _caching.AddNewMessage(conversation.Id, _mapper.Map<MessageWithReactions>(message));
 
             // Push message            
             var notify = _mapper.Map<MessageToNotify>(message);

@@ -25,3 +25,4 @@ global using MongoDB.Bson;
 global using Shared.Utils;
 global using Application.Jwt;
 global using Newtonsoft.Json;
+global using Application.Caching;

@@ -1,6 +1,6 @@
 namespace Presentation.Friends;
 
-public static class CreateConversationByContactId
+public static class CreateDirectConversation
 {
     public record Request(string contactId, string message) : IRequest<string>;
 
@@ -10,21 +10,23 @@ public static class CreateConversationByContactId
         readonly IContactRepository _contactRepository;
         readonly IMapper _mapper;
         readonly INotificationMethod _notificationMethod;
+        readonly ICaching _caching;
 
         public Handler(IService<IConversationRepository> conversationService,
             IService<IContactRepository> contactService,
             IMapper mapper,
-            INotificationMethod notificationMethod)
+            INotificationMethod notificationMethod,
+            ICaching caching)
         {
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
             _mapper = mapper;
             _notificationMethod = notificationMethod;
+            _caching = caching;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
-            // var conversationId = "";
             var user = await _contactRepository.GetInfoAsync();
             var message = new Message
             {
@@ -80,18 +82,6 @@ public static class CreateConversationByContactId
                 _conversationRepository.Add(newConversation);
 
                 conversation = newConversation;
-                // conversationId = newConversation.Id;
-
-                // Push conversation
-                // var notify = _mapper.Map<ConversationToNotify>(newConversation);
-                // _ = _notificationMethod.Notify(
-                //     "NewConversation",
-                //     newConversation.Participants
-                //         .Where(q => q.Contact.Id != user.Id)
-                //         .Select(q => q.Contact.Id)
-                //     .ToArray(),
-                //     notify
-                // );
             }
             // If conversation exists -> update field IsDeleted if true then return
             else
@@ -110,53 +100,40 @@ public static class CreateConversationByContactId
                     conversation.Messages.Add(message);
 
                 _conversationRepository.Replace(updateFilter, conversation);
-                // conversationId = conversation.Id;
-
-                // Push message            
-                // var notify = _mapper.Map<Message, MessageToNotify>(message);
-                // notify.Conversation = new MessageToNotify_Conversation
-                // {
-                //     Id = conversationId
-                // };
-                // notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-                // _ = _notificationMethod.Notify(
-                //     "NewMessage",
-                //     conversation.Participants
-                //         .Where(q => q.Contact.Id != user.Id)
-                //         .Select(q => q.Contact.Id)
-                //     .ToArray(),
-                //     notify
-                // );
             }
 
-            // Push message            
-            var notify = _mapper.Map<MessageToNotify>(message);
-            notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
-            // notify.Conversation.LastMessage = message.Content;
-            // notify.Conversation.LastMessageContact = user.Id;
-            notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-            _ = _notificationMethod.Notify(
-                "NewMessage",
-                conversation.Participants
-                    .Where(q => q.Contact.Id != user.Id)
-                    .Select(q => q.Contact.Id)
-                .ToArray(),
-                notify
-            );
+            // Update cache
+            await _caching.AddNewConversation(_mapper.Map<ConversationWithTotalUnseen>(conversation));
+
+            // If send with message -> push message
+            if (!string.IsNullOrEmpty(request.message))
+            {
+                var notify = _mapper.Map<MessageToNotify>(message);
+                notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
+                notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
+                _ = _notificationMethod.Notify(
+                    "NewMessage",
+                    conversation.Participants
+                        .Where(q => q.Contact.Id != user.Id)
+                        .Select(q => q.Contact.Id)
+                    .ToArray(),
+                    notify
+                );
+            }
 
             return conversation.Id;
         }
     }
 }
 
-public class CreateConversationByContactIdEndpoint : ICarterModule
+public class CreateDirectConversationEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Contact).MapPost("/{contactId}/conversations",
         async (ISender sender, string contactId, string message) =>
         {
-            var query = new CreateConversationByContactId.Request(contactId, message);
+            var query = new CreateDirectConversation.Request(contactId, message);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

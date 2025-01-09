@@ -1,8 +1,8 @@
 namespace Presentation.Conversations;
 
-public static class CreateConversation
+public static class CreateGroupConversation
 {
-    public record Request(CreateConversationRequest model) : IRequest<string>;
+    public record Request(CreateGroupConversationRequest model) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -20,51 +20,51 @@ public static class CreateConversation
             {
                 RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
                 RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
-                When(c => c.model.IsGroup, () =>
-                {
-                    RuleFor(c => c).MustAsync((item, cancellation) => MustContainAtLeastOneContact(item.model.Participants.ToList()))
-                        .WithMessage("Group conversation should contain at least 1 participant");
-                });
-                When(c => !c.model.IsGroup, () =>
-                {
-                    RuleFor(c => c).MustAsync((item, cancellation) => MustContainOnlyOneContact(item.model.Participants.ToList()))
-                        .WithMessage("Direct conversation should only contain 1 participant")
-                        .DependentRules(() =>
-                        {
-                            RuleFor(c => c).MustAsync((item, cancellation) => OnlyOneDirectConversation(item.model.Participants.ToList()))
-                                .WithMessage("Direct conversation was created");
-                        });
-                });
+                // When(c => c.model.IsGroup, () =>
+                // {
+                RuleFor(c => c).MustAsync((item, cancellation) => MustContainAtLeastOneContact(item.model.Participants.ToList()))
+                    .WithMessage("Group conversation should contain at least 1 participant");
+                // });
+                // When(c => !c.model.IsGroup, () =>
+                // {
+                //     RuleFor(c => c).MustAsync((item, cancellation) => MustContainOnlyOneContact(item.model.Participants.ToList()))
+                //         .WithMessage("Direct conversation should only contain 1 participant")
+                //         .DependentRules(() =>
+                //         {
+                //             RuleFor(c => c).MustAsync((item, cancellation) => OnlyOneDirectConversation(item.model.Participants.ToList()))
+                //                 .WithMessage("Direct conversation was created");
+                //         });
+                // });
             });
-            RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
+            // RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");
         }
 
-        async Task<bool> MustContainAtLeastOneContact(List<CreateConversation_Participant> participants)
+        async Task<bool> MustContainAtLeastOneContact(List<CreateGroupConversation_Participant> participants)
         {
             var user = await _contactRepository.GetInfoAsync();
             return participants.Where(q => q.ContactId != user.Id).Count() >= 1;
         }
 
-        async Task<bool> MustContainOnlyOneContact(List<CreateConversation_Participant> participants)
-        {
-            var user = await _contactRepository.GetInfoAsync();
-            return participants.Count == 1 && participants.Any(q => q.ContactId != user.Id);
-        }
+        // async Task<bool> MustContainOnlyOneContact(List<CreateGroupConversation_Participant> participants)
+        // {
+        //     var user = await _contactRepository.GetInfoAsync();
+        //     return participants.Count == 1 && participants.Any(q => q.ContactId != user.Id);
+        // }
 
-        async Task<bool> OnlyOneDirectConversation(List<CreateConversation_Participant> participants)
-        {
-            var user = await _contactRepository.GetInfoAsync();
-            var contactId = participants.FirstOrDefault(q => q.ContactId != user.Id).ContactId;
+        // async Task<bool> OnlyOneDirectConversation(List<CreateGroupConversation_Participant> participants)
+        // {
+        //     var user = await _contactRepository.GetInfoAsync();
+        //     var contactId = participants.FirstOrDefault(q => q.ContactId != user.Id).ContactId;
 
-            var filter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == user.Id),
-                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == contactId),
-                Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
-            );
-            var conversation = await _conversationRepository.GetAllAsync(filter);
+        //     var filter = Builders<Conversation>.Filter.And(
+        //         Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == user.Id),
+        //         Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == contactId),
+        //         Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
+        //     );
+        //     var conversation = await _conversationRepository.GetAllAsync(filter);
 
-            return !conversation.Any();
-        }
+        //     return !conversation.Any();
+        // }
     }
 
     internal sealed class Handler : IRequestHandler<Request, string>
@@ -74,18 +74,24 @@ public static class CreateConversation
         readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
+        readonly IDistributedCache _distributedCache;
+        readonly ICaching _caching;
 
         public Handler(IValidator<Request> validator,
             INotificationMethod notificationMethod,
             IMapper mapper,
             IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService)
+            IService<IContactRepository> contactService,
+            IDistributedCache distributedCache,
+            ICaching caching)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
             _mapper = mapper;
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
+            _distributedCache = distributedCache;
+            _caching = caching;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -126,11 +132,12 @@ public static class CreateConversation
                     IsOnline = true
                 }
             });
-            // Change conversation title if direct message
-            if (!conversation.IsGroup)
-                conversation.Title = null;
 
+            // Create conversation
             _conversationRepository.Add(conversation);
+
+            // Update cache
+            await _caching.AddNewConversation(_mapper.Map<ConversationWithTotalUnseen>(conversation));
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
@@ -148,14 +155,14 @@ public static class CreateConversation
     }
 }
 
-public class CreateConversationEndpoint : ICarterModule
+public class CreateGroupConversationEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("",
-        async (ISender sender, CreateConversationRequest model) =>
+        async (ISender sender, CreateGroupConversationRequest model) =>
         {
-            var query = new CreateConversation.Request(model);
+            var query = new CreateGroupConversation.Request(model);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

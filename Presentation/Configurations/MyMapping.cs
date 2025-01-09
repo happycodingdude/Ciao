@@ -7,15 +7,16 @@ public class MyMapping : Profile
         CreateMap<AttachmentDto, Attachment>().ReverseMap();
         CreateMap<Contact, ContactDto>().ReverseMap();
         CreateMap<Contact, MessageToNotify_Contact>().ReverseMap();
-        CreateMap<Conversation, CreateConversationRequest>().ReverseMap();
+        CreateMap<Conversation, CreateGroupConversationRequest>().ReverseMap();
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
-        CreateMap<ConversationToNotify, CreateConversationRequest>().ReverseMap();
+        CreateMap<ConversationToNotify, CreateGroupConversationRequest>().ReverseMap();
         // CreateMap<Conversation, MessageToNotify_Conversation>().ReverseMap();
-        CreateMap<Participant, CreateConversation_Participant>()
+        CreateMap<Participant, CreateGroupConversation_Participant>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
         CreateMap<ConversationWithMessagesAndFriendRequest, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<ConversationWithMessages, ConversationWithTotalUnseen>().ReverseMap();
+        CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<FriendWithStatus, Friend>().ReverseMap();
         CreateMap<GetListFriendItem, Friend>().ReverseMap();
         CreateMap<Friend, NotificationSourceDataType_Friend>()

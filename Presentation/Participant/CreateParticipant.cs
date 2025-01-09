@@ -2,7 +2,7 @@ namespace Presentation.Participants;
 
 public static class CreateParticipant
 {
-    public record Request(string conversationId, List<CreateConversation_Participant> model) : IRequest<Unit>;
+    public record Request(string conversationId, List<CreateGroupConversation_Participant> model) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -72,7 +72,7 @@ public static class CreateParticipant
             // Re-assign new participants
             var contactFilter = Builders<Contact>.Filter.Where(q => request.model.Select(w => w.ContactId).Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
-            var convertedParticipants = _mapper.Map<List<CreateConversation_Participant>, List<Participant>>(filteredParticipants);
+            var convertedParticipants = _mapper.Map<List<CreateGroupConversation_Participant>, List<Participant>>(filteredParticipants);
             foreach (var participant in convertedParticipants)
             {
                 participant.IsModerator = false; // Only this user is moderator
@@ -111,7 +111,7 @@ public class CreateParticipantEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/participants",
-        async (ISender sender, string conversationId, List<CreateConversation_Participant> model, bool includeNotify = false) =>
+        async (ISender sender, string conversationId, List<CreateGroupConversation_Participant> model, bool includeNotify = false) =>
         {
             var query = new CreateParticipant.Request(conversationId, model);
             await sender.Send(query);

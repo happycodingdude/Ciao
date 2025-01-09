@@ -12,18 +12,21 @@ public static class SignIn
         readonly IJwtService _jwtService;
         readonly IDistributedCache _distributedCache;
         readonly IHttpContextAccessor _httpContextAccessor;
+        readonly ICaching _caching;
 
         public Handler(IService<IContactRepository> contactService,
             IService<IConversationRepository> conversationService,
             IJwtService jwtService,
             IDistributedCache distributedCache,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ICaching caching)
         {
             _contactRepository = contactService.Get();
             _conversationRepository = conversationService.Get();
             _jwtService = jwtService;
             _distributedCache = distributedCache;
             _httpContextAccessor = httpContextAccessor;
+            _caching = caching;
         }
 
         public async Task<TokenModel> Handle(Request request, CancellationToken cancellationToken)
@@ -71,10 +74,9 @@ public static class SignIn
                 refreshToken = user.RefreshToken;
             }
 
-
             _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
             var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
-            await _distributedCache.SetStringAsync($"conversations-{user.Id}", JsonConvert.SerializeObject(conversations));
+            await _caching.UpdateConversation(conversations);
 
             return new TokenModel(token, refreshToken, user.Id);
         }

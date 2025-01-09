@@ -1,14 +1,14 @@
 namespace Application.DTOs;
 
-public class CreateConversationRequest : MongoBaseModel
+public class CreateGroupConversationRequest : MongoBaseModel
 {
     public bool IsGroup { get; set; }
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
-    public ICollection<CreateConversation_Participant> Participants { get; set; } = null!;
+    public ICollection<CreateGroupConversation_Participant> Participants { get; set; } = null!;
 }
 
-public class CreateConversation_Participant
+public class CreateGroupConversation_Participant
 {
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }
