@@ -27,6 +27,7 @@ public class MyMapping : Profile
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<ParticipantDto, Participant>().ReverseMap();
         CreateMap<ParticipantWithFriendRequest, Participant>().ReverseMap();
+        CreateMap<ParticipantWithFriendRequest, CreateGroupConversation_Participant>().ReverseMap();
         CreateMap<ScheduleDto, Schedule>().ReverseMap();
         CreateMap<ScheduleContactDto, ScheduleContact>().ReverseMap();
     }

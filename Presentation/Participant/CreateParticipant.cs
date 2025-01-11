@@ -38,18 +38,24 @@ public static class CreateParticipant
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
         readonly INotificationMethod _notificationMethod;
+        readonly ICaching _caching;
+        readonly IFriendRepository _friendRepository;
 
         public Handler(IValidator<Request> validator,
             IMapper mapper,
             IService<IConversationRepository> conversationService,
             IService<IContactRepository> contactService,
-            INotificationMethod notificationMethod)
+            INotificationMethod notificationMethod,
+            ICaching caching,
+            IFriendRepository friendRepository)
         {
             _validator = validator;
             _mapper = mapper;
             _conversationRepository = conversationService.Get();
             _contactRepository = contactService.Get();
             _notificationMethod = notificationMethod;
+            _caching = caching;
+            _friendRepository = friendRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -86,6 +92,16 @@ public static class CreateParticipant
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, participantsToUpdate);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
+
+            // Update cache
+            var friendItems = await _friendRepository.GetFriendItems(convertedParticipants.Select(q => q.Contact.Id).ToList());
+            var convertParticipantToUpdateCache = _mapper.Map<List<ParticipantWithFriendRequest>>(convertedParticipants);
+            for (var i = 0; i < convertParticipantToUpdateCache.Count; i++)
+            {
+                convertParticipantToUpdateCache[i].FriendId = friendItems[i].Item1;
+                convertParticipantToUpdateCache[i].FriendStatus = "friend";
+            }
+            await _caching.AddNewParticipant(conversation.Id, convertParticipantToUpdateCache);
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);

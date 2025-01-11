@@ -1,4 +1,5 @@
 
+
 namespace Infrastructure.Caching;
 
 /// <summary>
@@ -52,6 +53,16 @@ public class Caching : ICaching
         selectedConversation.LastMessageTime = message.CreatedTime;
         selectedConversation.LastMessageContact = userId;
         selectedConversation.Messages.Add(message);
+        await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
+    }
+
+    public async Task AddNewParticipant(string conversationId, List<ParticipantWithFriendRequest> participants)
+    {
+        var userId = _contactRepository.GetUserId();
+        var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
+        var conversations = JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
+        var selectedConversation = conversations.SingleOrDefault(q => q.Id == conversationId);
+        selectedConversation.Participants.AddRange(participants);
         await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
     }
 }

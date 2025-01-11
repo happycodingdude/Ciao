@@ -22,6 +22,38 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
         else return "request_received";
     }
 
+    public async Task<List<(string, string)>> GetFriendItems(List<string> userIds)
+    {
+        var userId = _contactRepository.GetUserId();
+        var filter = Builders<Friend>.Filter.Or(
+            Builders<Friend>.Filter.And(
+                Builders<Friend>.Filter.Eq(f => f.FromContact.ContactId, userId),
+                Builders<Friend>.Filter.In(f => f.ToContact.ContactId, userIds)
+            ),
+            Builders<Friend>.Filter.And(
+                Builders<Friend>.Filter.Eq(f => f.ToContact.ContactId, userId),
+                Builders<Friend>.Filter.In(f => f.FromContact.ContactId, userIds)
+            )
+        );
+        var projection = Builders<Friend>.Projection.Expression(friend =>
+            new
+            {
+                friend.Id,
+                Status = friend.AcceptTime != null
+                    ? "friend"
+                    : (friend.FromContact.ContactId == userId ? "request_sent" : "request_received")
+            });
+
+        var result = await _collection
+            .Find(filter)
+            .Project(projection)
+            .ToListAsync();
+
+        return result
+            .Select(r => (r.Id.ToString(), r.Status))
+            .ToList();
+    }
+
     public async Task<IEnumerable<GetListFriendItem>> GetListFriend()
     {
         var user = await _contactRepository.GetInfoAsync();
