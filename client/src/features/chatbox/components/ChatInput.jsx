@@ -33,7 +33,7 @@ const ChatInput = forwardRef((props, ref) => {
     // }, 0);
     setFiles([]);
     setMentions(() => {
-      return messages?.participants
+      return conversations?.selected?.participants
         .filter((item) => item.contact.id !== info.id)
         .map((item) => {
           return {
@@ -43,7 +43,7 @@ const ChatInput = forwardRef((props, ref) => {
           };
         });
     });
-  }, [messages]);
+  }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace) => {
     // ref.current.textContent += " ";

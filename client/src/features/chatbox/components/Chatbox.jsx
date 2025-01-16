@@ -5,7 +5,6 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import FetchingMoreMessages from "../../../components/FetchingMoreMessages";
 import RelightBackground from "../../../components/RelightBackground";
-import useEventListener from "../../../hooks/useEventListener";
 import HttpRequest from "../../../lib/fetch";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -13,7 +12,7 @@ import useConversation from "../../listchat/hooks/useConversation";
 import useMessage from "../hooks/useMessage";
 import sendMessage from "../services/sendMessage";
 import ChatInput from "./ChatInput";
-import MessageContent from "./MessageContent";
+import ListMessage from "./ListMessage";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
@@ -40,19 +39,19 @@ const Chatbox = (props) => {
     scrollChatContentToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    refChatContent.current.classList.remove("scroll-smooth");
-    if (autoScrollBottom) {
-      scrollChatContentToBottom();
-      setTimeout(() => {
-        refChatContent.current.classList.add("scroll-smooth");
-      }, 500);
-    }
-  }, [autoScrollBottom]);
+  // useEffect(() => {
+  //   refChatContent.current.classList.remove("scroll-smooth");
+  //   if (autoScrollBottom) {
+  //     scrollChatContentToBottom();
+  //     setTimeout(() => {
+  //       refChatContent.current.classList.add("scroll-smooth");
+  //     }, 500);
+  //   }
+  // }, [autoScrollBottom]);
 
   useEffect(() => {
     setPage(2);
-    setAutoScrollBottom(true);
+    // setAutoScrollBottom(true);
     setTimeout(() => {
       refInput.current.focus();
     }, 100);
@@ -278,7 +277,7 @@ const Chatbox = (props) => {
   }, [isPending]);
 
   const scrollChatContentToBottom = () => {
-    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
     // refChatContent.current.scrollTop = 0;
   };
 
@@ -334,7 +333,7 @@ const Chatbox = (props) => {
       debounceFetch(conversations?.selected.id, page, currentScrollHeight);
     }
   }, [conversations?.selected, messages, page]);
-  useEventListener("scroll", handleScroll);
+  // useEventListener("scroll", handleScroll);
 
   return (
     <div
@@ -342,7 +341,6 @@ const Chatbox = (props) => {
       className={`relative flex w-full grow flex-col items-center border-r-[.1rem] border-r-[var(--border-color)]
         ${isToggle ? "" : "shrink-0"}`}
     >
-      {/* {isLoading || isRefetching ? <LocalLoading /> : ""} */}
       <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <RelightBackground
@@ -354,10 +352,9 @@ const Chatbox = (props) => {
         >
           <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground>
-        <div
+        <ListMessage conversationId={conversations?.selected?.id} />
+        {/* <div
           ref={refChatContent}
-          // className=" hide-scrollbar flex grow flex-col-reverse gap-[2rem] overflow-y-scroll scroll-smooth
-          // bg-gradient-to-b from-[var(--sub-color)] to-[var(--main-color-thin)] pb-4"
           className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         >
           {messages?.messages
@@ -371,38 +368,7 @@ const Chatbox = (props) => {
                   />
                 ))
             : ""}
-          {/* {messages?.messages.map((message, index) => (
-            <MessageContent
-              message={message}
-              id={conversations.selected.id}
-              mt={index === 0}
-            />
-          ))} */}
-
-          {/* {isPending && (
-            <MessageContent
-              pending={isPending}
-              message={{
-                type: variables.type,
-                content: variables.content,
-                contactId: info.id,
-                attachments: variables.attachments,
-                currentReaction: null,
-                noLazy: true,
-              }}
-            />
-          )} */}
-
-          {/* <BackgroundPortal
-            className="!w-[35%]"
-            show={open}
-            title="Profile"
-            onClose={() => setOpen(false)}
-          >
-            <UserProfile id={userId} onClose={() => setOpen(false)} />
-          </BackgroundPortal> */}
-        </div>
-        {/* </div> */}
+        </div> */}
       </div>
       <div className="flex w-full items-center justify-center py-3">
         <ChatInput

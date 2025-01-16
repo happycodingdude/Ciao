@@ -65,7 +65,7 @@ public static class GetById
             var paging = new PagingParam(request.page, request.limit);
             var pagedMessages = conversationWithMessages.Messages.Skip(paging.Skip).Take(paging.Limit).ToList();
             var nextPagedMessages = conversationWithMessages.Messages.Skip(paging.NextSkip).Take(paging.Limit).ToList();
-            conversationWithMessages.Messages = pagedMessages;
+            conversationWithMessages.Messages = pagedMessages.OrderBy(q => q.CreatedTime).ToList();
             conversationWithMessages.NextExist = nextPagedMessages.Any();
             return conversationWithMessages;
         }

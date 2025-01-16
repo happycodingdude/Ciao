@@ -9,7 +9,7 @@ import reactMessage from "../services/reactMessage";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
-  const { message, id, pending, mt } = props;
+  const { message, id, pending, mt, innerRef } = props;
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -120,6 +120,7 @@ const MessageContent = (props) => {
 
   return (
     <div
+      ref={innerRef}
       data-id={message.id}
       key={message.id}
       className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}

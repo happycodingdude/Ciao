@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import LocalLoading from "../components/LocalLoading";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
@@ -21,7 +21,11 @@ const ChatboxContainer = () => {
     isLoading: isLoadingAttachment,
     isRefetching: isRefetchingAttachment,
   } = useAttachment();
-  const { data: conversations } = useConversation();
+  const {
+    data: conversations,
+    isLoading: isLoadingConversation,
+    isRefetching: isRefetchingConversation,
+  } = useConversation();
 
   const { toggle, setToggle } = useToggleChatDetail();
   const { loading, setLoading } = useLoading();
@@ -29,27 +33,23 @@ const ChatboxContainer = () => {
   const isLoading = isLoadingMessage || isLoadingAttachment;
   const isRefetching = isRefetchingMessage || isRefetchingAttachment;
 
-  useEffect(() => {
-    if (!isLoading && !isRefetching) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 100);
-    }
-  }, [isLoading, isRefetching]);
+  // useEffect(() => {
+  //   if (!isLoading && !isRefetching) {
+  //     setTimeout(() => {
+  //       setLoading(false);
+  //     }, 100);
+  //   }
+  // }, [isLoading, isRefetching]);
 
   return (
     <div className="relative grow">
       {loading ? (
         <LocalLoading className="!z-[11]" />
-      ) : messages?.messages ||
+      ) : conversations?.selected ||
         conversations?.createGroupChat ||
         conversations?.quickChatAdd ? (
         <div className="flex h-full w-full flex-col border-l-[.1rem] border-l-[var(--border-color)]">
-          <ChatboxHeader
-            toggle={toggle}
-            setToggle={setToggle}
-            messages={messages}
-          />
+          <ChatboxHeader toggle={toggle} setToggle={setToggle} />
           <div className="flex h-0 w-full grow">
             <Chatbox isToggle={toggle && toggle !== "" && toggle !== "null"} />
             <div
