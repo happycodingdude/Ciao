@@ -6,10 +6,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import FetchingMoreMessages from "../../../components/FetchingMoreMessages";
 import RelightBackground from "../../../components/RelightBackground";
 import HttpRequest from "../../../lib/fetch";
-import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
-import useMessage from "../hooks/useMessage";
 import sendMessage from "../services/sendMessage";
 import ChatInput from "./ChatInput";
 import ListMessage from "./ListMessage";
@@ -24,7 +22,7 @@ const Chatbox = (props) => {
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { data: messages } = useMessage(conversations?.selected?.id, page);
+  // const { data: messages } = useMessage(conversations?.selected?.id, page);
 
   const refChatContent = useRef();
   const refChatboxContainer = useRef();
@@ -34,10 +32,10 @@ const Chatbox = (props) => {
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  useEffect(() => {
-    blurImage(".chatbox-content");
-    scrollChatContentToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   blurImage(".chatbox-content");
+  //   scrollChatContentToBottom();
+  // }, [messages]);
 
   // useEffect(() => {
   //   refChatContent.current.classList.remove("scroll-smooth");
@@ -332,7 +330,8 @@ const Chatbox = (props) => {
       const currentScrollHeight = refChatContent.current.scrollHeight;
       debounceFetch(conversations?.selected.id, page, currentScrollHeight);
     }
-  }, [conversations?.selected, messages, page]);
+    // }, [conversations?.selected, messages, page]);
+  }, [conversations?.selected, page]);
   // useEventListener("scroll", handleScroll);
 
   return (
@@ -341,7 +340,7 @@ const Chatbox = (props) => {
       className={`relative flex w-full grow flex-col items-center border-r-[.1rem] border-r-[var(--border-color)]
         ${isToggle ? "" : "shrink-0"}`}
     >
-      <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
+      <div className="chatbox-content relative flex w-full flex-col justify-between overflow-hidden laptop:h-[49rem]">
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <RelightBackground
           data-show={showScrollToBottom}

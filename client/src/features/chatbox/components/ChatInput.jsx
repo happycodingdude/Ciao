@@ -5,7 +5,6 @@ import ImageWithLightBoxWithShadowAndNoLazy from "../../../components/ImageWithL
 import useEventListener from "../../../hooks/useEventListener";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
-import useMessage from "../hooks/useMessage";
 import ChatboxMenu from "./ChatboxMenu";
 
 const ChatInput = forwardRef((props, ref) => {
@@ -14,7 +13,7 @@ const ChatInput = forwardRef((props, ref) => {
   if (!ref) return;
 
   const { data: info } = useInfo();
-  const { data: messages } = useMessage();
+  // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
 
   // const inputRef = useRef();

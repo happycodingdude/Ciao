@@ -2,36 +2,34 @@ import React from "react";
 import LocalLoading from "../components/LocalLoading";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
-import useMessage from "../features/chatbox/hooks/useMessage";
 import useToggleChatDetail from "../features/chatbox/hooks/useToggleChatDetail";
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
-import useAttachment from "../features/chatdetail/hooks/useAttachment";
 import useConversation from "../features/listchat/hooks/useConversation";
 import useLoading from "../hooks/useLoading";
 
 const ChatboxContainer = () => {
   console.log("ChatboxContainer calling");
-  const {
-    data: messages,
-    isLoading: isLoadingMessage,
-    isRefetching: isRefetchingMessage,
-  } = useMessage();
-  const {
-    isLoading: isLoadingAttachment,
-    isRefetching: isRefetchingAttachment,
-  } = useAttachment();
+  // const {
+  //   data: messages,
+  //   isLoading: isLoadingMessage,
+  //   isRefetching: isRefetchingMessage,
+  // } = useMessage();
+  // const {
+  //   isLoading: isLoadingAttachment,
+  //   isRefetching: isRefetchingAttachment,
+  // } = useAttachment();
   const {
     data: conversations,
-    isLoading: isLoadingConversation,
-    isRefetching: isRefetchingConversation,
+    // isLoading: isLoadingConversation,
+    // isRefetching: isRefetchingConversation,
   } = useConversation();
 
   const { toggle, setToggle } = useToggleChatDetail();
   const { loading, setLoading } = useLoading();
 
-  const isLoading = isLoadingMessage || isLoadingAttachment;
-  const isRefetching = isRefetchingMessage || isRefetchingAttachment;
+  // const isLoading = isLoadingMessage || isLoadingAttachment;
+  // const isRefetching = isRefetchingMessage || isRefetchingAttachment;
 
   // useEffect(() => {
   //   if (!isLoading && !isRefetching) {
