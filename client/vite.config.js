@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import fixReactVirtualized from "esbuild-plugin-react-virtualized";
 import { defineConfig, loadEnv } from "vite";
 
 const env = loadEnv("all", process.cwd());
@@ -28,5 +29,10 @@ export default defineConfig({
   },
   define: {
     global: "globalThis",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [fixReactVirtualized],
+    },
   },
 });

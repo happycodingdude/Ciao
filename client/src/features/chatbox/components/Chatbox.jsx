@@ -340,7 +340,7 @@ const Chatbox = (props) => {
       className={`relative flex w-full grow flex-col items-center border-r-[.1rem] border-r-[var(--border-color)]
         ${isToggle ? "" : "shrink-0"}`}
     >
-      <div className="chatbox-content relative flex w-full flex-col justify-between overflow-hidden laptop:h-[49rem]">
+      <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
         {fetching ? <FetchingMoreMessages loading /> : ""}
         <RelightBackground
           data-show={showScrollToBottom}
@@ -369,7 +369,7 @@ const Chatbox = (props) => {
             : ""}
         </div> */}
       </div>
-      <div className="flex w-full items-center justify-center py-3">
+      <div className="flex w-full items-center justify-center py-3 laptop:h-[5rem]">
         <ChatInput
           className="chatbox"
           send={(text, files) => {

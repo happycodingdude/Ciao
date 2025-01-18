@@ -9,7 +9,7 @@ import reactMessage from "../services/reactMessage";
 
 const MessageContent = (props) => {
   console.log("MessageContent calling");
-  const { message, id, pending, mt, innerRef } = props;
+  const { message, id, pending, mt, innerRef, height } = props;
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -124,6 +124,7 @@ const MessageContent = (props) => {
       data-id={message.id}
       key={message.id}
       className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
+      style={{ height: `${height}px` }}
     >
       {/* Sender avatar */}
       {message.contactId !== info.id ? (

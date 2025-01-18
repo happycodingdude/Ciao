@@ -9,7 +9,7 @@ export default {
       phone: "320px",
       tablet: "640px",
       laptop: "1024px",
-      "laptop-lg": "1512px",
+      "laptop-lg": "1400px",
       desktop: "1920px",
     },
     // fontSize: {

@@ -28,6 +28,7 @@ const ListMessage_tanstack = (props) => {
     count: nextExist ? allRows.length + 1 : allRows.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 80,
+    overscan: 2,
   });
 
   useEffect(() => {
@@ -61,12 +62,20 @@ const ListMessage_tanstack = (props) => {
         ],
       };
     });
-    requestAnimationFrame(() => {
+
+    // requestAnimationFrame(() => {
+    //   parentRef.current.style.scrollBehavior = "auto";
+    //   parentRef.current.scrollTop =
+    //     parentRef.current.scrollHeight - currentScrollHeight;
+    //   parentRef.current.style.scrollBehavior = "smooth";
+    // });
+
+    setTimeout(() => {
       parentRef.current.style.scrollBehavior = "auto";
       parentRef.current.scrollTop =
         parentRef.current.scrollHeight - currentScrollHeight;
       parentRef.current.style.scrollBehavior = "smooth";
-    });
+    }, 10);
   };
 
   const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
@@ -91,7 +100,7 @@ const ListMessage_tanstack = (props) => {
       ) : (
         <div
           ref={parentRef}
-          className="w-full overflow-y-auto laptop:h-[49rem]"
+          className="w-full overflow-y-auto"
           // style={{
           //   height: `500px`,
           //   width: `100%`,
@@ -126,6 +135,7 @@ const ListMessage_tanstack = (props) => {
                         ? `${virtualRow.size}px`
                         : "300px",
                     transform:
+                      !previousMessage ||
                       previousMessage?.attachments.length === 0
                         ? `translateY(${virtualRow.start}px)`
                         : `translateY(${virtualRow.start + 250}px)`,
