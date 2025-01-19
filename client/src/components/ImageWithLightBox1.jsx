@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBox = (props) => {
-  console.log("ImageWithLightBox calling...");
+  // console.log("ImageWithLightBox calling...");
   const {
     src,
     title,

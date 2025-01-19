@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBoxAndNoLazy = (props) => {
-  console.log("ImageWithLightBoxAndNoLazy calling...");
+  // console.log("ImageWithLightBoxAndNoLazy calling...");
   const { src, title, className, imageClassName, slides, index, onClick } =
     props;
 

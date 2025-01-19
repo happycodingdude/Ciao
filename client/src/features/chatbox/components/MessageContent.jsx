@@ -8,8 +8,10 @@ import useConversation from "../../listchat/hooks/useConversation";
 import reactMessage from "../services/reactMessage";
 
 const MessageContent = (props) => {
-  console.log("MessageContent calling");
+  // console.log("MessageContent calling");
   const { message, id, pending, mt, innerRef, height } = props;
+
+  if (!message) return null;
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();

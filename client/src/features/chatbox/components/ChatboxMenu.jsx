@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 
 const ChatboxMenu = (props) => {
-  console.log("ChatboxMenu calling");
+  // console.log("ChatboxMenu calling");
   const { chooseFile, className } = props;
 
   const [show, setShow] = useState(false);

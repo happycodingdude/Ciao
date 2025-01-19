@@ -17,14 +17,15 @@ const useMessage = (conversationId, setNextExist) => {
       // if (!conversationId) return null;
       const data = await getMessages(conversationId, 1);
       setNextExist(data.nextExist);
-      return {
-        pages: [
-          {
-            rows: data.messages,
-            nextOffset: 2,
-          },
-        ],
-      };
+      return data.messages;
+      // return {
+      //   pages: [
+      //     {
+      //       rows: data.messages,
+      //       nextOffset: 2,
+      //     },
+      //   ],
+      // };
     },
   });
 };

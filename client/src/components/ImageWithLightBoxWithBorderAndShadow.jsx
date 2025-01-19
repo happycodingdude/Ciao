@@ -2,7 +2,7 @@ import React from "react";
 import ImageWithLightBox from "./ImageWithLightBox";
 
 const ImageWithLightBoxWithBorderAndShadow = (props) => {
-  console.log("ImageWithLightBoxWithBorderAndShadow calling...");
+  // console.log("ImageWithLightBoxWithBorderAndShadow calling...");
   const { src, title, className, slides, index, onClick, immediate } = props;
 
   return (
