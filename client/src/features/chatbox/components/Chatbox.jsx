@@ -1,11 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { debounce } from "lodash";
 import moment from "moment";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import FetchingMoreMessages from "../../../components/FetchingMoreMessages";
-import RelightBackground from "../../../components/RelightBackground";
-import HttpRequest from "../../../lib/fetch";
+import React, { useEffect, useRef } from "react";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import sendMessage from "../services/sendMessage";
@@ -18,19 +14,19 @@ const Chatbox = (props) => {
 
   const queryClient = useQueryClient();
 
-  const [page, setPage] = useState(2);
+  // const [page, setPage] = useState(2);
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   // const { data: messages } = useMessage(conversations?.selected?.id, page);
 
-  const refChatContent = useRef();
+  // const refChatContent = useRef();
   const refChatboxContainer = useRef();
   const refInput = useRef();
 
-  const [fetching, setFetching] = useState(false);
-  const [autoScrollBottom, setAutoScrollBottom] = useState(true);
-  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  // const [fetching, setFetching] = useState(false);
+  // const [autoScrollBottom, setAutoScrollBottom] = useState(true);
+  // const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   // useEffect(() => {
   //   blurImage(".chatbox-content");
@@ -48,7 +44,7 @@ const Chatbox = (props) => {
   // }, [autoScrollBottom]);
 
   useEffect(() => {
-    setPage(2);
+    // setPage(2);
     // setAutoScrollBottom(true);
     setTimeout(() => {
       refInput.current.focus();
@@ -77,29 +73,49 @@ const Chatbox = (props) => {
 
   const {
     mutate: sendMutation,
-    isPending,
-    variables,
+    // isPending,
+    // variables,
   } = useMutation({
     mutationFn: async (param) => {
       let randomId = Math.random().toString(36).substring(2, 7);
-      queryClient.setQueryData(["message"], (oldData) => {
-        return {
-          ...oldData,
-          messages: [
-            {
-              id: randomId,
-              type: param.type,
-              content: param.content,
-              contactId: info.id,
-              attachments: param.attachments,
-              currentReaction: null,
-              noLazy: true,
-              pending: true,
-            },
-            ...oldData.messages,
-          ],
-        };
-      });
+      // queryClient.setQueryData(
+      //   ["message", conversations?.selected.id],
+      //   (oldData) => [
+      //     ...(oldData || []), // Spread existing array (or initialize with an empty array)
+      //     {
+      //       id: randomId,
+      //       type: param.type,
+      //       content: param.content,
+      //       contactId: info.id,
+      //       attachments: param.attachments,
+      //       currentReaction: null,
+      //       noLazy: true,
+      //       pending: true,
+      //     },
+      //   ],
+      // );
+      queryClient.setQueryData(
+        ["message", conversations?.selected.id],
+        (oldData) => {
+          return {
+            ...oldData,
+            messages: [
+              ...(oldData.messages || []),
+              {
+                id: randomId,
+                type: param.type,
+                content: param.content,
+                contactId: info.id,
+                attachments: param.attachments,
+                currentReaction: null,
+                noLazy: true,
+                pending: true,
+              },
+            ],
+            newMessage: true,
+          };
+        },
+      );
 
       // await delay(2000);
       // if (param.type === "text" && param.content === "") return;
@@ -135,19 +151,22 @@ const Chatbox = (props) => {
       var id = await sendMessage(conversations?.selected.id, bodyToCreate);
       // await delay(3000);
 
-      queryClient.setQueryData(["message"], (oldData) => {
-        const updatedMessages = oldData.messages.map((message) => {
-          if (message.id !== randomId) return message;
-          message.id = id;
-          message.loaded = true;
-          message.pending = false;
-          return message;
-        });
-        return {
-          ...oldData,
-          messages: updatedMessages,
-        };
-      });
+      queryClient.setQueryData(
+        ["message", conversations?.selected.id],
+        (oldData) => {
+          const updatedMessages = oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            message.id = id;
+            message.loaded = true;
+            message.pending = false;
+            return message;
+          });
+          return {
+            ...oldData,
+            messages: updatedMessages,
+          };
+        },
+      );
 
       // if (param.files.length !== 0) {
       //   const element = document.querySelector(`[data-id="${randomId}"]`);
@@ -270,14 +289,14 @@ const Chatbox = (props) => {
   //   sendMutation({ type: "media", attachments: lazyImages });
   // };
 
-  useEffect(() => {
-    scrollChatContentToBottom();
-  }, [isPending]);
+  // useEffect(() => {
+  //   scrollChatContentToBottom();
+  // }, [isPending]);
 
-  const scrollChatContentToBottom = () => {
-    // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-    // refChatContent.current.scrollTop = 0;
-  };
+  // const scrollChatContentToBottom = () => {
+  //   // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+  //   // refChatContent.current.scrollTop = 0;
+  // };
 
   // Event listener
   // const closeProfile = useCallback((e) => {
@@ -285,53 +304,53 @@ const Chatbox = (props) => {
   // }, []);
   // useEventListener("click", closeProfile);
 
-  const fetchMoreMessage = (conversationId, page, currentScrollHeight) => {
-    setFetching(true);
-    HttpRequest({
-      method: "get",
-      url: import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
-        "{id}",
-        conversationId,
-      ).replace("{page}", page),
-    }).then((data) => {
-      queryClient.setQueryData(["message"], (oldData) => {
-        const cloned = Object.assign({}, oldData);
-        cloned.messages = [...cloned.messages, ...data.data.messages];
-        cloned.nextExist = data.data.nextExist;
-        return cloned;
-      });
-      setPage((current) => current + 1);
-      setFetching(false);
-      requestAnimationFrame(() => {
-        refChatContent.current.style.scrollBehavior = "auto";
-        refChatContent.current.scrollTop =
-          refChatContent.current.scrollHeight - currentScrollHeight;
-        refChatContent.current.style.scrollBehavior = "smooth";
-      });
-    });
-  };
+  // const fetchMoreMessage = (conversationId, page, currentScrollHeight) => {
+  //   setFetching(true);
+  //   HttpRequest({
+  //     method: "get",
+  //     url: import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
+  //       "{id}",
+  //       conversationId,
+  //     ).replace("{page}", page),
+  //   }).then((data) => {
+  //     queryClient.setQueryData(["message"], (oldData) => {
+  //       const cloned = Object.assign({}, oldData);
+  //       cloned.messages = [...cloned.messages, ...data.data.messages];
+  //       cloned.nextExist = data.data.nextExist;
+  //       return cloned;
+  //     });
+  //     setPage((current) => current + 1);
+  //     setFetching(false);
+  //     requestAnimationFrame(() => {
+  //       refChatContent.current.style.scrollBehavior = "auto";
+  //       refChatContent.current.scrollTop =
+  //         refChatContent.current.scrollHeight - currentScrollHeight;
+  //       refChatContent.current.style.scrollBehavior = "smooth";
+  //     });
+  //   });
+  // };
 
-  const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+  // const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
 
-  const handleScroll = useCallback(async () => {
-    // Nếu scroll 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
-    const distanceFromBottom =
-      refChatContent.current.scrollHeight -
-      (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
-    if (
-      refChatContent.current.clientHeight !== 0 &&
-      distanceFromBottom >= refChatContent.current.clientHeight
-    )
-      setShowScrollToBottom(true);
-    else setShowScrollToBottom(false);
+  // const handleScroll = useCallback(async () => {
+  //   // Nếu scroll 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
+  //   const distanceFromBottom =
+  //     refChatContent.current.scrollHeight -
+  //     (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
+  //   if (
+  //     refChatContent.current.clientHeight !== 0 &&
+  //     distanceFromBottom >= refChatContent.current.clientHeight
+  //   )
+  //     setShowScrollToBottom(true);
+  //   else setShowScrollToBottom(false);
 
-    if (refChatContent.current.scrollTop === 0 && messages.nextExist) {
-      setAutoScrollBottom(false);
-      const currentScrollHeight = refChatContent.current.scrollHeight;
-      debounceFetch(conversations?.selected.id, page, currentScrollHeight);
-    }
-    // }, [conversations?.selected, messages, page]);
-  }, [conversations?.selected, page]);
+  //   if (refChatContent.current.scrollTop === 0 && messages.nextExist) {
+  //     setAutoScrollBottom(false);
+  //     const currentScrollHeight = refChatContent.current.scrollHeight;
+  //     debounceFetch(conversations?.selected.id, page, currentScrollHeight);
+  //   }
+  //   // }, [conversations?.selected, messages, page]);
+  // }, [conversations?.selected, page]);
   // useEventListener("scroll", handleScroll);
 
   return (
@@ -340,9 +359,8 @@ const Chatbox = (props) => {
       className={`relative flex w-full grow flex-col items-center border-r-[.1rem] border-r-[var(--border-color)]
         ${isToggle ? "" : "shrink-0"}`}
     >
-      <div className="chatbox-content relative flex w-full grow flex-col justify-between overflow-hidden">
-        {fetching ? <FetchingMoreMessages loading /> : ""}
-        <RelightBackground
+      {/* {fetching ? <FetchingMoreMessages loading /> : ""} */}
+      {/* <RelightBackground
           data-show={showScrollToBottom}
           onClick={scrollChatContentToBottom}
           className={`absolute bottom-[5%] right-[50%] z-20
@@ -350,9 +368,9 @@ const Chatbox = (props) => {
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
         >
           <div className="fa fa-chevron-down base-icon"></div>
-        </RelightBackground>
-        <ListMessage conversationId={conversations?.selected?.id} />
-        {/* <div
+        </RelightBackground> */}
+      <ListMessage conversationId={conversations?.selected?.id} />
+      {/* <div
           ref={refChatContent}
           className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         >
@@ -368,7 +386,6 @@ const Chatbox = (props) => {
                 ))
             : ""}
         </div> */}
-      </div>
       <div className="flex w-full items-center justify-center py-3 laptop:h-[5rem]">
         <ChatInput
           className="chatbox"

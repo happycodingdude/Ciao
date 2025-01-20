@@ -53,6 +53,7 @@ public class Caching : ICaching
         selectedConversation.LastMessageTime = message.CreatedTime;
         selectedConversation.LastMessageContact = userId;
         selectedConversation.Messages.Add(message);
+        conversations = conversations.OrderByDescending(q => q.LastMessageTime);
         await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
     }
 

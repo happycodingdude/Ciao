@@ -1,32 +1,23 @@
 import React from "react";
-import LocalLoading from "../components/LocalLoading";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
 import useToggleChatDetail from "../features/chatbox/hooks/useToggleChatDetail";
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
 import useConversation from "../features/listchat/hooks/useConversation";
-import useLoading from "../hooks/useLoading";
 
 const ChatboxContainer = () => {
-  console.log("ChatboxContainer calling");
-  // const {
-  //   data: messages,
-  //   isLoading: isLoadingMessage,
-  //   isRefetching: isRefetchingMessage,
-  // } = useMessage();
+  // console.log("ChatboxContainer calling");
+  // const { isLoading: isLoadingMessage, isRefetching: isRefetchingMessage } =
+  //   useMessage();
   // const {
   //   isLoading: isLoadingAttachment,
   //   isRefetching: isRefetchingAttachment,
   // } = useAttachment();
-  const {
-    data: conversations,
-    // isLoading: isLoadingConversation,
-    // isRefetching: isRefetchingConversation,
-  } = useConversation();
+  const { data: conversations } = useConversation();
 
   const { toggle, setToggle } = useToggleChatDetail();
-  const { loading, setLoading } = useLoading();
+  // const { loading, setLoading } = useLoading();
 
   // const isLoading = isLoadingMessage || isLoadingAttachment;
   // const isRefetching = isRefetchingMessage || isRefetchingAttachment;
@@ -40,12 +31,41 @@ const ChatboxContainer = () => {
   // }, [isLoading, isRefetching]);
 
   return (
+    // <div className="relative grow">
+    //   {loading ? (
+    //     <LocalLoading className="!z-[11]" />
+    //   ) : conversations?.selected ||
+    //     conversations?.createGroupChat ||
+    //     conversations?.quickChatAdd ? (
+    //     <div className="flex h-full w-full flex-col border-l-[.1rem] border-l-[var(--border-color)]">
+    //       <ChatboxHeader toggle={toggle} setToggle={setToggle} />
+    //       <div className="flex h-0 w-full grow">
+    //         <Chatbox isToggle={toggle && toggle !== "" && toggle !== "null"} />
+    //         <div
+    //           className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem]
+    //         ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
+    //         >
+    //           <Information
+    //             show={toggle === "information"}
+    //             toggle={() => setToggle("attachment")}
+    //             onLoaded={() => setLoading(false)}
+    //           />
+    //           <Attachment
+    //             show={toggle === "attachment"}
+    //             toggle={() => setToggle("information")}
+    //           />
+    //         </div>
+    //       </div>
+    //     </div>
+    //   ) : (
+    //     ""
+    //   )}
+    // </div>
+
     <div className="relative grow">
-      {loading ? (
-        <LocalLoading className="!z-[11]" />
-      ) : conversations?.selected ||
-        conversations?.createGroupChat ||
-        conversations?.quickChatAdd ? (
+      {conversations?.selected ||
+      conversations?.createGroupChat ||
+      conversations?.quickChatAdd ? (
         <div className="flex h-full w-full flex-col border-l-[.1rem] border-l-[var(--border-color)]">
           <ChatboxHeader toggle={toggle} setToggle={setToggle} />
           <div className="flex h-0 w-full grow">
@@ -57,7 +77,7 @@ const ChatboxContainer = () => {
               <Information
                 show={toggle === "information"}
                 toggle={() => setToggle("attachment")}
-                onLoaded={() => setLoading(false)}
+                // onLoaded={() => setLoading(false)}
               />
               <Attachment
                 show={toggle === "attachment"}

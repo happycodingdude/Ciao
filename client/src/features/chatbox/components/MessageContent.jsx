@@ -1,6 +1,5 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
-import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -9,7 +8,7 @@ import reactMessage from "../services/reactMessage";
 
 const MessageContent = (props) => {
   // console.log("MessageContent calling");
-  const { message, id, pending, mt, innerRef, height } = props;
+  const { message, id, pending, mt, innerRef, height, style } = props;
 
   if (!message) return null;
 
@@ -126,7 +125,8 @@ const MessageContent = (props) => {
       data-id={message.id}
       key={message.id}
       className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
-      style={{ height: `${height}px` }}
+      style={style}
+      // style={{ height: `${height}px` }}
     >
       {/* Sender avatar */}
       {message.contactId !== info.id ? (
@@ -202,58 +202,45 @@ const MessageContent = (props) => {
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
           >
-            {
-              message.attachments.map((item, index) => {
-                return message.noLazy ? (
-                  <ImageWithLightBoxAndNoLazy
-                    src={item.mediaUrl}
-                    title={item.mediaName?.split(".")[0]}
-                    className={`aspect-[3/2] cursor-pointer !bg-[size:110%] 
-                      ${message.loaded ? "loaded" : ""}
-                      ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
-                    slides={message.attachments.map((item) => ({
-                      src: item.type === "image" ? item.mediaUrl : "",
-                    }))}
-                    index={index}
-                  />
-                ) : (
-                  <ImageWithLightBox
-                    src={item.mediaUrl}
-                    title={item.mediaName?.split(".")[0]}
-                    className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} cursor-pointer`}
-                    slides={message.attachments.map((item) => ({
-                      src: item.type === "image" ? item.mediaUrl : "",
-                    }))}
-                    index={index}
-                    imageClassName="!bg-[size:100%]"
-                  />
-                );
-              })
-              // <ImageWithLightBoxAndNoLazy
-              //   src={item.mediaUrl}
-              //   title={item.mediaName?.split(".")[0]}
-              //   className={`aspect-[3/2] ${message.attachments?.length === 1 ? "w-[50%]" : "w-[45%]"} ${pending ? "opacity-50" : ""} cursor-pointer !bg-[size:110%]`}
-              //   slides={message.attachments.map((item) => ({
-              //     src:
-              //       item.type === "image"
-              //         ? item.mediaUrl
-              //         : "images/filenotfound.svg",
-              //   }))}
-              //   index={index}
-              // />
+            {message.attachments.map((item, index) => {
+              // return message.noLazy ? (
+              //   <ImageWithLightBoxAndNoLazy
+              //     src={item.mediaUrl}
+              //     title={item.mediaName?.split(".")[0]}
+              //     className={`aspect-[3/2] cursor-pointer !bg-[size:110%]
+              //       ${message.loaded ? "loaded" : ""}
+              //       ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
+              //     slides={message.attachments.map((item) => ({
+              //       src: item.type === "image" ? item.mediaUrl : "",
+              //     }))}
+              //     index={index}
+              //   />
+              // ) : (
+              //   <ImageWithLightBox
+              //     src={item.mediaUrl}
+              //     title={item.mediaName?.split(".")[0]}
+              //     className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} cursor-pointer`}
+              //     slides={message.attachments.map((item) => ({
+              //       src: item.type === "image" ? item.mediaUrl : "",
+              //     }))}
+              //     index={index}
+              //     imageClassName="!bg-[size:100%]"
+              //   />
+              // );
 
-              // <ImageWithLightBox
-              //   src={item.mediaUrl}
-              //   title={item.mediaName?.split(".")[0]}
-              //   className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} ${pending ? "opacity-50" : ""} cursor-pointer `}
-              //   slides={message.attachments.map((item) => ({
-              //     src: item.type === "image" ? item.mediaUrl : "",
-              //   }))}
-              //   index={index}
-              //   imageClassName="!bg-[size:100%]"
-              //   loaded={pending}
-              // />
-            }
+              return (
+                <ImageWithLightBoxAndNoLazy
+                  src={item.mediaUrl}
+                  title={item.mediaName?.split(".")[0]}
+                  className={`loaded aspect-[3/2] cursor-pointer !bg-[size:110%]                      
+                      ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
+                  slides={message.attachments.map((item) => ({
+                    src: item.type === "image" ? item.mediaUrl : "",
+                  }))}
+                  index={index}
+                />
+              );
+            })}
           </div>
         ) : (
           ""
