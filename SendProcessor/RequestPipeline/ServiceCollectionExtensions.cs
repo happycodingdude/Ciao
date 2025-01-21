@@ -1,0 +1,15 @@
+namespace SendProcessor.RequestPipeline;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddKafkaConsumer(this IServiceCollection services)
+    {
+        services.AddSingleton<IHostedService>(sp =>
+        {
+            var kafkaConfig = sp.GetRequiredService<IOptions<KafkaConfiguration>>();
+            return new KafkaConsumer([Topic.SaveNewMessage], ConsumerResultHanlder.ExecuteAsync, kafkaConfig);
+        });
+
+        return services;
+    }
+}

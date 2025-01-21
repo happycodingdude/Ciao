@@ -27,6 +27,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseDbTransaction();
-app.MapCarter();
 
 app.Run();

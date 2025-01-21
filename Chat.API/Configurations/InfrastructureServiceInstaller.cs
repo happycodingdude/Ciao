@@ -10,6 +10,12 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSwaggerGen();
         services.AddSession();
 
+        // Mapper
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+        // Configuration
+        services.Configure<KafkaConfiguration>(configuration.GetSection("Kafka"));
+
         // CORS
         services.AddCors(options =>
         {
@@ -86,6 +92,10 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // HttpClient
         services.AddHttpClient();
+
+        // Kafka
+        services.AddSingleton<ProducerFactory>();
+        services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
         // Global exception handler
         services.AddExceptionHandler<UnauthorizedExceptionHandler>();

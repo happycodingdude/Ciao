@@ -9,14 +9,14 @@ public class KafkaConsumer : BackgroundService
     static Partition _partition = new Partition(0);
     static List<TopicPartitionOffset> _partitions = new List<TopicPartitionOffset>();
     readonly IOptions<KafkaConfiguration> _kafkaConfig;
-    readonly List<string> _topics =
-    [
-    ];
+    readonly List<string> _topics;
     readonly ConsumeMessage _consumeMessage;
 
-    public KafkaConsumer(ConsumeMessage consumeMessage)
+    public KafkaConsumer(List<string> topics, ConsumeMessage consumeMessage, IOptions<KafkaConfiguration> kafkaConfig)
     {
+        _topics = topics;
         _consumeMessage = consumeMessage;
+        _kafkaConfig = kafkaConfig;
     }
 
     protected override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public class KafkaConsumer : BackgroundService
                             ReAssignPartition();
 
                         var cr = _consumer.Consume(_kafkaConfig.Value.ConsumeTimeOut);
-                        if (cr != null)
+                        if (cr is not null)
                             await _consumeMessage(new ConsumerResultData(cr, _consumer));
                     }
                 }

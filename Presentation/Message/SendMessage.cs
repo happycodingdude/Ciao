@@ -50,6 +50,7 @@ public static class SendMessage
         readonly IContactRepository _contactRepository;
         readonly IDistributedCache _distributedCache;
         readonly ICaching _caching;
+        readonly IKafkaProducer _kafkaProducer;
 
 
         public Handler(IValidator<Request> validator,
@@ -58,7 +59,8 @@ public static class SendMessage
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
             IDistributedCache distributedCache,
-            ICaching caching)
+            ICaching caching,
+            IKafkaProducer kafkaProducer)
         {
             _validator = validator;
             _notificationMethod = notificationMethod;
@@ -67,6 +69,7 @@ public static class SendMessage
             _contactRepository = contactRepository;
             _distributedCache = distributedCache;
             _caching = caching;
+            _kafkaProducer = kafkaProducer;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -98,7 +101,9 @@ public static class SendMessage
             conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = user.IsOnline;
 
             // Update conversation
-            _conversationRepository.Replace(filter, conversation);
+            // _conversationRepository.Replace(filter, conversation);
+
+            await _kafkaProducer.ProduceAsync(Topic.SaveNewMessage, conversation.Id);
 
             // Update cache
             // await _caching.AddNewMessage(conversation.Id, _mapper.Map<MessageWithReactions>(message));

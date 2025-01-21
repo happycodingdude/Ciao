@@ -1,7 +1,5 @@
 global using Application.Caching;
 global using Application.Repositories;
-global using Carter;
-global using FluentValidation;
 global using Infrastructure.Repositories;
 global using Microsoft.AspNetCore.Authorization;
 global using Shared.Constants;
@@ -26,3 +24,9 @@ global using Application.Jwt;
 global using Application.Kafka.Producer;
 global using Infrastructure.BackgroundJobs;
 global using Infrastructure.Kafka.Producer;
+global using Application.Kafka.Model;
+global using Infrastructure.Configurations;
+global using Microsoft.Extensions.Options;
+global using SendProcessor.ConsumerHandler;
+global using SendProcessor.RequestPipeline;
+global using Newtonsoft.Json;

@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.BackgroundJobs;
+﻿namespace SendProcessor.ConsumerHandler;
 
 /// <summary>
 /// Description: Lớp này xử lý message từ Kafka
@@ -10,7 +10,7 @@ public class ConsumerResultHanlder
         // Commit message
         data.consumer.Commit(data.cr);
 
-        Console.WriteLine($"topic [{data.cr.Topic}] data: {JsonConvert.DeserializeObject<object>(data.cr.Message.Value)}");
+        Console.WriteLine($"topic [{data.cr.Topic}] data: {data.cr.Message.Value}");
 
         switch (data.cr.Topic)
         {

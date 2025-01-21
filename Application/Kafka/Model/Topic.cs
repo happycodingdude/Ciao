@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Kafka.Model;
+﻿namespace Application.Kafka.Model;
 
 public static class Topic
 {

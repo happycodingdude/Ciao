@@ -23,3 +23,6 @@ global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Shared.Utils;
 global using StackExchange.Redis;
 global using Application.Jwt;
+global using Application.Kafka.Producer;
+global using Infrastructure.Kafka.Producer;
+global using Infrastructure.Configurations;
