@@ -78,6 +78,7 @@ public static class SendMessage
             // Get current conversation
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
+
             // Prepare message
             var user = await _contactRepository.GetInfoAsync();
             var message = request.model;
@@ -100,20 +101,20 @@ public static class SendMessage
             _conversationRepository.Replace(filter, conversation);
 
             // Update cache
-            await _caching.AddNewMessage(conversation.Id, _mapper.Map<MessageWithReactions>(message));
+            // await _caching.AddNewMessage(conversation.Id, _mapper.Map<MessageWithReactions>(message));
 
             // Push message            
-            var notify = _mapper.Map<MessageToNotify>(message);
-            notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
-            notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-            _ = _notificationMethod.Notify(
-                "NewMessage",
-                conversation.Participants
-                    .Where(q => q.Contact.Id != user.Id)
-                    .Select(q => q.Contact.Id)
-                .ToArray(),
-                notify
-            );
+            // var notify = _mapper.Map<MessageToNotify>(message);
+            // notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
+            // notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
+            // _ = _notificationMethod.Notify(
+            //     "NewMessage",
+            //     conversation.Participants
+            //         .Where(q => q.Contact.Id != user.Id)
+            //         .Select(q => q.Contact.Id)
+            //     .ToArray(),
+            //     notify
+            // );
 
             return message.Id;
         }

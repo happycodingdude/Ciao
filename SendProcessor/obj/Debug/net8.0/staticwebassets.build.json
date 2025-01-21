@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "n8813EpPBj77tVEL8Bx5xzWicv3DeJdRJEb0MqR1DlQ=",
+  "Source": "SendProcessor",
+  "BasePath": "_content/SendProcessor",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

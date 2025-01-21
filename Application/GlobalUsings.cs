@@ -8,3 +8,4 @@ global using System.Text.Json.Serialization;
 global using Domain.Base;
 global using Domain.Entities;
 global using System.Security.Claims;
+global using Confluent.Kafka;
