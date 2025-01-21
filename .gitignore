@@ -316,6 +316,54 @@
 /Presentation/msbuild.wrn
 
 
+
+
+/SendProcessor/*.swp
+/SendProcessor/*.*~
+/SendProcessor/project.lock.json
+/SendProcessor/.DS_Store
+/SendProcessor/*.pyc
+/SendProcessor/nupkg/
+
+# Visual Studio Code
+#.vscode/
+
+# Rider
+/SendProcessor/.idea/
+
+# Visual Studio
+/SendProcessor/.vs/
+
+# Fleet
+/SendProcessor/.fleet/
+
+# Code Rush
+/SendProcessor/.cr/
+
+# User-specific files
+/SendProcessor/*.suo
+/SendProcessor/*.user
+/SendProcessor/*.userosscache
+/SendProcessor/*.sln.docstates
+
+# Build results
+/SendProcessor/[Dd]ebug/
+/SendProcessor/[Dd]ebugPublic/
+/SendProcessor/[Rr]elease/
+/SendProcessor/[Rr]eleases/
+/SendProcessor/x64/
+/SendProcessor/x86/
+/SendProcessor/build/
+/SendProcessor/bld/
+/SendProcessor/[Bb]in/
+/SendProcessor/[Oo]bj/
+/SendProcessor/[Oo]ut/
+/SendProcessor/msbuild.log
+/SendProcessor/msbuild.err
+/SendProcessor/msbuild.wrn
+
+
+
 # Test
 /test/[Bb]in/
 /test/[Oo]bj/
