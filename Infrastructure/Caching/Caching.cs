@@ -1,5 +1,6 @@
 
 
+
 namespace Infrastructure.Caching;
 
 /// <summary>
@@ -12,6 +13,11 @@ public class Caching : ICaching
     public Caching(IDistributedCache distributedCache)
     {
         _distributedCache = distributedCache;
+    }
+
+    public async Task UpdateUserInfo(Contact user)
+    {
+        await _distributedCache.SetStringAsync($"info-{user.Id}", JsonConvert.SerializeObject(user));
     }
 
     public async Task UpdateConversation(string userId, IEnumerable<ConversationWithTotalUnseen> conversations)

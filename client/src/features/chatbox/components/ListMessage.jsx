@@ -148,56 +148,16 @@ const ListMessage = (props) => {
   }, [hasMore, data?.messages.length]);
 
   // Render a single message item
-  // const MessageRow = ({ index, style }) => {
-  //   const message = data.messages[index];
-
-  //   // Save the height of each item dynamically for precise offset calculations
-  //   const ref = useCallback(
-  //     (node) => {
-  //       if (node) {
-  //         const size = node.getBoundingClientRect().height;
-  //         itemSizes.current.set(index, size);
-  //       }
-  //     },
-  //     [index],
-  //   );
-
-  //   return (
-  //     <MessageContent
-  //       innerRef={ref}
-  //       style={style}
-  //       message={message}
-  //       id={conversationId}
-  //     />
-  //   );
-  // };
-
   const MessageRow = ({ index, style }) => {
-    // const message = data?.messages[index];
-
-    // if (!message) {
-    //   return (
-    //     <div style={{ ...style, height: getItemSize(index) }}>Loading...</div>
-    //   );
-    // }
-
     return (
       <div
         id={`message-${data?.messages[index].id}`}
         style={{
           ...style,
           height: getItemSize(index),
-          // top: getItemOffset(index),
         }}
-        // className="message-row"
       >
-        <MessageContent
-          // innerRef={ref}
-          // style={style}
-          message={data?.messages[index]}
-          id={conversationId}
-        />
-        {/* {message.content || "Message"} */}
+        <MessageContent message={data?.messages[index]} id={conversationId} />
       </div>
     );
   };
@@ -224,28 +184,6 @@ const ListMessage = (props) => {
     return itemSize; // Default height for messages without attachments
   };
 
-  // const updateHeightCache = (index) => {
-  //   if (index === 0) {
-  //     heightCache.current[index] = getItemSize(index);
-  //   } else {
-  //     heightCache.current[index] =
-  //       heightCache.current[index - 1] + getItemSize(index) + 10;
-  //   }
-  // };
-
-  // const getItemOffset = (index) => {
-  //   if (index === 0) return 0; // First item always starts at 0
-
-  //   // Calculate cumulative height up to this index
-  //   if (!heightCache.current[index]) {
-  //     for (let i = 0; i <= index; i++) {
-  //       updateHeightCache(i);
-  //     }
-  //   }
-
-  //   return heightCache.current[index - 1];
-  // };
-
   const handleScroll = (scrollOffset) => {
     if (!listRef.current) return;
 
@@ -268,10 +206,11 @@ const ListMessage = (props) => {
     }
   };
 
-  // if (isLoading || isRefetching) return <LocalLoading />;
-
   return (
-    <div ref={containerRef} className="chatbox-content relative h-full w-full">
+    <div
+      ref={containerRef}
+      className="chatbox-content relative h-full w-full px-[1rem]"
+    >
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={scrollToBottom}
@@ -291,7 +230,7 @@ const ListMessage = (props) => {
             itemCount={data?.messages.length}
             itemSize={getItemSize}
             width="100%"
-            // className="hide-scrollbar"
+            className="hide-scrollbar"
             onScroll={({ scrollOffset, scrollDirection }) => {
               scrollOffsetRef.current = scrollOffset;
 

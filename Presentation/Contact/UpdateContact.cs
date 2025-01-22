@@ -17,14 +17,17 @@ public static class UpdateContact
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
+        readonly ICaching _caching;
 
         public Handler(IValidator<Request> validator,
-            IService<IContactRepository> contactService,
-            IService<IConversationRepository> conversationService)
+            IContactRepository contactRepository,
+            IConversationRepository conversationRepository,
+            ICaching caching)
         {
             _validator = validator;
-            _contactRepository = contactService.Get();
-            _conversationRepository = conversationService.Get();
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
+            _caching = caching;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -35,7 +38,7 @@ public static class UpdateContact
 
             var user = await _contactRepository.GetInfoAsync();
 
-            // Update contact infor
+            // Update contact info
             var filter = MongoQuery<Contact>.IdFilter(user.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.Name, request.model.Name)
@@ -43,7 +46,7 @@ public static class UpdateContact
                 .Set(q => q.Avatar, request.model.Avatar);
             _contactRepository.Update(filter, updates);
 
-            // Update contact infor in conversation
+            // Update contact info in conversation
             var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
             var conversationUpdates = Builders<Conversation>.Update
                 .Set("Participants.$[elem].Contact.Name", request.model.Name)
@@ -52,6 +55,13 @@ public static class UpdateContact
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
             _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
+
+            // Update cache
+            var userToUpdate = user;
+            userToUpdate.Name = request.model.Name;
+            userToUpdate.Bio = request.model.Bio;
+            userToUpdate.Avatar = request.model.Avatar;
+            await _caching.UpdateUserInfo(userToUpdate);
 
             return Unit.Value;
         }

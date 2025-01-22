@@ -23,10 +23,11 @@ public static class SignOut
         {
             var user = await _contactRepository.GetInfoAsync();
 
-            // Remove redis data
+            // Remove cache
             await _distributedCache.RemoveAsync($"connection-{user.Id}");
             await _distributedCache.RemoveAsync($"token-{user.Id}");
             await _distributedCache.RemoveAsync($"conversations-{user.Id}");
+            await _distributedCache.RemoveAsync($"info-{user.Id}");
 
             // Update contact info
             var filter = Builders<Contact>.Filter.Where(q => q.Id == user.Id);

@@ -7,15 +7,19 @@ public static class GetInfo
     internal sealed class Handler : IRequestHandler<Request, Contact>
     {
         readonly IContactRepository _contactRepository;
+        readonly IDistributedCache _distributedCache;
 
-        public Handler(IService<IContactRepository> service)
+        public Handler(IContactRepository contactRepository, IDistributedCache distributedCache)
         {
-            _contactRepository = service.Get();
+            _contactRepository = contactRepository;
+            _distributedCache = distributedCache;
         }
 
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            return await _contactRepository.GetInfoAsync();
+            var userId = _contactRepository.GetUserId();
+            var cachedData = await _distributedCache.GetStringAsync($"info-{userId}");
+            return JsonConvert.DeserializeObject<Contact>(cachedData);
         }
     }
 }

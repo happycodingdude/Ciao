@@ -14,15 +14,15 @@ public static class SignIn
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly ICaching _caching;
 
-        public Handler(IService<IContactRepository> contactService,
-            IService<IConversationRepository> conversationService,
+        public Handler(IContactRepository contactRepository,
+            IConversationRepository conversationRepository,
             IJwtService jwtService,
             IDistributedCache distributedCache,
             IHttpContextAccessor httpContextAccessor,
             ICaching caching)
         {
-            _contactRepository = contactService.Get();
-            _conversationRepository = conversationService.Get();
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
             _jwtService = jwtService;
             _distributedCache = distributedCache;
             _httpContextAccessor = httpContextAccessor;
@@ -74,6 +74,8 @@ public static class SignIn
                 refreshToken = user.RefreshToken;
             }
 
+            // Update cache
+            await _caching.UpdateUserInfo(user);
             _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
             var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
             await _caching.UpdateConversation(user.Id, conversations);

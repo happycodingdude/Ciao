@@ -5,6 +5,7 @@ namespace Application.Caching;
 /// </summary>
 public interface ICaching
 {
+    Task UpdateUserInfo(Contact user);
     Task UpdateConversation(string userId, IEnumerable<ConversationWithTotalUnseen> conversations);
     Task AddNewConversation(string userId, ConversationWithTotalUnseen conversation);
     Task AddNewMessage(string userId, string conversationId, MessageWithReactions message);
