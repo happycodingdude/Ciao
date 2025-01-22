@@ -10,9 +10,13 @@ COPY Application/Application.csproj Application/
 COPY Infrastructure/Infrastructure.csproj Infrastructure/
 COPY Presentation/Presentation.csproj Presentation/
 COPY Chat.API/Chat.API.csproj Chat.API/
-RUN dotnet restore -a $TARGETARCH
+
+# Restore dependencies for the Chat.API project
+WORKDIR /src/Chat.API
+RUN dotnet restore Chat.API.csproj -a $TARGETARCH
 
 # Copy everything else
+WORKDIR /src
 COPY . .
 
 # Build and publish the project

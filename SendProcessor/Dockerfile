@@ -10,9 +10,13 @@ COPY Application/Application.csproj Application/
 COPY Infrastructure/Infrastructure.csproj Infrastructure/
 COPY Presentation/Presentation.csproj Presentation/
 COPY SendProcessor/SendProcessor.csproj SendProcessor/
-RUN dotnet restore -a $TARGETARCH
+
+# Restore dependencies for the SendProcessor project
+WORKDIR /src/SendProcessor
+RUN dotnet restore SendProcessor.csproj -a $TARGETARCH
 
 # Copy everything else
+WORKDIR /src
 COPY . .
 
 # Build and publish the project
