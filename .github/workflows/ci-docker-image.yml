@@ -63,4 +63,4 @@ jobs:
             docker rm send-processor-service || true
             docker rmi $(docker images ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest -q) || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
-            docker run -d --name send-processor-service -p 5000:8080 -v send-processor-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
+            docker run -d --name send-processor-service -p 4100:8080 -v send-processor-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
