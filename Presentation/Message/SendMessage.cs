@@ -2,7 +2,7 @@ namespace Presentation.Messages;
 
 public static class SendMessage
 {
-    public record Request(string conversationId, Message model) : IRequest<string>;
+    public record Request(string conversationId, SendMessageReq model) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -44,31 +44,13 @@ public static class SendMessage
     internal sealed class Handler : IRequestHandler<Request, string>
     {
         readonly IValidator<Request> _validator;
-        readonly INotificationMethod _notificationMethod;
-        readonly IMapper _mapper;
-        readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
-        readonly IDistributedCache _distributedCache;
-        readonly ICaching _caching;
         readonly IKafkaProducer _kafkaProducer;
 
-
-        public Handler(IValidator<Request> validator,
-            INotificationMethod notificationMethod,
-            IMapper mapper,
-            IConversationRepository conversationRepository,
-            IContactRepository contactRepository,
-            IDistributedCache distributedCache,
-            ICaching caching,
-            IKafkaProducer kafkaProducer)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
         {
             _validator = validator;
-            _notificationMethod = notificationMethod;
-            _mapper = mapper;
-            _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
-            _distributedCache = distributedCache;
-            _caching = caching;
             _kafkaProducer = kafkaProducer;
         }
 
@@ -78,50 +60,14 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Get current conversation
-            var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
-            var conversation = await _conversationRepository.GetItemAsync(filter);
+            await _kafkaProducer.ProduceAsync(Topic.SaveNewMessage, new SaveNewMessageModel
+            {
+                UserId = _contactRepository.GetUserId(),
+                ConversationId = request.conversationId,
+                Message = request.model
+            });
 
-            // Prepare message
-            var user = await _contactRepository.GetInfoAsync();
-            var message = request.model;
-            message.ContactId = user.Id;
-            if (message.Type == "media")
-                message.Content = null;
-            conversation.Messages.Add(message);
-
-            // When a message sent, all members of that group will be having that group conversation back
-            // if contain any member has deleted the conversation
-            foreach (var participant in conversation.Participants.Where(q => q.IsDeleted))
-                participant.IsDeleted = false;
-
-            // Update user infor in case changes
-            conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.Name = user.Name;
-            conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.Avatar = user.Avatar;
-            conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = user.IsOnline;
-
-            // Update conversation
-            // _conversationRepository.Replace(filter, conversation);
-
-            await _kafkaProducer.ProduceAsync(Topic.SaveNewMessage, conversation.Id);
-
-            // Update cache
-            // await _caching.AddNewMessage(conversation.Id, _mapper.Map<MessageWithReactions>(message));
-
-            // Push message            
-            // var notify = _mapper.Map<MessageToNotify>(message);
-            // notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
-            // notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-            // _ = _notificationMethod.Notify(
-            //     "NewMessage",
-            //     conversation.Participants
-            //         .Where(q => q.Contact.Id != user.Id)
-            //         .Select(q => q.Contact.Id)
-            //     .ToArray(),
-            //     notify
-            // );
-
-            return message.Id;
+            return request.model.Id;
         }
     }
 }
@@ -131,7 +77,7 @@ public class SendMessageEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/messages",
-        async (ISender sender, string conversationId, Message model) =>
+        async (ISender sender, string conversationId, SendMessageReq model) =>
         {
             var query = new SendMessage.Request(conversationId, model);
             var result = await sender.Send(query);

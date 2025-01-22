@@ -98,7 +98,7 @@ const ListchatContent = () => {
     // setLoading(true);
     scrollToCenterOfSelected();
     // refetchMessage();
-    // refetchAttachments();
+    refetchAttachments();
   }, [data?.selected?.id]);
 
   useEffect(() => {

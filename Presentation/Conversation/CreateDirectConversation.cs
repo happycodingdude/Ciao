@@ -103,7 +103,7 @@ public static class CreateDirectConversation
             }
 
             // Update cache
-            await _caching.AddNewConversation(_mapper.Map<ConversationWithTotalUnseen>(conversation));
+            await _caching.AddNewConversation(user.Id, _mapper.Map<ConversationWithTotalUnseen>(conversation));
 
             // If send with message -> push message
             if (!string.IsNullOrEmpty(request.message))

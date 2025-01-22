@@ -4,12 +4,12 @@ WORKDIR /src
 
 # Copy the solution file and restore the dependencies
 COPY MyConnect.sln .
-COPY Application/Application.csproj Application/
-COPY Chat.API/Chat.API.csproj Chat.API/
-COPY Infrastructure/Infrastructure.csproj Infrastructure/
-COPY Presentation/Presentation.csproj Presentation/
 COPY Domain/Domain.csproj Domain/
 COPY Shared/Shared.csproj Shared/
+COPY Application/Application.csproj Application/
+COPY Infrastructure/Infrastructure.csproj Infrastructure/
+COPY Presentation/Presentation.csproj Presentation/
+COPY Chat.API/Chat.API.csproj Chat.API/
 RUN dotnet restore -a $TARGETARCH
 
 # Copy everything else

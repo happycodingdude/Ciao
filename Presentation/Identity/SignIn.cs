@@ -76,7 +76,7 @@ public static class SignIn
 
             _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
             var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
-            await _caching.UpdateConversation(conversations);
+            await _caching.UpdateConversation(user.Id, conversations);
 
             return new TokenModel(token, refreshToken, user.Id);
         }

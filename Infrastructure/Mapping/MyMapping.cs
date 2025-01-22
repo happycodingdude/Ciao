@@ -1,10 +1,11 @@
-namespace Presentation.Configurations;
+namespace Infrastructure.Mapping;
 
 public class MyMapping : Profile
 {
     public MyMapping()
     {
         CreateMap<AttachmentDto, Attachment>().ReverseMap();
+        CreateMap<SendMessageReq_Attachments, Attachment>().ReverseMap();
         CreateMap<Contact, ContactDto>().ReverseMap();
         CreateMap<Contact, MessageToNotify_Contact>().ReverseMap();
         CreateMap<Conversation, CreateGroupConversationRequest>().ReverseMap();
@@ -24,6 +25,7 @@ public class MyMapping : Profile
             .ReverseMap();
         CreateMap<Message, MessageToNotify>().ReverseMap();
         CreateMap<Message, MessageWithReactions>().ReverseMap();
+        CreateMap<Message, SendMessageReq>().ReverseMap();
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<ParticipantDto, Participant>().ReverseMap();
         CreateMap<ParticipantWithFriendRequest, Participant>().ReverseMap();

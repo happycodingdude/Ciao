@@ -34,6 +34,7 @@ public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposabl
     {
         // For HTTP GET that's not perform any write command
         if (!operations.Any()) return;
+
         using (session = await mongoDbContext.Client.StartSessionAsync())
         {
             session.StartTransaction();
@@ -60,6 +61,14 @@ public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposabl
                 await session.AbortTransactionAsync();
             }
         }
+
+        ClearOperation();
+    }
+
+    void ClearOperation()
+    {
+        operations = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
+        fallbacks = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
     }
 
     public void Dispose()

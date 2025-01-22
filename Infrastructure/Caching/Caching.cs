@@ -8,23 +8,19 @@ namespace Infrastructure.Caching;
 public class Caching : ICaching
 {
     readonly IDistributedCache _distributedCache;
-    readonly IContactRepository _contactRepository;
 
-    public Caching(IDistributedCache distributedCache, IContactRepository contactRepository)
+    public Caching(IDistributedCache distributedCache)
     {
         _distributedCache = distributedCache;
-        _contactRepository = contactRepository;
     }
 
-    public async Task UpdateConversation(IEnumerable<ConversationWithTotalUnseen> conversations)
+    public async Task UpdateConversation(string userId, IEnumerable<ConversationWithTotalUnseen> conversations)
     {
-        var userId = _contactRepository.GetUserId();
         await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
     }
 
-    public async Task AddNewConversation(ConversationWithTotalUnseen conversation)
+    public async Task AddNewConversation(string userId, ConversationWithTotalUnseen conversation)
     {
-        var userId = _contactRepository.GetUserId();
         var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
         var conversations = JsonConvert.DeserializeObject<List<ConversationWithTotalUnseen>>(cachedData);
         if (conversation.Messages.Any())
@@ -40,9 +36,8 @@ public class Caching : ICaching
         await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
     }
 
-    public async Task AddNewMessage(string conversationId, MessageWithReactions message)
+    public async Task AddNewMessage(string userId, string conversationId, MessageWithReactions message)
     {
-        var userId = _contactRepository.GetUserId();
         var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
         var conversations = JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
         var selectedConversation = conversations.SingleOrDefault(q => q.Id == conversationId);
@@ -57,9 +52,8 @@ public class Caching : ICaching
         await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
     }
 
-    public async Task AddNewParticipant(string conversationId, List<ParticipantWithFriendRequest> participants)
+    public async Task AddNewParticipant(string userId, string conversationId, List<ParticipantWithFriendRequest> participants)
     {
-        var userId = _contactRepository.GetUserId();
         var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
         var conversations = JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
         var selectedConversation = conversations.SingleOrDefault(q => q.Id == conversationId);

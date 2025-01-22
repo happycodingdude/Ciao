@@ -1,5 +1,20 @@
 namespace Application.DTOs;
 
+public class SendMessageReq : MongoBaseModel
+{
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public List<SendMessageReq_Attachments> Attachments { get; set; } = new List<SendMessageReq_Attachments>();
+}
+
+public class SendMessageReq_Attachments
+{
+    public string Type { get; set; } = null!;
+    public string MediaName { get; set; } = null!;
+    public double MediaSize { get; set; }
+    public string MediaUrl { get; set; } = null!;
+}
+
 public class MessageToNotify
 {
     public string Id { get; set; } = null!;

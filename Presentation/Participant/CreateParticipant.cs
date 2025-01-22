@@ -101,7 +101,7 @@ public static class CreateParticipant
                 convertParticipantToUpdateCache[i].FriendId = friendItems[i].Item1;
                 convertParticipantToUpdateCache[i].FriendStatus = "friend";
             }
-            await _caching.AddNewParticipant(conversation.Id, convertParticipantToUpdateCache);
+            await _caching.AddNewParticipant(_contactRepository.GetUserId(), conversation.Id, convertParticipantToUpdateCache);
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);

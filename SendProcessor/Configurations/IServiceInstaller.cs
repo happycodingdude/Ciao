@@ -1,4 +1,4 @@
-namespace Chat.API.Configurations;
+namespace SendProcessor.Configurations;
 
 public interface IServiceInstaller
 {

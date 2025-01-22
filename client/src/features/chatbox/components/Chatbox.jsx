@@ -78,22 +78,27 @@ const Chatbox = (props) => {
   } = useMutation({
     mutationFn: async (param) => {
       let randomId = Math.random().toString(36).substring(2, 7);
-      // queryClient.setQueryData(
-      //   ["message", conversations?.selected.id],
-      //   (oldData) => [
-      //     ...(oldData || []), // Spread existing array (or initialize with an empty array)
-      //     {
-      //       id: randomId,
-      //       type: param.type,
-      //       content: param.content,
-      //       contactId: info.id,
-      //       attachments: param.attachments,
-      //       currentReaction: null,
-      //       noLazy: true,
-      //       pending: true,
-      //     },
-      //   ],
-      // );
+
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const clonedConversations = oldData.conversations.map((item) => {
+          return Object.assign({}, item);
+        });
+        const updatedConversations = clonedConversations.map((conversation) => {
+          if (conversation.id !== conversations?.selected.id)
+            return conversation;
+          conversation.lastMessage =
+            param.type === "text"
+              ? param.content
+              : param.files.map((item) => item.name).join(",");
+          return conversation;
+        });
+        return {
+          ...oldData,
+          conversations: updatedConversations,
+          filterConversations: updatedConversations,
+        };
+      });
+
       queryClient.setQueryData(
         ["message", conversations?.selected.id],
         (oldData) => {
@@ -116,9 +121,6 @@ const Chatbox = (props) => {
           };
         },
       );
-
-      // await delay(2000);
-      // if (param.type === "text" && param.content === "") return;
 
       let bodyToCreate = {
         moderator: conversations?.selected.participants.find(
@@ -167,32 +169,6 @@ const Chatbox = (props) => {
           };
         },
       );
-
-      // if (param.files.length !== 0) {
-      //   const element = document.querySelector(`[data-id="${randomId}"]`);
-      //   const image = element.querySelector(".nolazy-image");
-      //   image.classList.add("loaded");
-      // }
-
-      queryClient.setQueryData(["conversation"], (oldData) => {
-        const clonedConversations = oldData.conversations.map((item) => {
-          return Object.assign({}, item);
-        });
-        const updatedConversations = clonedConversations.map((conversation) => {
-          if (conversation.id !== conversations?.selected.id)
-            return conversation;
-          conversation.lastMessage =
-            param.type === "text"
-              ? param.content
-              : param.files.map((item) => item.name).join(",");
-          return conversation;
-        });
-        return {
-          ...oldData,
-          conversations: updatedConversations,
-          filterConversations: updatedConversations,
-        };
-      });
 
       if (param.files.length !== 0) {
         queryClient.setQueryData(["attachment"], (oldData) => {

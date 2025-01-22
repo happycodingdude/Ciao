@@ -1,4 +1,4 @@
-namespace Chat.API.Configurations;
+namespace SendProcessor.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
 {
@@ -94,12 +94,12 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddHttpClient();
 
         // Kafka
-        // services.AddHostedService<KafkaConsumer>();
+        services.AddScoped<IKafkaMessageHandler, KafkaMessageHandler>();
+        services.AddKafkaConsumer();
         services.AddSingleton<ProducerFactory>();
         services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
         // Global exception handler
-        services.AddKafkaConsumer();
         services.AddExceptionHandler<UnauthorizedExceptionHandler>();
         services.AddExceptionHandler<BadRequestExceptionHandler>();
         services.AddProblemDetails();

@@ -137,7 +137,7 @@ public static class CreateGroupConversation
             _conversationRepository.Add(conversation);
 
             // Update cache
-            await _caching.AddNewConversation(_mapper.Map<ConversationWithTotalUnseen>(conversation));
+            await _caching.AddNewConversation(user.Id, _mapper.Map<ConversationWithTotalUnseen>(conversation));
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);

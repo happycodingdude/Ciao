@@ -43,7 +43,7 @@
       "command": "cp",
       "args": [
         "${workspaceFolder}/Infrastructure/Notifications/service-account-config.json",
-        "${workspaceFolder}/Chat.API/bin/Debug/net8.0/"
+        "${workspaceFolder}/SendProcessor/bin/Debug/net8.0/"
       ],
       "problemMatcher": []
     },

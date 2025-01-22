@@ -23,6 +23,12 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
         return _httpContextAccessor.HttpContext.Items["UserId"].ToString();
     }
 
+    public async Task<Contact> GetInfoAsync(string userId)
+    {
+        var filter = MongoQuery<Contact>.IdFilter(userId);
+        return await GetItemAsync(filter);
+    }
+
     public async Task<Contact> GetInfoAsync()
     {
         var userId = _httpContextAccessor.HttpContext.Items["UserId"].ToString();

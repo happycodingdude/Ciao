@@ -5,8 +5,8 @@ namespace Application.Caching;
 /// </summary>
 public interface ICaching
 {
-    Task UpdateConversation(IEnumerable<ConversationWithTotalUnseen> conversations);
-    Task AddNewConversation(ConversationWithTotalUnseen conversation);
-    Task AddNewMessage(string conversationId, MessageWithReactions message);
-    Task AddNewParticipant(string conversationId, List<ParticipantWithFriendRequest> participants);
+    Task UpdateConversation(string userId, IEnumerable<ConversationWithTotalUnseen> conversations);
+    Task AddNewConversation(string userId, ConversationWithTotalUnseen conversation);
+    Task AddNewMessage(string userId, string conversationId, MessageWithReactions message);
+    Task AddNewParticipant(string userId, string conversationId, List<ParticipantWithFriendRequest> participants);
 }

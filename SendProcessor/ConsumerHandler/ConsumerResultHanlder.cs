@@ -5,15 +5,24 @@
 /// </summary>
 public class ConsumerResultHanlder
 {
-    public static async Task ExecuteAsync(ConsumerResultData data)
+    readonly IKafkaMessageHandler _kafkaMessageHandler;
+
+    public ConsumerResultHanlder(IKafkaMessageHandler kafkaMessageHandler)
+    {
+        _kafkaMessageHandler = kafkaMessageHandler;
+    }
+
+    public async Task ExecuteAsync(ConsumerResultData data)
     {
         // Commit message
         data.consumer.Commit(data.cr);
 
-        Console.WriteLine($"topic [{data.cr.Topic}] data: {data.cr.Message.Value}");
-
         switch (data.cr.Topic)
         {
+            case Topic.SaveNewMessage:
+                var message = JsonConvert.DeserializeObject<SaveNewMessageModel>(data.cr.Message.Value);
+                await _kafkaMessageHandler.SaveNewMessage(message);
+                break;
             default:
                 break;
         }
