@@ -44,25 +44,22 @@ public static class AddFriend
     internal sealed class Handler : IRequestHandler<Request, string>
     {
         readonly IValidator<Request> _validator;
-        readonly INotificationMethod _notificationMethod;
-        readonly IMapper _mapper;
+        readonly IFirebaseFunction _firebase;
         readonly IContactRepository _contactRepository;
         readonly IFriendRepository _friendRepository;
         readonly INotificationRepository _notificationRepository;
 
         public Handler(IValidator<Request> validator,
-            INotificationMethod notificationMethod,
-            IMapper mapper,
-            IService<IContactRepository> contactService,
-            IService<IFriendRepository> friendService,
-            IService<INotificationRepository> notificationService)
+            IFirebaseFunction firebase,
+            IContactRepository contactRepository,
+            IFriendRepository friendRepository,
+            INotificationRepository notificationRepository)
         {
             _validator = validator;
-            _notificationMethod = notificationMethod;
-            _mapper = mapper;
-            _contactRepository = contactService.Get();
-            _friendRepository = friendService.Get();
-            _notificationRepository = notificationService.Get();
+            _firebase = firebase;
+            _contactRepository = contactRepository;
+            _friendRepository = friendRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -101,7 +98,7 @@ public static class AddFriend
             _notificationRepository.Add(notification);
 
             //     // Push friend request
-            //     await _notificationMethod.Notify(
+            //     await _firebase.Notify(
             //        "NewFriendRequest",
             //        new string[1] { request.contactId },
             //        new FriendToNotify
@@ -112,7 +109,7 @@ public static class AddFriend
             //     // Push notification
             //     var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
             //     notiDto.AddSourceData(friendEntity);
-            //     await _notificationMethod.Notify(
+            //     await _firebase.Notify(
             //         "NewNotification",
             //         new string[1] { request.contactId },
             //         notiDto

@@ -116,7 +116,7 @@ const ListMessage = (props) => {
 
     page.current = page.current + 1;
     const newMessages = await getMessages(conversationId, page.current);
-    setHasMore(newMessages.nextExist);
+    setHasMore(newMessages.hasMore);
 
     // Append new data to the top
     queryClient.setQueryData(["message", conversationId], (oldData) => {

@@ -6,23 +6,23 @@ public static class CreateDirectConversation
 
     internal sealed class Handler : IRequestHandler<Request, string>
     {
+        readonly IFirebaseFunction _firebase;
+        readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
-        readonly IMapper _mapper;
-        readonly INotificationMethod _notificationMethod;
-        readonly ICaching _caching;
+        readonly ConversationCache _conversationCache;
 
-        public Handler(IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService,
+        public Handler(IFirebaseFunction firebase,
             IMapper mapper,
-            INotificationMethod notificationMethod,
-            ICaching caching)
+            IConversationRepository conversationRepository,
+            IContactRepository contactRepository,
+            ConversationCache conversationCache)
         {
-            _conversationRepository = conversationService.Get();
-            _contactRepository = contactService.Get();
+            _firebase = firebase;
             _mapper = mapper;
-            _notificationMethod = notificationMethod;
-            _caching = caching;
+            _conversationRepository = conversationRepository;
+            _contactRepository = contactRepository;
+            _conversationCache = conversationCache;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -103,7 +103,10 @@ public static class CreateDirectConversation
             }
 
             // Update cache
-            await _caching.AddNewConversation(user.Id, _mapper.Map<ConversationWithTotalUnseen>(conversation));
+            if (!string.IsNullOrEmpty(request.message))
+                await _conversationCache.SetConversation(user.Id, _mapper.Map<ConversationCacheModel>(conversation), _mapper.Map<MessageWithReactions>(message));
+            else
+                await _conversationCache.SetConversation(user.Id, _mapper.Map<ConversationCacheModel>(conversation));
 
             // If send with message -> push message
             if (!string.IsNullOrEmpty(request.message))
@@ -111,7 +114,7 @@ public static class CreateDirectConversation
                 var notify = _mapper.Map<MessageToNotify>(message);
                 notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
                 notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-                _ = _notificationMethod.Notify(
+                _ = _firebase.Notify(
                     "NewMessage",
                     conversation.Participants
                         .Where(q => q.Contact.Id != user.Id)

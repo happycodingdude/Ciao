@@ -132,29 +132,25 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         var conversations = (await _collection
             .Aggregate<BsonDocument>(pipeline)
             .ToListAsync())
-            .Select(bson => BsonSerializer.Deserialize<ConversationWithMessagesAndFriendRequest>(bson))
+            .Select(bson => BsonSerializer.Deserialize<ConversationWithTotalUnseen>(bson))
             .ToList();
         if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
 
-        var result = new List<ConversationWithTotalUnseen>(conversations.Count);
         foreach (var conversation in conversations)
         {
-            var convertedConversation = _mapper.Map<ConversationWithMessagesAndFriendRequest, ConversationWithTotalUnseen>(conversation);
-            convertedConversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
-            convertedConversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
+            conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
+            conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
             if (lastMessage is not null)
             {
-                convertedConversation.LastMessageId = lastMessage.Id;
-                convertedConversation.LastMessage = lastMessage.Type == "text" ? lastMessage.Content : string.Join(",", lastMessage.Attachments.Select(q => q.MediaName));
-                convertedConversation.LastMessageTime = lastMessage.CreatedTime;
-                convertedConversation.LastMessageContact = lastMessage.ContactId;
+                conversation.LastMessageId = lastMessage.Id;
+                conversation.LastMessage = lastMessage.Type == "text" ? lastMessage.Content : string.Join(",", lastMessage.Attachments.Select(q => q.MediaName));
+                conversation.LastMessageTime = lastMessage.CreatedTime;
+                conversation.LastMessageContact = lastMessage.ContactId;
             }
-
-            result.Add(convertedConversation);
         }
 
-        return result;
+        return conversations;
     }
 }

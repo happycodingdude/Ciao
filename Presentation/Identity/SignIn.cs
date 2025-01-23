@@ -10,23 +10,26 @@ public static class SignIn
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
         readonly IJwtService _jwtService;
-        readonly IDistributedCache _distributedCache;
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly ICaching _caching;
+        readonly UserCache _userCache;
+        readonly ConversationCache _conversationCache;
 
         public Handler(IContactRepository contactRepository,
             IConversationRepository conversationRepository,
             IJwtService jwtService,
-            IDistributedCache distributedCache,
             IHttpContextAccessor httpContextAccessor,
-            ICaching caching)
+            ICaching caching,
+            UserCache userCache,
+            ConversationCache conversationCache)
         {
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
             _jwtService = jwtService;
-            _distributedCache = distributedCache;
             _httpContextAccessor = httpContextAccessor;
             _caching = caching;
+            _userCache = userCache;
+            _conversationCache = conversationCache;
         }
 
         public async Task<TokenModel> Handle(Request request, CancellationToken cancellationToken)
@@ -48,8 +51,8 @@ public static class SignIn
                 var (generatedRrefreshToken, expiryDate) = _jwtService.GenerateRefreshToken();
                 refreshToken = generatedRrefreshToken;
 
-                // Store to redis
-                await _distributedCache.SetStringAsync($"token-{user.Id}", token);
+                // Update cache
+                _userCache.SetToken(user.Id, token);
 
                 // Update contact info
                 var filter = MongoQuery<Contact>.IdFilter(user.Id);
@@ -70,15 +73,15 @@ public static class SignIn
             }
             else
             {
-                token = await _distributedCache.GetStringAsync($"token-{user.Id}");
+                token = _userCache.GetToken(user.Id);
                 refreshToken = user.RefreshToken;
             }
 
             // Update cache
-            await _caching.UpdateUserInfo(user);
+            _userCache.SetInfo(user);
             _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
             var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
-            await _caching.UpdateConversation(user.Id, conversations);
+            await _conversationCache.SetConversations(user.Id, conversations.ToList());
 
             return new TokenModel(token, refreshToken, user.Id);
         }

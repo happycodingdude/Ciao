@@ -36,16 +36,16 @@ public static class AcceptFriend
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
-        readonly INotificationMethod _notificationMethod;
+        readonly IFirebaseFunction _firebase;
         readonly IFriendRepository _friendRepository;
 
         public Handler(IValidator<Request> validator,
-            INotificationMethod notificationMethod,
-            IService<IFriendRepository> service)
+            IFirebaseFunction firebase,
+            IFriendRepository friendRepository)
         {
             _validator = validator;
-            _notificationMethod = notificationMethod;
-            _friendRepository = service.Get();
+            _firebase = firebase;
+            _friendRepository = friendRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ public static class AcceptFriend
             _friendRepository.Update(filter, updates);
 
             // Push accepted request            
-            //     await _notificationMethod.Notify(
+            //     await _firebase.Notify(
             //        "AcceptFriendRequest",
             //        new string[1] { entity.ToContact.ContactId },
             //        new FriendToNotify

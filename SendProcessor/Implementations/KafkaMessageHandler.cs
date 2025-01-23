@@ -4,19 +4,24 @@ public class KafkaMessageHandler : IKafkaMessageHandler
 {
     readonly IUnitOfWork _uow;
     readonly IMapper _mapper;
-    readonly ICaching _caching;
-    readonly INotificationMethod _notificationMethod;
+    readonly IFirebaseFunction _firebase;
     readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
+    readonly MessageCache _messageCache;
 
-    public KafkaMessageHandler(IUnitOfWork uow, IMapper mapper, ICaching caching, INotificationMethod notificationMethod, IConversationRepository conversationRepository, IContactRepository contactRepository)
+    public KafkaMessageHandler(IUnitOfWork uow,
+        IMapper mapper,
+        IFirebaseFunction firebase,
+        IConversationRepository conversationRepository,
+        IContactRepository contactRepository,
+        MessageCache messageCache)
     {
         _uow = uow;
         _mapper = mapper;
-        _caching = caching;
-        _notificationMethod = notificationMethod;
+        _firebase = firebase;
         _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
+        _messageCache = messageCache;
     }
 
     public async Task SaveNewMessage(SaveNewMessageModel param)
@@ -50,13 +55,13 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         await _uow.SaveAsync();
 
         // Update cache
-        await _caching.AddNewMessage(param.UserId, conversation.Id, _mapper.Map<MessageWithReactions>(message));
+        await _messageCache.SetMessages(param.UserId, conversation.Id, _mapper.Map<MessageWithReactions>(message));
 
         // Push message            
         var notify = _mapper.Map<MessageToNotify>(message);
         notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
         notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-        _ = _notificationMethod.Notify(
+        _ = _firebase.Notify(
             "NewMessage",
             conversation.Participants
                 .Where(q => q.Contact.Id != user.Id)

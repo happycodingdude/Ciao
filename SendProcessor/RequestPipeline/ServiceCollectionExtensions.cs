@@ -14,7 +14,11 @@ public static class ServiceCollectionExtensions
                 messageHandler = scope.ServiceProvider.GetRequiredService<IKafkaMessageHandler>();
             }
             var consumerResultHanlder = new ConsumerResultHanlder(messageHandler);
-            return new KafkaConsumer([Topic.SaveNewMessage], consumerResultHanlder.ExecuteAsync, kafkaConfig);
+            return new KafkaConsumer(
+                [
+                    Topic.SaveNewMessage
+                ]
+                , consumerResultHanlder.ExecuteAsync, kafkaConfig);
         });
 
         return services;

@@ -15,19 +15,12 @@ public static class RegisterConnection
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
-        readonly IHttpContextAccessor _httpContextAccessor;
-        readonly IDistributedCache _distributedCache;
-        readonly IContactRepository _contactRepository;
+        readonly UserCache _userCache;
 
-        public Handler(IValidator<Request> validator,
-            IHttpContextAccessor httpContextAccessor,
-            IDistributedCache distributedCache,
-            IService<IContactRepository> service)
+        public Handler(IValidator<Request> validator, UserCache userCache)
         {
             _validator = validator;
-            _httpContextAccessor = httpContextAccessor;
-            _distributedCache = distributedCache;
-            _contactRepository = service.Get();
+            _userCache = userCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -36,8 +29,7 @@ public static class RegisterConnection
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var user = await _contactRepository.GetInfoAsync();
-            await _distributedCache.SetStringAsync($"connection-{user.Id}", request.token);
+            _userCache.SetConnection(request.token);
 
             return Unit.Value;
         }

@@ -6,7 +6,7 @@ const useMessage = (conversationId, setHasMore) => {
     queryKey: ["message", conversationId],
     queryFn: async () => {
       const data = await getMessages(conversationId, 1);
-      setHasMore(data.nextExist);
+      setHasMore(data.hasMore);
       return { messages: data.messages };
     },
   });

@@ -2,24 +2,20 @@ namespace Presentation.Conversations;
 
 public static class GetConversationsWithUnseenMesages
 {
-    public record Request(int page, int limit) : IRequest<IEnumerable<ConversationWithTotalUnseen>>;
+    public record Request(int page, int limit) : IRequest<List<ConversationCacheModel>>;
 
-    internal sealed class Handler : IRequestHandler<Request, IEnumerable<ConversationWithTotalUnseen>>
+    internal sealed class Handler : IRequestHandler<Request, List<ConversationCacheModel>>
     {
-        readonly IContactRepository _contactRepository;
-        readonly IDistributedCache _distributedCache;
+        readonly ConversationCache _conversationCache;
 
-        public Handler(IContactRepository contactRepository, IDistributedCache distributedCache)
+        public Handler(ConversationCache conversationCache)
         {
-            _contactRepository = contactRepository;
-            _distributedCache = distributedCache;
+            _conversationCache = conversationCache;
         }
 
-        public async Task<IEnumerable<ConversationWithTotalUnseen>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<List<ConversationCacheModel>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var userId = _contactRepository.GetUserId();
-            var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
-            return JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
+            return await _conversationCache.GetConversations();
         }
     }
 }

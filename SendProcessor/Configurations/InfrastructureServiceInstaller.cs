@@ -37,61 +37,18 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         });
 
-        // Chat Dbcontext        
-        // services.AddDbContext<AppDbContext>(opt => opt.UseMySQL(configuration.GetConnectionString("lab-chat-db")), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
-
         // Authentication Dbcontext        
         services.AddDbContext<IdentityDbContext<AuthenticationUser>>();
         services.AddIdentityCore<IdentityUser>().AddEntityFrameworkStores<IdentityDbContext<AuthenticationUser>>().AddApiEndpoints();
-        // services.AddIdentityCore<IdentityUser>()
-        //     .AddEntityFrameworkStores<IdentityDbContext<IdentityUser>>();
 
         // Mongo
         services.AddSingleton<MongoDbContext>();
 
         // Authentication
-        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
-        // services.AddAuthentication("Basic")
-        //     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandle>("Basic", options => { });
-
-
-        // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-        // {
-        //     options.ExpireTimeSpan = TimeSpan.FromDays(1);
-        //     options.Cookie = new CookieBuilder
-        //     {
-        //         HttpOnly = true,
-        //         SecurePolicy = environment.IsDevelopment()
-        //             ? CookieSecurePolicy.None
-        //             : CookieSecurePolicy.Always,
-        //         Name = "Ciao-cookie",
-        //         MaxAge = TimeSpan.FromDays(7),
-        //     };
-        //     options.SlidingExpiration = true;
-        //     options.Events.OnRedirectToLogin = context =>
-        //     {
-        //         Console.WriteLine("OnRedirectToLogin...");
-        //         context.Response.StatusCode = 401;
-        //         return Task.CompletedTask;
-        //     };
-        // });
-        // services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
+        services.AddAuthentication();
 
         // Authorization
-        services.AddScoped<IAuthorizationHandler, BasicAuthenticationHandle>();
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy(AppConstants.Authentication_Basic, policy =>
-            {
-                policy.AddRequirements(new BasicAuthenticationRequirement());
-            });
-
-            // Set default authorization policy
-            options.DefaultPolicy = options.GetPolicy(AppConstants.Authentication_Basic);
-        });
-
-        // HttpClient
-        services.AddHttpClient();
+        services.AddAuthorization();
 
         // Kafka
         services.AddScoped<IKafkaMessageHandler, KafkaMessageHandler>();
@@ -127,7 +84,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Core
         services.AddScoped(typeof(IService<>), typeof(Service<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IJwtService, JwtService>();
+        // services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICaching, Caching>();
 
         // Repositories        
@@ -141,9 +98,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
-        // External logic
-        services.AddSingleton<INotificationMethod, NotificationMethod>();
+        // External logic        
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
-        services.AddScoped<IPasswordValidator, PasswordValidator>();
     }
 }

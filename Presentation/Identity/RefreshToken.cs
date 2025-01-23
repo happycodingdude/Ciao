@@ -10,15 +10,15 @@ public static class RefreshToken
     {
         readonly IContactRepository _contactRepository;
         readonly IJwtService _jwtService;
-        readonly IDistributedCache _distributedCache;
+        readonly UserCache _userCache;
 
-        public Handler(IService<IContactRepository> contactService,
+        public Handler(IContactRepository contactRepository,
             IJwtService jwtService,
-            IDistributedCache distributedCache)
+            UserCache userCache)
         {
-            _contactRepository = contactService.Get();
+            _contactRepository = contactRepository;
             _jwtService = jwtService;
-            _distributedCache = distributedCache;
+            _userCache = userCache;
         }
 
         public async Task<TokenModel> Handle(Request request, CancellationToken cancellationToken)
@@ -35,15 +35,15 @@ public static class RefreshToken
             var token = _jwtService.GenerateToken(user.Id);
             var (refreshToken, expiryDate) = _jwtService.GenerateRefreshToken();
 
-            // Store to redis
-            await _distributedCache.SetStringAsync($"token-{user.Id}", token);
-
             // Update contact info
             var filter = MongoQuery<Contact>.IdFilter(user.Id);
             var updates = Builders<Contact>.Update
                 .Set(q => q.RefreshToken, refreshToken)
                 .Set(q => q.ExpiryDate, expiryDate);
             _contactRepository.Update(filter, updates);
+
+            // Update cache
+            _userCache.SetToken(user.Id, token);
 
             return new TokenModel(token, refreshToken, user.Id);
         }

@@ -50,7 +50,7 @@ public class JwtService : IJwtService
         try
         {
             principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-            Console.WriteLine($"Token validated");
+            // Console.WriteLine($"Token validated");
             return true;
         }
         catch (SecurityTokenExpiredException ex)

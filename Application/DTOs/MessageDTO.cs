@@ -42,6 +42,12 @@ public class MessageToNotify_Contact
     public string Avatar { get; set; } = null!;
 }
 
+public class MessagesWithHasMore
+{
+    public bool HasMore { get; set; }
+    public List<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
+}
+
 public class MessageWithReactions : MongoBaseModel
 {
     public string Type { get; set; } = null!;

@@ -70,28 +70,25 @@ public static class CreateGroupConversation
     internal sealed class Handler : IRequestHandler<Request, string>
     {
         readonly IValidator<Request> _validator;
-        readonly INotificationMethod _notificationMethod;
+        readonly IFirebaseFunction _firebase;
         readonly IMapper _mapper;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
-        readonly IDistributedCache _distributedCache;
-        readonly ICaching _caching;
+        readonly ConversationCache _conversationCache;
 
         public Handler(IValidator<Request> validator,
-            INotificationMethod notificationMethod,
+            IFirebaseFunction firebase,
             IMapper mapper,
-            IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService,
-            IDistributedCache distributedCache,
-            ICaching caching)
+            IConversationRepository conversationRepository,
+            IContactRepository contactRepository,
+            ConversationCache conversationCache)
         {
             _validator = validator;
-            _notificationMethod = notificationMethod;
+            _firebase = firebase;
             _mapper = mapper;
-            _conversationRepository = conversationService.Get();
-            _contactRepository = contactService.Get();
-            _distributedCache = distributedCache;
-            _caching = caching;
+            _conversationRepository = conversationRepository;
+            _contactRepository = contactRepository;
+            _conversationCache = conversationCache;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -137,11 +134,11 @@ public static class CreateGroupConversation
             _conversationRepository.Add(conversation);
 
             // Update cache
-            await _caching.AddNewConversation(user.Id, _mapper.Map<ConversationWithTotalUnseen>(conversation));
+            await _conversationCache.SetConversation(user.Id, _mapper.Map<ConversationCacheModel>(conversation));
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
-            _ = _notificationMethod.Notify(
+            _ = _firebase.Notify(
                 "NewConversation",
                 conversation.Participants
                         .Where(q => q.Contact.Id != user.Id)

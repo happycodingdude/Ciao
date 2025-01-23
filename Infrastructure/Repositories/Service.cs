@@ -3,19 +3,18 @@ namespace Infrastructure.Repositories;
 public class Service<T> : IService<T> where T : class
 {
     readonly IServiceScopeFactory _serviceScopeFactory;
-    readonly T _service;
+    readonly IServiceProvider _serviceProvider;
 
-    public Service(IServiceScopeFactory serviceScopeFactory, T service)
+    public Service(IServiceScopeFactory serviceScopeFactory, IServiceProvider serviceProvider)
     {
         _serviceScopeFactory = serviceScopeFactory;
-        _service = service;
+        _serviceProvider = serviceProvider;
     }
 
     public T Get()
     {
-        if (_service is not null) return _service;
-        using var scope = _serviceScopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetService<T>();
+        using var scope = _serviceProvider.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<T>();
         return service;
     }
 }

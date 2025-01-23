@@ -1,8 +1,8 @@
 namespace Presentation.Conversations;
 
-public static class GetById
+public static class GetMessages
 {
-    public record Request(string id, int page, int limit) : IRequest<ConversationWithMessages>;
+    public record Request(string id, int page, int limit) : IRequest<MessagesWithHasMore>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -20,54 +20,42 @@ public static class GetById
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, ConversationWithMessages>
+    internal sealed class Handler : IRequestHandler<Request, MessagesWithHasMore>
     {
         readonly IValidator<Request> _validator;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
-        readonly IDistributedCache _distributedCache;
         readonly IMapper _mapper;
+        readonly MessageCache _messageCache;
 
         public Handler(IValidator<Request> validator,
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
-            IDistributedCache distributedCache,
-            IMapper mapper)
+            IMapper mapper,
+            MessageCache messageCache)
         {
             _validator = validator;
             _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
-            _distributedCache = distributedCache;
             _mapper = mapper;
+            _messageCache = messageCache;
         }
 
-        public async Task<ConversationWithMessages> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<MessagesWithHasMore> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var userId = _contactRepository.GetUserId();
-            var cachedData = await _distributedCache.GetStringAsync($"conversations-{userId}");
-            var conversations = JsonConvert.DeserializeObject<IEnumerable<ConversationWithTotalUnseen>>(cachedData);
-            var conversation = conversations.SingleOrDefault(q => q.Id == request.id);
-
-            // Update db
-            SeenAll(conversation);
-
-            // Update cache
-            conversation.UnSeenMessages = 0;
-            await _distributedCache.SetStringAsync($"conversations-{userId}", JsonConvert.SerializeObject(conversations));
-
-            // Mapping for response
-            var conversationWithMessages = _mapper.Map<ConversationWithMessages>(conversation);
-            conversationWithMessages.Messages = conversationWithMessages.Messages.OrderByDescending(q => q.CreatedTime).ToList();
+            var message = await _messageCache.GetMessages(request.id);
             var paging = new PagingParam(request.page, request.limit);
-            var pagedMessages = conversationWithMessages.Messages.Skip(paging.Skip).Take(paging.Limit).ToList();
-            var nextPagedMessages = conversationWithMessages.Messages.Skip(paging.NextSkip).Take(paging.Limit).ToList();
-            conversationWithMessages.Messages = pagedMessages.OrderBy(q => q.CreatedTime).ToList();
-            conversationWithMessages.NextExist = nextPagedMessages.Any();
-            return conversationWithMessages;
+            var pagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.Skip).Take(paging.Limit).ToList();
+            var nextPagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.NextSkip).Take(paging.Limit).ToList();
+            return new MessagesWithHasMore
+            {
+                Messages = pagedMessages,
+                HasMore = nextPagedMessages.Any()
+            };
         }
 
         void SeenAll(ConversationWithTotalUnseen conversation)
@@ -88,14 +76,14 @@ public static class GetById
     }
 }
 
-public class GetByIdEndpoint : ICarterModule
+public class GetMessagesEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}",
         async (ISender sender, string id, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit) =>
         {
-            var query = new GetById.Request(id, page, limit);
+            var query = new GetMessages.Request(id, page, limit);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

@@ -35,27 +35,27 @@ public static class CreateParticipant
     {
         readonly IValidator<Request> _validator;
         readonly IMapper _mapper;
+        readonly IFirebaseFunction _firebase;
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
-        readonly INotificationMethod _notificationMethod;
-        readonly ICaching _caching;
         readonly IFriendRepository _friendRepository;
+        readonly ConversationCache _conversationCache;
 
         public Handler(IValidator<Request> validator,
             IMapper mapper,
-            IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService,
-            INotificationMethod notificationMethod,
-            ICaching caching,
-            IFriendRepository friendRepository)
+            IFirebaseFunction firebase,
+            IConversationRepository conversationRepository,
+            IContactRepository contactRepository,
+            IFriendRepository friendRepository,
+            ConversationCache conversationCache)
         {
             _validator = validator;
             _mapper = mapper;
-            _conversationRepository = conversationService.Get();
-            _contactRepository = contactService.Get();
-            _notificationMethod = notificationMethod;
-            _caching = caching;
+            _firebase = firebase;
+            _conversationRepository = conversationRepository;
+            _contactRepository = contactRepository;
             _friendRepository = friendRepository;
+            _conversationCache = conversationCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -101,7 +101,7 @@ public static class CreateParticipant
                 convertParticipantToUpdateCache[i].FriendId = friendItems[i].Item1;
                 convertParticipantToUpdateCache[i].FriendStatus = "friend";
             }
-            await _caching.AddNewParticipant(_contactRepository.GetUserId(), conversation.Id, convertParticipantToUpdateCache);
+            await _conversationCache.SetParticipants(_contactRepository.GetUserId(), conversation.Id, convertParticipantToUpdateCache);
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
@@ -111,7 +111,7 @@ public static class CreateParticipant
                 notify.LastMessage = lastMessage.Content;
                 notify.LastMessageContact = lastMessage.ContactId;
             }
-            _ = _notificationMethod.Notify(
+            _ = _firebase.Notify(
                 "NewConversation",
                 convertedParticipants.Select(q => q.Contact.Id).ToArray(),
                 notify

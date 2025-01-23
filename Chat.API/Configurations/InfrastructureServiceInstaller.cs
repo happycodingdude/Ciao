@@ -128,6 +128,11 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICaching, Caching>();
 
+        // Cache
+        services.AddScoped<UserCache>();
+        services.AddScoped<ConversationCache>();
+        services.AddScoped<MessageCache>();
+
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
@@ -140,7 +145,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
         // External logic
-        services.AddSingleton<INotificationMethod, NotificationMethod>();
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<IPasswordValidator, PasswordValidator>();
     }

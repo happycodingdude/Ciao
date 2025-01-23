@@ -2,5 +2,5 @@
 
 public interface IFirebaseFunction
 {
-    Task Notify(FirebaseNotification notification);
+    Task Notify(string _event, string[] contactIds, object data);
 }

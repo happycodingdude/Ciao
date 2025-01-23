@@ -17,17 +17,17 @@ public static class UpdateContact
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
-        readonly ICaching _caching;
+        readonly UserCache _userCache;
 
         public Handler(IValidator<Request> validator,
             IContactRepository contactRepository,
             IConversationRepository conversationRepository,
-            ICaching caching)
+            UserCache userCache)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
-            _caching = caching;
+            _userCache = userCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -61,7 +61,7 @@ public static class UpdateContact
             userToUpdate.Name = request.model.Name;
             userToUpdate.Bio = request.model.Bio;
             userToUpdate.Avatar = request.model.Avatar;
-            await _caching.UpdateUserInfo(userToUpdate);
+            _userCache.SetInfo(userToUpdate);
 
             return Unit.Value;
         }

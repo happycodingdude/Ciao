@@ -6,28 +6,22 @@ public static class SignOut
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        readonly IDistributedCache _distributedCache;
+        readonly UserCache _userCache;
+        readonly ConversationCache _conversationCache;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IDistributedCache distributedCache,
-            IService<IContactRepository> contactService,
-            IService<IConversationRepository> conversationService)
+        public Handler(UserCache userCache, ConversationCache conversationCache, IContactRepository contactRepository, IConversationRepository conversationRepository)
         {
-            _distributedCache = distributedCache;
-            _contactRepository = contactService.Get();
-            _conversationRepository = conversationService.Get();
+            _userCache = userCache;
+            _conversationCache = conversationCache;
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var user = await _contactRepository.GetInfoAsync();
-
-            // Remove cache
-            await _distributedCache.RemoveAsync($"connection-{user.Id}");
-            await _distributedCache.RemoveAsync($"token-{user.Id}");
-            await _distributedCache.RemoveAsync($"conversations-{user.Id}");
-            await _distributedCache.RemoveAsync($"info-{user.Id}");
 
             // Update contact info
             var filter = Builders<Contact>.Filter.Where(q => q.Id == user.Id);
@@ -46,6 +40,10 @@ public static class SignOut
                 new BsonDocument("elem.Contact._id", user.Id)
                 );
             _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
+
+            // Remove all cache
+            _userCache.RemoveAll();
+            _conversationCache.RemoveAll();
 
             return Unit.Value;
         }

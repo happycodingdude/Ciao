@@ -5,11 +5,11 @@ public class BasicAuthenticationRequirement : IAuthorizationRequirement
     public BasicAuthenticationRequirement() { }
 }
 
-public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor, IJwtService jwtService, IDistributedCache distributedCache) : AuthorizationHandler<BasicAuthenticationRequirement>
+public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor, IJwtService jwtService, UserCache userCache) : AuthorizationHandler<BasicAuthenticationRequirement>
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, BasicAuthenticationRequirement requirement)
     {
-        Console.WriteLine("BasicAuthenticationHandle calling");
+        // Console.WriteLine("BasicAuthenticationHandle calling");
         try
         {
             // Retrieve token from Authorization header
@@ -26,7 +26,8 @@ public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor,
                 throw new UnauthorizedException();
 
             var userId = principal?.FindFirst("UserId")?.Value;
-            var storedToken = await distributedCache.GetStringAsync($"token-{userId}");
+            // Kiểm tra loại trừ token cũ còn hiệu lực
+            var storedToken = userCache.GetToken(userId);
             if (token != storedToken)
                 throw new UnauthorizedException();
 
