@@ -126,7 +126,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped(typeof(IService<>), typeof(Service<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IJwtService, JwtService>();
-        services.AddScoped<ICaching, Caching>();
 
         // Cache
         services.AddScoped<UserCache>();
