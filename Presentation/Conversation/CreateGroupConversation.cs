@@ -111,9 +111,6 @@ public static class CreateGroupConversation
                 participant.IsModerator = false; // Only this user is moderator
                 participant.IsDeleted = false; // Every participants will have this conversation active
                 participant.IsNotifying = true; // Every participants will be notified
-                participant.Contact.Name = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Name;
-                participant.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Avatar;
-                participant.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).IsOnline;
             }
             // Add this user
             conversation.Participants.Add(new Participant
@@ -121,13 +118,7 @@ public static class CreateGroupConversation
                 IsModerator = true,
                 IsDeleted = false,
                 IsNotifying = true,
-                Contact = new Participant_Contact
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Avatar = user.Avatar,
-                    IsOnline = true
-                }
+                ContactId = user.Id
             });
 
             // Create conversation
@@ -141,8 +132,8 @@ public static class CreateGroupConversation
             _ = _firebase.Notify(
                 "NewConversation",
                 conversation.Participants
-                        .Where(q => q.Contact.Id != user.Id)
-                        .Select(q => q.Contact.Id)
+                        .Where(q => q.ContactId != user.Id)
+                        .Select(q => q.ContactId)
                     .ToArray(),
                 notify
             );

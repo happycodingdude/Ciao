@@ -11,7 +11,6 @@ public static class SignIn
         readonly IConversationRepository _conversationRepository;
         readonly IJwtService _jwtService;
         readonly IHttpContextAccessor _httpContextAccessor;
-        readonly ICaching _caching;
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
 
@@ -19,7 +18,6 @@ public static class SignIn
             IConversationRepository conversationRepository,
             IJwtService jwtService,
             IHttpContextAccessor httpContextAccessor,
-            ICaching caching,
             UserCache userCache,
             ConversationCache conversationCache)
         {
@@ -27,7 +25,6 @@ public static class SignIn
             _conversationRepository = conversationRepository;
             _jwtService = jwtService;
             _httpContextAccessor = httpContextAccessor;
-            _caching = caching;
             _userCache = userCache;
             _conversationCache = conversationCache;
         }

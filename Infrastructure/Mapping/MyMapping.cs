@@ -12,7 +12,7 @@ public class MyMapping : Profile
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
         CreateMap<ConversationToNotify, CreateGroupConversationRequest>().ReverseMap();
         CreateMap<Participant, CreateGroupConversation_Participant>()
-            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+            // .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
         CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<ConversationCacheModel, ConversationWithTotalUnseen>().ReverseMap();

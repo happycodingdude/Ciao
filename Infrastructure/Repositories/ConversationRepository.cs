@@ -25,7 +25,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             new BsonDocument("$match", new BsonDocument("Participants", new BsonDocument("$elemMatch",
                 new BsonDocument
                 {
-                    {"Contact._id", userId},
+                    {"ContactId", userId},
                     {"IsDeleted", false},
                 }))),
             new BsonDocument("$unwind", "$Participants"),
@@ -34,7 +34,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "Friend" },
-                { "let", new BsonDocument("contactId", "$Participants.Contact._id") },  // Define variable contactId from Contact's _id
+                { "let", new BsonDocument("contactId", "$Participants.ContactId") },  // Define variable contactId from Contact's _id
                 { "pipeline", new BsonArray
                     {
                         new BsonDocument("$match", new BsonDocument("$expr",
@@ -72,7 +72,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         { "IsDeleted", "$Participants.IsDeleted" },
                         { "IsModerator", "$Participants.IsModerator" },
                         { "IsNotifying", "$Participants.IsNotifying" },
-                        { "Contact", "$Participants.Contact" },
+                        { "ContactId", "$Participants.ContactId" },
                         { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
                         { "FriendStatus", new BsonDocument("$cond", new BsonArray
                             {
@@ -138,7 +138,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
         foreach (var conversation in conversations)
         {
-            conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
+            conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.ContactId == userId).IsNotifying;
             conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();

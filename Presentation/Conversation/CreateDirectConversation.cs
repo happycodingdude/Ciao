@@ -35,8 +35,8 @@ public static class CreateDirectConversation
                 Content = request.message
             };
             var filter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == user.Id),
-                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.Contact.Id == request.contactId),
+                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.ContactId == user.Id),
+                Builders<Conversation>.Filter.ElemMatch(q => q.Participants, w => w.ContactId == request.contactId),
                 Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
             );
             var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
@@ -53,13 +53,7 @@ public static class CreateDirectConversation
                     IsModerator = false,
                     IsDeleted = false,
                     IsNotifying = true,
-                    Contact = new Participant_Contact
-                    {
-                        Id = contact.Id,
-                        Name = contact.Name,
-                        Avatar = contact.Avatar,
-                        IsOnline = contact.IsOnline
-                    }
+                    ContactId = contact.Id
                 });
                 // Add this user
                 newConversation.Participants.Add(new Participant
@@ -67,13 +61,7 @@ public static class CreateDirectConversation
                     IsModerator = true,
                     IsDeleted = false,
                     IsNotifying = true,
-                    Contact = new Participant_Contact
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                        Avatar = user.Avatar,
-                        IsOnline = true
-                    }
+                    ContactId = contact.Id
                 });
                 // If send with message -> add new message
                 if (!string.IsNullOrEmpty(request.message))
@@ -87,12 +75,12 @@ public static class CreateDirectConversation
             else
             {
                 var updateFilter = MongoQuery<Conversation>.IdFilter(conversation.Id);
-                var currentUser = conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id);
+                var currentUser = conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id);
                 if (currentUser.IsDeleted)
                 {
                     conversation.Participants.ToList().ForEach(q =>
                     {
-                        if (q.Contact.Id == user.Id) q.IsDeleted = false;
+                        if (q.ContactId == user.Id) q.IsDeleted = false;
                     });
                 }
                 // If send with message -> add new message
@@ -117,8 +105,8 @@ public static class CreateDirectConversation
                 _ = _firebase.Notify(
                     "NewMessage",
                     conversation.Participants
-                        .Where(q => q.Contact.Id != user.Id)
-                        .Select(q => q.Contact.Id)
+                        .Where(q => q.ContactId != user.Id)
+                        .Select(q => q.ContactId)
                     .ToArray(),
                     notify
                 );

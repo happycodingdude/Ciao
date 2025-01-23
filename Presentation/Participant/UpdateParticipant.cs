@@ -21,7 +21,7 @@ public static class UpdateParticipant
             var conversation = await _conversationRepository.GetItemAsync(filter);
             var user = await _contactRepository.GetInfoAsync();
 
-            conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsNotifying = request.model.IsNotifying;
+            conversation.Participants.FirstOrDefault(q => q.ContactId == user.Id).IsNotifying = request.model.IsNotifying;
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);

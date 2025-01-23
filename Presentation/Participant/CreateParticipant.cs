@@ -69,7 +69,7 @@ public static class CreateParticipant
             var conversation = await _conversationRepository.GetItemAsync(filter);
 
             // Filter new participants
-            var filterNewItemToAdd = request.model.Select(q => q.ContactId).ToList().Except(conversation.Participants.Select(q => q.Contact.Id).ToList());
+            var filterNewItemToAdd = request.model.Select(q => q.ContactId).ToList().Except(conversation.Participants.Select(q => q.ContactId).ToList());
             // Compare with input -> only get new item
             var filteredParticipants = request.model.Where(q => filterNewItemToAdd.Contains(q.ContactId)).ToList();
             // Return if no new partipants
@@ -84,8 +84,6 @@ public static class CreateParticipant
                 participant.IsModerator = false; // Only this user is moderator
                 participant.IsDeleted = false; // Every participants will have this conversation active
                 participant.IsNotifying = true; // Every participants will be notified
-                participant.Contact.Name = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id)?.Name;
-                participant.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id)?.Avatar;
             }
             // Concatenate to existed items
             var participantsToUpdate = conversation.Participants.Concat(convertedParticipants);
@@ -94,7 +92,7 @@ public static class CreateParticipant
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
 
             // Update cache
-            var friendItems = await _friendRepository.GetFriendItems(convertedParticipants.Select(q => q.Contact.Id).ToList());
+            var friendItems = await _friendRepository.GetFriendItems(convertedParticipants.Select(q => q.ContactId).ToList());
             var convertParticipantToUpdateCache = _mapper.Map<List<ParticipantWithFriendRequest>>(convertedParticipants);
             for (var i = 0; i < convertParticipantToUpdateCache.Count; i++)
             {
@@ -113,7 +111,7 @@ public static class CreateParticipant
             }
             _ = _firebase.Notify(
                 "NewConversation",
-                convertedParticipants.Select(q => q.Contact.Id).ToArray(),
+                convertedParticipants.Select(q => q.ContactId).ToArray(),
                 notify
             );
 

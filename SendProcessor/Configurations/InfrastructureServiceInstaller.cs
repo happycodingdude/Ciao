@@ -84,8 +84,11 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Core
         services.AddScoped(typeof(IService<>), typeof(Service<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        // services.AddScoped<IJwtService, JwtService>();
-        services.AddScoped<ICaching, Caching>();
+
+        // Cache
+        services.AddScoped<UserCache>();
+        services.AddScoped<ConversationCache>();
+        services.AddScoped<MessageCache>();
 
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();

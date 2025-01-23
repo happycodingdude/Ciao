@@ -20,9 +20,9 @@ public static class DeleteParticipant
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
             var user = await _contactRepository.GetInfoAsync();
-            if (conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsDeleted) return Unit.Value;
+            if (conversation.Participants.FirstOrDefault(q => q.ContactId == user.Id).IsDeleted) return Unit.Value;
 
-            conversation.Participants.FirstOrDefault(q => q.Contact.Id == user.Id).IsDeleted = true;
+            conversation.Participants.FirstOrDefault(q => q.ContactId == user.Id).IsDeleted = true;
             var updates = Builders<Conversation>.Update
                 .Set(q => q.Participants, conversation.Participants);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
