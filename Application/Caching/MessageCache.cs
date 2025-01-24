@@ -12,10 +12,10 @@ public class MessageCache
     public async Task<List<MessageWithReactions>> GetMessages(string conversationId)
     {
         var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages");
-        return JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache);
+        return JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
     }
 
-    public async Task SetMessages(string userId, string conversationId, MessageWithReactions message)
+    public async Task AddMessages(string userId, string conversationId, MessageWithReactions message)
     {
         // Update message cache
         var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages");
@@ -23,18 +23,40 @@ public class MessageCache
         messages.Add(message);
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
 
-        // Update conversation cache
+        // Update list conversation cache
         var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations");
-        var conversations = JsonConvert.DeserializeObject<List<ConversationCacheModel>>(conversationCacheData) ?? [];
-        var selectedConversation = conversations.SingleOrDefault(q => q.Id == conversationId);
-        selectedConversation.LastMessageId = message.Id;
-        selectedConversation.LastMessage = message.Type == "text"
+        var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData);
+        var removeThisConversationId = conversationIds.Where(q => q != conversationId).ToList();
+        removeThisConversationId.Insert(0, conversationId);
+        await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(removeThisConversationId));
+
+        // Update conversation info cache
+        var conversationInfoCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info");
+        var conversationInfo = JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfoCacheData);
+        conversationInfo.LastMessageId = message.Id;
+        conversationInfo.LastMessage = message.Type == "text"
             ? message.Content
             : string.Join(",", message.Attachments.Select(q => q.MediaName));
-        selectedConversation.LastMessageTime = message.CreatedTime;
-        selectedConversation.LastMessageContact = userId;
-        // Order by LastMessageTime to pop it up to top
-        conversations = conversations.OrderByDescending(q => q.LastMessageTime).ToList();
-        await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversations));
+        conversationInfo.LastMessageTime = message.CreatedTime;
+        conversationInfo.LastMessageContact = userId;
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-info", JsonConvert.SerializeObject(conversationInfo));
+
+        // Update member cache
+        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members");
+        var members = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        members.ForEach(member => member.IsDeleted = false);
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
+    }
+
+    public async Task RemoveAll(List<string> conversationIds)
+    {
+        var tasks = new List<Task>();
+        foreach (var id in conversationIds)
+        {
+            var key = $"conversation-{id}-messages";
+            tasks.Add(_distributedCache.RemoveAsync(key));
+        }
+
+        await Task.WhenAll(tasks);
     }
 }

@@ -8,7 +8,7 @@ import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import blurImage from "../../../utils/blurImage";
 import useFriend from "../../friend/hooks/useFriend";
-import createParticipants from "../services/createParticipants";
+import addMembers from "../services/addMembers";
 
 const AddMembersModal = (props) => {
   const { id, members, onClose } = props;
@@ -30,7 +30,7 @@ const AddMembersModal = (props) => {
     blurImage(".list-friend-container");
   }, [data]);
 
-  const addMembers = () => {
+  const addMembersCTA = () => {
     if (membersToAdd.length === 0) return;
 
     queryClient.setQueryData(["conversation"], (oldData) => {
@@ -73,12 +73,10 @@ const AddMembersModal = (props) => {
       };
     });
 
-    createParticipants(
+    addMembers(
       id,
       membersToAdd.map((mem) => {
-        return {
-          contactId: mem.id,
-        };
+        return mem.id;
       }),
     );
 
@@ -232,7 +230,7 @@ const AddMembersModal = (props) => {
         gradientHeight="120%"
         rounded="3rem"
         title="Save"
-        onClick={addMembers}
+        onClick={addMembersCTA}
       />
     </div>
   );

@@ -8,14 +8,19 @@ public class MyMapping : Profile
         CreateMap<SendMessageReq_Attachments, Attachment>().ReverseMap();
         CreateMap<Contact, ContactDto>().ReverseMap();
         CreateMap<Contact, MessageToNotify_Contact>().ReverseMap();
-        CreateMap<Conversation, CreateGroupConversationRequest>().ReverseMap();
+        // CreateMap<Conversation, CreateGroupConversationRequest>().ReverseMap();
         CreateMap<Conversation, ConversationToNotify>().ReverseMap();
-        CreateMap<ConversationToNotify, CreateGroupConversationRequest>().ReverseMap();
-        CreateMap<Participant, CreateGroupConversation_Participant>()
-            // .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+        CreateMap<Conversation, CreateGroupConversationReq>().ReverseMap();
+        CreateMap<Conversation, ConversationCacheModel>().ReverseMap();
+        CreateMap<ConversationWithTotalUnseenWithContactInfo, ConversationCacheModel>().ReverseMap();
+        CreateMap<ParticipantWithFriendRequestAndContactInfo, ParticipantWithFriendRequest>()
+            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
-        CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
-        CreateMap<ConversationCacheModel, ConversationWithTotalUnseen>().ReverseMap();
+        CreateMap<ParticipantWithFriendRequestAndContactInfo, Participant>()
+            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+            .ReverseMap();
+        // CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
+        // CreateMap<ConversationCacheModel, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<FriendWithStatus, Friend>().ReverseMap();
         CreateMap<GetListFriendItem, Friend>().ReverseMap();
         CreateMap<Friend, NotificationSourceDataType_Friend>()
@@ -27,7 +32,7 @@ public class MyMapping : Profile
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<ParticipantDto, Participant>().ReverseMap();
         CreateMap<ParticipantWithFriendRequest, Participant>().ReverseMap();
-        CreateMap<ParticipantWithFriendRequest, CreateGroupConversation_Participant>().ReverseMap();
+        // CreateMap<ParticipantWithFriendRequest, CreateGroupConversation_Participant>().ReverseMap();
         CreateMap<ScheduleDto, Schedule>().ReverseMap();
         CreateMap<ScheduleContactDto, ScheduleContact>().ReverseMap();
     }

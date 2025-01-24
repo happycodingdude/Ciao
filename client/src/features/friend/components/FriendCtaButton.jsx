@@ -36,60 +36,95 @@ const FriendCtaButton = (props) => {
       let randomId = Math.random().toString(36).substring(2, 7);
 
       createDirectChat(contact.id).then((res) => {
+        // queryClient.setQueryData(["conversation"], (oldData) => {
+        //   const updatedConversations = oldData.conversations.map(
+        //     (conversation) => {
+        //       if (conversation.id !== randomId) return conversation;
+        //       conversation.id = res.data;
+        //       return conversation;
+        //     },
+        //   );
+        //   return {
+        //     ...oldData,
+        //     conversations: updatedConversations,
+        //     filterConversations: updatedConversations,
+        //     selected: {
+        //       ...oldData.selected,
+        //       id: res.data,
+        //     },
+        //     quickChatAdd: false,
+        //     fromListFriend: true,
+        //   };
+        // });
+
         queryClient.setQueryData(["conversation"], (oldData) => {
-          const updatedConversations = oldData.conversations.map(
-            (conversation) => {
-              if (conversation.id !== randomId) return conversation;
-              conversation.id = res.data;
-              return conversation;
-            },
-          );
+          const newConversation = {
+            isGroup: false,
+            isNotifying: true,
+            id: res.data,
+            participants: [
+              {
+                isModerator: true,
+                contact: {
+                  id: info.id,
+                  name: info.name,
+                  avatar: info.avatar,
+                  isOnline: true,
+                },
+              },
+              {
+                contact: {
+                  id: contact.id,
+                  name: contact.name,
+                  avatar: contact.avatar,
+                  isOnline: contact.isOnline,
+                },
+              },
+            ],
+          };
           return {
             ...oldData,
-            conversations: updatedConversations,
-            filterConversations: updatedConversations,
-            selected: {
-              ...oldData.selected,
-              id: res.data,
-            },
-            quickChatAdd: false,
-            fromListFriend: true,
+            conversations: [newConversation, ...oldData.conversations],
+            filterConversations: [newConversation, ...oldData.conversations],
+            selected: newConversation,
+            quickChatAdd: true,
           };
         });
       });
-      var newConversation = {
-        isGroup: false,
-        isNotifying: true,
-        id: randomId,
-        participants: [
-          {
-            isModerator: true,
-            contact: {
-              id: info.id,
-              name: info.name,
-              avatar: info.avatar,
-              isOnline: true,
-            },
-          },
-          {
-            contact: {
-              id: contact.id,
-              name: contact.name,
-              avatar: contact.avatar,
-              isOnline: contact.isOnline,
-            },
-          },
-        ],
-      };
-      queryClient.setQueryData(["conversation"], (oldData) => {
-        return {
-          ...oldData,
-          conversations: [newConversation, ...oldData.conversations],
-          filterConversations: [newConversation, ...oldData.conversations],
-          selected: newConversation,
-          quickChatAdd: true,
-        };
-      });
+
+      // queryClient.setQueryData(["conversation"], (oldData) => {
+      //   const newConversation = {
+      //     isGroup: false,
+      //     isNotifying: true,
+      //     id: randomId,
+      //     participants: [
+      //       {
+      //         isModerator: true,
+      //         contact: {
+      //           id: info.id,
+      //           name: info.name,
+      //           avatar: info.avatar,
+      //           isOnline: true,
+      //         },
+      //       },
+      //       {
+      //         contact: {
+      //           id: contact.id,
+      //           name: contact.name,
+      //           avatar: contact.avatar,
+      //           isOnline: contact.isOnline,
+      //         },
+      //       },
+      //     ],
+      //   };
+      //   return {
+      //     ...oldData,
+      //     conversations: [newConversation, ...oldData.conversations],
+      //     filterConversations: [newConversation, ...oldData.conversations],
+      //     selected: newConversation,
+      //     quickChatAdd: true,
+      //   };
+      // });
     }
     onClose();
   };

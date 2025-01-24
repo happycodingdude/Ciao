@@ -18,7 +18,7 @@ public static class SendMessage
             }
             RuleFor(c => c.conversationId).ContactRelatedToConversation(_contactRepository, _conversationRepository).DependentRules(() =>
             {
-                RuleFor(c => c.conversationId).NotEmpty().WithMessage("Conversation should not be empty");
+                // RuleFor(c => c.conversationId).NotEmpty().WithMessage("Conversation should not be empty");
                 RuleFor(c => c.model.Type).Must(q => q == "text" || q == "media").WithMessage("Message type should be text or media");
 
                 When(c => c.model.Type == "text", () =>

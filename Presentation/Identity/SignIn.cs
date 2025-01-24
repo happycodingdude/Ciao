@@ -13,13 +13,15 @@ public static class SignIn
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
+        readonly MemberCache _memberCache;
 
         public Handler(IContactRepository contactRepository,
             IConversationRepository conversationRepository,
             IJwtService jwtService,
             IHttpContextAccessor httpContextAccessor,
             UserCache userCache,
-            ConversationCache conversationCache)
+            ConversationCache conversationCache,
+            MemberCache memberCache)
         {
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
@@ -27,6 +29,7 @@ public static class SignIn
             _httpContextAccessor = httpContextAccessor;
             _userCache = userCache;
             _conversationCache = conversationCache;
+            _memberCache = memberCache;
         }
 
         public async Task<TokenModel> Handle(Request request, CancellationToken cancellationToken)
@@ -78,6 +81,10 @@ public static class SignIn
             _userCache.SetInfo(user);
             _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
             var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
+            conversations.ToList().ForEach(q =>
+            {
+                q.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
+            });
             await _conversationCache.SetConversations(user.Id, conversations.ToList());
 
             return new TokenModel(token, refreshToken, user.Id);

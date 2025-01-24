@@ -6,7 +6,7 @@ public class ConversationCacheModel : MongoBaseModel
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
-    public List<ParticipantWithFriendRequest> Participants { get; set; } = null!;
+    // public List<ParticipantWithFriendRequestAndContactInfo> Participants { get; set; } = null!;
     public int UnSeenMessages { get; set; }
     public string LastMessageId { get; set; } = null!;
     public string LastMessage { get; set; } = null!;

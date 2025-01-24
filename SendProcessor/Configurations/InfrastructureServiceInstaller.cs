@@ -89,6 +89,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<UserCache>();
         services.AddScoped<ConversationCache>();
         services.AddScoped<MessageCache>();
+        services.AddScoped<MemberCache>();
 
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();

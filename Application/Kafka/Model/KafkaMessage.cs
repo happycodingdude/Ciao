@@ -10,3 +10,8 @@ public class SaveNewMessageModel : KafkaBaseModel
     public string ConversationId { get; set; } = null!;
     public SendMessageReq Message { get; set; } = null!;
 }
+
+public class UpdateConversationCacheModel : KafkaBaseModel
+{
+    public List<ConversationWithTotalUnseenWithContactInfo> Conversations { get; set; }
+}

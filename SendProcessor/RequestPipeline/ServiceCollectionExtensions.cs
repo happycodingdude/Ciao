@@ -16,7 +16,8 @@ public static class ServiceCollectionExtensions
             var consumerResultHanlder = new ConsumerResultHanlder(messageHandler);
             return new KafkaConsumer(
                 [
-                    Topic.SaveNewMessage
+                    Topic.SaveNewMessage,
+                    // Topic.UpdateConversationCache
                 ]
                 , consumerResultHanlder.ExecuteAsync, kafkaConfig);
         });

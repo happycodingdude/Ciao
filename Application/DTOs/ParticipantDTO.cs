@@ -17,3 +17,14 @@ public class ParticipantWithFriendRequest : MongoBaseModel
     public string FriendId { get; set; } = null!;
     public string FriendStatus { get; set; } = null!;
 }
+
+[BsonIgnoreExtraElements]
+public class ParticipantWithFriendRequestAndContactInfo : MongoBaseModel
+{
+    public bool IsDeleted { get; set; }
+    public bool IsModerator { get; set; }
+    public bool IsNotifying { get; set; }
+    public ContactInfo Contact { get; set; } = null!;
+    public string FriendId { get; set; } = null!;
+    public string FriendStatus { get; set; } = null!;
+}

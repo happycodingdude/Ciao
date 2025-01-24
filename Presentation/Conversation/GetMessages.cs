@@ -49,16 +49,16 @@ public static class GetMessages
 
             var message = await _messageCache.GetMessages(request.id);
             var paging = new PagingParam(request.page, request.limit);
-            var pagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.Skip).Take(paging.Limit).ToList();
+            var pagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.Skip).Take(paging.Limit);
             var nextPagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.NextSkip).Take(paging.Limit).ToList();
             return new MessagesWithHasMore
             {
-                Messages = pagedMessages,
+                Messages = pagedMessages.OrderBy(q => q.CreatedTime).ToList(),
                 HasMore = nextPagedMessages.Any()
             };
         }
 
-        void SeenAll(ConversationWithTotalUnseen conversation)
+        void SeenAll(ConversationWithTotalUnseenWithContactInfo conversation)
         {
             var userId = _contactRepository.GetUserId();
             // No need to update when all messages were seen

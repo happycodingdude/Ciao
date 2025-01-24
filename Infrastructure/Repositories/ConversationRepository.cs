@@ -16,7 +16,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         _contactRepository = contactRepository;
     }
 
-    public async Task<IEnumerable<ConversationWithTotalUnseen>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
+    public async Task<IEnumerable<ConversationWithTotalUnseenWithContactInfo>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
     {
         var userId = _contactRepository.GetUserId();
 
@@ -26,7 +26,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 new BsonDocument
                 {
                     {"ContactId", userId},
-                    {"IsDeleted", false},
+                    // {"IsDeleted", false},
                 }))),
             new BsonDocument("$unwind", "$Participants"),
             
@@ -56,6 +56,21 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 },
                 { "as", "MatchingFriends" }
             }),
+            
+            // Lookup stage
+            new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "Contact" },
+                { "let", new BsonDocument("contactId", "$Participants.ContactId") },  // Define variable contactId from Contact's _id
+                { "pipeline", new BsonArray
+                    {
+                        new BsonDocument("$match", new BsonDocument("$expr",
+                            new BsonDocument("$eq", new BsonArray { "$_id", "$$contactId" })
+                        ))
+                    }
+                },
+                { "as", "MatchingContact" }
+            }),
                         
             // group state
             new BsonDocument("$group", new BsonDocument
@@ -72,6 +87,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         { "IsDeleted", "$Participants.IsDeleted" },
                         { "IsModerator", "$Participants.IsModerator" },
                         { "IsNotifying", "$Participants.IsNotifying" },
+                        { "Contact", new BsonDocument("$first", "$MatchingContact")},
                         { "ContactId", "$Participants.ContactId" },
                         { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
                         { "FriendStatus", new BsonDocument("$cond", new BsonArray
@@ -132,13 +148,13 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         var conversations = (await _collection
             .Aggregate<BsonDocument>(pipeline)
             .ToListAsync())
-            .Select(bson => BsonSerializer.Deserialize<ConversationWithTotalUnseen>(bson))
+            .Select(bson => BsonSerializer.Deserialize<ConversationWithTotalUnseenWithContactInfo>(bson))
             .ToList();
-        if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseen>();
+        if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseenWithContactInfo>();
 
         foreach (var conversation in conversations)
         {
-            conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.ContactId == userId).IsNotifying;
+            conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
             conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();

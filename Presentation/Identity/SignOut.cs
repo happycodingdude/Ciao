@@ -6,25 +6,27 @@ public static class SignOut
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        readonly UserCache _userCache;
-        readonly ConversationCache _conversationCache;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
+        readonly UserCache _userCache;
+        readonly ConversationCache _conversationCache;
+        readonly MemberCache _memberCache;
 
-        public Handler(UserCache userCache, ConversationCache conversationCache, IContactRepository contactRepository, IConversationRepository conversationRepository)
+        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, UserCache userCache, ConversationCache conversationCache, MemberCache memberCache)
         {
-            _userCache = userCache;
-            _conversationCache = conversationCache;
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
+            _userCache = userCache;
+            _conversationCache = conversationCache;
+            _memberCache = memberCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var user = await _contactRepository.GetInfoAsync();
+            var userId = _contactRepository.GetUserId();
 
             // Update contact info
-            var filter = Builders<Contact>.Filter.Where(q => q.Id == user.Id);
+            var filter = Builders<Contact>.Filter.Where(q => q.Id == userId);
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
                 .Set(q => q.LastLogout, DateTime.Now)
@@ -33,16 +35,18 @@ public static class SignOut
             _contactRepository.Update(filter, updates);
 
             // Update contact info in conversation
-            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
+            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", userId);
             var conversationUpdates = Builders<Conversation>.Update
                 .Set("Participants.$[elem].Contact.IsOnline", false);
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem.Contact._id", user.Id)
+                new BsonDocument("elem.Contact._id", userId)
                 );
             _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
 
             // Remove all cache
             _userCache.RemoveAll();
+            var conversations = await _conversationCache.GetConversations();
+            await _memberCache.MemberSignout(conversations.Select(q => q.Id).ToList(), userId);
             _conversationCache.RemoveAll();
 
             return Unit.Value;

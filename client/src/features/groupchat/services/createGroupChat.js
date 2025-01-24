@@ -6,7 +6,6 @@ const createGroupChat = async (title, avatar, membersToAdd) => {
     url: import.meta.env.VITE_ENDPOINT_CONVERSATION_CREATE,
     data: {
       title: title,
-      isGroup: true,
       avatar: avatar,
       participants: membersToAdd.map((mem) => {
         return {

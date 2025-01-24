@@ -64,109 +64,156 @@ const CreateGroupChatModal = (props) => {
       );
     }
     let randomId = Math.random().toString(36).substring(2, 7);
+    const title = refInputTitle.current.value;
+    createGroupChat(title, url, membersToAdd).then((res) => {
+      // queryClient.setQueryData(["conversation"], (oldData) => {
+      //   const updatedConversations = oldData.conversations.map(
+      //     (conversation) => {
+      //       if (conversation.id !== randomId) return conversation;
+      //       conversation.id = res.data;
+      //       return conversation;
+      //     },
+      //   );
+      //   return {
+      //     ...oldData,
+      //     conversations: updatedConversations,
+      //     filterConversations: updatedConversations,
+      //     selected: {
+      //       ...oldData.selected,
+      //       id: res.data,
+      //     },
+      //   };
+      // });
 
-    createGroupChat(refInputTitle.current.value, url, membersToAdd).then(
-      (res) => {
-        queryClient.setQueryData(["conversation"], (oldData) => {
-          const cloned = Object.assign({}, oldData);
-          const updatedConversations = cloned.conversations.map(
-            (conversation) => {
-              if (conversation.id !== randomId) return conversation;
-              conversation.id = res.data;
-              return conversation;
-            },
-          );
-          return {
-            ...oldData,
-            conversations: updatedConversations,
-            filterConversations: updatedConversations,
-            selected: {
-              ...oldData.selected,
-              id: res.data,
-            },
-          };
-        });
-      },
-    );
-
-    queryClient.setQueryData(["conversation"], (oldData) => {
-      const newConversation = {
-        id: randomId,
-        title: refInputTitle.current.value,
-        avatar: avatar,
-        isGroup: true,
-        participants: [
-          {
-            isModerator: true,
-            contact: {
-              id: info.id,
-              name: info.name,
-              avatar: info.avatar,
-              isOnline: true,
-            },
-          },
-          ...membersToAdd.map((mem) => {
-            return {
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const newConversation = {
+          id: res.data,
+          title: title,
+          avatar: avatar,
+          isGroup: true,
+          participants: [
+            {
+              isModerator: true,
               contact: {
-                id: mem.id,
-                name: mem.name,
-                avatar: mem.avatar,
-                // isOnline: contact.isOnline,
+                id: info.id,
+                name: info.name,
+                avatar: info.avatar,
+                isOnline: true,
               },
-            };
-          }),
-        ],
-      };
-      return {
-        ...oldData,
-        conversations: [
-          {
-            ...newConversation,
-            noLazy: true,
-          },
-          ...oldData.conversations,
-        ],
-        filterConversations: [
-          {
-            ...newConversation,
-            noLazy: true,
-          },
-          ...oldData.conversations,
-        ],
-        selected: newConversation,
-        noLoading: true,
-        createGroupChat: true,
-      };
-    });
-    queryClient.setQueryData(["message"], (oldData) => {
-      const newData = {
-        ...oldData,
-        messages: [],
-        participants: [
-          {
-            isModerator: true,
-            contact: {
-              id: info.id,
-              name: info.name,
-              avatar: info.avatar,
-              isOnline: true,
             },
-          },
-          ...membersToAdd.map((mem) => {
-            return {
-              contact: {
-                id: mem.id,
-                name: mem.name,
-                avatar: mem.avatar,
-                // isOnline: contact.isOnline,
-              },
-            };
-          }),
-        ],
-      };
-
-      return newData;
+            ...membersToAdd.map((mem) => {
+              return {
+                contact: {
+                  id: mem.id,
+                  name: mem.name,
+                  avatar: mem.avatar,
+                  // isOnline: contact.isOnline,
+                },
+              };
+            }),
+          ],
+        };
+        return {
+          ...oldData,
+          conversations: [
+            {
+              ...newConversation,
+              noLazy: true,
+            },
+            ...oldData.conversations,
+          ],
+          filterConversations: [
+            {
+              ...newConversation,
+              noLazy: true,
+            },
+            ...oldData.conversations,
+          ],
+          selected: newConversation,
+          noLoading: true,
+          createGroupChat: true,
+        };
+      });
     });
+
+    // queryClient.setQueryData(["conversation"], (oldData) => {
+    //   const newConversation = {
+    //     id: randomId,
+    //     title: refInputTitle.current.value,
+    //     avatar: avatar,
+    //     isGroup: true,
+    //     participants: [
+    //       {
+    //         isModerator: true,
+    //         contact: {
+    //           id: info.id,
+    //           name: info.name,
+    //           avatar: info.avatar,
+    //           isOnline: true,
+    //         },
+    //       },
+    //       ...membersToAdd.map((mem) => {
+    //         return {
+    //           contact: {
+    //             id: mem.id,
+    //             name: mem.name,
+    //             avatar: mem.avatar,
+    //             // isOnline: contact.isOnline,
+    //           },
+    //         };
+    //       }),
+    //     ],
+    //   };
+    //   return {
+    //     ...oldData,
+    //     conversations: [
+    //       {
+    //         ...newConversation,
+    //         noLazy: true,
+    //       },
+    //       ...oldData.conversations,
+    //     ],
+    //     filterConversations: [
+    //       {
+    //         ...newConversation,
+    //         noLazy: true,
+    //       },
+    //       ...oldData.conversations,
+    //     ],
+    //     selected: newConversation,
+    //     noLoading: true,
+    //     createGroupChat: true,
+    //   };
+    // });
+    // queryClient.setQueryData(["message"], (oldData) => {
+    //   const newData = {
+    //     ...oldData,
+    //     messages: [],
+    //     participants: [
+    //       {
+    //         isModerator: true,
+    //         contact: {
+    //           id: info.id,
+    //           name: info.name,
+    //           avatar: info.avatar,
+    //           isOnline: true,
+    //         },
+    //       },
+    //       ...membersToAdd.map((mem) => {
+    //         return {
+    //           contact: {
+    //             id: mem.id,
+    //             name: mem.name,
+    //             avatar: mem.avatar,
+    //             // isOnline: contact.isOnline,
+    //           },
+    //         };
+    //       }),
+    //     ],
+    //   };
+
+    //   return newData;
+    // });
 
     onClose();
   };

@@ -12,3 +12,4 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.Caching.Distributed;
 global using Newtonsoft.Json;
 global using AutoMapper;
+global using MongoDB.Bson.Serialization.Attributes;

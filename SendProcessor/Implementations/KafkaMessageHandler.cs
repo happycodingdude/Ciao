@@ -8,13 +8,15 @@ public class KafkaMessageHandler : IKafkaMessageHandler
     readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
     readonly MessageCache _messageCache;
+    readonly ConversationCache _conversationCache;
 
     public KafkaMessageHandler(IUnitOfWork uow,
         IMapper mapper,
         IFirebaseFunction firebase,
         IConversationRepository conversationRepository,
         IContactRepository contactRepository,
-        MessageCache messageCache)
+        MessageCache messageCache,
+        ConversationCache conversationCache)
     {
         _uow = uow;
         _mapper = mapper;
@@ -22,6 +24,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
         _messageCache = messageCache;
+        _conversationCache = conversationCache;
     }
 
     public async Task SaveNewMessage(SaveNewMessageModel param)
@@ -43,10 +46,10 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         foreach (var participant in conversation.Participants.Where(q => q.IsDeleted))
             participant.IsDeleted = false;
 
-        // Update user infor in case changes
-        conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.Name = user.Name;
-        conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.Avatar = user.Avatar;
-        conversation.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = user.IsOnline;
+        // Update user info in case changes
+        // conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id).Contact.Name = user.Name;
+        // conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id).Contact.Avatar = user.Avatar;
+        // conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id).Contact.IsOnline = user.IsOnline;
 
         // Update conversation
         _conversationRepository.Replace(filter, conversation);
@@ -55,7 +58,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         await _uow.SaveAsync();
 
         // Update cache
-        await _messageCache.SetMessages(param.UserId, conversation.Id, _mapper.Map<MessageWithReactions>(message));
+        await _messageCache.AddMessages(param.UserId, conversation.Id, _mapper.Map<MessageWithReactions>(message));
 
         // Push message            
         var notify = _mapper.Map<MessageToNotify>(message);
@@ -64,10 +67,15 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         _ = _firebase.Notify(
             "NewMessage",
             conversation.Participants
-                .Where(q => q.Contact.Id != user.Id)
-                .Select(q => q.Contact.Id)
+                .Where(q => q.ContactId != user.Id)
+                .Select(q => q.ContactId)
             .ToArray(),
             notify
         );
     }
+
+    // public async Task UpdateConversationCache(UpdateConversationCacheModel param)
+    // {
+    //     await _conversationCache.SetConversations(param.UserId, param.Conversations);
+    // }
 }

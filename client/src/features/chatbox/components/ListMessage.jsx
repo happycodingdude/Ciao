@@ -22,6 +22,7 @@ const ListMessage = (props) => {
   const [hasMore, setHasMore] = useState(true);
   const [listHeight, setListHeight] = useState(0); // To store calculated height
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [isFewMessages, setIsFewMessages] = useState(false);
 
   const containerRef = useRef(null);
   const listRef = useRef(null);
@@ -76,6 +77,13 @@ const ListMessage = (props) => {
     if (listRef.current) listRef.current.resetAfterIndex(0); // Reset cache for all items
 
     blurImage(".chatbox-content");
+
+    // Check if the total height of all items is smaller than the container
+    const totalHeight = data.messages.reduce(
+      (acc, _, index) => acc + getItemSize(index),
+      0,
+    );
+    setIsFewMessages(totalHeight < listHeight);
 
     // Scrolling to bottom after first messages fetching
     scrollToBottomAtFirstRender();
@@ -149,15 +157,16 @@ const ListMessage = (props) => {
 
   // Render a single message item
   const MessageRow = ({ index, style }) => {
+    const message = data?.messages[index];
     return (
       <div
-        id={`message-${data?.messages[index].id}`}
+        id={`message-${message.id}`}
         style={{
           ...style,
           height: getItemSize(index),
         }}
       >
-        <MessageContent message={data?.messages[index]} id={conversationId} />
+        <MessageContent message={message} id={conversationId} />
       </div>
     );
   };
@@ -183,6 +192,7 @@ const ListMessage = (props) => {
 
     return itemSize; // Default height for messages without attachments
   };
+  // const getItemSize = (index) => 0;
 
   const handleScroll = (scrollOffset) => {
     if (!listRef.current) return;
@@ -209,7 +219,7 @@ const ListMessage = (props) => {
   return (
     <div
       ref={containerRef}
-      className="chatbox-content relative h-full w-full px-[1rem]"
+      className="chatbox-content relative flex h-full w-full flex-col justify-end px-[1rem]"
     >
       <RelightBackground
         data-show={showScrollToBottom}
@@ -230,7 +240,7 @@ const ListMessage = (props) => {
             itemCount={data?.messages.length}
             itemSize={getItemSize}
             width="100%"
-            className="hide-scrollbar"
+            className={`hide-scrollbar scroll-smooth ${isFewMessages ? "!h-auto" : ""} `}
             onScroll={({ scrollOffset, scrollDirection }) => {
               scrollOffsetRef.current = scrollOffset;
 
