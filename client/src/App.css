@@ -354,4 +354,28 @@ body,
     background-color: #f9f9f9;
   }
   
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Full height */
+  }
+  
+  .messages-container {
+    flex-grow: 1; /* Makes the message container fill available space */
+    overflow: hidden; /* Prevents extra scrollbars */
+  }
+  
+  .chat-input-container {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #ddd;
+    background: #f9f9f9;
+    transition: height 0.2s; /* Smooth height change */
+  }
+  
+  textarea {
+    flex-grow: 1;
+    resize: none; /* Prevent manual resizing */
+  }
+  
 }

@@ -27,30 +27,31 @@ public static class GetConversations
         {
             var conversations = await _conversationCache.GetConversations();
             var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfo>>(conversations);
-            foreach (var conv in result)
-            {
-                // Get member cache
-                conv.Participants = await _memberCache.GetMembers(conv.Id);
+            await _memberCache.GetMembers(result);
+            // foreach (var conv in result)
+            // {
+            // Get member cache
+            // conv.Participants = await _memberCache.GetMembers(conv.Id);
 
-                // Query user cache to get updated info             
-                // var contacts = await _userCache.GetListInfo(conv.Participants.Select(q => q.Contact.Id).ToList());
-                // foreach (var contact in contacts)
-                // {
-                //     var participant = conv.Participants.SingleOrDefault(q => q.Contact.Id == contact.Id);
-                //     participant.Contact.Name = contact.Name;
-                //     participant.Contact.Avatar = contact.Avatar;
-                //     participant.Contact.Bio = contact.Bio;
-                //     participant.Contact.IsOnline = true;
-                // }
+            // Query user cache to get updated info             
+            // var contacts = await _userCache.GetListInfo(conv.Participants.Select(q => q.Contact.Id).ToList());
+            // foreach (var contact in contacts)
+            // {
+            //     var participant = conv.Participants.SingleOrDefault(q => q.Contact.Id == contact.Id);
+            //     participant.Contact.Name = contact.Name;
+            //     participant.Contact.Avatar = contact.Avatar;
+            //     participant.Contact.Bio = contact.Bio;
+            //     participant.Contact.IsOnline = true;
+            // }
 
-                // Filter uncache contact then set offline and keep last cache info
-                // var uncacheContacts = conv.Participants.Select(q => q.Contact.Id).Except(contacts.Select(q => q.Id));
-                // conv.Participants.Where(q => uncacheContacts.Any(w => w == q.Contact.Id)).ToList()
-                // .ForEach(q =>
-                // {
-                //     q.Contact.IsOnline = false;
-                // });
-            }
+            // Filter uncache contact then set offline and keep last cache info
+            // var uncacheContacts = conv.Participants.Select(q => q.Contact.Id).Except(contacts.Select(q => q.Id));
+            // conv.Participants.Where(q => uncacheContacts.Any(w => w == q.Contact.Id)).ToList()
+            // .ForEach(q =>
+            // {
+            //     q.Contact.IsOnline = false;
+            // });
+            // }
 
             // await _conversationCache.SetConversations(result);
             // await _kafkaProducer.ProduceAsync(Topic.UpdateConversationCache, new UpdateConversationCacheModel
@@ -60,6 +61,7 @@ public static class GetConversations
             // });
 
             return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();
+            // return result;
         }
     }
 }

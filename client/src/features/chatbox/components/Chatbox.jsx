@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import sendMessage from "../services/sendMessage";
-import ChatInput from "./ChatInput";
 import ListMessage from "./ListMessage";
 
 const Chatbox = (props) => {
@@ -43,13 +42,13 @@ const Chatbox = (props) => {
   //   }
   // }, [autoScrollBottom]);
 
-  useEffect(() => {
-    // setPage(2);
-    // setAutoScrollBottom(true);
-    setTimeout(() => {
-      refInput.current.focus();
-    }, 100);
-  }, [conversations?.selected]);
+  // useEffect(() => {
+  //   // setPage(2);
+  //   // setAutoScrollBottom(true);
+  //   setTimeout(() => {
+  //     refInput.current.focus();
+  //   }, 100);
+  // }, [conversations?.selected]);
 
   // const chooseFile = (e) => {
   //   const chosenFiles = Array.from(e.target.files);
@@ -345,7 +344,10 @@ const Chatbox = (props) => {
         >
           <div className="fa fa-chevron-down base-icon"></div>
         </RelightBackground> */}
-      <ListMessage conversationId={conversations?.selected?.id} />
+      <ListMessage
+        conversationId={conversations?.selected?.id}
+        send={sendMutation}
+      />
       {/* <div
           ref={refChatContent}
           className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
@@ -362,29 +364,27 @@ const Chatbox = (props) => {
                 ))
             : ""}
         </div> */}
-      <div className="flex w-full items-center justify-center py-3 laptop:h-[5rem]">
-        <ChatInput
-          className="chatbox"
-          send={(text, files) => {
-            if (text.trim() === "" && files.length === 0) return;
+      {/* <ChatInput
+        className="chatbox"
+        send={(text, files) => {
+          if (text.trim() === "" && files.length === 0) return;
 
-            const lazyImages = files.map((item) => {
-              return {
-                type: "image",
-                mediaUrl: URL.createObjectURL(item),
-              };
-            });
-            // setFiles([]);
-            sendMutation({
-              type: text.trim() === "" ? "media" : "text",
-              content: text,
-              attachments: lazyImages,
-              files: files,
-            });
-          }}
-          ref={refInput}
-        />
-      </div>
+          const lazyImages = files.map((item) => {
+            return {
+              type: "image",
+              mediaUrl: URL.createObjectURL(item),
+            };
+          });
+          // setFiles([]);
+          sendMutation({
+            type: text.trim() === "" ? "media" : "text",
+            content: text,
+            attachments: lazyImages,
+            files: files,
+          });
+        }}
+        ref={refInput}
+      /> */}
     </div>
   );
 };

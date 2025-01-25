@@ -58,7 +58,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         await _uow.SaveAsync();
 
         // Update cache
-        await _messageCache.AddMessages(param.UserId, conversation.Id, _mapper.Map<MessageWithReactions>(message));
+        await _messageCache.AddMessages(param.UserId, conversation, _mapper.Map<MessageWithReactions>(message));
 
         // Push message            
         var notify = _mapper.Map<MessageToNotify>(message);

@@ -17,15 +17,31 @@ public class ConversationCache
 
     public async Task<List<ConversationCacheModel>> GetConversations()
     {
+        // Query list conversation cache
         var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations");
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
+
         var result = new List<ConversationCacheModel>(conversationIds.Count);
-        foreach (var conversationId in conversationIds)
+        // Query info cache
+        var tasks = conversationIds.Select(async conversationId =>
         {
             var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info");
-            result.Add(JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfo));
-        }
+            lock (result) // Ensure thread safety
+            {
+                result.Add(JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfo));
+            }
+        });
+        await Task.WhenAll(tasks);
+
+        result = result.OrderByDescending(q => q.UpdatedTime).ToList();
         return result;
+
+        // foreach (var conversationId in conversationIds)
+        // {
+        //     var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info");
+        //     result.Add(JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfo));
+        // }
+        // return result;
     }
 
     public async Task SetConversations(List<ConversationCacheModel> conversations)

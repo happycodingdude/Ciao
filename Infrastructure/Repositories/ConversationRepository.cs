@@ -72,7 +72,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "as", "MatchingContact" }
             }),
                         
-            // group state
+            // Group state
             new BsonDocument("$group", new BsonDocument
             {
                 { "_id", "$_id" },
@@ -111,7 +111,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 },
             }),
             
-            // project state
+            // Project state
             new BsonDocument("$project", new BsonDocument
             {
                 { "Title", 1 },

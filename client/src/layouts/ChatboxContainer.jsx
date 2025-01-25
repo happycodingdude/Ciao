@@ -62,13 +62,13 @@ const ChatboxContainer = () => {
     //   )}
     // </div>
 
-    <div className="relative grow">
+    <>
       {conversations?.selected ||
       conversations?.createGroupChat ||
       conversations?.quickChatAdd ? (
-        <div className="flex h-full w-full flex-col border-l-[.1rem] border-l-[var(--border-color)]">
+        <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
           <ChatboxHeader toggle={toggle} setToggle={setToggle} />
-          <div className="flex h-0 w-full grow">
+          <div className="flex w-full grow">
             <Chatbox isToggle={toggle && toggle !== "" && toggle !== "null"} />
             <div
               className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
@@ -89,7 +89,7 @@ const ChatboxContainer = () => {
       ) : (
         ""
       )}
-    </div>
+    </>
   );
 };
 

@@ -15,6 +15,16 @@ public class MemberCache
         return JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData);
     }
 
+    public async Task GetMembers(List<ConversationWithTotalUnseenWithContactInfo> conversations)
+    {
+        var tasks = conversations.Select(async conversation =>
+        {
+            var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-members");
+            conversation.Participants = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData);
+        });
+        await Task.WhenAll(tasks);
+    }
+
     public async Task AddMembers(string conversationId, List<ParticipantWithFriendRequestAndContactInfo> participants)
     {
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members");

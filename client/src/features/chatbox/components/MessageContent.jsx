@@ -122,7 +122,7 @@ const MessageContent = (props) => {
   return (
     <div
       ref={innerRef}
-      data-id={message.id}
+      id={message.id}
       key={message.id}
       className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
       style={style}

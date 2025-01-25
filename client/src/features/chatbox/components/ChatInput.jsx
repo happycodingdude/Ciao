@@ -8,7 +8,7 @@ import useConversation from "../../listchat/hooks/useConversation";
 import ChatboxMenu from "./ChatboxMenu";
 
 const ChatInput = forwardRef((props, ref) => {
-  const { send, className, quickChat, noMenu, noEmoji } = props;
+  const { send, className, quickChat, noMenu, noEmoji, onInput } = props;
 
   if (!ref) return;
 
@@ -21,16 +21,17 @@ const ChatInput = forwardRef((props, ref) => {
   const [mentions, setMentions] = useState();
   const [showMention, setShowMention] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState();
 
   useEffect(() => {
     ref.current.textContent = "";
-    if (ref.current.classList.contains("chatbox")) ref.current.focus();
+    // if (ref.current.classList.contains("chatbox"))
+    ref.current.focus();
     // setTimeout(() => {
     //   if (ref.current) {
     //   }
     // }, 0);
-    setFiles([]);
+    setFiles(undefined);
     setMentions(() => {
       return conversations?.selected?.participants
         .filter((item) => item.contact.id !== info.id)
@@ -70,7 +71,7 @@ const ChatInput = forwardRef((props, ref) => {
   };
 
   const chat = () => {
-    send(ref.current.textContent, files);
+    send(ref.current.textContent, files ?? []);
     ref.current.textContent = "";
     setFiles([]);
   };
@@ -152,20 +153,25 @@ const ChatInput = forwardRef((props, ref) => {
     if (chosenFiles.length === 0) return;
 
     const mergedFiles = chosenFiles.filter((item) => {
+      if (!files) return item;
       if (!files.some((file) => file.name === item.name)) return item;
     });
-    setFiles([...files, ...mergedFiles]);
+    setFiles(!files ? [...mergedFiles] : [...files, ...mergedFiles]);
 
     e.target.value = null;
+
+    // onInput(files.length === 0);
   };
 
   const removeFile = (e) => {
     setFiles(files.filter((item) => item.name !== e.target.dataset.key));
+    // onInput(files.length === 0);
   };
 
   useEffect(() => {
     if (files?.length !== 0) setCaretToEnd();
-  }, [files]);
+    if (files && onInput) onInput();
+  }, [files, onInput]);
 
   // useEffect(() => {
   //   if (!files || files.length === 0) return;
@@ -191,113 +197,122 @@ const ChatInput = forwardRef((props, ref) => {
 
   return (
     <div
-      className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
+      className={`flex w-full shrink-0 grow items-center justify-center 
+      ${files?.length !== 0 ? "laptop:max-h-[40rem]" : "laptop:max-h-[15rem]"}
+    `}
     >
-      {files?.length !== 0 ? (
-        <div
-          className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
-        >
-          {files?.map((item) => (
-            <div
-              className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
-              bg-[var(--bg-color-thin)] p-3 laptop:w-[15rem]"
-              //   className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
-              // bg-white p-3 laptop:w-[15rem]"
-            >
-              <div className="absolute right-[-.5rem] top-[-.5rem] flex laptop:h-[3rem]">
-                <div
-                  data-key={item.name}
-                  className="fa fa-trash cursor-pointer text-md text-[var(--danger-text-color)]"
-                  onClick={removeFile}
-                ></div>
-              </div>
-              <ImageWithLightBoxImgTag
-                src={URL.createObjectURL(item)}
-                // className="aspect-[4/3] w-full rounded-[.5rem] bg-[size:80%]"
-                slides={[
-                  {
-                    src: URL.createObjectURL(item),
-                  },
-                ]}
-              />
-              <p className="self-start text-xs">{item.name}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        ""
-      )}
       <div
-        className={`mention-item relative w-full ${files?.length !== 0 ? "pt-3" : "pt-2"}`}
+        // className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
+        className={`${className} flex grow flex-col rounded-[.5rem] bg-red-300 laptop:max-w-[65rem]`}
       >
-        {conversations?.selected?.isGroup && !quickChat ? (
+        {files && files?.length !== 0 ? (
           <div
-            data-show={showMention}
-            className="hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
-          scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
-          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          laptop:top-[-16rem] laptop:max-h-[20rem] laptop:w-[20rem]"
+            className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
           >
-            {mentions?.map((item) => (
+            {files?.map((item) => (
               <div
-                className="flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
-                // data-user={item.userId}
-                onClick={() => chooseMention(item.userId)}
+                className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
+              bg-[var(--bg-color-thin)] p-3 laptop:w-[15rem]"
+                //   className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
+                // bg-white p-3 laptop:w-[15rem]"
               >
-                <ImageWithLightBoxWithShadowAndNoLazy
-                  src={item.avatar}
-                  className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+                <div className="absolute right-[-.5rem] top-[-.5rem] flex laptop:h-[3rem]">
+                  <div
+                    data-key={item.name}
+                    className="fa fa-trash cursor-pointer text-md text-[var(--danger-text-color)]"
+                    onClick={removeFile}
+                  ></div>
+                </div>
+                <ImageWithLightBoxImgTag
+                  className="h-[15rem]"
+                  src={URL.createObjectURL(item)}
+                  // className="aspect-[4/3] w-full rounded-[.5rem] bg-[size:80%]"
                   slides={[
                     {
-                      src: item.avatar,
+                      src: URL.createObjectURL(item),
                     },
                   ]}
-                  onClick={() => {}}
                 />
-                <p>{item.name}</p>
+                <p className="self-start text-xs">{item.name}</p>
               </div>
             ))}
           </div>
         ) : (
           ""
         )}
-        {!noMenu ? (
-          <ChatboxMenu
-            chooseFile={chooseFile}
-            className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "}`}
-          />
-        ) : (
-          ""
-        )}
         <div
-          // ref={inputRef}
-          ref={ref}
-          contentEditable={true}
-          // data-text="Type something.."
-          // aria-placeholder="Type something.."
-          className={`hide-scrollbar w-full resize-none overflow-y-auto break-words 
+          className={`mention-item relative w-full ${files?.length !== 0 ? "py-3" : "py-2"}`}
+        >
+          {conversations?.selected?.isGroup && !quickChat ? (
+            <div
+              data-show={showMention}
+              className="hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
+          scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
+          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
+          laptop:top-[-16rem] laptop:max-h-[20rem] laptop:w-[20rem]"
+            >
+              {mentions?.map((item) => (
+                <div
+                  className="flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
+                  // data-user={item.userId}
+                  onClick={() => chooseMention(item.userId)}
+                >
+                  <ImageWithLightBoxWithShadowAndNoLazy
+                    src={item.avatar}
+                    className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+                    slides={[
+                      {
+                        src: item.avatar,
+                      },
+                    ]}
+                    onClick={() => {}}
+                  />
+                  <p>{item.name}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            ""
+          )}
+          {!noMenu ? (
+            <ChatboxMenu
+              chooseFile={chooseFile}
+              className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "}`}
+            />
+          ) : (
+            ""
+          )}
+          <div
+            // ref={inputRef}
+            ref={ref}
+            contentEditable={true}
+            // data-text="Type something.."
+            // aria-placeholder="Type something.."
+            className={`hide-scrollbar w-full resize-none overflow-y-auto break-words 
             pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
-          onKeyDown={keyBindingFn}
-          onKeyUp={keyupBindingFn}
-        ></div>
-        {!noEmoji ? (
-          <label
-            className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
+            onKeyDown={keyBindingFn}
+            onKeyUp={keyupBindingFn}
+            onInput={() => onInput()}
+          ></div>
+          {!noEmoji ? (
+            <label
+              className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
           cursor-pointer text-md font-normal`}
-            onClick={() => setShowEmoji((show) => !show)}
-          ></label>
-        ) : (
-          ""
-        )}
+              onClick={() => setShowEmoji((show) => !show)}
+            ></label>
+          ) : (
+            ""
+          )}
+        </div>
+        <EmojiPicker
+          open={showEmoji}
+          width={300}
+          height={400}
+          onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
+          className="emoji-item !absolute right-[2rem] top-[-41rem]"
+          icons="solid"
+        />
       </div>
-      <EmojiPicker
-        open={showEmoji}
-        width={300}
-        height={400}
-        onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
-        className="emoji-item !absolute right-[2rem] top-[-41rem]"
-        icons="solid"
-      />
     </div>
   );
 });
