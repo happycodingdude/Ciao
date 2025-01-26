@@ -160,7 +160,10 @@ const Information = (props) => {
                         ]}
                         onClick={(e) => {}}
                       />
-                      <OnlineStatusDot online={item.contact.isOnline} />
+                      <OnlineStatusDot
+                        className="bottom-[-5%] left-[80%]"
+                        online={item.contact.isOnline}
+                      />
                     </div>
                     <CustomLabel title={item.contact.name} />
                   </div>

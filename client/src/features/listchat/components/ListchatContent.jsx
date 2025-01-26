@@ -7,6 +7,7 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import useLoading from "../../../hooks/useLoading";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
+import useMessage from "../../chatbox/hooks/useMessage";
 import useAttachment from "../../chatdetail/hooks/useAttachment";
 import useConversation from "../hooks/useConversation";
 
@@ -40,7 +41,7 @@ const ListchatContent = () => {
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
   const { data } = useConversation(page);
-  // const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
+  const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
   const { refetch: refetchAttachments } = useAttachment(data?.selected?.id);
 
   const refChatItems = useRef({});
@@ -53,7 +54,7 @@ const ListchatContent = () => {
 
   const clickConversation = (id) => {
     if (data?.selected?.id === id) return;
-    setLoading(true);
+    // setLoading(true);
     queryClient.setQueryData(["conversation"], (oldData) => {
       var newConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== id) return conversation;
@@ -97,20 +98,20 @@ const ListchatContent = () => {
 
     // setLoading(true);
     scrollToCenterOfSelected();
-    // refetchMessage();
+    refetchMessage();
     refetchAttachments();
   }, [data?.selected?.id]);
 
   useEffect(() => {
     if (!data || !data?.selected) return;
 
-    if (data.quickChatAdd) {
+    if (data.quickChat) {
       // setSelected(undefined);
       return;
     }
 
     if (data.clickAndAddMessage) {
-      clickAndAddMessage();
+      // clickAndAddMessage();
       return;
     }
 
@@ -129,20 +130,20 @@ const ListchatContent = () => {
 
   const clickAndAddMessage = () => {
     clickConversation(data.selected.id);
-    setTimeout(() => {
-      queryClient.setQueryData(["message"], (oldData) => {
-        return {
-          ...oldData,
-          messages: [data.message, ...oldData.messages],
-        };
-      });
-    }, 700);
+    // setTimeout(() => {
+    //   queryClient.setQueryData(["message"], (oldData) => {
+    //     return {
+    //       ...oldData,
+    //       messages: [data.message, ...oldData.messages],
+    //     };
+    //   });
+    // }, 700);
   };
 
   return (
     <div
       ref={refChats}
-      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem]"
+      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] laptop:w-[27rem] laptop-lg:w-[30rem]"
     >
       {data?.filterConversations?.map((item) => (
         <div

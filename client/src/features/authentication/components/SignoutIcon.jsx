@@ -11,7 +11,7 @@ const SignoutIcon = (props) => {
   return (
     <div
       onClick={() => signout(queryClient, navigate)}
-      className={`${className ?? ""} fa fa-sign-out base-icon-sm`}
+      className={`${className ?? ""} fa fa-sign-out base-icon-sm text-red-500`}
     ></div>
   );
 };

@@ -7,7 +7,7 @@ const ListChatContainer = () => {
   console.log("ListChatContainer calling");
   return (
     <ListchatFilterProvider>
-      <div className="flex flex-col laptop:w-[27rem] laptop-lg:w-[30rem]">
+      <div className="flex flex-col ">
         <ListChatHeader />
         <ListChat />
       </div>

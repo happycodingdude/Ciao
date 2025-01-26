@@ -4,7 +4,6 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import useEventListener from "../../../hooks/useEventListener";
 import useInfo from "../../authentication/hooks/useInfo";
 import ChatInput from "../../chatbox/components/ChatInput";
-import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
 import sendQuickChat from "../services/sendQuickChat";
 import FriendCtaButton from "./FriendCtaButton";
@@ -63,24 +62,44 @@ const QuickChat = (props) => {
           conversations: updatedConversations,
           filterConversations: updatedConversations,
           selected: existedConversation,
-          clickAndAddMessage: true,
-          message: {
-            contactId: info.id,
-            type: "text",
-            content: content,
-            currentReaction: null,
-          },
+          quickChat: true,
+          // message: {
+          //   contactId: info.id,
+          //   type: "text",
+          //   content: content,
+          //   currentReaction: null,
+          // },
         };
       });
 
+      queryClient.setQueryData(
+        // ["message", existedConversation.id],
+        ["message", existedConversation.id],
+        (oldData) => {
+          return {
+            ...oldData,
+            messages: [
+              ...(oldData.messages || []),
+              {
+                contactId: info.id,
+                type: "text",
+                content: content,
+                currentReaction: null,
+                attachments: [],
+              },
+            ],
+          };
+        },
+      );
+
       const bodyToCreate = {
-        moderator: existedConversation.participants.find(
-          (q) => q.isModerator === true,
-        ).contact.id,
+        // moderator: existedConversation.participants.find(
+        //   (q) => q.isModerator === true,
+        // ).contact.id,
         type: "text",
         content: content,
       };
-      await sendMessage(existedConversation.id, bodyToCreate);
+      // await sendMessage(existedConversation.id, bodyToCreate);
     } else {
       let randomId = Math.random().toString(36).substring(2, 7);
 
@@ -143,9 +162,23 @@ const QuickChat = (props) => {
             conversations: [newConversation, ...oldData.conversations],
             filterConversations: [newConversation, ...oldData.conversations],
             selected: newConversation,
-            quickChatAdd: true,
-            clickAndAddMessage: false,
+            // quickChatAdd: true,
+            quickChat: true,
             noLoading: true,
+          };
+        });
+        queryClient.setQueryData(["message", res.data], (oldData) => {
+          return {
+            ...oldData,
+            messages: [
+              ...(oldData.messages || []),
+              {
+                contactId: info.id,
+                type: "text",
+                content: content,
+                currentReaction: null,
+              },
+            ],
           };
         });
       });
@@ -218,9 +251,9 @@ const QuickChat = (props) => {
       //     ],
       //   };
       // });
-      // queryClient.setQueryData(["attachment"], (oldData) => {
-      //   return [];
-      // });
+      queryClient.setQueryData(["attachment"], (oldData) => {
+        return [];
+      });
     }
     onClose();
   };
@@ -268,7 +301,7 @@ const QuickChat = (props) => {
           </div>
           <p className="text-md font-medium">{profile?.name}</p>
           <ChatInput
-            className="grow-0"
+            // className="grow-0"
             quickChat
             noMenu
             noEmoji

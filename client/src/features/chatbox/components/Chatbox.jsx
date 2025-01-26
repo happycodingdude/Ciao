@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import RelightBackground from "../../../components/RelightBackground";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
+import useMessage from "../hooks/useMessage";
 import sendMessage from "../services/sendMessage";
-import ListMessage from "./ListMessage";
+import ChatInput from "./ChatInput";
+import MessageContent from "./MessageContent";
 
 const Chatbox = (props) => {
   console.log("Chatbox calling");
@@ -13,19 +16,19 @@ const Chatbox = (props) => {
 
   const queryClient = useQueryClient();
 
-  // const [page, setPage] = useState(2);
+  const [page, setPage] = useState(2);
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  // const { data: messages } = useMessage(conversations?.selected?.id, page);
+  const { data: messages } = useMessage(conversations?.selected?.id, page);
 
-  // const refChatContent = useRef();
+  const refChatContent = useRef();
   const refChatboxContainer = useRef();
   const refInput = useRef();
 
   // const [fetching, setFetching] = useState(false);
   // const [autoScrollBottom, setAutoScrollBottom] = useState(true);
-  // const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   // useEffect(() => {
   //   blurImage(".chatbox-content");
@@ -98,28 +101,25 @@ const Chatbox = (props) => {
         };
       });
 
-      queryClient.setQueryData(
-        ["message", conversations?.selected.id],
-        (oldData) => {
-          return {
-            ...oldData,
-            messages: [
-              ...(oldData.messages || []),
-              {
-                id: randomId,
-                type: param.type,
-                content: param.content,
-                contactId: info.id,
-                attachments: param.attachments,
-                currentReaction: null,
-                noLazy: true,
-                pending: true,
-              },
-            ],
-            newMessage: true,
-          };
-        },
-      );
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: [
+            ...(oldData.messages || []),
+            {
+              id: randomId,
+              type: param.type,
+              content: param.content,
+              contactId: info.id,
+              attachments: param.attachments,
+              currentReaction: null,
+              noLazy: true,
+              pending: true,
+            },
+          ],
+          newMessage: true,
+        };
+      });
 
       let bodyToCreate = {
         moderator: conversations?.selected.participants.find(
@@ -152,22 +152,19 @@ const Chatbox = (props) => {
       var id = await sendMessage(conversations?.selected.id, bodyToCreate);
       // await delay(3000);
 
-      queryClient.setQueryData(
-        ["message", conversations?.selected.id],
-        (oldData) => {
-          const updatedMessages = oldData.messages.map((message) => {
-            if (message.id !== randomId) return message;
-            message.id = id;
-            message.loaded = true;
-            message.pending = false;
-            return message;
-          });
-          return {
-            ...oldData,
-            messages: updatedMessages,
-          };
-        },
-      );
+      queryClient.setQueryData(["message"], (oldData) => {
+        const updatedMessages = oldData.messages.map((message) => {
+          if (message.id !== randomId) return message;
+          message.id = id;
+          message.loaded = true;
+          message.pending = false;
+          return message;
+        });
+        return {
+          ...oldData,
+          messages: updatedMessages,
+        };
+      });
 
       if (param.files.length !== 0) {
         queryClient.setQueryData(["attachment"], (oldData) => {
@@ -335,26 +332,23 @@ const Chatbox = (props) => {
         ${isToggle ? "" : "shrink-0"}`}
     >
       {/* {fetching ? <FetchingMoreMessages loading /> : ""} */}
-      {/* <RelightBackground
+      <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden">
+        <RelightBackground
           data-show={showScrollToBottom}
-          onClick={scrollChatContentToBottom}
+          // onClick={scrollChatContentToBottom}
           className={`absolute bottom-[5%] right-[50%] z-20
             data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
         >
           <div className="fa fa-chevron-down base-icon"></div>
-        </RelightBackground> */}
-      <ListMessage
-        conversationId={conversations?.selected?.id}
-        send={sendMutation}
-      />
-      {/* <div
+        </RelightBackground>
+        <div
           ref={refChatContent}
           className="hide-scrollbar flex grow flex-col gap-[2rem] overflow-y-scroll bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         >
           {messages?.messages
             ? [...messages?.messages]
-                .reverse()
+                // .reverse()
                 .map((message, index) => (
                   <MessageContent
                     message={message}
@@ -363,8 +357,9 @@ const Chatbox = (props) => {
                   />
                 ))
             : ""}
-        </div> */}
-      {/* <ChatInput
+        </div>
+      </div>
+      <ChatInput
         className="chatbox"
         send={(text, files) => {
           if (text.trim() === "" && files.length === 0) return;
@@ -384,7 +379,7 @@ const Chatbox = (props) => {
           });
         }}
         ref={refInput}
-      /> */}
+      />
     </div>
   );
 };

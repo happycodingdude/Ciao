@@ -7,8 +7,8 @@ import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import ChatboxMenu from "./ChatboxMenu";
 
-const ChatInput = forwardRef((props, ref) => {
-  const { send, className, quickChat, noMenu, noEmoji } = props;
+const ChatInput_RW = forwardRef((props, ref) => {
+  const { send, className, quickChat, noMenu, noEmoji, onInput } = props;
 
   if (!ref) return;
 
@@ -21,7 +21,7 @@ const ChatInput = forwardRef((props, ref) => {
   const [mentions, setMentions] = useState();
   const [showMention, setShowMention] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState();
 
   useEffect(() => {
     ref.current.textContent = "";
@@ -31,7 +31,7 @@ const ChatInput = forwardRef((props, ref) => {
     //   if (ref.current) {
     //   }
     // }, 0);
-    setFiles([]);
+    setFiles(undefined);
     setMentions(() => {
       return conversations?.selected?.participants
         .filter((item) => item.contact.id !== info.id)
@@ -170,8 +170,8 @@ const ChatInput = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (files?.length !== 0) setCaretToEnd();
-    // if (files && onInput) onInput();
-  }, [files]);
+    if (files && onInput) onInput();
+  }, [files, onInput]);
 
   // useEffect(() => {
   //   if (!files || files.length === 0) return;
@@ -196,12 +196,16 @@ const ChatInput = forwardRef((props, ref) => {
   // }, []);
 
   return (
-    <div className={`flex w-full items-center justify-center py-[1rem]`}>
+    <div
+      className={`flex w-full shrink-0 grow items-center justify-center 
+      ${files?.length !== 0 ? "laptop:max-h-[40rem]" : "laptop:max-h-[15rem]"}
+    `}
+    >
       <div
         // className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
         className={`${className} flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
       >
-        {files?.length !== 0 ? (
+        {files && files?.length !== 0 ? (
           <div
             className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
           >
@@ -288,6 +292,7 @@ const ChatInput = forwardRef((props, ref) => {
             pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
             onKeyDown={keyBindingFn}
             onKeyUp={keyupBindingFn}
+            onInput={onInput ? () => onInput() : () => {}}
           ></div>
           {!noEmoji ? (
             <label
@@ -312,4 +317,4 @@ const ChatInput = forwardRef((props, ref) => {
   );
 });
 
-export default ChatInput;
+export default ChatInput_RW;

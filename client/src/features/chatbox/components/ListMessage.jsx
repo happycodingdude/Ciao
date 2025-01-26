@@ -4,23 +4,33 @@ import { VariableSizeList as List } from "react-window";
 import LocalLoading from "../../../components/LocalLoading";
 import useLoading from "../../../hooks/useLoading";
 import blurImage from "../../../utils/blurImage";
+import useConversation from "../../listchat/hooks/useConversation";
 import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
-import ChatInput from "./ChatInput";
+import ChatInput from "./ChatInput_RW";
 import MessageContent from "./MessageContent";
 
 const itemSize = 80;
 const attachmentSize = 320;
-const attachmentAndTextSize = 400;
+const moreAttachmentSize = 400;
 
 const ListMessage_v2 = (props) => {
-  const { conversationId, send } = props;
+  const { send } = props;
 
   const queryClient = useQueryClient();
 
+  const [hasMore, setHasMore] = useState(true);
+
+  const { data: conversations } = useConversation();
+  const { data, isLoading, isRefetching, refetch } = useMessage(
+    conversations.selected.id,
+    setHasMore,
+  );
+
+  if (!conversations?.selected) return;
+
   const { loading, setLoading } = useLoading();
 
-  const [hasMore, setHasMore] = useState(true);
   const [listHeight, setListHeight] = useState(0); // To store calculated height
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [isFewMessages, setIsFewMessages] = useState(false);
@@ -37,11 +47,6 @@ const ListMessage_v2 = (props) => {
   const containerHeight = useRef(0);
 
   const page = useRef(1);
-
-  const { data, isLoading, isRefetching } = useMessage(
-    conversationId,
-    setHasMore,
-  );
 
   const refInput = useRef(null);
 
@@ -76,7 +81,8 @@ const ListMessage_v2 = (props) => {
   useEffect(() => {
     page.current = 1;
     scrollBot.current = false;
-  }, [conversationId]);
+    if (!conversations.quickChat) refetch();
+  }, [conversations.selected.id]);
 
   // Adjust list height dynamically
   useEffect(() => {
@@ -165,8 +171,9 @@ const ListMessage_v2 = (props) => {
     listRef.current.scrollToItem(totalItems - 1, "end");
     // listRef.current._outerRef.scrollTop = containerRef.current.clientHeight;
     setTimeout(() => {
-      listRef.current._outerRef.classList.add("scroll-smooth");
-    }, 0);
+      if (listRef.current)
+        listRef.current._outerRef.classList.add("scroll-smooth");
+    }, 500);
   };
 
   const scrollToBottom = () => {
@@ -186,16 +193,22 @@ const ListMessage_v2 = (props) => {
     isFetching.current = true; // Start fetching
 
     page.current = page.current + 1;
-    const newMessages = await getMessages(conversationId, page.current);
+    const newMessages = await getMessages(
+      conversations.selected.id,
+      page.current,
+    );
     setHasMore(newMessages.hasMore);
 
     // Append new data to the top
-    queryClient.setQueryData(["message", conversationId], (oldData) => {
-      return {
-        ...oldData,
-        messages: [...newMessages.messages, ...(oldData.messages || [])],
-      };
-    });
+    queryClient.setQueryData(
+      ["message", conversations.selected.id],
+      (oldData) => {
+        return {
+          ...oldData,
+          messages: [...newMessages.messages, ...(oldData.messages || [])],
+        };
+      },
+    );
 
     isFetching.current = false; // Stop fetching
 
@@ -231,7 +244,7 @@ const ListMessage_v2 = (props) => {
           height: height,
         }}
       >
-        <MessageContent message={message} id={conversationId} />
+        <MessageContent message={message} id={conversations.selected.id} />
       </div>
     );
   };
@@ -247,19 +260,20 @@ const ListMessage_v2 = (props) => {
           const element = document.getElementById(`${message.id}`);
           if (element) {
             return element.scrollHeight >= 150
-              ? element.scrollHeight + 10
-              : element.scrollHeight;
+              ? element.scrollHeight + 20
+              : element.scrollHeight + 10;
           }
           // return attachmentAndTextSize;
-        } else return attachmentSize; // Height for messages with attachments
+        } else if (message.attachments.length > 2) return moreAttachmentSize;
+        else return attachmentSize; // Height for messages with attachments
       }
 
       // If text, calculate height dynamically based on content
       const element = document.getElementById(`${message.id}`);
       if (element) {
         return element.scrollHeight >= 150
-          ? element.scrollHeight + 10
-          : element.scrollHeight;
+          ? element.scrollHeight + 20
+          : element.scrollHeight + 10;
       }
     }
 
@@ -307,19 +321,6 @@ const ListMessage_v2 = (props) => {
     }
   };
 
-  // Update item sizes after rendering
-  const handleItemsRendered = ({ overscanStartIndex, overscanStopIndex }) => {
-    for (let i = overscanStartIndex; i <= overscanStopIndex; i++) {
-      const element = document.getElementById(
-        `message-${data.messages[i]?.id}`,
-      );
-      if (element) {
-        const height = element.scrollHeight;
-        itemSizes.current.set(i, height);
-      }
-    }
-  };
-
   return (
     <div
       ref={containerRef}
@@ -355,7 +356,7 @@ const ListMessage_v2 = (props) => {
               // Only fetch more messages when we're near the top and list has more than a minimum number of items
               if (
                 scrollDirection === "backward" &&
-                scrollOffset <= 300 &&
+                scrollOffset <= 100 &&
                 data.messages.length >= 10
               ) {
                 fetchMoreMessages();

@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic;
+
 namespace Application.Caching;
 
 public class ConversationCache
@@ -78,6 +80,7 @@ public class ConversationCache
         await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
 
         // Update conversation info cache
+        conversation.UpdatedTime = DateTime.Now;
         await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-info", JsonConvert.SerializeObject(conversation));
 
         // Update member cache
@@ -102,6 +105,7 @@ public class ConversationCache
             : string.Join(",", message.Attachments.Select(q => q.MediaName));
         conversation.LastMessageTime = message.CreatedTime;
         conversation.LastMessageContact = userId;
+        conversation.UpdatedTime = DateTime.Now;
         await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-info", JsonConvert.SerializeObject(conversation));
 
         // Update member cache

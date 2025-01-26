@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -26,7 +27,7 @@ const ChatboxHeader = (props) => {
       className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] px-[1rem] 
     py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[6rem]"
     >
-      <div className="flex items-center gap-[1rem]">
+      <div className="relative flex items-center gap-[1rem]">
         <ImageWithLightBoxAndNoLazy
           src={
             conversations.selected.isGroup
@@ -35,11 +36,23 @@ const ChatboxHeader = (props) => {
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
-          className="loaded aspect-square w-[4rem] cursor-pointer rounded-[50%] bg-[size:150%]"
+          className="loaded relative aspect-square w-[4rem] cursor-pointer rounded-[50%] bg-[size:150%]"
           onClick={() => {
             if (conversations.selected.isGroup) setOpenUpdateTitle(true);
           }}
         />
+        {!conversations.selected.isGroup ? (
+          <OnlineStatusDot
+            className="bottom-[-5%] left-[22%]"
+            online={
+              conversations.selected.participants?.find(
+                (item) => item.contact.id !== info.id,
+              )?.contact.isOnline
+            }
+          />
+        ) : (
+          ""
+        )}
         <BackgroundPortal
           show={openUpdateTitle}
           className="laptop:!w-[45rem] desktop:!w-[35%]"
