@@ -13,40 +13,40 @@ public class UserCache
 
     private string UserId => _httpContextAccessor.HttpContext.Items["UserId"].ToString();
 
-    public string GetToken() => _distributedCache.GetString($"user-{UserId}-token");
+    // public string GetToken() => _distributedCache.GetString($"user-{UserId}-token");
     public string GetToken(string userId) => _distributedCache.GetString($"user-{userId}-token");
-    public void SetToken(string userId, string token) => _distributedCache.SetString($"user-{userId}-token", token);
+    public void SetToken(string userId, string token) => _ = _distributedCache.SetStringAsync($"user-{userId}-token", token);
 
-    public string GetConnection() => _distributedCache.GetString($"user-{UserId}-connection");
+    // public string GetConnection() => _distributedCache.GetString($"user-{UserId}-connection");
     public string GetConnection(string userId) => _distributedCache.GetString($"user-{userId}-connection");
     public void SetConnection(string connection) => _distributedCache.SetString($"user-{UserId}-connection", connection);
 
     public Contact GetInfo() => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{UserId}-info"));
-    public void SetInfo(Contact info) => _distributedCache.SetString($"user-{info.Id}-info", JsonConvert.SerializeObject(info));
-    public async Task<List<Contact>> GetListInfo(List<string> ids)
-    {
-        var result = new List<Contact>();
-        var tasks = ids.Select(async id =>
-        {
-            var key = $"user-{id}-info";
-            var info = await _distributedCache.GetStringAsync(key);
-            if (info != null)
-            {
-                lock (result) // Ensure thread safety
-                {
-                    result.Add(JsonConvert.DeserializeObject<Contact>(info));
-                }
-            }
-        });
+    public void SetInfo(Contact info) => _ = _distributedCache.SetStringAsync($"user-{info.Id}-info", JsonConvert.SerializeObject(info));
+    // public async Task<List<Contact>> GetListInfo(List<string> ids)
+    // {
+    //     var result = new List<Contact>();
+    //     var tasks = ids.Select(async id =>
+    //     {
+    //         var key = $"user-{id}-info";
+    //         var info = await _distributedCache.GetStringAsync(key);
+    //         if (info != null)
+    //         {
+    //             lock (result) // Ensure thread safety
+    //             {
+    //                 result.Add(JsonConvert.DeserializeObject<Contact>(info));
+    //             }
+    //         }
+    //     });
 
-        await Task.WhenAll(tasks);
-        return result;
-    }
+    //     await Task.WhenAll(tasks);
+    //     return result;
+    // }
 
     public void RemoveAll()
     {
-        _distributedCache.Remove($"user-{UserId}-token");
-        _distributedCache.Remove($"user-{UserId}-connection");
-        _distributedCache.Remove($"user-{UserId}-info");
+        _ = _distributedCache.RemoveAsync($"user-{UserId}-token");
+        _ = _distributedCache.RemoveAsync($"user-{UserId}-connection");
+        _ = _distributedCache.RemoveAsync($"user-{UserId}-info");
     }
 }

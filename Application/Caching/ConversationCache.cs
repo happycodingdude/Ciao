@@ -1,5 +1,3 @@
-using Microsoft.VisualBasic;
-
 namespace Application.Caching;
 
 public class ConversationCache
@@ -20,14 +18,14 @@ public class ConversationCache
     public async Task<List<ConversationCacheModel>> GetConversations()
     {
         // Query list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations");
+        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
 
         var result = new List<ConversationCacheModel>(conversationIds.Count);
         // Query info cache
         var tasks = conversationIds.Select(async conversationId =>
         {
-            var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info");
+            var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info") ?? "";
             lock (result) // Ensure thread safety
             {
                 result.Add(JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfo));
@@ -37,13 +35,6 @@ public class ConversationCache
 
         result = result.OrderByDescending(q => q.UpdatedTime).ToList();
         return result;
-
-        // foreach (var conversationId in conversationIds)
-        // {
-        //     var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info");
-        //     result.Add(JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfo));
-        // }
-        // return result;
     }
 
     public async Task SetConversations(List<ConversationCacheModel> conversations)
@@ -53,28 +44,37 @@ public class ConversationCache
 
     public async Task SetConversations(string userId, List<ConversationWithTotalUnseenWithContactInfo> conversations)
     {
-        // Add list conversations cache
+        // Update list conversations cache
         var conversationsToCache = _mapper.Map<List<ConversationCacheModel>>(conversations);
-        await _distributedCache.SetStringAsync($"user-{userId}-conversations",
-            JsonConvert.SerializeObject(conversationsToCache.Select(q => q.Id)));
+        _ = _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationsToCache.Select(q => q.Id)));
 
-        // Update conversation info cache
-        foreach (var conversation in conversationsToCache)
+        var taskToComplete = new List<Task>(conversations.Count * 3);
+
+        // Tasks update conversation info cache
+        taskToComplete.AddRange(conversationsToCache.Select(async conversation =>
+        {
             await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-info", JsonConvert.SerializeObject(conversation));
+        }));
 
-        // Update message cache
-        foreach (var conversation in conversations)
+        // Tasks update message cache
+        taskToComplete.AddRange(conversations.Select(async conversation =>
+        {
             await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-messages", JsonConvert.SerializeObject(conversation.Messages));
+        }));
 
-        // Update member cache
-        foreach (var conversation in conversations)
+        // Tasks update member cache
+        taskToComplete.AddRange(conversations.Select(async conversation =>
+        {
             await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-members", JsonConvert.SerializeObject(conversation.Participants));
+        }));
+
+        await Task.WhenAll(taskToComplete);
     }
 
     public async Task AddConversation(string userId, ConversationCacheModel conversation, List<ParticipantWithFriendRequestAndContactInfo> members)
     {
         // Update list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations");
+        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
         conversationIds.Insert(0, conversation.Id);
         await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
@@ -93,7 +93,7 @@ public class ConversationCache
     public async Task AddConversation(string userId, ConversationCacheModel conversation, List<ParticipantWithFriendRequestAndContactInfo> members, MessageWithReactions message)
     {
         // Update list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations");
+        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
         conversationIds.Insert(0, conversation.Id);
         await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
@@ -117,6 +117,6 @@ public class ConversationCache
 
     public void RemoveAll()
     {
-        _distributedCache.Remove($"user-{UserId}-conversations");
+        _ = _distributedCache.RemoveAsync($"user-{UserId}-conversations");
     }
 }

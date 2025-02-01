@@ -13,15 +13,13 @@ public static class SignIn
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
-        readonly MemberCache _memberCache;
 
         public Handler(IContactRepository contactRepository,
             IConversationRepository conversationRepository,
             IJwtService jwtService,
             IHttpContextAccessor httpContextAccessor,
             UserCache userCache,
-            ConversationCache conversationCache,
-            MemberCache memberCache)
+            ConversationCache conversationCache)
         {
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
@@ -29,7 +27,6 @@ public static class SignIn
             _httpContextAccessor = httpContextAccessor;
             _userCache = userCache;
             _conversationCache = conversationCache;
-            _memberCache = memberCache;
         }
 
         public async Task<TokenModel> Handle(Request request, CancellationToken cancellationToken)
@@ -51,9 +48,6 @@ public static class SignIn
                 var (generatedRrefreshToken, expiryDate) = _jwtService.GenerateRefreshToken();
                 refreshToken = generatedRrefreshToken;
 
-                // Update cache
-                _userCache.SetToken(user.Id, token);
-
                 // Update contact info
                 var filter = MongoQuery<Contact>.IdFilter(user.Id);
                 var updates = Builders<Contact>.Update
@@ -62,30 +56,22 @@ public static class SignIn
                     .Set(q => q.ExpiryDate, expiryDate);
                 _contactRepository.Update(filter, updates);
 
-                // Update contact info in conversation
-                var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
-                var conversationUpdates = Builders<Conversation>.Update
-                    .Set("Participants.$[elem].Contact.IsOnline", true);
-                var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                    new BsonDocument("elem.Contact._id", user.Id)
-                    );
-                _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
+                // Update cache
+                _userCache.SetToken(user.Id, token);
+                _userCache.SetInfo(user);
+                _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
+                var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
+                conversations.ToList().ForEach(q =>
+                {
+                    q.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
+                });
+                await _conversationCache.SetConversations(user.Id, conversations.ToList());
             }
             else
             {
                 token = _userCache.GetToken(user.Id);
                 refreshToken = user.RefreshToken;
             }
-
-            // Update cache
-            _userCache.SetInfo(user);
-            _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
-            var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
-            conversations.ToList().ForEach(q =>
-            {
-                q.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
-            });
-            await _conversationCache.SetConversations(user.Id, conversations.ToList());
 
             return new TokenModel(token, refreshToken, user.Id);
         }

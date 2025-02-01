@@ -7,15 +7,13 @@ public static class SignOut
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IContactRepository _contactRepository;
-        readonly IConversationRepository _conversationRepository;
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
         readonly MemberCache _memberCache;
 
-        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, UserCache userCache, ConversationCache conversationCache, MemberCache memberCache)
+        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, MemberCache memberCache)
         {
             _contactRepository = contactRepository;
-            _conversationRepository = conversationRepository;
             _userCache = userCache;
             _conversationCache = conversationCache;
             _memberCache = memberCache;
@@ -34,19 +32,9 @@ public static class SignOut
                 .Set(q => q.ExpiryDate, null);
             _contactRepository.Update(filter, updates);
 
-            // Update contact info in conversation
-            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", userId);
-            var conversationUpdates = Builders<Conversation>.Update
-                .Set("Participants.$[elem].Contact.IsOnline", false);
-            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem.Contact._id", userId)
-                );
-            _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
-
             // Remove all cache
             _userCache.RemoveAll();
-            var conversations = await _conversationCache.GetConversations();
-            await _memberCache.MemberSignout(conversations.Select(q => q.Id).ToList(), userId);
+            await _memberCache.MemberSignout();
             _conversationCache.RemoveAll();
 
             return Unit.Value;
