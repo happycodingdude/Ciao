@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-public class Participant : MongoBaseModel
+public class Member : MongoBaseModel
 {
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }

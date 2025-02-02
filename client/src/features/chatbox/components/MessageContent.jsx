@@ -133,14 +133,14 @@ const MessageContent = (props) => {
         <div className="relative w-[3rem] self-start">
           <ImageWithLightBoxAndNoLazy
             src={
-              conversations.selected?.participants.find(
+              conversations.selected?.members.find(
                 (q) => q.contact.id === message.contactId,
               )?.contact.avatar
             }
             className="loaded aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
             slides={[
               {
-                src: conversations.selected?.participants.find(
+                src: conversations.selected?.members.find(
                   (q) => q.contact.id === message.contactId,
                 )?.contact.avatar,
               },
@@ -162,7 +162,7 @@ const MessageContent = (props) => {
           ) : (
             <p className="">
               {
-                conversations.selected?.participants.find(
+                conversations.selected?.members.find(
                   (q) => q.contact.id === message.contactId,
                 )?.contact.name
               }

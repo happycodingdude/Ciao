@@ -8,5 +8,5 @@ public partial class AppConstants
     public const string ApiGroup_Friend = "/api/friends";
     public const string ApiGroup_Message = "/api/messages";
     public const string ApiGroup_Notification = "/api/notifications";
-    public const string ApiGroup_Participant = "/api/participants";
+    public const string ApiGroup_Member = "/api/members";
 }

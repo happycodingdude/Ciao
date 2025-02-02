@@ -34,7 +34,7 @@ const Information = (props) => {
 
   useEffect(() => {
     blurImage(".members-image-container");
-  }, [conversations.selected?.participants]);
+  }, [conversations.selected?.members]);
 
   useEffect(() => {
     if (!attachments) return;
@@ -119,7 +119,7 @@ const Information = (props) => {
             <p className="text-base">Members</p>
             {/* Still don't know why scrolling not working without adding h-0 */}
             <div className="members-image-container hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
-              {conversations.selected?.participants
+              {conversations.selected?.members
                 .filter((item) => item.contact.id !== info.id)
                 .map((item) => (
                   <div
@@ -255,7 +255,7 @@ const Information = (props) => {
           title="Delete chat"
           message="Are you sure want to delete this chat?"
           onSubmit={() => {
-            // deleteChat(participants).then(() => {
+            // deleteChat(members).then(() => {
             //   removeConversation(selected.id);
             //   setSelected(undefined);
             // });

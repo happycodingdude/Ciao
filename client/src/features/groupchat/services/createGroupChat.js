@@ -7,7 +7,7 @@ const createGroupChat = async (title, avatar, membersToAdd) => {
     data: {
       title: title,
       avatar: avatar,
-      participants: membersToAdd.map((mem) => {
+      members: membersToAdd.map((mem) => {
         return {
           contactId: mem.id,
         };

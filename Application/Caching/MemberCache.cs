@@ -13,10 +13,10 @@ public class MemberCache
 
     private string UserId => _httpContextAccessor.HttpContext.Items["UserId"].ToString();
 
-    public async Task<List<ParticipantWithFriendRequestAndContactInfo>> GetMembers(string conversationId)
+    public async Task<List<MemberWithFriendRequestAndContactInfo>> GetMembers(string conversationId)
     {
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        return JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData);
+        return JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData);
     }
 
     public async Task GetMembers(List<ConversationWithTotalUnseenWithContactInfo> conversations)
@@ -24,25 +24,25 @@ public class MemberCache
         var tasks = conversations.Select(async conversation =>
         {
             var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-members") ?? "";
-            conversation.Participants = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData);
+            conversation.Members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData);
         });
         await Task.WhenAll(tasks);
     }
 
-    public async Task AddMembers(string conversationId, List<ParticipantWithFriendRequestAndContactInfo> participants)
+    public async Task AddMembers(string conversationId, List<MemberWithFriendRequestAndContactInfo> Members)
     {
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
-        members.AddRange(participants);
+        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        members.AddRange(Members);
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 
-    public async Task UpdateMembers(string conversationId, string participantId, ParticipantWithFriendRequestAndContactInfo participant)
+    public async Task UpdateMembers(string conversationId, string MemberId, MemberWithFriendRequestAndContactInfo Member)
     {
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
-        var selected = members.SingleOrDefault(q => q.Id == participantId);
-        selected = participant;
+        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        var selected = members.SingleOrDefault(q => q.Id == MemberId);
+        selected = Member;
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 
@@ -54,7 +54,7 @@ public class MemberCache
         var tasks = conversationIds.Select(async conversationId =>
         {
             var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-            var members = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+            var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
             var selected = members.SingleOrDefault(q => q.Contact.Id == UserId);
             selected.Contact.IsOnline = false;
             await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
@@ -66,9 +66,33 @@ public class MemberCache
     public async Task MemberDelete(string conversationId, string contactId)
     {
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
         var selected = members.SingleOrDefault(q => q.Contact.Id == contactId);
         selected.IsDeleted = true;
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
+    }
+
+    public async Task MemberReopen(string conversationId, string contactId, DateTime timestamp)
+    {
+        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
+        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        var selected = members.SingleOrDefault(q => q.Contact.Id == contactId);
+        selected.IsDeleted = false;
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
+
+        // Update conversation info cache
+        var conversationInfoCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info") ?? "";
+        var conversationInfo = JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfoCacheData);
+        conversationInfo.UpdatedTime = timestamp;
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-info", JsonConvert.SerializeObject(conversationInfo));
+    }
+
+    public async Task MemberUpdateNotify(string conversationId, string contactId, bool notify)
+    {
+        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
+        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        var selected = members.SingleOrDefault(q => q.Contact.Id == contactId);
+        selected.IsNotifying = notify;
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 

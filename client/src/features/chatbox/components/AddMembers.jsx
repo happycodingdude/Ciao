@@ -21,7 +21,7 @@ const AddMembers = React.memo((props) => {
       >
         <AddMembersModal
           id={selected?.id}
-          members={selected?.participants.map((item) => item.contact)}
+          members={selected?.members.map((item) => item.contact)}
           onClose={() => setOpen(false)}
         />
       </BackgroundPortal>

@@ -89,7 +89,7 @@ export const notifyMessage = (message, queryClient, info) => {
               lastMessage: messageData.content,
               lastMessageContact: messageData.contactId,
               unSeenMessages: 1,
-              participants: [
+              members: [
                 {
                   contact: {
                     id: info.data.id,
@@ -135,7 +135,7 @@ export const notifyMessage = (message, queryClient, info) => {
     //   );
     //   // Old chat and is focused
     //   if (oldChat && oldChat.classList.contains("item-active"))
-    //     reFetchParticipants(messageData.Id);
+    //     reFetchmembers(messageData.Id);
     //   else reFetchConversations();
     //   break;
     // case "NewConversation":

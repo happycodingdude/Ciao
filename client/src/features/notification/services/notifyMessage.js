@@ -40,7 +40,7 @@ const notifyMessage = (message, queryClient, info) => {
             lastMessage: messageData.content,
             lastMessageContact: messageData.contact.id,
             unSeenMessages: 1,
-            participants: messageData.conversation.participants,
+            members: messageData.conversation.members,
           },
           ...oldData.conversations,
         ];
@@ -78,7 +78,7 @@ const notifyMessage = (message, queryClient, info) => {
             unSeenMessages: 1,
             lastMessage: messageData.lastMessage,
             lastMessageContact: messageData.lastMessageContact,
-            participants: messageData.participants,
+            members: messageData.members,
           },
           ...oldData.conversations,
         ];
@@ -96,7 +96,7 @@ const notifyMessage = (message, queryClient, info) => {
     //   );
     //   // Old chat and is focused
     //   if (oldChat && oldChat.classList.contains("item-active"))
-    //     reFetchParticipants(messageData.Id);
+    //     reFetchmembers(messageData.Id);
     //   else reFetchConversations();
     //   break;
     // case "NewFriendRequest":

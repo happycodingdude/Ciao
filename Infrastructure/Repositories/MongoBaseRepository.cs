@@ -30,6 +30,11 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
         _uow.AddOperation((session) => _collection.ReplaceOneAsync(session, filter, entity));
     }
 
+    public void ReplaceNoTrackingTime(FilterDefinition<T> filter, T entity)
+    {
+        _uow.AddOperation((session) => _collection.ReplaceOneAsync(session, filter, entity));
+    }
+
     public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
         update = update.Set(q => q.UpdatedTime, DateTime.Now);

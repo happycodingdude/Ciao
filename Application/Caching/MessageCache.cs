@@ -26,9 +26,13 @@ public class MessageCache
         // Update list conversation cache
         var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData);
-        var removeThisConversationId = conversationIds.Where(q => q != conversation.Id).ToList();
-        removeThisConversationId.Insert(0, conversation.Id);
-        await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(removeThisConversationId));
+        var isConversationAtTop = conversationIds.IndexOf(conversation.Id) == 0;
+        if (!isConversationAtTop)
+        {
+            var removeThisConversationId = conversationIds.Where(q => q != conversation.Id).ToList();
+            removeThisConversationId.Insert(0, conversation.Id);
+            await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(removeThisConversationId));
+        }
 
         // Update conversation info cache
         var conversationInfoCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-info") ?? "";
@@ -44,7 +48,7 @@ public class MessageCache
 
         // Update member cache
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<ParticipantWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
         members.ForEach(member => member.IsDeleted = false);
         await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-members", JsonConvert.SerializeObject(members));
     }

@@ -14,19 +14,19 @@ public static class CreateGroupConversation
             {
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
             }
-            RuleFor(c => c.model.Participants).ShouldHaveValue().DependentRules(() =>
+            RuleFor(c => c.model.Members).ShouldHaveValue().DependentRules(() =>
             {
-                RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
-                RuleFor(c => c.model.Participants.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
-                RuleFor(c => c).Must((item, cancellation) => MustContainAtLeastOneContact(item.model.Participants.ToList()))
-                    .WithMessage("Group conversation should contain at least 1 participant");
+                RuleFor(c => c.model.Members.Select(q => q.ContactId).ToList()).ShouldHaveContactId();
+                RuleFor(c => c.model.Members.Select(q => q.ContactId).ToList()).ShouldNotHaveDuplicatedContactId();
+                RuleFor(c => c).Must((item, cancellation) => MustContainAtLeastOneContact(item.model.Members.ToList()))
+                    .WithMessage("Group conversation should contain at least 1 Member");
             });
         }
 
-        bool MustContainAtLeastOneContact(List<Participant> participants)
+        bool MustContainAtLeastOneContact(List<Member> Members)
         {
             var userId = _contactRepository.GetUserId();
-            return participants.Where(q => q.ContactId != userId).Count() >= 1;
+            return Members.Where(q => q.ContactId != userId).Count() >= 1;
         }
     }
 
@@ -65,17 +65,17 @@ public static class CreateGroupConversation
 
             // Remove this user from input
             var user = await _contactRepository.GetInfoAsync();
-            conversation.Participants = conversation.Participants.Where(q => q.ContactId != user.Id).ToList();
+            conversation.Members = conversation.Members.Where(q => q.ContactId != user.Id).ToList();
 
             // Assign contact info
-            foreach (var participant in conversation.Participants)
+            foreach (var Member in conversation.Members)
             {
-                participant.IsModerator = false; // Only this user is moderator
-                participant.IsDeleted = false; // Every participants will have this conversation active
-                participant.IsNotifying = true; // Every participants will be notified
+                Member.IsModerator = false; // Only this user is moderator
+                Member.IsDeleted = false; // Every Members will have this conversation active
+                Member.IsNotifying = true; // Every Members will be notified
             }
             // Add this user
-            conversation.Participants.Add(new Participant
+            conversation.Members.Add(new Member
             {
                 IsModerator = true,
                 IsDeleted = false,
@@ -87,16 +87,16 @@ public static class CreateGroupConversation
             _conversationRepository.Add(conversation);
 
             // Update cache
-            var contactFilter = Builders<Contact>.Filter.Where(q => conversation.Participants.Select(w => w.ContactId).Contains(q.Id));
+            var contactFilter = Builders<Contact>.Filter.Where(q => conversation.Members.Select(w => w.ContactId).Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
             var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-            var memberToCache = _mapper.Map<List<ParticipantWithFriendRequestAndContactInfo>>(conversation.Participants);
-            foreach (var participant in memberToCache.Where(q => q.Contact.Id != user.Id))
+            var memberToCache = _mapper.Map<List<MemberWithFriendRequestAndContactInfo>>(conversation.Members);
+            foreach (var Member in memberToCache.Where(q => q.Contact.Id != user.Id))
             {
-                participant.Contact.Name = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Name;
-                participant.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Avatar;
-                participant.Contact.Bio = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).Bio;
-                participant.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == participant.Contact.Id).IsOnline;
+                Member.Contact.Name = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).Name;
+                Member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).Avatar;
+                Member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).Bio;
+                Member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).IsOnline;
             }
             var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == user.Id);
             thisUser.Contact.Name = user.Name;
@@ -109,7 +109,7 @@ public static class CreateGroupConversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
             _ = _firebase.Notify(
                 "NewConversation",
-                conversation.Participants
+                conversation.Members
                         .Where(q => q.ContactId != user.Id)
                         .Select(q => q.ContactId)
                     .ToArray(),

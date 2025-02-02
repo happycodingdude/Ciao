@@ -6,6 +6,7 @@ public interface IMongoRepository<T> where T : MongoBaseModel
     Task<T> GetItemAsync(FilterDefinition<T> filter);
     void Add(T entity);
     void Replace(FilterDefinition<T> filter, T entity);
+    void ReplaceNoTrackingTime(FilterDefinition<T> filter, T entity);
     void Update(FilterDefinition<T> filter, UpdateDefinition<T> update);
     void Update(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter);
     void UpdateNoTrackingTime(FilterDefinition<T> filter, UpdateDefinition<T> update);

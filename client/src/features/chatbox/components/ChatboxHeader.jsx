@@ -32,7 +32,7 @@ const ChatboxHeader = (props) => {
           src={
             conversations.selected.isGroup
               ? conversations.selected.avatar
-              : conversations.selected.participants?.find(
+              : conversations.selected.members?.find(
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
@@ -45,7 +45,7 @@ const ChatboxHeader = (props) => {
           <OnlineStatusDot
             className="bottom-[-5%] left-[22%]"
             online={
-              conversations.selected.participants?.find(
+              conversations.selected.members?.find(
                 (item) => item.contact.id !== info.id,
               )?.contact.isOnline
             }
@@ -72,18 +72,17 @@ const ChatboxHeader = (props) => {
                 <CustomLabel
                   className="text-start text-lg font-bold"
                   title={conversations.selected.title}
-                  tooltip
                 />
                 {/* <UpdateTitle /> */}
               </div>
-              <p>{conversations.selected.participants.length} members</p>
+              <p>{conversations.selected.members.length} members</p>
             </>
           ) : (
             <>
               <CustomLabel
                 className="text-start text-lg font-bold"
                 title={
-                  conversations.selected.participants?.find(
+                  conversations.selected.members?.find(
                     (item) => item.contact.id !== info.id,
                   )?.contact.name
                 }

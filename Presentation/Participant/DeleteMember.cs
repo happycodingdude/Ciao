@@ -1,6 +1,6 @@
-namespace Presentation.Participants;
+namespace Presentation.Members;
 
-public static class DeleteParticipant
+public static class DeleteMember
 {
     public record Request(string conversationId) : IRequest<Unit>;
 
@@ -44,11 +44,11 @@ public static class DeleteParticipant
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
             var userId = _contactRepository.GetUserId();
-            var thisUser = conversation.Participants.SingleOrDefault(q => q.ContactId == userId);
+            var thisUser = conversation.Members.SingleOrDefault(q => q.ContactId == userId);
             if (thisUser.IsDeleted) return Unit.Value;
 
             thisUser.IsDeleted = true;
-            var updates = Builders<Conversation>.Update.Set(q => q.Participants, conversation.Participants);
+            var updates = Builders<Conversation>.Update.Set(q => q.Members, conversation.Members);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
 
             // Update cache
@@ -59,14 +59,14 @@ public static class DeleteParticipant
     }
 }
 
-public class DeleteParticipantEndpoint : ICarterModule
+public class DeleteMemberEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapDelete("/{conversationId}/participants",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapDelete("/{conversationId}/members",
         async (ISender sender, string conversationId) =>
         {
-            var query = new DeleteParticipant.Request(conversationId);
+            var query = new DeleteMember.Request(conversationId);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization();

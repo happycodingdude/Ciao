@@ -22,19 +22,19 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("Participants", new BsonDocument("$elemMatch",
+            new BsonDocument("$match", new BsonDocument("Members", new BsonDocument("$elemMatch",
                 new BsonDocument
                 {
                     {"ContactId", userId},
                     // {"IsDeleted", false},
                 }))),
-            new BsonDocument("$unwind", "$Participants"),
+            new BsonDocument("$unwind", "$Members"),
             
             // Lookup stage
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "Friend" },
-                { "let", new BsonDocument("contactId", "$Participants.ContactId") },  // Define variable contactId from Contact's _id
+                { "let", new BsonDocument("contactId", "$Members.ContactId") },  // Define variable contactId from Contact's _id
                 { "pipeline", new BsonArray
                     {
                         new BsonDocument("$match", new BsonDocument("$expr",
@@ -61,7 +61,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "Contact" },
-                { "let", new BsonDocument("contactId", "$Participants.ContactId") },  // Define variable contactId from Contact's _id
+                { "let", new BsonDocument("contactId", "$Members.ContactId") },  // Define variable contactId from Contact's _id
                 { "pipeline", new BsonArray
                     {
                         new BsonDocument("$match", new BsonDocument("$expr",
@@ -81,14 +81,14 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "IsGroup", new BsonDocument("$first", "$IsGroup") },
                 { "UpdatedTime", new BsonDocument("$first", "$UpdatedTime") },
                 { "Messages", new BsonDocument("$first", "$Messages") },
-                { "Participants", new BsonDocument("$push", new BsonDocument
+                { "Members", new BsonDocument("$push", new BsonDocument
                     {
-                        { "_id", "$Participants._id" },
-                        { "IsDeleted", "$Participants.IsDeleted" },
-                        { "IsModerator", "$Participants.IsModerator" },
-                        { "IsNotifying", "$Participants.IsNotifying" },
+                        { "_id", "$Members._id" },
+                        { "IsDeleted", "$Members.IsDeleted" },
+                        { "IsModerator", "$Members.IsModerator" },
+                        { "IsNotifying", "$Members.IsNotifying" },
                         { "Contact", new BsonDocument("$first", "$MatchingContact")},
-                        { "ContactId", "$Participants.ContactId" },
+                        { "ContactId", "$Members.ContactId" },
                         { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
                         { "FriendStatus", new BsonDocument("$cond", new BsonArray
                             {
@@ -118,7 +118,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "Avatar", 1 },
                 { "IsGroup", 1 },
                 { "UpdatedTime", 1 },
-                { "Participants", 1 },
+                { "Members", 1 },
                 { "Messages", new BsonDocument("$map", new BsonDocument
                     {
                         { "input", "$Messages" }, // Process the collected Messages array
@@ -154,7 +154,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
         foreach (var conversation in conversations)
         {
-            conversation.IsNotifying = conversation.Participants.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
+            conversation.IsNotifying = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
             conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();

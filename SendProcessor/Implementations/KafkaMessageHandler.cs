@@ -43,13 +43,13 @@ public class KafkaMessageHandler : IKafkaMessageHandler
 
         // When a message sent, all members of that group will be having that group conversation back
         // if contain any member has deleted the conversation
-        foreach (var participant in conversation.Participants.Where(q => q.IsDeleted))
-            participant.IsDeleted = false;
+        foreach (var Member in conversation.Members.Where(q => q.IsDeleted))
+            Member.IsDeleted = false;
 
         // Update user info in case changes
-        // conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id).Contact.Name = user.Name;
-        // conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id).Contact.Avatar = user.Avatar;
-        // conversation.Participants.SingleOrDefault(q => q.ContactId == user.Id).Contact.IsOnline = user.IsOnline;
+        // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.Name = user.Name;
+        // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.Avatar = user.Avatar;
+        // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.IsOnline = user.IsOnline;
 
         // Update conversation
         _conversationRepository.Replace(filter, conversation);
@@ -66,7 +66,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
         _ = _firebase.Notify(
             "NewMessage",
-            conversation.Participants
+            conversation.Members
                 .Where(q => q.ContactId != user.Id)
                 .Select(q => q.ContactId)
             .ToArray(),

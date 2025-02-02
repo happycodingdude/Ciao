@@ -10,7 +10,7 @@ public static class ConversationValidators
         {
             var userId = contactRepository.GetUserId();
             var conversation = await conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(id));
-            return conversation != null && conversation.Participants.Any(q => q.ContactId == userId);
+            return conversation != null && conversation.Members.Any(q => q.ContactId == userId);
         }).WithMessage("Not related to this conversation");
     }
 }

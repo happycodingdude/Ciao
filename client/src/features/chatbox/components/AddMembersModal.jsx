@@ -38,8 +38,8 @@ const AddMembersModal = (props) => {
         if (conversation.id !== id) return conversation;
         return {
           ...conversation,
-          participants: [
-            ...conversation.participants,
+          members: [
+            ...conversation.members,
             ...membersToAdd.map((mem) => {
               return {
                 contact: {
@@ -57,8 +57,8 @@ const AddMembersModal = (props) => {
         conversations: updatedConversations,
         selected: {
           ...oldData.selected,
-          participants: [
-            ...oldData.selected.participants,
+          members: [
+            ...oldData.selected.members,
             ...membersToAdd.map((mem) => {
               return {
                 contact: {

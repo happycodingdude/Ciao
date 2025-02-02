@@ -1,6 +1,6 @@
 namespace Application.DTOs;
 
-public class ParticipantDto : BaseModel
+public class MemberDto : BaseModel
 {
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }
@@ -8,7 +8,7 @@ public class ParticipantDto : BaseModel
     public string ContactId { get; set; } = null!;
 }
 
-public class ParticipantWithFriendRequest : MongoBaseModel
+public class MemberWithFriendRequest : MongoBaseModel
 {
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }
@@ -19,7 +19,7 @@ public class ParticipantWithFriendRequest : MongoBaseModel
 }
 
 [BsonIgnoreExtraElements]
-public class ParticipantWithFriendRequestAndContactInfo : MongoBaseModel
+public class MemberWithFriendRequestAndContactInfo : MongoBaseModel
 {
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }

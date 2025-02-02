@@ -94,7 +94,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Repositories        
         services.AddScoped<IContactRepository, ContactRepository>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
-        services.AddScoped<IParticipantRepository, ParticipantRepository>();
+        services.AddScoped<IMemberRepository, MemberRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         services.AddScoped<IFriendRepository, FriendRepository>();

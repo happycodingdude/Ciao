@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { debounce } from "lodash";
 import moment from "moment";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import RelightBackground from "../../../components/RelightBackground";
+import useEventListener from "../../../hooks/useEventListener";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import useMessage from "../hooks/useMessage";
+import getMessages from "../services/getMessages";
 import sendMessage from "../services/sendMessage";
 import ChatInput from "./ChatInput";
 import MessageContent from "./MessageContent";
@@ -16,66 +19,31 @@ const Chatbox = (props) => {
 
   const queryClient = useQueryClient();
 
-  const [page, setPage] = useState(2);
+  const refPage = useRef(1);
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { data: messages } = useMessage(conversations?.selected?.id, page);
+  const { data: messages } = useMessage(
+    conversations?.selected?.id,
+    refPage.current,
+  );
 
   const refChatContent = useRef();
   const refChatboxContainer = useRef();
   const refInput = useRef();
 
   // const [fetching, setFetching] = useState(false);
-  // const [autoScrollBottom, setAutoScrollBottom] = useState(true);
+  const [autoScrollBottom, setAutoScrollBottom] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  // useEffect(() => {
-  //   blurImage(".chatbox-content");
-  //   scrollChatContentToBottom();
-  // }, [messages]);
-
-  // useEffect(() => {
-  //   refChatContent.current.classList.remove("scroll-smooth");
-  //   if (autoScrollBottom) {
-  //     scrollChatContentToBottom();
-  //     setTimeout(() => {
-  //       refChatContent.current.classList.add("scroll-smooth");
-  //     }, 500);
-  //   }
-  // }, [autoScrollBottom]);
-
-  // useEffect(() => {
-  //   // setPage(2);
-  //   // setAutoScrollBottom(true);
-  //   setTimeout(() => {
-  //     refInput.current.focus();
-  //   }, 100);
-  // }, [conversations?.selected]);
-
-  // const chooseFile = (e) => {
-  //   const chosenFiles = Array.from(e.target.files);
-  //   if (chosenFiles.length === 0) return;
-
-  //   const mergedFiles = chosenFiles.filter((item) => {
-  //     if (!files.some((file) => file.name === item.name)) return item;
-  //   });
-  //   setFiles([...files, ...mergedFiles]);
-
-  //   e.target.value = null;
-  // };
-
-  // const removeFile = (e) => {
-  //   setFiles(files.filter((item) => item.name !== e.target.dataset.key));
-  // };
-
-  const delay = (delay) => {
-    return new Promise((resolve) => setTimeout(resolve, delay));
+  const scrollChatContentToBottom = () => {
+    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    // refChatContent.current.scrollTop = 0;
   };
 
   const {
     mutate: sendMutation,
-    // isPending,
+    isPending,
     // variables,
   } = useMutation({
     mutationFn: async (param) => {
@@ -122,9 +90,6 @@ const Chatbox = (props) => {
       });
 
       let bodyToCreate = {
-        moderator: conversations?.selected.participants.find(
-          (q) => q.isModerator === true,
-        ).contact.id,
         type: param.type,
         content: param.content,
       };
@@ -240,6 +205,29 @@ const Chatbox = (props) => {
     );
   };
 
+  useEffect(() => {
+    // blurImage(".chatbox-content");
+    scrollChatContentToBottom();
+  }, [messages, isPending]);
+
+  useEffect(() => {
+    refChatContent.current.style.scrollBehavior = "auto";
+    if (autoScrollBottom) {
+      scrollChatContentToBottom();
+      setTimeout(() => {
+        refChatContent.current.style.scrollBehavior = "smooth";
+      }, 0);
+    }
+  }, [autoScrollBottom]);
+
+  useEffect(() => {
+    refPage.current = 1;
+    setAutoScrollBottom(true);
+    setTimeout(() => {
+      refInput.current.focus();
+    }, 100);
+  }, [conversations?.selected]);
+
   // const sendMedia = async () => {
   //   const uploaded = await uploadFile().then((uploads) => {
   //     return uploads.map((item) => ({
@@ -261,69 +249,57 @@ const Chatbox = (props) => {
   //   sendMutation({ type: "media", attachments: lazyImages });
   // };
 
-  // useEffect(() => {
-  //   scrollChatContentToBottom();
-  // }, [isPending]);
-
-  // const scrollChatContentToBottom = () => {
-  //   // refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
-  //   // refChatContent.current.scrollTop = 0;
-  // };
-
   // Event listener
   // const closeProfile = useCallback((e) => {
   //   if (e.target.closest(".profile-container")) setOpen(false);
   // }, []);
   // useEventListener("click", closeProfile);
 
-  // const fetchMoreMessage = (conversationId, page, currentScrollHeight) => {
-  //   setFetching(true);
-  //   HttpRequest({
-  //     method: "get",
-  //     url: import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
-  //       "{id}",
-  //       conversationId,
-  //     ).replace("{page}", page),
-  //   }).then((data) => {
-  //     queryClient.setQueryData(["message"], (oldData) => {
-  //       const cloned = Object.assign({}, oldData);
-  //       cloned.messages = [...cloned.messages, ...data.data.messages];
-  //       cloned.nextExist = data.data.nextExist;
-  //       return cloned;
-  //     });
-  //     setPage((current) => current + 1);
-  //     setFetching(false);
-  //     requestAnimationFrame(() => {
-  //       refChatContent.current.style.scrollBehavior = "auto";
-  //       refChatContent.current.scrollTop =
-  //         refChatContent.current.scrollHeight - currentScrollHeight;
-  //       refChatContent.current.style.scrollBehavior = "smooth";
-  //     });
-  //   });
-  // };
+  const fetchMoreMessage = async (conversationId, currentScrollHeight) => {
+    // setFetching(true);
 
-  // const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+    const newMessages = await getMessages(conversationId, refPage.current);
 
-  // const handleScroll = useCallback(async () => {
-  //   // Nếu scroll 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
-  //   const distanceFromBottom =
-  //     refChatContent.current.scrollHeight -
-  //     (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
-  //   if (
-  //     refChatContent.current.clientHeight !== 0 &&
-  //     distanceFromBottom >= refChatContent.current.clientHeight
-  //   )
-  //     setShowScrollToBottom(true);
-  //   else setShowScrollToBottom(false);
+    queryClient.setQueryData(["message"], (oldData) => {
+      return {
+        ...oldData,
+        messages: [...newMessages.messages, ...oldData.messages],
+        hasMore: newMessages.hasMore,
+      };
+    });
 
-  //   if (refChatContent.current.scrollTop === 0 && messages.nextExist) {
-  //     setAutoScrollBottom(false);
-  //     const currentScrollHeight = refChatContent.current.scrollHeight;
-  //     debounceFetch(conversations?.selected.id, page, currentScrollHeight);
-  //   }
-  //   // }, [conversations?.selected, messages, page]);
-  // }, [conversations?.selected, page]);
-  // useEventListener("scroll", handleScroll);
+    requestAnimationFrame(() => {
+      refChatContent.current.style.scrollBehavior = "auto";
+      refChatContent.current.scrollTop =
+        refChatContent.current.scrollHeight - currentScrollHeight;
+      refChatContent.current.style.scrollBehavior = "smooth";
+    });
+  };
+
+  const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+
+  const handleScroll = useCallback(async () => {
+    // Nếu cuộn lên 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
+    const distanceFromBottom =
+      refChatContent.current.scrollHeight -
+      (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
+    if (
+      refChatContent.current.clientHeight !== 0 &&
+      distanceFromBottom >= refChatContent.current.clientHeight
+    )
+      setShowScrollToBottom(true);
+    else setShowScrollToBottom(false);
+
+    // Nếu cuộn lên top và còn dữ liệu cũ -> lấy thêm dữ liệu
+    if (refChatContent.current.scrollTop === 0 && messages.hasMore) {
+      setAutoScrollBottom(false);
+      refPage.current = refPage.current + 1;
+      const currentScrollHeight = refChatContent.current.scrollHeight;
+      debounceFetch(conversations?.selected.id, currentScrollHeight);
+    }
+    // }, [conversations?.selected, messages, page]);
+  }, [conversations?.selected, messages]);
+  useEventListener("scroll", handleScroll);
 
   return (
     <div
@@ -335,7 +311,7 @@ const Chatbox = (props) => {
       <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden">
         <RelightBackground
           data-show={showScrollToBottom}
-          // onClick={scrollChatContentToBottom}
+          onClick={scrollChatContentToBottom}
           className={`absolute bottom-[5%] right-[50%] z-20
             data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}

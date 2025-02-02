@@ -63,7 +63,7 @@ public static class SignIn
                 var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
                 conversations.ToList().ForEach(q =>
                 {
-                    q.Participants.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
+                    q.Members.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
                 });
                 await _conversationCache.SetConversations(user.Id, conversations.ToList());
             }

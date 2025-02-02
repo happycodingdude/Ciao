@@ -2,8 +2,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
+import useLoading from "../../../hooks/useLoading";
+import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import ChatInput from "../../chatbox/components/ChatInput";
+import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
 import sendQuickChat from "../services/sendQuickChat";
 import FriendCtaButton from "./FriendCtaButton";
@@ -14,6 +17,7 @@ const QuickChat = (props) => {
 
   const queryClient = useQueryClient();
 
+  const { setLoading } = useLoading();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
@@ -43,214 +47,180 @@ const QuickChat = (props) => {
   }, [profile, rect]);
 
   const chat = async (contact, content) => {
+    const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
-      (item) =>
-        item.isGroup === false &&
-        item.participants.some((item) => item.contact.id === contact.id),
+      (conv) =>
+        conv.isGroup === false &&
+        conv.members.some((mem) => mem.contact.id === contact.id),
     );
     if (existedConversation) {
+      const bodyToCreate = {
+        type: "text",
+        content: content,
+      };
+      sendMessage(existedConversation.id, bodyToCreate).then((res) => {
+        queryClient.setQueryData(["message"], (oldData) => {
+          const updatedMessages = oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            message.id = res;
+            return message;
+          });
+          return {
+            ...oldData,
+            messages: updatedMessages,
+          };
+        });
+      });
+
       queryClient.setQueryData(["conversation"], (oldData) => {
-        const updatedConversations = oldData.conversations.map(
-          (conversation) => {
-            if (conversation.id !== existedConversation.id) return conversation;
-            conversation.lastMessage = content;
-            return conversation;
-          },
-        );
+        // Move existed conversation to the top if the conversation was deleted
+        // else keep the current position of the conversation
+        let isDeletedConversation = existedConversation.members.find(
+          (mem) => mem.contact.id === info.id,
+        ).isDeleted;
+        let updatedConversations = [];
+        if (isDeletedConversation) {
+          existedConversation.lastMessage = content;
+          existedConversation.members = existedConversation.members.map(
+            (mem) => {
+              if (mem.contact.id !== info.id) return mem;
+              mem.isDeleted = false;
+              return mem;
+            },
+          );
+          updatedConversations = [
+            existedConversation,
+            ...oldData.conversations.filter(
+              (conv) => conv.id !== existedConversation.id,
+            ),
+          ];
+        } else {
+          updatedConversations = oldData.conversations.map((conv) => {
+            if (conv.id !== existedConversation.id) return conv;
+            conv.lastMessage = content;
+            conv.members = conv.members.map((mem) => {
+              if (mem.contact.id !== info.id) return mem;
+              mem.isDeleted = false;
+              return mem;
+            });
+            return conv;
+          });
+        }
         return {
           ...oldData,
           conversations: updatedConversations,
           filterConversations: updatedConversations,
           selected: existedConversation,
-          quickChat: true,
-          // message: {
-          //   contactId: info.id,
-          //   type: "text",
-          //   content: content,
-          //   currentReaction: null,
-          // },
+          reload: true,
         };
       });
 
-      queryClient.setQueryData(
-        // ["message", existedConversation.id],
-        ["message", existedConversation.id],
-        (oldData) => {
-          return {
-            ...oldData,
-            messages: [
-              ...(oldData.messages || []),
-              {
-                contactId: info.id,
-                type: "text",
-                content: content,
-                currentReaction: null,
-                attachments: [],
-              },
-            ],
-          };
-        },
-      );
+      await delay(500);
 
-      const bodyToCreate = {
-        // moderator: existedConversation.participants.find(
-        //   (q) => q.isModerator === true,
-        // ).contact.id,
-        type: "text",
-        content: content,
-      };
-      // await sendMessage(existedConversation.id, bodyToCreate);
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: [
+            ...oldData.messages,
+            {
+              id: randomId,
+              contactId: info.id,
+              type: "text",
+              content: content,
+              currentReaction: null,
+            },
+          ],
+        };
+      });
     } else {
-      let randomId = Math.random().toString(36).substring(2, 7);
-
+      setLoading(true);
       sendQuickChat(contact.id, content).then((res) => {
-        // queryClient.setQueryData(["conversation"], (oldData) => {
-        //   const updatedConversations = oldData.conversations.map(
-        //     (conversation) => {
-        //       if (conversation.id !== randomId) return conversation;
-        //       conversation.id = res.data;
-        //       return conversation;
-        //     },
-        //   );
-        //   return {
-        //     ...oldData,
-        //     conversations: updatedConversations,
-        //     filterConversations: updatedConversations,
-        //     selected: {
-        //       ...oldData.selected,
-        //       id: res.data,
-        //     },
-        //     // quickChatAdd: false,
-        //   };
-        // });
-        // queryClient.setQueryData(["message"], (oldData) => {
-        //   return {
-        //     ...oldData,
-        //     id: res.data,
-        //   };
-        // });
-
         queryClient.setQueryData(["conversation"], (oldData) => {
-          const newConversation = {
-            lastMessage: content,
-            isGroup: false,
-            isNotifying: true,
-            id: res.data,
-            participants: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              {
-                contact: {
-                  id: contact.id,
-                  name: contact.name,
-                  avatar: contact.avatar,
-                  isOnline: contact.isOnline,
-                },
-              },
-            ],
-            noLazy: true,
-          };
+          const updatedConversations = oldData.conversations.map(
+            (conversation) => {
+              if (conversation.id !== randomId) return conversation;
+              conversation.id = res.conversationId;
+              return conversation;
+            },
+          );
           return {
             ...oldData,
-            conversations: [newConversation, ...oldData.conversations],
-            filterConversations: [newConversation, ...oldData.conversations],
-            selected: newConversation,
-            // quickChatAdd: true,
-            quickChat: true,
-            noLoading: true,
+            conversations: updatedConversations,
+            filterConversations: updatedConversations,
+            selected: {
+              ...oldData.selected,
+              id: res.conversationId,
+            },
           };
         });
-        queryClient.setQueryData(["message", res.data], (oldData) => {
+        queryClient.setQueryData(["message"], (oldData) => {
+          const updatedMessages = oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            message.id = res.messageId;
+            return message;
+          });
           return {
             ...oldData,
-            messages: [
-              ...(oldData.messages || []),
-              {
-                contactId: info.id,
-                type: "text",
-                content: content,
-                currentReaction: null,
-              },
-            ],
+            messages: updatedMessages,
           };
         });
+        setLoading(false);
       });
 
-      // queryClient.setQueryData(["conversation"], (oldData) => {
-      //   const newConversation = {
-      //     lastMessage: content,
-      //     isGroup: false,
-      //     isNotifying: true,
-      //     id: randomId,
-      //     participants: [
-      //       {
-      //         isModerator: true,
-      //         contact: {
-      //           id: info.id,
-      //           name: info.name,
-      //           avatar: info.avatar,
-      //           isOnline: true,
-      //         },
-      //       },
-      //       {
-      //         contact: {
-      //           id: contact.id,
-      //           name: contact.name,
-      //           avatar: contact.avatar,
-      //           isOnline: contact.isOnline,
-      //         },
-      //       },
-      //     ],
-      //     noLazy: true,
-      //   };
-      //   return {
-      //     ...oldData,
-      //     conversations: [newConversation, ...oldData.conversations],
-      //     filterConversations: [newConversation, ...oldData.conversations],
-      //     selected: newConversation,
-      //     quickChatAdd: true,
-      //     clickAndAddMessage: false,
-      //     noLoading: true,
-      //   };
-      // });
-      // queryClient.setQueryData(["message"], (oldData) => {
-      //   return {
-      //     participants: [
-      //       {
-      //         isModerator: true,
-      //         contact: {
-      //           id: info.id,
-      //           name: info.name,
-      //           avatar: info.avatar,
-      //           isOnline: true,
-      //         },
-      //       },
-      //       {
-      //         contact: {
-      //           id: contact.id,
-      //           name: contact.name,
-      //           avatar: contact.avatar,
-      //           isOnline: contact.isOnline,
-      //         },
-      //       },
-      //     ],
-      //     messages: [
-      //       {
-      //         contactId: info.id,
-      //         type: "text",
-      //         content: content,
-      //         currentReaction: null,
-      //       },
-      //     ],
-      //   };
-      // });
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const newConversation = {
+          id: randomId,
+          lastMessage: content,
+          isGroup: false,
+          isNotifying: true,
+          members: [
+            {
+              isModerator: true,
+              contact: {
+                id: info.id,
+                name: info.name,
+                avatar: info.avatar,
+                isOnline: true,
+              },
+            },
+            {
+              contact: {
+                id: contact.id,
+                name: contact.name,
+                avatar: contact.avatar,
+                isOnline: contact.isOnline,
+              },
+            },
+          ],
+          noLazy: true,
+        };
+        return {
+          ...oldData,
+          conversations: [newConversation, ...oldData.conversations],
+          filterConversations: [newConversation, ...oldData.conversations],
+          selected: newConversation,
+          noLoading: true,
+          reload: false,
+        };
+      });
+
+      await delay(500);
+
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: [
+            {
+              id: randomId,
+              contactId: info.id,
+              type: "text",
+              content: content,
+              currentReaction: null,
+            },
+          ],
+          hasMore: false,
+        };
+      });
       queryClient.setQueryData(["attachment"], (oldData) => {
         return [];
       });

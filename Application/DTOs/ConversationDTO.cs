@@ -4,16 +4,14 @@ public class CreateGroupConversationReq
 {
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
-    public List<Participant> Participants { get; set; } = null!;
+    public List<Member> Members { get; set; } = null!;
 }
 
-// public class CreateGroupConversation_Participant
-// {
-//     public bool IsDeleted { get; set; }
-//     public bool IsModerator { get; set; }
-//     public bool IsNotifying { get; set; }
-//     public string ContactId { get; set; } = null!;
-// }
+public class CreateDirectConversationRes
+{
+    public string ConversationId { get; set; } = null!;
+    public string? MessageId { get; set; }
+}
 
 public class ConversationToNotify
 {
@@ -23,7 +21,7 @@ public class ConversationToNotify
     public string Avatar { get; set; } = null!;
     public string LastMessage { get; set; } = null!;
     public string LastMessageContact { get; set; } = null!;
-    public List<Participant> Participants { get; set; } = null!;
+    public List<Member> Members { get; set; } = null!;
 }
 
 // public class ConversationWithTotalUnseen : MongoBaseModel
@@ -32,7 +30,7 @@ public class ConversationToNotify
 //     public string Avatar { get; set; } = null!;
 //     public bool IsGroup { get; set; }
 //     public DateTime? DeletedTime { get; set; }
-//     public List<ParticipantWithFriendRequest> Participants { get; set; } = null!;
+//     public List<MemberWithFriendRequest> Members { get; set; } = null!;
 //     public int UnSeenMessages { get; set; }
 //     public string LastMessageId { get; set; } = null!;
 //     public string LastMessage { get; set; } = null!;
@@ -49,7 +47,7 @@ public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
-    public List<ParticipantWithFriendRequestAndContactInfo> Participants { get; set; } = null!;
+    public List<MemberWithFriendRequestAndContactInfo> Members { get; set; } = null!;
     public int UnSeenMessages { get; set; }
     public string LastMessageId { get; set; } = null!;
     public string LastMessage { get; set; } = null!;

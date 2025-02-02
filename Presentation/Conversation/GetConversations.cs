@@ -24,7 +24,8 @@ public static class GetConversations
             var conversations = await _conversationCache.GetConversations();
             var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfo>>(conversations);
             await _memberCache.GetMembers(result);
-            return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();
+            return result;
+            // return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();
         }
     }
 }

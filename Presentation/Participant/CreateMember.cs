@@ -1,6 +1,6 @@
-namespace Presentation.Participants;
+namespace Presentation.Members;
 
-public static class CreateParticipant
+public static class CreateMember
 {
     public record Request(string conversationId, List<string> model) : IRequest<Unit>;
 
@@ -71,56 +71,56 @@ public static class CreateParticipant
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Get current participants of conversation, then filter new item to add
+            // Get current Members of conversation, then filter new item to add
             var filter = MongoQuery<Conversation>.IdFilter(request.conversationId);
             var conversation = await _conversationRepository.GetItemAsync(filter);
 
-            // Filter new participants
+            // Filter new Members
             var filterNewItemToAdd = request.model.Select(q => q).ToList()
-                .Except(conversation.Participants.Select(q => q.ContactId).ToList())
+                .Except(conversation.Members.Select(q => q.ContactId).ToList())
                 .ToList();
             // Return if no new partipants
             if (!filterNewItemToAdd.Any()) return Unit.Value;
 
-            // Create list new participants
-            var participantsToAdd = new List<Participant>(filterNewItemToAdd.Count);
-            filterNewItemToAdd.ToList().ForEach(q => participantsToAdd.Add(
-                new Participant
+            // Create list new Members
+            var MembersToAdd = new List<Member>(filterNewItemToAdd.Count);
+            filterNewItemToAdd.ToList().ForEach(q => MembersToAdd.Add(
+                new Member
                 {
                     IsModerator = false, // Only this user is moderator
-                    IsDeleted = false, // Every participants will have this conversation active
+                    IsDeleted = false, // Every Members will have this conversation active
                     IsNotifying = true,
                     ContactId = q
                 }));
             // Concatenate to existed partipants
-            var participantsToUpdate = conversation.Participants.Concat(participantsToAdd);
+            var MembersToUpdate = conversation.Members.Concat(MembersToAdd);
 
             // Update to db
-            var updates = Builders<Conversation>.Update.Set(q => q.Participants, participantsToUpdate);
+            var updates = Builders<Conversation>.Update.Set(q => q.Members, MembersToUpdate);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
 
             // Update cache
             var contactFilter = Builders<Contact>.Filter.Where(q => filterNewItemToAdd.Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
-            var participantToCache = _mapper.Map<List<ParticipantWithFriendRequestAndContactInfo>>(participantsToAdd);
-            foreach (var member in participantToCache)
+            var MemberToCache = _mapper.Map<List<MemberWithFriendRequestAndContactInfo>>(MembersToAdd);
+            foreach (var member in MemberToCache)
             {
                 member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
                 member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
                 member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Bio;
                 member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).IsOnline;
             }
-            // var friendItems = await _friendRepository.GetFriendItems(participantsToAdd.Select(q => q.ContactId).ToList());
-            // for (var i = 0; i < participantToCache.Count; i++)
+            // var friendItems = await _friendRepository.GetFriendItems(MembersToAdd.Select(q => q.ContactId).ToList());
+            // for (var i = 0; i < MemberToCache.Count; i++)
             // {
-            //     participantToCache[i].Contact.Name = contacts.SingleOrDefault(q => q.Id == participantToCache[i].Contact.Id).Name;
-            //     participantToCache[i].Contact.Avatar = contacts.SingleOrDefault(q => q.Id == participantToCache[i].Contact.Id).Avatar;
-            //     participantToCache[i].Contact.Bio = contacts.SingleOrDefault(q => q.Id == participantToCache[i].Contact.Id).Bio;
-            //     participantToCache[i].Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == participantToCache[i].Contact.Id).IsOnline;
-            //     participantToCache[i].FriendId = friendItems[i].Item1;
-            //     participantToCache[i].FriendStatus = "friend";
+            //     MemberToCache[i].Contact.Name = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Name;
+            //     MemberToCache[i].Contact.Avatar = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Avatar;
+            //     MemberToCache[i].Contact.Bio = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Bio;
+            //     MemberToCache[i].Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).IsOnline;
+            //     MemberToCache[i].FriendId = friendItems[i].Item1;
+            //     MemberToCache[i].FriendStatus = "friend";
             // }
-            await _memberCache.AddMembers(conversation.Id, participantToCache);
+            await _memberCache.AddMembers(conversation.Id, MemberToCache);
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
@@ -132,7 +132,7 @@ public static class CreateParticipant
             }
             _ = _firebase.Notify(
                 "NewConversation",
-                participantsToAdd.Select(q => q.ContactId).ToArray(),
+                MembersToAdd.Select(q => q.ContactId).ToArray(),
                 notify
             );
 
@@ -141,14 +141,14 @@ public static class CreateParticipant
     }
 }
 
-public class CreateParticipantEndpoint : ICarterModule
+public class CreateMemberEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/participants",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/members",
         async (ISender sender, string conversationId, List<string> model, bool includeNotify = false) =>
         {
-            var query = new CreateParticipant.Request(conversationId, model);
+            var query = new CreateMember.Request(conversationId, model);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization();

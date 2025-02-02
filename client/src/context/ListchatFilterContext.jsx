@@ -32,7 +32,7 @@ const ListchatFilterProvider = ({ children }) => {
             : filteredListChat.filter((conv) =>
                 conv.isGroup
                   ? conv.title.toLowerCase().includes(search.toLowerCase())
-                  : conv.participants
+                  : conv.members
                       .find((item) => item.contact.id !== info.id)
                       ?.contact.name.toLowerCase()
                       .includes(search.toLowerCase()),

@@ -13,10 +13,10 @@ public class MyMapping : Profile
         CreateMap<Conversation, CreateGroupConversationReq>().ReverseMap();
         CreateMap<Conversation, ConversationCacheModel>().ReverseMap();
         CreateMap<ConversationWithTotalUnseenWithContactInfo, ConversationCacheModel>().ReverseMap();
-        CreateMap<ParticipantWithFriendRequestAndContactInfo, ParticipantWithFriendRequest>()
+        CreateMap<MemberWithFriendRequestAndContactInfo, MemberWithFriendRequest>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
-        CreateMap<ParticipantWithFriendRequestAndContactInfo, Participant>()
+        CreateMap<MemberWithFriendRequestAndContactInfo, Member>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
         // CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
@@ -30,9 +30,9 @@ public class MyMapping : Profile
         CreateMap<Message, MessageWithReactions>().ReverseMap();
         CreateMap<Message, SendMessageReq>().ReverseMap();
         CreateMap<NotificationDto, Notification>().ReverseMap();
-        CreateMap<ParticipantDto, Participant>().ReverseMap();
-        CreateMap<ParticipantWithFriendRequest, Participant>().ReverseMap();
-        // CreateMap<ParticipantWithFriendRequest, CreateGroupConversation_Participant>().ReverseMap();
+        CreateMap<MemberDto, Member>().ReverseMap();
+        CreateMap<MemberWithFriendRequest, Member>().ReverseMap();
+        // CreateMap<MemberWithFriendRequest, CreateGroupConversation_Member>().ReverseMap();
         CreateMap<ScheduleDto, Schedule>().ReverseMap();
         CreateMap<ScheduleContactDto, ScheduleContact>().ReverseMap();
     }

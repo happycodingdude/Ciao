@@ -6,6 +6,6 @@ public class Conversation : MongoBaseModel
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
-    public ICollection<Participant> Participants { get; set; } = new List<Participant>();
+    public ICollection<Member> Members { get; set; } = new List<Member>();
     public ICollection<Message> Messages { get; set; } = new List<Message>();
 }
