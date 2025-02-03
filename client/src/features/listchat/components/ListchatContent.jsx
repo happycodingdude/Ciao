@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef } from "react";
 import CustomLabel from "../../../components/CustomLabel";
-import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useLoading from "../../../hooks/useLoading";
 import blurImage from "../../../utils/blurImage";
@@ -139,7 +138,7 @@ const ListchatContent = () => {
             }}
           >
             <div className="relative">
-              {data.noLazy ? (
+              {/* {data.noLazy ? (
                 <ImageWithLightBoxAndNoLazy
                   src={
                     item.isGroup
@@ -161,7 +160,18 @@ const ListchatContent = () => {
                   className={`pointer-events-none aspect-square laptop:w-[5rem]`}
                   imageClassName="bg-[size:160%]"
                 />
-              )}
+              )} */}
+              <ImageWithLightBoxAndNoLazy
+                src={
+                  item.isGroup
+                    ? item.avatar
+                    : item.members.find((item) => item.contact.id !== info.id)
+                        ?.contact.avatar
+                }
+                className={`loaded pointer-events-none aspect-square laptop:w-[5rem]`}
+                imageClassName="bg-[size:170%]"
+                circle
+              />
             </div>
             {/* Title & last message */}
             <div className={`flex h-full w-1/2 grow flex-col`}>

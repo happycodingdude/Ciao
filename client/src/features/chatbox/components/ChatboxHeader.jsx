@@ -36,14 +36,16 @@ const ChatboxHeader = (props) => {
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
-          className="loaded relative aspect-square w-[4rem] cursor-pointer rounded-[50%] bg-[size:150%]"
+          className="loaded relative aspect-square w-[4rem] cursor-pointer"
+          imageClassName="bg-[size:170%]"
+          circle
           onClick={() => {
             if (conversations.selected.isGroup) setOpenUpdateTitle(true);
           }}
         />
         {!conversations.selected.isGroup ? (
           <OnlineStatusDot
-            className="bottom-[-5%] left-[22%]"
+            className="left-[20%] top-[-5%]"
             online={
               conversations.selected.members?.find(
                 (item) => item.contact.id !== info.id,

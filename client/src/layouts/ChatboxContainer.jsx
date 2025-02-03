@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import LocalLoading from "../components/LocalLoading";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
+import ChatInput from "../features/chatbox/components/ChatInput";
 import useMessage from "../features/chatbox/hooks/useMessage";
 import useToggleChatDetail from "../features/chatbox/hooks/useToggleChatDetail";
 import Attachment from "../features/chatdetail/components/Attachment";
@@ -26,6 +27,9 @@ const ChatboxContainer = () => {
   const isLoading = isLoadingMessage || isLoadingAttachment;
   const isRefetching = isRefetchingMessage || isRefetchingAttachment;
 
+  const refChatboxContainer = useRef();
+  const refInput = useRef();
+
   useEffect(() => {
     if (!isLoading && !isRefetching) {
       setTimeout(() => {
@@ -43,8 +47,37 @@ const ChatboxContainer = () => {
         conversations?.quickChat ? (
         <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
           <ChatboxHeader toggle={toggle} setToggle={setToggle} />
-          <div className="flex h-[92vh] w-full">
-            <Chatbox isToggle={toggle && toggle !== "" && toggle !== "null"} />
+          <div className="flex w-full laptop:h-[90dvh]">
+            <div
+              ref={refChatboxContainer}
+              className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)] pb-[1.5rem]
+                    ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
+            >
+              <Chatbox
+                isToggle={toggle && toggle !== "" && toggle !== "null"}
+              />
+              <ChatInput
+                className="chatbox"
+                send={(text, files) => {
+                  if (text.trim() === "" && files.length === 0) return;
+
+                  const lazyImages = files.map((item) => {
+                    return {
+                      type: "image",
+                      mediaUrl: URL.createObjectURL(item),
+                    };
+                  });
+                  // setFiles([]);
+                  sendMutation({
+                    type: text.trim() === "" ? "media" : "text",
+                    content: text,
+                    attachments: lazyImages,
+                    files: files,
+                  });
+                }}
+                inputRef={refInput}
+              />
+            </div>
             <div
               className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
             ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}

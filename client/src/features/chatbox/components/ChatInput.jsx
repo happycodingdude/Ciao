@@ -1,22 +1,27 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import EmojiPicker from "emoji-picker-react";
-import { forwardRef, useCallback, useEffect, useState } from "react";
-import ImageWithLightBoxImgTag from "../../../components/ImageWithLightBoxImgTag";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxWithShadowAndNoLazy from "../../../components/ImageWithLightBoxWithShadowAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
+import sendMessage from "../services/sendMessage";
 import ChatboxMenu from "./ChatboxMenu";
+import ImageItem from "./ImageItem";
 
-const ChatInput = forwardRef((props, ref) => {
-  const { send, className, quickChat, noMenu, noEmoji } = props;
+const ChatInput = (props) => {
+  const { className, quickChat, noMenu, noEmoji } = props;
 
-  if (!ref) return;
+  // if (!inputRef?.current) return;
+
+  const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
 
-  // const inputRef = useRef();
+  const inputRef = useRef();
 
   const [mentions, setMentions] = useState();
   const [showMention, setShowMention] = useState(false);
@@ -24,13 +29,10 @@ const ChatInput = forwardRef((props, ref) => {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
-    ref.current.textContent = "";
-    // if (ref.current.classList.contains("chatbox"))
-    ref.current.focus();
-    // setTimeout(() => {
-    //   if (ref.current) {
-    //   }
-    // }, 0);
+    // if (inputRef.current) {
+    inputRef.current.textContent = "";
+    inputRef.current.focus();
+    // }
     setFiles([]);
     setMentions(() => {
       return conversations?.selected?.members
@@ -46,13 +48,13 @@ const ChatInput = forwardRef((props, ref) => {
   }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace) => {
-    // ref.current.textContent += " ";
-    if (addSpace) ref.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
-    ref.current.focus();
+    // inputRef.current.textContent += " ";
+    if (addSpace) inputRef.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
+    inputRef.current.focus();
 
     // Create a range and set it to the end of the content
     const range = document.createRange();
-    range.selectNodeContents(ref.current);
+    range.selectNodeContents(inputRef.current);
     range.collapse(false); // Collapse the range to the end
 
     // Create a selection and add the range to it
@@ -63,16 +65,193 @@ const ChatInput = forwardRef((props, ref) => {
 
   const chooseMention = (id) => {
     let user = mentions.find((item) => item.userId === id);
-    ref.current.textContent = ref.current.textContent.replace("@", "");
-    ref.current.textContent = ref.current.textContent += user.name;
-    // ref.current.focus();
+    inputRef.current.textContent = inputRef.current.textContent.replace(
+      "@",
+      "",
+    );
+    inputRef.current.textContent = inputRef.current.textContent += user.name;
+    // inputRef.current.focus();
     setCaretToEnd(true);
     setShowMention(false);
   };
 
+  const uploadFile = async (files) => {
+    // Create a root reference
+    const storage = getStorage();
+    return Promise.all(
+      files.map((item) => {
+        if (
+          ["doc", "docx", "xls", "xlsx", "pdf"].includes(
+            item.name.split(".")[1],
+          )
+        ) {
+          return uploadBytes(ref(storage, `file/${item.name}`), item).then(
+            (snapshot) => {
+              return getDownloadURL(snapshot.ref).then((url) => {
+                return {
+                  type: "file",
+                  url: url,
+                  name: item.name,
+                  size: item.size,
+                };
+              });
+            },
+          );
+        }
+        return uploadBytes(ref(storage, `img/${item.name}`), item).then(
+          (snapshot) => {
+            return getDownloadURL(snapshot.ref).then((url) => {
+              return {
+                type: "image",
+                url: url,
+                name: item.name,
+                size: item.size,
+              };
+            });
+          },
+        );
+      }),
+    );
+  };
+
+  const { mutate: sendMutation } = useMutation({
+    mutationFn: async (param) => {
+      let randomId = Math.random().toString(36).substring(2, 7);
+
+      queryClient.setQueryData(["conversation"], (oldData) => {
+        const updatedConversations = oldData.conversations.map(
+          (conversation) => {
+            if (conversation.id !== conversations?.selected.id)
+              return conversation;
+            return {
+              ...conversation,
+              lastMessage:
+                param.type === "text"
+                  ? param.content
+                  : param.files.map((item) => item.name).join(","),
+            };
+          },
+        );
+        return {
+          ...oldData,
+          conversations: updatedConversations,
+          filterConversations: updatedConversations,
+        };
+      });
+
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: [
+            ...(oldData.messages || []),
+            {
+              id: randomId,
+              type: param.type,
+              content: param.content,
+              contactId: info.id,
+              attachments: param.attachments,
+              currentReaction: null,
+              noLazy: true,
+              pending: true,
+            },
+          ],
+        };
+      });
+
+      let bodyToCreate = {
+        type: param.type,
+        content: param.content,
+      };
+      let bodyLocal = Object.assign({}, bodyToCreate);
+
+      if (param.files.length !== 0) {
+        const uploaded = await uploadFile(param.files).then((uploads) => {
+          return uploads.map((item) => ({
+            type: item.type,
+            mediaUrl: item.url,
+            mediaName: item.name,
+            mediaSize: item.size,
+          }));
+        });
+        bodyToCreate = {
+          ...bodyToCreate,
+          attachments: uploaded,
+        };
+        bodyLocal = {
+          ...bodyLocal,
+          attachments: param.attachments,
+        };
+      }
+
+      var id = await sendMessage(conversations?.selected.id, bodyToCreate);
+      // await delay(5000);
+
+      queryClient.setQueryData(["message"], (oldData) => {
+        return {
+          ...oldData,
+          messages: oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            return { ...message, id: id, loaded: true, pending: false };
+          }),
+        };
+      });
+
+      if (param.files.length !== 0) {
+        queryClient.setQueryData(["attachment"], (oldData) => {
+          const cloned = oldData.map((item) => {
+            return Object.assign({}, item);
+          });
+          // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
+          var firstItem = cloned[0];
+          // Nếu undefined tức là chưa có attachment nào
+          // hoặc nếu ngày gần nhất không phải hôm nay
+          // -> tạo object mới
+          if (!firstItem || firstItem.date !== moment().format("MM/DD/YYYY")) {
+            cloned.unshift({
+              date: moment().format("MM/DD/YYYY"),
+              attachments: param.attachments,
+            });
+            return cloned;
+          }
+          // Ngược lại thì ngày gần nhất là hôm nay
+          else {
+            const newData = cloned.map((item) => {
+              if (item.date === moment().format("MM/DD/YYYY")) {
+                return {
+                  ...item,
+                  attachments: [...param.attachments, ...item.attachments],
+                };
+              }
+              return item;
+            });
+            return newData;
+          }
+        });
+      }
+    },
+  });
+
   const chat = () => {
-    send(ref.current.textContent, files ?? []);
-    ref.current.textContent = "";
+    // send(inputRef.current.textContent, files ?? []);
+
+    if (inputRef.current.textContent.trim() === "" && files.length === 0)
+      return;
+
+    const lazyImages = files.map((item) => {
+      return {
+        type: "image",
+        mediaUrl: URL.createObjectURL(item),
+      };
+    });
+    // setFiles([]);
+    sendMutation({
+      type: inputRef.current.textContent.trim() === "" ? "media" : "text",
+      content: inputRef.current.textContent,
+      attachments: lazyImages,
+      files: files,
+    });
+
+    inputRef.current.textContent = "";
     setFiles([]);
   };
 
@@ -91,19 +270,19 @@ const ChatInput = forwardRef((props, ref) => {
     e.preventDefault();
 
     // Cái này cho element input
-    // const cursorPosition = ref.current.selectionStart;
+    // const cursorPosition = inputRef.current.selectionStart;
 
     // Cái này cho element contenteditable
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     const clonedRange = range.cloneRange();
-    clonedRange.selectNodeContents(ref.current);
+    clonedRange.selectNodeContents(inputRef.current);
     clonedRange.setEnd(range.endContainer, range.endOffset);
 
     const cursorPosition = clonedRange.toString().length;
     // Ensure the cursor is not at the start (index 0)
     if (cursorPosition > 0) {
-      const textBeforeCursor = ref.current.textContent.substring(
+      const textBeforeCursor = inputRef.current.textContent.substring(
         0,
         cursorPosition,
       );
@@ -163,10 +342,15 @@ const ChatInput = forwardRef((props, ref) => {
     // onInput(files.length === 0);
   };
 
-  const removeFile = (e) => {
-    setFiles(files.filter((item) => item.name !== e.target.dataset.key));
-    // onInput(files.length === 0);
-  };
+  const removeFile = useCallback(
+    (e) => {
+      setFiles((current) =>
+        current.filter((item) => item.name !== e.target.dataset.key),
+      );
+      // onInput(files.length === 0);
+    },
+    [files],
+  );
 
   useEffect(() => {
     if (files?.length !== 0) setCaretToEnd();
@@ -196,7 +380,7 @@ const ChatInput = forwardRef((props, ref) => {
   // }, []);
 
   return (
-    <div className={`flex w-full items-center justify-center py-[1rem]`}>
+    <div className={`flex w-full grow items-center justify-center`}>
       <div
         // className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
         className={`${className} flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
@@ -206,31 +390,7 @@ const ChatInput = forwardRef((props, ref) => {
             className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
           >
             {files?.map((item) => (
-              <div
-                className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
-              bg-[var(--bg-color-thin)] p-3 laptop:w-[15rem]"
-                //   className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem] rounded-[.5rem]
-                // bg-white p-3 laptop:w-[15rem]"
-              >
-                <div className="absolute right-[-.5rem] top-[-.5rem] flex laptop:h-[3rem]">
-                  <div
-                    data-key={item.name}
-                    className="fa fa-trash cursor-pointer text-md text-[var(--danger-text-color)]"
-                    onClick={removeFile}
-                  ></div>
-                </div>
-                <ImageWithLightBoxImgTag
-                  className="h-[15rem]"
-                  src={URL.createObjectURL(item)}
-                  // className="aspect-[4/3] w-full rounded-[.5rem] bg-[size:80%]"
-                  slides={[
-                    {
-                      src: URL.createObjectURL(item),
-                    },
-                  ]}
-                />
-                <p className="self-start text-xs">{item.name}</p>
-              </div>
+              <ImageItem file={item} onClick={removeFile} key={item.name} />
             ))}
           </div>
         ) : (
@@ -279,12 +439,12 @@ const ChatInput = forwardRef((props, ref) => {
             ""
           )}
           <div
-            // ref={inputRef}
-            ref={ref}
+            ref={inputRef}
+            // ref={ref}
             contentEditable={true}
             // data-text="Type something.."
             // aria-placeholder="Type something.."
-            className={`hide-scrollbar w-full resize-none overflow-y-auto break-words 
+            className={`hide-scrollbar w-full resize-none overflow-y-auto break-all
             pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
             onKeyDown={keyBindingFn}
             onKeyUp={keyupBindingFn}
@@ -303,13 +463,15 @@ const ChatInput = forwardRef((props, ref) => {
           open={showEmoji}
           width={300}
           height={400}
-          onEmojiClick={(emoji) => (ref.current.textContent += emoji.emoji)}
+          onEmojiClick={(emoji) =>
+            (inputRef.current.textContent += emoji.emoji)
+          }
           className="emoji-item !absolute right-[2rem] top-[-41rem]"
           icons="solid"
         />
       </div>
     </div>
   );
-});
+};
 
 export default ChatInput;

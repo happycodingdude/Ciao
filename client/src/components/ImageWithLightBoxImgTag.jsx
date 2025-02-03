@@ -3,7 +3,8 @@ import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBoxImgTag = (props) => {
   // console.log("ImageWithLightBoxAndNoLazy calling...");
-  const { src, title, className, slides, index, onClick } = props;
+  const { src, title, className, slides, index, onClick, width, height } =
+    props;
 
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = (e) => setShowLightbox(true);
@@ -13,8 +14,11 @@ const ImageWithLightBoxImgTag = (props) => {
       <img
         src={src}
         title={title}
-        className={`${className} h-full w-full cursor-pointer rounded-xl object-contain`}
+        className={`${className} cursor-pointer object-contain`}
         onClick={onClick ?? handleShowLightbox}
+        width={width}
+        height={height}
+        loading="lazy"
       ></img>
       {/* <div
         title={title}

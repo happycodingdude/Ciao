@@ -12,6 +12,8 @@ const MessageContent = (props) => {
 
   if (!message) return null;
 
+  // console.log(JSON.stringify(message));
+
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
@@ -176,29 +178,9 @@ const MessageContent = (props) => {
               : moment(message.createdTime).format("DD/MM/YYYY HH:mm")}
           </p>
         </div>
-        {/* Content */}
-        {message.content ? (
-          <div
-            // className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
-            // ${
-            //   message.contactId === info.id
-            //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
-            //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
-            // }`}
-            className={`cursor-pointer break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
-            ${
-              message.contactId === info.id
-                ? "bg-[var(--main-color)]"
-                : "bg-[var(--bg-color-light)]"
-            }`}
-          >
-            {message.content}
-          </div>
-        ) : (
-          ""
-        )}
 
-        {message.attachments && message.attachments.length !== 0 ? (
+        {/* Attachment */}
+        {/* {message.attachments && message.attachments.length !== 0 ? (
           <div
             className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
           >
@@ -244,7 +226,99 @@ const MessageContent = (props) => {
           </div>
         ) : (
           ""
+        )} */}
+
+        {message.attachments && message.attachments.length !== 0 ? (
+          message.attachments?.length <= 2 ? (
+            <div
+              className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
+            >
+              {message.attachments.map((item, index) => {
+                return (
+                  <ImageWithLightBoxAndNoLazy
+                    src={item.mediaUrl}
+                    title={item.mediaName?.split(".")[0]}
+                    className={`loaded  cursor-pointer                     
+                      ${
+                        message.attachments?.length === 1
+                          ? "aspect-[3/2] !w-[70%] !bg-[size:100%]"
+                          : "aspect-square !w-[45%] !bg-[size:140%]"
+                      }`}
+                    slides={message.attachments.map((item) => ({
+                      src: item.type === "image" ? item.mediaUrl : "",
+                    }))}
+                    index={index}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div
+              className={`flex w-full  ${message.contactId === info.id ? "justify-end" : ""} gap-[.5rem] laptop:h-[20rem]`}
+            >
+              <ImageWithLightBoxAndNoLazy
+                src={message.attachments[0].mediaUrl}
+                title={message.attachments[0].mediaName.split(".")[0]}
+                className={`loaded aspect-square w-[30%] cursor-pointer`}
+                // className="h-full laptop:w-[30%]"
+                // width={180}
+                // height={200}
+                slides={message.attachments.map((item) => ({
+                  src: item.type === "image" ? item.mediaUrl : "",
+                }))}
+                index={0}
+              />
+              <div className="flex w-[20%] flex-col justify-between">
+                <ImageWithLightBoxAndNoLazy
+                  src={message.attachments[1].mediaUrl}
+                  title={message.attachments[1].mediaName?.split(".")[0]}
+                  className={`loaded h-[45%] w-full cursor-pointer`}
+                  imageClassName="bg-[size:120%]"
+                  slides={message.attachments.map((item) => ({
+                    src: item.type === "image" ? item.mediaUrl : "",
+                  }))}
+                  index={1}
+                />
+                <ImageWithLightBoxAndNoLazy
+                  src={message.attachments[2].mediaUrl}
+                  title={message.attachments[2].mediaName?.split(".")[0]}
+                  className={`loaded h-[45%] w-full cursor-pointer`}
+                  imageClassName="bg-[size:120%]"
+                  slides={message.attachments.map((item) => ({
+                    src: item.type === "image" ? item.mediaUrl : "",
+                  }))}
+                  index={2}
+                />
+              </div>
+            </div>
+          )
+        ) : (
+          ""
         )}
+
+        {/* Content */}
+        {message.content ? (
+          <div
+            // className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
+            // ${
+            //   message.contactId === info.id
+            //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
+            //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
+            // }`}
+            className={`cursor-pointer break-all rounded-[2rem] text-xs ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+            ${
+              message.contactId === info.id
+                ? "bg-[var(--main-color)]"
+                : "bg-[var(--bg-color-light)]"
+            }`}
+          >
+            {message.content}
+          </div>
+        ) : (
+          ""
+        )}
+
+        {/* Reaction */}
         <MessageReaction
           message={{
             mine: message.contactId === info.id,

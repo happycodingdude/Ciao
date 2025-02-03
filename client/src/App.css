@@ -22,6 +22,7 @@
   --sub-color: #ffffff;
 
   --bg-color: #ffffff;
+  --bg-color-medium: #d4d4d4;
   --bg-color-light: #e8e8e8;
   --bg-color-thin: #ebebeb;
   --bg-color-extrathin: #f4f4f4;
@@ -113,7 +114,7 @@ body,
 
     /* Handle */
     &::-webkit-scrollbar-thumb {
-      background: var(--bg-color);
+      background: var(--bg-color-medium);
       border-radius: 10px;
     }
   }
