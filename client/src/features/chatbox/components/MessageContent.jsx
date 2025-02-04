@@ -241,9 +241,15 @@ const MessageContent = (props) => {
                     className={`loaded  cursor-pointer                     
                       ${
                         message.attachments?.length === 1
-                          ? "aspect-[3/2] !w-[70%] !bg-[size:100%]"
-                          : "aspect-square !w-[45%] !bg-[size:140%]"
+                          ? "aspect-[3/2] w-[70%]"
+                          : "aspect-square w-[45%]"
                       }`}
+                    // imageClassName={
+                    //   message.attachments?.length === 1
+                    //     ? "bg-[size:140%]"
+                    //     : "bg-[size:140%]"
+                    // }
+                    imageClassName="bg-[size:140%]"
                     slides={message.attachments.map((item) => ({
                       src: item.type === "image" ? item.mediaUrl : "",
                     }))}
@@ -260,9 +266,7 @@ const MessageContent = (props) => {
                 src={message.attachments[0].mediaUrl}
                 title={message.attachments[0].mediaName.split(".")[0]}
                 className={`loaded aspect-square w-[30%] cursor-pointer`}
-                // className="h-full laptop:w-[30%]"
-                // width={180}
-                // height={200}
+                imageClassName="bg-[size:170%]"
                 slides={message.attachments.map((item) => ({
                   src: item.type === "image" ? item.mediaUrl : "",
                 }))}

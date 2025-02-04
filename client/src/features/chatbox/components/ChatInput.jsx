@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxWithShadowAndNoLazy from "../../../components/ImageWithLightBoxWithShadowAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -11,9 +12,9 @@ import ChatboxMenu from "./ChatboxMenu";
 import ImageItem from "./ImageItem";
 
 const ChatInput = (props) => {
-  const { className, quickChat, noMenu, noEmoji } = props;
+  const { className, quickChat, noMenu, noEmoji, refInput } = props;
 
-  // if (!inputRef?.current) return;
+  // if (!refInput?.current) return;
 
   const queryClient = useQueryClient();
 
@@ -21,7 +22,7 @@ const ChatInput = (props) => {
   // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
 
-  const inputRef = useRef();
+  // const refInput = useRef();
 
   const [mentions, setMentions] = useState();
   const [showMention, setShowMention] = useState(false);
@@ -29,9 +30,9 @@ const ChatInput = (props) => {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
-    // if (inputRef.current) {
-    inputRef.current.textContent = "";
-    inputRef.current.focus();
+    // if (refInput) {
+    //   refInput.current.textContent = "";
+    //   refInput.current.focus();
     // }
     setFiles([]);
     setMentions(() => {
@@ -48,13 +49,13 @@ const ChatInput = (props) => {
   }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace) => {
-    // inputRef.current.textContent += " ";
-    if (addSpace) inputRef.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
-    inputRef.current.focus();
+    // refInput.current.textContent += " ";
+    if (addSpace) refInput.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
+    refInput.current.focus();
 
     // Create a range and set it to the end of the content
     const range = document.createRange();
-    range.selectNodeContents(inputRef.current);
+    range.selectNodeContents(refInput.current);
     range.collapse(false); // Collapse the range to the end
 
     // Create a selection and add the range to it
@@ -65,12 +66,12 @@ const ChatInput = (props) => {
 
   const chooseMention = (id) => {
     let user = mentions.find((item) => item.userId === id);
-    inputRef.current.textContent = inputRef.current.textContent.replace(
+    refInput.current.textContent = refInput.current.textContent.replace(
       "@",
       "",
     );
-    inputRef.current.textContent = inputRef.current.textContent += user.name;
-    // inputRef.current.focus();
+    refInput.current.textContent = refInput.current.textContent += user.name;
+    // refInput.current.focus();
     setCaretToEnd(true);
     setShowMention(false);
   };
@@ -232,9 +233,9 @@ const ChatInput = (props) => {
   });
 
   const chat = () => {
-    // send(inputRef.current.textContent, files ?? []);
+    // send(refInput.current.textContent, files ?? []);
 
-    if (inputRef.current.textContent.trim() === "" && files.length === 0)
+    if (refInput.current.textContent.trim() === "" && files.length === 0)
       return;
 
     const lazyImages = files.map((item) => {
@@ -245,17 +246,17 @@ const ChatInput = (props) => {
     });
     // setFiles([]);
     sendMutation({
-      type: inputRef.current.textContent.trim() === "" ? "media" : "text",
-      content: inputRef.current.textContent,
+      type: refInput.current.textContent.trim() === "" ? "media" : "text",
+      content: refInput.current.textContent,
       attachments: lazyImages,
       files: files,
     });
 
-    inputRef.current.textContent = "";
+    refInput.current.textContent = "";
     setFiles([]);
   };
 
-  const keyBindingFn = (e) => {
+  const keydownBindingFn = (e) => {
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
       chat();
@@ -270,19 +271,19 @@ const ChatInput = (props) => {
     e.preventDefault();
 
     // Cái này cho element input
-    // const cursorPosition = inputRef.current.selectionStart;
+    // const cursorPosition = refInput.current.selectionStart;
 
     // Cái này cho element contenteditable
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     const clonedRange = range.cloneRange();
-    clonedRange.selectNodeContents(inputRef.current);
+    clonedRange.selectNodeContents(refInput.current);
     clonedRange.setEnd(range.endContainer, range.endOffset);
 
     const cursorPosition = clonedRange.toString().length;
     // Ensure the cursor is not at the start (index 0)
     if (cursorPosition > 0) {
-      const textBeforeCursor = inputRef.current.textContent.substring(
+      const textBeforeCursor = refInput.current.textContent.substring(
         0,
         cursorPosition,
       );
@@ -438,8 +439,8 @@ const ChatInput = (props) => {
           ) : (
             ""
           )}
-          <div
-            ref={inputRef}
+          {/* <div
+            ref={refInput}
             // ref={ref}
             contentEditable={true}
             // data-text="Type something.."
@@ -448,7 +449,13 @@ const ChatInput = (props) => {
             pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
             onKeyDown={keyBindingFn}
             onKeyUp={keyupBindingFn}
-          ></div>
+          ></div> */}
+          <CustomContentEditable
+            ref={refInput}
+            onKeyDown={keydownBindingFn}
+            onKeyUp={keyupBindingFn}
+            className="px-[4rem]"
+          />
           {!noEmoji ? (
             <label
               className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
@@ -464,7 +471,7 @@ const ChatInput = (props) => {
           width={300}
           height={400}
           onEmojiClick={(emoji) =>
-            (inputRef.current.textContent += emoji.emoji)
+            (refInput.current.textContent += emoji.emoji)
           }
           className="emoji-item !absolute right-[2rem] top-[-41rem]"
           icons="solid"

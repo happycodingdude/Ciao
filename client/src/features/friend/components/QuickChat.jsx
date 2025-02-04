@@ -1,11 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useRef } from "react";
+import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import useLoading from "../../../hooks/useLoading";
 import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
-import ChatInput from "../../chatbox/components/ChatInput";
 import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
 import sendQuickChat from "../services/sendQuickChat";
@@ -27,8 +27,10 @@ const QuickChat = (props) => {
   useEffect(() => {
     if (!profile || !rect) return;
 
-    refInput.current.focus();
+    // if (refInput.current) {
     refInput.current.textContent = "";
+    refInput.current.focus();
+    // }
 
     // Adjust offset as needed to center redBox vertically over the clicked item
     let offsetTop = rect.top - refQuickProfile.current.offsetHeight / 3;
@@ -46,12 +48,13 @@ const QuickChat = (props) => {
     refQuickProfile.current.style.right = `${window.scrollY + offset}px`; // Position horizontally based on target
   }, [profile, rect]);
 
-  const chat = async (contact, content) => {
+  const chat = async () => {
+    const content = refInput.current.textContent;
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
       (conv) =>
         conv.isGroup === false &&
-        conv.members.some((mem) => mem.contact.id === contact.id),
+        conv.members.some((mem) => mem.contact.id === profile.id),
     );
     if (existedConversation) {
       const bodyToCreate = {
@@ -62,8 +65,7 @@ const QuickChat = (props) => {
         queryClient.setQueryData(["message"], (oldData) => {
           const updatedMessages = oldData.messages.map((message) => {
             if (message.id !== randomId) return message;
-            message.id = res;
-            return message;
+            return { ...message, id: res, pending: false };
           });
           return {
             ...oldData,
@@ -84,8 +86,7 @@ const QuickChat = (props) => {
           existedConversation.members = existedConversation.members.map(
             (mem) => {
               if (mem.contact.id !== info.id) return mem;
-              mem.isDeleted = false;
-              return mem;
+              return { ...mem, isDeleted: false };
             },
           );
           updatedConversations = [
@@ -100,8 +101,7 @@ const QuickChat = (props) => {
             conv.lastMessage = content;
             conv.members = conv.members.map((mem) => {
               if (mem.contact.id !== info.id) return mem;
-              mem.isDeleted = false;
-              return mem;
+              return { ...mem, isDeleted: false };
             });
             return conv;
           });
@@ -128,19 +128,19 @@ const QuickChat = (props) => {
               type: "text",
               content: content,
               currentReaction: null,
+              pending: true,
             },
           ],
         };
       });
     } else {
       setLoading(true);
-      sendQuickChat(contact.id, content).then((res) => {
+      sendQuickChat(profile.id, content).then((res) => {
         queryClient.setQueryData(["conversation"], (oldData) => {
           const updatedConversations = oldData.conversations.map(
             (conversation) => {
               if (conversation.id !== randomId) return conversation;
-              conversation.id = res.conversationId;
-              return conversation;
+              return { ...conversation, id: res.conversationId };
             },
           );
           return {
@@ -156,8 +156,7 @@ const QuickChat = (props) => {
         queryClient.setQueryData(["message"], (oldData) => {
           const updatedMessages = oldData.messages.map((message) => {
             if (message.id !== randomId) return message;
-            message.id = res.messageId;
-            return message;
+            return { ...message, id: res, pending: false };
           });
           return {
             ...oldData,
@@ -185,10 +184,10 @@ const QuickChat = (props) => {
             },
             {
               contact: {
-                id: contact.id,
-                name: contact.name,
-                avatar: contact.avatar,
-                isOnline: contact.isOnline,
+                id: profile.id,
+                name: profile.name,
+                avatar: profile.avatar,
+                isOnline: profile.isOnline,
               },
             },
           ],
@@ -216,6 +215,7 @@ const QuickChat = (props) => {
               type: "text",
               content: content,
               currentReaction: null,
+              pending: true,
             },
           ],
           hasMore: false,
@@ -226,6 +226,13 @@ const QuickChat = (props) => {
       });
     }
     onClose();
+  };
+
+  const keydownBindingFn = (e) => {
+    if (e.keyCode === 13 && !e.shiftKey) {
+      e.preventDefault();
+      chat();
+    }
   };
 
   // Event listener
@@ -270,7 +277,7 @@ const QuickChat = (props) => {
             />
           </div>
           <p className="text-md font-medium">{profile?.name}</p>
-          <ChatInput
+          {/* <ChatInput
             // className="grow-0"
             quickChat
             noMenu
@@ -278,8 +285,15 @@ const QuickChat = (props) => {
             send={(content) => {
               chat(profile, content);
             }}
-            ref={refInput}
-          />
+            inputRef={refInput}
+          /> */}
+          <div className="rounded-[.5rem] bg-[var(--bg-color)] py-[.5rem]">
+            <CustomContentEditable
+              ref={refInput}
+              className=" px-[.5rem]"
+              onKeyDown={keydownBindingFn}
+            />
+          </div>
         </div>
       </div>
     </div>

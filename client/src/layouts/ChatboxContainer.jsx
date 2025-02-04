@@ -35,6 +35,12 @@ const ChatboxContainer = () => {
       setTimeout(() => {
         setLoading(false);
       }, 100);
+      setTimeout(() => {
+        if (refInput.current) {
+          refInput.current.textContent = "";
+          refInput.current.focus();
+        }
+      }, 150);
     }
   }, [isLoading, isRefetching]);
 
@@ -75,7 +81,7 @@ const ChatboxContainer = () => {
                     files: files,
                   });
                 }}
-                inputRef={refInput}
+                refInput={refInput}
               />
             </div>
             <div
