@@ -2,44 +2,7 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 import refreshToken from "../features/authentication/services/refreshToken";
-
-function delay(timeout) {
-  return new Promise((resolve) => setTimeout(resolve, timeout));
-}
-
-export const HttpRequestNoRetry = async ({
-  method,
-  url,
-  header = {},
-  data = null,
-  controller = new AbortController(),
-  alert = false,
-  timeout = 0,
-}) => {
-  if (timeout !== 0) await delay(timeout);
-
-  return await axios({
-    method: method,
-    url: url,
-    data: data,
-    headers: {
-      ...{
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("accessToken"),
-      },
-      ...header,
-    },
-    signal: controller.signal,
-  })
-    .then((res) => {
-      if (alert) toast.success("😎 Mission succeeded!");
-      return res;
-    })
-    .catch((err) => {
-      if (alert) toast.error("👨‍✈️ Mission failed!");
-      throw err;
-    });
-};
+import delay from "../utils/delay";
 
 axiosRetry(axios, {
   retries: 1,
