@@ -1,4 +1,3 @@
-import React from "react";
 import SigninForm from "../features/authentication/components/SigninForm";
 
 const Signin = (props) => {

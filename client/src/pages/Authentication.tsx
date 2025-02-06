@@ -6,22 +6,25 @@ import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import Signup from "./Signup";
 
-const Authentication = (props) => {
-  console.log("Authentication calling");
-  const { onSuccess } = props;
-  const { data: info } = useInfo(true);
+type AuthenticationProps = {
+  onSuccess: () => void;
+};
 
-  const refBgContainer = useRef();
-  const refBgSignUpLabelContainer = useRef();
-  const refBgSignInLabelContainer = useRef();
-  const refSigninContainer = useRef();
-  const refLoginWrapper = useRef();
+const Authentication = (props: AuthenticationProps) => {
+  const { onSuccess } = props;
+
+  const { data: info } = useInfo(true);
+  const [accessToken] = useLocalStorage("accessToken");
+  const navigate = useNavigate();
+
+  const refBgContainer = useRef<HTMLDivElement>();
+  const refBgSignUpLabelContainer = useRef<HTMLDivElement>();
+  const refBgSignInLabelContainer = useRef<HTMLDivElement>();
+  const refSigninContainer = useRef<HTMLDivElement>();
+  const refLoginWrapper = useRef<HTMLDivElement>();
 
   const [showLogin, setShowLogin] = useState(true);
   const [showSignup, setShowSignup] = useState(false);
-
-  const [accessToken] = useLocalStorage("accessToken");
-  const navigate = useNavigate();
 
   if (info) navigate("/");
 

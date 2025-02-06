@@ -1,5 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -7,7 +13,13 @@ import ErrorComponent from "../../../components/ErrorComponent";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import signin from "../services/signin";
 
-const SigninForm = (props) => {
+interface SigninProps {
+  show: Dispatch<SetStateAction<boolean>>;
+  showContainer: Dispatch<SetStateAction<boolean>>;
+  toggle: () => void;
+}
+
+const SigninForm = (props: SigninProps) => {
   console.log("SigninForm calling");
   const { show, showContainer, toggle } = props;
 

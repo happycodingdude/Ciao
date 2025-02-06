@@ -1,20 +1,46 @@
-import React, { useEffect, useRef } from "react";
+import React, {
+  ChangeEventHandler,
+  KeyboardEventHandler,
+  MutableRefObject,
+  useEffect,
+  useRef,
+} from "react";
 
-const CustomInput = (props) => {
+type CustomInputRef = {
+  current: HTMLInputElement | null;
+  reset: () => void;
+};
+
+type CustomInputProps = {
+  type?: string;
+  label?: string;
+  inputRef?: MutableRefObject<HTMLInputElement & { reset: () => void }>;
+  className?: string;
+  placeholder?: string;
+  tabIndex?: number;
+  onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
+};
+
+const CustomInput = (props: CustomInputProps) => {
   const {
     type,
     label,
-    onKeyDown,
-    reference,
+    inputRef,
     className,
-    onChange,
     placeholder,
     tabIndex = -1,
+    onKeyDown,
+    onChange,
   } = props;
-  const refPlaceHolder = useRef();
-  const refBorder = useRef();
 
-  const handleFocus = (e, focus) => {
+  const refPlaceHolder = useRef<HTMLParagraphElement>();
+  const refBorder = useRef<HTMLDivElement>();
+
+  const handleFocus = (
+    e: React.FocusEvent<HTMLInputElement, Element>,
+    focus?: boolean,
+  ) => {
     if (e.target.value !== "") return;
     if (focus === true) {
       refPlaceHolder.current.setAttribute("data-focus", "true");
@@ -26,14 +52,14 @@ const CustomInput = (props) => {
   };
 
   const resetInputEffectAndValue = () => {
-    reference.current.value = "";
+    inputRef.current.value = "";
     refPlaceHolder.current.setAttribute("data-focus", "false");
     refBorder.current.setAttribute("data-focus", "false");
   };
 
   useEffect(() => {
-    if (!reference) return;
-    reference.current.reset = resetInputEffectAndValue;
+    if (!inputRef) return;
+    inputRef.current.reset = resetInputEffectAndValue;
   }, [resetInputEffectAndValue]);
 
   return (
@@ -46,7 +72,7 @@ const CustomInput = (props) => {
         // className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--sub-color)] !border-b-[var(--border-color)] p-[1rem] pb-[.2rem] pl-0 outline-none
         //   transition-all duration-200`}
         type={type}
-        ref={reference}
+        ref={inputRef}
         onFocus={(e) => handleFocus(e, true)}
         onBlur={(e) => handleFocus(e)}
         onKeyDown={onKeyDown}

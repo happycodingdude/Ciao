@@ -1,13 +1,16 @@
 import React from "react";
 import SignupForm from "../features/authentication/components/SignupForm";
+import useToggleAuthenticationForms from "../features/authentication/hooks/useToggleAuthenticationForms";
 
 const Signup = (props) => {
-  const { show, onSuccess } = props;
-  console.log("Signup calling");
+  // const { show, onSuccess } = props;
+  // console.log("Signup calling");
+
+  const { toggle } = useToggleAuthenticationForms();
 
   return (
     <div
-      data-state={show}
+      data-state={toggle === "signup"}
       className="absolute left-0 h-full w-[40%] transition-all duration-500
       data-[state=false]:translate-x-[-700%] data-[state=true]:translate-x-0"
     >

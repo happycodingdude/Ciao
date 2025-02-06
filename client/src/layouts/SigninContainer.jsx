@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ForgotPassword from "../pages/ForgotPassword";
-import Login from "../pages/Signin";
+import Signin from "../pages/Signin";
 
 const SigninContainer = (props) => {
   const { show, onSuccess } = props;
@@ -25,7 +25,7 @@ const SigninContainer = (props) => {
       data-[state=false]:translate-x-[700%] data-[state=true]:translate-x-0"
     >
       <div className="relative">
-        <Login
+        <Signin
           show={showLogin}
           showContainer={show}
           toggle={() => {
