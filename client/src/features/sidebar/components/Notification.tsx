@@ -10,8 +10,8 @@ const Notification = () => {
 
   const { data: notifications, refetch } = useNotification();
 
-  const refNotification = useRef();
-  const refNotificationBody = useRef();
+  const refNotification = useRef<HTMLDivElement>();
+  const refNotificationBody = useRef<HTMLDivElement>();
 
   const [loaded, setLoaded] = useState(false);
 
@@ -45,14 +45,14 @@ const Notification = () => {
   useEventListener("keydown", hideNotificationOnKey);
 
   const { mutate: readMutation } = useMutation({
-    mutationFn: ({ id }) => read(id),
+    mutationFn: (id: string) => read(id),
     onSuccess: (res) => {
       refetch();
     },
   });
 
   const { mutate: readAllMutation } = useMutation({
-    mutationFn: ({ ids }) => readAll(ids),
+    mutationFn: readAll,
     onSuccess: (res) => {
       refetch();
     },
@@ -60,9 +60,7 @@ const Notification = () => {
 
   const readAllCTA = () => {
     if (!notifications.some((item) => !item.read)) return;
-    readAllMutation({
-      ids: notifications.filter((item) => !item.Read).map((item) => item.id),
-    });
+    readAllMutation();
   };
 
   return (
@@ -108,9 +106,7 @@ const Notification = () => {
               className="notification-body flex cursor-pointer flex-wrap items-center justify-between gap-y-2 hover:bg-[var(--bg-color-thin)]"
               onClick={(e) => {
                 if (notification.read) return;
-                readMutation({
-                  id: notification.id,
-                });
+                readMutation(notification.id);
               }}
             >
               <div className="notification-body py-2 font-normal">

@@ -1,26 +1,5 @@
-import React, {
-  ChangeEventHandler,
-  KeyboardEventHandler,
-  MutableRefObject,
-  useEffect,
-  useRef,
-} from "react";
-
-type CustomInputRef = {
-  current: HTMLInputElement | null;
-  reset: () => void;
-};
-
-type CustomInputProps = {
-  type?: string;
-  label?: string;
-  inputRef?: MutableRefObject<HTMLInputElement & { reset: () => void }>;
-  className?: string;
-  placeholder?: string;
-  tabIndex?: number;
-  onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-};
+import React, { useEffect, useRef } from "react";
+import { CustomInputProps } from "../types";
 
 const CustomInput = (props: CustomInputProps) => {
   const {

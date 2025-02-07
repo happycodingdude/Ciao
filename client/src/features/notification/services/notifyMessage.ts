@@ -1,11 +1,27 @@
-const notifyMessage = (message, queryClient, info) => {
-  const messageData =
-    message.data === undefined ? undefined : JSON.parse(message.data);
-  console.log(message);
+import { QueryClient } from "@tanstack/react-query";
+import { UserProfile } from "../../../types";
 
-  switch (message.event) {
+export type NotifyMessage = {
+  data: string;
+  event: string;
+};
+
+export type NotifyMessageModel = {
+  message: NotifyMessage;
+  queryClient: QueryClient;
+  info: UserProfile;
+};
+
+const notifyMessage = (model: NotifyMessageModel) => {
+  const messageData =
+    model.message.data === undefined
+      ? undefined
+      : JSON.parse(model.message.data);
+  console.log(model.message);
+
+  switch (model.message.event) {
     case "NewMessage":
-      queryClient.setQueryData(["conversation"], (oldData) => {
+      model.queryClient.setQueryData(["conversation"], (oldData) => {
         // If exists conversation -> update state and return
         if (
           oldData.conversations.some(
@@ -50,7 +66,7 @@ const notifyMessage = (message, queryClient, info) => {
           filterConversations: newConversation,
         };
       });
-      queryClient.setQueryData(["message"], (oldData) => {
+      model.queryClient.setQueryData(["message"], (oldData) => {
         if (!oldData) return; // Case haven't click any conversation
         if (oldData.id !== messageData.conversation.id) return oldData;
         return {
@@ -67,7 +83,7 @@ const notifyMessage = (message, queryClient, info) => {
       });
       break;
     case "NewConversation":
-      queryClient.setQueryData(["conversation"], (oldData) => {
+      model.queryClient.setQueryData(["conversation"], (oldData) => {
         const newConversation = [
           {
             isGroup: messageData.isGroup,

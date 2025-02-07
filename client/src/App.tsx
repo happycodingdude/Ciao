@@ -4,7 +4,7 @@ import "./App.css";
 import { registerSW } from "./components/Notification";
 import LoadingProvider from "./context/LoadingContext";
 import "./Loading.css";
-import Authentication from "./pages/Authentication";
+import { AuthenticationContainer } from "./pages/Authentication";
 import Home from "./pages/Home";
 import ProtectedRoute from "./pages/ProtectedRoute";
 
@@ -21,7 +21,7 @@ function App() {
     <LoadingProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/auth" element={<Authentication />}></Route>
+          <Route path="/auth" element={<AuthenticationContainer />}></Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Home />}></Route>
           </Route>

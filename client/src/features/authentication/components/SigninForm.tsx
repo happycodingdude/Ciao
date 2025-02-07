@@ -1,45 +1,36 @@
 import { useMutation } from "@tanstack/react-query";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
 import useLocalStorage from "../../../hooks/useLocalStorage";
+import { SigninRequest } from "../../../types";
+import useAuthenticationFormToggles from "../hooks/useToggleAuthenticationForms";
 import signin from "../services/signin";
 
-interface SigninProps {
-  show: Dispatch<SetStateAction<boolean>>;
-  showContainer: Dispatch<SetStateAction<boolean>>;
-  toggle: () => void;
-}
-
-const SigninForm = (props: SigninProps) => {
-  console.log("SigninForm calling");
-  const { show, showContainer, toggle } = props;
+const SigninForm = () => {
+  // const { show, showContainer, toggle } = props;
 
   const navigate = useNavigate();
+
+  const { toggle, setToggle } = useAuthenticationFormToggles();
 
   const [accessToken, setAccessToken] = useLocalStorage("accessToken");
   const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken");
   const [userId, setUserId] = useLocalStorage("userId");
 
-  const refUsername = useRef();
-  const refPassword = useRef();
+  const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
+  const refPassword = useRef<HTMLInputElement & { reset: () => void }>();
 
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => {
-    // Khi toggle hiện login container ra thì clear các value đã nhập
-    if (!show || showContainer) reset();
-  }, [show, showContainer]);
+  // useEffect(() => {
+  //   // Khi toggle hiện login container ra thì clear các value đã nhập
+  //   if (!show || showContainer) reset();
+  // }, [show, showContainer]);
 
   const reset = () => {
     setError("");
@@ -49,14 +40,14 @@ const SigninForm = (props: SigninProps) => {
   };
 
   const { mutate: signinMutation } = useMutation({
-    mutationFn: ({ username, password }) => signin(username, password),
+    mutationFn: (req: SigninRequest) => signin(req),
     onSuccess: (res) => {
       // queryClient.invalidateQueries(["info"]);
       // refetch();
       // onSuccess();
-      setAccessToken(res.data.accessToken);
-      setRefreshToken(res.data.refreshToken);
-      setUserId(res.data.userId);
+      setAccessToken(res.accessToken);
+      setRefreshToken(res.refreshToken);
+      setUserId(res.userId);
       setTimeout(() => {
         navigate("/");
       }, 100);
@@ -89,16 +80,16 @@ const SigninForm = (props: SigninProps) => {
   return (
     <div className="flex flex-col gap-[3rem]">
       <CustomInput
-        tabIndex={show && showContainer ? "1" : "-1"}
-        reference={refUsername}
+        tabIndex={toggle === "signin" ? 1 : -1}
+        inputRef={refUsername}
         type="text"
         label="Username"
         onKeyDown={handlePressKey}
       />
       <div className="relative">
         <CustomInput
-          tabIndex={show && showContainer ? "2" : "-1"}
-          reference={refPassword}
+          tabIndex={toggle === "signin" ? 2 : -1}
+          inputRef={refPassword}
           className="pr-20"
           type={showPassword ? "text" : "password"}
           label="Password"
@@ -113,9 +104,7 @@ const SigninForm = (props: SigninProps) => {
 
       <div
         className="cursor-pointer self-end text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
-        onClick={() => {
-          toggle();
-        }}
+        onClick={() => setToggle("forgot")}
       >
         Forgot password?
       </div>

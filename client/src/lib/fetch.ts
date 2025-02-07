@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 import refreshToken from "../features/authentication/services/refreshToken";
-import delay from "../utils/delay";
+import { HttpRequest } from "../types";
 
 axiosRetry(axios, {
   retries: 1,
@@ -12,34 +12,29 @@ axiosRetry(axios, {
       error.response?.status === 401 &&
       localStorage.getItem("refreshToken")
     ) {
-      return refreshToken()
-        .then((data) => {
+      return refreshToken({
+        userId: localStorage.getItem("userId"),
+        refreshToken: localStorage.getItem("refreshToken"),
+      })
+        .then((res) => {
           // Update the failed request's config with the new token
-          error.config.headers["Authorization"] =
-            "Bearer " + data.data.accessToken;
-          // setAccessToken(data.data.accessToken);
-          // setRefreshToken(data.data.refreshToken);
-          // setUserId(data.data.userId);
+          error.config.headers["Authorization"] = "Bearer " + res.accessToken;
 
-          localStorage.setItem("accessToken", data.data.accessToken);
-          localStorage.setItem("refreshToken", data.data.refreshToken);
-          localStorage.setItem("userId", data.data.userId);
+          localStorage.setItem("accessToken", res.accessToken);
+          localStorage.setItem("refreshToken", res.refreshToken);
+          localStorage.setItem("userId", res.userId);
 
           // Retry the request
           return true;
         })
         .catch((err) => {
           console.error("Failed to refresh token:", err);
-          // setAccessToken(undefined);
-          // setRefreshToken(undefined);
-          // setUserId(undefined);
 
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("userId");
 
           // Navigate back to the login page
-          // navigate("/auth");
           window.location.href = "/auth";
           return false;
         });
@@ -48,37 +43,39 @@ axiosRetry(axios, {
   },
 });
 
-const HttpRequest = async ({
-  method,
-  url,
-  // axiosInstance,
-  header = {},
-  data = null,
-  controller = new AbortController(),
-  alert = false,
-  timeout = 0,
-}) => {
-  if (timeout !== 0) await delay(timeout);
+const HttpRequest = async <TReq, TRes = undefined>(
+  req: HttpRequest<TReq, TRes>,
+) => {
+  // if (timeout !== 0) await delay(timeout);
 
-  return await axios({
-    method: method,
-    url: url,
-    data: data,
+  return await axios<TRes | undefined>({
+    method: req.method,
+    baseURL: import.meta.env.VITE_ASPNETCORE_CHAT_URL,
+    url: req.url,
+    data: req.data,
     headers: {
       ...{
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("accessToken"),
       },
-      ...header,
+      ...req.headers,
     },
-    signal: controller.signal,
+    // signal: req.controller.signal,
+    // transformResponse: [(data) => {
+    //   try {
+    //     return JSON.parse(data);
+    //   } catch {
+    //     return data;
+    //   }
+    // }],
+    // transformResponse: (r: TRes) => r
   })
     .then((res) => {
-      if (alert) toast.success("😎 Mission succeeded!");
+      if (req.alert) toast.success("😎 Mission succeeded!");
       return res;
     })
     .catch((err) => {
-      if (alert) toast.error("👨‍✈️ Mission failed!");
+      if (req.alert) toast.error("👨‍✈️ Mission failed!");
       throw err;
     });
 };

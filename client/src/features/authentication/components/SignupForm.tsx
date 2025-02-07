@@ -1,19 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import { AxiosError } from "axios";
+import React, { useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
+import { SignupRequest } from "../../../types";
+import useAuthenticationFormToggles from "../hooks/useToggleAuthenticationForms";
 import signup from "../services/signup";
 
-const SignupForm = (props) => {
-  const { show, onSuccess } = props;
-  console.log("Signup calling");
+const SignupForm = () => {
+  const { toggle, setToggle } = useAuthenticationFormToggles();
 
   const [processing, setProcessing] = useState(false);
 
-  const refName = useRef();
-  const refUsername = useRef();
-  const refPassword = useRef();
+  const refName = useRef<HTMLInputElement & { reset: () => void }>();
+  const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
+  const refPassword = useRef<HTMLInputElement & { reset: () => void }>();
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -25,21 +27,20 @@ const SignupForm = (props) => {
     refPassword.current.reset();
   };
 
-  useEffect(() => {
-    // Khi toggle ẩn signup thì clear các value đã nhập
-    if (!show) reset();
-  }, [show]);
+  // useEffect(() => {
+  //   // Khi toggle ẩn signup thì clear các value đã nhập
+  //   if (!show) reset();
+  // }, [show]);
 
   const { mutate: signupMutation } = useMutation({
-    mutationFn: ({ name, username, password }) =>
-      signup(name, username, password),
+    mutationFn: (req: SignupRequest) => signup(req),
     onSuccess: (res) => {
       setProcessing(false);
-      onSuccess();
+      setToggle("signin");
     },
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       setProcessing(false);
-      setError(error.response.data);
+      setError(error.response.data as string);
     },
   });
 
@@ -59,21 +60,21 @@ const SignupForm = (props) => {
     <div className="flex flex-col gap-[3rem]">
       {/* <div className="flex flex-col gap-[3rem]"> */}
       <CustomInput
-        tabIndex={show ? "1" : "-1"}
-        reference={refName}
+        tabIndex={toggle === "signup" ? 1 : -1}
+        inputRef={refName}
         type="text"
         label="Name"
       />
       <CustomInput
-        tabIndex={show ? "2" : "-1"}
-        reference={refUsername}
+        tabIndex={toggle === "signup" ? 2 : -1}
+        inputRef={refUsername}
         type="text"
         label="Username"
       />
       <div className="relative">
         <CustomInput
-          tabIndex={show ? "3" : "-1"}
-          reference={refPassword}
+          tabIndex={toggle === "signup" ? 3 : -1}
+          inputRef={refPassword}
           className="pr-20"
           type={showPassword ? "text" : "password"}
           label="Password"

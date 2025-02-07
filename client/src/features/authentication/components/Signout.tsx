@@ -3,17 +3,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import signout from "../services/signout";
 
-const SignoutIcon = (props) => {
-  console.log("SignoutIcon calling");
-  const { className } = props;
+const Signout = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return (
     <div
       onClick={() => signout(queryClient, navigate)}
-      className={`${className ?? ""} fa fa-sign-out base-icon-sm text-red-500`}
+      className={`fa fa-sign-out base-icon-sm text-red-500`}
     ></div>
   );
 };
 
-export default SignoutIcon;
+export default Signout;

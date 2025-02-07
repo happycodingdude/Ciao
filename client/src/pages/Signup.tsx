@@ -2,7 +2,7 @@ import React from "react";
 import SignupForm from "../features/authentication/components/SignupForm";
 import useToggleAuthenticationForms from "../features/authentication/hooks/useToggleAuthenticationForms";
 
-const Signup = (props) => {
+const Signup = () => {
   // const { show, onSuccess } = props;
   // console.log("Signup calling");
 
@@ -17,7 +17,7 @@ const Signup = (props) => {
       <div className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem]">
         <p className="text-5xl text-[var(--text-main-color)]">Create account</p>
 
-        <SignupForm show={show} onSuccess={onSuccess} />
+        <SignupForm />
       </div>
     </div>
   );

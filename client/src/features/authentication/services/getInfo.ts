@@ -5,8 +5,6 @@ const getInfo = async () => {
     await HttpRequest({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_INFO,
-      // axiosInstance: axios,
-      // timeout: 1000,
     })
   ).data;
 };

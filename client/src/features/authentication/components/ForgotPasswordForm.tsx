@@ -1,25 +1,27 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import { AxiosError } from "axios";
+import React, { useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
+import { SigninRequest } from "../../../types";
+import useAuthenticationFormToggles from "../hooks/useToggleAuthenticationForms";
 import forgotPassword from "../services/forgotPassword";
 
-const ForgotPasswordForm = (props) => {
-  console.log("ForgotPassword calling");
-  const { show, toggle } = props;
+const ForgotPasswordForm = () => {
+  const { toggle, setToggle } = useAuthenticationFormToggles();
 
-  const refUsername = useRef();
-  const refPassword = useRef();
+  const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
+  const refPassword = useRef<HTMLInputElement & { reset: () => void }>();
 
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => {
-    // Khi toggle hiện login container ra thì clear các value đã nhập
-    if (!show) reset();
-  }, [show]);
+  // useEffect(() => {
+  //   // Khi toggle hiện login container ra thì clear các value đã nhập
+  //   if (!show) reset();
+  // }, [show]);
 
   const reset = () => {
     setError("");
@@ -29,14 +31,14 @@ const ForgotPasswordForm = (props) => {
   };
 
   const { mutate: forgotPasswordMutation } = useMutation({
-    mutationFn: ({ username, password }) => forgotPassword(username, password),
+    mutationFn: (req: SigninRequest) => forgotPassword(req),
     onSuccess: (res) => {
       reset();
-      toggle();
+      setToggle("signin");
     },
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       setProcessing(false);
-      setError(error.response.data);
+      setError(error.response.data as string);
     },
   });
 
@@ -54,16 +56,16 @@ const ForgotPasswordForm = (props) => {
   return (
     <div className="flex flex-col gap-[3rem]">
       <CustomInput
-        tabIndex={show ? "1" : "-1"}
-        reference={refUsername}
+        tabIndex={toggle === "forgot" ? 1 : -1}
+        inputRef={refUsername}
         type="text"
         label="Username"
       />
 
       <div className="relative">
         <CustomInput
-          tabIndex={show ? "2" : "-1"}
-          reference={refPassword}
+          tabIndex={toggle === "forgot" ? 2 : -1}
+          inputRef={refPassword}
           className="pr-20"
           type={showPassword ? "text" : "password"}
           label="New password"
@@ -85,9 +87,7 @@ const ForgotPasswordForm = (props) => {
 
       <div
         className="cursor-pointer text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
-        onClick={() => {
-          toggle();
-        }}
+        onClick={() => setToggle("signin")}
       >
         Back to login
       </div>

@@ -1,6 +1,8 @@
+import { QueryClient } from "@tanstack/react-query";
+import { NavigateFunction } from "react-router-dom";
 import HttpRequest from "../../../lib/fetch";
 
-const signout = (queryClient, navigate) => {
+const signout = (queryClient: QueryClient, navigate: NavigateFunction) => {
   HttpRequest({
     method: "get",
     url: import.meta.env.VITE_ENDPOINT_SIGNOUT,

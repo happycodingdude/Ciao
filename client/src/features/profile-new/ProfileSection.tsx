@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import CustomButton from "../../components/CustomButton";
 import ImageWithLightBoxWithShadowAndNoLazy from "../../components/ImageWithLightBoxWithShadowAndNoLazy";
 import MediaPicker from "../../components/MediaPicker";
+import { UpdateProfileRequest } from "../../types";
 import blurImage from "../../utils/blurImage";
 import useInfo from "../authentication/hooks/useInfo";
 import updateInfo from "../authentication/services/updateInfo";
@@ -15,12 +16,12 @@ const ProfileSection = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
 
-  const refName = useRef();
-  const refBio = useRef();
+  const refName = useRef<HTMLInputElement>();
+  const refBio = useRef<HTMLTextAreaElement>();
 
-  const [file, setFile] = useState();
-  const [avatar, setAvatar] = useState(info.avatar);
-  const [processing, setProcessing] = useState(false);
+  const [file, setFile] = useState<File>();
+  const [avatar, setAvatar] = useState<string>(info.avatar);
+  const [processing, setProcessing] = useState<boolean>(false);
 
   useEffect(() => {
     refName.current.value = info.name;
@@ -40,12 +41,12 @@ const ProfileSection = () => {
   };
 
   const { mutate: updateInfoMutation } = useMutation({
-    mutationFn: ({ name, bio, avatar }) => updateInfo(name, bio, avatar),
+    mutationFn: (req: UpdateProfileRequest) => updateInfo(req),
     onSuccess: (res, variables) => {
       setProcessing(false);
       queryClient.setQueryData(["info"], (oldData) => {
         return {
-          ...oldData,
+          ...(oldData as object),
           name: variables.name,
           bio: variables.bio,
           avatar: variables.avatar,
@@ -113,7 +114,7 @@ const ProfileSection = () => {
             ref={refBio}
             rows={4}
             className="hide-scrollbar resize-none rounded-lg bg-[var(--bg-color-extrathin)] px-4 py-2 font-medium outline-none"
-            type="text"
+            typeof="text"
           />
         </div>
       </div>

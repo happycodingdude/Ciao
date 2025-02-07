@@ -1,6 +1,6 @@
 import HttpRequest from "../../../lib/fetch";
 
-const readAll = async (ids) => {
+const readAll = async () => {
   return (
     await HttpRequest({
       method: "put",

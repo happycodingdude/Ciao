@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import {
+  NotifyMessage,
+  NotifyMessageModel,
+} from "../features/notification/services/notifyMessage";
+import { RequestPermission } from "../types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
@@ -15,12 +20,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export const requestPermission = (
+export const requestPermission = ({
   registerConnection,
   notifyMessage,
   queryClient,
   info,
-) => {
+}: RequestPermission) => {
   Notification.requestPermission().then((permission) => {
     if (permission == "granted") {
       return getToken(messaging, {
@@ -33,10 +38,15 @@ export const requestPermission = (
             // Receive message
             onMessage(messaging, (payload) => {
               console.log("Message received. ", payload.data);
-              notifyMessage(payload.data, queryClient, info);
+              const message: NotifyMessageModel = {
+                message: payload.data as NotifyMessage,
+                queryClient: queryClient,
+                info: info,
+              };
+              notifyMessage(message);
             });
 
-            registerConnection({ token: token });
+            registerConnection(token);
           } else console.log("Token failed");
         })
         .catch((err) => {
@@ -53,7 +63,7 @@ export const registerSW = () => {
       .register("/firebase-messaging-sw.js", {
         scope: "firebase-cloud-messaging-push-scope", // mandatory value
       })
-      .then(sw.ready);
+      .then(() => sw.ready);
   }
 };
 

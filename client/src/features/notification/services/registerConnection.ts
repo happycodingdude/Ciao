@@ -1,6 +1,6 @@
 import HttpRequest from "../../../lib/fetch";
 
-const registerConnection = async (token) => {
+const registerConnection = async (token: string) => {
   return (
     await HttpRequest({
       method: "get",

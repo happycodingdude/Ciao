@@ -1,18 +1,18 @@
+import React from "react";
 import SigninForm from "../features/authentication/components/SigninForm";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
 
-const Signin = (props) => {
-  console.log("Signin calling");
-  const { show, showContainer, toggle } = props;
-
+const Signin = () => {
+  const { toggle } = useAuthenticationFormToggles();
   return (
     <div
-      data-state={show}
+      data-state={toggle === "signin" || toggle === "signup"}
       className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] duration-500 
       data-[state=false]:translate-y-[-100%] data-[state=true]:translate-y-0"
     >
       <p className="text-5xl text-[var(--text-main-color)]">Sign in</p>
 
-      <SigninForm show={show} showContainer={showContainer} toggle={toggle} />
+      <SigninForm />
     </div>
   );
 };

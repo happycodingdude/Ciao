@@ -8,12 +8,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": {
-        target: env.VITE_ASPNETCORE_CHAT_URL,
-        changeOrigin: true,
-        secure: false,
-        // rewrite: (path) => path.replace("/chat", ""),
-      },
+      // "/api": {
+      //   target: env.VITE_ASPNETCORE_CHAT_URL,
+      //   changeOrigin: true,
+      //   secure: false,
+      //   // rewrite: (path) => path.replace("/chat", ""),
+      // },
       "/auth/src/assets": {
         target: "http://localhost:5000",
         changeOrigin: true,

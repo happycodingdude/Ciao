@@ -1,21 +1,26 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
+import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
 import useInfo from "../features/authentication/hooks/useInfo";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
 import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import Signup from "./Signup";
 
-type AuthenticationProps = {
-  onSuccess: () => void;
+export const AuthenticationContainer = () => {
+  return (
+    <AuthenticationFormTogglesProvider>
+      <Authentication />
+    </AuthenticationFormTogglesProvider>
+  );
 };
 
-const Authentication = (props: AuthenticationProps) => {
-  const { onSuccess } = props;
-
+const Authentication = () => {
   const { data: info } = useInfo(true);
   const [accessToken] = useLocalStorage("accessToken");
   const navigate = useNavigate();
+  const { setToggle } = useAuthenticationFormToggles();
 
   const refBgContainer = useRef<HTMLDivElement>();
   const refBgSignUpLabelContainer = useRef<HTMLDivElement>();
@@ -23,8 +28,8 @@ const Authentication = (props: AuthenticationProps) => {
   const refSigninContainer = useRef<HTMLDivElement>();
   const refLoginWrapper = useRef<HTMLDivElement>();
 
-  const [showLogin, setShowLogin] = useState(true);
-  const [showSignup, setShowSignup] = useState(false);
+  // const [showLogin, setShowLogin] = useState(true);
+  // const [showSignup, setShowSignup] = useState(false);
 
   if (info) navigate("/");
 
@@ -50,14 +55,12 @@ const Authentication = (props: AuthenticationProps) => {
 
   const toggleSignup = () => {
     toggleBg();
-    setShowLogin(false);
-    setShowSignup(true);
+    setToggle("signup");
   };
 
   const toggleLogin = () => {
     toggleBg();
-    setShowLogin(true);
-    setShowSignup(false);
+    setToggle("signin");
   };
 
   return (
@@ -71,8 +74,10 @@ const Authentication = (props: AuthenticationProps) => {
             before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]`}
         ></div>
 
-        <SigninContainer show={showLogin} onSuccess={onSuccess} />
-        <Signup show={showSignup} onSuccess={toggleLogin} />
+        {/* <AuthenticationFormTogglesProvider> */}
+        <SigninContainer />
+        <Signup />
+        {/* </AuthenticationFormTogglesProvider> */}
 
         <div
           ref={refBgSignUpLabelContainer}

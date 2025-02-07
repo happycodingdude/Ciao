@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect } from "react";
 import ImageWithLightBox from "../components/ImageWithLightBox";
 import RelightBackground from "../components/RelightBackground";
-import SignoutIcon from "../features/authentication/components/SignoutIcon";
+import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
 import ProfileIcon from "../features/profile-new/ProfileIcon";
 import ChatIcon from "../features/sidebar/components/ChatIcon";
@@ -60,7 +60,7 @@ const SideBar = (props) => {
           </div>
           <div className="flex w-full flex-col items-center justify-between gap-[3rem]">
             <Notification />
-            <SignoutIcon />
+            <Signout />
           </div>
         </div>
       </div>

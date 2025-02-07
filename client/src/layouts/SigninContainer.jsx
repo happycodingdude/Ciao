@@ -1,46 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
 import ForgotPassword from "../pages/ForgotPassword";
 import Signin from "../pages/Signin";
 
-const SigninContainer = (props) => {
-  const { show, onSuccess } = props;
-  const [showLogin, setShowLogin] = useState(true);
-  const [showForgot, setShowFotgot] = useState(false);
-
-  useEffect(() => {
-    // Khi toggle ẩn login container thì trả lại vị trí ban đầu của login và forgotpass
-    // để khi toggle hiện lại sẽ đúng vị trí
-    if (!show) {
-      setTimeout(() => {
-        setShowLogin(true);
-        setShowFotgot(false);
-      }, 500);
-    }
-  }, [show]);
+const SigninContainer = () => {
+  const { toggle } = useAuthenticationFormToggles();
 
   return (
     <div
-      data-state={show}
+      data-state={toggle === "signin" || toggle === "forgot"}
       className="absolute right-0 flex h-full w-[40%] flex-col justify-center overflow-hidden transition-all duration-500
       data-[state=false]:translate-x-[700%] data-[state=true]:translate-x-0"
     >
       <div className="relative">
-        <Signin
-          show={showLogin}
-          showContainer={show}
-          toggle={() => {
-            setShowLogin(false);
-            setShowFotgot(true);
-          }}
-          onSuccess={onSuccess}
-        />
-        <ForgotPassword
-          show={showForgot}
-          toggle={() => {
-            setShowLogin(true);
-            setShowFotgot(false);
-          }}
-        />
+        <Signin />
+        <ForgotPassword />
       </div>
     </div>
   );

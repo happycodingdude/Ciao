@@ -1,17 +1,5 @@
-import React, {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useState,
-} from "react";
-
-type TogglesContextType = {
-  toggle: string;
-  setToggle: Dispatch<SetStateAction<AuthenticationFormType>>;
-};
-
-type AuthenticationFormType = "signin" | "signup" | "forgot";
+import React, { createContext, ReactNode, useState } from "react";
+import { AuthenticationFormType, TogglesContextType } from "../types";
 
 // Create the context
 export const AuthenticationFormTogglesContext = createContext<

@@ -1,16 +1,14 @@
 import HttpRequest from "../../../lib/fetch";
-
-interface SigninRequest {
-  username: string;
-  password: string;
-}
+import { SigninRequest, TokenModel } from "../../../types";
 
 const signin = async (model: SigninRequest) => {
-  return await HttpRequest({
-    method: "post",
-    url: import.meta.env.VITE_ENDPOINT_SIGNIN,
-    data: model,
-  });
+  return (
+    await HttpRequest<SigninRequest, TokenModel>({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_SIGNIN,
+      data: model,
+    })
+  ).data;
 };
 
 export default signin;
