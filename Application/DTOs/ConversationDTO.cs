@@ -57,3 +57,19 @@ public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
     public bool IsNotifying { get; set; }
     public List<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
 }
+
+public class ConversationWithTotalUnseenWithContactInfoAndNoMessage : MongoBaseModel
+{
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public bool IsGroup { get; set; }
+    public DateTime? DeletedTime { get; set; }
+    public List<MemberWithFriendRequestAndContactInfo> Members { get; set; } = null!;
+    public int UnSeenMessages { get; set; }
+    public string LastMessageId { get; set; } = null!;
+    public string LastMessage { get; set; } = null!;
+    public DateTime? LastMessageTime { get; set; }
+    public string LastMessageContact { get; set; } = null!;
+    public DateTime? LastSeenTime { get; set; }
+    public bool IsNotifying { get; set; }
+}

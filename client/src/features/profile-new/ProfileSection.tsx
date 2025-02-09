@@ -11,7 +11,7 @@ import useInfo from "../authentication/hooks/useInfo";
 import updateInfo from "../authentication/services/updateInfo";
 
 const ProfileSection = () => {
-  console.log("ProfileSection calling");
+  // console.log("ProfileSection calling");
 
   const queryClient = useQueryClient();
   const { data: info } = useInfo();

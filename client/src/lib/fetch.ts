@@ -43,7 +43,7 @@ axiosRetry(axios, {
   },
 });
 
-const HttpRequest = async <TReq, TRes = undefined>(
+const HttpRequest = async <TReq = undefined, TRes = undefined>(
   req: HttpRequest<TReq, TRes>,
 ) => {
   // if (timeout !== 0) await delay(timeout);

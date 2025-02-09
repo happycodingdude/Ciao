@@ -13,13 +13,13 @@ public class MemberCache
 
     private string UserId => _httpContextAccessor.HttpContext.Items["UserId"].ToString();
 
-    public async Task<List<MemberWithFriendRequestAndContactInfo>> GetMembers(string conversationId)
-    {
-        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        return JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData);
-    }
+    // public async Task<List<MemberWithFriendRequestAndContactInfo>> GetMembers(string conversationId)
+    // {
+    //     var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
+    //     return JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData);
+    // }
 
-    public async Task GetMembers(List<ConversationWithTotalUnseenWithContactInfo> conversations)
+    public async Task GetMembers(List<ConversationWithTotalUnseenWithContactInfoAndNoMessage> conversations)
     {
         var tasks = conversations.Select(async conversation =>
         {

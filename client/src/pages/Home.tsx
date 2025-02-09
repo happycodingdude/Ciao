@@ -16,7 +16,7 @@ const ProfileSection = lazy(
 );
 
 const Home = () => {
-  console.log("Home calling");
+  // console.log("Home calling");
 
   const queryClient = useQueryClient();
 
@@ -24,7 +24,7 @@ const Home = () => {
 
   // const isRegistered = useRef(false);
 
-  const [page, setPage] = useState("profile");
+  const [page, setPage] = useState<string>("chat");
 
   const { mutate: registerConnectionMutation } = useMutation({
     mutationFn: (token: string) => registerConnection(token),

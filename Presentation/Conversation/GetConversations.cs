@@ -2,9 +2,9 @@ namespace Presentation.Conversations;
 
 public static class GetConversations
 {
-    public record Request(int page, int limit) : IRequest<List<ConversationWithTotalUnseenWithContactInfo>>;
+    public record Request(int page, int limit) : IRequest<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>;
 
-    internal sealed class Handler : IRequestHandler<Request, List<ConversationWithTotalUnseenWithContactInfo>>
+    internal sealed class Handler : IRequestHandler<Request, List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>
     {
         readonly IContactRepository _contactRepository;
         readonly IMapper _mapper;
@@ -19,10 +19,10 @@ public static class GetConversations
             _memberCache = memberCache;
         }
 
-        public async Task<List<ConversationWithTotalUnseenWithContactInfo>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>> Handle(Request request, CancellationToken cancellationToken)
         {
             var conversations = await _conversationCache.GetConversations();
-            var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfo>>(conversations);
+            var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>(conversations);
             await _memberCache.GetMembers(result);
             return result;
             // return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();

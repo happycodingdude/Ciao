@@ -80,7 +80,7 @@ public class GetMessagesEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}",
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}/messages",
         async (ISender sender, string id, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit) =>
         {
             var query = new GetMessages.Request(id, page, limit);

@@ -6,7 +6,7 @@ import read from "../../notification/services/read";
 import readAll from "../../notification/services/readAll";
 
 const Notification = () => {
-  console.log("Notification calling");
+  // console.log("Notification calling");
 
   const { data: notifications, refetch } = useNotification();
 

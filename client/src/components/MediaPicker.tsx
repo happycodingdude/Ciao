@@ -1,20 +1,8 @@
-import React, { ChangeEventHandler } from "react";
+import React from "react";
+import { MediaPickerProps } from "../types";
 
-export type MediaPickerProps = {
-  className?: string;
-  multiple?: boolean;
-  accept?: string;
-  id?: string;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-};
-
-const MediaPicker = ({
-  className,
-  multiple,
-  accept,
-  id,
-  onChange,
-}: MediaPickerProps) => {
+const MediaPicker = (props: MediaPickerProps) => {
+  const { className, multiple, accept, id, onChange } = props;
   return (
     <>
       <input

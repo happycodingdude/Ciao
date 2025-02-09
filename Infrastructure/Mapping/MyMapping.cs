@@ -13,6 +13,7 @@ public class MyMapping : Profile
         CreateMap<Conversation, CreateGroupConversationReq>().ReverseMap();
         CreateMap<Conversation, ConversationCacheModel>().ReverseMap();
         CreateMap<ConversationWithTotalUnseenWithContactInfo, ConversationCacheModel>().ReverseMap();
+        CreateMap<ConversationWithTotalUnseenWithContactInfoAndNoMessage, ConversationCacheModel>().ReverseMap();
         CreateMap<MemberWithFriendRequestAndContactInfo, MemberWithFriendRequest>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
