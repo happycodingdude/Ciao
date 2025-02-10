@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { MouseEvent, useEffect, useRef, useState } from "react";
 import CustomLabel from "../../../components/CustomLabel";
-import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -158,11 +158,12 @@ const Information = () => {
                   >
                     {/* <div className="absolute left-[-2rem] top-[-2rem] z-[1000] aspect-square w-[3rem] bg-red-300"></div> */}
                     <div className="relative">
-                      <ImageWithLightBox
+                      <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="aspect-square laptop:w-[3rem]"
+                        className="loaded aspect-square laptop:w-[3rem]"
                         imageClassName="bg-[size:160%]"
-                        roundedClassName="rounded-[50%]"
+                        // roundedClassName="rounded-[50%]"
+                        circle
                         slides={[
                           {
                             src: item.contact.avatar,
@@ -203,11 +204,11 @@ const Information = () => {
             </div>
             <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
               {displayAttachments.map((item, index) => (
-                <ImageWithLightBox
+                <ImageWithLightBoxAndNoLazy
                   src={item.mediaUrl}
                   title={item.mediaName?.split(".")[0]}
                   // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
-                  className={`aspect-square w-full`}
+                  className={`loaded aspect-square w-full`}
                   imageClassName="bg-[size:160%]"
                   slides={displayAttachments.map((item) => ({
                     src:

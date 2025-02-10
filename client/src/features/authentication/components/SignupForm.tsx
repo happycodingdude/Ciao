@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
@@ -27,10 +27,9 @@ const SignupForm = () => {
     refPassword.current.reset();
   };
 
-  // useEffect(() => {
-  //   // Khi toggle ẩn signup thì clear các value đã nhập
-  //   if (!show) reset();
-  // }, [show]);
+  useEffect(() => {
+    if (toggle !== "signin") reset();
+  }, [toggle]);
 
   const { mutate: signupMutation } = useMutation({
     mutationFn: (req: SignupRequest) => signup(req),

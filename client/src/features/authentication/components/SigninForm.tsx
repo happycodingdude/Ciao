@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -38,6 +38,10 @@ const SigninForm = () => {
     refUsername.current.reset();
     refPassword.current.reset();
   };
+
+  useEffect(() => {
+    if (toggle !== "signin") reset();
+  }, [toggle]);
 
   const { mutate: signinMutation } = useMutation({
     mutationFn: (req: SigninRequest) => signin(req),

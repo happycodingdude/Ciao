@@ -30,3 +30,8 @@ export type QuickChatProps = OnCloseType & {
   offset?: number;
   profile?: ContactModel;
 };
+
+export type CreateDirectChatRes = {
+  conversationId?: string;
+  messageId?: string;
+};

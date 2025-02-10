@@ -7,7 +7,7 @@ const useNotification = (): UseQueryResult<NotificationModel[]> => {
     queryKey: ["notification"],
     queryFn: getNotifications,
     staleTime: Infinity,
-    enabled: false,
+    // enabled: false,
   });
 };
 export default useNotification;

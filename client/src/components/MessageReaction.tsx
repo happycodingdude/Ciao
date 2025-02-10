@@ -1,7 +1,8 @@
 import { LikeOutlined } from "@ant-design/icons";
 import React from "react";
+import { MessageReactionProps } from "../types";
 
-const MessageReaction = (props) => {
+const MessageReaction = (props: MessageReactionProps) => {
   const { message, react, pending } = props;
   return (
     <>

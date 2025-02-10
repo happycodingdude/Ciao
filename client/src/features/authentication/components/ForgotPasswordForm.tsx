@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
@@ -18,17 +18,16 @@ const ForgotPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  // useEffect(() => {
-  //   // Khi toggle hiện login container ra thì clear các value đã nhập
-  //   if (!show) reset();
-  // }, [show]);
-
   const reset = () => {
     setError("");
     setProcessing(false);
     refUsername.current.reset();
     refPassword.current.reset();
   };
+
+  useEffect(() => {
+    if (toggle !== "signin") reset();
+  }, [toggle]);
 
   const { mutate: forgotPasswordMutation } = useMutation({
     mutationFn: (req: SigninRequest) => forgotPassword(req),

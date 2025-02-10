@@ -164,7 +164,7 @@ const QuickChat = (props: QuickChatProps) => {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           const updatedMessages = oldData.messages.map((message) => {
             if (message.id !== randomId) return message;
-            return { ...message, id: res, pending: false };
+            return { ...message, id: res.messageId, pending: false };
           });
           return {
             ...oldData,
@@ -284,7 +284,7 @@ const QuickChat = (props: QuickChatProps) => {
                   src: profile?.avatar,
                 },
               ]}
-              onClick={(e) => {}}
+              onClick={() => {}}
             />
           </div>
           <p className="text-md font-medium">{profile?.name}</p>

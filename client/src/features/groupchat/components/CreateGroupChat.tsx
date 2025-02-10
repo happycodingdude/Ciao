@@ -19,7 +19,7 @@ const CreateGroupChat = () => {
         title="Create group"
         onClose={() => setOpen(false)}
       >
-        <div className="flex flex-col justify-between p-10 pt-12 text-[var(--text-main-color)] laptop:h-[45rem] desktop:h-[80rem]">
+        <div className="flex flex-col gap-[1rem] p-10 pt-12 text-[var(--text-main-color)] laptop:h-[45rem] laptop-lg:h-[55rem] desktop:h-[80rem]">
           <Suspense fallback={<LocalLoading className="left-0 top-0" />}>
             <CreateGroupChatModal onClose={() => setOpen(false)} />
           </Suspense>

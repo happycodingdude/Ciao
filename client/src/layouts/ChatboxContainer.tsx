@@ -50,10 +50,10 @@ const ChatboxContainer = () => {
       ) : (
         <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
           <ChatboxHeader />
-          <div className="flex w-full laptop:h-[90dvh]">
+          <div className="flex w-full laptop:h-[92dvh]">
             <div
               ref={refChatboxContainer}
-              className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)] pb-[1.5rem]
+              className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]
                     ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
             >
               <Chatbox />

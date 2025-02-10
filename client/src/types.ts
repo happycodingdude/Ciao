@@ -118,24 +118,24 @@ export type CustomLabelProps = {
 };
 
 export type ReactionModel = {
-  likeCount: number,
-      loveCount: number,
-      careCount: number,
-      wowCount: number,
-      sadCount: number,
-      angryCount: number,
-      total: number,
-      currentReaction: string
-}
+  likeCount: number;
+  loveCount: number;
+  careCount: number;
+  wowCount: number;
+  sadCount: number;
+  angryCount: number;
+  total: number;
+  currentReaction: string | null;
+};
 
 export type MessageReactionProps_Message = {
   mine: boolean;
-  reaction:;
-  topReaction:;
-}
+  reaction: ReactionModel;
+  topReactions: string[];
+};
 
 export type MessageReactionProps = {
-  message;
+  message: MessageReactionProps_Message;
   react: (type: string) => void;
   pending: boolean;
 };

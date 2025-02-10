@@ -2,6 +2,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
+import { ReactionModel } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import reactMessage from "../services/reactMessage";
@@ -18,7 +19,7 @@ const MessageContent = (props: MessageContentProps) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
-  const [reaction, setReaction] = useState(() => {
+  const [reaction, setReaction] = useState<ReactionModel>(() => {
     return {
       likeCount: message.likeCount,
       loveCount: message.loveCount,
@@ -84,8 +85,8 @@ const MessageContent = (props: MessageContentProps) => {
     setTopReactions(generateMostReaction());
   }, [reaction]);
 
-  const react = (type) => {
-    console.log(`reaction type => ${type}...`);
+  const react = (type: string) => {
+    // console.log(`reaction type => ${type}...`);
     const desc = reaction.currentReaction === type;
     reactMessage(id, message.id, type, desc);
     setReaction((current) => {
@@ -156,7 +157,7 @@ const MessageContent = (props: MessageContentProps) => {
       >
         {/* Sender infor */}
         <div
-          className={`flex items-center gap-[1rem] text-xs text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
+          className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
         >
           {message.contactId === info.id ? (
             ""
@@ -263,7 +264,7 @@ const MessageContent = (props: MessageContentProps) => {
             >
               <ImageWithLightBoxAndNoLazy
                 src={message.attachments[0].mediaUrl}
-                title={message.attachments[0].mediaName.split(".")[0]}
+                title={message.attachments[0].mediaName?.split(".")[0]}
                 className={`loaded aspect-square w-[30%] cursor-pointer`}
                 imageClassName="bg-[size:170%]"
                 slides={message.attachments.map((item) => ({
@@ -308,7 +309,7 @@ const MessageContent = (props: MessageContentProps) => {
             //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
             //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
             // }`}
-            className={`cursor-pointer break-all rounded-[2rem] text-xs ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+            className={`cursor-pointer break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
@@ -329,7 +330,7 @@ const MessageContent = (props: MessageContentProps) => {
             topReactions: topReactions,
           }}
           react={react}
-          pending={pending}
+          pending={message.pending}
         />
         {/* {!pending ? (
           <MessageReaction

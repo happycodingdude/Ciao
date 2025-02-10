@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import blurImage from "../../../utils/blurImage";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
@@ -105,10 +105,10 @@ const Attachment = () => {
                 </div>
                 <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
                   {date.attachments.map((item, index) => (
-                    <ImageWithLightBox
+                    <ImageWithLightBoxAndNoLazy
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
-                      className="aspect-square w-full cursor-pointer rounded-2xl"
+                      className="loaded aspect-square w-full cursor-pointer rounded-2xl"
                       // spinnerClassName="laptop:bg-[size:2rem]"
                       imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({
