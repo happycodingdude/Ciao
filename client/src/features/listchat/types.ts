@@ -65,6 +65,10 @@ export type MessageModel = BaseModel & {
   currentReaction: string | null;
 };
 
+export type PendingMessageModel = MessageModel & {
+  pending?: boolean;
+};
+
 export type MessageCache = {
   hasMore: boolean;
   messages: MessageModel[];

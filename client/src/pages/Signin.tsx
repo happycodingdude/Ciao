@@ -1,6 +1,6 @@
 import React from "react";
 import SigninForm from "../features/authentication/components/SigninForm";
-import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
 
 const Signin = () => {
   const { toggle } = useAuthenticationFormToggles();

@@ -40,7 +40,6 @@ const ListchatContent = () => {
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
   const { data } = useConversation(refPage.current);
-
   const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
   const { refetch: refetchAttachments } = useAttachment(data?.selected?.id);
 

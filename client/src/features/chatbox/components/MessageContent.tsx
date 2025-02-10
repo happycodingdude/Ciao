@@ -5,10 +5,11 @@ import MessageReaction from "../../../components/MessageReaction";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import reactMessage from "../services/reactMessage";
+import { MessageContentProps } from "../types";
 
-const MessageContent = (props) => {
+const MessageContent = (props: MessageContentProps) => {
   // console.log("MessageContent calling");
-  const { message, id, pending, mt, innerRef, height, style } = props;
+  const { message, id, mt } = props;
 
   if (!message) return null;
 
@@ -123,11 +124,9 @@ const MessageContent = (props) => {
 
   return (
     <div
-      ref={innerRef}
       id={message.id}
       key={message.id}
       className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
-      style={style}
       // style={{ height: `${height}px` }}
     >
       {/* Sender avatar */}

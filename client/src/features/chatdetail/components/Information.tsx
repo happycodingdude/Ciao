@@ -5,7 +5,7 @@ import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
-import useToggleChatDetail from "../../chatbox/hooks/useToggleChatDetail";
+import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import QuickChat from "../../friend/components/QuickChat";
 import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -15,7 +15,7 @@ import useAttachment from "../hooks/useAttachment";
 const Information = () => {
   // console.log("Information calling");
   // const { show, toggle } = props;
-  const { toggle, setToggle } = useToggleChatDetail();
+  const { toggle, setToggle } = useChatDetailToggles();
 
   const queryClient = useQueryClient();
 

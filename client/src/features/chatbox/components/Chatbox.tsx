@@ -8,7 +8,6 @@ import { MessageCache } from "../../listchat/types";
 import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
 import MessageContent from "./MessageContent";
-
 const Chatbox = () => {
   // console.log("Chatbox calling");
   // const { isToggle } = props;

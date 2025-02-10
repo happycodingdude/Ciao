@@ -1,6 +1,10 @@
 import { ChangeEventHandler } from "react";
 import { OnCloseType } from "../../types";
-import { AttachmentModel, ConversationModel } from "../listchat/types";
+import {
+  AttachmentModel,
+  ConversationModel,
+  PendingMessageModel,
+} from "../listchat/types";
 
 export type MentionModel = {
   name: string;
@@ -28,4 +32,10 @@ export type ChatboxMenuProps = {
 
 export type UpdateConversationProps = OnCloseType & {
   selected: ConversationModel;
+};
+
+export type MessageContentProps = {
+  message: PendingMessageModel;
+  id: string;
+  mt: boolean;
 };

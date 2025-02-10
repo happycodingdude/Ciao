@@ -43,6 +43,7 @@ export type ImageWithLightboxProps = {
   roundedClassName?: string;
   slides?: { src: string }[]; // Assuming slides contain image URLs
   index?: number;
+  circle?: boolean;
   onClick?: () => void;
 };
 
@@ -106,15 +107,46 @@ export type CustomContentEditableProps = {
 };
 
 export type OnlineStatusDotProps = {
-  online: boolean;
-  className: string;
+  online?: boolean;
+  className?: string;
+};
+
+export type CustomLabelProps = {
+  title?: string;
+  className?: string;
+  tooltip?: string;
+};
+
+export type ReactionModel = {
+  likeCount: number,
+      loveCount: number,
+      careCount: number,
+      wowCount: number,
+      sadCount: number,
+      angryCount: number,
+      total: number,
+      currentReaction: string
+}
+
+export type MessageReactionProps_Message = {
+  mine: boolean;
+  reaction:;
+  topReaction:;
+}
+
+export type MessageReactionProps = {
+  message;
+  react: (type: string) => void;
+  pending: boolean;
 };
 
 export type AuthenticationFormType = "signin" | "signup" | "forgot";
 
-export type TogglesContextType = {
+export type ChatDetailType = "information" | "attachment" | null;
+
+export type TogglesContextType<T> = {
   toggle: string;
-  setToggle: Dispatch<SetStateAction<AuthenticationFormType>>;
+  setToggle: Dispatch<SetStateAction<T>>;
 };
 
 export type LoadingContextType = {

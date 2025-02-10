@@ -1,7 +1,8 @@
 import { UsergroupAddOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
-import CreateGroupChatModal from "./CreateGroupChatModal";
+import LocalLoading from "../../../components/LocalLoading";
+const CreateGroupChatModal = lazy(() => import("./CreateGroupChatModal"));
 
 const CreateGroupChat = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -18,7 +19,11 @@ const CreateGroupChat = () => {
         title="Create group"
         onClose={() => setOpen(false)}
       >
-        <CreateGroupChatModal onClose={() => setOpen(false)} />
+        <div className="flex flex-col justify-between p-10 pt-12 text-[var(--text-main-color)] laptop:h-[45rem] desktop:h-[80rem]">
+          <Suspense fallback={<LocalLoading className="left-0 top-0" />}>
+            <CreateGroupChatModal onClose={() => setOpen(false)} />
+          </Suspense>
+        </div>
       </BackgroundPortal>
     </>
   );

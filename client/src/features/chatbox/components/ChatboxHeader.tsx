@@ -7,14 +7,14 @@ import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
-import useToggleChatDetail from "../hooks/useToggleChatDetail";
+import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import AddMembers from "./AddMembers";
 import UpdateConversation from "./UpdateConversation";
 
 const ChatboxHeader = () => {
   // console.log("ChatboxHeader calling");
   // const { toggle, setToggle } = props;
-  const { toggle, setToggle } = useToggleChatDetail();
+  const { toggle, setToggle } = useChatDetailToggles();
 
   const { data: conversations } = useConversation();
   if (!conversations || !conversations.selected) return;
@@ -117,7 +117,7 @@ const ChatboxHeader = () => {
           <InfoCircleOutlined
             onClick={() =>
               setToggle((current) =>
-                current === "information" ? "" : "information",
+                current === "information" ? null : "information",
               )
             }
             style={{
@@ -133,7 +133,7 @@ const ChatboxHeader = () => {
         <AttachmentIcon
           onClick={() =>
             setToggle((current) =>
-              current === "attachment" ? "" : "attachment",
+              current === "attachment" ? null : "attachment",
             )
           }
           toggle={toggle === "attachment"}

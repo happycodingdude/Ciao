@@ -1,6 +1,6 @@
 import React from "react";
 import ForgotPasswordForm from "../features/authentication/components/ForgotPasswordForm";
-import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
 
 const ForgotPassword = () => {
   const { toggle } = useAuthenticationFormToggles();

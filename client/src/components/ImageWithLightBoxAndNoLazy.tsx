@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { CSSProperties, useState } from "react";
+import { ImageWithLightboxProps } from "../types";
 import CustomLightbox from "./CustomLightbox";
 
-const ImageWithLightBoxAndNoLazy = (props) => {
+const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
   // console.log("ImageWithLightBoxAndNoLazy calling...");
   const {
     src,
@@ -10,7 +11,7 @@ const ImageWithLightBoxAndNoLazy = (props) => {
     imageClassName,
     slides,
     index,
-    // onClick,
+    onClick,
     circle,
   } = props;
 
@@ -21,12 +22,14 @@ const ImageWithLightBoxAndNoLazy = (props) => {
     <>
       <div
         title={title}
-        style={{
-          "--image-url": `url(${src && src !== "" ? src : "src/assets/imagenotfound.jpg"})`,
-        }}
+        style={
+          {
+            "--image-url": `url(${src && src !== "" ? src : "src/assets/imagenotfound.jpg"})`,
+          } as CSSProperties
+        }
         className={`${className} ${imageClassName ?? "bg-[size:100%]"} ${circle ? "rounded-full" : "rounded-2xl"}  nolazy-image cursor-pointer  bg-[image:var(--image-url)]  bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
-        // onClick={onClick ?? handleShowLightbox}
-        onClick={handleShowLightbox}
+        onClick={onClick ?? handleShowLightbox}
+        // onClick={handleShowLightbox}
       ></div>
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}

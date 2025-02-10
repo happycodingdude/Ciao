@@ -2,11 +2,14 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBox from "../../../components/ImageWithLightBox";
 import blurImage from "../../../utils/blurImage";
+import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 
-const Attachment = (props) => {
-  console.log("Attachment calling");
-  const { show, toggle } = props;
+const Attachment = () => {
+  // console.log("Attachment calling");
+  // const { show, toggle } = props;
+  const { toggle } = useChatDetailToggles();
+  const show = toggle === "attachment";
   const { data: attachments } = useAttachment();
 
   const refAttachment = useRef();
@@ -106,7 +109,7 @@ const Attachment = (props) => {
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className="aspect-square w-full cursor-pointer rounded-2xl"
-                      spinnerClassName="laptop:bg-[size:2rem]"
+                      // spinnerClassName="laptop:bg-[size:2rem]"
                       imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({
                         src:

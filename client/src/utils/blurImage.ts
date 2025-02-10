@@ -1,38 +1,35 @@
-const blurImage = (containerClass) => {
+const blurImage = (containerClass: string) => {
   let observer = new IntersectionObserver(
     (entries, observer) => {
-      entries.forEach(async (entry) => {
-        if (entry.isIntersecting) {
-          // await delay();
-          // entry.target.src = entry.target.dataset.src;
-          entry.target.style.backgroundImage =
-            "url('" + entry.target.dataset.src + "')";
-          // entry.target.classList.add("loaded");
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.target instanceof HTMLElement) {
+          const targetElement = entry.target as HTMLElement;
 
-          // Find the previous sibling with the 'loading' class
-          let sibling = entry.target.previousElementSibling;
-
-          if (sibling && sibling.classList.contains("loading")) {
-            sibling.style.opacity = 0;
+          // Apply background image from data-src
+          const dataSrc = targetElement.dataset.src;
+          if (dataSrc) {
+            targetElement.style.backgroundImage = `url('${dataSrc}')`;
           }
 
-          observer.unobserve(entry.target);
+          // Find the previous sibling with the 'loading' class
+          const sibling =
+            targetElement.previousElementSibling as HTMLElement | null;
+          if (sibling?.classList.contains("loading")) {
+            sibling.style.opacity = "0";
+          }
+
+          observer.unobserve(targetElement);
         }
       });
     },
     { threshold: 0.5 },
   );
 
-  // function delay() {
-  //   return new Promise((resolve) => setTimeout(resolve, 3000));
-  // }
-
   const container = document.querySelector(containerClass);
   if (!container) return;
-  const images = container.querySelectorAll(".lazy-image");
-  images.forEach((img) => {
-    observer.observe(img);
-  });
+
+  const images = container.querySelectorAll<HTMLElement>(".lazy-image");
+  images.forEach((img) => observer.observe(img));
 };
 
 export default blurImage;

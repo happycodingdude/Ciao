@@ -3,8 +3,8 @@ import { MessageCache } from "../../listchat/types";
 import getMessages from "../services/getMessages";
 
 const useMessage = (
-  conversationId: string,
-  page: number,
+  conversationId?: string,
+  page?: number,
 ): UseQueryResult<MessageCache> => {
   return useQuery({
     queryKey: ["message"],

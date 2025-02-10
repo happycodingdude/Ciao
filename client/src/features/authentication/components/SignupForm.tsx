@@ -5,7 +5,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
 import { SignupRequest } from "../../../types";
-import useAuthenticationFormToggles from "../hooks/useToggleAuthenticationForms";
+import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import signup from "../services/signup";
 
 const SignupForm = () => {

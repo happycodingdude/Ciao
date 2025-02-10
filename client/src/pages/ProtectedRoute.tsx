@@ -1,5 +1,6 @@
+import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import Loading from "../components/Loading";
+import LocalLoading from "../components/LocalLoading";
 import useInfo from "../features/authentication/hooks/useInfo";
 import useLocalStorage from "../hooks/useLocalStorage";
 
@@ -12,7 +13,7 @@ const ProtectedRoute = () => {
   }
 
   if (accessToken) {
-    return <Loading />;
+    return <LocalLoading />;
   } else {
     return <Navigate to="/auth" />;
   }

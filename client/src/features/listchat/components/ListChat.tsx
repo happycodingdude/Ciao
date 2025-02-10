@@ -5,7 +5,7 @@ import ListChatFilter from "./ListChatFilter";
 import ListchatContent from "./ListchatContent";
 
 const ListChat = () => {
-  const { isLoading, isRefetching } = useConversation(1);
+  const { isLoading, isRefetching } = useConversation();
 
   return (
     <div className="relative grow laptop:w-[27rem] laptop-lg:w-[30rem]">

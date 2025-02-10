@@ -1,5 +1,5 @@
 import React from "react";
-import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
 import ForgotPassword from "../pages/ForgotPassword";
 import Signin from "../pages/Signin";
 

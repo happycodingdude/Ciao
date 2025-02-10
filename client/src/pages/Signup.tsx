@@ -1,6 +1,6 @@
 import React from "react";
 import SignupForm from "../features/authentication/components/SignupForm";
-import useToggleAuthenticationForms from "../features/authentication/hooks/useToggleAuthenticationForms";
+import useToggleAuthenticationForms from "../features/authentication/hooks/useAuthenticationFormToggles";
 
 const Signup = () => {
   // const { show, onSuccess } = props;

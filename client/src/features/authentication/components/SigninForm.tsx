@@ -6,7 +6,7 @@ import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import { SigninRequest } from "../../../types";
-import useAuthenticationFormToggles from "../hooks/useToggleAuthenticationForms";
+import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import signin from "../services/signin";
 
 const SigninForm = () => {

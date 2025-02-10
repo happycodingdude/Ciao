@@ -1,14 +1,30 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
+import LocalLoading from "../components/LocalLoading";
+import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
 import LoadingProvider from "../context/LoadingContext";
-import ChatboxContainer from "./ChatboxContainer";
-import ListChatContainer from "./ListChatContainer";
+import useConversation from "../features/listchat/hooks/useConversation";
+const ListChatContainer = lazy(() => import("./ListChatContainer"));
+const ChatboxContainer = lazy(() => import("./ChatboxContainer"));
 
 const ChatSection = () => {
+  const { data: conversations } = useConversation(1);
   return (
     <LoadingProvider>
       <section className={`flex grow overflow-hidden`}>
-        <ListChatContainer />
-        <ChatboxContainer />
+        <Suspense fallback={<LocalLoading />}>
+          <ListChatContainer />
+        </Suspense>
+        <Suspense fallback={<LocalLoading />}>
+          {conversations?.selected ||
+          conversations?.createGroupChat ||
+          conversations?.quickChat ? (
+            <ChatDetailTogglesProvider>
+              <ChatboxContainer />
+            </ChatDetailTogglesProvider>
+          ) : (
+            ""
+          )}
+        </Suspense>
       </section>
     </LoadingProvider>
   );

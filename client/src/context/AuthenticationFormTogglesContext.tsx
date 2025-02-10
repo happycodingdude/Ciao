@@ -3,7 +3,7 @@ import { AuthenticationFormType, TogglesContextType } from "../types";
 
 // Create the context
 export const AuthenticationFormTogglesContext = createContext<
-  TogglesContextType | undefined
+  TogglesContextType<AuthenticationFormType> | undefined
 >(undefined);
 
 // Create the provider

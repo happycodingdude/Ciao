@@ -1,9 +1,9 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Loading from "../components/Loading";
+import LocalLoading from "../components/LocalLoading";
 import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
+import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
 import useInfo from "../features/authentication/hooks/useInfo";
-import useAuthenticationFormToggles from "../features/authentication/hooks/useToggleAuthenticationForms";
 import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import Signup from "./Signup";
@@ -33,7 +33,7 @@ const Authentication = () => {
 
   if (info) navigate("/");
 
-  if (accessToken) return <Loading />;
+  if (accessToken) return <LocalLoading />;
 
   const toggleBg = () => {
     // Animate background container
