@@ -4,11 +4,14 @@ import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import useLoading from "../../../hooks/useLoading";
-import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
-import { ConversationCache, MessageCache } from "../../listchat/types";
+import {
+  ConversationCache,
+  ConversationModel,
+  MessageCache,
+} from "../../listchat/types";
 import sendQuickChat from "../services/sendQuickChat";
 import { QuickChatProps } from "../types";
 import FriendCtaButton from "./FriendCtaButton";
@@ -59,23 +62,6 @@ const QuickChat = (props: QuickChatProps) => {
         conv.members.some((mem) => mem.contact.id === profile.id),
     );
     if (existedConversation) {
-      const bodyToCreate = {
-        type: "text",
-        content: content,
-      };
-      sendMessage(existedConversation.id, bodyToCreate).then((res) => {
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          const updatedMessages = oldData.messages.map((message) => {
-            if (message.id !== randomId) return message;
-            return { ...message, id: res, pending: false };
-          });
-          return {
-            ...oldData,
-            messages: updatedMessages,
-          };
-        });
-      });
-
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
@@ -110,23 +96,86 @@ const QuickChat = (props: QuickChatProps) => {
               return conv;
             });
           }
-          return {
+          const data: ConversationCache = {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
             selected: existedConversation,
             reload: true,
+            quickChat: true,
+            message: {
+              id: randomId,
+              contactId: info.id,
+              type: "text",
+              content: content,
+              currentReaction: null,
+              pending: true,
+            },
           };
+          return data;
         },
       );
+      const bodyToCreate = {
+        type: "text",
+        content: content,
+      };
+      sendMessage(existedConversation.id, bodyToCreate, 1000).then((res) => {
+        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+          const updatedMessages = oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            return { ...message, id: res, pending: false };
+          });
+          return {
+            ...oldData,
+            messages: updatedMessages,
+          };
+        });
+      });
+    } else {
+      // setLoading(true);
 
-      await delay(500);
-
+      queryClient.setQueryData(
+        ["conversation"],
+        (oldData: ConversationCache) => {
+          const newConversation: ConversationModel = {
+            id: randomId,
+            lastMessage: content,
+            isGroup: false,
+            isNotifying: true,
+            members: [
+              {
+                isModerator: true,
+                contact: {
+                  id: info.id,
+                  name: info.name,
+                  avatar: info.avatar,
+                  isOnline: true,
+                },
+              },
+              {
+                contact: {
+                  id: profile.id,
+                  name: profile.name,
+                  avatar: profile.avatar,
+                  isOnline: profile.isOnline,
+                },
+              },
+            ],
+          };
+          const data: ConversationCache = {
+            ...oldData,
+            conversations: [newConversation, ...oldData.conversations],
+            filterConversations: [newConversation, ...oldData.conversations],
+            selected: newConversation,
+            reload: false,
+          };
+          return data;
+        },
+      );
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
           messages: [
-            ...oldData.messages,
             {
               id: randomId,
               contactId: info.id,
@@ -136,10 +185,13 @@ const QuickChat = (props: QuickChatProps) => {
               pending: true,
             },
           ],
+          hasMore: false,
         };
       });
-    } else {
-      setLoading(true);
+      queryClient.setQueryData(["attachment"], (oldData) => {
+        return [];
+      });
+
       sendQuickChat(profile.id, content).then((res) => {
         queryClient.setQueryData(
           ["conversation"],
@@ -171,70 +223,9 @@ const QuickChat = (props: QuickChatProps) => {
             messages: updatedMessages,
           };
         });
-        setLoading(false);
+        // setLoading(false);
       });
-
-      queryClient.setQueryData(
-        ["conversation"],
-        (oldData: ConversationCache) => {
-          const newConversation = {
-            id: randomId,
-            lastMessage: content,
-            isGroup: false,
-            isNotifying: true,
-            members: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              {
-                contact: {
-                  id: profile.id,
-                  name: profile.name,
-                  avatar: profile.avatar,
-                  isOnline: profile.isOnline,
-                },
-              },
-            ],
-            noLazy: true,
-          };
-          return {
-            ...oldData,
-            conversations: [newConversation, ...oldData.conversations],
-            filterConversations: [newConversation, ...oldData.conversations],
-            selected: newConversation,
-            noLoading: true,
-            reload: false,
-          };
-        },
-      );
-
-      await delay(500);
-
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: [
-            {
-              id: randomId,
-              contactId: info.id,
-              type: "text",
-              content: content,
-              currentReaction: null,
-              pending: true,
-            },
-          ],
-          hasMore: false,
-        };
-      });
-      queryClient.setQueryData(["attachment"], (oldData) => {
-        return [];
-      });
+      // setLoading(false);
     }
     onClose();
   };

@@ -3,6 +3,7 @@ import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 import refreshToken from "../features/authentication/services/refreshToken";
 import { HttpRequest } from "../types";
+import delay from "../utils/delay";
 
 axiosRetry(axios, {
   retries: 1,
@@ -46,7 +47,7 @@ axiosRetry(axios, {
 const HttpRequest = async <TReq = undefined, TRes = undefined>(
   req: HttpRequest<TReq, TRes>,
 ) => {
-  // if (timeout !== 0) await delay(timeout);
+  if (req.timeout !== 0) await delay(req.timeout);
 
   return await axios<TRes | undefined>({
     method: req.method,

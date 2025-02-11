@@ -175,6 +175,7 @@ export type HttpRequest<TReq = undefined, TRes = undefined> = {
   alert?: boolean; // Optional flag
   // controller?: AbortController; // Optional for request cancellation
   response?: TRes; // Expected response type
+  timeout?: number;
 };
 
 export type SigninRequest = {

@@ -1,7 +1,11 @@
 import HttpRequest from "../../../lib/fetch";
 import { SendMessageRequest } from "../types";
 
-const sendMessage = async (id: string, data: SendMessageRequest) => {
+const sendMessage = async (
+  id: string,
+  data: SendMessageRequest,
+  timeout?: number,
+) => {
   return (
     await HttpRequest<SendMessageRequest, string>({
       method: "post",
@@ -10,7 +14,7 @@ const sendMessage = async (id: string, data: SendMessageRequest) => {
         id,
       ),
       data: data,
-      // timeout: 500,
+      timeout: timeout,
     })
   ).data;
 };

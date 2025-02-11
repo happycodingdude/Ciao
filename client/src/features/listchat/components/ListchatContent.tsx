@@ -9,7 +9,7 @@ import useInfo from "../../authentication/hooks/useInfo";
 import useMessage from "../../chatbox/hooks/useMessage";
 import useAttachment from "../../chatdetail/hooks/useAttachment";
 import useConversation from "../hooks/useConversation";
-import { ConversationCache } from "../types";
+import { ConversationCache, MessageCache } from "../types";
 
 moment.locale("en", {
   relativeTime: {
@@ -64,13 +64,16 @@ const ListchatContent = () => {
           unSeenMessages: 0,
         };
       });
-      return {
+      const data: ConversationCache = {
         ...oldData,
         selected: oldData.conversations.find((item) => item.id === id),
         conversations: newConversations,
         filterConversations: newConversations,
         reload: true,
+        quickChat: false,
+        message: null,
       };
+      return data;
     });
   };
 
@@ -98,7 +101,18 @@ const ListchatContent = () => {
 
     setLoading(true);
     scrollToCenterOfSelected();
-    refetchMessage();
+    if (data.quickChat) {
+      refetchMessage().then((res) => {
+        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+          return {
+            ...oldData,
+            messages: [...oldData.messages, data.message],
+          };
+        });
+      });
+    } else {
+      refetchMessage();
+    }
     refetchAttachments();
   }, [data?.selected?.id]);
 
