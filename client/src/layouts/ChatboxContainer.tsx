@@ -50,7 +50,7 @@ const ChatboxContainer = () => {
       ) : (
         <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
           <ChatboxHeader />
-          <div className="flex w-full laptop:h-[92dvh]">
+          <div className="flex w-full laptop:h-[88dvh] laptop-lg:h-[92dvh]">
             <div
               ref={refChatboxContainer}
               className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]

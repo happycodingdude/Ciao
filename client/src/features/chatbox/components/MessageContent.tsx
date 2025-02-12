@@ -127,7 +127,7 @@ const MessageContent = (props: MessageContentProps) => {
     <div
       id={message.id}
       key={message.id}
-      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
+      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""} laptop-kg:text-sm laptop:text-xs`}
       // style={{ height: `${height}px` }}
     >
       {/* Sender avatar */}

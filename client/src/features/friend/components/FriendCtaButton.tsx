@@ -3,6 +3,7 @@ import React from "react";
 import CustomButton from "../../../components/CustomButton";
 import useLoading from "../../../hooks/useLoading";
 import { FriendItemProps } from "../../../types";
+import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import reopenMember from "../../chatbox/services/reopenMember";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -24,6 +25,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
   const { data: conversations } = useConversation();
 
   const chat = async (contact) => {
+    onClose();
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
       (conv) =>
@@ -31,14 +33,17 @@ const FriendCtaButton = (props: FriendItemProps) => {
         conv.members.some((mem) => mem.contact.id === contact.id),
     );
     if (existedConversation) {
+      let isDeletedConversation = existedConversation.members.find(
+        (mem) => mem.contact.id === info.id,
+      ).isDeleted;
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
           // Move existed conversation to the top if the conversation was deleted
           // else keep the current position of the conversation
-          let isDeletedConversation = existedConversation.members.find(
-            (mem) => mem.contact.id === info.id,
-          ).isDeleted;
+          // let isDeletedConversation = existedConversation.members.find(
+          //   (mem) => mem.contact.id === info.id,
+          // ).isDeleted;
           let updatedConversations = [];
           if (isDeletedConversation) {
             existedConversation.members = existedConversation.members.map(
@@ -71,36 +76,14 @@ const FriendCtaButton = (props: FriendItemProps) => {
             filterConversations: updatedConversations,
             selected: existedConversation,
             reload: true,
+            quickChat: false,
+            message: null,
           };
         },
       );
-      reopenMember(existedConversation.id);
+      if (isDeletedConversation) reopenMember(existedConversation.id);
     } else {
       setLoading(true);
-      createDirectChat(contact.id).then((res) => {
-        queryClient.setQueryData(
-          ["conversation"],
-          (oldData: ConversationCache) => {
-            const updatedConversations = oldData.conversations.map(
-              (conversation) => {
-                if (conversation.id !== randomId) return conversation;
-                conversation.id = res.conversationId;
-                return conversation;
-              },
-            );
-            return {
-              ...oldData,
-              conversations: updatedConversations,
-              filterConversations: updatedConversations,
-              selected: {
-                ...oldData.selected,
-                id: res.conversationId,
-              },
-            };
-          },
-        );
-        setLoading(false);
-      });
 
       queryClient.setQueryData(
         ["conversation"],
@@ -141,6 +124,31 @@ const FriendCtaButton = (props: FriendItemProps) => {
         },
       );
 
+      createDirectChat(contact.id).then((res) => {
+        queryClient.setQueryData(
+          ["conversation"],
+          (oldData: ConversationCache) => {
+            const updatedConversations = oldData.conversations.map(
+              (conversation) => {
+                if (conversation.id !== randomId) return conversation;
+                conversation.id = res.conversationId;
+                return conversation;
+              },
+            );
+            return {
+              ...oldData,
+              conversations: updatedConversations,
+              filterConversations: updatedConversations,
+              selected: {
+                ...oldData.selected,
+                id: res.conversationId,
+              },
+            };
+          },
+        );
+      });
+
+      await delay(500);
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
@@ -151,8 +159,9 @@ const FriendCtaButton = (props: FriendItemProps) => {
       queryClient.setQueryData(["attachment"], (oldData) => {
         return [];
       });
+
+      setLoading(false);
     }
-    onClose();
   };
 
   // const chat = (contact) => {
