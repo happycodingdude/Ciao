@@ -172,7 +172,7 @@ const Information = () => {
                         onClick={() => {}}
                       />
                       <OnlineStatusDot
-                        className="bottom-[-5%] left-[80%]"
+                        className="right-[-20%] top-[-10%]"
                         online={item.contact.isOnline}
                       />
                     </div>

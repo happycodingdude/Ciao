@@ -38,6 +38,7 @@ const AddMembersModal = (props: OnCloseType) => {
 
   const addMembersCTA = () => {
     if (membersToAdd.length === 0) return;
+    onClose();
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const updatedConversations = oldData.conversations.map((conversation) => {
@@ -76,7 +77,7 @@ const AddMembersModal = (props: OnCloseType) => {
             }),
           ],
         },
-      };
+      } as ConversationCache;
     });
 
     addMembers(
@@ -85,8 +86,6 @@ const AddMembersModal = (props: OnCloseType) => {
         return mem.id;
       }),
     );
-
-    onClose();
   };
 
   return (
@@ -123,7 +122,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]
                 ${
                   conversations.selected.members.some(
-                    (mem) => mem.id === item.id,
+                    (mem) => mem.contact.id === item.id,
                   )
                     ? "pointer-events-none"
                     : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
@@ -144,7 +143,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   }}
                 >
                   {conversations.selected.members.some(
-                    (mem) => mem.id === item.id,
+                    (mem) => mem.contact.id === item.id,
                   ) || membersToAdd.some((mem) => mem.id === item.id) ? (
                     <div
                       className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
@@ -180,7 +179,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   <div>
                     <CustomLabel title={item.name} />
                     {conversations.selected.members.some(
-                      (mem) => mem.id === item.id,
+                      (mem) => mem.contact.id === item.id,
                     ) ? (
                       <p className="text-[var(--text-main-color-blur)]">
                         Joined

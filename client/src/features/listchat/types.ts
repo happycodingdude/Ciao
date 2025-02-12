@@ -81,7 +81,7 @@ export type PendingMessageModel = MessageModel & {
 
 export type MessageCache = {
   hasMore: boolean;
-  messages: MessageModel[];
+  messages: PendingMessageModel[];
 };
 
 export type AttachmentCache = {

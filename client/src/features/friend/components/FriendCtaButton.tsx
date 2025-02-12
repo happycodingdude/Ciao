@@ -7,7 +7,11 @@ import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import reopenMember from "../../chatbox/services/reopenMember";
 import useConversation from "../../listchat/hooks/useConversation";
-import { ConversationCache, MessageCache } from "../../listchat/types";
+import {
+  ConversationCache,
+  ConversationModel,
+  MessageCache,
+} from "../../listchat/types";
 import createDirectChat from "../services/createDirectChat";
 import AcceptButton from "./AcceptButton";
 import AddButton from "./AddButton";
@@ -41,10 +45,8 @@ const FriendCtaButton = (props: FriendItemProps) => {
         (oldData: ConversationCache) => {
           // Move existed conversation to the top if the conversation was deleted
           // else keep the current position of the conversation
-          // let isDeletedConversation = existedConversation.members.find(
-          //   (mem) => mem.contact.id === info.id,
-          // ).isDeleted;
-          let updatedConversations = [];
+
+          let updatedConversations: ConversationModel[] = [];
           if (isDeletedConversation) {
             existedConversation.members = existedConversation.members.map(
               (mem) => {
@@ -78,7 +80,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
             reload: true,
             quickChat: false,
             message: null,
-          };
+          } as ConversationCache;
         },
       );
       if (isDeletedConversation) reopenMember(existedConversation.id);
@@ -88,7 +90,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          const newConversation = {
+          const newConversation: ConversationModel = {
             id: randomId,
             isGroup: false,
             isNotifying: true,
@@ -111,16 +113,15 @@ const FriendCtaButton = (props: FriendItemProps) => {
                 },
               },
             ],
-            noLazy: true,
           };
+
           return {
             ...oldData,
             conversations: [newConversation, ...oldData.conversations],
             filterConversations: [newConversation, ...oldData.conversations],
             selected: newConversation,
-            noLoading: true,
             reload: false,
-          };
+          } as ConversationCache;
         },
       );
 
@@ -135,6 +136,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
                 return conversation;
               },
             );
+
             return {
               ...oldData,
               conversations: updatedConversations,
@@ -143,18 +145,19 @@ const FriendCtaButton = (props: FriendItemProps) => {
                 ...oldData.selected,
                 id: res.conversationId,
               },
-            };
+            } as ConversationCache;
           },
         );
       });
 
+      // Delay for smooth processing animation
       await delay(500);
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
           messages: [],
           hasMore: false,
-        };
+        } as MessageCache;
       });
       queryClient.setQueryData(["attachment"], (oldData) => {
         return [];
@@ -163,117 +166,6 @@ const FriendCtaButton = (props: FriendItemProps) => {
       setLoading(false);
     }
   };
-
-  // const chat = (contact) => {
-  //   const existedConversation = conversations.conversations.find(
-  //     (item) =>
-  //       item.isGroup === false &&
-  //       item.members.some((item) => item.contact.id === contact.id),
-  //   );
-  //   if (existedConversation) {
-  //     queryClient.setQueryData(["conversation"], (oldData) => {
-  //       return {
-  //         ...oldData,
-  //         selected: existedConversation,
-  //         fromListFriend: true,
-  //       };
-  //     });
-  //   } else {
-  //     let randomId = Math.random().toString(36).substring(2, 7);
-
-  //     createDirectChat(contact.id).then((res) => {
-  //       // queryClient.setQueryData(["conversation"], (oldData) => {
-  //       //   const updatedConversations = oldData.conversations.map(
-  //       //     (conversation) => {
-  //       //       if (conversation.id !== randomId) return conversation;
-  //       //       conversation.id = res.data;
-  //       //       return conversation;
-  //       //     },
-  //       //   );
-  //       //   return {
-  //       //     ...oldData,
-  //       //     conversations: updatedConversations,
-  //       //     filterConversations: updatedConversations,
-  //       //     selected: {
-  //       //       ...oldData.selected,
-  //       //       id: res.data,
-  //       //     },
-  //       //     quickChatAdd: false,
-  //       //     fromListFriend: true,
-  //       //   };
-  //       // });
-
-  //       queryClient.setQueryData(["conversation"], (oldData) => {
-  //         const newConversation = {
-  //           isGroup: false,
-  //           isNotifying: true,
-  //           id: res.data,
-  //           members: [
-  //             {
-  //               isModerator: true,
-  //               contact: {
-  //                 id: info.id,
-  //                 name: info.name,
-  //                 avatar: info.avatar,
-  //                 isOnline: true,
-  //               },
-  //             },
-  //             {
-  //               contact: {
-  //                 id: contact.id,
-  //                 name: contact.name,
-  //                 avatar: contact.avatar,
-  //                 isOnline: contact.isOnline,
-  //               },
-  //             },
-  //           ],
-  //         };
-  //         return {
-  //           ...oldData,
-  //           conversations: [newConversation, ...oldData.conversations],
-  //           filterConversations: [newConversation, ...oldData.conversations],
-  //           selected: newConversation,
-  //           quickChatAdd: true,
-  //         };
-  //       });
-  //     });
-
-  //     // queryClient.setQueryData(["conversation"], (oldData) => {
-  //     //   const newConversation = {
-  //     //     isGroup: false,
-  //     //     isNotifying: true,
-  //     //     id: randomId,
-  //     //     members: [
-  //     //       {
-  //     //         isModerator: true,
-  //     //         contact: {
-  //     //           id: info.id,
-  //     //           name: info.name,
-  //     //           avatar: info.avatar,
-  //     //           isOnline: true,
-  //     //         },
-  //     //       },
-  //     //       {
-  //     //         contact: {
-  //     //           id: contact.id,
-  //     //           name: contact.name,
-  //     //           avatar: contact.avatar,
-  //     //           isOnline: contact.isOnline,
-  //     //         },
-  //     //       },
-  //     //     ],
-  //     //   };
-  //     //   return {
-  //     //     ...oldData,
-  //     //     conversations: [newConversation, ...oldData.conversations],
-  //     //     filterConversations: [newConversation, ...oldData.conversations],
-  //     //     selected: newConversation,
-  //     //     quickChatAdd: true,
-  //     //   };
-  //     // });
-  //   }
-  //   onClose();
-  // };
 
   return {
     new: (

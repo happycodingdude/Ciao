@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -45,7 +44,7 @@ const ChatboxHeader = () => {
             if (conversations.selected.isGroup) setOpenUpdateTitle(true);
           }}
         />
-        {!conversations.selected.isGroup ? (
+        {/* {!conversations.selected.isGroup ? (
           <OnlineStatusDot
             className="left-[20%] top-[-5%]"
             online={
@@ -56,7 +55,7 @@ const ChatboxHeader = () => {
           />
         ) : (
           ""
-        )}
+        )} */}
         <BackgroundPortal
           show={openUpdateTitle}
           className="laptop:!w-[45rem] desktop:!w-[35%]"

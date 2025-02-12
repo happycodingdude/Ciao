@@ -3,6 +3,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef } from "react";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useLoading from "../../../hooks/useLoading";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -186,6 +187,17 @@ const ListchatContent = () => {
                 imageClassName="bg-[size:170%]"
                 circle
               />
+              {!item.isGroup ? (
+                <OnlineStatusDot
+                  className="right-0 top-[-5%]"
+                  online={
+                    item.members.find((item) => item.contact.id !== info.id)
+                      ?.contact.isOnline
+                  }
+                />
+              ) : (
+                ""
+              )}
             </div>
             {/* Title & last message */}
             <div className={`flex h-full w-1/2 grow flex-col`}>

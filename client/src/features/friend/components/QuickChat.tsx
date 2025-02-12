@@ -4,6 +4,7 @@ import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import useLoading from "../../../hooks/useLoading";
+import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -54,6 +55,7 @@ const QuickChat = (props: QuickChatProps) => {
   }, [profile, rect]);
 
   const chat = async () => {
+    onClose();
     const content = refInput.current.textContent;
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
@@ -96,7 +98,8 @@ const QuickChat = (props: QuickChatProps) => {
               return conv;
             });
           }
-          const data: ConversationCache = {
+
+          return {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
@@ -111,8 +114,7 @@ const QuickChat = (props: QuickChatProps) => {
               currentReaction: null,
               pending: true,
             },
-          };
-          return data;
+          } as ConversationCache;
         },
       );
       const bodyToCreate = {
@@ -128,11 +130,11 @@ const QuickChat = (props: QuickChatProps) => {
           return {
             ...oldData,
             messages: updatedMessages,
-          };
+          } as MessageCache;
         });
       });
     } else {
-      // setLoading(true);
+      setLoading(true);
 
       queryClient.setQueryData(
         ["conversation"],
@@ -162,35 +164,15 @@ const QuickChat = (props: QuickChatProps) => {
               },
             ],
           };
-          const data: ConversationCache = {
+          return {
             ...oldData,
             conversations: [newConversation, ...oldData.conversations],
             filterConversations: [newConversation, ...oldData.conversations],
             selected: newConversation,
             reload: false,
-          };
-          return data;
+          } as ConversationCache;
         },
       );
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: [
-            {
-              id: randomId,
-              contactId: info.id,
-              type: "text",
-              content: content,
-              currentReaction: null,
-              pending: true,
-            },
-          ],
-          hasMore: false,
-        };
-      });
-      queryClient.setQueryData(["attachment"], (oldData) => {
-        return [];
-      });
 
       sendQuickChat(profile.id, content).then((res) => {
         queryClient.setQueryData(
@@ -210,7 +192,7 @@ const QuickChat = (props: QuickChatProps) => {
                 ...oldData.selected,
                 id: res.conversationId,
               },
-            };
+            } as ConversationCache;
           },
         );
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
@@ -221,13 +203,34 @@ const QuickChat = (props: QuickChatProps) => {
           return {
             ...oldData,
             messages: updatedMessages,
-          };
+          } as MessageCache;
         });
-        // setLoading(false);
       });
-      // setLoading(false);
+
+      // Delay for smooth processing animation
+      await delay(500);
+      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          messages: [
+            {
+              id: randomId,
+              contactId: info.id,
+              type: "text",
+              content: content,
+              currentReaction: null,
+              pending: true,
+            },
+          ],
+          hasMore: false,
+        } as MessageCache;
+      });
+      queryClient.setQueryData(["attachment"], (oldData) => {
+        return [];
+      });
+
+      setLoading(false);
     }
-    onClose();
   };
 
   const keydownBindingFn = (e) => {

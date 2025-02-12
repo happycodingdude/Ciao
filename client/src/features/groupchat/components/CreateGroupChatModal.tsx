@@ -52,6 +52,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
   const createGroupChatCTA = async () => {
     if (membersToAdd.length === 0) return;
+    onClose();
 
     let url = "";
     if (file === undefined) {
@@ -97,7 +98,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               ...oldData.selected,
               id: res.data,
             },
-          };
+          } as ConversationCache;
         },
       );
     });
@@ -149,20 +150,18 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         selected: newConversation,
         noLoading: true,
         reload: false,
-      };
+      } as ConversationCache;
     });
     queryClient.setQueryData(["message"], (oldData: MessageCache) => {
       return {
         ...oldData,
         messages: [],
         hasMore: false,
-      };
+      } as MessageCache;
     });
     queryClient.setQueryData(["attachment"], (oldData) => {
       return [];
     });
-
-    onClose();
   };
 
   return (
