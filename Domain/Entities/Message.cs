@@ -10,7 +10,7 @@ public class Message : MongoBaseModel
     public DateTime? SeenTime { get; set; }
     public string ContactId { get; set; } = null!;
     public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
-    public ICollection<Attachment>? Attachments { get; set; } = new List<Attachment>();
+    public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 }
 
 // public class MessageReaction

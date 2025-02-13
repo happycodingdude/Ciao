@@ -35,10 +35,12 @@ public class KafkaMessageHandler : IKafkaMessageHandler
 
         // Prepare message
         var user = await _contactRepository.GetInfoAsync(param.UserId);
+        // Console.WriteLine(JsonConvert.SerializeObject(param.Message));
         var message = _mapper.Map<Message>(param.Message);
         message.ContactId = user.Id;
         if (message.Type == "media")
             message.Content = null;
+        // Console.WriteLine(JsonConvert.SerializeObject(message));
         conversation.Messages.Add(message);
 
         // When a message sent, all members of that group will be having that group conversation back

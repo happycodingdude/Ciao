@@ -4,15 +4,21 @@ public class SendMessageReq : MongoBaseModel
 {
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
-    public List<SendMessageReq_Attachments> Attachments { get; set; } = new List<SendMessageReq_Attachments>();
+    public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 }
 
-public class SendMessageReq_Attachments
+// public class SendMessageReq_Attachments
+// {
+//     public string Type { get; set; } = null!;
+//     public string MediaName { get; set; } = null!;
+//     public double MediaSize { get; set; }
+//     public string MediaUrl { get; set; } = null!;
+// }
+
+public class SendMessageRes
 {
-    public string Type { get; set; } = null!;
-    public string MediaName { get; set; } = null!;
-    public double MediaSize { get; set; }
-    public string MediaUrl { get; set; } = null!;
+    public string Message { get; set; } = null!;
+    public string[] Attachments { get; set; } = null!;
 }
 
 public class MessageToNotify
@@ -22,7 +28,7 @@ public class MessageToNotify
     public string Content { get; set; } = null!;
     public ConversationToNotify Conversation { get; set; } = null!;
     public MessageToNotify_Contact Contact { get; set; } = null!;
-    public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+    public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 }
 
 // public class MessageToNotify_Conversation
@@ -56,7 +62,7 @@ public class MessageWithReactions : MongoBaseModel
     public bool IsPinned { get; set; }
     public DateTime? SeenTime { get; set; }
     public string ContactId { get; set; } = null!;
-    public ICollection<Attachment>? Attachments { get; set; } = new List<Attachment>();
+    public List<Attachment>? Attachments { get; set; } = new List<Attachment>();
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }
     public int CareCount { get; set; }

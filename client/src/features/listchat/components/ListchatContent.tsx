@@ -184,7 +184,7 @@ const ListchatContent = () => {
                         ?.contact.avatar
                 }
                 className={`loaded pointer-events-none aspect-square laptop:w-[5rem]`}
-                imageClassName="bg-[size:170%]"
+                // imageClassName="bg-[size:170%]"
                 circle
               />
               {!item.isGroup ? (

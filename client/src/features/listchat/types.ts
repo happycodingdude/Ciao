@@ -56,23 +56,24 @@ export type AttachmentModel = BaseModel & {
   mediaUrl?: string;
   mediaName?: string;
   mediaSize?: number;
+  pending?: boolean;
 };
 
 export type MessageModel = BaseModel & {
-  type: string;
-  content: string | null;
-  status: string;
-  isPinned: boolean;
-  seenTime: string | null;
-  contactId: string;
-  attachments: AttachmentModel[];
-  likeCount: number;
-  loveCount: number;
-  careCount: number;
-  wowCount: number;
-  sadCount: number;
-  angryCount: number;
-  currentReaction: string | null;
+  type?: string;
+  content?: string | null;
+  status?: string;
+  isPinned?: boolean;
+  seenTime?: string | null;
+  contactId?: string;
+  attachments?: AttachmentModel[];
+  likeCount?: number;
+  loveCount?: number;
+  careCount?: number;
+  wowCount?: number;
+  sadCount?: number;
+  angryCount?: number;
+  currentReaction?: string | null;
 };
 
 export type PendingMessageModel = MessageModel & {

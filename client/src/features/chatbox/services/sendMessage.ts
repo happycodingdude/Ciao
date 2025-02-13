@@ -1,5 +1,5 @@
 import HttpRequest from "../../../lib/fetch";
-import { SendMessageRequest } from "../types";
+import { SendMessageRequest, SendMessageResponse } from "../types";
 
 const sendMessage = async (
   id: string,
@@ -7,7 +7,7 @@ const sendMessage = async (
   timeout?: number,
 ) => {
   return (
-    await HttpRequest<SendMessageRequest, string>({
+    await HttpRequest<SendMessageRequest, SendMessageResponse>({
       method: "post",
       url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
         "{conversationId}",

@@ -15,7 +15,7 @@ const FriendItem = (props: FriendItemProps) => {
       <ImageWithLightBox
         src={friend.avatar}
         className="aspect-square rounded-2xl laptop:w-[5rem]"
-        imageClassName="bg-[size:160%]"
+        // imageClassName="bg-[size:160%]"
         slides={[
           {
             src: friend.avatar,

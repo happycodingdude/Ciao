@@ -13,10 +13,11 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
     index,
     onClick,
     circle,
+    pending,
   } = props;
 
   const [showLightbox, setShowLightbox] = useState(false);
-  const handleShowLightbox = (e) => setShowLightbox(true);
+  const handleShowLightbox = () => setShowLightbox(true);
 
   return (
     <>
@@ -27,7 +28,8 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
             "--image-url": `url(${src && src !== "" ? src : "src/assets/imagenotfound.jpg"})`,
           } as CSSProperties
         }
-        className={`${className ?? ""} ${imageClassName ?? "bg-[size:100%]"} ${circle ? "rounded-full" : "rounded-2xl"}  nolazy-image cursor-pointer  bg-[image:var(--image-url)]  bg-[position:center_center] bg-no-repeat transition-opacity duration-1000`}
+        className={`${className ?? ""} ${imageClassName ?? "bg-[size:cover]"} ${circle ? "rounded-full" : "rounded-2xl"} ${pending ? "opacity-50" : ""}
+        cursor-pointer bg-[image:var(--image-url)] bg-[position:center_center] bg-no-repeat transition-opacity duration-300`}
         onClick={onClick ?? handleShowLightbox}
         // onClick={handleShowLightbox}
       ></div>

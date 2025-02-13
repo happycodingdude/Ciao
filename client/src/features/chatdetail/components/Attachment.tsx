@@ -108,9 +108,9 @@ const Attachment = () => {
                     <ImageWithLightBoxAndNoLazy
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
-                      className="loaded aspect-square w-full cursor-pointer rounded-2xl"
+                      className="aspect-square w-full cursor-pointer rounded-2xl"
                       // spinnerClassName="laptop:bg-[size:2rem]"
-                      imageClassName="bg-[size:150%]"
+                      // imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({
                         src:
                           item.type === "image"
@@ -118,6 +118,7 @@ const Attachment = () => {
                             : "images/filenotfound.svg",
                       }))}
                       index={index}
+                      pending={item.pending}
                     />
                   ))}
                 </div>

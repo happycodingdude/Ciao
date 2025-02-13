@@ -34,7 +34,7 @@ const ImageWithLightBox = (props: ImageWithLightboxProps) => {
       <div
         title={title}
         data-src={src ?? "src/assets/imagenotfound.jpg"}
-        className={`${imageClassName} 
+        className={`${imageClassName ?? "bg-[size:cover]"}
         ${roundedClassName ?? "rounded-2xl"} 
         
         lazy-image absolute h-full w-full bg-[position:center_center] bg-no-repeat`}

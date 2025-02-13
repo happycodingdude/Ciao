@@ -2,7 +2,7 @@ namespace Presentation.Messages;
 
 public static class SendMessage
 {
-    public record Request(string conversationId, SendMessageReq model) : IRequest<string>;
+    public record Request(string conversationId, SendMessageReq model) : IRequest<SendMessageRes>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -41,7 +41,7 @@ public static class SendMessage
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, string>
+    internal sealed class Handler : IRequestHandler<Request, SendMessageRes>
     {
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
@@ -54,7 +54,7 @@ public static class SendMessage
             _kafkaProducer = kafkaProducer;
         }
 
-        public async Task<string> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<SendMessageRes> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
@@ -67,7 +67,11 @@ public static class SendMessage
                 Message = request.model
             });
 
-            return request.model.Id;
+            return new SendMessageRes
+            {
+                Message = request.model.Id,
+                Attachments = request.model.Attachments.Select(q => q.Id).ToArray()
+            };
         }
     }
 }

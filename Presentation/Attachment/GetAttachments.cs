@@ -1,6 +1,6 @@
 namespace Presentation.Attachments;
 
-public static class GetByConversationId
+public static class GetAttachments
 {
     public record Request(string conversationId) : IRequest<IEnumerable<AttachmentGroupByCreatedTime>>;
 
@@ -31,14 +31,14 @@ public static class GetByConversationId
     }
 }
 
-public class GetByConversationIdEndpoint : ICarterModule
+public class GetAttachmentsEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{conversationId}/attachments",
         async (ISender sender, string conversationId) =>
         {
-            var query = new GetByConversationId.Request(conversationId);
+            var query = new GetAttachments.Request(conversationId);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization("Basic");

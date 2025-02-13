@@ -5,7 +5,7 @@ public class MyMapping : Profile
     public MyMapping()
     {
         CreateMap<AttachmentDto, Attachment>().ReverseMap();
-        CreateMap<SendMessageReq_Attachments, Attachment>().ReverseMap();
+        // CreateMap<SendMessageReq_Attachments, Attachment>().ReverseMap();
         CreateMap<Contact, ContactDto>().ReverseMap();
         CreateMap<Contact, MessageToNotify_Contact>().ReverseMap();
         // CreateMap<Conversation, CreateGroupConversationRequest>().ReverseMap();

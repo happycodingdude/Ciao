@@ -36,7 +36,7 @@ const SideBar = (props: SideBarProps) => {
                 src: info.avatar,
               },
             ]}
-            imageClassName="bg-[size:160%]"
+            // imageClassName="bg-[size:160%]"
             roundedClassName="rounded-full"
           />
         </div>

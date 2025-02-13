@@ -44,6 +44,7 @@ export type ImageWithLightboxProps = {
   slides?: { src: string }[]; // Assuming slides contain image URLs
   index?: number;
   circle?: boolean;
+  pending?: boolean;
   onClick?: () => void;
 };
 

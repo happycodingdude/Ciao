@@ -19,6 +19,11 @@ export type SendMessageRequest = {
   files?: File[];
 };
 
+export type SendMessageResponse = {
+  message?: string;
+  attachments?: string[];
+};
+
 export type UpdateConversationRequest = {
   id: string;
   title: string;

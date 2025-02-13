@@ -238,7 +238,7 @@ const MessageContent = (props: MessageContentProps) => {
                   <ImageWithLightBoxAndNoLazy
                     src={item.mediaUrl}
                     title={item.mediaName?.split(".")[0]}
-                    className={`loaded  cursor-pointer                     
+                    className={`cursor-pointer                     
                       ${
                         message.attachments?.length === 1
                           ? "aspect-[3/2] w-[70%]"
@@ -249,11 +249,12 @@ const MessageContent = (props: MessageContentProps) => {
                     //     ? "bg-[size:140%]"
                     //     : "bg-[size:140%]"
                     // }
-                    imageClassName="bg-[size:140%]"
+                    // imageClassName="bg-[size:140%]"
                     slides={message.attachments.map((item) => ({
                       src: item.type === "image" ? item.mediaUrl : "",
                     }))}
                     index={index}
+                    pending={item.pending}
                   />
                 );
               })}
@@ -266,32 +267,35 @@ const MessageContent = (props: MessageContentProps) => {
                 src={message.attachments[0].mediaUrl}
                 title={message.attachments[0].mediaName?.split(".")[0]}
                 className={`loaded aspect-square w-[30%] cursor-pointer`}
-                imageClassName="bg-[size:170%]"
+                // imageClassName="bg-[size:170%]"
                 slides={message.attachments.map((item) => ({
                   src: item.type === "image" ? item.mediaUrl : "",
                 }))}
                 index={0}
+                pending={message.attachments[0].pending}
               />
               <div className="flex w-[20%] flex-col justify-between">
                 <ImageWithLightBoxAndNoLazy
                   src={message.attachments[1].mediaUrl}
                   title={message.attachments[1].mediaName?.split(".")[0]}
                   className={`loaded h-[45%] w-full cursor-pointer`}
-                  imageClassName="bg-[size:120%]"
+                  // imageClassName="bg-[size:120%]"
                   slides={message.attachments.map((item) => ({
                     src: item.type === "image" ? item.mediaUrl : "",
                   }))}
                   index={1}
+                  pending={message.attachments[1].pending}
                 />
                 <ImageWithLightBoxAndNoLazy
                   src={message.attachments[2].mediaUrl}
                   title={message.attachments[2].mediaName?.split(".")[0]}
                   className={`loaded h-[45%] w-full cursor-pointer`}
-                  imageClassName="bg-[size:120%]"
+                  // imageClassName="bg-[size:120%]"
                   slides={message.attachments.map((item) => ({
                     src: item.type === "image" ? item.mediaUrl : "",
                   }))}
                   index={2}
+                  pending={message.attachments[2].pending}
                 />
               </div>
             </div>

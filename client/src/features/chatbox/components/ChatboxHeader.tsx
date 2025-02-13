@@ -29,6 +29,7 @@ const ChatboxHeader = () => {
     py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
+        {/* Avatar */}
         <ImageWithLightBoxAndNoLazy
           src={
             conversations.selected.isGroup
@@ -38,24 +39,12 @@ const ChatboxHeader = () => {
                 )?.contact.avatar
           }
           className="loaded relative aspect-square w-[4rem] cursor-pointer"
-          imageClassName="bg-[size:170%]"
+          // imageClassName="bg-[size:170%]"
           circle
           onClick={() => {
             if (conversations.selected.isGroup) setOpenUpdateTitle(true);
           }}
         />
-        {/* {!conversations.selected.isGroup ? (
-          <OnlineStatusDot
-            className="left-[20%] top-[-5%]"
-            online={
-              conversations.selected.members?.find(
-                (item) => item.contact.id !== info.id,
-              )?.contact.isOnline
-            }
-          />
-        ) : (
-          ""
-        )} */}
         <BackgroundPortal
           show={openUpdateTitle}
           className="laptop:!w-[45rem] desktop:!w-[35%]"
@@ -68,22 +57,25 @@ const ChatboxHeader = () => {
           />
         </BackgroundPortal>
 
-        <div className="relative flex grow flex-col laptop:max-w-[30rem] desktop:max-w-[50rem]">
+        {/* Title */}
+        <div className="relative flex grow flex-col text-md laptop:max-w-[30rem] desktop:max-w-[50rem]">
           {conversations.selected.isGroup ? (
             <>
               <div className="flex w-full gap-[.5rem]">
                 <CustomLabel
-                  className="text-start text-lg font-bold"
+                  className="font-bold"
                   title={conversations.selected.title}
                 />
                 {/* <UpdateTitle /> */}
               </div>
-              <p>{conversations.selected.members.length} members</p>
+              <p className="text-sm">
+                {conversations.selected.members.length} members
+              </p>
             </>
           ) : (
             <>
               <CustomLabel
-                className="text-start text-lg font-bold"
+                className="font-bold"
                 title={
                   conversations.selected.members?.find(
                     (item) => item.contact.id !== info.id,
@@ -98,6 +90,7 @@ const ChatboxHeader = () => {
           )}
         </div>
       </div>
+      {/* Functionality */}
       <div className="flex gap-[2rem]">
         {conversations.selected.isGroup ? (
           // <RelightBackground

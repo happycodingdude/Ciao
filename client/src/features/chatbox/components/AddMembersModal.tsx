@@ -167,7 +167,7 @@ const AddMembersModal = (props: OnCloseType) => {
                     src={item.avatar}
                     className="loaded aspect-square cursor-pointer laptop:w-[4rem]"
                     // spinnerClassName="laptop:bg-[size:2rem]"
-                    imageClassName="bg-[size:170%]"
+                    // imageClassName="bg-[size:170%]"
                     circle
                     slides={[
                       {
@@ -219,7 +219,7 @@ const AddMembersModal = (props: OnCloseType) => {
                         <ImageWithLightBoxAndNoLazy
                           src={item.avatar}
                           className="loaded aspect-square cursor-pointer laptop:w-[2.5rem]"
-                          imageClassName="bg-[size:170%]"
+                          // imageClassName="bg-[size:170%]"
                           circle
                           slides={[
                             {

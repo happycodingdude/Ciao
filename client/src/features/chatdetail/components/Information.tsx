@@ -24,6 +24,7 @@ const Information = () => {
   const { data: attachments } = useAttachment();
 
   const refInformation = useRef<HTMLDivElement>();
+  const refMembers = useRef<HTMLDivElement>();
 
   const [displayAttachments, setDisplayAttachments] = useState<
     AttachmentModel[]
@@ -58,9 +59,9 @@ const Information = () => {
     }
   }, [attachments]);
 
-  useEffect(() => {
-    blurImage(".display-attachment-container");
-  }, [displayAttachments]);
+  // useEffect(() => {
+  //   blurImage(".display-attachment-container");
+  // }, [displayAttachments]);
 
   // const updateAvatar = async (e) => {
   //   // Create a root reference
@@ -114,20 +115,69 @@ const Information = () => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
+      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-[var(--bg-color)]`}
     >
-      {/* <div
-        className="flex shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--text-main-color-light)] 
-        px-[2rem] py-[.5rem] laptop:h-[6rem]"
-      >
-        <p className="text-md text-[var(--text-main-color)]">Information</p>
-      </div> */}
+      {/* Container */}
       <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
+        {/* Avatar and title */}
+        <div className="flex flex-col items-center gap-[1rem]">
+          <ImageWithLightBoxAndNoLazy
+            src={
+              conversations.selected.isGroup
+                ? conversations.selected.avatar
+                : conversations.selected.members?.find(
+                    (item) => item.contact.id !== info.id,
+                  )?.contact.avatar
+            }
+            slides={[
+              {
+                src: conversations.selected.isGroup
+                  ? conversations.selected.avatar
+                  : conversations.selected.members?.find(
+                      (item) => item.contact.id !== info.id,
+                    )?.contact.avatar,
+              },
+            ]}
+            className="relative aspect-square w-[10rem] cursor-pointer"
+            // imageClassName="bg-[size:150%]"
+            circle
+          />
+          <div className="relative flex grow flex-col items-center text-md laptop:max-w-[30rem] desktop:max-w-[50rem]">
+            {conversations.selected.isGroup ? (
+              <>
+                <div className="flex w-full gap-[.5rem]">
+                  <CustomLabel
+                    className="font-bold"
+                    title={conversations.selected.title}
+                  />
+                </div>
+                <p className="text-sm">
+                  {conversations.selected.members.length} members
+                </p>
+              </>
+            ) : (
+              <>
+                <CustomLabel
+                  className="font-bold"
+                  title={
+                    conversations.selected.members?.find(
+                      (item) => item.contact.id !== info.id,
+                    )?.contact.name
+                  }
+                />
+              </>
+            )}
+          </div>
+        </div>
+        {/* Members */}
         {conversations.selected?.isGroup ? (
-          <div className="flex flex-col gap-[1rem] laptop:h-[30rem]">
-            <p className="text-base">Members</p>
+          <div className="flex flex-col gap-[1rem] laptop:h-[20rem]">
+            <p className="font-bold">Members</p>
             {/* Still don't know why scrolling not working without adding h-0 */}
-            <div className="members-image-container hide-scrollbar flex h-0 grow flex-col gap-[1rem] overflow-y-scroll scroll-smooth">
+            <div
+              ref={refMembers}
+              className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500"
+            >
               {conversations.selected?.members
                 .filter((item) => item.contact.id !== info.id)
                 .map((item) => (
@@ -161,7 +211,7 @@ const Information = () => {
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
                         className="loaded aspect-square laptop:w-[3rem]"
-                        imageClassName="bg-[size:160%]"
+                        // imageClassName="bg-[size:160%]"
                         // roundedClassName="rounded-[50%]"
                         circle
                         slides={[
@@ -194,12 +244,12 @@ const Information = () => {
         {displayAttachments.length !== 0 ? (
           <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between">
-              <p className="text-base">Attachments</p>
+              <p className="font-bold">Attachments</p>
               <div
                 onClick={() => setToggle("attachment")}
-                className="cursor-pointer text-[var(--main-color-bold)] hover:text-[var(--main-color)]"
+                className="cursor-pointer text-[var(--main-color-extrabold)] hover:text-[var(--main-color)]"
               >
-                See all
+                View all
               </div>
             </div>
             <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
@@ -208,8 +258,8 @@ const Information = () => {
                   src={item.mediaUrl}
                   title={item.mediaName?.split(".")[0]}
                   // className="aspect-square w-full cursor-pointer rounded-2xl bg-[size:200%]"
-                  className={`loaded aspect-square w-full`}
-                  imageClassName="bg-[size:160%]"
+                  className={`aspect-square w-full`}
+                  // imageClassName="bg-[size:200%]"
                   slides={displayAttachments.map((item) => ({
                     src:
                       item.type === "image"
@@ -217,6 +267,7 @@ const Information = () => {
                         : "images/filenotfound.svg",
                   }))}
                   index={index}
+                  pending={item.pending}
                 />
               ))}
             </div>

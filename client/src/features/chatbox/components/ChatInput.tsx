@@ -7,12 +7,15 @@ import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxWithShadowAndNoLazy from "../../../components/ImageWithLightBoxWithShadowAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import { ChatInputProps } from "../../../types";
+import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
+  AttachmentModel,
   ConversationCache,
   MessageCache,
+  MessageModel,
 } from "../../listchat/types";
 import sendMessage from "../services/sendMessage";
 import { MentionModel, SendMessageRequest } from "../types";
@@ -125,7 +128,8 @@ const ChatInput = (props: ChatInputProps) => {
 
   const { mutate: sendMutation } = useMutation({
     mutationFn: async (param: SendMessageRequest) => {
-      let randomId = Math.random().toString(36).substring(2, 7);
+      const randomId = Math.random().toString(36).substring(2, 7);
+      const hasMedia = param.files.length !== 0;
 
       queryClient.setQueryData(
         ["conversation"],
@@ -147,28 +151,9 @@ const ChatInput = (props: ChatInputProps) => {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
-          };
+          } as ConversationCache;
         },
       );
-
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: [
-            ...(oldData.messages || []),
-            {
-              id: randomId,
-              type: param.type,
-              content: param.content,
-              contactId: info.id,
-              attachments: param.attachments,
-              currentReaction: null,
-              noLazy: true,
-              pending: true,
-            },
-          ],
-        };
-      });
 
       let bodyToCreate: SendMessageRequest = {
         type: param.type,
@@ -176,7 +161,65 @@ const ChatInput = (props: ChatInputProps) => {
       };
       let bodyLocal = Object.assign({}, bodyToCreate);
 
-      if (param.files.length !== 0) {
+      const today = moment().format("MM/DD/YYYY");
+      if (hasMedia) {
+        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+          return {
+            ...oldData,
+            messages: [
+              ...(oldData.messages || []),
+              {
+                id: randomId,
+                type: param.type,
+                content: param.content,
+                contactId: info.id,
+                attachments: param.attachments.map((item) => {
+                  return { ...item, id: randomId };
+                }),
+                currentReaction: null,
+                noLazy: true,
+                pending: true,
+              } as MessageModel,
+            ],
+          } as MessageCache;
+        });
+        queryClient.setQueryData(
+          ["attachment"],
+          (oldData: AttachmentCache[]) => {
+            queryClient.setQueryData(
+              ["attachment"],
+              (oldData: AttachmentCache[] = []) => {
+                // If there is no attachment yet, create a new entry
+                if (oldData.length === 0 || oldData[0].date !== today) {
+                  return [
+                    {
+                      date: today,
+                      attachments: param.attachments.map((item) => {
+                        return { ...item, id: randomId };
+                      }),
+                    },
+                    ...oldData, // Return a new array to trigger state updates
+                  ] as AttachmentCache[];
+                }
+
+                // If today's entry exists, update its attachments
+                return oldData.map((item) =>
+                  item.date === today
+                    ? {
+                        ...item,
+                        attachments: [
+                          ...param.attachments.map((item) => {
+                            return { ...item, id: randomId };
+                          }),
+                          ...item.attachments,
+                        ],
+                      }
+                    : item,
+                ) as AttachmentCache[];
+              },
+            );
+          },
+        );
         const uploaded = await uploadFile(param.files).then((uploads) => {
           return uploads.map((item) => ({
             type: item.type,
@@ -193,67 +236,72 @@ const ChatInput = (props: ChatInputProps) => {
           ...bodyLocal,
           attachments: param.attachments,
         };
+      } else {
+        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+          return {
+            ...oldData,
+            messages: [
+              ...(oldData.messages || []),
+              {
+                id: randomId,
+                type: param.type,
+                content: param.content,
+                contactId: info.id,
+                attachments: [],
+                currentReaction: null,
+                noLazy: true,
+                pending: true,
+              } as MessageModel,
+            ],
+          } as MessageCache;
+        });
       }
 
-      var id = await sendMessage(conversations?.selected.id, bodyToCreate);
-      // await delay(5000);
+      const res = await sendMessage(conversations?.selected.id, bodyToCreate);
+      await delay(1000);
 
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
           messages: oldData.messages.map((message) => {
             if (message.id !== randomId) return message;
-            return { ...message, id: id, loaded: true, pending: false };
+            return {
+              ...message,
+              id: res.message,
+              loaded: true,
+              pending: false,
+              attachments: message.attachments.map((atta, index) => {
+                if (atta.id !== randomId) return atta;
+                return {
+                  ...atta,
+                  id: res.attachments[index],
+                  pending: false,
+                };
+              }),
+            };
           }),
-        };
+        } as MessageCache;
       });
 
-      if (param.files.length !== 0) {
+      if (hasMedia) {
         queryClient.setQueryData(
           ["attachment"],
           (oldData: AttachmentCache[]) => {
-            // const cloned = oldData.map((item) => {
-            //   return Object.assign({}, item);
-            // });
-            // Chỉ cần lấy item đầu tiên vì là thời gian gần nhất
-            var firstItem = oldData[0];
-            // Nếu undefined tức là chưa có attachment nào
-            // hoặc nếu ngày gần nhất không phải hôm nay
-            // -> tạo object mới
-            if (
-              !firstItem ||
-              firstItem.date !== moment().format("MM/DD/YYYY")
-            ) {
-              // oldData.unshift({
-              //   date: moment().format("MM/DD/YYYY"),
-              //   attachments: param.attachments,
-              // });
-              return oldData.unshift({
-                date: moment().format("MM/DD/YYYY"),
-                attachments: param.attachments,
-              });
-            }
-            // Ngược lại thì ngày gần nhất là hôm nay
-            else {
-              // const newData = oldData.map((item) => {
-              //   if (item.date === moment().format("MM/DD/YYYY")) {
-              //     return {
-              //       ...item,
-              //       attachments: [...param.attachments, ...item.attachments],
-              //     };
-              //   }
-              //   return item;
-              // });
-              return oldData.map((item) => {
-                if (item.date === moment().format("MM/DD/YYYY")) {
-                  return {
+            return oldData.map((item) =>
+              item.date === today
+                ? {
                     ...item,
-                    attachments: [...param.attachments, ...item.attachments],
-                  };
-                }
-                return item;
-              });
-            }
+                    attachments: item.attachments.map((atta, index) => {
+                      if (atta.id !== randomId) return atta;
+                      return {
+                        ...atta,
+                        id: res.attachments[index],
+                        pending: false,
+                      };
+                    }),
+                  }
+                : item,
+            ) as AttachmentCache[];
           },
         );
       }
@@ -270,7 +318,8 @@ const ChatInput = (props: ChatInputProps) => {
       return {
         type: "image",
         mediaUrl: URL.createObjectURL(item),
-      };
+        pending: true,
+      } as AttachmentModel;
     });
     // setFiles([]);
     sendMutation({
