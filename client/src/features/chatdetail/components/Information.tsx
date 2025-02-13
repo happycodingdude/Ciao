@@ -3,6 +3,7 @@ import React, { MouseEvent, useEffect, useRef, useState } from "react";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
@@ -16,6 +17,7 @@ const Information = () => {
   // console.log("Information calling");
   // const { show, toggle } = props;
   const { toggle, setToggle } = useChatDetailToggles();
+  const [showMembers, setShowMembers] = useLocalStorage("showMembers", true);
 
   const queryClient = useQueryClient();
 
@@ -33,6 +35,7 @@ const Information = () => {
   const [quickChatRect, setQuickChatRect] = useState<DOMRect>();
   const [informationoffsetWidth, setInformationoffsetWidth] =
     useState<number>();
+  // const [showMembers, setShowMembers] = useState<boolean>(true);
 
   useEffect(() => {
     setChosenProfile(undefined);
@@ -58,6 +61,14 @@ const Information = () => {
       setDisplayAttachments([]);
     }
   }, [attachments]);
+
+  const toggleMembers = (): void => {
+    setShowMembers((current) => !current);
+  };
+
+  // useEffect(() => {
+  //   if (showMembers)
+  // },[showMembers])
 
   // useEffect(() => {
   //   blurImage(".display-attachment-container");
@@ -142,15 +153,14 @@ const Information = () => {
             // imageClassName="bg-[size:150%]"
             circle
           />
-          <div className="relative flex grow flex-col items-center text-md laptop:max-w-[30rem] desktop:max-w-[50rem]">
+          <div className="relative flex w-[70%] grow flex-col items-center justify-center text-md">
             {conversations.selected.isGroup ? (
               <>
-                <div className="flex w-full gap-[.5rem]">
-                  <CustomLabel
-                    className="font-bold"
-                    title={conversations.selected.title}
-                  />
-                </div>
+                <CustomLabel
+                  className="text-center font-bold"
+                  title={conversations.selected.title}
+                  tooltip
+                />
                 <p className="text-sm">
                   {conversations.selected.members.length} members
                 </p>
@@ -158,12 +168,13 @@ const Information = () => {
             ) : (
               <>
                 <CustomLabel
-                  className="font-bold"
+                  className="text-center font-bold"
                   title={
                     conversations.selected.members?.find(
                       (item) => item.contact.id !== info.id,
                     )?.contact.name
                   }
+                  tooltip
                 />
               </>
             )}
@@ -171,12 +182,21 @@ const Information = () => {
         </div>
         {/* Members */}
         {conversations.selected?.isGroup ? (
-          <div className="flex flex-col gap-[1rem] laptop:h-[20rem]">
-            <p className="font-bold">Members</p>
+          <div className="flex flex-col gap-[1rem] ">
+            <div className="flex justify-between pr-[1rem]">
+              <p className="font-bold">Members</p>
+              <i
+                data-show={showMembers}
+                className="fa-arrow-down fa flex cursor-pointer items-center justify-center text-base transition-all duration-500 data-[show=false]:rotate-90"
+                onClick={toggleMembers}
+              ></i>
+            </div>
             {/* Still don't know why scrolling not working without adding h-0 */}
             <div
               ref={refMembers}
-              className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500"
+              data-show={showMembers}
+              className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500
+                data-[show=false]:h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
             >
               {conversations.selected?.members
                 .filter((item) => item.contact.id !== info.id)

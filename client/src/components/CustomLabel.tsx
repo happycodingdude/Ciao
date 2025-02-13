@@ -7,7 +7,7 @@ const CustomLabel = (props: CustomLabelProps) => {
   return (
     <Tooltip title={tooltip ? title : ""}>
       <p
-        className={`${className ?? ""} overflow-hidden text-ellipsis whitespace-nowrap`}
+        className={`${className ?? ""} w-full overflow-hidden text-ellipsis whitespace-nowrap`}
         // onClick={onClick ?? (() => {})}
       >
         {title}

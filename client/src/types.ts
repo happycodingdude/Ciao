@@ -115,7 +115,7 @@ export type OnlineStatusDotProps = {
 export type CustomLabelProps = {
   title?: string;
   className?: string;
-  tooltip?: string;
+  tooltip?: boolean;
 };
 
 export type ReactionModel = {

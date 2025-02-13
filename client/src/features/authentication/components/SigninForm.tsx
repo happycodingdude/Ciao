@@ -16,9 +16,12 @@ const SigninForm = () => {
 
   const { toggle, setToggle } = useAuthenticationFormToggles();
 
-  const [accessToken, setAccessToken] = useLocalStorage("accessToken");
-  const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken");
-  const [userId, setUserId] = useLocalStorage("userId");
+  // const [accessToken, setAccessToken] = useLocalStorage("accessToken");
+  // const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken");
+  // const [userId, setUserId] = useLocalStorage("userId");
+  const [accessToken, setAccessToken] = useLocalStorage("accessToken", "");
+  const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken", "");
+  const [userId, setUserId] = useLocalStorage("userId", "");
 
   const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
   const refPassword = useRef<HTMLInputElement & { reset: () => void }>();

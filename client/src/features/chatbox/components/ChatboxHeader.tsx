@@ -21,7 +21,6 @@ const ChatboxHeader = () => {
   const { data: info } = useInfo();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
-  const [showAddMembers, setShowAddMembers] = useState<boolean>(false);
 
   return (
     <div
@@ -38,12 +37,18 @@ const ChatboxHeader = () => {
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
+          slides={[
+            {
+              src: conversations.selected.isGroup
+                ? conversations.selected.avatar
+                : conversations.selected.members?.find(
+                    (item) => item.contact.id !== info.id,
+                  )?.contact.avatar,
+            },
+          ]}
           className="loaded relative aspect-square w-[4rem] cursor-pointer"
           // imageClassName="bg-[size:170%]"
           circle
-          onClick={() => {
-            if (conversations.selected.isGroup) setOpenUpdateTitle(true);
-          }}
         />
         <BackgroundPortal
           show={openUpdateTitle}
@@ -93,13 +98,16 @@ const ChatboxHeader = () => {
       {/* Functionality */}
       <div className="flex gap-[2rem]">
         {conversations.selected.isGroup ? (
-          // <RelightBackground
-          //   paddingClassName="p-[.7rem]"
-          //   onClick={() => setShowAddMembers(true)}
-          // >
-          <AddMembers />
+          <>
+            <AddMembers />{" "}
+            <i
+              className="fa-light fa-pen-to-square flex cursor-pointer items-center justify-center text-base hover:text-[var(--main-color-bold)]"
+              onClick={() => {
+                if (conversations.selected.isGroup) setOpenUpdateTitle(true);
+              }}
+            ></i>
+          </>
         ) : (
-          // </RelightBackground>
           ""
         )}
         <div
@@ -118,10 +126,6 @@ const ChatboxHeader = () => {
             }}
           />
         </div>
-        {/* <div
-          className="cursor-pointer bg-[url('images/attachment-svg.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat transition-all
-        duration-500 laptop:w-[2rem]"
-        ></div> */}
         <AttachmentIcon
           onClick={() =>
             setToggle((current) =>

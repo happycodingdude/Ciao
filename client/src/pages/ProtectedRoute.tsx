@@ -6,7 +6,8 @@ import useLocalStorage from "../hooks/useLocalStorage";
 
 const ProtectedRoute = () => {
   const { data: info } = useInfo(true);
-  const [accessToken] = useLocalStorage("accessToken");
+  // const [accessToken] = useLocalStorage("accessToken");
+  const [accessToken] = useLocalStorage<string>("accessToken", "");
 
   if (info) {
     return <Outlet />;
