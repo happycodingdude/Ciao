@@ -147,7 +147,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   ) || membersToAdd.some((mem) => mem.id === item.id) ? (
                     <div
                       className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
-                    from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
+                      from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
                     ></div>
                   ) : (
                     <div className="relative z-10">
@@ -165,7 +165,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   )}
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="loaded aspect-square cursor-pointer laptop:w-[4rem]"
+                    className="aspect-square cursor-pointer laptop:w-[4rem]"
                     // spinnerClassName="laptop:bg-[size:2rem]"
                     // imageClassName="bg-[size:170%]"
                     circle

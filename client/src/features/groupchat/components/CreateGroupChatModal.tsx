@@ -207,7 +207,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               });
           }}
         />
-        <div className="relative flex h-full gap-[2rem] border-b-[.1rem] border-[var(--border-color)]">
+        <div className="relative flex grow gap-[2rem] border-b-[.1rem] border-[var(--border-color)]">
           {isLoading || isRefetching ? (
             <LocalLoading />
           ) : (
@@ -228,7 +228,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                     {membersToAdd.some((mem) => mem.id === item.id) ? (
                       <div
                         className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
-                  from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
+                        from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
                       ></div>
                     ) : (
                       <div className="relative z-10">
@@ -240,13 +240,13 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                               "--rounded": "50%",
                             } as CSSProperties
                           }
-                          className="gradient-item relative aspect-square w-[1.8rem]  rounded-full bg-[var(--bg-color)]"
+                          className="gradient-item relative aspect-square w-[1.8rem] rounded-full bg-[var(--bg-color)]"
                         ></div>
                       </div>
                     )}
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="loaded aspect-square cursor-pointer laptop:w-[4rem]"
+                      className="aspect-square cursor-pointer laptop:w-[4rem]"
                       // spinnerClassName="laptop:bg-[size:2rem]"
                       // imageClassName="bg-[size:170%]"
                       circle
@@ -257,7 +257,9 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                       ]}
                       onClick={() => {}}
                     />
-                    <CustomLabel title={item.name} />
+                    {/* <div> */}
+                    <CustomLabel title={item.name} className="contents" />
+                    {/* </div> */}
                   </div>
                 ))}
               </div>

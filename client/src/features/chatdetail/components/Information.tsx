@@ -153,7 +153,7 @@ const Information = () => {
             // imageClassName="bg-[size:150%]"
             circle
           />
-          <div className="relative flex w-[70%] grow flex-col items-center justify-center text-md">
+          <div className="flex w-[70%] grow flex-col items-center justify-center text-md">
             {conversations.selected.isGroup ? (
               <>
                 <CustomLabel
@@ -196,7 +196,7 @@ const Information = () => {
               ref={refMembers}
               data-show={showMembers}
               className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500
-                data-[show=false]:h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
+                data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
             >
               {conversations.selected?.members
                 .filter((item) => item.contact.id !== info.id)
