@@ -10,10 +10,10 @@ public static class ForgotPassword
         readonly IPasswordValidator _passwordValidator;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IService<IContactRepository> service, IPasswordValidator passwordValidator)
+        public Handler(IPasswordValidator passwordValidator, IContactRepository contactRepository)
         {
-            _contactRepository = service.Get();
             _passwordValidator = passwordValidator;
+            _contactRepository = contactRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

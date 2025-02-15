@@ -22,36 +22,96 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
         else return "request_received";
     }
 
-    public async Task<List<(string, string)>> GetFriendItems(List<string> userIds)
+    // public async Task<List<(string, string)>> GetFriendItems()
+    // {
+    //     var userId = _contactRepository.GetUserId();
+    //     var filter = Builders<Friend>.Filter.Or(
+    //         Builders<Friend>.Filter.And(
+    //             Builders<Friend>.Filter.Eq(f => f.FromContact.ContactId, userId)
+    //         ),
+    //         Builders<Friend>.Filter.And(
+    //             Builders<Friend>.Filter.Eq(f => f.ToContact.ContactId, userId)
+    //         )
+    //     );
+    //     var projection = Builders<Friend>.Projection.Expression(friend =>
+    //         new
+    //         {
+    //             friend.Id,
+    //             Status = friend.AcceptTime != null
+    //                 ? "friend"
+    //                 : (friend.FromContact.ContactId == userId ? "request_sent" : "request_received")
+    //         });
+
+    //     var result = await _collection
+    //         .Find(filter)
+    //         .Project(projection)
+    //         .ToListAsync();
+
+    //     return result
+    //         .Select(r => (r.Id.ToString(), r.Status))
+    //         .ToList();
+    // }
+
+    public async Task<List<FriendCacheModel>> GetFriendItems()
     {
         var userId = _contactRepository.GetUserId();
-        var filter = Builders<Friend>.Filter.Or(
-            Builders<Friend>.Filter.And(
-                Builders<Friend>.Filter.Eq(f => f.FromContact.ContactId, userId),
-                Builders<Friend>.Filter.In(f => f.ToContact.ContactId, userIds)
-            ),
-            Builders<Friend>.Filter.And(
-                Builders<Friend>.Filter.Eq(f => f.ToContact.ContactId, userId),
-                Builders<Friend>.Filter.In(f => f.FromContact.ContactId, userIds)
-            )
-        );
-        var projection = Builders<Friend>.Projection.Expression(friend =>
-            new
+
+        var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$match", new BsonDocument("$or", new BsonArray
             {
-                friend.Id,
-                Status = friend.AcceptTime != null
-                    ? "friend"
-                    : (friend.FromContact.ContactId == userId ? "request_sent" : "request_received")
-            });
+                new BsonDocument("FromContact.ContactId", userId),
+                new BsonDocument("ToContact.ContactId", userId)
+            })),
+            new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "Contact" },
+                { "let", new BsonDocument("contactId", new BsonDocument("$cond", new BsonArray
+                    {
+                        new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", userId }),
+                        "$ToContact.ContactId",
+                        "$FromContact.ContactId"
+                    })) },
+                { "pipeline", new BsonArray
+                    {
+                        new BsonDocument("$match", new BsonDocument("$expr", new BsonDocument("$eq", new BsonArray { "$_id", "$$contactId" })))
+                    }
+                },
+                { "as", "contactInfo" }
+            }),
+            new BsonDocument("$unwind", "$contactInfo"),
+            new BsonDocument("$project", new BsonDocument
+            {
+                { "FriendId", "$_id" },
+                { "FriendStatus", new BsonDocument("$cond", new BsonArray
+                    {
+                        new BsonDocument("$ifNull", new BsonArray { "$AcceptTime", false }),
+                        "friend",
+                        new BsonDocument("$cond", new BsonArray
+                            {
+                                new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", userId }),
+                                "request_sent",
+                                "request_received"
+                            }
+                        )
+                    })
+                },
+                {
+                    "Contact","$contactInfo"
+                }
+                // { "Contact", new BsonDocument
+                //     {
+                //         { "Id", "$contactInfo._id" },
+                //         { "Name", "$contactInfo.Name" },
+                //         { "Avatar", "$contactInfo.Avatar" },
+                //         { "Bio", "$contactInfo.Bio" },
+                //         { "IsOnline", "$contactInfo.IsOnline" }
+                //     }
+                // }
+            })
+        };
 
-        var result = await _collection
-            .Find(filter)
-            .Project(projection)
-            .ToListAsync();
-
-        return result
-            .Select(r => (r.Id.ToString(), r.Status))
-            .ToList();
+        return await _collection.Aggregate<FriendCacheModel>(pipeline).ToListAsync();
     }
 
     public async Task<IEnumerable<GetListFriendItem>> GetListFriend()

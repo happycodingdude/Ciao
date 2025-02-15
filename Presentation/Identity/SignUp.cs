@@ -32,18 +32,16 @@ public static class SignUp
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
-        readonly IValidator<Request> _validator;
         readonly PasswordHasher<string> _passwordHasher = new();
+        readonly IValidator<Request> _validator;
         readonly IPasswordValidator _passwordValidator;
         IContactRepository _contactRepository;
 
-        public Handler(IValidator<Request> validator,
-            IService<IContactRepository> service,
-            IPasswordValidator passwordValidator)
+        public Handler(IValidator<Request> validator, IPasswordValidator passwordValidator, IContactRepository contactRepository)
         {
             _validator = validator;
-            _contactRepository = service.Get();
             _passwordValidator = passwordValidator;
+            _contactRepository = contactRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

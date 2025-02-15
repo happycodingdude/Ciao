@@ -87,26 +87,26 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         { "IsDeleted", "$Members.IsDeleted" },
                         { "IsModerator", "$Members.IsModerator" },
                         { "IsNotifying", "$Members.IsNotifying" },
-                        { "Contact", new BsonDocument("$first", "$MatchingContact")},
                         { "ContactId", "$Members.ContactId" },
-                        { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
-                        { "FriendStatus", new BsonDocument("$cond", new BsonArray
-                            {
-                                new BsonDocument("$eq", new BsonArray { new BsonDocument("$size", "$MatchingFriends"), 0 }),
-                                "new",
-                                new BsonDocument("$cond", new BsonArray
-                                {
-                                    new BsonDocument("$ne", new BsonArray { new BsonDocument("$first", "$MatchingFriends.AcceptTime"), BsonNull.Value }),
-                                    "friend",
-                                    new BsonDocument("$cond", new BsonArray
-                                    {
-                                        new BsonDocument("$eq", new BsonArray { new BsonDocument("$first", "$MatchingFriends.FromContact.ContactId"), userId }),
-                                        "request_sent",
-                                        "request_received"
-                                    })
-                                })
-                            })
-                        }
+                        { "Contact", new BsonDocument("$first", "$MatchingContact")},
+                        // { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
+                        // { "FriendStatus", new BsonDocument("$cond", new BsonArray
+                        //     {
+                        //         new BsonDocument("$eq", new BsonArray { new BsonDocument("$size", "$MatchingFriends"), 0 }),
+                        //         "new",
+                        //         new BsonDocument("$cond", new BsonArray
+                        //         {
+                        //             new BsonDocument("$ne", new BsonArray { new BsonDocument("$first", "$MatchingFriends.AcceptTime"), BsonNull.Value }),
+                        //             "friend",
+                        //             new BsonDocument("$cond", new BsonArray
+                        //             {
+                        //                 new BsonDocument("$eq", new BsonArray { new BsonDocument("$first", "$MatchingFriends.FromContact.ContactId"), userId }),
+                        //                 "request_sent",
+                        //                 "request_received"
+                        //             })
+                        //         })
+                        //     })
+                        // }
                     })
                 },
             }),

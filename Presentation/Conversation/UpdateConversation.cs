@@ -27,11 +27,13 @@ public static class UpdateConversation
     {
         readonly IValidator<Request> _validator;
         readonly IConversationRepository _conversationRepository;
+        readonly ConversationCache _conversationCache;
 
-        public Handler(IValidator<Request> validator, IService<IConversationRepository> service)
+        public Handler(IValidator<Request> validator, IConversationRepository conversationRepository, ConversationCache conversationCache)
         {
             _validator = validator;
-            _conversationRepository = service.Get();
+            _conversationRepository = conversationRepository;
+            _conversationCache = conversationCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -45,6 +47,11 @@ public static class UpdateConversation
                 .Set(q => q.Title, request.model.Title)
                 .Set(q => q.Avatar, request.model.Avatar);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
+
+            var cache = await _conversationCache.GetConversationInfo(request.id);
+            cache.Title = request.model.Title;
+            cache.Avatar = request.model.Avatar;
+            await _conversationCache.SetConversations(request.id, cache);
 
             return Unit.Value;
         }

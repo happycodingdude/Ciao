@@ -11,10 +11,10 @@ public static class SeenAllNotification
             readonly INotificationRepository _notificationRepository;
             readonly IContactRepository _contactRepository;
 
-            public Handler(IService<INotificationRepository> notificationService, IService<IContactRepository> contactService)
+            public Handler(INotificationRepository notificationRepository, IContactRepository contactRepository)
             {
-                _notificationRepository = notificationService.Get();
-                _contactRepository = contactService.Get();
+                _notificationRepository = notificationRepository;
+                _contactRepository = contactRepository;
             }
 
             public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

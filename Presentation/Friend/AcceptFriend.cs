@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class AcceptFriend
 {
-    public record Request(string id) : IRequest<Unit>;
+    public record Request(string conversationId, string id) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -38,14 +38,17 @@ public static class AcceptFriend
         readonly IValidator<Request> _validator;
         readonly IFirebaseFunction _firebase;
         readonly IFriendRepository _friendRepository;
+        readonly MemberCache _memberCache;
 
         public Handler(IValidator<Request> validator,
             IFirebaseFunction firebase,
-            IFriendRepository friendRepository)
+            IFriendRepository friendRepository,
+            MemberCache memberCache)
         {
             _validator = validator;
             _firebase = firebase;
             _friendRepository = friendRepository;
+            _memberCache = memberCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -55,11 +58,15 @@ public static class AcceptFriend
                 throw new BadRequestException(validationResult.ToString());
 
             var filter = MongoQuery<Friend>.IdFilter(request.id);
-            var entity = await _friendRepository.GetItemAsync(filter);
+            // var entity = await _friendRepository.GetItemAsync(filter);
 
-            var updates = Builders<Friend>.Update
-                .Set(q => q.AcceptTime, DateTime.Now);
+            var updates = Builders<Friend>.Update.Set(q => q.AcceptTime, DateTime.Now);
             _friendRepository.Update(filter, updates);
+
+            var members = await _memberCache.GetMembers(request.conversationId);
+            var selected = members.SingleOrDefault(q => q.FriendId == request.id);
+            selected.FriendStatus = "friend";
+            await _memberCache.UpdateMembers(request.conversationId, members);
 
             // Push accepted request            
             //     await _firebase.Notify(
@@ -80,10 +87,10 @@ public class AcceptFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Friend).MapPut("{id}",
-        async (ISender sender, string id) =>
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPut("{conversationId}/friends/{id}",
+        async (ISender sender, string conversationId, string id) =>
         {
-            var query = new AcceptFriend.Request(id);
+            var query = new AcceptFriend.Request(conversationId, id);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization();

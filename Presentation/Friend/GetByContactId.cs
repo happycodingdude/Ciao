@@ -9,10 +9,10 @@ public static class GetByContactId
         readonly IMapper _mapper;
         readonly IFriendRepository _friendRepository;
 
-        public Handler(IMapper mapper, IService<IFriendRepository> service)
+        public Handler(IMapper mapper, IFriendRepository friendRepository)
         {
             _mapper = mapper;
-            _friendRepository = service.Get();
+            _friendRepository = friendRepository;
         }
 
         public async Task<IEnumerable<FriendWithStatus>> Handle(Request request, CancellationToken cancellationToken)

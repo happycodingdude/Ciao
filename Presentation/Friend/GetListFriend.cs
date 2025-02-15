@@ -8,9 +8,9 @@ public static class GetListFriend
     {
         readonly IFriendRepository _friendRepository;
 
-        public Handler(IService<IFriendRepository> friendService)
+        public Handler(IFriendRepository friendRepository)
         {
-            _friendRepository = friendService.Get();
+            _friendRepository = friendRepository;
         }
 
         public async Task<IEnumerable<GetListFriendItem>> Handle(Request request, CancellationToken cancellationToken)

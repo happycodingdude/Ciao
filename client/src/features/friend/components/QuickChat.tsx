@@ -278,7 +278,7 @@ const QuickChat = (props: QuickChatProps) => {
                   src: profile?.avatar,
                 },
               ]}
-              onClick={() => {}}
+              // onClick={() => {}}
             />
           </div>
           <p className="text-md font-medium">{profile?.name}</p>

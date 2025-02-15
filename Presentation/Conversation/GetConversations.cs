@@ -10,13 +10,15 @@ public static class GetConversations
         readonly IMapper _mapper;
         readonly ConversationCache _conversationCache;
         readonly MemberCache _memberCache;
+        readonly FriendCache _friendCache;
 
-        public Handler(IContactRepository contactRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache)
+        public Handler(IContactRepository contactRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache)
         {
             _contactRepository = contactRepository;
             _mapper = mapper;
             _conversationCache = conversationCache;
             _memberCache = memberCache;
+            _friendCache = friendCache;
         }
 
         public async Task<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>> Handle(Request request, CancellationToken cancellationToken)
@@ -24,6 +26,21 @@ public static class GetConversations
             var conversations = await _conversationCache.GetConversations();
             var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>(conversations);
             await _memberCache.GetMembers(result);
+            var friends = await _friendCache.GetFriends();
+            foreach (var member in result.SelectMany(q => q.Members))
+            {
+                var friend = friends.SingleOrDefault(q => q.Contact.Id == member.Contact.Id);
+                if (friend is null)
+                {
+                    member.FriendId = null;
+                    member.FriendStatus = "new";
+                }
+                else
+                {
+                    member.FriendId = friend.FriendId;
+                    member.FriendStatus = friend.FriendStatus;
+                }
+            }
             return result;
             // return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();
         }

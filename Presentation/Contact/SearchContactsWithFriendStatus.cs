@@ -8,9 +8,9 @@ public static class SearchContactsWithFriendStatus
     {
         readonly IContactRepository _contactRepository;
 
-        public Handler(IService<IContactRepository> service)
+        public Handler(IContactRepository contactRepository)
         {
-            _contactRepository = service.Get();
+            _contactRepository = contactRepository;
         }
 
         public async Task<IEnumerable<ContactDto>> Handle(Request request, CancellationToken cancellationToken)

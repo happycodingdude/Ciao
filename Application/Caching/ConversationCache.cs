@@ -37,9 +37,15 @@ public class ConversationCache
         return result;
     }
 
-    public async Task SetConversations(List<ConversationCacheModel> conversations)
+    public async Task<ConversationCacheModel> GetConversationInfo(string conversationId)
     {
-        await _distributedCache.SetStringAsync($"user-{UserId}-conversations", JsonConvert.SerializeObject(conversations));
+        var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info") ?? "";
+        return JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfo);
+    }
+
+    public async Task SetConversations(string conversationId, ConversationCacheModel conversation)
+    {
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-info", JsonConvert.SerializeObject(conversation));
     }
 
     public async Task SetConversations(string userId, List<ConversationWithTotalUnseenWithContactInfo> conversations)

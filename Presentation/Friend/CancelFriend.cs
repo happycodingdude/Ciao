@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CancelFriend
 {
-    public record Request(string id) : IRequest<Unit>;
+    public record Request(string conversationId, string id) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -38,14 +38,17 @@ public static class CancelFriend
         readonly IValidator<Request> _validator;
         readonly IFirebaseFunction _firebase;
         readonly IFriendRepository _friendRepository;
+        readonly MemberCache _memberCache;
 
         public Handler(IValidator<Request> validator,
             IFirebaseFunction firebase,
-            IFriendRepository friendRepository)
+            IFriendRepository friendRepository,
+            MemberCache memberCache)
         {
             _validator = validator;
             _firebase = firebase;
             _friendRepository = friendRepository;
+            _memberCache = memberCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -56,6 +59,12 @@ public static class CancelFriend
 
             var filter = MongoQuery<Friend>.IdFilter(request.id);
             _friendRepository.DeleteOne(filter);
+
+            var members = await _memberCache.GetMembers(request.conversationId);
+            var selected = members.SingleOrDefault(q => q.FriendId == request.id);
+            selected.FriendId = null;
+            selected.FriendStatus = "new";
+            await _memberCache.UpdateMembers(request.conversationId, members);
 
             // Push cancelled request
             //     var entity = await _friendRepository.GetItemAsync(filter);
@@ -77,10 +86,10 @@ public class CancelFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Friend).MapDelete("{id}",
-        async (ISender sender, string id) =>
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapDelete("{conversationId}/friends/{id}",
+        async (ISender sender, string conversationId, string id) =>
         {
-            var query = new CancelFriend.Request(id);
+            var query = new CancelFriend.Request(conversationId, id);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization();

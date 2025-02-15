@@ -10,13 +10,15 @@ public static class SignOut
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
         readonly MemberCache _memberCache;
+        readonly FriendCache _friendCache;
 
-        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, MemberCache memberCache)
+        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache)
         {
             _contactRepository = contactRepository;
             _userCache = userCache;
             _conversationCache = conversationCache;
             _memberCache = memberCache;
+            _friendCache = friendCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -34,8 +36,9 @@ public static class SignOut
 
             // Remove all cache
             _userCache.RemoveAll();
-            await _memberCache.MemberSignout();
+            // await _memberCache.MemberSignout();
             _conversationCache.RemoveAll();
+            _friendCache.RemoveAll();
 
             return Unit.Value;
         }

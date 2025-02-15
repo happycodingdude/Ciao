@@ -8,9 +8,9 @@ public static class GetAttachments
     {
         private readonly IConversationRepository _conversationRepository;
 
-        public Handler(IService<IConversationRepository> service)
+        public Handler(IConversationRepository conversationRepository)
         {
-            _conversationRepository = service.Get();
+            _conversationRepository = conversationRepository;
         }
 
         public async Task<IEnumerable<AttachmentGroupByCreatedTime>> Handle(Request request, CancellationToken cancellationToken)

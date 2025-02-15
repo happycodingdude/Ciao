@@ -91,7 +91,7 @@ const Notification = () => {
         <div className="notification-body flex justify-between border-b-[.1rem] border-b-[var(--border-color)] px-4 py-3">
           <p className="notification-body text-md">Notifications</p>
           <div
-            className="notification-body cursor-pointer text-sm font-normal text-[var(--main-color)] hover:text-[var(--main-color-light)]"
+            className="notification-body cursor-pointer text-sm text-[var(--main-color-extrabold)] hover:text-[var(--main-color)]"
             onClick={() => readAllCTA()}
           >
             Mark all as read

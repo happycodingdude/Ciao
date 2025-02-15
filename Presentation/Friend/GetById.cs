@@ -26,11 +26,11 @@ public static class GetById
         readonly IMapper _mapper;
         readonly IFriendRepository _friendRepository;
 
-        public Handler(IValidator<Request> validator, IMapper mapper, IService<IFriendRepository> service)
+        public Handler(IValidator<Request> validator, IMapper mapper, IFriendRepository friendRepository)
         {
             _validator = validator;
             _mapper = mapper;
-            _friendRepository = service.Get();
+            _friendRepository = friendRepository;
         }
 
         public async Task<FriendWithStatus> Handle(Request request, CancellationToken cancellationToken)

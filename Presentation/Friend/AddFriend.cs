@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class AddFriend
 {
-    public record Request(string contactId) : IRequest<string>;
+    public record Request(string conversationId, string contactId) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -48,18 +48,21 @@ public static class AddFriend
         readonly IContactRepository _contactRepository;
         readonly IFriendRepository _friendRepository;
         readonly INotificationRepository _notificationRepository;
+        readonly MemberCache _memberCache;
 
         public Handler(IValidator<Request> validator,
             IFirebaseFunction firebase,
             IContactRepository contactRepository,
             IFriendRepository friendRepository,
-            INotificationRepository notificationRepository)
+            INotificationRepository notificationRepository,
+            MemberCache memberCache)
         {
             _validator = validator;
             _firebase = firebase;
             _contactRepository = contactRepository;
             _friendRepository = friendRepository;
             _notificationRepository = notificationRepository;
+            _memberCache = memberCache;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -87,6 +90,14 @@ public static class AddFriend
                 },
             };
             _friendRepository.Add(friend);
+
+            // Update cache
+            // var members = await _memberCache.GetMembers(request.conversationId);
+            // var selected = members.SingleOrDefault(q => q.FriendId == request.id);
+            // selected.FriendId = friend.Id;
+            // selected.FriendStatus = "request_sent";
+            // await _memberCache.UpdateMembers(request.conversationId, members);
+
             // Add notification            
             var notification = new Notification
             {
@@ -124,10 +135,10 @@ public class AddFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Contact).MapPost("{contactId}/friends",
-        async (ISender sender, string contactId) =>
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("{conversationId}/friends/{contactId}",
+        async (ISender sender, string conversationId, string contactId) =>
         {
-            var query = new AddFriend.Request(contactId);
+            var query = new AddFriend.Request(conversationId, contactId);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

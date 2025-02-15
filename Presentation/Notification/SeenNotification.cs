@@ -25,10 +25,10 @@ public static class SeenNotification
         readonly IValidator<Request> _validator;
         readonly INotificationRepository _notificationRepository;
 
-        public Handler(IValidator<Request> validator, IService<INotificationRepository> service)
+        public Handler(IValidator<Request> validator, INotificationRepository notificationRepository)
         {
             _validator = validator;
-            _notificationRepository = service.Get();
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

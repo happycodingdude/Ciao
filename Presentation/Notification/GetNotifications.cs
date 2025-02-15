@@ -10,13 +10,11 @@ public static class GetByConversationId
         readonly INotificationRepository _notificationRepository;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IMapper mapper,
-            IService<INotificationRepository> notificationService,
-            IService<IContactRepository> contactService)
+        public Handler(IMapper mapper, INotificationRepository notificationRepository, IContactRepository contactRepository)
         {
             _mapper = mapper;
-            _notificationRepository = notificationService.Get();
-            _contactRepository = contactService.Get();
+            _notificationRepository = notificationRepository;
+            _contactRepository = contactRepository;
         }
 
         public async Task<IEnumerable<Notification>> Handle(Request request, CancellationToken cancellationToken)

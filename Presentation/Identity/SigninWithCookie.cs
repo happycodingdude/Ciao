@@ -11,13 +11,11 @@ public static class SignInWithCookie
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Handler(IHttpContextAccessor httpContextAccessor,
-            IService<IContactRepository> contactService,
-            IService<IConversationRepository> conversationService)
+        public Handler(IHttpContextAccessor httpContextAccessor, IContactRepository contactRepository, IConversationRepository conversationRepository)
         {
             _httpContextAccessor = httpContextAccessor;
-            _contactRepository = contactService.Get();
-            _conversationRepository = conversationService.Get();
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)

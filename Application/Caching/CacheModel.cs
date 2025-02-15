@@ -15,3 +15,11 @@ public class ConversationCacheModel : MongoBaseModel
     public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
 }
+
+[BsonIgnoreExtraElements]
+public class FriendCacheModel
+{
+    public ContactInfo Contact { get; set; } = null!;
+    public string? FriendId { get; set; }
+    public string FriendStatus { get; set; } = null!;
+}

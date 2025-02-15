@@ -29,39 +29,41 @@ public class MemberCache
         await Task.WhenAll(tasks);
     }
 
-    public async Task AddMembers(string conversationId, List<MemberWithFriendRequestAndContactInfo> Members)
+    public async Task<List<MemberWithFriendRequestAndContactInfo>> GetMembers(string conversationId)
+    {
+        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
+        return JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData);
+    }
+
+    public async Task AddMembers(string conversationId, List<MemberWithFriendRequestAndContactInfo> membersToAdd)
     {
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
         var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
-        members.AddRange(Members);
+        members.AddRange(membersToAdd);
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 
-    public async Task UpdateMembers(string conversationId, string MemberId, MemberWithFriendRequestAndContactInfo Member)
+    public async Task UpdateMembers(string conversationId, List<MemberWithFriendRequestAndContactInfo> newMembers)
     {
-        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
-        var selected = members.SingleOrDefault(q => q.Id == MemberId);
-        selected = Member;
-        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(newMembers));
     }
 
-    public async Task MemberSignout()
-    {
-        // Query list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
-        var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
-        var tasks = conversationIds.Select(async conversationId =>
-        {
-            var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-            var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
-            var selected = members.SingleOrDefault(q => q.Contact.Id == UserId);
-            selected.Contact.IsOnline = false;
-            await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
-        });
+    // public async Task MemberSignout()
+    // {
+    //     // Query list conversation cache
+    //     var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
+    //     var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
+    //     var tasks = conversationIds.Select(async conversationId =>
+    //     {
+    //         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
+    //         var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+    //         var selected = members.SingleOrDefault(q => q.Contact.Id == UserId);
+    //         selected.Contact.IsOnline = false;
+    //         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
+    //     });
 
-        await Task.WhenAll(tasks);
-    }
+    //     await Task.WhenAll(tasks);
+    // }
 
     public async Task MemberDelete(string conversationId, string contactId)
     {

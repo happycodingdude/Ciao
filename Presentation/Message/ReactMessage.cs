@@ -26,13 +26,11 @@ public static class ReactMessage
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
 
-        public Handler(IValidator<Request> validator,
-            IService<IConversationRepository> conversationService,
-            IService<IContactRepository> contactService)
+        public Handler(IValidator<Request> validator, IConversationRepository conversationRepository, IContactRepository contactRepository)
         {
             _validator = validator;
-            _conversationRepository = conversationService.Get();
-            _contactRepository = contactService.Get();
+            _conversationRepository = conversationRepository;
+            _contactRepository = contactRepository;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
