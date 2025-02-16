@@ -33,7 +33,7 @@ public static class GetConversations
                 if (friend is null)
                 {
                     member.FriendId = null;
-                    member.FriendStatus = "new";
+                    member.FriendStatus = AppConstants.FriendStatus_New;
                 }
                 else
                 {

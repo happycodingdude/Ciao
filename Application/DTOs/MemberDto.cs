@@ -24,11 +24,11 @@ public class MemberWithContactInfo : MongoBaseModel
     public bool IsDeleted { get; set; }
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
-    public ContactInfo Contact { get; set; } = null!;
+    public ContactInfoMoreDetails Contact { get; set; } = null!;
 }
 
 [BsonIgnoreExtraElements]
-public class MemberWithFriendRequestAndContactInfo : MemberWithContactInfo
+public class MemberWithContactInfoAndFriendRequest : MemberWithContactInfo
 {
     public string? FriendId { get; set; }
     public string FriendStatus { get; set; } = null!;

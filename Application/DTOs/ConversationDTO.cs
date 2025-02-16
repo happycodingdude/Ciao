@@ -64,7 +64,7 @@ public class ConversationWithTotalUnseenWithContactInfoAndNoMessage : MongoBaseM
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
     public DateTime? DeletedTime { get; set; }
-    public List<MemberWithFriendRequestAndContactInfo> Members { get; set; } = null!;
+    public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
     public int UnSeenMessages { get; set; }
     public string LastMessageId { get; set; } = null!;
     public string LastMessage { get; set; } = null!;

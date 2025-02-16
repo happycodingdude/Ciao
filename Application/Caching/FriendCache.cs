@@ -19,6 +19,17 @@ public class FriendCache
         return JsonConvert.DeserializeObject<List<FriendCacheModel>>(friendCacheData);
     }
 
+    public async Task<List<FriendCacheModel>> GetFriends(string userId)
+    {
+        var friendCacheData = await _distributedCache.GetStringAsync($"user-{userId}-friends") ?? "";
+        return JsonConvert.DeserializeObject<List<FriendCacheModel>>(friendCacheData);
+    }
+
+    public async Task SetFriends(List<FriendCacheModel> fiends)
+    {
+        await _distributedCache.SetStringAsync($"user-{UserId}-friends", JsonConvert.SerializeObject(fiends));
+    }
+
     public async Task SetFriends(string userId, List<FriendCacheModel> fiends)
     {
         await _distributedCache.SetStringAsync($"user-{userId}-friends", JsonConvert.SerializeObject(fiends));

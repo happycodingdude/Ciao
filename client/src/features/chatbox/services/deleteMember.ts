@@ -1,6 +1,6 @@
 import HttpRequest from "../../../lib/fetch";
 
-const deleteMember = async (id, members) => {
+const deleteMember = async (id: string) => {
   return (
     await HttpRequest({
       method: "delete",

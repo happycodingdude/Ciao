@@ -59,7 +59,7 @@ public static class CreateDirectConversation
                 var contactFilter = MongoQuery<Contact>.IdFilter(request.contactId);
                 var contact = await _contactRepository.GetItemAsync(contactFilter);
                 var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-                var memberToCache = _mapper.Map<List<MemberWithFriendRequestAndContactInfo>>(conversation.Members);
+                var memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(conversation.Members);
                 var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == request.contactId);
                 targetUser.Contact.Name = contact.Name;
                 targetUser.Contact.Avatar = contact.Avatar;

@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class AcceptFriend
 {
-    public record Request(string conversationId, string id) : IRequest<Unit>;
+    public record Request(string id) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -38,17 +38,16 @@ public static class AcceptFriend
         readonly IValidator<Request> _validator;
         readonly IFirebaseFunction _firebase;
         readonly IFriendRepository _friendRepository;
-        readonly MemberCache _memberCache;
+        readonly FriendCache _friendCache;
+        readonly UserCache _userCache;
 
-        public Handler(IValidator<Request> validator,
-            IFirebaseFunction firebase,
-            IFriendRepository friendRepository,
-            MemberCache memberCache)
+        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IFriendRepository friendRepository, FriendCache friendCache, UserCache userCache)
         {
             _validator = validator;
             _firebase = firebase;
             _friendRepository = friendRepository;
-            _memberCache = memberCache;
+            _friendCache = friendCache;
+            _userCache = userCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -63,10 +62,21 @@ public static class AcceptFriend
             var updates = Builders<Friend>.Update.Set(q => q.AcceptTime, DateTime.Now);
             _friendRepository.Update(filter, updates);
 
-            var members = await _memberCache.GetMembers(request.conversationId);
-            var selected = members.SingleOrDefault(q => q.FriendId == request.id);
-            selected.FriendStatus = "friend";
-            await _memberCache.UpdateMembers(request.conversationId, members);
+            // Update cache
+            var friends = await _friendCache.GetFriends();
+            var selected = friends.SingleOrDefault(q => q.FriendId == request.id);
+            selected.FriendStatus = AppConstants.FriendStatus_Friend;
+            await _friendCache.SetFriends(friends);
+
+            // Check if senderks is online then update sender cache
+            var sender = _userCache.GetInfo(selected.Contact.Id);
+            if (sender is not null)
+            {
+                var senderFriends = await _friendCache.GetFriends(selected.Contact.Id);
+                var senderSelected = senderFriends.SingleOrDefault(q => q.FriendId == request.id);
+                senderSelected.FriendStatus = AppConstants.FriendStatus_Friend;
+                await _friendCache.SetFriends(selected.Contact.Id, senderFriends);
+            }
 
             // Push accepted request            
             //     await _firebase.Notify(
@@ -87,10 +97,10 @@ public class AcceptFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapPut("{conversationId}/friends/{id}",
-        async (ISender sender, string conversationId, string id) =>
+        app.MapGroup(AppConstants.ApiGroup_Friend).MapPut("/{id}",
+        async (ISender sender, string id) =>
         {
-            var query = new AcceptFriend.Request(conversationId, id);
+            var query = new AcceptFriend.Request(id);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization();

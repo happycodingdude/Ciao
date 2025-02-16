@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import HttpRequest from "../../../lib/fetch";
@@ -5,6 +6,8 @@ import { FriendCtaButtonProps } from "../../../types";
 
 const AddButton = (props: FriendCtaButtonProps) => {
   const { id, onClose } = props;
+
+  const queryClient = useQueryClient();
 
   const [processing, setProcessing] = useState<boolean>(false);
 
@@ -18,6 +21,46 @@ const AddButton = (props: FriendCtaButtonProps) => {
       ),
     })
       .then((res) => {
+        // queryClient.setQueryData(
+        //   ["conversation"],
+        //   (oldData: ConversationCache) => {
+        //     const updatedConversations = oldData.conversations.map(
+        //       (conversation) => {
+        //         let member = conversation.members.some(
+        //           (mem) => mem.contact.id === id,
+        //         );
+        //         if (!member) return conversation;
+        //         return {
+        //           ...conversation,
+        //           members: conversation.members.map((mem) => {
+        //             if (mem.contact.id !== id) return mem;
+        //             return {
+        //               ...mem,
+        //               friendId: res.data,
+        //               friendStatus: "request_sent",
+        //             };
+        //           }),
+        //         };
+        //       },
+        //     );
+        //     return {
+        //       ...oldData,
+        //       conversations: updatedConversations,
+        //       filterConversations: updatedConversations,
+        //       selected: {
+        //         ...oldData.selected,
+        //         members: oldData.selected?.members.map((mem) => {
+        //           if (mem.contact.id !== id) return mem;
+        //           return {
+        //             ...mem,
+        //             friendId: res.data,
+        //             friendStatus: "request_sent",
+        //           };
+        //         }),
+        //       },
+        //     } as ConversationCache;
+        //   },
+        // );
         onClose(res.data);
       })
       .finally(() => {

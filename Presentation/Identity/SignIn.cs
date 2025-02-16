@@ -69,7 +69,7 @@ public static class SignIn
                 // Update cache
                 _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
 
-                var taskToComplete = new List<Task>(2)
+                var taskToComplete = new List<Task>(3)
                 {
                     Task.Run(() =>
                     {

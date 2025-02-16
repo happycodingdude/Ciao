@@ -20,6 +20,7 @@ public class ConversationCacheModel : MongoBaseModel
 public class FriendCacheModel
 {
     public ContactInfo Contact { get; set; } = null!;
+    // public string ContactId { get; set; } = null!;
     public string? FriendId { get; set; }
     public string FriendStatus { get; set; } = null!;
 }

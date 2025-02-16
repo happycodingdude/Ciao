@@ -48,7 +48,7 @@ public class MessageCache
 
         // Update member cache
         var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<MemberWithFriendRequestAndContactInfo>>(memberCacheData) ?? [];
+        var members = JsonConvert.DeserializeObject<List<MemberWithContactInfoAndFriendRequest>>(memberCacheData) ?? [];
         members.ForEach(member => member.IsDeleted = false);
         await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-members", JsonConvert.SerializeObject(members));
     }

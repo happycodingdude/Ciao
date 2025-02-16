@@ -83,8 +83,8 @@ public static class CreateMember
             if (!filterNewItemToAdd.Any()) return Unit.Value;
 
             // Create list new Members
-            var MembersToAdd = new List<Member>(filterNewItemToAdd.Count);
-            filterNewItemToAdd.ToList().ForEach(q => MembersToAdd.Add(
+            var membersToAdd = new List<Member>(filterNewItemToAdd.Count);
+            filterNewItemToAdd.ToList().ForEach(q => membersToAdd.Add(
                 new Member
                 {
                     IsModerator = false, // Only this user is moderator
@@ -93,17 +93,17 @@ public static class CreateMember
                     ContactId = q
                 }));
             // Concatenate to existed partipants
-            var MembersToUpdate = conversation.Members.Concat(MembersToAdd);
+            var membersToUpdate = conversation.Members.Concat(membersToAdd);
 
             // Update to db
-            var updates = Builders<Conversation>.Update.Set(q => q.Members, MembersToUpdate);
+            var updates = Builders<Conversation>.Update.Set(q => q.Members, membersToUpdate);
             _conversationRepository.UpdateNoTrackingTime(filter, updates);
 
             // Update cache
             var contactFilter = Builders<Contact>.Filter.Where(q => filterNewItemToAdd.Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
-            var MemberToCache = _mapper.Map<List<MemberWithFriendRequestAndContactInfo>>(MembersToAdd);
-            foreach (var member in MemberToCache)
+            var memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(membersToAdd);
+            foreach (var member in memberToCache)
             {
                 member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
                 member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
@@ -120,7 +120,7 @@ public static class CreateMember
             //     MemberToCache[i].FriendId = friendItems[i].Item1;
             //     MemberToCache[i].FriendStatus = "friend";
             // }
-            await _memberCache.AddMembers(conversation.Id, MemberToCache);
+            await _memberCache.AddMembers(conversation.Id, memberToCache);
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
@@ -132,7 +132,7 @@ public static class CreateMember
             }
             _ = _firebase.Notify(
                 "NewConversation",
-                MembersToAdd.Select(q => q.ContactId).ToArray(),
+                membersToAdd.Select(q => q.ContactId).ToArray(),
                 notify
             );
 

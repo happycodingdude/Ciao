@@ -1,8 +1,9 @@
 namespace Application.DTOs;
 
-public class GetListFriendItem : MongoBaseModel
+public class GetListFriendItem
 {
-    public GetListFriendItem_Contact Contact { get; set; }
+    public string Id { get; set; } = null!;
+    public GetListFriendItem_Contact Contact { get; set; } = null!;
 }
 
 public class GetListFriendItem_Contact

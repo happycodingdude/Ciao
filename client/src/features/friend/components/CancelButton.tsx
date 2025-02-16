@@ -16,9 +16,13 @@ const CancelButton = (props: FriendCtaButtonProps) => {
         "{id}",
         id,
       ),
-    }).then((res) => {
-      onClose();
-    });
+    })
+      .then((res) => {
+        onClose();
+      })
+      .finally(() => {
+        setProcessing(false);
+      });
   };
 
   return (

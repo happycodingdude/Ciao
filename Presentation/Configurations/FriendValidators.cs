@@ -10,7 +10,7 @@ public static class FriendValidators
         {
             var user = await contactRepository.GetInfoAsync();
             var friendRq = await friendRepository.GetItemAsync(MongoQuery<Friend>.IdFilter(id));
-            return friendRq.FromContact.ContactId == user.Id || friendRq.ToContact.ContactId == user.Id;
+            return friendRq is not null && (friendRq.FromContact.ContactId == user.Id || friendRq.ToContact.ContactId == user.Id);
         }).WithMessage("Not related to this friend request");
     }
 
@@ -20,6 +20,6 @@ public static class FriendValidators
         {
             var friendRq = await friendRepository.GetItemAsync(MongoQuery<Friend>.IdFilter(id));
             return !friendRq.AcceptTime.HasValue;
-        }).WithMessage("Friend request has been accepted");
+        }).WithMessage("Friend request was accepted");
     }
 }

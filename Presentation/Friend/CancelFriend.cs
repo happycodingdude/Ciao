@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CancelFriend
 {
-    public record Request(string conversationId, string id) : IRequest<Unit>;
+    public record Request(string id) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -38,17 +38,16 @@ public static class CancelFriend
         readonly IValidator<Request> _validator;
         readonly IFirebaseFunction _firebase;
         readonly IFriendRepository _friendRepository;
-        readonly MemberCache _memberCache;
+        readonly FriendCache _friendCache;
+        readonly UserCache _userCache;
 
-        public Handler(IValidator<Request> validator,
-            IFirebaseFunction firebase,
-            IFriendRepository friendRepository,
-            MemberCache memberCache)
+        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IFriendRepository friendRepository, FriendCache friendCache, UserCache userCache)
         {
             _validator = validator;
             _firebase = firebase;
             _friendRepository = friendRepository;
-            _memberCache = memberCache;
+            _friendCache = friendCache;
+            _userCache = userCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -60,11 +59,20 @@ public static class CancelFriend
             var filter = MongoQuery<Friend>.IdFilter(request.id);
             _friendRepository.DeleteOne(filter);
 
-            var members = await _memberCache.GetMembers(request.conversationId);
-            var selected = members.SingleOrDefault(q => q.FriendId == request.id);
-            selected.FriendId = null;
-            selected.FriendStatus = "new";
-            await _memberCache.UpdateMembers(request.conversationId, members);
+            // Update cache
+            var friends = await _friendCache.GetFriends();
+            var selected = friends.SingleOrDefault(q => q.FriendId == request.id);
+            friends = friends.Where(q => q.FriendId != request.id).ToList();
+            await _friendCache.SetFriends(friends);
+
+            // Check if receiver is online then update receiver cache
+            var receiver = _userCache.GetInfo(selected.Contact.Id);
+            if (receiver is not null)
+            {
+                var receiverFriends = await _friendCache.GetFriends(selected.Contact.Id);
+                receiverFriends = receiverFriends.Where(q => q.FriendId != request.id).ToList();
+                await _friendCache.SetFriends(selected.Contact.Id, receiverFriends);
+            }
 
             // Push cancelled request
             //     var entity = await _friendRepository.GetItemAsync(filter);
@@ -86,10 +94,10 @@ public class CancelFriendEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapDelete("{conversationId}/friends/{id}",
-        async (ISender sender, string conversationId, string id) =>
+        app.MapGroup(AppConstants.ApiGroup_Friend).MapDelete("/{id}",
+        async (ISender sender, string id) =>
         {
-            var query = new CancelFriend.Request(conversationId, id);
+            var query = new CancelFriend.Request(id);
             await sender.Send(query);
             return Results.Ok();
         }).RequireAuthorization();

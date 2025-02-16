@@ -25,6 +25,8 @@ public class UserCache
 
     public Contact GetInfo() => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{UserId}-info"));
 
+    public Contact GetInfo(string userId) => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{userId}-info") ?? "");
+
     public void SetInfo(Contact info) => _ = _distributedCache.SetStringAsync($"user-{info.Id}-info", JsonConvert.SerializeObject(info));
 
     public void RemoveAll()

@@ -68,11 +68,11 @@ public static class CreateGroupConversation
             conversation.Members = conversation.Members.Where(q => q.ContactId != user.Id).ToList();
 
             // Assign contact info
-            foreach (var Member in conversation.Members)
+            foreach (var member in conversation.Members)
             {
-                Member.IsModerator = false; // Only this user is moderator
-                Member.IsDeleted = false; // Every Members will have this conversation active
-                Member.IsNotifying = true; // Every Members will be notified
+                member.IsModerator = false; // Only this user is moderator
+                member.IsDeleted = false; // Every members will have this conversation active
+                member.IsNotifying = true; // Every members will be notified
             }
             // Add this user
             conversation.Members.Add(new Member
@@ -90,13 +90,13 @@ public static class CreateGroupConversation
             var contactFilter = Builders<Contact>.Filter.Where(q => conversation.Members.Select(w => w.ContactId).Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
             var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-            var memberToCache = _mapper.Map<List<MemberWithFriendRequestAndContactInfo>>(conversation.Members);
-            foreach (var Member in memberToCache.Where(q => q.Contact.Id != user.Id))
+            var memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(conversation.Members);
+            foreach (var member in memberToCache.Where(q => q.Contact.Id != user.Id))
             {
-                Member.Contact.Name = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).Name;
-                Member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).Avatar;
-                Member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).Bio;
-                Member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == Member.Contact.Id).IsOnline;
+                member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
+                member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
+                member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Bio;
+                member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).IsOnline;
             }
             var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == user.Id);
             thisUser.Contact.Name = user.Name;

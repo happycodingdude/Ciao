@@ -19,6 +19,11 @@ public class ContactInfo
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Avatar { get; set; } = null!;
+}
+
+[BsonIgnoreExtraElements]
+public class ContactInfoMoreDetails : ContactInfo
+{
     public string Bio { get; set; } = null!;
     public bool IsOnline { get; set; }
 }
