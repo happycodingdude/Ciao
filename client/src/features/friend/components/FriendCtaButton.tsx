@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import CustomButton from "../../../components/CustomButton";
 import useLoading from "../../../hooks/useLoading";
 import { FriendItemProps } from "../../../types";
@@ -13,13 +13,12 @@ import {
   MessageCache,
 } from "../../listchat/types";
 import createDirectChat from "../services/createDirectChat";
-import { ContactModel } from "../types";
 import AcceptButton from "./AcceptButton";
 import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";
 
 const FriendCtaButton = (props: FriendItemProps) => {
-  const { friend, onClose } = props;
+  const { friend, addFriend, acceptFriend, cancelFriend } = props;
 
   if (!friend) return;
 
@@ -29,14 +28,8 @@ const FriendCtaButton = (props: FriendItemProps) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
-  const [innerFriend, setInnerFriend] = useState<ContactModel>(friend);
-
-  useEffect(() => {
-    setInnerFriend(friend);
-  }, [friend]);
-
   const chat = async (contact) => {
-    onClose();
+    // onClose();
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
       (conv) =>
@@ -175,54 +168,11 @@ const FriendCtaButton = (props: FriendItemProps) => {
   };
 
   return {
-    new: (
-      <AddButton
-        id={innerFriend.id}
-        onClose={(id) => {
-          setInnerFriend((current) => {
-            return { ...current, friendId: id, friendStatus: "request_sent" };
-          });
-        }}
-      />
-    ),
+    new: <AddButton id={friend.id} onClose={addFriend} />,
     request_received: (
-      <AcceptButton
-        id={innerFriend.friendId}
-        onClose={() => {
-          setInnerFriend((current) => {
-            return { ...current, friendStatus: "friend" };
-          });
-        }}
-        // onClose={() => {
-        //   setContacts((current) =>
-        //     current.map((contact) =>
-        //       contact.id !== friend.id
-        //         ? contact
-        //         : { ...contact, friendStatus: "friend" },
-        //     ),
-        //   );
-        // }}
-      />
+      <AcceptButton id={friend.friendId} onClose={acceptFriend} />
     ),
-    request_sent: (
-      <CancelButton
-        id={innerFriend.friendId}
-        onClose={() => {
-          setInnerFriend((current) => {
-            return { ...current, friendId: null, friendStatus: "new" };
-          });
-        }}
-        // onClose={() => {
-        //   setContacts((current) =>
-        //     current.map((contact) =>
-        //       contact.id !== friend.id
-        //         ? contact
-        //         : { ...contact, friendStatus: "new" },
-        //     ),
-        //   );
-        // }}
-      />
-    ),
+    request_sent: <CancelButton id={friend.friendId} onClose={cancelFriend} />,
     friend: (
       <CustomButton
         title="Chat"
@@ -232,11 +182,11 @@ const FriendCtaButton = (props: FriendItemProps) => {
         gradientHeight="120%"
         rounded="3rem"
         onClick={() => {
-          chat(innerFriend);
+          chat(friend);
         }}
       />
     ),
-  }[innerFriend.friendStatus];
+  }[friend.friendStatus];
 };
 
 export default FriendCtaButton;

@@ -86,7 +86,9 @@ export type ListFriendProps = OnCloseType & {};
 
 export type FriendItemProps = OnCloseType & {
   friend?: ContactModel; // Define this type based on your data
-  setContacts?: Dispatch<SetStateAction<ContactModel[]>>; // Function to update contacts
+  addFriend?: (id: string) => void;
+  acceptFriend?: () => void;
+  cancelFriend?: () => void;
 };
 
 export type FriendCtaButtonProps = OnCloseType & {

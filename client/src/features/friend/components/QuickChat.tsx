@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
@@ -14,12 +14,14 @@ import {
   MessageCache,
 } from "../../listchat/types";
 import sendQuickChat from "../services/sendQuickChat";
-import { QuickChatProps } from "../types";
+import { ContactModel, QuickChatProps } from "../types";
 import FriendCtaButton from "./FriendCtaButton";
 
 const QuickChat = (props: QuickChatProps) => {
   // console.log("QuickChat calling");
   const { rect, offset, profile, onClose } = props;
+
+  if (!profile) return;
 
   const queryClient = useQueryClient();
 
@@ -30,8 +32,14 @@ const QuickChat = (props: QuickChatProps) => {
   const refQuickProfile = useRef<HTMLDivElement>();
   const refInput = useRef<HTMLInputElement>();
 
+  const [innerFriend, setInnerFriend] = useState<ContactModel>(profile);
+
   useEffect(() => {
-    if (!profile || !rect) return;
+    setInnerFriend(profile);
+  }, [profile]);
+
+  useEffect(() => {
+    if (!innerFriend || !rect) return;
 
     // if (refInput.current) {
     refInput.current.textContent = "";
@@ -52,7 +60,7 @@ const QuickChat = (props: QuickChatProps) => {
 
     // Position the popup
     refQuickProfile.current.style.right = `${window.scrollY + offset}px`; // Position horizontally based on target
-  }, [profile, rect]);
+  }, [innerFriend, rect]);
 
   const chat = async () => {
     onClose();
@@ -156,10 +164,10 @@ const QuickChat = (props: QuickChatProps) => {
               },
               {
                 contact: {
-                  id: profile.id,
-                  name: profile.name,
-                  avatar: profile.avatar,
-                  isOnline: profile.isOnline,
+                  id: innerFriend.id,
+                  name: innerFriend.name,
+                  avatar: innerFriend.avatar,
+                  isOnline: innerFriend.isOnline,
                 },
               },
             ],
@@ -174,7 +182,7 @@ const QuickChat = (props: QuickChatProps) => {
         },
       );
 
-      sendQuickChat(profile.id, content).then((res) => {
+      sendQuickChat(innerFriend.id, content).then((res) => {
         queryClient.setQueryData(
           ["conversation"],
           (oldData: ConversationCache) => {
@@ -265,23 +273,162 @@ const QuickChat = (props: QuickChatProps) => {
     >
       <div className="relative flex h-full w-full flex-col">
         <div className="absolute right-[5%] top-[5%]">
-          <FriendCtaButton friend={profile} onClose={() => {}} />
+          <FriendCtaButton
+            friend={innerFriend}
+            addFriend={(id) => {
+              setInnerFriend((current) => {
+                return {
+                  ...current,
+                  friendId: id,
+                  friendStatus: "request_sent",
+                };
+              });
+              queryClient.setQueryData(
+                ["conversation"],
+                (oldData: ConversationCache) => {
+                  const updatedConversations = oldData.conversations.map(
+                    (conversation) => {
+                      let member = conversation.members.some(
+                        (mem) => mem.contact.id === innerFriend.id,
+                      );
+                      if (!member) return conversation;
+                      return {
+                        ...conversation,
+                        members: conversation.members.map((mem) => {
+                          if (mem.contact.id !== innerFriend.id) return mem;
+                          return {
+                            ...mem,
+                            friendId: id,
+                            friendStatus: "request_sent",
+                          };
+                        }),
+                      };
+                    },
+                  );
+                  return {
+                    ...oldData,
+                    conversations: updatedConversations,
+                    filterConversations: updatedConversations,
+                    selected: {
+                      ...oldData.selected,
+                      members: oldData.selected?.members.map((mem) => {
+                        if (mem.contact.id !== innerFriend.id) return mem;
+                        return {
+                          ...mem,
+                          friendId: id,
+                          friendStatus: "request_sent",
+                        };
+                      }),
+                    },
+                  } as ConversationCache;
+                },
+              );
+            }}
+            acceptFriend={() => {
+              setInnerFriend((current) => {
+                return { ...current, friendStatus: "friend" };
+              });
+              queryClient.setQueryData(
+                ["conversation"],
+                (oldData: ConversationCache) => {
+                  const updatedConversations = oldData.conversations.map(
+                    (conversation) => {
+                      let member = conversation.members.some(
+                        (mem) => mem.contact.id === innerFriend.id,
+                      );
+                      if (!member) return conversation;
+                      return {
+                        ...conversation,
+                        members: conversation.members.map((mem) => {
+                          if (mem.contact.id !== innerFriend.id) return mem;
+                          return {
+                            ...mem,
+                            friendStatus: "friend",
+                          };
+                        }),
+                      };
+                    },
+                  );
+                  return {
+                    ...oldData,
+                    conversations: updatedConversations,
+                    filterConversations: updatedConversations,
+                    selected: {
+                      ...oldData.selected,
+                      members: oldData.selected?.members.map((mem) => {
+                        if (mem.contact.id !== innerFriend.id) return mem;
+                        return {
+                          ...mem,
+                          friendStatus: "friend",
+                        };
+                      }),
+                    },
+                  } as ConversationCache;
+                },
+              );
+            }}
+            cancelFriend={() => {
+              setInnerFriend((current) => {
+                return { ...current, friendId: null, friendStatus: "new" };
+              });
+              queryClient.setQueryData(
+                ["conversation"],
+                (oldData: ConversationCache) => {
+                  const updatedConversations = oldData.conversations.map(
+                    (conversation) => {
+                      let member = conversation.members.some(
+                        (mem) => mem.contact.id === innerFriend.id,
+                      );
+                      if (!member) return conversation;
+                      return {
+                        ...conversation,
+                        members: conversation.members.map((mem) => {
+                          if (mem.contact.id !== innerFriend.id) return mem;
+                          return {
+                            ...mem,
+                            friendId: null,
+                            friendStatus: "new",
+                          };
+                        }),
+                      };
+                    },
+                  );
+                  return {
+                    ...oldData,
+                    conversations: updatedConversations,
+                    filterConversations: updatedConversations,
+                    selected: {
+                      ...oldData.selected,
+                      members: oldData.selected?.members.map((mem) => {
+                        if (mem.contact.id !== innerFriend.id) return mem;
+                        return {
+                          ...mem,
+                          friendId: null,
+                          friendStatus: "new",
+                        };
+                      }),
+                    },
+                  } as ConversationCache;
+                },
+              );
+            }}
+          />
         </div>
         <div className="basis-[40%] rounded-t-[.5rem] bg-[var(--main-color-extrathin)]"></div>
         <div className="relative flex grow flex-col justify-evenly rounded-b-[.5rem] bg-[var(--main-color-light)] px-4 pt-16">
           <div className="absolute left-[1rem] top-[-4rem] rounded-[50%] bg-[var(--main-color-light)] p-[.5rem]">
             <ImageWithLightBoxAndNoLazy
-              src={profile?.avatar}
+              src={innerFriend?.avatar}
               className="loaded aspect-square cursor-pointer rounded-[50%] bg-[size:170%] laptop:w-[7rem]"
               slides={[
                 {
-                  src: profile?.avatar,
+                  src: innerFriend?.avatar,
                 },
               ]}
               // onClick={() => {}}
             />
           </div>
-          <p className="text-md font-medium">{profile?.name}</p>
+          <p className="text-md font-medium">{innerFriend?.name}</p>
           {/* <ChatInput
             // className="grow-0"
             quickChat
