@@ -30,6 +30,13 @@ export type UpdateConversationRequest = {
   avatar: string;
 };
 
+export type ReactMessageRequest = {
+  conversationId: string;
+  messageId: string;
+  type: string;
+  isDesc: boolean;
+};
+
 export type ChatboxMenuProps = {
   chooseFile: ChangeEventHandler<HTMLInputElement>;
   className?: string;

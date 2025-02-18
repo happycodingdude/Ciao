@@ -6,7 +6,7 @@ import { ReactionModel } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import reactMessage from "../services/reactMessage";
-import { MessageContentProps } from "../types";
+import { MessageContentProps, ReactMessageRequest } from "../types";
 
 const MessageContent = (props: MessageContentProps) => {
   // console.log("MessageContent calling");
@@ -87,8 +87,14 @@ const MessageContent = (props: MessageContentProps) => {
 
   const react = (type: string) => {
     // console.log(`reaction type => ${type}...`);
-    const desc = reaction.currentReaction === type;
-    reactMessage(id, message.id, type, desc);
+    const isDesc = reaction.currentReaction === type;
+    const request: ReactMessageRequest = {
+      conversationId: id,
+      messageId: message.id,
+      type: type,
+      isDesc: isDesc,
+    };
+    reactMessage(request);
     setReaction((current) => {
       const reactionKeys = {
         like: "likeCount",
@@ -106,17 +112,17 @@ const MessageContent = (props: MessageContentProps) => {
       return {
         ...current,
         total:
-          previousReaction && !desc
+          previousReaction && !isDesc
             ? current.total
-            : desc
+            : isDesc
               ? current.total - 1
               : current.total + 1,
-        currentReaction: desc ? null : type,
+        currentReaction: isDesc ? null : type,
         ...(previousKey && {
           [previousKey]: current[previousKey] - 1,
         }),
         ...(newKey &&
-          !desc && {
+          !isDesc && {
             [newKey]: (current[newKey] || 0) + 1,
           }),
       };

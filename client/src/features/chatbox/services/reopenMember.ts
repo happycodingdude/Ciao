@@ -1,6 +1,6 @@
 import HttpRequest from "../../../lib/fetch";
 
-const reopenMember = async (id) => {
+const reopenMember = async (id: string) => {
   return (
     await HttpRequest({
       method: "put",

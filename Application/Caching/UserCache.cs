@@ -27,6 +27,22 @@ public class UserCache
 
     public Contact GetInfo(string userId) => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{userId}-info") ?? "");
 
+    public async Task<List<Contact>> GetInfo(string[] userIds)
+    {
+        var result = new List<Contact>();
+        // Query info cache
+        var tasks = userIds.Select(async userId =>
+        {
+            var userInfo = await _distributedCache.GetStringAsync($"user-{userId}-info") ?? "";
+            lock (result) // Ensure thread safety
+            {
+                result.Add(JsonConvert.DeserializeObject<Contact>(userInfo));
+            }
+        });
+        await Task.WhenAll(tasks);
+        return result;
+    }
+
     public void SetInfo(Contact info) => _ = _distributedCache.SetStringAsync($"user-{info.Id}-info", JsonConvert.SerializeObject(info));
 
     public void RemoveAll()

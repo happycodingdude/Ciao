@@ -2,7 +2,7 @@ import HttpRequest from "../../../lib/fetch";
 import { MessageCache } from "../../listchat/types";
 
 const getMessages = async (conversationId: string, page: number) => {
-  return (
+  const data = (
     await HttpRequest<undefined, MessageCache>({
       method: "get",
       url:
@@ -17,5 +17,11 @@ const getMessages = async (conversationId: string, page: number) => {
             ).replace("{page}", page),
     })
   ).data;
+  const result: MessageCache = {
+    hasMore: data.hasMore,
+    messages: data.messages,
+    conversationId: conversationId,
+  };
+  return result;
 };
 export default getMessages;

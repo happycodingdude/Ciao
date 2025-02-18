@@ -130,6 +130,19 @@ public class ConversationCache
         await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
     }
 
+    public async Task AddConversation(string[] userIds, string conversationId)
+    {
+        var tasks = userIds.Select(async userId =>
+        {
+            // Update list conversation cache
+            var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
+            var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
+            conversationIds.Insert(0, conversationId);
+            await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
+        });
+        await Task.WhenAll(tasks);
+    }
+
     public void RemoveAll()
     {
         _ = _distributedCache.RemoveAsync($"user-{UserId}-conversations");

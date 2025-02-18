@@ -19,31 +19,26 @@ export type NotifyMessageModel = {
 };
 
 const notifyMessage = (model: NotifyMessageModel) => {
-  const messageData =
-    model.message.data === undefined
-      ? undefined
-      : JSON.parse(model.message.data);
-  console.log(model.message);
-
   switch (model.message.event) {
     case "NewMessage":
+      const message: NewMessage_Message = JSON.parse(model.message.data);
       model.queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
           // If exists conversation -> update state and return
           if (
             oldData.conversations.some(
-              (conversation) => conversation.id === messageData.conversation.id,
+              (conversation) => conversation.id === message.conversation.id,
             )
           ) {
             const updatedConversations = oldData.conversations.map(
               (conversation) => {
-                if (conversation.id !== messageData.conversation.id)
+                if (conversation.id !== message.conversation.id)
                   return conversation;
                 return {
                   ...conversation,
-                  lastMessage: messageData.content,
-                  lastMessageContact: messageData.contact.id,
+                  lastMessage: message.content,
+                  lastMessageContact: message.contact.id,
                   unSeenMessages: conversation.unSeenMessages + 1,
                 };
               },
@@ -58,15 +53,15 @@ const notifyMessage = (model: NotifyMessageModel) => {
           // Else generate new conversation and update state
           const newConversation = [
             {
-              isGroup: messageData.conversation.isGroup,
-              title: messageData.conversation.title,
-              avatar: messageData.conversation.avatar,
+              isGroup: message.conversation.isGroup,
+              title: message.conversation.title,
+              avatar: message.conversation.avatar,
               isNotifying: true,
-              id: messageData.conversation.id,
-              lastMessage: messageData.content,
-              lastMessageContact: messageData.contact.id,
+              id: message.conversation.id,
+              lastMessage: message.content,
+              lastMessageContact: message.contact.id,
               unSeenMessages: 1,
-              members: messageData.conversation.members,
+              members: message.conversation.members,
             },
             ...oldData.conversations,
           ];
@@ -79,21 +74,21 @@ const notifyMessage = (model: NotifyMessageModel) => {
       );
       model.queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         if (!oldData) return; // Case haven't click any conversation
-        // if (oldData.id !== messageData.conversation.id) return oldData;
+        if (oldData.conversationId !== message.conversation.id) return oldData;
         return {
           ...oldData,
           messages: [
             ...oldData.messages,
             {
-              ...messageData,
-              contactId: messageData.contact.id,
+              ...message,
+              contactId: message.contact.id,
               currentReaction: null,
             },
           ],
         } as MessageCache;
       });
       const today: string = moment().format("MM/DD/YYYY");
-      if (messageData.attachments.length !== 0) {
+      if (message.attachments.length !== 0) {
         model.queryClient.setQueryData(
           ["attachment"],
           (oldData: AttachmentCache[]) => {
@@ -101,10 +96,7 @@ const notifyMessage = (model: NotifyMessageModel) => {
               item.date === today
                 ? {
                     ...item,
-                    attachments: [
-                      ...messageData.attachments,
-                      ...item.attachments,
-                    ],
+                    attachments: [...message.attachments, ...item.attachments],
                   }
                 : item,
             ) as AttachmentCache[];
@@ -113,20 +105,23 @@ const notifyMessage = (model: NotifyMessageModel) => {
       }
       break;
     case "NewConversation":
+      const conversation: NewMessage_Message_Conversation = JSON.parse(
+        model.message.data,
+      );
       model.queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
           const newConversation = [
             {
-              isGroup: messageData.isGroup,
+              isGroup: conversation.isGroup,
               isNotifying: true,
-              id: messageData.id,
-              title: messageData.title,
-              avatar: messageData.avatar,
+              id: conversation.id,
+              title: conversation.title,
+              avatar: conversation.avatar,
               unSeenMessages: 1,
-              lastMessage: messageData.lastMessage,
-              lastMessageContact: messageData.lastMessageContact,
-              members: messageData.members,
+              lastMessage: conversation.lastMessage,
+              lastMessageContact: conversation.lastMessageContact,
+              members: conversation.members,
             },
             ...oldData.conversations,
           ];

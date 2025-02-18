@@ -38,13 +38,15 @@ public static class CreateGroupConversation
         readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
         readonly ConversationCache _conversationCache;
+        readonly UserCache _userCache;
 
         public Handler(IValidator<Request> validator,
             IFirebaseFunction firebase,
             IMapper mapper,
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
-            ConversationCache conversationCache)
+            ConversationCache conversationCache,
+            UserCache userCache)
         {
             _validator = validator;
             _firebase = firebase;
@@ -52,6 +54,7 @@ public static class CreateGroupConversation
             _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
             _conversationCache = conversationCache;
+            _userCache = userCache;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -105,14 +108,16 @@ public static class CreateGroupConversation
             thisUser.Contact.IsOnline = true;
             await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
 
+            var membersToNotify = conversation.Members.Where(q => q.ContactId != user.Id).Select(q => q.ContactId).ToArray();
+            // Check if receiver is online then update receiver cache
+            var receivers = await _userCache.GetInfo(membersToNotify);
+            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), conversation.Id);
+
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
             _ = _firebase.Notify(
                 "NewConversation",
-                conversation.Members
-                        .Where(q => q.ContactId != user.Id)
-                        .Select(q => q.ContactId)
-                    .ToArray(),
+                membersToNotify,
                 notify
             );
 

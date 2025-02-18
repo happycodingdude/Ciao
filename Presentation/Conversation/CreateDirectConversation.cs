@@ -57,8 +57,8 @@ public static class CreateDirectConversation
             else
                 HandleOldConversation(conversation, message);
 
-            // Check if receiver is online then update receiver cache
             var memberToCache = new List<MemberWithContactInfoAndFriendRequest>(2);
+            // Check if receiver is online then update receiver cache
             var receiver = _userCache.GetInfo(request.contactId);
             if (isNewConversation)
             {
