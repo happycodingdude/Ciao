@@ -34,11 +34,12 @@ public class MessageToNotify
 // public class MessageToNotify_Conversation
 // {
 //     public string Id { get; set; } = null!;
-//     public bool IsGroup { get; set; }
 //     public string Title { get; set; } = null!;
 //     public string Avatar { get; set; } = null!;
-//     // public string LastMessage { get; set; } = null!;
-//     // public string LastMessageContact { get; set; } = null!;
+//     public bool IsGroup { get; set; }
+//     public string LastMessage { get; set; } = null!;
+//     public string LastMessageContact { get; set; } = null!;
+//     public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
 // }
 
 public class MessageToNotify_Contact

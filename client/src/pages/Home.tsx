@@ -4,7 +4,10 @@ import useInfo from "../features/authentication/hooks/useInfo";
 // import ProfileSection from "../features/profile-new/ProfileSection";
 // import ChatSection from "../layouts/ChatSection";
 import { lazy } from "react";
-import { requestPermission } from "../components/Notification";
+import {
+  requestPermission,
+  setupMessageListener,
+} from "../components/Notification";
 import notifyMessage from "../features/notification/services/notifyMessage";
 import registerConnection from "../features/notification/services/registerConnection";
 import SideBar from "../layouts/SideBar";
@@ -34,7 +37,7 @@ const Home = () => {
   useEffect(() => {
     if (!info) return;
     const isRegistered = localStorage.getItem("isRegistered");
-    if (!isRegistered) {
+    if (!isRegistered || isRegistered === "false") {
       localStorage.setItem("isRegistered", "true");
       const request: RequestPermission = {
         registerConnection: registerConnectionMutation,
@@ -44,6 +47,7 @@ const Home = () => {
       };
       requestPermission(request);
     }
+    setupMessageListener(queryClient, info);
   }, [info]);
 
   if (!info) return;

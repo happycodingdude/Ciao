@@ -18,7 +18,7 @@ import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";
 
 const FriendCtaButton = (props: FriendItemProps) => {
-  const { friend, addFriend, acceptFriend, cancelFriend } = props;
+  const { friend, friendAction } = props;
 
   if (!friend) return;
 
@@ -168,11 +168,24 @@ const FriendCtaButton = (props: FriendItemProps) => {
   };
 
   return {
-    new: <AddButton id={friend.id} onClose={addFriend} />,
-    request_received: (
-      <AcceptButton id={friend.friendId} onClose={acceptFriend} />
+    new: (
+      <AddButton
+        id={friend.id}
+        onClose={(id: string) => friendAction(id, "request_sent")}
+      />
     ),
-    request_sent: <CancelButton id={friend.friendId} onClose={cancelFriend} />,
+    request_received: (
+      <AcceptButton
+        id={friend.friendId}
+        onClose={() => friendAction(friend.friendId, "friend")}
+      />
+    ),
+    request_sent: (
+      <CancelButton
+        id={friend.friendId}
+        onClose={() => friendAction(null, "new")}
+      />
+    ),
     friend: (
       <CustomButton
         title="Chat"

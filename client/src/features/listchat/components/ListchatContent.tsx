@@ -216,7 +216,7 @@ const ListchatContent = () => {
               item.id === data.selected?.id
                 ? "text-[var(--text-sub-color-thin)]"
                 : item.lastMessageContact !== info.id && item.unSeenMessages > 0
-                  ? "text-[var(--main-color-bold)]"
+                  ? "text-[var(--main-color-extrabold)]"
                   : "text-[var(--text-main-color-blur)]"
             }`}
                 title={item.lastMessage}

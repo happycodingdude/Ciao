@@ -266,6 +266,54 @@ const QuickChat = (props: QuickChatProps) => {
   }, []);
   useEventListener("click", closeQuickProfileOnClick);
 
+  const handleFriendAction = (
+    id?: string | null,
+    status?: "friend" | "request_sent" | "request_received" | "new" | null,
+  ): void => {
+    setInnerFriend((current) => {
+      return {
+        ...current,
+        friendId: id,
+        friendStatus: status === "friend" ? null : status,
+      };
+    });
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      const updatedConversations = oldData.conversations.map((conversation) => {
+        let member = conversation.members.some(
+          (mem) => mem.contact.id === innerFriend.id,
+        );
+        if (!member) return conversation;
+        return {
+          ...conversation,
+          members: conversation.members.map((mem) => {
+            if (mem.contact.id !== innerFriend.id) return mem;
+            return {
+              ...mem,
+              friendId: id,
+              friendStatus: status,
+            };
+          }),
+        };
+      });
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        filterConversations: updatedConversations,
+        selected: {
+          ...oldData.selected,
+          members: oldData.selected?.members.map((mem) => {
+            if (mem.contact.id !== innerFriend.id) return mem;
+            return {
+              ...mem,
+              friendId: id,
+              friendStatus: status,
+            };
+          }),
+        },
+      } as ConversationCache;
+    });
+  };
+
   return (
     <div
       ref={refQuickProfile}
@@ -275,143 +323,7 @@ const QuickChat = (props: QuickChatProps) => {
         <div className="absolute right-[5%] top-[5%]">
           <FriendCtaButton
             friend={innerFriend}
-            addFriend={(id) => {
-              setInnerFriend((current) => {
-                return {
-                  ...current,
-                  friendId: id,
-                  friendStatus: "request_sent",
-                };
-              });
-              queryClient.setQueryData(
-                ["conversation"],
-                (oldData: ConversationCache) => {
-                  const updatedConversations = oldData.conversations.map(
-                    (conversation) => {
-                      let member = conversation.members.some(
-                        (mem) => mem.contact.id === innerFriend.id,
-                      );
-                      if (!member) return conversation;
-                      return {
-                        ...conversation,
-                        members: conversation.members.map((mem) => {
-                          if (mem.contact.id !== innerFriend.id) return mem;
-                          return {
-                            ...mem,
-                            friendId: id,
-                            friendStatus: "request_sent",
-                          };
-                        }),
-                      };
-                    },
-                  );
-                  return {
-                    ...oldData,
-                    conversations: updatedConversations,
-                    filterConversations: updatedConversations,
-                    selected: {
-                      ...oldData.selected,
-                      members: oldData.selected?.members.map((mem) => {
-                        if (mem.contact.id !== innerFriend.id) return mem;
-                        return {
-                          ...mem,
-                          friendId: id,
-                          friendStatus: "request_sent",
-                        };
-                      }),
-                    },
-                  } as ConversationCache;
-                },
-              );
-            }}
-            acceptFriend={() => {
-              setInnerFriend((current) => {
-                return { ...current, friendStatus: "friend" };
-              });
-              queryClient.setQueryData(
-                ["conversation"],
-                (oldData: ConversationCache) => {
-                  const updatedConversations = oldData.conversations.map(
-                    (conversation) => {
-                      let member = conversation.members.some(
-                        (mem) => mem.contact.id === innerFriend.id,
-                      );
-                      if (!member) return conversation;
-                      return {
-                        ...conversation,
-                        members: conversation.members.map((mem) => {
-                          if (mem.contact.id !== innerFriend.id) return mem;
-                          return {
-                            ...mem,
-                            friendStatus: "friend",
-                          };
-                        }),
-                      };
-                    },
-                  );
-                  return {
-                    ...oldData,
-                    conversations: updatedConversations,
-                    filterConversations: updatedConversations,
-                    selected: {
-                      ...oldData.selected,
-                      members: oldData.selected?.members.map((mem) => {
-                        if (mem.contact.id !== innerFriend.id) return mem;
-                        return {
-                          ...mem,
-                          friendStatus: "friend",
-                        };
-                      }),
-                    },
-                  } as ConversationCache;
-                },
-              );
-            }}
-            cancelFriend={() => {
-              setInnerFriend((current) => {
-                return { ...current, friendId: null, friendStatus: "new" };
-              });
-              queryClient.setQueryData(
-                ["conversation"],
-                (oldData: ConversationCache) => {
-                  const updatedConversations = oldData.conversations.map(
-                    (conversation) => {
-                      let member = conversation.members.some(
-                        (mem) => mem.contact.id === innerFriend.id,
-                      );
-                      if (!member) return conversation;
-                      return {
-                        ...conversation,
-                        members: conversation.members.map((mem) => {
-                          if (mem.contact.id !== innerFriend.id) return mem;
-                          return {
-                            ...mem,
-                            friendId: null,
-                            friendStatus: "new",
-                          };
-                        }),
-                      };
-                    },
-                  );
-                  return {
-                    ...oldData,
-                    conversations: updatedConversations,
-                    filterConversations: updatedConversations,
-                    selected: {
-                      ...oldData.selected,
-                      members: oldData.selected?.members.map((mem) => {
-                        if (mem.contact.id !== innerFriend.id) return mem;
-                        return {
-                          ...mem,
-                          friendId: null,
-                          friendStatus: "new",
-                        };
-                      }),
-                    },
-                  } as ConversationCache;
-                },
-              );
-            }}
+            friendAction={handleFriendAction}
           />
         </div>
         <div className="basis-[40%] rounded-t-[.5rem] bg-[var(--main-color-extrathin)]"></div>
@@ -425,20 +337,9 @@ const QuickChat = (props: QuickChatProps) => {
                   src: innerFriend?.avatar,
                 },
               ]}
-              // onClick={() => {}}
             />
           </div>
           <p className="text-md font-medium">{innerFriend?.name}</p>
-          {/* <ChatInput
-            // className="grow-0"
-            quickChat
-            noMenu
-            noEmoji
-            send={(content) => {
-              chat(profile, content);
-            }}
-            inputRef={refInput}
-          /> */}
           <div className="rounded-[.5rem] bg-[var(--bg-color)] py-[.5rem]">
             <CustomContentEditable
               ref={refInput}

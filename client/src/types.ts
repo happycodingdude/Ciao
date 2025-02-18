@@ -84,11 +84,15 @@ export type PortalHeaderProps = OnCloseType & {
 
 export type ListFriendProps = OnCloseType & {};
 
-export type FriendItemProps = OnCloseType & {
+export type FriendItemProps = {
   friend?: ContactModel; // Define this type based on your data
-  addFriend?: (id: string) => void;
-  acceptFriend?: () => void;
-  cancelFriend?: () => void;
+  // addFriend?: (id: string) => void;
+  // acceptFriend?: () => void;
+  // cancelFriend?: () => void;
+  friendAction?: (
+    id?: string | null,
+    status?: "friend" | "request_sent" | "request_received" | "new" | null,
+  ) => void;
 };
 
 export type FriendCtaButtonProps = OnCloseType & {

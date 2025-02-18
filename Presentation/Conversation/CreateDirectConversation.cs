@@ -12,13 +12,15 @@ public static class CreateDirectConversation
         readonly IContactRepository _contactRepository;
         readonly ConversationCache _conversationCache;
         readonly MessageCache _messageCache;
+        readonly UserCache _userCache;
 
         public Handler(IFirebaseFunction firebase,
             IMapper mapper,
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
             ConversationCache conversationCache,
-            MessageCache messageCache)
+            MessageCache messageCache,
+            UserCache userCache)
         {
             _firebase = firebase;
             _mapper = mapper;
@@ -26,19 +28,21 @@ public static class CreateDirectConversation
             _contactRepository = contactRepository;
             _conversationCache = conversationCache;
             _messageCache = messageCache;
+            _userCache = userCache;
         }
 
         public async Task<CreateDirectConversationRes> Handle(Request request, CancellationToken cancellationToken)
         {
             var user = await _contactRepository.GetInfoAsync();
 
-            var message = string.IsNullOrEmpty(request.message) ? null
-            : new Message
-            {
-                ContactId = user.Id,
-                Type = "text",
-                Content = request.message
-            };
+            var message = string.IsNullOrEmpty(request.message)
+                ? null
+                : new Message
+                {
+                    ContactId = user.Id,
+                    Type = "text",
+                    Content = request.message
+                };
 
             var filter = Builders<Conversation>.Filter.And(
                 Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == user.Id),
@@ -53,13 +57,16 @@ public static class CreateDirectConversation
             else
                 HandleOldConversation(conversation, message);
 
+            // Check if receiver is online then update receiver cache
+            var memberToCache = new List<MemberWithContactInfoAndFriendRequest>(2);
+            var receiver = _userCache.GetInfo(request.contactId);
             if (isNewConversation)
             {
                 // Update cache
                 var contactFilter = MongoQuery<Contact>.IdFilter(request.contactId);
                 var contact = await _contactRepository.GetItemAsync(contactFilter);
                 var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-                var memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(conversation.Members);
+                memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(conversation.Members);
                 var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == request.contactId);
                 targetUser.Contact.Name = contact.Name;
                 targetUser.Contact.Avatar = contact.Avatar;
@@ -71,9 +78,19 @@ public static class CreateDirectConversation
                 thisUser.Contact.Bio = user.Bio;
                 thisUser.Contact.IsOnline = true;
                 if (message is not null)
+                {
                     await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache, _mapper.Map<MessageWithReactions>(message));
+
+                    if (receiver is not null)
+                        await _conversationCache.AddConversation(receiver.Id, conversation.Id);
+                }
                 else
+                {
                     await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
+
+                    if (receiver is not null)
+                        await _conversationCache.AddConversation(receiver.Id, conversation.Id);
+                }
             }
             else if (message is not null)
             {
@@ -85,13 +102,11 @@ public static class CreateDirectConversation
             {
                 var notify = _mapper.Map<MessageToNotify>(message);
                 notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
+                notify.Conversation.Members = memberToCache;
                 notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
                 _ = _firebase.Notify(
                     "NewMessage",
-                    conversation.Members
-                        .Where(q => q.ContactId != user.Id)
-                        .Select(q => q.ContactId)
-                    .ToArray(),
+                    new string[1] { request.contactId },
                     notify
                 );
             }

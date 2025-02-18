@@ -1,10 +1,11 @@
+import { QueryClient } from "@tanstack/react-query";
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import {
+import notifyMessage, {
   NotifyMessage,
   NotifyMessageModel,
 } from "../features/notification/services/notifyMessage";
-import { RequestPermission } from "../types";
+import { RequestPermission, UserProfile } from "../types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
@@ -20,11 +21,28 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
+// Function to set up message listener
+export const setupMessageListener = (
+  queryClient: QueryClient,
+  info: UserProfile,
+) => {
+  // Receive message
+  onMessage(messaging, (payload) => {
+    console.log("Message received. ", payload.data);
+    const message: NotifyMessageModel = {
+      message: payload.data as NotifyMessage,
+      queryClient: queryClient,
+      info: info,
+    };
+    notifyMessage(message);
+  });
+};
+
 export const requestPermission = ({
   registerConnection,
-  notifyMessage,
-  queryClient,
-  info,
+  // notifyMessage,
+  // queryClient,
+  // info,
 }: RequestPermission) => {
   Notification.requestPermission().then((permission) => {
     if (permission == "granted") {
@@ -36,15 +54,15 @@ export const requestPermission = ({
           // console.log(token);
           if (token) {
             // Receive message
-            onMessage(messaging, (payload) => {
-              console.log("Message received. ", payload.data);
-              const message: NotifyMessageModel = {
-                message: payload.data as NotifyMessage,
-                queryClient: queryClient,
-                info: info,
-              };
-              notifyMessage(message);
-            });
+            // onMessage(messaging, (payload) => {
+            //   console.log("Message received. ", payload.data);
+            //   const message: NotifyMessageModel = {
+            //     message: payload.data as NotifyMessage,
+            //     queryClient: queryClient,
+            //     info: info,
+            //   };
+            //   notifyMessage(message);
+            // });
 
             registerConnection(token);
           } else console.log("Token failed");

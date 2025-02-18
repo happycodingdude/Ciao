@@ -80,7 +80,7 @@ public class ConversationCache
     public async Task AddConversation(string userId, ConversationCacheModel conversation, List<MemberWithContactInfoAndFriendRequest> members)
     {
         // Update list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
+        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
         conversationIds.Insert(0, conversation.Id);
         await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
@@ -99,7 +99,7 @@ public class ConversationCache
     public async Task AddConversation(string userId, ConversationCacheModel conversation, List<MemberWithContactInfoAndFriendRequest> members, MessageWithReactions message)
     {
         // Update list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-conversations") ?? "";
+        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
         conversationIds.Insert(0, conversation.Id);
         await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
@@ -119,6 +119,15 @@ public class ConversationCache
 
         // Update message cache
         await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-messages", JsonConvert.SerializeObject(new List<MessageWithReactions>(1) { message }));
+    }
+
+    public async Task AddConversation(string userId, string conversationId)
+    {
+        // Update list conversation cache
+        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
+        var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData) ?? [];
+        conversationIds.Insert(0, conversationId);
+        await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(conversationIds));
     }
 
     public void RemoveAll()

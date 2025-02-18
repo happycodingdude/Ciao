@@ -18,7 +18,11 @@ import {
   MessageModel,
 } from "../../listchat/types";
 import sendMessage from "../services/sendMessage";
-import { MentionModel, SendMessageRequest } from "../types";
+import {
+  MentionModel,
+  SendMessageRequest,
+  SendMessageResponse,
+} from "../types";
 import ChatboxMenu from "./ChatboxMenu";
 import ImageItem from "./ImageItem";
 
@@ -128,8 +132,8 @@ const ChatInput = (props: ChatInputProps) => {
 
   const { mutate: sendMutation } = useMutation({
     mutationFn: async (param: SendMessageRequest) => {
-      const randomId = Math.random().toString(36).substring(2, 7);
-      const hasMedia = param.files.length !== 0;
+      const randomId: string = Math.random().toString(36).substring(2, 7);
+      const hasMedia: boolean = param.files.length !== 0;
 
       queryClient.setQueryData(
         ["conversation"],
@@ -159,9 +163,9 @@ const ChatInput = (props: ChatInputProps) => {
         type: param.type,
         content: param.content,
       };
-      let bodyLocal = Object.assign({}, bodyToCreate);
+      let bodyLocal: SendMessageRequest = Object.assign({}, bodyToCreate);
 
-      const today = moment().format("MM/DD/YYYY");
+      const today: string = moment().format("MM/DD/YYYY");
       if (hasMedia) {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           return {
@@ -220,14 +224,16 @@ const ChatInput = (props: ChatInputProps) => {
             );
           },
         );
-        const uploaded = await uploadFile(param.files).then((uploads) => {
-          return uploads.map((item) => ({
-            type: item.type,
-            mediaUrl: item.url,
-            mediaName: item.name,
-            mediaSize: item.size,
-          }));
-        });
+        const uploaded: AttachmentModel[] = await uploadFile(param.files).then(
+          (uploads) => {
+            return uploads.map((item) => ({
+              type: item.type,
+              mediaUrl: item.url,
+              mediaName: item.name,
+              mediaSize: item.size,
+            }));
+          },
+        );
         bodyToCreate = {
           ...bodyToCreate,
           attachments: uploaded,
@@ -257,7 +263,10 @@ const ChatInput = (props: ChatInputProps) => {
         });
       }
 
-      const res = await sendMessage(conversations?.selected.id, bodyToCreate);
+      const res: SendMessageResponse = await sendMessage(
+        conversations?.selected.id,
+        bodyToCreate,
+      );
       await delay(1000);
 
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
