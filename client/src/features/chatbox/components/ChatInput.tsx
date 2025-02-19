@@ -1,5 +1,6 @@
+import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
+import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import EmojiPicker from "emoji-picker-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
@@ -81,11 +82,8 @@ const ChatInput = (props: ChatInputProps) => {
 
   const chooseMention = (id) => {
     let user = mentions.find((item) => item.userId === id);
-    inputRef.current.textContent = inputRef.current.textContent.replace(
-      "@",
-      "",
-    );
-    inputRef.current.textContent = inputRef.current.textContent += user.name;
+    inputRef.current.innerText = inputRef.current.innerText.replace("@", "");
+    inputRef.current.innerText = inputRef.current.innerText += user.name;
     // inputRef.current.focus();
     setCaretToEnd(true);
     setShowMention(false);
@@ -318,10 +316,9 @@ const ChatInput = (props: ChatInputProps) => {
   });
 
   const chat = () => {
-    // send(inputRef.current.textContent, files ?? []);
+    // send(inputRef.current.innerText, files ?? []);
 
-    if (inputRef.current.textContent.trim() === "" && files.length === 0)
-      return;
+    if (inputRef.current.innerText.trim() === "" && files.length === 0) return;
 
     const lazyImages = files.map((item) => {
       return {
@@ -332,13 +329,13 @@ const ChatInput = (props: ChatInputProps) => {
     });
     // setFiles([]);
     sendMutation({
-      type: inputRef.current.textContent.trim() === "" ? "media" : "text",
-      content: inputRef.current.textContent,
+      type: inputRef.current.innerText.trim() === "" ? "media" : "text",
+      content: inputRef.current.innerText,
       attachments: lazyImages,
       files: files,
     });
 
-    inputRef.current.textContent = "";
+    inputRef.current.innerText = "";
     setFiles([]);
   };
 
@@ -369,7 +366,7 @@ const ChatInput = (props: ChatInputProps) => {
     const cursorPosition = clonedRange.toString().length;
     // Ensure the cursor is not at the start (index 0)
     if (cursorPosition > 0) {
-      const textBeforeCursor = inputRef.current.textContent.substring(
+      const textBeforeCursor = inputRef.current.innerText.substring(
         0,
         cursorPosition,
       );
@@ -396,17 +393,26 @@ const ChatInput = (props: ChatInputProps) => {
   }, []);
   useEventListener("keydown", hideMentionOnKey);
 
+  // const closeEmojiOnClick = useCallback((e) => {
+  //   const classList = Array.from(e.target.classList);
+  //   if (
+  //     e.target.closest("emoji-item") ||
+  //     classList.some((item) => item.includes("epr"))
+  //   )
+  //     return;
+  //   setShowEmoji(false);
+  // }, []);
   const closeEmojiOnClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const classList = Array.from(target.classList);
     if (
-      target.closest("emoji-item") ||
+      target.closest(".emoji-item") ||
       classList.some((item) => item.includes("epr"))
     )
       return;
     setShowEmoji(false);
   }, []);
-  useEventListener("click", closeEmojiOnClick);
+  // useEventListener("click", closeEmojiOnClick);
 
   const closeEmojiOnKey = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -471,7 +477,7 @@ const ChatInput = (props: ChatInputProps) => {
     <div className={`flex w-full grow items-center justify-center`}>
       <div
         // className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
-        className={`${className} flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
+        className={`${className} relative flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
       >
         {files?.length !== 0 ? (
           <div
@@ -539,22 +545,49 @@ const ChatInput = (props: ChatInputProps) => {
             onKeyUp={keyupBindingFn}
             className="px-[4rem]"
           />
+          {/* <div className="relative"> */}
           <label
             className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
           cursor-pointer text-md font-normal`}
-            onClick={() => setShowEmoji((show) => !show)}
+            onClick={() => setShowEmoji(true)}
           ></label>
+          {/* </div> */}
         </div>
-        <EmojiPicker
+        {showEmoji && (
+          <div className="absolute bottom-[3rem] right-0">
+            <Picker
+              data={appleEmojisData}
+              set="apple"
+              onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
+              onClickOutside={(e) => {
+                if (e.target.classList.contains("emoji-item"))
+                  setShowEmoji(true);
+                else setShowEmoji(false);
+              }}
+            />
+          </div>
+        )}
+        {/* <div
+          className={`${showEmoji ? "block" : "hidden"} absolute bottom-[3rem] right-0`}
+        >
+          <Picker
+            data={appleEmojisData}
+            set="apple"
+            onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
+            onClickOutside={(e) => {
+              if (e.target.classList.contains("emoji-item")) setShowEmoji(true);
+              else setShowEmoji(false);
+            }}
+          />
+        </div> */}
+        {/* <EmojiPicker
           open={showEmoji}
           width={300}
           height={400}
-          onEmojiClick={(emoji) =>
-            (inputRef.current.textContent += emoji.emoji)
-          }
+          onEmojiClick={(emoji) => (inputRef.current.innerText += emoji.emoji)}
           className="emoji-item !absolute right-[2rem] top-[-41rem]"
           // icons="solid"
-        />
+        /> */}
       </div>
     </div>
   );

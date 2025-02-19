@@ -67,10 +67,12 @@ const Notification = () => {
     <div className="relative">
       {notifications?.some((item) => !item.read) ? (
         <div
-          className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[1.7rem] items-center justify-center rounded-[50%] 
+          className="absolute right-[-1.5rem] top-[-1.5rem] flex aspect-square w-[2rem] items-center justify-center rounded-[50%] 
         bg-red-500"
         >
-          <p className="text-xs font-bold text-[var(--sub-color)]">
+          <p
+            className={`${notifications?.filter((item) => !item.read).length < 10 ? "text-xs" : "text-2xs"}  font-bold text-[var(--sub-color)]`}
+          >
             {notifications?.filter((item) => !item.read).length}
           </p>
         </div>

@@ -74,7 +74,7 @@ const notifyMessage = (model: NotifyMessageModel) => {
       );
       model.queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         if (!oldData) return; // Case haven't click any conversation
-        if (oldData.conversationId !== message.conversation.id) return oldData;
+        if (oldData.conversationId !== message.conversation.id) return oldData; // Receive message of another conversation
         return {
           ...oldData,
           messages: [

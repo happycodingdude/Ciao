@@ -252,7 +252,10 @@ const Chatbox = () => {
   // }, []);
   // useEventListener("click", closeProfile);
 
-  const fetchMoreMessage = async (conversationId, currentScrollHeight) => {
+  const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {
+    if (!hasMore) return;
+
+    const currentScrollHeight = refChatContent.current.scrollHeight;
     // setFetching(true);
 
     const newMessages = await getMessages(conversationId, refPage.current);
@@ -273,9 +276,18 @@ const Chatbox = () => {
     });
   };
 
+  // const debounceFetch = useMemo(
+  //   () =>
+  //     debounce(
+  //       () => fetchMoreMessage(conversations?.selected.id, messages.hasMore),
+  //       100,
+  //     ),
+  //   [conversations?.selected.id, messages.hasMore],
+  // );
+
   const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
 
-  const handleScroll = useCallback(async () => {
+  const handleScroll = useCallback(() => {
     // Nếu cuộn lên 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
     const distanceFromBottom =
       refChatContent.current.scrollHeight -
@@ -288,15 +300,13 @@ const Chatbox = () => {
     else setShowScrollToBottom(false);
 
     // Nếu cuộn lên top và còn dữ liệu cũ -> lấy thêm dữ liệu
-    if (refChatContent.current.scrollTop === 0 && messages.hasMore) {
+    if (refChatContent.current.scrollTop === 0) {
       setAutoScrollBottom(false);
       refPage.current = refPage.current + 1;
-      const currentScrollHeight = refChatContent.current.scrollHeight;
-      debounceFetch(conversations?.selected.id, currentScrollHeight);
+      debounceFetch(conversations?.selected.id, messages.hasMore);
     }
-    // }, [conversations?.selected, messages, page]);
-  }, [conversations?.selected, messages]);
-  useEventListener("scroll", handleScroll);
+  }, [conversations?.selected.id, messages]);
+  useEventListener("scroll", handleScroll, refChatContent.current);
 
   return (
     <div className="chatbox-content relative flex h-full max-h-[92%] w-full flex-col justify-end overflow-hidden">

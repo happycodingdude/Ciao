@@ -28,6 +28,8 @@ export default {
     //   "10xl": ["60px", { lineHeight: "68px", fontWeight: "bold" }],
     // },
     fontSize: {
+      "3xs": ".8rem",
+      "2xs": "1rem",
       xs: "1.2rem",
       sm: "1.4rem",
       base: "1.6rem",
