@@ -276,15 +276,6 @@ const Chatbox = () => {
     });
   };
 
-  // const debounceFetch = useMemo(
-  //   () =>
-  //     debounce(
-  //       () => fetchMoreMessage(conversations?.selected.id, messages.hasMore),
-  //       100,
-  //     ),
-  //   [conversations?.selected.id, messages.hasMore],
-  // );
-
   const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
 
   const handleScroll = useCallback(() => {
@@ -294,7 +285,7 @@ const Chatbox = () => {
       (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
     if (
       refChatContent.current.clientHeight !== 0 &&
-      distanceFromBottom >= refChatContent.current.clientHeight
+      distanceFromBottom >= refChatContent.current.clientHeight / 2
     )
       setShowScrollToBottom(true);
     else setShowScrollToBottom(false);
@@ -305,7 +296,7 @@ const Chatbox = () => {
       refPage.current = refPage.current + 1;
       debounceFetch(conversations?.selected.id, messages.hasMore);
     }
-  }, [conversations?.selected.id, messages]);
+  }, [conversations?.selected, messages]);
   useEventListener("scroll", handleScroll, refChatContent.current);
 
   return (

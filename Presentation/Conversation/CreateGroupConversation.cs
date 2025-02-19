@@ -109,9 +109,10 @@ public static class CreateGroupConversation
             await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
 
             var membersToNotify = conversation.Members.Where(q => q.ContactId != user.Id).Select(q => q.ContactId).ToArray();
-            // Check if receiver is online then update receiver cache
+            // Check if any receiver is online then update receiver cache
             var receivers = await _userCache.GetInfo(membersToNotify);
-            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), conversation.Id);
+            if (receivers.Any())
+                await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), conversation.Id);
 
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);

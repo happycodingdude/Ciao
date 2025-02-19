@@ -51,7 +51,7 @@ public static class UpdateConversation
             var cache = await _conversationCache.GetConversationInfo(request.id);
             cache.Title = request.model.Title;
             cache.Avatar = request.model.Avatar;
-            await _conversationCache.SetConversations(request.id, cache);
+            await _conversationCache.SetConversation(request.id, cache);
 
             return Unit.Value;
         }

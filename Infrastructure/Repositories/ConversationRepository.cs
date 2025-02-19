@@ -88,6 +88,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         { "IsModerator", "$Members.IsModerator" },
                         { "IsNotifying", "$Members.IsNotifying" },
                         { "ContactId", "$Members.ContactId" },
+                        { "LastSeenTime", "$Members.LastSeenTime" },
                         { "Contact", new BsonDocument("$first", "$MatchingContact")},
                         // { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
                         // { "FriendStatus", new BsonDocument("$cond", new BsonArray
@@ -155,7 +156,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         foreach (var conversation in conversations)
         {
             conversation.IsNotifying = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
-            conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
+            // conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
             if (lastMessage is not null)

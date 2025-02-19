@@ -25,6 +25,9 @@ public class MemberWithContactInfo : MongoBaseModel
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
     public ContactInfoMoreDetails Contact { get; set; } = null!;
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    public DateTime? LastSeenTime { get; set; }
+    public int UnSeenMessages { get; set; }
 }
 
 [BsonIgnoreExtraElements]

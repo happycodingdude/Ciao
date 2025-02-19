@@ -27,18 +27,21 @@ public static class GetMessages
         readonly IContactRepository _contactRepository;
         readonly IMapper _mapper;
         readonly MessageCache _messageCache;
+        readonly ConversationCache _conversationCache;
 
         public Handler(IValidator<Request> validator,
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
             IMapper mapper,
-            MessageCache messageCache)
+            MessageCache messageCache,
+            ConversationCache conversationCache)
         {
             _validator = validator;
             _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
             _mapper = mapper;
             _messageCache = messageCache;
+            _conversationCache = conversationCache;
         }
 
         public async Task<MessagesWithHasMore> Handle(Request request, CancellationToken cancellationToken)
@@ -46,6 +49,9 @@ public static class GetMessages
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
+
+            // Update total unseen messages in cache
+            // await _conversationCache.UpdateTotalUnseen(request.id, 0);
 
             var message = await _messageCache.GetMessages(request.id);
             var paging = new PagingParam(request.page, request.limit);

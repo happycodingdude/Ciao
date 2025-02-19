@@ -33,7 +33,8 @@ public class UserCache
         // Query info cache
         var tasks = userIds.Select(async userId =>
         {
-            var userInfo = await _distributedCache.GetStringAsync($"user-{userId}-info") ?? "";
+            var userInfo = await _distributedCache.GetStringAsync($"user-{userId}-info");
+            if (userInfo is null) return;
             lock (result) // Ensure thread safety
             {
                 result.Add(JsonConvert.DeserializeObject<Contact>(userInfo));
