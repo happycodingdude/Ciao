@@ -25,6 +25,7 @@ public static class GetConversations
 
         public async Task<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>> Handle(Request request, CancellationToken cancellationToken)
         {
+            var userId = _contactRepository.GetUserId();
             var conversations = await _conversationCache.GetConversations();
             var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>(conversations);
             await _memberCache.GetMembers(result);
@@ -43,7 +44,7 @@ public static class GetConversations
                     }
                     else
                     {
-                        member.UnSeenMessages = messages.Where(q => q.CreatedTime >= member.LastSeenTime).Count();
+                        member.UnSeenMessages = messages.Where(q => q.CreatedTime >= member.LastSeenTime && q.ContactId != userId).Count();
                     }
                     // Set friend properties
                     var friend = friends.SingleOrDefault(q => q.Contact.Id == member.Contact.Id);

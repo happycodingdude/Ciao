@@ -16,6 +16,8 @@ type NewMessage_Message_Conversation_Member = {
   id: string;
   createdTime: string;
   updatedTime: string | null;
+  lastSeenTime?: string | null;
+  unSeenMessages?: number;
 };
 
 type NewMessage_Message_Conversation = {

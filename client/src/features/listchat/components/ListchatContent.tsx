@@ -56,6 +56,7 @@ const ListchatContent = () => {
   }, [data?.filterConversations]);
 
   const clickConversation = (id: string) => {
+    if (data.selected?.id === id) return;
     setLoading(true);
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       var newConversations = oldData.conversations.map((conversation) => {
@@ -200,7 +201,7 @@ const ListchatContent = () => {
               )}
             </div>
             {/* Title & last message */}
-            <div className={`flex h-full w-1/2 grow flex-col`}>
+            <div className={`flex h-full w-1/2 grow flex-col gap-[.5rem]`}>
               <CustomLabel
                 className={`${item.id === data.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
                 title={
@@ -215,8 +216,9 @@ const ListchatContent = () => {
             ${
               item.id === data.selected?.id
                 ? "text-[var(--text-sub-color-thin)]"
-                : item.lastMessageContact !== info.id && item.unSeenMessages > 0
-                  ? "text-[var(--main-color)]"
+                : item.members.find((mem) => mem.contact.id === info.id)
+                      .unSeenMessages > 0
+                  ? "font-bold text-[var(--main-color)]"
                   : "text-[var(--text-main-color-blur)]"
             }`}
                 title={item.lastMessage}

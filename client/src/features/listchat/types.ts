@@ -15,15 +15,15 @@ export type ConversationModel_Member = BaseModel & {
   contact?: ConversationModel_Contact;
   friendId?: string;
   friendStatus?: "friend" | "request_sent" | "request_received" | "new";
+  lastSeenTime?: string | null;
+  unSeenMessages?: number;
 };
 
 export type ConversationModel = BaseModel & {
   title?: string;
   avatar?: string;
   isGroup?: boolean;
-  deletedTime?: string | null;
   members?: ConversationModel_Member[];
-  unSeenMessages?: number;
   lastMessageId?: string | null;
   lastMessage?: string | null;
   lastMessageTime?: string | null;

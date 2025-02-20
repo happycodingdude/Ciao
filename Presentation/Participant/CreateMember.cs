@@ -102,7 +102,7 @@ public static class CreateMember
             // Update cache
             var contactFilter = Builders<Contact>.Filter.Where(q => filterNewItemToAdd.Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
-            var memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(membersToAdd);
+            var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(membersToAdd);
             foreach (var member in memberToCache)
             {
                 member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;

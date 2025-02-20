@@ -23,6 +23,7 @@ public class MyMapping : Profile
         CreateMap<MemberWithContactInfo, Member>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
+        CreateMap<MemberWithContactInfo, MemberWithContactInfoAndFriendRequest>().ReverseMap();
         // CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         // CreateMap<ConversationCacheModel, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<FriendWithStatus, Friend>().ReverseMap();

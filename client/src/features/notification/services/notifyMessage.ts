@@ -39,7 +39,10 @@ const notifyMessage = (model: NotifyMessageModel) => {
                   ...conversation,
                   lastMessage: message.content,
                   lastMessageContact: message.contact.id,
-                  unSeenMessages: conversation.unSeenMessages + 1,
+                  members: conversation.members.map((mem) => {
+                    if (mem.contact.id !== model.info.id) return mem;
+                    return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
+                  }),
                 };
               },
             );
@@ -60,8 +63,10 @@ const notifyMessage = (model: NotifyMessageModel) => {
               id: message.conversation.id,
               lastMessage: message.content,
               lastMessageContact: message.contact.id,
-              unSeenMessages: 1,
-              members: message.conversation.members,
+              members: message.conversation.members.map((mem) => {
+                if (mem.contact.id !== model.info.id) return mem;
+                return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
+              }),
             },
             ...oldData.conversations,
           ];
@@ -118,10 +123,12 @@ const notifyMessage = (model: NotifyMessageModel) => {
               id: conversation.id,
               title: conversation.title,
               avatar: conversation.avatar,
-              unSeenMessages: 1,
               lastMessage: conversation.lastMessage,
               lastMessageContact: conversation.lastMessageContact,
-              members: conversation.members,
+              members: conversation.members.map((mem) => {
+                if (mem.contact.id !== model.info.id) return mem;
+                return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
+              }),
             },
             ...oldData.conversations,
           ];
