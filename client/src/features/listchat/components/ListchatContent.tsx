@@ -218,7 +218,7 @@ const ListchatContent = () => {
                 ? "text-[var(--text-sub-color-thin)]"
                 : item.members.find((mem) => mem.contact.id === info.id)
                       .unSeenMessages > 0
-                  ? "font-bold text-[var(--main-color)]"
+                  ? "text-[var(--danger-text-color)]"
                   : "text-[var(--text-main-color-blur)]"
             }`}
                 title={item.lastMessage}

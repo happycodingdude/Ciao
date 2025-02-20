@@ -5,7 +5,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
-import ImageWithLightBoxWithShadowAndNoLazy from "../../../components/ImageWithLightBoxWithShadowAndNoLazy";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import { ChatInputProps } from "../../../types";
 import delay from "../../../utils/delay";
@@ -80,10 +80,11 @@ const ChatInput = (props: ChatInputProps) => {
     selection.addRange(range);
   };
 
-  const chooseMention = (id) => {
-    let user = mentions.find((item) => item.userId === id);
-    inputRef.current.innerText = inputRef.current.innerText.replace("@", "");
-    inputRef.current.innerText = inputRef.current.innerText += user.name;
+  const chooseMention = (id: string) => {
+    const user = mentions.find((item) => item.userId === id);
+    // inputRef.current.innerHTML += "&nbsp;";
+    inputRef.current.innerText =
+      inputRef.current.innerText.replace("@", "") + user.name;
     // inputRef.current.focus();
     setCaretToEnd(true);
     setShowMention(false);
@@ -496,10 +497,10 @@ const ChatInput = (props: ChatInputProps) => {
           {conversations?.selected?.isGroup ? (
             <div
               data-show={showMention}
-              className="hide-scrollbar absolute !top-[-20rem] left-0 flex flex-col overflow-y-scroll 
+              className="hide-scrollbar absolute bottom-[4rem] left-0 flex flex-col overflow-y-scroll
           scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          laptop:top-[-16rem] laptop:max-h-[20rem] laptop:w-[20rem]"
+          laptop:max-h-[20rem] laptop:w-[20rem]"
             >
               {mentions?.map((item) => (
                 <div
@@ -507,7 +508,7 @@ const ChatInput = (props: ChatInputProps) => {
                   // data-user={item.userId}
                   onClick={() => chooseMention(item.userId)}
                 >
-                  <ImageWithLightBoxWithShadowAndNoLazy
+                  <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
                     className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
                     slides={[
@@ -515,7 +516,7 @@ const ChatInput = (props: ChatInputProps) => {
                         src: item.avatar,
                       },
                     ]}
-                    onClick={() => {}}
+                    // onClick={() => {}}
                   />
                   <p>{item.name}</p>
                 </div>

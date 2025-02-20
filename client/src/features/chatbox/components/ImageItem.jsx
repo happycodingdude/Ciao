@@ -20,7 +20,7 @@ const ImageItem = memo(
         <ImageWithLightBoxAndNoLazy
           src={URL.createObjectURL(file)}
           className={`loaded aspect-square w-full cursor-pointer`}
-          imageClassName="bg-[size:150%]"
+          // imageClassName="bg-[size:150%]"
           slides={[
             {
               src: URL.createObjectURL(file),

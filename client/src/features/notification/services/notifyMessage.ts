@@ -65,7 +65,7 @@ const notifyMessage = (model: NotifyMessageModel) => {
               lastMessageContact: message.contact.id,
               members: message.conversation.members.map((mem) => {
                 if (mem.contact.id !== model.info.id) return mem;
-                return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
+                return { ...mem, unSeenMessages: 1 };
               }),
             },
             ...oldData.conversations,
@@ -127,7 +127,7 @@ const notifyMessage = (model: NotifyMessageModel) => {
               lastMessageContact: conversation.lastMessageContact,
               members: conversation.members.map((mem) => {
                 if (mem.contact.id !== model.info.id) return mem;
-                return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
+                return { ...mem, unSeenMessages: 0 };
               }),
             },
             ...oldData.conversations,

@@ -13,7 +13,11 @@ import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
-import { ConversationCache, MessageCache } from "../../listchat/types";
+import {
+  ConversationCache,
+  ConversationModel,
+  MessageCache,
+} from "../../listchat/types";
 import createGroupChat, {
   CreateGroupChatRequest,
 } from "../services/createGroupChat";
@@ -25,8 +29,8 @@ const CreateGroupChatModal = (props: OnCloseType) => {
   const { data, isLoading, isRefetching } = useFriend();
   const { data: info } = useInfo();
 
-  const refInputSearch = useRef<HTMLInputElement & { reset: () => void }>();
-  const refInputTitle = useRef<HTMLInputElement & { reset: () => void }>();
+  const refInputSearch = useRef<HTMLInputElement>();
+  const refInputTitle = useRef<HTMLInputElement>();
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
     data?.map((item) => item.contact),
   );
@@ -52,7 +56,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
   const createGroupChatCTA = async () => {
     if (membersToAdd.length === 0) return;
-    onClose();
 
     let url = "";
     if (file === undefined) {
@@ -83,13 +86,12 @@ const CreateGroupChatModal = (props: OnCloseType) => {
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          const updatedConversations = oldData.conversations.map(
-            (conversation) => {
+          const updatedConversations: ConversationModel[] =
+            oldData.conversations.map((conversation) => {
               if (conversation.id !== randomId) return conversation;
               conversation.id = res.data;
               return conversation;
-            },
-          );
+            });
           return {
             ...oldData,
             conversations: updatedConversations,
@@ -104,7 +106,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     });
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const newConversation = {
+      const newConversation: ConversationModel = {
         id: randomId,
         title: refInputTitle.current.value,
         avatar: avatar,
@@ -119,6 +121,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               avatar: info.avatar,
               isOnline: true,
             },
+            unSeenMessages: 0,
           },
           ...membersToAdd.map((mem) => {
             return {
@@ -162,6 +165,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     queryClient.setQueryData(["attachment"], (oldData) => {
       return [];
     });
+    onClose();
   };
 
   return (
