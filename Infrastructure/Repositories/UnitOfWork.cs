@@ -57,7 +57,7 @@ public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposabl
             }
             catch (Exception ex)
             {
-                Console.WriteLine(JsonConvert.SerializeObject(ex.Message));
+                Console.WriteLine(JsonConvert.SerializeObject(ex));
                 await session.AbortTransactionAsync();
             }
         }

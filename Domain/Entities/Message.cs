@@ -4,10 +4,10 @@ public class Message : MongoBaseModel
 {
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
-    public string Status { get; set; } = "received";
+    // public string Status { get; set; } = "received";
     public bool IsPinned { get; set; }
-    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime? SeenTime { get; set; }
+    // [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    // public DateTime? SeenTime { get; set; }
     public string ContactId { get; set; } = null!;
     public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();

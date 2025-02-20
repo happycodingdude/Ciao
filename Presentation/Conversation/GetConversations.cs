@@ -33,7 +33,8 @@ public static class GetConversations
             foreach (var conversation in result)
             {
                 var messages = await _messageCache.GetMessages(conversation.Id);
-                foreach (var member in result.SelectMany(q => q.Members))
+                // Console.WriteLine($"{conversation.Id} has messages count => {messages.Count}");
+                foreach (var member in conversation.Members)
                 {
                     // Set unseen messages properties
                     if (member.LastSeenTime is null)

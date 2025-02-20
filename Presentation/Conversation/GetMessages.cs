@@ -27,21 +27,21 @@ public static class GetMessages
         readonly IContactRepository _contactRepository;
         readonly IMapper _mapper;
         readonly MessageCache _messageCache;
-        readonly ConversationCache _conversationCache;
+        readonly MemberCache _memberCache;
 
         public Handler(IValidator<Request> validator,
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
             IMapper mapper,
             MessageCache messageCache,
-            ConversationCache conversationCache)
+            MemberCache memberCache)
         {
             _validator = validator;
             _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
             _mapper = mapper;
             _messageCache = messageCache;
-            _conversationCache = conversationCache;
+            _memberCache = memberCache;
         }
 
         public async Task<MessagesWithHasMore> Handle(Request request, CancellationToken cancellationToken)
@@ -51,7 +51,9 @@ public static class GetMessages
                 throw new BadRequestException(validationResult.ToString());
 
             // Update total unseen messages in cache
-            // await _conversationCache.UpdateTotalUnseen(request.id, 0);
+            var lastSeenTime = DateTime.Now;
+            SeenAll(request.id, lastSeenTime);
+            await _memberCache.MemberSeenAll(request.id, lastSeenTime);
 
             var message = await _messageCache.GetMessages(request.id);
             var paging = new PagingParam(request.page, request.limit);
@@ -64,20 +66,19 @@ public static class GetMessages
             };
         }
 
-        void SeenAll(ConversationWithTotalUnseenWithContactInfo conversation)
+        void SeenAll(string conversationId, DateTime time)
         {
             var userId = _contactRepository.GetUserId();
-            // No need to update when all messages were seen
-            if (!conversation.Messages.Any(q => q.ContactId != userId && q.Status == "received")) return;
-
-            var filter = MongoQuery<Conversation>.IdFilter(conversation.Id);
-            foreach (var unseenMessage in conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received"))
-            {
-                unseenMessage.Status = "seen";
-                unseenMessage.SeenTime = DateTime.Now;
-            }
-            var updates = Builders<Conversation>.Update.Set(q => q.Messages, _mapper.Map<List<Message>>(conversation.Messages));
-            _conversationRepository.UpdateNoTrackingTime(filter, updates);
+            var conversationFilter = Builders<Conversation>.Filter.And(
+                Builders<Conversation>.Filter.Eq("_id", conversationId),
+                Builders<Conversation>.Filter.Eq("Members.ContactId", userId)
+            );
+            var conversationUpdates = Builders<Conversation>.Update
+                .Set("Members.$[elem].LastSeenTime", time);
+            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+                new BsonDocument("elem.ContactId", userId)
+                );
+            _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
         }
     }
 }

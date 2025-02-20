@@ -47,14 +47,14 @@ public static class UpdateContact
             _contactRepository.Update(filter, updates);
 
             // Update contact info in conversation
-            var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
-            var conversationUpdates = Builders<Conversation>.Update
-                .Set("Participants.$[elem].Contact.Name", request.model.Name)
-                .Set("Participants.$[elem].Contact.Avatar", request.model.Avatar);
-            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem.Contact._id", user.Id)
-                );
-            _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
+            // var conversationFilter = Builders<Conversation>.Filter.Eq("Participants.Contact._id", user.Id);
+            // var conversationUpdates = Builders<Conversation>.Update
+            //     .Set("Participants.$[elem].Contact.Name", request.model.Name)
+            //     .Set("Participants.$[elem].Contact.Avatar", request.model.Avatar);
+            // var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+            //     new BsonDocument("elem.Contact._id", user.Id)
+            //     );
+            // _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
 
             // Update cache
             var userToUpdate = user;

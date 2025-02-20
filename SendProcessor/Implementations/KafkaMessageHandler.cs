@@ -45,8 +45,8 @@ public class KafkaMessageHandler : IKafkaMessageHandler
 
         // When a message sent, all members of that group will be having that group conversation back
         // if contain any member has deleted the conversation
-        foreach (var Member in conversation.Members.Where(q => q.IsDeleted))
-            Member.IsDeleted = false;
+        foreach (var member in conversation.Members.Where(q => q.IsDeleted))
+            member.IsDeleted = false;
 
         // Update user info in case changes
         // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.Name = user.Name;
@@ -54,6 +54,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.IsOnline = user.IsOnline;
 
         // Update conversation
+        // Console.WriteLine(JsonConvert.SerializeObject(conversation));
         _conversationRepository.Replace(filter, conversation);
 
         // Save changes

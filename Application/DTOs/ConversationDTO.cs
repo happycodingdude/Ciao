@@ -21,7 +21,8 @@ public class ConversationToNotify
     public bool IsGroup { get; set; }
     public string LastMessage { get; set; } = null!;
     public string LastMessageContact { get; set; } = null!;
-    public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
+    // public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
+    public List<MemberWithContactInfo> Members { get; set; } = null!;
 }
 
 public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
@@ -29,7 +30,7 @@ public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
-    public DateTime? DeletedTime { get; set; }
+    // public DateTime? DeletedTime { get; set; }
     public List<MemberWithContactInfo> Members { get; set; } = null!;
     // public int UnSeenMessages { get; set; }
     public string LastMessageId { get; set; } = null!;
@@ -46,7 +47,7 @@ public class ConversationWithTotalUnseenWithContactInfoAndNoMessage : MongoBaseM
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
-    public DateTime? DeletedTime { get; set; }
+    // public DateTime? DeletedTime { get; set; }
     public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
     // public int UnSeenMessages { get; set; }
     public string LastMessageId { get; set; } = null!;

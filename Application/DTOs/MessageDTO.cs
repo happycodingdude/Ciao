@@ -59,9 +59,9 @@ public class MessageWithReactions : MongoBaseModel
 {
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
-    public string Status { get; set; } = null!;
+    // public string Status { get; set; } = null!;
     public bool IsPinned { get; set; }
-    public DateTime? SeenTime { get; set; }
+    // public DateTime? SeenTime { get; set; }
     public string ContactId { get; set; } = null!;
     public List<Attachment>? Attachments { get; set; } = new List<Attachment>();
     public int LikeCount { get; set; }

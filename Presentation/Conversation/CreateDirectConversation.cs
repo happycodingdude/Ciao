@@ -57,7 +57,7 @@ public static class CreateDirectConversation
             else
                 HandleOldConversation(conversation, message);
 
-            var memberToCache = new List<MemberWithContactInfoAndFriendRequest>(2);
+            var memberToCache = new List<MemberWithContactInfo>(2);
             // Check if receiver is online then update receiver cache
             var receiver = _userCache.GetInfo(request.contactId);
             if (isNewConversation)
@@ -66,7 +66,7 @@ public static class CreateDirectConversation
                 var contactFilter = MongoQuery<Contact>.IdFilter(request.contactId);
                 var contact = await _contactRepository.GetItemAsync(contactFilter);
                 var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-                memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(conversation.Members);
+                memberToCache = _mapper.Map<List<MemberWithContactInfo>>(conversation.Members);
                 var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == request.contactId);
                 targetUser.Contact.Name = contact.Name;
                 targetUser.Contact.Avatar = contact.Avatar;

@@ -93,7 +93,7 @@ public static class CreateGroupConversation
             var contactFilter = Builders<Contact>.Filter.Where(q => conversation.Members.Select(w => w.ContactId).Contains(q.Id));
             var contacts = await _contactRepository.GetAllAsync(contactFilter);
             var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-            var memberToCache = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(conversation.Members);
+            var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(conversation.Members);
             foreach (var member in memberToCache.Where(q => q.Contact.Id != user.Id))
             {
                 member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
