@@ -23,6 +23,7 @@ app.UseSession();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors();
+app.MapHub<SignalHub>("/ciaohub");
 app.UseAuthentication();
 app.UseAuthorization();
 

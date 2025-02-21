@@ -10,7 +10,7 @@ const Attachment = () => {
   // const { show, toggle } = props;
   const { toggle } = useChatDetailToggles();
   const show = toggle === "attachment";
-  const { data: attachments } = useAttachment();
+  const { data: attachmentCache } = useAttachment();
 
   const refAttachment = useRef();
   // const refScrollAttachment = useRef();
@@ -20,7 +20,7 @@ const Attachment = () => {
 
   const toggleAttachmentActive = useCallback(
     (type) => {
-      const cloned = attachments.map((item) => {
+      const cloned = attachmentCache.attachments.map((item) => {
         return Object.assign({}, item);
       });
       const newAttachments = cloned.map((date) => {
@@ -33,14 +33,14 @@ const Attachment = () => {
         newAttachments.filter((item) => item !== undefined),
       );
     },
-    [attachments],
+    [attachmentCache.attachments],
   );
 
   useEffect(() => {
-    if (!attachments) return;
+    if (!attachmentCache) return;
     toggleAttachmentActive("image");
     setAttachmentToggle("image");
-  }, [attachments]);
+  }, [attachmentCache]);
 
   useEffect(() => {
     if (show) blurImage(".attachment-container");

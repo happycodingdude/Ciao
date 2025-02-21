@@ -4,7 +4,7 @@ import getAttachments from "../services/getAttachments";
 
 const useAttachment = (
   conversationId?: string,
-): UseQueryResult<AttachmentCache[]> => {
+): UseQueryResult<AttachmentCache> => {
   return useQuery({
     queryKey: ["attachment"],
     queryFn: () => getAttachments(conversationId),

@@ -9,6 +9,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
     readonly IContactRepository _contactRepository;
     readonly MessageCache _messageCache;
     readonly ConversationCache _conversationCache;
+    readonly ISignalHub _signalHub;
 
     public KafkaMessageHandler(IUnitOfWork uow,
         IMapper mapper,
@@ -16,7 +17,8 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         IConversationRepository conversationRepository,
         IContactRepository contactRepository,
         MessageCache messageCache,
-        ConversationCache conversationCache)
+        ConversationCache conversationCache,
+        ISignalHub signalHub)
     {
         _uow = uow;
         _mapper = mapper;
@@ -25,6 +27,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         _contactRepository = contactRepository;
         _messageCache = messageCache;
         _conversationCache = conversationCache;
+        _signalHub = signalHub;
     }
 
     public async Task SaveNewMessage(SaveNewMessageModel param)
@@ -67,14 +70,21 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         var notify = _mapper.Map<MessageToNotify>(message);
         notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
         notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-        _ = _firebase.Notify(
+        // _ = _firebase.Notify(
+        //     "NewMessage",
+        //     conversation.Members
+        //         .Where(q => q.ContactId != user.Id)
+        //         .Select(q => q.ContactId)
+        //     .ToArray(),
+        //     notify
+        // );
+        _ = _signalHub.Notify(
             "NewMessage",
             conversation.Members
                 .Where(q => q.ContactId != user.Id)
                 .Select(q => q.ContactId)
             .ToArray(),
-            notify
-        );
+            notify);
     }
 
     // public async Task UpdateConversationCache(UpdateConversationCacheModel param)

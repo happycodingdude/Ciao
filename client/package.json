@@ -17,6 +17,7 @@
     "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@microsoft/signalr": "^8.0.7",
     "@mui/icons-material": "^6.2.1",
     "@mui/material": "^6.2.1",
     "@tanstack/react-query": "^5.62.8",

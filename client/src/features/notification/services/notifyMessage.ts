@@ -96,15 +96,22 @@ const notifyMessage = (model: NotifyMessageModel) => {
       if (message.attachments.length !== 0) {
         model.queryClient.setQueryData(
           ["attachment"],
-          (oldData: AttachmentCache[]) => {
-            return oldData.map((item) =>
-              item.date === today
-                ? {
-                    ...item,
-                    attachments: [...message.attachments, ...item.attachments],
-                  }
-                : item,
-            ) as AttachmentCache[];
+          (oldData: AttachmentCache) => {
+            if (!oldData) return; // Case haven't click any conversation
+            return {
+              ...oldData,
+              attachments: oldData.attachments.map((item) =>
+                item.date === today
+                  ? {
+                      ...item,
+                      attachments: [
+                        ...message.attachments,
+                        ...item.attachments,
+                      ],
+                    }
+                  : item,
+              ),
+            } as AttachmentCache;
           },
         );
       }

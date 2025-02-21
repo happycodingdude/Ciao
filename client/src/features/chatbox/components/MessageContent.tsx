@@ -145,7 +145,8 @@ const MessageContent = (props: MessageContentProps) => {
                 (q) => q.contact.id === message.contactId,
               )?.contact.avatar
             }
-            className="loaded aspect-square w-full cursor-pointer rounded-[50%] !bg-[size:160%]"
+            className="aspect-square w-full cursor-pointer"
+            circle
             slides={[
               {
                 src: conversations.selected?.members.find(
@@ -244,11 +245,11 @@ const MessageContent = (props: MessageContentProps) => {
                   <ImageWithLightBoxAndNoLazy
                     src={item.mediaUrl}
                     title={item.mediaName?.split(".")[0]}
-                    className={`cursor-pointer                     
+                    className={`aspect-square cursor-pointer               
                       ${
                         message.attachments?.length === 1
-                          ? "aspect-[3/2] w-[70%]"
-                          : "aspect-square w-[45%]"
+                          ? "laptop:w-[40%]"
+                          : "w-[45%]"
                       }`}
                     // imageClassName={
                     //   message.attachments?.length === 1

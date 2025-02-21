@@ -81,12 +81,17 @@ export type PendingMessageModel = MessageModel & {
 };
 
 export type MessageCache = {
+  conversationId: string;
   hasMore: boolean;
   messages: PendingMessageModel[];
-  conversationId: string;
 };
 
 export type AttachmentCache = {
+  conversationId: string;
+  attachments: AttachmentCache_Attachment[];
+};
+
+export type AttachmentCache_Attachment = {
   date: string;
   attachments: AttachmentModel[];
 };

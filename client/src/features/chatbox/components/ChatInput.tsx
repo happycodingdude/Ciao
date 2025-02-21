@@ -186,43 +186,26 @@ const ChatInput = (props: ChatInputProps) => {
             ],
           } as MessageCache;
         });
-        queryClient.setQueryData(
-          ["attachment"],
-          (oldData: AttachmentCache[]) => {
-            queryClient.setQueryData(
-              ["attachment"],
-              (oldData: AttachmentCache[] = []) => {
-                // If there is no attachment yet, create a new entry
-                if (oldData.length === 0 || oldData[0].date !== today) {
-                  return [
-                    {
-                      date: today,
-                      attachments: param.attachments.map((item) => {
-                        return { ...item, id: randomId };
-                      }),
-                    },
-                    ...oldData, // Return a new array to trigger state updates
-                  ] as AttachmentCache[];
-                }
-
-                // If today's entry exists, update its attachments
-                return oldData.map((item) =>
-                  item.date === today
-                    ? {
-                        ...item,
-                        attachments: [
-                          ...param.attachments.map((item) => {
-                            return { ...item, id: randomId };
-                          }),
-                          ...item.attachments,
-                        ],
-                      }
-                    : item,
-                ) as AttachmentCache[];
-              },
-            );
-          },
-        );
+        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+          // If there is no attachment yet, create a new entry
+          if (
+            oldData.attachments.length === 0 ||
+            oldData.attachments[0].date !== today
+          ) {
+            return {
+              ...oldData,
+              attachments: [
+                {
+                  date: today,
+                  attachments: param.attachments.map((item) => {
+                    return { ...item, id: randomId };
+                  }),
+                },
+                ...oldData.attachments, // Return a new array to trigger state updates
+              ],
+            } as AttachmentCache;
+          }
+        });
         const uploaded: AttachmentModel[] = await uploadFile(param.files).then(
           (uploads) => {
             return uploads.map((item) => ({
@@ -292,10 +275,10 @@ const ChatInput = (props: ChatInputProps) => {
       });
 
       if (hasMedia) {
-        queryClient.setQueryData(
-          ["attachment"],
-          (oldData: AttachmentCache[]) => {
-            return oldData.map((item) =>
+        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+          return {
+            ...oldData,
+            attachments: oldData.attachments.map((item) =>
               item.date === today
                 ? {
                     ...item,
@@ -309,9 +292,9 @@ const ChatInput = (props: ChatInputProps) => {
                     }),
                   }
                 : item,
-            ) as AttachmentCache[];
-          },
-        );
+            ),
+          } as AttachmentCache;
+        });
       }
     },
   });

@@ -23,7 +23,7 @@ const Information = () => {
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { data: attachments } = useAttachment();
+  const { data: attachmentCache } = useAttachment();
 
   const refInformation = useRef<HTMLDivElement>();
   const refMembers = useRef<HTMLDivElement>();
@@ -47,10 +47,10 @@ const Information = () => {
   }, [conversations.selected?.members]);
 
   useEffect(() => {
-    if (!attachments) return;
+    if (!attachmentCache) return;
 
-    if (attachments?.length !== 0) {
-      const mergedArr: AttachmentModel[] = attachments.reduce(
+    if (attachmentCache.attachments.length !== 0) {
+      const mergedArr: AttachmentModel[] = attachmentCache.attachments.reduce(
         (result, item) => {
           return result.concat(item.attachments);
         },
@@ -60,7 +60,7 @@ const Information = () => {
     } else {
       setDisplayAttachments([]);
     }
-  }, [attachments]);
+  }, [attachmentCache]);
 
   const toggleMembers = (): void => {
     setShowMembers((current) => !current);

@@ -17,13 +17,10 @@ const getMessages = async (conversationId: string, page: number) => {
             ).replace("{page}", page),
     })
   ).data;
-  // const convertedMessages = data.messages.map((message) => {
-  //   return { ...message, content: message.content.replace(/\n/g, " <br> ") };
-  // });
   const result: MessageCache = {
+    conversationId: conversationId,
     hasMore: data.hasMore,
     messages: data.messages,
-    conversationId: conversationId,
   };
   return result;
 };

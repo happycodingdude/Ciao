@@ -1,17 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useInfo from "../features/authentication/hooks/useInfo";
 // import ProfileSection from "../features/profile-new/ProfileSection";
 // import ChatSection from "../layouts/ChatSection";
 import { lazy } from "react";
-import {
-  requestPermission,
-  setupMessageListener,
-} from "../components/Notification";
-import notifyMessage from "../features/notification/services/notifyMessage";
 import registerConnection from "../features/notification/services/registerConnection";
+import {
+  hubConnection,
+  startConnection,
+} from "../features/notification/services/signalService";
 import SideBar from "../layouts/SideBar";
-import { RequestPermission } from "../types";
 
 const ChatSection = lazy(() => import("../layouts/ChatSection"));
 const ProfileSection = lazy(
@@ -25,7 +23,7 @@ const Home = () => {
 
   const { data: info } = useInfo();
 
-  // const isRegistered = useRef(false);
+  const isRegistered = useRef<boolean>(false);
 
   const [page, setPage] = useState<string>("chat");
 
@@ -36,19 +34,35 @@ const Home = () => {
   // Khi load được info -> đăng ký connection để nhận thông báo
   useEffect(() => {
     if (!info) return;
-    const isRegistered = localStorage.getItem("isRegistered");
-    if (!isRegistered || isRegistered === "false") {
-      localStorage.setItem("isRegistered", "true");
-      const request: RequestPermission = {
-        registerConnection: registerConnectionMutation,
-        notifyMessage: notifyMessage,
-        queryClient: queryClient,
-        info: info,
-      };
-      requestPermission(request);
+    // const isRegistered = localStorage.getItem("isRegistered");
+    // if (!isRegistered || isRegistered === "false") {
+    //   localStorage.setItem("isRegistered", "true");
+    // if (!isRegistered.current) {
+    //   isRegistered.current = true;
+    //   const request: RequestPermission = {
+    //     registerConnection: registerConnectionMutation,
+    //     notifyMessage: notifyMessage,
+    //     queryClient: queryClient,
+    //     info: info,
+    //   };
+    //   requestPermission(request);
+    // }
+    // setupMessageListener(queryClient, info);
+
+    if (!isRegistered.current) {
+      isRegistered.current = true;
+      startConnection(info.id, registerConnectionMutation);
+      // onMessageReceived((message: string) => {
+      //   console.log(message);
+      // });
     }
-    setupMessageListener(queryClient, info);
   }, [info]);
+
+  useEffect(() => {
+    hubConnection.on("NewMessage", (message: string) => {
+      console.log(message);
+    });
+  });
 
   if (!info) return;
 

@@ -29,7 +29,7 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
             <input
               multiple
               type="file"
-              accept="image/png, image/jpeg, image/webp"
+              accept="image/*"
               className="hidden"
               id="choose-image"
               onChange={chooseFile}
