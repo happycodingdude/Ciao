@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.SignalR;
+
 namespace SendProcessor.Implementations;
 
 public class KafkaMessageHandler : IKafkaMessageHandler
@@ -8,8 +10,9 @@ public class KafkaMessageHandler : IKafkaMessageHandler
     readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
     readonly MessageCache _messageCache;
-    readonly ConversationCache _conversationCache;
-    readonly ISignalHub _signalHub;
+    readonly UserCache _userCache;
+    readonly INotificationProcessor _notificationProcessor;
+    readonly IHubContext<SignalHub> _hubContext;
 
     public KafkaMessageHandler(IUnitOfWork uow,
         IMapper mapper,
@@ -17,8 +20,9 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         IConversationRepository conversationRepository,
         IContactRepository contactRepository,
         MessageCache messageCache,
-        ConversationCache conversationCache,
-        ISignalHub signalHub)
+        UserCache userCache,
+        INotificationProcessor notificationProcessor,
+        IHubContext<SignalHub> hubContext)
     {
         _uow = uow;
         _mapper = mapper;
@@ -26,8 +30,9 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
         _messageCache = messageCache;
-        _conversationCache = conversationCache;
-        _signalHub = signalHub;
+        _userCache = userCache;
+        _notificationProcessor = notificationProcessor;
+        _hubContext = hubContext;
     }
 
     public async Task SaveNewMessage(SaveNewMessageModel param)
@@ -70,25 +75,27 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         var notify = _mapper.Map<MessageToNotify>(message);
         notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
         notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-        // _ = _firebase.Notify(
-        //     "NewMessage",
-        //     conversation.Members
-        //         .Where(q => q.ContactId != user.Id)
-        //         .Select(q => q.ContactId)
-        //     .ToArray(),
-        //     notify
-        // );
-        _ = _signalHub.Notify(
+        await _notificationProcessor.Notify(
             "NewMessage",
-            conversation.Members
-                .Where(q => q.ContactId != user.Id)
-                .Select(q => q.ContactId)
-            .ToArray(),
+            conversation.Id,
+            user.Id,
             notify);
     }
 
-    // public async Task UpdateConversationCache(UpdateConversationCacheModel param)
-    // {
-    //     await _conversationCache.SetConversations(param.UserId, param.Conversations);
-    // }
+    public async Task NotifyNewConversation(NotifyNewConversationModel param)
+    {
+        // Add to hub
+        var connections = await _userCache.GetUserConnection(param.UserIds);
+        foreach (var connection in connections)
+        {
+            Console.WriteLine($"Add user {connection} to group {param.ConversationId}");
+            await _hubContext.Groups.AddToGroupAsync(connection, param.ConversationId);
+        }
+
+        await _notificationProcessor.Notify(
+            "NewConversation",
+            param.ConversationId,
+            param.UserId,
+            param.Conversation);
+    }
 }

@@ -30,7 +30,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                 });
         });
 
-        // SignalHub
+        // SignalR
         services.AddSignalR();
 
         // Json formatter
@@ -107,6 +107,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // External logic        
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
-        services.AddSingleton<ISignalHub, SignalHub>();
+        services.AddSingleton<INotificationProcessor, WebSocketProcessor>();
     }
 }

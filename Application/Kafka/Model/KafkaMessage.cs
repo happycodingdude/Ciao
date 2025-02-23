@@ -11,7 +11,9 @@ public class SaveNewMessageModel : KafkaBaseModel
     public SendMessageReq Message { get; set; } = null!;
 }
 
-public class UpdateConversationCacheModel : KafkaBaseModel
+public class NotifyNewConversationModel : KafkaBaseModel
 {
-    public List<ConversationWithTotalUnseenWithContactInfo> Conversations { get; set; }
+    public string ConversationId { get; set; } = null!;
+    public string[] UserIds { get; set; } = null!;
+    public ConversationToNotify Conversation { get; set; } = null!;
 }

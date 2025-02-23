@@ -45,6 +45,10 @@ public static class CreateMember
         readonly IFriendRepository _friendRepository;
         readonly ConversationCache _conversationCache;
         readonly MemberCache _memberCache;
+        readonly UserCache _userCache;
+        readonly INotificationProcessor _notificationProcessor;
+        readonly IHubContext<SignalHub> _hubContext;
+        readonly IKafkaProducer _kafkaProducer;
 
         public Handler(IValidator<Request> validator,
             IMapper mapper,
@@ -53,7 +57,11 @@ public static class CreateMember
             IContactRepository contactRepository,
             IFriendRepository friendRepository,
             ConversationCache conversationCache,
-            MemberCache memberCache)
+            MemberCache memberCache,
+            UserCache userCache,
+            INotificationProcessor notificationProcessor,
+            IHubContext<SignalHub> hubContext,
+            IKafkaProducer kafkaProducer)
         {
             _validator = validator;
             _mapper = mapper;
@@ -63,6 +71,10 @@ public static class CreateMember
             _friendRepository = friendRepository;
             _conversationCache = conversationCache;
             _memberCache = memberCache;
+            _userCache = userCache;
+            _notificationProcessor = notificationProcessor;
+            _hubContext = hubContext;
+            _kafkaProducer = kafkaProducer;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -97,7 +109,7 @@ public static class CreateMember
 
             // Update to db
             var updates = Builders<Conversation>.Update.Set(q => q.Members, membersToUpdate);
-            _conversationRepository.UpdateNoTrackingTime(filter, updates);
+            // _conversationRepository.UpdateNoTrackingTime(filter, updates);
 
             // Update cache
             var contactFilter = Builders<Contact>.Filter.Where(q => filterNewItemToAdd.Contains(q.Id));
@@ -120,9 +132,10 @@ public static class CreateMember
             //     MemberToCache[i].FriendId = friendItems[i].Item1;
             //     MemberToCache[i].FriendStatus = "friend";
             // }
-            await _memberCache.AddMembers(conversation.Id, memberToCache);
 
-            // Push conversation
+            // await _memberCache.AddMembers(conversation.Id, memberToCache);
+
+            // Push notification
             var notify = _mapper.Map<ConversationToNotify>(conversation);
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
             if (lastMessage is not null)
@@ -130,11 +143,13 @@ public static class CreateMember
                 notify.LastMessage = lastMessage.Content;
                 notify.LastMessageContact = lastMessage.ContactId;
             }
-            _ = _firebase.Notify(
-                "NewConversation",
-                membersToAdd.Select(q => q.ContactId).ToArray(),
-                notify
-            );
+            await _kafkaProducer.ProduceAsync(Topic.NotifyNewConversation, new NotifyNewConversationModel
+            {
+                UserId = _contactRepository.GetUserId(),
+                ConversationId = request.conversationId,
+                UserIds = memberToCache.Select(q => q.Contact.Id).ToArray(),
+                Conversation = notify
+            });
 
             return Unit.Value;
         }

@@ -19,9 +19,41 @@ public class UserCache
 
     public void SetToken(string userId, string token) => _ = _distributedCache.SetStringAsync($"user-{userId}-token", token);
 
-    public string GetConnection(string userId) => _distributedCache.GetString($"user-{userId}-connection");
+    public string GetUserConnection(string userId) => _distributedCache.GetString($"user-{userId}-connection");
 
-    public void SetConnection(string connection) => _distributedCache.SetString($"user-{UserId}-connection", connection);
+    public async Task<List<string>> GetUserConnection(string[] userIds)
+    {
+
+        var result = new List<string>();
+        // Query info cache
+        var tasks = userIds.Select(async userId =>
+        {
+            var connection = await _distributedCache.GetStringAsync($"user-{userId}-connection");
+            if (connection is null) return;
+            lock (result) // Ensure thread safety
+            {
+                result.Add(connection);
+            }
+        });
+        await Task.WhenAll(tasks);
+        return result;
+    }
+
+    public string GetConnectionUser(string connection) => _distributedCache.GetString($"connection-{connection}");
+
+    // public string GetByConnection(string connection) => _distributedCache.GetString($"user-{userId}-connection");
+
+    // public void SetConnection(string connection) => _distributedCache.SetString($"user-{UserId}-connection", connection);
+
+    public void SetUserConnection(string userId, string connection) => _distributedCache.SetString($"user-{userId}-connection", connection);
+
+    public void SetConnectionUser(string userId, string connection) => _distributedCache.SetString($"connection-{connection}", userId);
+
+    public async Task RemoveConnection(string userId, string connection)
+    {
+        await _distributedCache.RemoveAsync($"user-{userId}-connection");
+        await _distributedCache.RemoveAsync($"connection-{connection}");
+    }
 
     public Contact GetInfo() => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{UserId}-info"));
 
@@ -49,7 +81,9 @@ public class UserCache
     public void RemoveAll()
     {
         _ = _distributedCache.RemoveAsync($"user-{UserId}-token");
-        _ = _distributedCache.RemoveAsync($"user-{UserId}-connection");
         _ = _distributedCache.RemoveAsync($"user-{UserId}-info");
+        var connection = GetUserConnection(UserId);
+        _ = _distributedCache.RemoveAsync($"connection-{connection}");
+        _ = _distributedCache.RemoveAsync($"user-{UserId}-connection");
     }
 }

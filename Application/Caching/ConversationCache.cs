@@ -39,6 +39,12 @@ public class ConversationCache
         return result;
     }
 
+    public async Task<string[]> GetListConversationId(string userId)
+    {
+        var conversations = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
+        return JsonConvert.DeserializeObject<string[]>(conversations);
+    }
+
     public async Task<ConversationCacheModel> GetConversationInfo(string conversationId)
     {
         var conversationInfo = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info") ?? "";

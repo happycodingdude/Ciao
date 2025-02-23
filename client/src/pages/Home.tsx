@@ -5,10 +5,7 @@ import useInfo from "../features/authentication/hooks/useInfo";
 // import ChatSection from "../layouts/ChatSection";
 import { lazy } from "react";
 import registerConnection from "../features/notification/services/registerConnection";
-import {
-  hubConnection,
-  startConnection,
-} from "../features/notification/services/signalService";
+import { startConnection } from "../features/notification/services/signalService";
 import SideBar from "../layouts/SideBar";
 
 const ChatSection = lazy(() => import("../layouts/ChatSection"));
@@ -51,18 +48,19 @@ const Home = () => {
 
     if (!isRegistered.current) {
       isRegistered.current = true;
-      startConnection(info.id, registerConnectionMutation);
-      // onMessageReceived((message: string) => {
+      startConnection(info.id, queryClient, info);
+      // onMessageReceived((user: string, message: string) => {
       //   console.log(message);
       // });
     }
   }, [info]);
 
-  useEffect(() => {
-    hubConnection.on("NewMessage", (message: string) => {
-      console.log(message);
-    });
-  });
+  //   {"arguments":["Test message", "target":"Notify"]}
+
+  //   {
+  //     "protocol": "json",
+  //     "version": 1
+  // }
 
   if (!info) return;
 

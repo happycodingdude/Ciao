@@ -46,12 +46,14 @@ public static class SendMessage
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IKafkaProducer _kafkaProducer;
+        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, INotificationProcessor notificationProcessor)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _kafkaProducer = kafkaProducer;
+            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<SendMessageRes> Handle(Request request, CancellationToken cancellationToken)

@@ -39,6 +39,8 @@ public static class CreateGroupConversation
         readonly IContactRepository _contactRepository;
         readonly ConversationCache _conversationCache;
         readonly UserCache _userCache;
+        readonly INotificationProcessor _notificationProcessor;
+        readonly IHubContext<SignalHub> _hubContext;
 
         public Handler(IValidator<Request> validator,
             IFirebaseFunction firebase,
@@ -46,7 +48,9 @@ public static class CreateGroupConversation
             IConversationRepository conversationRepository,
             IContactRepository contactRepository,
             ConversationCache conversationCache,
-            UserCache userCache)
+            UserCache userCache,
+            INotificationProcessor notificationProcessor,
+            IHubContext<SignalHub> hubContext)
         {
             _validator = validator;
             _firebase = firebase;
@@ -55,6 +59,8 @@ public static class CreateGroupConversation
             _contactRepository = contactRepository;
             _conversationCache = conversationCache;
             _userCache = userCache;
+            _notificationProcessor = notificationProcessor;
+            _hubContext = hubContext;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -114,11 +120,17 @@ public static class CreateGroupConversation
             if (receivers.Any())
                 await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), conversation.Id);
 
+            // Add to hub
+            var connections = await _userCache.GetUserConnection(memberToCache.Select(q => q.Contact.Id).ToArray());
+            foreach (var connection in connections)
+                await _hubContext.Groups.AddToGroupAsync(connection, conversation.Id);
+
             // Push conversation
             var notify = _mapper.Map<ConversationToNotify>(conversation);
-            _ = _firebase.Notify(
+            _ = _notificationProcessor.Notify(
                 "NewConversation",
-                membersToNotify,
+                user.Id,
+                conversation.Id,
                 notify
             );
 

@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
             return new KafkaConsumer(
                 [
                     Topic.SaveNewMessage,
-                    // Topic.UpdateConversationCache
+                    Topic.NotifyNewConversation
                 ]
                 , consumerResultHanlder.ExecuteAsync, kafkaConfig);
         });

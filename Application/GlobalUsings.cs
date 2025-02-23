@@ -14,3 +14,5 @@ global using Newtonsoft.Json;
 global using AutoMapper;
 global using MongoDB.Bson.Serialization.Attributes;
 global using Domain;
+global using Application.Caching;
+global using Microsoft.AspNetCore.SignalR;

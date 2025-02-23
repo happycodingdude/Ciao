@@ -23,10 +23,10 @@ public class ConsumerResultHanlder
                 var saveNewMessageModel = JsonConvert.DeserializeObject<SaveNewMessageModel>(data.cr.Message.Value);
                 await _kafkaMessageHandler.SaveNewMessage(saveNewMessageModel);
                 break;
-            // case Topic.UpdateConversationCache:
-            //     var updateConversationCacheModel = JsonConvert.DeserializeObject<UpdateConversationCacheModel>(data.cr.Message.Value);
-            //     await _kafkaMessageHandler.UpdateConversationCache(updateConversationCacheModel);
-            //     break;
+            case Topic.NotifyNewConversation:
+                var notifyNewConversationModel = JsonConvert.DeserializeObject<NotifyNewConversationModel>(data.cr.Message.Value);
+                await _kafkaMessageHandler.NotifyNewConversation(notifyNewConversationModel);
+                break;
             default:
                 break;
         }

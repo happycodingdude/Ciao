@@ -13,6 +13,7 @@ public static class CreateDirectConversation
         readonly ConversationCache _conversationCache;
         readonly MessageCache _messageCache;
         readonly UserCache _userCache;
+        readonly INotificationProcessor _notificationProcessor;
 
         public Handler(IFirebaseFunction firebase,
             IMapper mapper,
@@ -20,7 +21,8 @@ public static class CreateDirectConversation
             IContactRepository contactRepository,
             ConversationCache conversationCache,
             MessageCache messageCache,
-            UserCache userCache)
+            UserCache userCache,
+            INotificationProcessor notificationProcessor)
         {
             _firebase = firebase;
             _mapper = mapper;
@@ -29,6 +31,7 @@ public static class CreateDirectConversation
             _conversationCache = conversationCache;
             _messageCache = messageCache;
             _userCache = userCache;
+            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<CreateDirectConversationRes> Handle(Request request, CancellationToken cancellationToken)
@@ -104,9 +107,10 @@ public static class CreateDirectConversation
                 notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
                 notify.Conversation.Members = memberToCache;
                 notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-                _ = _firebase.Notify(
+                _ = _notificationProcessor.Notify(
                     "NewMessage",
-                    new string[1] { request.contactId },
+                    user.Id,
+                    conversation.Id,
                     notify
                 );
             }
