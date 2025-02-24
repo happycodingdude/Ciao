@@ -1,113 +1,25 @@
 ﻿namespace Infrastructure.BackgroundJobs;
 
-/// <summary>
-/// Description: Lớp này chạy background job lắng nghe message từ Kafka
-/// </summary>
-public class KafkaConsumer : BackgroundService
+public class KafkaConsumer
 {
-    static IConsumer<string, string> _consumer;
-    static Partition _partition = new Partition(0);
-    static List<TopicPartitionOffset> _partitions = new List<TopicPartitionOffset>();
-    readonly IOptions<KafkaConfiguration> _kafkaConfig;
-    readonly List<string> _topics;
-    readonly ConsumeMessage _consumeMessage;
+    public List<string> _topics { get; private set; }
+    public string _groupId { get; private set; }
+    // KafkaConsumer _kafkaConsumer = new KafkaConsumer();
 
-    public KafkaConsumer(List<string> topics, ConsumeMessage consumeMessage, IOptions<KafkaConfiguration> kafkaConfig)
+    public KafkaConsumer Subscribe(List<string> topics)
     {
         _topics = topics;
-        _consumeMessage = consumeMessage;
-        _kafkaConfig = kafkaConfig;
+        return this;
     }
 
-    protected override Task ExecuteAsync(CancellationToken cancellationToken)
+    public KafkaConsumer UseGroup(string groupId)
     {
-        return Task.Run(() =>
-        {
-            _ = ConsumeAsync(cancellationToken);
-        });
+        _groupId = groupId;
+        return this;
     }
 
-    async Task ConsumeAsync(CancellationToken cancellationToken)
+    public KafkaConsumer Build()
     {
-        try
-        {
-            if (!_topics.Any())
-            {
-                Console.WriteLine("No topics to listen...");
-                return;
-            }
-
-            var consumerConfig = new ConsumerConfig
-            {
-                BootstrapServers = _kafkaConfig.Value.BootstrapServers,
-                GroupId = _kafkaConfig.Value.GroupId,
-                AutoOffsetReset = AutoOffsetReset.Earliest,
-                EnableAutoCommit = false
-            };
-
-            // Init topic before subscribe if topic not exist
-            await InitTopicIfNotExist(consumerConfig);
-
-            using (_consumer = new ConsumerBuilder<string, string>(consumerConfig).Build())
-            {
-                // Combine both subscribe and assign to ensure partition assigned
-                EnsurePartitionAssigned();
-
-                try
-                {
-                    Console.WriteLine("Listening kafka topics...");
-
-                    while (!cancellationToken.IsCancellationRequested)
-                    {
-                        // Check if partition unassigned then re-assign
-                        if (!_consumer.Assignment.Any())
-                            ReAssignPartition();
-
-                        var cr = _consumer.Consume(_kafkaConfig.Value.ConsumeTimeOut);
-                        if (cr is not null)
-                            await _consumeMessage(new ConsumerResultData(cr, _consumer));
-                    }
-                }
-                catch (OperationCanceledException ex)
-                {
-                    // Ensure the consumer leaves the group cleanly and final offsets are committed.
-                    _consumer.Close();
-                    Console.WriteLine(ex);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-    }
-
-    async Task InitTopicIfNotExist(ConsumerConfig config)
-    {
-        using (var adminClient = new AdminClientBuilder(config).Build())
-        {
-            var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(30));
-            var topicsApp = metadata.Topics.Select(a => a.Topic).ToList();
-            var topicsNotExist = _topics.Where(topic => !topicsApp.Any(item => item == topic))
-                .Select(item => new TopicSpecification { Name = item })
-                .ToList();
-            if (topicsNotExist != null && topicsNotExist.Count > 0) await adminClient.CreateTopicsAsync(topicsNotExist);
-        }
-    }
-
-    void EnsurePartitionAssigned()
-    {
-        _consumer.Subscribe(_topics);
-        foreach (var topic in _topics)
-            _partitions.Add(new TopicPartitionOffset(topic, _partition, Offset.End));
-        _consumer.Assign(_partitions);
-    }
-
-    void ReAssignPartition()
-    {
-        _consumer.Unsubscribe();
-        _consumer.Unassign();
-        _consumer.Subscribe(_topics);
-        _consumer.Assign(_partitions);
+        return this;
     }
 }

@@ -46,3 +46,5 @@ global using Microsoft.Extensions.Options;
 global using Confluent.Kafka.Admin;
 global using Application.Kafka.Model;
 global using Microsoft.AspNetCore.SignalR;
+global using Infrastructure.BackgroundJobs;
+global using Application.BackgroundJobs;

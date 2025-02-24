@@ -43,12 +43,10 @@ public class KafkaMessageHandler : IKafkaMessageHandler
 
         // Prepare message
         var user = await _contactRepository.GetInfoAsync(param.UserId);
-        // Console.WriteLine(JsonConvert.SerializeObject(param.Message));
         var message = _mapper.Map<Message>(param.Message);
         message.ContactId = user.Id;
         if (message.Type == "media")
             message.Content = null;
-        // Console.WriteLine(JsonConvert.SerializeObject(message));
         conversation.Messages.Add(message);
 
         // When a message sent, all members of that group will be having that group conversation back
@@ -56,13 +54,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         foreach (var member in conversation.Members.Where(q => q.IsDeleted))
             member.IsDeleted = false;
 
-        // Update user info in case changes
-        // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.Name = user.Name;
-        // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.Avatar = user.Avatar;
-        // conversation.Members.SingleOrDefault(q => q.ContactId == user.Id).Contact.IsOnline = user.IsOnline;
-
         // Update conversation
-        // Console.WriteLine(JsonConvert.SerializeObject(conversation));
         _conversationRepository.Replace(filter, conversation);
 
         // Save changes
@@ -92,6 +84,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
             await _hubContext.Groups.AddToGroupAsync(connection, param.ConversationId);
         }
 
+        // Send notification
         await _notificationProcessor.Notify(
             "NewConversation",
             param.ConversationId,

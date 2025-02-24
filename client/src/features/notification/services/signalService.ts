@@ -23,7 +23,7 @@ export const startConnection = async (
   }
 
   hubConnection = new signalR.HubConnectionBuilder()
-    .withUrl(`http://localhost:4100/ciaohub?userId=${id}`)
+    .withUrl(`http://localhost:4000/ciaohub?userId=${id}`)
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();

@@ -51,9 +51,9 @@ public class WebSocketProcessor : INotificationProcessor
 
     public async Task Notify(string _event, string group, string userId, object data)
     {
-        Console.WriteLine($"group => {group}");
-        Console.WriteLine($"_event => {_event}");
-        Console.WriteLine($"userId => {userId}");
+        // Console.WriteLine($"group => {group}");
+        // Console.WriteLine($"_event => {_event}");
+        // Console.WriteLine($"userId => {userId}");
         try
         {
             await _hubContext.Clients.Group(group).SendAsync(_event, userId, JsonConvert.SerializeObject(data,

@@ -143,13 +143,13 @@ public static class CreateMember
                 notify.LastMessage = lastMessage.Content;
                 notify.LastMessageContact = lastMessage.ContactId;
             }
-            await _kafkaProducer.ProduceAsync(Topic.NotifyNewConversation, new NotifyNewConversationModel
-            {
-                UserId = _contactRepository.GetUserId(),
-                ConversationId = request.conversationId,
-                UserIds = memberToCache.Select(q => q.Contact.Id).ToArray(),
-                Conversation = notify
-            });
+            // await _kafkaProducer.ProduceAsync(Topic.NotifyNewConversation, new NotifyNewConversationModel
+            // {
+            //     UserId = _contactRepository.GetUserId(),
+            //     ConversationId = request.conversationId,
+            //     UserIds = memberToCache.Select(q => q.Contact.Id).ToArray(),
+            //     Conversation = notify
+            // });
 
             return Unit.Value;
         }

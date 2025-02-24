@@ -1,3 +1,6 @@
+using Application.BackgroundJobs;
+using Infrastructure.BackgroundJobs;
+
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
@@ -96,10 +99,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // HttpClient
         services.AddHttpClient();
 
-        // Kafka
-        services.AddSingleton<ProducerFactory>();
-        services.AddSingleton<IKafkaProducer, KafkaProducer>();
-
         // Global exception handler
         services.AddExceptionHandler<UnauthorizedExceptionHandler>();
         services.AddExceptionHandler<BadRequestExceptionHandler>();
@@ -152,5 +151,16 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<INotificationProcessor, WebSocketProcessor>();
+
+        // Kafka
+        services.AddSingleton<ProducerFactory>();
+        services.AddSingleton<IKafkaProducer, KafkaProducer>();
+        services.AddScoped<DataStoreConsumer>();
+        services.AddScoped<CacheConsumer>();
+        services.AddScoped<NotificationConsumer>();
+        // services.AddKafkaConsumers();
+        services.AddHostedService<KafkaBackground>();
+        // services.AddHostedService<CacheConsumer>();
+        // services.AddHostedService<NotificationConsumer>();
     }
 }

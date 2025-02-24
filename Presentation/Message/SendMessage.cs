@@ -46,14 +46,12 @@ public static class SendMessage
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IKafkaProducer _kafkaProducer;
-        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, INotificationProcessor notificationProcessor)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _kafkaProducer = kafkaProducer;
-            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<SendMessageRes> Handle(Request request, CancellationToken cancellationToken)
@@ -62,7 +60,7 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await _kafkaProducer.ProduceAsync(Topic.SaveNewMessage, new SaveNewMessageModel
+            await _kafkaProducer.ProduceAsync(Topic.NewMessage, new SaveNewMessageModel
             {
                 UserId = _contactRepository.GetUserId(),
                 ConversationId = request.conversationId,
