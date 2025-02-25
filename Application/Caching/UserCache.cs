@@ -23,7 +23,6 @@ public class UserCache
 
     public async Task<List<string>> GetUserConnection(string[] userIds)
     {
-
         var result = new List<string>();
         // Query info cache
         var tasks = userIds.Select(async userId =>

@@ -4,7 +4,7 @@ public class CreateGroupConversationReq
 {
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
-    public List<Member> Members { get; set; } = null!;
+    public string[] Members { get; set; } = null!;
 }
 
 public class CreateDirectConversationRes

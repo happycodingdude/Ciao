@@ -14,67 +14,39 @@ public class KafkaBackground : BackgroundService
         _serviceProvider = serviceProvider;
     }
 
-    // protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-    // {
-    //     var tasks = new List<Task>
-    //     {
-    //         ConsumeAsync<DataStoreConsumer>(
-    //             new KafkaConsumer()
-    //                 .UseGroup("datastore-consumer")
-    //                 .Subscribe([Topic.NewMessage])
-    //                 .Build()
-    //                 , cancellationToken),
-    //         ConsumeAsync<CacheConsumer>(
-    //             new KafkaConsumer()
-    //                 .UseGroup("cache-consumer")
-    //                 .Subscribe([Topic.NewMessage])
-    //                 .Build()
-    //                 , cancellationToken),
-    //         ConsumeAsync<NotificationConsumer>(
-    //             new KafkaConsumer()
-    //                 .UseGroup("notification-consumer")
-    //                 .Subscribe([Topic.NewMessage])
-    //                 .Build()
-    //                 , cancellationToken)
-    //     };
-
-    //     await Task.WhenAll(tasks);
-
-    //     // return Task.Run(() =>
-    //     // {
-    //     //     _ = ConsumeAsync<DataStoreConsumer>(
-    //     //         new KafkaConsumer()
-    //     //             .UseGroup("datastore-consumer")
-    //     //             .Subscribe([Topic.NewMessage])
-    //     //             .Build()
-    //     //             , cancellationToken);
-    //     //     _ = ConsumeAsync<CacheConsumer>(
-    //     //         new KafkaConsumer()
-    //     //             .UseGroup("cache-consumer")
-    //     //             .Subscribe([Topic.NewMessage])
-    //     //             .Build()
-    //     //             , cancellationToken);
-    //     //     _ = ConsumeAsync<NotificationConsumer>(
-    //     //         new KafkaConsumer()
-    //     //             .UseGroup("notification-consumer")
-    //     //             .Subscribe([Topic.NewMessage])
-    //     //             .Build()
-    //     //             , cancellationToken);
-    //     // });
-    // }
-
     protected override Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _ = Task.Run(() => ConsumeAsync<DataStoreConsumer>(
-            new KafkaConsumer().UseGroup("datastore-consumer").Subscribe([Topic.NewMessage, Topic.NewConversation]).Build(),
+            new KafkaConsumer()
+                .UseGroup("datastore-consumer")
+                .Subscribe([
+                    Topic.NewMessage,
+                    Topic.NewGroupConversation,
+                    Topic.NewDirectConversation
+                    ])
+                .Build(),
             cancellationToken));
 
         _ = Task.Run(() => ConsumeAsync<CacheConsumer>(
-            new KafkaConsumer().UseGroup("cache-consumer").Subscribe([Topic.NewMessage, Topic.NewConversation]).Build(),
+            new KafkaConsumer()
+                .UseGroup("cache-consumer")
+                .Subscribe([
+                    Topic.NewStoredMessage,
+                    Topic.NewStoredGroupConversation,
+                    Topic.NewStoredDirectConversation
+                    ])
+                .Build(),
             cancellationToken));
 
         _ = Task.Run(() => ConsumeAsync<NotificationConsumer>(
-            new KafkaConsumer().UseGroup("notification-consumer").Subscribe([Topic.NewMessage, Topic.NewConversation]).Build(),
+            new KafkaConsumer()
+                .UseGroup("notification-consumer")
+                .Subscribe([
+                    Topic.NewStoredMessage,
+                    Topic.NewStoredGroupConversation,
+                    Topic.NewStoredDirectConversation
+                    ])
+                .Build(),
             cancellationToken));
 
         return Task.CompletedTask;

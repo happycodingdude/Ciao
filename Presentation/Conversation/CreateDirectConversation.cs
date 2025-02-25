@@ -14,6 +14,7 @@ public static class CreateDirectConversation
         readonly MessageCache _messageCache;
         readonly UserCache _userCache;
         readonly INotificationProcessor _notificationProcessor;
+        readonly IKafkaProducer _kafkaProducer;
 
         public Handler(IFirebaseFunction firebase,
             IMapper mapper,
@@ -22,7 +23,8 @@ public static class CreateDirectConversation
             ConversationCache conversationCache,
             MessageCache messageCache,
             UserCache userCache,
-            INotificationProcessor notificationProcessor)
+            INotificationProcessor notificationProcessor,
+            IKafkaProducer kafkaProducer)
         {
             _firebase = firebase;
             _mapper = mapper;
@@ -32,93 +34,101 @@ public static class CreateDirectConversation
             _messageCache = messageCache;
             _userCache = userCache;
             _notificationProcessor = notificationProcessor;
+            _kafkaProducer = kafkaProducer;
         }
 
         public async Task<CreateDirectConversationRes> Handle(Request request, CancellationToken cancellationToken)
         {
-            var user = await _contactRepository.GetInfoAsync();
-
-            var message = string.IsNullOrEmpty(request.message)
-                ? null
-                : new Message
-                {
-                    ContactId = user.Id,
-                    Type = "text",
-                    Content = request.message
-                };
-
-            var filter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == user.Id),
-                Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == request.contactId),
-                Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
-            );
-            var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
-
-            var isNewConversation = conversation is null;
-            if (isNewConversation)
-                conversation = HandleNewConversation(request, message);
-            else
-                HandleOldConversation(conversation, message);
-
-            var memberToCache = new List<MemberWithContactInfo>(2);
-            // Check if receiver is online then update receiver cache
-            var receiver = _userCache.GetInfo(request.contactId);
-            if (isNewConversation)
+            await _kafkaProducer.ProduceAsync(Topic.NewDirectConversation, new NewDirectConversationModel
             {
-                // Update cache
-                var contactFilter = MongoQuery<Contact>.IdFilter(request.contactId);
-                var contact = await _contactRepository.GetItemAsync(contactFilter);
-                var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
-                memberToCache = _mapper.Map<List<MemberWithContactInfo>>(conversation.Members);
-                var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == request.contactId);
-                targetUser.Contact.Name = contact.Name;
-                targetUser.Contact.Avatar = contact.Avatar;
-                targetUser.Contact.Bio = contact.Bio;
-                targetUser.Contact.IsOnline = contact.IsOnline;
-                var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == user.Id);
-                thisUser.Contact.Name = user.Name;
-                thisUser.Contact.Avatar = user.Avatar;
-                thisUser.Contact.Bio = user.Bio;
-                thisUser.Contact.IsOnline = true;
-                if (message is not null)
-                {
-                    await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache, _mapper.Map<MessageWithReactions>(message));
+                UserId = _contactRepository.GetUserId(),
+                ContactId = request.contactId,
+                Message = request.message
+            });
 
-                    if (receiver is not null)
-                        await _conversationCache.AddConversation(receiver.Id, conversation.Id);
-                }
-                else
-                {
-                    await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
+            // var user = await _contactRepository.GetInfoAsync();
 
-                    if (receiver is not null)
-                        await _conversationCache.AddConversation(receiver.Id, conversation.Id);
-                }
-            }
-            else if (message is not null)
-            {
-                await _messageCache.AddMessages(user.Id, conversation, _mapper.Map<MessageWithReactions>(message));
-            }
+            // var message = string.IsNullOrEmpty(request.message)
+            //     ? null
+            //     : new Message
+            //     {
+            //         ContactId = user.Id,
+            //         Type = "text",
+            //         Content = request.message
+            //     };
 
-            // If send with message -> push message
-            if (message is not null)
-            {
-                var notify = _mapper.Map<MessageToNotify>(message);
-                notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
-                notify.Conversation.Members = memberToCache;
-                notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
-                _ = _notificationProcessor.Notify(
-                    "NewMessage",
-                    user.Id,
-                    conversation.Id,
-                    notify
-                );
-            }
+            // var filter = Builders<Conversation>.Filter.And(
+            //     Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == user.Id),
+            //     Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == request.contactId),
+            //     Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
+            // );
+            // var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
+
+            // var isNewConversation = conversation is null;
+            // if (isNewConversation)
+            //     conversation = HandleNewConversation(request, message);
+            // else
+            //     HandleOldConversation(conversation, message);
+
+            // var memberToCache = new List<MemberWithContactInfo>(2);
+            // // Check if receiver is online then update receiver cache
+            // var receiver = _userCache.GetInfo(request.contactId);
+            // if (isNewConversation)
+            // {
+            //     // Update cache
+            //     var contactFilter = MongoQuery<Contact>.IdFilter(request.contactId);
+            //     var contact = await _contactRepository.GetItemAsync(contactFilter);
+            //     var conversationToCache = _mapper.Map<ConversationCacheModel>(conversation);
+            //     memberToCache = _mapper.Map<List<MemberWithContactInfo>>(conversation.Members);
+            //     var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == request.contactId);
+            //     targetUser.Contact.Name = contact.Name;
+            //     targetUser.Contact.Avatar = contact.Avatar;
+            //     targetUser.Contact.Bio = contact.Bio;
+            //     targetUser.Contact.IsOnline = contact.IsOnline;
+            //     var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == user.Id);
+            //     thisUser.Contact.Name = user.Name;
+            //     thisUser.Contact.Avatar = user.Avatar;
+            //     thisUser.Contact.Bio = user.Bio;
+            //     thisUser.Contact.IsOnline = true;
+            //     if (message is not null)
+            //     {
+            //         await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache, _mapper.Map<MessageWithReactions>(message));
+
+            //         if (receiver is not null)
+            //             await _conversationCache.AddConversation(receiver.Id, conversation.Id);
+            //     }
+            //     else
+            //     {
+            //         await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
+
+            //         if (receiver is not null)
+            //             await _conversationCache.AddConversation(receiver.Id, conversation.Id);
+            //     }
+            // }
+            // else if (message is not null)
+            // {
+            //     await _messageCache.AddMessages(user.Id, conversation, _mapper.Map<MessageWithReactions>(message));
+            // }
+
+            // // If send with message -> push message
+            // if (message is not null)
+            // {
+            //     var notify = _mapper.Map<MessageToNotify>(message);
+            //     notify.Conversation = _mapper.Map<ConversationToNotify>(conversation);
+            //     notify.Conversation.Members = memberToCache;
+            //     notify.Contact = _mapper.Map<MessageToNotify_Contact>(user);
+            //     _ = _notificationProcessor.Notify(
+            //         "NewMessage",
+            //         user.Id,
+            //         conversation.Id,
+            //         notify
+            //     );
+            // }
 
             return new CreateDirectConversationRes
             {
-                ConversationId = conversation.Id,
-                MessageId = message?.Id
+                // ConversationId = conversation.Id,
+                // MessageId = message?.Id
             };
         }
 

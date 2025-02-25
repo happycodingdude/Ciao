@@ -15,27 +15,27 @@ public class MessageCache
         return JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
     }
 
-    public async Task AddMessages(string userId, Conversation conversation, MessageWithReactions message)
+    public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
     {
         // Update message cache
-        var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-messages") ?? "";
+        var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages") ?? "";
         var messages = JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
         messages.Add(message);
-        await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-messages", JsonConvert.SerializeObject(messages));
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
 
         // Update list conversation cache
         var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
         var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData);
-        var isConversationAtTop = conversationIds.IndexOf(conversation.Id) == 0;
+        var isConversationAtTop = conversationIds.IndexOf(conversationId) == 0;
         if (!isConversationAtTop)
         {
-            var removeThisConversationId = conversationIds.Where(q => q != conversation.Id).ToList();
-            removeThisConversationId.Insert(0, conversation.Id);
+            var removeThisConversationId = conversationIds.Where(q => q != conversationId).ToList();
+            removeThisConversationId.Insert(0, conversationId);
             await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(removeThisConversationId));
         }
 
         // Update conversation info cache
-        var conversationInfoCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-info") ?? "";
+        var conversationInfoCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info") ?? "";
         var conversationInfo = JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfoCacheData);
         conversationInfo.LastMessageId = message.Id;
         conversationInfo.LastMessage = message.Type == "text"
@@ -43,11 +43,11 @@ public class MessageCache
             : string.Join(",", message.Attachments.Select(q => q.MediaName));
         conversationInfo.LastMessageTime = message.CreatedTime;
         conversationInfo.LastMessageContact = userId;
-        conversationInfo.UpdatedTime = conversation.UpdatedTime;
-        await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-info", JsonConvert.SerializeObject(conversationInfo));
+        conversationInfo.UpdatedTime = updatedTime;
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-info", JsonConvert.SerializeObject(conversationInfo));
 
         // Update member cache
-        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversation.Id}-members") ?? "";
+        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
         var members = JsonConvert.DeserializeObject<List<MemberWithContactInfo>>(memberCacheData) ?? [];
         var lastSeenTime = DateTime.Now;
         members.ForEach(member =>
@@ -56,7 +56,7 @@ public class MessageCache
             if (member.Id != userId && member.IsSelected)
                 member.LastSeenTime = lastSeenTime;
         });
-        await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-members", JsonConvert.SerializeObject(members));
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 
     // public async Task RemoveAll(List<string> conversationIds)

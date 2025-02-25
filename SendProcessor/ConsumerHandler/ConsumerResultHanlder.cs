@@ -20,12 +20,12 @@ public class ConsumerResultHanlder
         switch (data.cr.Topic)
         {
             case Topic.SaveNewMessage:
-                var saveNewMessageModel = JsonConvert.DeserializeObject<SaveNewMessageModel>(data.cr.Message.Value);
-                await _kafkaMessageHandler.SaveNewMessage(saveNewMessageModel);
+                var NewMessageModel = JsonConvert.DeserializeObject<NewMessageModel>(data.cr.Message.Value);
+                await _kafkaMessageHandler.SaveNewMessage(NewMessageModel);
                 break;
             case Topic.NotifyNewConversation:
-                var notifyNewConversationModel = JsonConvert.DeserializeObject<NotifyNewConversationModel>(data.cr.Message.Value);
-                await _kafkaMessageHandler.NotifyNewConversation(notifyNewConversationModel);
+                var NewGroupConversationModel = JsonConvert.DeserializeObject<NewGroupConversationModel>(data.cr.Message.Value);
+                await _kafkaMessageHandler.NotifyNewConversation(NewGroupConversationModel);
                 break;
             default:
                 break;

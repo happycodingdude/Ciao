@@ -60,7 +60,7 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await _kafkaProducer.ProduceAsync(Topic.NewMessage, new SaveNewMessageModel
+            await _kafkaProducer.ProduceAsync(Topic.NewMessage, new NewMessageModel
             {
                 UserId = _contactRepository.GetUserId(),
                 ConversationId = request.conversationId,

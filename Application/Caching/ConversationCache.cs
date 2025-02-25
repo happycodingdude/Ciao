@@ -100,7 +100,7 @@ public class ConversationCache
         await Task.WhenAll(taskToComplete);
     }
 
-    public async Task AddConversation(string userId, ConversationCacheModel conversation, List<MemberWithContactInfo> members)
+    public async Task AddConversation(string userId, ConversationCacheModel conversation, MemberWithContactInfo[] members)
     {
         // Update list conversation cache
         var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
@@ -119,7 +119,7 @@ public class ConversationCache
         await _distributedCache.SetStringAsync($"conversation-{conversation.Id}-messages", JsonConvert.SerializeObject(new List<MessageWithReactions>() { }));
     }
 
-    public async Task AddConversation(string userId, ConversationCacheModel conversation, List<MemberWithContactInfo> members, MessageWithReactions message)
+    public async Task AddConversation(string userId, ConversationCacheModel conversation, MemberWithContactInfo[] members, MessageWithReactions message)
     {
         // Update list conversation cache
         var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";

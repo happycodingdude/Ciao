@@ -143,7 +143,7 @@ public static class CreateMember
                 notify.LastMessage = lastMessage.Content;
                 notify.LastMessageContact = lastMessage.ContactId;
             }
-            // await _kafkaProducer.ProduceAsync(Topic.NotifyNewConversation, new NotifyNewConversationModel
+            // await _kafkaProducer.ProduceAsync(Topic.NotifyNewConversation, new NewGroupConversationModel
             // {
             //     UserId = _contactRepository.GetUserId(),
             //     ConversationId = request.conversationId,

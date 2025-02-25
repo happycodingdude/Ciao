@@ -35,7 +35,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         _hubContext = hubContext;
     }
 
-    public async Task SaveNewMessage(SaveNewMessageModel param)
+    public async Task SaveNewMessage(NewMessageModel param)
     {
         // Get current conversation
         var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
@@ -74,7 +74,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
             notify);
     }
 
-    public async Task NotifyNewConversation(NotifyNewConversationModel param)
+    public async Task NotifyNewConversation(NewGroupConversationModel param)
     {
         // Add to hub
         var connections = await _userCache.GetUserConnection(param.UserIds);
