@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Presentation.Messages;
 
 public static class SendMessage
@@ -46,12 +48,14 @@ public static class SendMessage
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IKafkaProducer _kafkaProducer;
+        readonly IMapper _mapper;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, IMapper mapper)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _kafkaProducer = kafkaProducer;
+            _mapper = mapper;
         }
 
         public async Task<SendMessageRes> Handle(Request request, CancellationToken cancellationToken)
@@ -60,17 +64,19 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
+            var message = _mapper.Map<NewMessageModel_Message>(request.model);
+            // Console.WriteLine(JsonConvert.SerializeObject(message));
             await _kafkaProducer.ProduceAsync(Topic.NewMessage, new NewMessageModel
             {
                 UserId = _contactRepository.GetUserId(),
                 ConversationId = request.conversationId,
-                Message = request.model
+                Message = message
             });
 
             return new SendMessageRes
             {
-                Message = request.model.Id,
-                Attachments = request.model.Attachments.Select(q => q.Id).ToArray()
+                Message = message.Id,
+                Attachments = message.Attachments.Select(q => q.Id).ToArray()
             };
         }
     }

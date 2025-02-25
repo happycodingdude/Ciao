@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Presentation.Conversations;
 
 public static class CreateGroupConversation
@@ -54,19 +56,22 @@ public static class CreateGroupConversation
             var userId = _contactRepository.GetUserId();
             // Remove duplicate, just keep one item for this user
             var conversation = _mapper.Map<Conversation>(request.model);
-            conversation.Members = conversation.Members.Where(q => q.ContactId != userId).ToList();
-            conversation.Members.Add(new Member
+            conversation.IsGroup = true;
+            var members = conversation.Members.Where(q => q.ContactId != userId).ToList();
+            members.Add(new Member
             {
                 ContactId = userId
             });
+
+            // Console.WriteLine(JsonConvert.SerializeObject(conversation));
+            // await Task.Delay(1000);
+            // Console.WriteLine(JsonConvert.SerializeObject(_mapper.Map<ConversationCacheModel>(conversation)));
+
             await _kafkaProducer.ProduceAsync(Topic.NewGroupConversation, new NewGroupConversationModel
             {
                 UserId = _contactRepository.GetUserId(),
-                Id = conversation.Id,
-                Title = conversation.Title,
-                Avatar = conversation.Avatar,
-                IsGroup = true,
-                Members = _mapper.Map<MemberWithContactInfo[]>(conversation.Members.ToArray())
+                Conversation = _mapper.Map<NewGroupConversationModel_Conversation>(conversation),
+                Members = _mapper.Map<NewGroupConversationModel_Member[]>(members.ToArray())
             });
 
             return conversation.Id;

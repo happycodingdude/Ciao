@@ -62,6 +62,12 @@ export const startConnection = async (
       console.log(data);
       if (user == info.id) return;
     });
+
+    hubConnection.on("NewMember", (user: string, data: string) => {
+      console.log(user);
+      console.log(data);
+      if (user == info.id) return;
+    });
   } catch (error) {
     console.error("SignalR Connection Error: ", error);
   }

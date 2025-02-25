@@ -6,14 +6,14 @@ public static class CreateDirectConversation
 
     internal sealed class Handler : IRequestHandler<Request, CreateDirectConversationRes>
     {
-        readonly IFirebaseFunction _firebase;
-        readonly IMapper _mapper;
-        readonly IConversationRepository _conversationRepository;
+        // readonly IFirebaseFunction _firebase;
+        // readonly IMapper _mapper;
+        // readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
-        readonly ConversationCache _conversationCache;
-        readonly MessageCache _messageCache;
-        readonly UserCache _userCache;
-        readonly INotificationProcessor _notificationProcessor;
+        // readonly ConversationCache _conversationCache;
+        // readonly MessageCache _messageCache;
+        // readonly UserCache _userCache;
+        // readonly INotificationProcessor _notificationProcessor;
         readonly IKafkaProducer _kafkaProducer;
 
         public Handler(IFirebaseFunction firebase,
@@ -26,14 +26,14 @@ public static class CreateDirectConversation
             INotificationProcessor notificationProcessor,
             IKafkaProducer kafkaProducer)
         {
-            _firebase = firebase;
-            _mapper = mapper;
-            _conversationRepository = conversationRepository;
+            // _firebase = firebase;
+            // _mapper = mapper;
+            // _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
-            _conversationCache = conversationCache;
-            _messageCache = messageCache;
-            _userCache = userCache;
-            _notificationProcessor = notificationProcessor;
+            // _conversationCache = conversationCache;
+            // _messageCache = messageCache;
+            // _userCache = userCache;
+            // _notificationProcessor = notificationProcessor;
             _kafkaProducer = kafkaProducer;
         }
 
@@ -132,63 +132,63 @@ public static class CreateDirectConversation
             };
         }
 
-        Conversation HandleNewConversation(Request request, Message message)
-        {
-            var userId = _contactRepository.GetUserId();
+        // Conversation HandleNewConversation(Request request, Message message)
+        // {
+        //     var userId = _contactRepository.GetUserId();
 
-            var newConversation = new Conversation();
-            // Add target contact
-            newConversation.Members.Add(new Member
-            {
-                IsModerator = false,
-                IsDeleted = false,
-                IsNotifying = true,
-                ContactId = request.contactId
-            });
-            // Add this user
-            newConversation.Members.Add(new Member
-            {
-                IsModerator = true,
-                IsDeleted = false,
-                IsNotifying = true,
-                ContactId = userId
-            });
-            // If send with message -> add new message
-            if (message is not null)
-                newConversation.Messages.Add(message);
+        //     var newConversation = new Conversation();
+        //     // Add target contact
+        //     newConversation.Members.Add(new Member
+        //     {
+        //         IsModerator = false,
+        //         IsDeleted = false,
+        //         IsNotifying = true,
+        //         ContactId = request.contactId
+        //     });
+        //     // Add this user
+        //     newConversation.Members.Add(new Member
+        //     {
+        //         IsModerator = true,
+        //         IsDeleted = false,
+        //         IsNotifying = true,
+        //         ContactId = userId
+        //     });
+        //     // If send with message -> add new message
+        //     if (message is not null)
+        //         newConversation.Messages.Add(message);
 
-            _conversationRepository.Add(newConversation);
+        //     _conversationRepository.Add(newConversation);
 
-            return newConversation;
-        }
+        //     return newConversation;
+        // }
 
-        void HandleOldConversation(Conversation conversation, Message message)
-        {
-            var updateIsDeleted = false;
-            var updateMessages = false;
-            var userId = _contactRepository.GetUserId();
-            // Update field IsDeleted if true
-            var currentUser = conversation.Members.SingleOrDefault(q => q.ContactId == userId);
-            if (currentUser.IsDeleted)
-            {
-                currentUser.IsDeleted = false;
-                updateIsDeleted = true;
-            }
+        // void HandleOldConversation(Conversation conversation, Message message)
+        // {
+        //     var updateIsDeleted = false;
+        //     var updateMessages = false;
+        //     var userId = _contactRepository.GetUserId();
+        //     // Update field IsDeleted if true
+        //     var currentUser = conversation.Members.SingleOrDefault(q => q.ContactId == userId);
+        //     if (currentUser.IsDeleted)
+        //     {
+        //         currentUser.IsDeleted = false;
+        //         updateIsDeleted = true;
+        //     }
 
-            // If send with message -> add new message
-            if (message is not null)
-            {
-                conversation.Messages.Add(message);
-                updateMessages = true;
-            }
+        //     // If send with message -> add new message
+        //     if (message is not null)
+        //     {
+        //         conversation.Messages.Add(message);
+        //         updateMessages = true;
+        //     }
 
-            // If processing any updates -> call to update
-            if (updateIsDeleted || updateMessages)
-            {
-                var updateFilter = MongoQuery<Conversation>.IdFilter(conversation.Id);
-                _conversationRepository.Replace(updateFilter, conversation);
-            }
-        }
+        //     // If processing any updates -> call to update
+        //     if (updateIsDeleted || updateMessages)
+        //     {
+        //         var updateFilter = MongoQuery<Conversation>.IdFilter(conversation.Id);
+        //         _conversationRepository.Replace(updateFilter, conversation);
+        //     }
+        // }
     }
 }
 

@@ -39,6 +39,10 @@ public class DataStoreConsumer : IGenericConsumer
                     var newDirectConversationModel = JsonConvert.DeserializeObject<NewDirectConversationModel>(param.cr.Message.Value);
                     await HandleNewDirectConversation(newDirectConversationModel);
                     break;
+                case Topic.NewMember:
+                    var newMemberModel = JsonConvert.DeserializeObject<NewMemberModel>(param.cr.Message.Value);
+                    await HandleNewMember(newMemberModel);
+                    break;
                 default:
                     break;
             }
@@ -82,14 +86,16 @@ public class DataStoreConsumer : IGenericConsumer
         await _kafkaProducer.ProduceAsync(Topic.NewStoredMessage, new NewStoredMessageModel
         {
             UserId = param.UserId,
-            ConversationId = param.ConversationId,
+            Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
+            Members = conversation.Members.ToArray(),
             Message = message
         });
     }
 
     async Task HandleNewGroupConversation(NewGroupConversationModel param)
     {
-        var conversation = _mapper.Map<Conversation>(param);
+        var conversation = _mapper.Map<Conversation>(param.Conversation);
+        conversation.Members = _mapper.Map<List<Member>>(param.Members.ToList());
 
         // Remove this user from input
         // param.Conversation.Members = param.Conversation.Members.Where(q => q.ContactId != user.Id).ToList();
@@ -121,7 +127,12 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredGroupConversation, param);
+        await _kafkaProducer.ProduceAsync(Topic.NewStoredGroupConversation, new NewStoredGroupConversationModel
+        {
+            UserId = param.UserId,
+            Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
+            Members = conversation.Members.ToArray(),
+        });
     }
 
     async Task HandleNewDirectConversation(NewDirectConversationModel param)
@@ -157,8 +168,8 @@ public class DataStoreConsumer : IGenericConsumer
         {
             UserId = param.UserId,
             ContactId = param.ContactId,
-            Conversation = _mapper.Map<ConversationCacheModel>(conversation),
-            Members = _mapper.Map<MemberWithContactInfo[]>(conversation.Members),
+            Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
+            Members = conversation.Members.ToArray(),
             Message = message,
             IsNewConversation = isNewConversation
         });
@@ -221,5 +232,48 @@ public class DataStoreConsumer : IGenericConsumer
                 _conversationRepository.Replace(updateFilter, conversation);
             }
         }
+    }
+
+    async Task HandleNewMember(NewMemberModel param)
+    {
+        // Get current Members of conversation, then filter new item to add
+        var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
+        var conversation = await _conversationRepository.GetItemAsync(filter);
+
+        // Filter new Members
+        var filterNewItemToAdd = param.Members
+            .Select(q => q)
+            .ToList()
+            .Except(conversation.Members.Select(q => q.ContactId).ToList())
+            .ToList();
+        // Return if no new partipants
+        if (!filterNewItemToAdd.Any()) return;
+
+        // Create list new Members
+        var membersToAdd = new List<Member>(filterNewItemToAdd.Count);
+        filterNewItemToAdd.ForEach(q => membersToAdd.Add(
+            new Member
+            {
+                IsModerator = false, // Only this user is moderator
+                IsDeleted = false, // Every Members will have this conversation active
+                IsNotifying = true,
+                ContactId = q
+            }));
+        // Concatenate to existed partipants
+        var membersToUpdate = conversation.Members.Concat(membersToAdd);
+
+        // Update to db
+        var updates = Builders<Conversation>.Update.Set(q => q.Members, membersToUpdate);
+        _conversationRepository.UpdateNoTrackingTime(filter, updates);
+
+        // Save changes
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.NewStoredMember, new NewStoredMemberModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            Members = membersToAdd.ToArray()
+        });
     }
 }

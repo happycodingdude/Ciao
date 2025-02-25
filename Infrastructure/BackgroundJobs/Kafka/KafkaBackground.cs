@@ -22,7 +22,8 @@ public class KafkaBackground : BackgroundService
                 .Subscribe([
                     Topic.NewMessage,
                     Topic.NewGroupConversation,
-                    Topic.NewDirectConversation
+                    Topic.NewDirectConversation,
+                    Topic.NewMember
                     ])
                 .Build(),
             cancellationToken));
@@ -33,7 +34,8 @@ public class KafkaBackground : BackgroundService
                 .Subscribe([
                     Topic.NewStoredMessage,
                     Topic.NewStoredGroupConversation,
-                    Topic.NewStoredDirectConversation
+                    Topic.NewStoredDirectConversation,
+                    Topic.NewStoredMember
                     ])
                 .Build(),
             cancellationToken));
@@ -44,7 +46,8 @@ public class KafkaBackground : BackgroundService
                 .Subscribe([
                     Topic.NewStoredMessage,
                     Topic.NewStoredGroupConversation,
-                    Topic.NewStoredDirectConversation
+                    Topic.NewStoredDirectConversation,
+                    Topic.NewStoredMember
                     ])
                 .Build(),
             cancellationToken));
@@ -92,7 +95,7 @@ public class KafkaBackground : BackgroundService
                     using var scope = _serviceProvider.CreateScope();
                     var consumerHandler = scope.ServiceProvider.GetRequiredService<T>();
 
-                    Console.WriteLine("Listening kafka topics...");
+                    Console.WriteLine($"{typeof(T).Name} is listening kafka topics...");
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         // Check if partition unassigned then re-assign

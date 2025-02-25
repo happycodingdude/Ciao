@@ -9,4 +9,5 @@ public static class Topic
     public const string NewDirectConversation = "new_direct_conversation";
     public const string NewStoredDirectConversation = "new_stored_direct_conversation";
     public const string NewMember = "new_member";
+    public const string NewStoredMember = "new_stored_member";
 }

@@ -9,15 +9,17 @@ public class CacheConsumer : IGenericConsumer
     readonly MessageCache _messageCache;
     readonly ConversationCache _conversationCache;
     readonly UserCache _userCache;
+    readonly MemberCache _memberCache;
     readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
 
-    public CacheConsumer(IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, IConversationRepository conversationRepository, IContactRepository contactRepository)
+    public CacheConsumer(IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, IConversationRepository conversationRepository, IContactRepository contactRepository)
     {
         _mapper = mapper;
         _messageCache = messageCache;
         _conversationCache = conversationCache;
         _userCache = userCache;
+        _memberCache = memberCache;
         _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
     }
@@ -37,12 +39,16 @@ public class CacheConsumer : IGenericConsumer
                     await HandleNewMessage(newStoredMessageModel);
                     break;
                 case Topic.NewStoredGroupConversation:
-                    var newStoredGroupConversationModel = JsonConvert.DeserializeObject<NewGroupConversationModel>(param.cr.Message.Value);
+                    var newStoredGroupConversationModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewGroupConversation(newStoredGroupConversationModel);
                     break;
                 case Topic.NewStoredDirectConversation:
                     var newStoredDirectConversationModel = JsonConvert.DeserializeObject<NewStoredDirectConversationModel>(param.cr.Message.Value);
                     await HandleNewDirectConversation(newStoredDirectConversationModel);
+                    break;
+                case Topic.NewStoredMember:
+                    var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredMemberModel>(param.cr.Message.Value);
+                    await HandleNewStoredMember(newStoredMemberModel);
                     break;
                 default:
                     break;
@@ -61,21 +67,19 @@ public class CacheConsumer : IGenericConsumer
 
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
-        // Get current conversation
-        var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
-        var conversation = await _conversationRepository.GetItemAsync(filter);
-        var message = _mapper.Map<Message>(param.Message);
+        var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
+        var message = _mapper.Map<MessageWithReactions>(param.Message);
 
-        await _messageCache.AddMessages(param.UserId, conversation.Id, conversation.UpdatedTime.Value, _mapper.Map<MessageWithReactions>(message));
+        await _messageCache.AddMessages(param.UserId, conversationToCache.Id, conversationToCache.UpdatedTime.Value, message);
     }
 
-    async Task HandleNewGroupConversation(NewGroupConversationModel param)
+    async Task HandleNewGroupConversation(NewStoredGroupConversationModel param)
     {
         // var conversation = _mapper.Map<Conversation>(param);
-        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.Contact.Id).Contains(q.Id));
+        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
 
-        var memberToCache = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+        var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
         foreach (var member in memberToCache.Where(q => q.Contact.Id != param.UserId))
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
@@ -93,14 +97,16 @@ public class CacheConsumer : IGenericConsumer
         thisUser.IsNotifying = true;
         thisUser.IsModerator = true;
 
-        var conversationToCache = _mapper.Map<ConversationCacheModel>(param);
-        await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
+        // Console.WriteLine(JsonConvert.SerializeObject(param.Conversation));
+        var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
+        // Console.WriteLine(JsonConvert.SerializeObject(conversationToCache));
+        await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache.ToArray());
 
         // Check if any receiver is online then update receiver cache
-        var membersToNotify = param.Members.Where(q => q.Contact.Id != user.Id).Select(q => q.Contact.Id).ToArray();
+        var membersToNotify = param.Members.Where(q => q.ContactId != user.Id).Select(q => q.ContactId).ToArray();
         var receivers = await _userCache.GetInfo(membersToNotify);
         if (receivers.Any())
-            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Id);
+            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
     }
 
     async Task HandleNewDirectConversation(NewStoredDirectConversationModel param)
@@ -114,8 +120,7 @@ public class CacheConsumer : IGenericConsumer
             // Update cache
             var contactFilter = MongoQuery<Contact>.IdFilter(param.ContactId);
             var contact = await _contactRepository.GetItemAsync(contactFilter);
-            var conversationToCache = param.Conversation;
-            var memberToCache = param.Members;
+            var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
             var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == param.ContactId);
             targetUser.Contact.Name = contact.Name;
             targetUser.Contact.Avatar = contact.Avatar;
@@ -126,16 +131,18 @@ public class CacheConsumer : IGenericConsumer
             thisUser.Contact.Avatar = user.Avatar;
             thisUser.Contact.Bio = user.Bio;
             thisUser.Contact.IsOnline = true;
+
+            var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
             if (param.Message is not null)
             {
-                await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache, _mapper.Map<MessageWithReactions>(param.Message));
+                await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache.ToArray(), _mapper.Map<MessageWithReactions>(param.Message));
 
                 if (receiver is not null)
                     await _conversationCache.AddConversation(receiver.Id, param.Conversation.Id);
             }
             else
             {
-                await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache);
+                await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache.ToArray());
 
                 if (receiver is not null)
                     await _conversationCache.AddConversation(receiver.Id, param.Conversation.Id);
@@ -145,5 +152,32 @@ public class CacheConsumer : IGenericConsumer
         {
             await _messageCache.AddMessages(user.Id, param.Conversation.Id, param.Conversation.UpdatedTime.Value, _mapper.Map<MessageWithReactions>(param.Message));
         }
+    }
+
+    async Task HandleNewStoredMember(NewStoredMemberModel param)
+    {
+        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(q => q.ContactId).Contains(q.Id));
+        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+
+        var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
+        foreach (var member in memberToCache)
+        {
+            member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
+            member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
+            member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Bio;
+            member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).IsOnline;
+        }
+        // var friendItems = await _friendRepository.GetFriendItems(MembersToAdd.Select(q => q.ContactId).ToList());
+        // for (var i = 0; i < MemberToCache.Count; i++)
+        // {
+        //     MemberToCache[i].Contact.Name = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Name;
+        //     MemberToCache[i].Contact.Avatar = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Avatar;
+        //     MemberToCache[i].Contact.Bio = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Bio;
+        //     MemberToCache[i].Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).IsOnline;
+        //     MemberToCache[i].FriendId = friendItems[i].Item1;
+        //     MemberToCache[i].FriendStatus = "friend";
+        // }
+
+        await _memberCache.AddMembers(param.ConversationId, memberToCache);
     }
 }

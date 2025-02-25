@@ -13,17 +13,23 @@ public class CreateDirectConversationRes
     public string? MessageId { get; set; }
 }
 
-public class ConversationToNotify
-{
-    public string Id { get; set; } = null!;
-    public string Title { get; set; } = null!;
-    public string Avatar { get; set; } = null!;
-    public bool IsGroup { get; set; }
-    public string LastMessage { get; set; } = null!;
-    public string LastMessageContact { get; set; } = null!;
-    // public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
-    public List<MemberWithContactInfo> Members { get; set; } = null!;
-}
+// public class ConversationToNotify
+// {
+//     public ConversationToNotify_Conversation Conversation { get; set; } = null!;
+//     public MemberWithContactInfo[] Members { get; set; } = null!;
+//     public Message? Message { get; set; }
+// }
+
+// public class ConversationToNotify_Conversation
+// {
+//     public string Id { get; set; } = null!;
+//     public string Title { get; set; } = null!;
+//     public string Avatar { get; set; } = null!;
+//     public bool IsGroup { get; set; }
+//     public string LastMessage { get; set; } = null!;
+//     public string LastMessageContact { get; set; } = null!;
+//     // public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
+// }
 
 public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
 {
