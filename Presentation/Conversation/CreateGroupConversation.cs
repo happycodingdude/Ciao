@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace Presentation.Conversations;
 
 public static class CreateGroupConversation
@@ -62,10 +60,6 @@ public static class CreateGroupConversation
             {
                 ContactId = userId
             });
-
-            // _logger.Information(JsonConvert.SerializeObject(conversation));
-            // await Task.Delay(1000);
-            // _logger.Information(JsonConvert.SerializeObject(_mapper.Map<ConversationCacheModel>(conversation)));
 
             await _kafkaProducer.ProduceAsync(Topic.NewGroupConversation, new NewGroupConversationModel
             {

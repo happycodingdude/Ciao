@@ -33,7 +33,7 @@ const Attachment = () => {
         newAttachments.filter((item) => item !== undefined),
       );
     },
-    [attachmentCache.attachments],
+    [attachmentCache?.attachments],
   );
 
   useEffect(() => {

@@ -61,6 +61,7 @@ export const startConnection = async (
       console.log(user);
       console.log(data);
       if (user == info.id) return;
+      onConversationReceived(JSON.parse(data));
     });
 
     hubConnection.on("NewMember", (user: string, data: string) => {
@@ -156,4 +157,31 @@ const onMessageReceived = (message: NewMessage_Message) => {
       } as AttachmentCache;
     });
   }
+};
+
+const onConversationReceived = (conversation: NewConversation) => {
+  // console.log(conversation);
+  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    const newConversation = [
+      {
+        isGroup: conversation.conversation.isGroup,
+        isNotifying: true,
+        id: conversation.conversation.id,
+        title: conversation.conversation.title,
+        avatar: conversation.conversation.avatar,
+        lastMessage: conversation.conversation.lastMessage,
+        lastMessageContact: conversation.conversation.lastMessageContact,
+        members: conversation.members.map((mem) => {
+          if (mem.contact.id !== info.id) return mem;
+          return { ...mem, unSeenMessages: 0 };
+        }),
+      },
+      ...oldData.conversations,
+    ];
+    return {
+      ...oldData,
+      conversations: newConversation,
+      filterConversations: newConversation,
+    } as ConversationCache;
+  });
 };

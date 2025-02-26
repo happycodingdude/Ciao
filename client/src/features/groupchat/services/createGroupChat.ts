@@ -1,13 +1,9 @@
 import HttpRequest from "../../../lib/fetch";
 
-export type MemberToAdd = {
-  contactId: string;
-};
-
 export type CreateGroupChatRequest = {
   title: string;
   avatar?: string;
-  members: MemberToAdd[];
+  members: string[];
 };
 
 const createGroupChat = async (model: CreateGroupChatRequest) => {

@@ -14,6 +14,7 @@ import useInfo from "../../authentication/hooks/useInfo";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import {
+  AttachmentCache,
   ConversationCache,
   ConversationModel,
   MessageCache,
@@ -76,11 +77,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     const request: CreateGroupChatRequest = {
       title: title,
       avatar: url,
-      members: membersToAdd.map((members) => {
-        return {
-          contactId: members.id,
-        };
-      }),
+      members: membersToAdd.map((members) => members.id),
     };
     createGroupChat(request).then((res) => {
       queryClient.setQueryData(
@@ -103,6 +100,12 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           } as ConversationCache;
         },
       );
+      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+        return {
+          ...oldData,
+          conversationId: res.data,
+        } as AttachmentCache;
+      });
     });
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
@@ -162,8 +165,12 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         hasMore: false,
       } as MessageCache;
     });
-    queryClient.setQueryData(["attachment"], (oldData) => {
-      return [];
+    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+      return {
+        ...oldData,
+        conversationId: randomId,
+        attachments: [],
+      } as AttachmentCache;
     });
     onClose();
   };

@@ -38,3 +38,8 @@ type NewMessage_Message = {
   contact: NewMessage_Message_Contact;
   attachments: any[];
 };
+
+type NewConversation = {
+  conversation: NewMessage_Message_Conversation;
+  members: NewMessage_Message_Conversation_Member[];
+};
