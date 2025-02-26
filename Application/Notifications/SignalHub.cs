@@ -5,11 +5,13 @@ public class SignalHub : Hub
     // static readonly ConcurrentDictionary<string, string> UserConnections = new();    
     readonly UserCache _userCache;
     readonly ConversationCache _conversationCache;
+    readonly ILogger _logger;
 
-    public SignalHub(UserCache userCache, ConversationCache conversationCache)
+    public SignalHub(UserCache userCache, ConversationCache conversationCache, ILogger logger)
     {
         _userCache = userCache;
         _conversationCache = conversationCache;
+        _logger = logger;
     }
 
     public override async Task OnConnectedAsync()
@@ -19,7 +21,7 @@ public class SignalHub : Hub
             var userId = Context.GetHttpContext()?.Request.Query["userId"];
             if (userId is not null)
             {
-                Console.WriteLine($"User {userId} connected with ConnectionId {Context.ConnectionId}");
+                _logger.Information($"User {userId} connected with ConnectionId {Context.ConnectionId}");
                 // UserConnections[userId] = Context.ConnectionId;
                 _userCache.SetUserConnection(userId, Context.ConnectionId);
                 _userCache.SetConnectionUser(userId, Context.ConnectionId);
@@ -27,7 +29,7 @@ public class SignalHub : Hub
                 // Add to group for broadcasting
                 foreach (var conversationId in conversationIds)
                 {
-                    Console.WriteLine($"Add user {userId} to group {conversationId}");
+                    _logger.Information($"Add user {userId} to group {conversationId}");
                     await Groups.AddToGroupAsync(Context.ConnectionId, conversationId);
                 }
             }
@@ -35,7 +37,7 @@ public class SignalHub : Hub
         }
         catch (Exception ex)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(ex));
+            _logger.Information(JsonConvert.SerializeObject(ex));
         }
     }
 
@@ -47,13 +49,13 @@ public class SignalHub : Hub
             if (userId is not null)
             {
                 await _userCache.RemoveConnection(userId, Context.ConnectionId);
-                Console.WriteLine($"User {userId} disconnected");
+                _logger.Information($"User {userId} disconnected");
             }
             await base.OnDisconnectedAsync(exception);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(ex));
+            _logger.Information(JsonConvert.SerializeObject(ex));
         }
     }
 

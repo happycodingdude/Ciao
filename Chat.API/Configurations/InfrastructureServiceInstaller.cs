@@ -76,7 +76,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         //     options.SlidingExpiration = true;
         //     options.Events.OnRedirectToLogin = context =>
         //     {
-        //         Console.WriteLine("OnRedirectToLogin...");
+        //         _logger.Information("OnRedirectToLogin...");
         //         context.Response.StatusCode = 401;
         //         return Task.CompletedTask;
         //     };

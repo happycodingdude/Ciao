@@ -5,11 +5,11 @@ public class BasicAuthenticationRequirement : IAuthorizationRequirement
     public BasicAuthenticationRequirement() { }
 }
 
-public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor, IJwtService jwtService, UserCache userCache) : AuthorizationHandler<BasicAuthenticationRequirement>
+public class BasicAuthenticationHandle(ILogger logger, IHttpContextAccessor httpContextAccessor, IJwtService jwtService, UserCache userCache) : AuthorizationHandler<BasicAuthenticationRequirement>
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, BasicAuthenticationRequirement requirement)
     {
-        // Console.WriteLine("BasicAuthenticationHandle calling");
+        // _logger.Information("BasicAuthenticationHandle calling");
         try
         {
             // Retrieve token from Authorization header
@@ -17,7 +17,7 @@ public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor,
             var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             if (string.IsNullOrEmpty(token))
             {
-                Console.WriteLine("Token empty");
+                logger.Information("Token empty");
                 throw new UnauthorizedException();
             }
 
@@ -37,7 +37,7 @@ public class BasicAuthenticationHandle(IHttpContextAccessor httpContextAccessor,
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.Error(ex, "");
             throw new UnauthorizedException();
         }
     }

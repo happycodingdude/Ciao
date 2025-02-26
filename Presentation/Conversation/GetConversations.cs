@@ -29,12 +29,12 @@ public static class GetConversations
             var conversations = await _conversationCache.GetConversations();
             var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>(conversations);
             await _memberCache.GetMembers(result);
-            // Console.WriteLine(JsonConvert.SerializeObject(result));
+            // _logger.Information(JsonConvert.SerializeObject(result));
             var friends = await _friendCache.GetFriends();
             foreach (var conversation in result)
             {
                 var messages = await _messageCache.GetMessages(conversation.Id);
-                // Console.WriteLine($"{conversation.Id} has messages count => {messages.Count}");
+                // _logger.Information($"{conversation.Id} has messages count => {messages.Count}");
                 foreach (var member in conversation.Members)
                 {
                     // Set unseen messages properties

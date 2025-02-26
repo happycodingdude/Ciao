@@ -88,6 +88,7 @@
 /Chat.API/msbuild.log
 /Chat.API/msbuild.err
 /Chat.API/msbuild.wrn
+/Chat.API/logs
 
 
 /Domain/*.swp

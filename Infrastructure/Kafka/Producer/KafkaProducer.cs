@@ -5,10 +5,12 @@
 /// </summary>
 public class KafkaProducer : IKafkaProducer
 {
+    readonly ILogger _logger;
     readonly ProducerFactory _producerFactory;
 
-    public KafkaProducer(ProducerFactory producerFactory)
+    public KafkaProducer(ILogger logger, ProducerFactory producerFactory)
     {
+        _logger = logger;
         _producerFactory = producerFactory;
     }
 
@@ -24,7 +26,7 @@ public class KafkaProducer : IKafkaProducer
         }
         catch (ProduceException<Null, string> ex)
         {
-            Console.WriteLine($"Error producing message: {ex.Error.Reason}");
+            _logger.Error($"Error producing message: {ex.Error.Reason}");
         }
     }
 }

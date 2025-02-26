@@ -1,26 +1,23 @@
-﻿
-
-
-namespace Infrastructure.BackgroundJobs;
+﻿namespace Infrastructure.BackgroundJobs;
 
 public class CacheConsumer : IGenericConsumer
 {
+    readonly ILogger _logger;
     readonly IMapper _mapper;
     readonly MessageCache _messageCache;
     readonly ConversationCache _conversationCache;
     readonly UserCache _userCache;
     readonly MemberCache _memberCache;
-    readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
 
-    public CacheConsumer(IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, IConversationRepository conversationRepository, IContactRepository contactRepository)
+    public CacheConsumer(ILogger logger, IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, IContactRepository contactRepository)
     {
+        _logger = logger;
         _mapper = mapper;
         _messageCache = messageCache;
         _conversationCache = conversationCache;
         _userCache = userCache;
         _memberCache = memberCache;
-        _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
     }
 
@@ -28,9 +25,7 @@ public class CacheConsumer : IGenericConsumer
     {
         try
         {
-            Console.WriteLine("CacheConsumer receives...");
-            Console.WriteLine(JsonConvert.SerializeObject(param.cr.Topic));
-            Console.WriteLine(JsonConvert.SerializeObject(param.cr.Message));
+            _logger.Information($"[CacheConsumer] [{param.cr.Topic}] [{param.cr.Message.Value}]");
 
             switch (param.cr.Topic)
             {
@@ -56,7 +51,7 @@ public class CacheConsumer : IGenericConsumer
         }
         catch (Exception ex)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(ex));
+            _logger.Error(ex, "");
         }
         finally
         {
@@ -97,9 +92,9 @@ public class CacheConsumer : IGenericConsumer
         thisUser.IsNotifying = true;
         thisUser.IsModerator = true;
 
-        // Console.WriteLine(JsonConvert.SerializeObject(param.Conversation));
+        // _logger.Information(JsonConvert.SerializeObject(param.Conversation));
         var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
-        // Console.WriteLine(JsonConvert.SerializeObject(conversationToCache));
+        // _logger.Information(JsonConvert.SerializeObject(conversationToCache));
         await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache.ToArray());
 
         // Check if any receiver is online then update receiver cache

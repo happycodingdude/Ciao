@@ -11,7 +11,7 @@ public class GlobalTransactionMiddleware
 
     public async Task Invoke(HttpContext httpContext, IUnitOfWork uow)
     {
-        // Console.WriteLine("GlobalTransactionMiddleware calling");
+        // _logger.Information("GlobalTransactionMiddleware calling");
         await _next(httpContext);
         await uow.SaveAsync();
     }

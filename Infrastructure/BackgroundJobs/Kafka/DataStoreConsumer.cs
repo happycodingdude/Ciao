@@ -2,14 +2,16 @@
 
 public class DataStoreConsumer : IGenericConsumer
 {
+    readonly ILogger _logger;
     readonly IUnitOfWork _uow;
     readonly IMapper _mapper;
     readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
     readonly IKafkaProducer _kafkaProducer;
 
-    public DataStoreConsumer(IUnitOfWork uow, IMapper mapper, IConversationRepository conversationRepository, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
+    public DataStoreConsumer(ILogger logger, IUnitOfWork uow, IMapper mapper, IConversationRepository conversationRepository, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
     {
+        _logger = logger;
         _uow = uow;
         _mapper = mapper;
         _conversationRepository = conversationRepository;
@@ -21,9 +23,7 @@ public class DataStoreConsumer : IGenericConsumer
     {
         try
         {
-            Console.WriteLine("DataStoreConsumer receives...");
-            Console.WriteLine(JsonConvert.SerializeObject(param.cr.Topic));
-            Console.WriteLine(JsonConvert.SerializeObject(param.cr.Message));
+            _logger.Information($"[DataStoreConsumer] [{param.cr.Topic}] [{param.cr.Message.Value}]");
 
             switch (param.cr.Topic)
             {
@@ -49,7 +49,7 @@ public class DataStoreConsumer : IGenericConsumer
         }
         catch (Exception ex)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(ex));
+            _logger.Error(ex, "");
         }
         finally
         {

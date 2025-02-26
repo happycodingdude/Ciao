@@ -3,14 +3,16 @@
 public class FirebaseFunction : IFirebaseFunction
 {
     readonly IServiceProvider _serviceProvider;
+    readonly ILogger _logger;
 
-    public FirebaseFunction(IServiceProvider serviceProvider)
+    public FirebaseFunction(IServiceProvider serviceProvider, ILogger logger)
     {
         FirebaseApp.Create(new AppOptions()
         {
             Credential = GoogleCredential.FromFile($"{AppContext.BaseDirectory}/service-account-config.json")
         });
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     public async Task Notify(string _event, string[] contactIds, object data)
@@ -27,7 +29,7 @@ public class FirebaseFunction : IFirebaseFunction
         }
         if (!connections.Any())
         {
-            Console.WriteLine("No connection");
+            _logger.Information("No connection");
             return;
         }
         var notification = new FirebaseNotification
@@ -56,6 +58,6 @@ public class FirebaseFunction : IFirebaseFunction
             }
         };
         var response = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message);
-        Console.WriteLine(JsonConvert.SerializeObject(response));
+        _logger.Information(JsonConvert.SerializeObject(response));
     }
 }

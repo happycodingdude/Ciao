@@ -17,3 +17,4 @@ global using Domain;
 global using Application.Caching;
 global using Microsoft.AspNetCore.SignalR;
 global using Application.Kafka.Model;
+global using Serilog;

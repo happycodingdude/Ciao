@@ -249,7 +249,7 @@ const ChatInput = (props: ChatInputProps) => {
         conversations?.selected.id,
         bodyToCreate,
       );
-      await delay(1000);
+      await delay(500);
 
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {

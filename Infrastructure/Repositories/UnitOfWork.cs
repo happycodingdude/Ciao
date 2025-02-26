@@ -9,7 +9,7 @@ public class InvokeResult
     public object UpsertedId { get; set; }
 }
 
-public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposable
+public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOfWork, IDisposable
 {
     IClientSessionHandle session;
     Dictionary<Guid, Func<IClientSessionHandle, Task<object>>> operations = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
@@ -43,21 +43,21 @@ public class UnitOfWork(MongoDbContext mongoDbContext) : IUnitOfWork, IDisposabl
                 foreach (var operation in operations)
                 {
                     var result = await operation.Value.Invoke(session);
-                    Console.WriteLine($"operation result => {JsonConvert.SerializeObject(result)}");
+                    logger.Information($"operation result => {JsonConvert.SerializeObject(result)}");
                     var invokeResult = JsonConvert.DeserializeObject<InvokeResult>(JsonConvert.SerializeObject(result));
                     if (invokeResult.ModifiedCount == 0)
                     {
                         fallbacks.TryGetValue(operation.Key, out var fallback);
                         if (fallback is null) continue;
                         var fallbackResult = await fallback.Invoke(session);
-                        Console.WriteLine($"fallback result => {JsonConvert.SerializeObject(fallbackResult)}");
+                        logger.Information($"fallback result => {JsonConvert.SerializeObject(fallbackResult)}");
                     }
                 }
                 await session.CommitTransactionAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(JsonConvert.SerializeObject(ex));
+                logger.Error(ex, "");
                 await session.AbortTransactionAsync();
             }
         }

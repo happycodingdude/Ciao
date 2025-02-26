@@ -1,6 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine($"appsettings.{builder.Environment.EnvironmentName}.json");
+// _logger.Information($"appsettings.{builder.Environment.EnvironmentName}.json");
 
 var configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -11,6 +11,7 @@ var configuration = new ConfigurationBuilder()
             .Build();
 
 builder.Services.InstallServices(builder.Configuration, builder.Environment, typeof(IServiceInstaller).Assembly);
+builder.Host.AddSerilog();
 
 var app = builder.Build();
 

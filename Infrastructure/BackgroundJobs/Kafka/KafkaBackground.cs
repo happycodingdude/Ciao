@@ -7,11 +7,13 @@ public class KafkaBackground : BackgroundService
 {
     readonly IOptions<KafkaConfiguration> _kafkaConfig;
     readonly IServiceProvider _serviceProvider;
+    readonly ILogger _logger;
 
-    public KafkaBackground(IOptions<KafkaConfiguration> kafkaConfig, IServiceProvider serviceProvider)
+    public KafkaBackground(IOptions<KafkaConfiguration> kafkaConfig, IServiceProvider serviceProvider, ILogger logger)
     {
         _kafkaConfig = kafkaConfig;
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     protected override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -62,7 +64,7 @@ public class KafkaBackground : BackgroundService
         {
             if (!kafkaConsumer._topics.Any())
             {
-                Console.WriteLine("No topics to listen...");
+                _logger.Information("No topics to listen...");
                 return;
             }
 
@@ -81,7 +83,7 @@ public class KafkaBackground : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.Error(ex, "");
             }
 
             using (var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build())
@@ -95,7 +97,9 @@ public class KafkaBackground : BackgroundService
                     using var scope = _serviceProvider.CreateScope();
                     var consumerHandler = scope.ServiceProvider.GetRequiredService<T>();
 
-                    Console.WriteLine($"{typeof(T).Name} is listening kafka topics...");
+                    // _logger.Information($"{typeof(T).Name} is listening kafka topics...");
+                    _logger.Information($"{typeof(T).Name} is listening kafka topics...");
+
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         // Check if partition unassigned then re-assign
@@ -112,7 +116,7 @@ public class KafkaBackground : BackgroundService
                         }
                         catch (ConsumeException ex)
                         {
-                            Console.WriteLine($"Kafka consume error: {ex}");
+                            _logger.Information($"Kafka consume error: {ex}");
                         }
                     }
                 }
@@ -120,13 +124,13 @@ public class KafkaBackground : BackgroundService
                 {
                     // Ensure the consumer leaves the group cleanly and final offsets are committed.
                     consumer.Close();
-                    Console.WriteLine(ex);
+                    _logger.Error(ex, "");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            _logger.Error(ex, "");
         }
     }
 

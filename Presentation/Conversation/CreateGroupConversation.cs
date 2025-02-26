@@ -63,9 +63,9 @@ public static class CreateGroupConversation
                 ContactId = userId
             });
 
-            // Console.WriteLine(JsonConvert.SerializeObject(conversation));
+            // _logger.Information(JsonConvert.SerializeObject(conversation));
             // await Task.Delay(1000);
-            // Console.WriteLine(JsonConvert.SerializeObject(_mapper.Map<ConversationCacheModel>(conversation)));
+            // _logger.Information(JsonConvert.SerializeObject(_mapper.Map<ConversationCacheModel>(conversation)));
 
             await _kafkaProducer.ProduceAsync(Topic.NewGroupConversation, new NewGroupConversationModel
             {

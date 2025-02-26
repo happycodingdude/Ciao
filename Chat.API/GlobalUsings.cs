@@ -26,3 +26,5 @@ global using Application.Jwt;
 global using Application.Kafka.Producer;
 global using Infrastructure.Kafka.Producer;
 global using Infrastructure.Configurations;
+global using Serilog;
+global using Chat.API.Configuration;

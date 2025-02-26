@@ -80,7 +80,7 @@ public class KafkaMessageHandler : IKafkaMessageHandler
         var connections = await _userCache.GetUserConnection(param.UserIds);
         foreach (var connection in connections)
         {
-            Console.WriteLine($"Add user {connection} to group {param.ConversationId}");
+            _logger.Information($"Add user {connection} to group {param.ConversationId}");
             await _hubContext.Groups.AddToGroupAsync(connection, param.ConversationId);
         }
 

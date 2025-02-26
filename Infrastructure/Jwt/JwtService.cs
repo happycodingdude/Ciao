@@ -3,6 +3,12 @@ public class JwtService : IJwtService
     const string secretKey = "dPLc8k9r8RJAMDfw1YgMujHu6YcJtAc3gPeTGmER"; // Use a secure key from configuration
     const string issuer = "https://chat.happycoding.click";
     const string audience = "https://chat.happycoding.click";
+    readonly ILogger _logger;
+
+    public JwtService(ILogger logger)
+    {
+        _logger = logger;
+    }
 
     public string GenerateToken(string userId)
     {
@@ -50,20 +56,20 @@ public class JwtService : IJwtService
         try
         {
             principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-            // Console.WriteLine($"Token validated");
+            // _logger.Information($"Token validated");
             return true;
         }
         catch (SecurityTokenExpiredException ex)
         {
-            Console.WriteLine($"Token expired at {ex.Expires}");
+            _logger.Error($"Token expired at {ex.Expires}");
         }
         catch (SecurityTokenException ex)
         {
-            Console.WriteLine($"Token validation failed: {ex.Message}");
+            _logger.Error($"Token validation failed: {ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Unexpected error: {ex.Message}");
+            _logger.Error($"Unexpected error: {ex.Message}");
         }
 
         principal = null;

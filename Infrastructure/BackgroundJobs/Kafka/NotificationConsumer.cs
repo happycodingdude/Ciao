@@ -2,18 +2,18 @@
 
 public class NotificationConsumer : IGenericConsumer
 {
+    readonly ILogger _logger;
     readonly IMapper _mapper;
     readonly UserCache _userCache;
-    readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
     readonly INotificationProcessor _notificationProcessor;
     readonly IHubContext<SignalHub> _hubContext;
 
-    public NotificationConsumer(IMapper mapper, UserCache userCache, IConversationRepository conversationRepository, IContactRepository contactRepository, INotificationProcessor notificationProcessor, IHubContext<SignalHub> hubContext)
+    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, IContactRepository contactRepository, INotificationProcessor notificationProcessor, IHubContext<SignalHub> hubContext)
     {
+        _logger = logger;
         _mapper = mapper;
         _userCache = userCache;
-        _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
         _notificationProcessor = notificationProcessor;
         _hubContext = hubContext;
@@ -23,9 +23,7 @@ public class NotificationConsumer : IGenericConsumer
     {
         try
         {
-            Console.WriteLine("NotificationConsumer receives...");
-            Console.WriteLine(JsonConvert.SerializeObject(param.cr.Topic));
-            Console.WriteLine(JsonConvert.SerializeObject(param.cr.Message));
+            _logger.Information($"[NotificationConsumer] [{param.cr.Topic}] [{param.cr.Message.Value}]");
 
             switch (param.cr.Topic)
             {
@@ -51,7 +49,7 @@ public class NotificationConsumer : IGenericConsumer
         }
         catch (Exception ex)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(ex));
+            _logger.Error(ex, "");
         }
         finally
         {

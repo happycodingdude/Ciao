@@ -4,11 +4,13 @@ public class WebSocketProcessor : INotificationProcessor
 {
     readonly IServiceProvider _serviceProvider;
     readonly IHubContext<SignalHub> _hubContext;
+    readonly ILogger _logger;
 
-    public WebSocketProcessor(IServiceProvider serviceProvider, IHubContext<SignalHub> hubContext)
+    public WebSocketProcessor(IServiceProvider serviceProvider, IHubContext<SignalHub> hubContext, ILogger logger)
     {
         _serviceProvider = serviceProvider;
         _hubContext = hubContext;
+        _logger = logger;
     }
 
     // public async Task Notify(string _event, string[] userIds, object data)
@@ -25,14 +27,14 @@ public class WebSocketProcessor : INotificationProcessor
     //     }
     //     if (!connections.Any())
     //     {
-    //         Console.WriteLine("No connection");
+    //         _logger.Information("No connection");
     //         return;
     //     }
 
-    //     Console.WriteLine($"_event => {_event}");
+    //     _logger.Information($"_event => {_event}");
     //     foreach (var connection in connections)
     //     {
-    //         Console.WriteLine($"connection => {connection}");
+    //         _logger.Information($"connection => {connection}");
     //         try
     //         {
     //             await _hubContext.Clients.Client(connection.Value).SendAsync(_event, connection.Key, JsonConvert.SerializeObject(data,
@@ -44,16 +46,16 @@ public class WebSocketProcessor : INotificationProcessor
     //         }
     //         catch (Exception ex)
     //         {
-    //             Console.WriteLine(JsonConvert.SerializeObject(ex));
+    //             _logger.Information(JsonConvert.SerializeObject(ex));
     //         }
     //     }
     // }
 
     public async Task Notify(string _event, string group, string userId, object data)
     {
-        // Console.WriteLine($"group => {group}");
-        // Console.WriteLine($"_event => {_event}");
-        // Console.WriteLine($"userId => {userId}");
+        // _logger.Information($"group => {group}");
+        // _logger.Information($"_event => {_event}");
+        // _logger.Information($"userId => {userId}");
         try
         {
             await _hubContext.Clients.Group(group).SendAsync(_event, userId, JsonConvert.SerializeObject(data,
@@ -65,7 +67,7 @@ public class WebSocketProcessor : INotificationProcessor
         }
         catch (Exception ex)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(ex));
+            _logger.Error(ex, "");
         }
     }
 }

@@ -65,7 +65,7 @@ public static class SendMessage
                 throw new BadRequestException(validationResult.ToString());
 
             var message = _mapper.Map<NewMessageModel_Message>(request.model);
-            // Console.WriteLine(JsonConvert.SerializeObject(message));
+            // _logger.Information(JsonConvert.SerializeObject(message));
             await _kafkaProducer.ProduceAsync(Topic.NewMessage, new NewMessageModel
             {
                 UserId = _contactRepository.GetUserId(),

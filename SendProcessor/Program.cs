@@ -1,6 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine($"appsettings.{builder.Environment.EnvironmentName}.json");
+_logger.Information($"appsettings.{builder.Environment.EnvironmentName}.json");
 
 var configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)

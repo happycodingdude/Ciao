@@ -48,7 +48,7 @@ public static class SignIn
 
             // _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
             // var friends = await _friendRepository.GetFriendItems();
-            // Console.WriteLine(JsonConvert.SerializeObject(friends));
+            // _logger.Information(JsonConvert.SerializeObject(friends));
 
             // When signed out
             if (!user.IsOnline)

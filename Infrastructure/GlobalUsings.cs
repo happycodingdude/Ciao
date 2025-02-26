@@ -49,3 +49,4 @@ global using Microsoft.AspNetCore.SignalR;
 global using Infrastructure.BackgroundJobs;
 global using Application.BackgroundJobs;
 global using Application.WebSocketEvents;
+global using Serilog;
