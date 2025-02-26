@@ -55,8 +55,8 @@ jobs:
             docker stop api-service || true
             docker rm api-service || true
             docker rmi $(docker images ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest -q) || true
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest
-            docker run -d --name api-service -p 4000:8080 -v api-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest
+            # docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest
+            # docker run -d --name api-service -p 4000:8080 -v api-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest
 
             # Deploy SendProcessor container
             # docker stop send-processor-service || true
