@@ -35,8 +35,8 @@ jobs:
       - name: Build Chat.API Docker image
         run: docker buildx build --platform linux/arm64,linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest --push -f Chat.API/Dockerfile .
 
-      - name: Build SendProcessor Docker image
-        run: docker buildx build --platform linux/arm64,linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest --push -f SendProcessor/Dockerfile .
+      # - name: Build SendProcessor Docker image
+      #   run: docker buildx build --platform linux/arm64,linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest --push -f SendProcessor/Dockerfile .
 
   deploy:
     runs-on: ubuntu-latest
@@ -59,8 +59,8 @@ jobs:
             docker run -d --name api-service -p 4000:8080 -v api-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/api-service:latest
 
             # Deploy SendProcessor container
-            docker stop send-processor-service || true
-            docker rm send-processor-service || true
-            docker rmi $(docker images ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest -q) || true
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
-            docker run -d --name send-processor-service -p 4100:8080 -v send-processor-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
+            # docker stop send-processor-service || true
+            # docker rm send-processor-service || true
+            # docker rmi $(docker images ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest -q) || true
+            # docker pull ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
+            # docker run -d --name send-processor-service -p 4100:8080 -v send-processor-service-data:/root/.aspnet/DataProtection-Keys ${{ secrets.DOCKERHUB_USERNAME }}/send-processor-service:latest
