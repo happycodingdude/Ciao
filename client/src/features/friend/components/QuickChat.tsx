@@ -9,6 +9,7 @@ import useInfo from "../../authentication/hooks/useInfo";
 import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
 import {
+  AttachmentCache,
   ConversationCache,
   ConversationModel,
   MessageCache,
@@ -213,6 +214,12 @@ const QuickChat = (props: QuickChatProps) => {
             messages: updatedMessages,
           } as MessageCache;
         });
+        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+          return {
+            ...oldData,
+            conversationId: res.conversationId,
+          } as AttachmentCache;
+        });
       });
 
       // Delay for smooth processing animation
@@ -233,8 +240,12 @@ const QuickChat = (props: QuickChatProps) => {
           hasMore: false,
         } as MessageCache;
       });
-      queryClient.setQueryData(["attachment"], (oldData) => {
-        return [];
+      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+        return {
+          ...oldData,
+          conversationId: randomId,
+          attachments: [],
+        } as AttachmentCache;
       });
 
       setLoading(false);

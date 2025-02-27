@@ -269,11 +269,11 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredMember, new NewStoredMemberModel
+        await _kafkaProducer.ProduceAsync(Topic.NewStoredMember, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
-            ConversationId = param.ConversationId,
-            Members = membersToAdd.ToArray()
+            Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
+            Members = membersToAdd.ToArray(),
         });
     }
 }

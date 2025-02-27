@@ -1,4 +1,6 @@
-type NewMessage_Message_Contact = {
+import { ConversationModel_Member } from "../listchat/types";
+
+type NewMessage_Contact = {
   id: string;
   name: string | null;
   avatar: string | null;
@@ -6,40 +8,43 @@ type NewMessage_Message_Contact = {
   isOnline?: boolean;
 };
 
-type NewMessage_Message_Conversation_Member = {
-  friendId: string | null;
-  friendStatus: string | null;
-  isDeleted: boolean;
-  isModerator: boolean;
-  isNotifying: boolean;
-  contact: NewMessage_Message_Contact;
-  id: string;
-  createdTime: string;
-  updatedTime: string | null;
-  lastSeenTime?: string | null;
-  unSeenMessages?: number;
-};
+// type NewMessage_Message_Conversation_Member = {
+//   friendId: string | null;
+//   friendStatus: string | null;
+//   isDeleted: boolean;
+//   isModerator: boolean;
+//   isNotifying: boolean;
+//   contact: NewMessage_Contact;
+//   id: string;
+//   createdTime: string;
+//   updatedTime: string | null;
+//   lastSeenTime?: string | null;
+//   unSeenMessages?: number;
+// };
 
-type NewMessage_Message_Conversation = {
+type NewMessage_Conversation = {
   id: string;
   title: string;
   avatar: string | null;
   isGroup: boolean;
   lastMessage: string | null;
   lastMessageContact: string | null;
-  members: NewMessage_Message_Conversation_Member[];
+  lastMessageTime: string | null;
+  // members: NewMessage_Message_Conversation_Member[];
 };
 
-type NewMessage_Message = {
+export type NewMessage = {
   id: string;
   type: string;
   content: string;
-  conversation: NewMessage_Message_Conversation;
-  contact: NewMessage_Message_Contact;
+  createdTime: string;
+  conversation: NewMessage_Conversation;
+  members: ConversationModel_Member[];
+  contact: NewMessage_Contact;
   attachments: any[];
 };
 
-type NewConversation = {
-  conversation: NewMessage_Message_Conversation;
-  members: NewMessage_Message_Conversation_Member[];
+export type NewConversation = {
+  conversation: NewMessage_Conversation;
+  members: ConversationModel_Member[];
 };

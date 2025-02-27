@@ -8,6 +8,7 @@ import useInfo from "../../authentication/hooks/useInfo";
 import reopenMember from "../../chatbox/services/reopenMember";
 import useConversation from "../../listchat/hooks/useConversation";
 import {
+  AttachmentCache,
   ConversationCache,
   ConversationModel,
   MessageCache,
@@ -148,6 +149,18 @@ const FriendCtaButton = (props: FriendItemProps) => {
             } as ConversationCache;
           },
         );
+        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+          return {
+            ...oldData,
+            conversationId: res.conversationId,
+          } as MessageCache;
+        });
+        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+          return {
+            ...oldData,
+            conversationId: res.conversationId,
+          } as AttachmentCache;
+        });
       });
 
       // Delay for smooth processing animation
@@ -155,12 +168,17 @@ const FriendCtaButton = (props: FriendItemProps) => {
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
+          conversationId: randomId,
           messages: [],
           hasMore: false,
         } as MessageCache;
       });
-      queryClient.setQueryData(["attachment"], (oldData) => {
-        return [];
+      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+        return {
+          ...oldData,
+          conversationId: randomId,
+          attachments: [],
+        } as AttachmentCache;
       });
 
       setLoading(false);

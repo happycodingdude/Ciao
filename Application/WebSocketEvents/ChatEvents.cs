@@ -5,6 +5,7 @@ public class EventNewMessage
     public string Id { get; set; } = null!;
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
+    public DateTime CreatedTime { get; set; }
     public EventNewMessage_Conversation Conversation { get; set; } = null!;
     public MemberWithContactInfo[] Members { get; set; } = null!;
     public EventNewMessage_Contact Contact { get; set; } = null!;
@@ -19,6 +20,7 @@ public class EventNewMessage_Conversation
     public bool IsGroup { get; set; }
     public string LastMessage { get; set; } = null!;
     public string LastMessageContact { get; set; } = null!;
+    public DateTime? LastMessageTime { get; set; }
     // public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
 }
 
@@ -36,8 +38,8 @@ public class EventNewConversation
     public Message? Message { get; set; }
 }
 
-public class EventNewMember
-{
-    public string ConversationId { get; set; } = null!;
-    public MemberWithContactInfo[] Members { get; set; } = null!;
-}
+// public class EventNewMember
+// {
+//     public string ConversationId { get; set; } = null!;
+//     public MemberWithContactInfo[] Members { get; set; } = null!;
+// }

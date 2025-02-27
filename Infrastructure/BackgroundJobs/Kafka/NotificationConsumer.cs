@@ -40,7 +40,7 @@ public class NotificationConsumer : IGenericConsumer
                     await HandleNewDirectConversation(newStoredDirectConversationModel);
                     break;
                 case Topic.NewStoredMember:
-                    var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredMemberModel>(param.cr.Message.Value);
+                    var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewStoredMember(newStoredMemberModel);
                     break;
                 default:
@@ -133,20 +133,22 @@ public class NotificationConsumer : IGenericConsumer
         }
     }
 
-    async Task HandleNewStoredMember(NewStoredMemberModel param)
+    async Task HandleNewStoredMember(NewStoredGroupConversationModel param)
     {
         // Add to hub
         var members = param.Members.Select(q => q.ContactId).ToList();
         // members.Add(param.UserId);
         var connections = await _userCache.GetUserConnection(members.ToArray());
         foreach (var connection in connections)
-            await _hubContext.Groups.AddToGroupAsync(connection, param.ConversationId);
+            await _hubContext.Groups.AddToGroupAsync(connection, param.Conversation.Id);
 
         // Push conversation
         var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
 
-        var notify = _mapper.Map<EventNewMember>(param);
+        var notify = _mapper.Map<EventNewConversation>(param);
+        notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
+        notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
         foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
@@ -159,7 +161,7 @@ public class NotificationConsumer : IGenericConsumer
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         _ = _notificationProcessor.Notify(
             "NewMember",
-            param.ConversationId,
+            param.Conversation.Id,
             user.Id,
             notify
         );

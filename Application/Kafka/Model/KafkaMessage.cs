@@ -73,11 +73,9 @@ public class NewDirectConversationModel : KafkaBaseModel
     public string? Message { get; set; }
 }
 
-public class NewStoredDirectConversationModel : KafkaBaseModel
+public class NewStoredDirectConversationModel : NewStoredGroupConversationModel
 {
     public string ContactId { get; set; } = null!;
-    public NewStoredGroupConversationModel_Conversation Conversation { get; set; } = null!;
-    public Member[] Members { get; set; } = null!;
     public Message? Message { get; set; }
     public bool IsNewConversation { get; set; }
 }
@@ -88,8 +86,8 @@ public class NewMemberModel : KafkaBaseModel
     public string[] Members { get; set; } = null!;
 }
 
-public class NewStoredMemberModel : KafkaBaseModel
-{
-    public string ConversationId { get; set; } = null!;
-    public Member[] Members { get; set; } = null!;
-}
+// public class NewStoredMemberModel : KafkaBaseModel
+// {
+//     public string ConversationId { get; set; } = null!;
+//     public Member[] Members { get; set; } = null!;
+// }

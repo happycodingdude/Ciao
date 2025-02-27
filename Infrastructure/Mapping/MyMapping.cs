@@ -42,7 +42,7 @@ public class MyMapping : Profile
         CreateMap<MemberWithContactInfo, Member>().ReverseMap();
         CreateMap<MemberWithContactInfo, MemberWithContactInfoAndFriendRequest>().ReverseMap();
         CreateMap<Member, NewGroupConversationModel_Member>().ReverseMap();
-        CreateMap<EventNewMember, NewStoredMemberModel>().ReverseMap();
+        // CreateMap<EventNewMember, NewStoredMemberModel>().ReverseMap();
         // CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         // CreateMap<ConversationCacheModel, ConversationWithTotalUnseen>().ReverseMap();
         CreateMap<FriendWithStatus, Friend>().ReverseMap();

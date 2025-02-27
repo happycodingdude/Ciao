@@ -47,8 +47,8 @@ const ListFriend = (props: OnCloseType) => {
         {contacts.map((item, i) => (
           <FriendItem
             friend={item}
-            setContacts={setContacts}
-            onClose={onClose}
+            // setContacts={setContacts}
+            // onClose={onClose}
           />
         ))}
       </div>

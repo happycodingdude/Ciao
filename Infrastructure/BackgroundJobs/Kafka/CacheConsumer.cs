@@ -42,7 +42,7 @@ public class CacheConsumer : IGenericConsumer
                     await HandleNewDirectConversation(newStoredDirectConversationModel);
                     break;
                 case Topic.NewStoredMember:
-                    var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredMemberModel>(param.cr.Message.Value);
+                    var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewStoredMember(newStoredMemberModel);
                     break;
                 default:
@@ -149,7 +149,7 @@ public class CacheConsumer : IGenericConsumer
         }
     }
 
-    async Task HandleNewStoredMember(NewStoredMemberModel param)
+    async Task HandleNewStoredMember(NewStoredGroupConversationModel param)
     {
         var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(q => q.ContactId).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
@@ -162,17 +162,13 @@ public class CacheConsumer : IGenericConsumer
             member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Bio;
             member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).IsOnline;
         }
-        // var friendItems = await _friendRepository.GetFriendItems(MembersToAdd.Select(q => q.ContactId).ToList());
-        // for (var i = 0; i < MemberToCache.Count; i++)
-        // {
-        //     MemberToCache[i].Contact.Name = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Name;
-        //     MemberToCache[i].Contact.Avatar = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Avatar;
-        //     MemberToCache[i].Contact.Bio = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).Bio;
-        //     MemberToCache[i].Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == MemberToCache[i].Contact.Id).IsOnline;
-        //     MemberToCache[i].FriendId = friendItems[i].Item1;
-        //     MemberToCache[i].FriendStatus = "friend";
-        // }
 
-        await _memberCache.AddMembers(param.ConversationId, memberToCache);
+        await _memberCache.AddMembers(param.Conversation.Id, memberToCache);
+
+        // Check if any receiver is online then update receiver cache
+        var membersToNotify = param.Members.Select(q => q.ContactId).ToArray();
+        var receivers = await _userCache.GetInfo(membersToNotify);
+        if (receivers.Any())
+            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
     }
 }

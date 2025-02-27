@@ -100,6 +100,12 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           } as ConversationCache;
         },
       );
+      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          conversationId: res.data,
+        } as MessageCache;
+      });
       queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
         return {
           ...oldData,
@@ -115,6 +121,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         avatar: avatar,
         isGroup: true,
         isNotifying: true,
+        lastMessageTime: null,
         members: [
           {
             isModerator: true,
@@ -161,6 +168,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     queryClient.setQueryData(["message"], (oldData: MessageCache) => {
       return {
         ...oldData,
+        conversationId: randomId,
         messages: [],
         hasMore: false,
       } as MessageCache;

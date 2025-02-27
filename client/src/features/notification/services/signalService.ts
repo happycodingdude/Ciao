@@ -5,8 +5,10 @@ import { UserProfile } from "../../../types";
 import {
   AttachmentCache,
   ConversationCache,
+  ConversationModel,
   MessageCache,
 } from "../../listchat/types";
+import { NewConversation, NewMessage } from "../types";
 
 let hubConnection: signalR.HubConnection | null = null;
 let queryClient: QueryClient | null = null;
@@ -23,7 +25,7 @@ export const startConnection = async (
   }
 
   hubConnection = new signalR.HubConnectionBuilder()
-    .withUrl(`http://localhost:4000/ciaohub?userId=${id}`)
+    .withUrl(`${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${id}`)
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
@@ -54,27 +56,28 @@ export const startConnection = async (
       console.log(user);
       console.log(data);
       if (user == info.id) return;
-      onMessageReceived(JSON.parse(data));
+      onNewMessage(JSON.parse(data));
     });
 
     hubConnection.on("NewConversation", (user: string, data: string) => {
       console.log(user);
       console.log(data);
       if (user == info.id) return;
-      onConversationReceived(JSON.parse(data));
+      onNewConversation(JSON.parse(data));
     });
 
     hubConnection.on("NewMember", (user: string, data: string) => {
       console.log(user);
       console.log(data);
       if (user == info.id) return;
+      onNewMembers(JSON.parse(data));
     });
   } catch (error) {
     console.error("SignalR Connection Error: ", error);
   }
 };
 
-const onMessageReceived = (message: NewMessage_Message) => {
+const onNewMessage = (message: NewMessage) => {
   // const message: NewMessage_Message = JSON.parse(data);
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
     // If exists conversation -> update state and return
@@ -89,6 +92,7 @@ const onMessageReceived = (message: NewMessage_Message) => {
           ...conversation,
           lastMessage: message.content,
           lastMessageContact: message.contact.id,
+          lastMessageTime: message.createdTime,
           members: conversation.members.map((mem) => {
             if (mem.contact.id !== info.id) return mem;
             return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
@@ -103,16 +107,17 @@ const onMessageReceived = (message: NewMessage_Message) => {
     }
 
     // Else generate new conversation and update state
-    const newConversation = [
+    const newConversation: ConversationModel[] = [
       {
-        isGroup: message.conversation.isGroup,
+        id: message.conversation.id,
         title: message.conversation.title,
         avatar: message.conversation.avatar,
+        isGroup: message.conversation.isGroup,
         isNotifying: true,
-        id: message.conversation.id,
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
-        members: message.conversation.members.map((mem) => {
+        lastMessageTime: message.createdTime,
+        members: message.members.map((mem) => {
           if (mem.contact.id !== info.id) return mem;
           return { ...mem, unSeenMessages: 1 };
         }),
@@ -159,18 +164,19 @@ const onMessageReceived = (message: NewMessage_Message) => {
   }
 };
 
-const onConversationReceived = (conversation: NewConversation) => {
+const onNewConversation = (conversation: NewConversation) => {
   // console.log(conversation);
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    const newConversation = [
+    const newConversation: ConversationModel[] = [
       {
-        isGroup: conversation.conversation.isGroup,
-        isNotifying: true,
         id: conversation.conversation.id,
         title: conversation.conversation.title,
         avatar: conversation.conversation.avatar,
+        isGroup: conversation.conversation.isGroup,
+        isNotifying: true,
         lastMessage: conversation.conversation.lastMessage,
         lastMessageContact: conversation.conversation.lastMessageContact,
+        lastMessageTime: conversation.conversation.lastMessageTime,
         members: conversation.members.map((mem) => {
           if (mem.contact.id !== info.id) return mem;
           return { ...mem, unSeenMessages: 0 };
@@ -183,5 +189,51 @@ const onConversationReceived = (conversation: NewConversation) => {
       conversations: newConversation,
       filterConversations: newConversation,
     } as ConversationCache;
+  });
+};
+
+const onNewMembers = (conversation: NewConversation) => {
+  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    const existedConversation = oldData.conversations.some(
+      (conv) => conv.id === conversation.conversation.id,
+    );
+    if (existedConversation) {
+      const updatedConversation: ConversationModel[] =
+        oldData.conversations.map((conv) => {
+          if (conv.id !== conversation.conversation.id) return conv;
+          return {
+            ...conv,
+            members: [...conv.members, ...conversation.members],
+          };
+        });
+      return {
+        ...oldData,
+        conversations: updatedConversation,
+        filterConversations: updatedConversation,
+      } as ConversationCache;
+    } else {
+      const newConversation: ConversationModel[] = [
+        {
+          id: conversation.conversation.id,
+          title: conversation.conversation.title,
+          avatar: conversation.conversation.avatar,
+          isGroup: conversation.conversation.isGroup,
+          isNotifying: true,
+          lastMessage: conversation.conversation.lastMessage,
+          lastMessageContact: conversation.conversation.lastMessageContact,
+          lastMessageTime: conversation.conversation.lastMessageTime,
+          members: conversation.members.map((mem) => {
+            if (mem.contact.id !== info.id) return mem;
+            return { ...mem, unSeenMessages: 0 };
+          }),
+        },
+        ...oldData.conversations,
+      ];
+      return {
+        ...oldData,
+        conversations: newConversation,
+        filterConversations: newConversation,
+      } as ConversationCache;
+    }
   });
 };
