@@ -288,41 +288,41 @@ const QuickChat = (props: QuickChatProps) => {
         friendStatus: status === "friend" ? null : status,
       };
     });
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        let member = conversation.members.some(
-          (mem) => mem.contact.id === innerFriend.id,
-        );
-        if (!member) return conversation;
-        return {
-          ...conversation,
-          members: conversation.members.map((mem) => {
-            if (mem.contact.id !== innerFriend.id) return mem;
-            return {
-              ...mem,
-              friendId: id,
-              friendStatus: status,
-            };
-          }),
-        };
-      });
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
-        selected: {
-          ...oldData.selected,
-          members: oldData.selected?.members.map((mem) => {
-            if (mem.contact.id !== innerFriend.id) return mem;
-            return {
-              ...mem,
-              friendId: id,
-              friendStatus: status,
-            };
-          }),
-        },
-      } as ConversationCache;
-    });
+    // queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    //   const updatedConversations = oldData.conversations.map((conversation) => {
+    //     let member = conversation.members.some(
+    //       (mem) => mem.contact.id === innerFriend.id,
+    //     );
+    //     if (!member) return conversation;
+    //     return {
+    //       ...conversation,
+    //       members: conversation.members.map((mem) => {
+    //         if (mem.contact.id !== innerFriend.id) return mem;
+    //         return {
+    //           ...mem,
+    //           friendId: id,
+    //           friendStatus: status,
+    //         };
+    //       }),
+    //     };
+    //   });
+    //   return {
+    //     ...oldData,
+    //     conversations: updatedConversations,
+    //     filterConversations: updatedConversations,
+    //     selected: {
+    //       ...oldData.selected,
+    //       members: oldData.selected?.members.map((mem) => {
+    //         if (mem.contact.id !== innerFriend.id) return mem;
+    //         return {
+    //           ...mem,
+    //           friendId: id,
+    //           friendStatus: status,
+    //         };
+    //       }),
+    //     },
+    //   } as ConversationCache;
+    // });
   };
 
   return (

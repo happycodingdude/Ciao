@@ -30,7 +30,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
   const { data: conversations } = useConversation();
 
   const chat = async (contact) => {
-    // onClose();
+    friendAction();
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
       (conv) =>
@@ -185,23 +185,74 @@ const FriendCtaButton = (props: FriendItemProps) => {
     }
   };
 
+  const handleFriendAction = (
+    id?: string | null,
+    status?: "friend" | "request_sent" | "request_received" | "new" | null,
+  ): void => {
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      const updatedConversations = oldData.conversations.map((conversation) => {
+        let member = conversation.members.some(
+          (mem) => mem.contact.id === friend.id,
+        );
+        if (!member) return conversation;
+        return {
+          ...conversation,
+          members: conversation.members.map((mem) => {
+            if (mem.contact.id !== friend.id) return mem;
+            return {
+              ...mem,
+              friendId: id,
+              friendStatus: status,
+            };
+          }),
+        };
+      });
+      if (!oldData.selected)
+        return {
+          ...oldData,
+          conversations: updatedConversations,
+          filterConversations: updatedConversations,
+        };
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        filterConversations: updatedConversations,
+        selected: {
+          ...oldData.selected,
+          members: oldData.selected?.members.map((mem) => {
+            if (mem.contact.id !== friend.id) return mem;
+            return {
+              ...mem,
+              friendId: id,
+              friendStatus: status,
+            };
+          }),
+        },
+      } as ConversationCache;
+    });
+    friendAction(id, status, friend.id);
+  };
+
   return {
     new: (
       <AddButton
         id={friend.id}
-        onClose={(id: string) => friendAction(id, "request_sent")}
+        // onClose={(id: string) => friendAction(id, "request_sent")}
+        onClose={(id: string) => handleFriendAction(id, "request_sent")}
       />
     ),
     request_received: (
       <AcceptButton
         id={friend.friendId}
-        onClose={() => friendAction(friend.friendId, "friend")}
+        // onClose={() => friendAction(friend.friendId, "friend")}
+        onClose={() => handleFriendAction(friend.friendId, "friend")}
       />
     ),
     request_sent: (
       <CancelButton
         id={friend.friendId}
-        onClose={() => friendAction(null, "new")}
+        // onClose={() => friendAction(null, "new")}
+        onClose={() => handleFriendAction(null, "new")}
       />
     ),
     friend: (

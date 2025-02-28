@@ -57,9 +57,11 @@ public class MyMapping : Profile
             .ReverseMap();
         CreateMap<Message, EventNewMessage>().ReverseMap();
         CreateMap<Message, MessageWithReactions>().ReverseMap();
+        CreateMap<Message, NewDirectConversationModel_Message>().ReverseMap();
         CreateMap<NewMessageModel_Message, Message>().ReverseMap();
         CreateMap<NewMessageModel_Message, SendMessageReq>().ReverseMap();
         CreateMap<NewMessageModel_Message_Attachment, SendMessageReq_Attachment>().ReverseMap();
+        CreateMap<NewMessageModel_Message_Attachment, Attachment>().ReverseMap();
         CreateMap<NotificationDto, Notification>().ReverseMap();
         CreateMap<MemberDto, Member>().ReverseMap();
         CreateMap<MemberWithFriendRequest, Member>().ReverseMap();

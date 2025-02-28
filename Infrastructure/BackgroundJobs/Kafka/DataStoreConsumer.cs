@@ -139,70 +139,74 @@ public class DataStoreConsumer : IGenericConsumer
     {
         var user = await _contactRepository.GetInfoAsync(param.UserId);
 
-        var message = string.IsNullOrEmpty(param.Message)
-                ? null
-                : new Message
-                {
-                    ContactId = user.Id,
-                    Type = "text",
-                    Content = param.Message
-                };
+        // var message = string.IsNullOrEmpty(param.Message)
+        //         ? null
+        //         : new Message
+        //         {
+        //             Id = param.MessageId,
+        //             ContactId = user.Id,
+        //             Type = "text",
+        //             Content = param.Message
+        //         };
 
-        var filter = Builders<Conversation>.Filter.And(
-            Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == user.Id),
-            Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == param.ContactId),
-            Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
-        );
-        var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
+        // var filter = Builders<Conversation>.Filter.And(
+        //     Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == user.Id),
+        //     Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == param.ContactId),
+        //     Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
+        // );
+        // var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
 
-        var isNewConversation = conversation is null;
-        if (isNewConversation)
-            conversation = HandleNewConversation(param.ContactId, param.UserId, message);
+        // var isNewConversation = conversation is null;
+        var conversation = _mapper.Map<Conversation>(param.Conversation);
+        var message = _mapper.Map<Message>(param.Message);
+        if (param.IsNewConversation)
+            HandleNewConversation(conversation, param.ContactId, param.UserId, message);
         else
             HandleOldConversation(conversation, param.UserId, message);
 
         // Save changes
         await _uow.SaveAsync();
 
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredDirectConversation, new NewStoredDirectConversationModel
+        if (param.Message is not null)
         {
-            UserId = param.UserId,
-            ContactId = param.ContactId,
-            Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
-            Members = conversation.Members.ToArray(),
-            Message = message,
-            IsNewConversation = isNewConversation
-        });
+            await _kafkaProducer.ProduceAsync(Topic.NewStoredDirectConversation, new NewStoredDirectConversationModel
+            {
+                UserId = param.UserId,
+                ContactId = param.ContactId,
+                Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
+                Members = conversation.Members.ToArray(),
+                Message = message,
+                IsNewConversation = param.IsNewConversation
+            });
+        }
 
 
-        Conversation HandleNewConversation(string contactId, string userId, Message message)
+        void HandleNewConversation(Conversation conversation, string contactId, string userId, Message message)
         {
             // var userId = _contactRepository.GetUserId();
 
-            var newConversation = new Conversation();
+            // var newConversation = new Conversation();
             // Add target contact
-            newConversation.Members.Add(new Member
+            conversation.Members.Add(new Member
             {
-                IsModerator = false,
-                IsDeleted = false,
+                // IsModerator = false,
+                // IsDeleted = false,
                 IsNotifying = true,
                 ContactId = contactId
             });
             // Add this user
-            newConversation.Members.Add(new Member
+            conversation.Members.Add(new Member
             {
                 IsModerator = true,
-                IsDeleted = false,
+                // IsDeleted = false,
                 IsNotifying = true,
                 ContactId = userId
             });
             // If send with message -> add new message
             if (message is not null)
-                newConversation.Messages.Add(message);
+                conversation.Messages.Add(message);
 
-            _conversationRepository.Add(newConversation);
-
-            return newConversation;
+            _conversationRepository.Add(conversation);
         }
 
         void HandleOldConversation(Conversation conversation, string userId, Message message)

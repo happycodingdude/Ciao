@@ -70,7 +70,15 @@ public class NewStoredGroupConversationModel_Conversation : MongoBaseModel
 public class NewDirectConversationModel : KafkaBaseModel
 {
     public string ContactId { get; set; } = null!;
-    public string? Message { get; set; }
+    public bool IsNewConversation { get; set; }
+    public NewGroupConversationModel_Conversation Conversation { get; set; } = null!;
+    public NewDirectConversationModel_Message? Message { get; set; }
+}
+
+public class NewDirectConversationModel_Message : BaseIdModel
+{
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
 }
 
 public class NewStoredDirectConversationModel : NewStoredGroupConversationModel

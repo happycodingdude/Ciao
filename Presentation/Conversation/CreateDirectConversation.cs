@@ -7,8 +7,8 @@ public static class CreateDirectConversation
     internal sealed class Handler : IRequestHandler<Request, CreateDirectConversationRes>
     {
         // readonly IFirebaseFunction _firebase;
-        // readonly IMapper _mapper;
-        // readonly IConversationRepository _conversationRepository;
+        readonly IMapper _mapper;
+        readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
         // readonly ConversationCache _conversationCache;
         // readonly MessageCache _messageCache;
@@ -27,8 +27,8 @@ public static class CreateDirectConversation
             IKafkaProducer kafkaProducer)
         {
             // _firebase = firebase;
-            // _mapper = mapper;
-            // _conversationRepository = conversationRepository;
+            _mapper = mapper;
+            _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
             // _conversationCache = conversationCache;
             // _messageCache = messageCache;
@@ -39,11 +39,50 @@ public static class CreateDirectConversation
 
         public async Task<CreateDirectConversationRes> Handle(Request request, CancellationToken cancellationToken)
         {
+            var userId = _contactRepository.GetUserId();
+            var filter = Builders<Conversation>.Filter.And(
+                Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == userId),
+                Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == request.contactId),
+                Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
+            );
+            var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
+            var isNewConversation = conversation is null;
+            conversation ??= new Conversation
+            {
+                Id = ObjectId.GenerateNewId().ToString(),
+                IsGroup = false,
+                // Members = new List<Member>
+                // {
+                //     new Member
+                //     {
+                //         ContactId = request.contactId,
+                //         IsNotifying = true,
+                //     },
+                //     new Member
+                //     {
+                //         ContactId = userId,
+                //         IsModerator = true,
+                //         IsNotifying = true
+                //     }
+                // }
+            };
+            var message = string.IsNullOrEmpty(request.message)
+                ? null
+                : new NewDirectConversationModel_Message
+                {
+                    Id = ObjectId.GenerateNewId().ToString(),
+                    Type = "text",
+                    Content = request.message
+                };
+
             await _kafkaProducer.ProduceAsync(Topic.NewDirectConversation, new NewDirectConversationModel
             {
                 UserId = _contactRepository.GetUserId(),
                 ContactId = request.contactId,
-                Message = request.message
+                // ConversationId = ObjectId.GenerateNewId().ToString(),
+                IsNewConversation = isNewConversation,
+                Conversation = _mapper.Map<NewGroupConversationModel_Conversation>(conversation),
+                Message = message
             });
 
             // var user = await _contactRepository.GetInfoAsync();
@@ -127,8 +166,8 @@ public static class CreateDirectConversation
 
             return new CreateDirectConversationRes
             {
-                // ConversationId = conversation.Id,
-                // MessageId = message?.Id
+                ConversationId = conversation.Id,
+                MessageId = message?.Id
             };
         }
 

@@ -62,6 +62,9 @@ public class NotificationConsumer : IGenericConsumer
     {
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         var notify = _mapper.Map<EventNewMessage>(param.Message);
+        notify.Content = notify.Type == "text"
+            ? notify.Content
+            : string.Join(",", notify.Attachments.Select(q => q.MediaName));
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
@@ -78,18 +81,18 @@ public class NotificationConsumer : IGenericConsumer
 
         // Add to hub
         var members = param.Members.Select(q => q.ContactId).ToList();
-        // members.Add(param.UserId);
         var connections = await _userCache.GetUserConnection(members.ToArray());
         foreach (var connection in connections)
             await _hubContext.Groups.AddToGroupAsync(connection, param.Conversation.Id);
 
         // Push conversation
-        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
-        var contacts = await _contactRepository.GetAllAsync(contactFilter);
-
         var notify = _mapper.Map<EventNewConversation>(param);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+
+        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
+        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+
         foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
@@ -118,37 +121,57 @@ public class NotificationConsumer : IGenericConsumer
 
     async Task HandleNewDirectConversation(NewStoredDirectConversationModel param)
     {
-        if (param.Message is not null)
+        if (param.IsNewConversation)
         {
-            var user = await _contactRepository.GetInfoAsync(param.UserId);
-            var notify = _mapper.Map<EventNewMessage>(param.Message);
-            notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
-            notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
-            _ = _notificationProcessor.Notify(
-                "NewMessage",
-                param.Conversation.Id,
-                user.Id,
-                notify
-            );
+            // Add to hub
+            var members = param.Members.Select(q => q.ContactId).ToList();
+            var connections = await _userCache.GetUserConnection(members.ToArray());
+            foreach (var connection in connections)
+                await _hubContext.Groups.AddToGroupAsync(connection, param.Conversation.Id);
         }
+
+        var user = await _contactRepository.GetInfoAsync(param.UserId);
+        var notify = _mapper.Map<EventNewMessage>(param.Message);
+        notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
+        notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+        notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
+
+        var member = notify.Members.SingleOrDefault(q => q.Contact.Id != param.UserId);
+        member.Contact.Name = user.Name;
+        member.Contact.Avatar = user.Avatar;
+        member.Contact.Bio = user.Bio;
+        member.Contact.IsOnline = user.IsOnline;
+
+        var thisUser = notify.Members.SingleOrDefault(q => q.Contact.Id == param.UserId);
+        thisUser.Contact.Name = user.Name;
+        thisUser.Contact.Avatar = user.Avatar;
+        thisUser.Contact.Bio = user.Bio;
+        thisUser.Contact.IsOnline = true;
+
+        _ = _notificationProcessor.Notify(
+            "NewMessage",
+            param.Conversation.Id,
+            user.Id,
+            notify
+        );
     }
 
     async Task HandleNewStoredMember(NewStoredGroupConversationModel param)
     {
         // Add to hub
         var members = param.Members.Select(q => q.ContactId).ToList();
-        // members.Add(param.UserId);
         var connections = await _userCache.GetUserConnection(members.ToArray());
         foreach (var connection in connections)
             await _hubContext.Groups.AddToGroupAsync(connection, param.Conversation.Id);
 
         // Push conversation
-        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
-        var contacts = await _contactRepository.GetAllAsync(contactFilter);
-
         var notify = _mapper.Map<EventNewConversation>(param);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+
+        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
+        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+
         foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;

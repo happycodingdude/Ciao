@@ -92,6 +92,7 @@ export type FriendItemProps = {
   friendAction?: (
     id?: string | null,
     status?: "friend" | "request_sent" | "request_received" | "new" | null,
+    userId?: string | null,
   ) => void;
 };
 

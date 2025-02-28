@@ -145,8 +145,8 @@ const onNewMessage = (message: NewMessage) => {
       ],
     } as MessageCache;
   });
-  const today: string = moment().format("MM/DD/YYYY");
   if (message.attachments.length !== 0) {
+    const today: string = moment().format("MM/DD/YYYY");
     queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
       if (!oldData) return; // Case haven't click any conversation
       return {

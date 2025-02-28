@@ -33,6 +33,23 @@ const ListFriend = (props: OnCloseType) => {
     debounceDropDown(name);
   };
 
+  const handleFriendAction = (
+    id?: string | null,
+    status?: "friend" | "request_sent" | "request_received" | "new" | null,
+    userId?: string | null,
+  ): void => {
+    setContacts((current) => {
+      return current.map((contact) => {
+        if (contact.id !== userId) return contact;
+        return {
+          ...contact,
+          friendId: id,
+          friendStatus: status,
+        } as ContactModel;
+      });
+    });
+  };
+
   return (
     <>
       <CustomInput
@@ -47,6 +64,7 @@ const ListFriend = (props: OnCloseType) => {
         {contacts.map((item, i) => (
           <FriendItem
             friend={item}
+            friendAction={handleFriendAction}
             // setContacts={setContacts}
             // onClose={onClose}
           />
