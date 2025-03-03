@@ -52,12 +52,14 @@ public class NewGroupConversationModel_Member
 {
     public string Id { get; set; } = null!;
     public string ContactId { get; set; } = null!;
+    public bool IsNew { get; set; }
 }
 
 public class NewStoredGroupConversationModel : KafkaBaseModel
 {
     public NewStoredGroupConversationModel_Conversation Conversation { get; set; } = null!;
-    public Member[] Members { get; set; } = null!;
+    public NewGroupConversationModel_Member[] Members { get; set; } = null!;
+    // public Member[] Members { get; set; } = null!;
 }
 
 public class NewStoredGroupConversationModel_Conversation : MongoBaseModel
@@ -66,6 +68,17 @@ public class NewStoredGroupConversationModel_Conversation : MongoBaseModel
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
 }
+
+// public class NewStoredGroupConversationModel_Member
+// {
+//     public string Id { get; set; } = null!;
+//     public bool IsDeleted { get; set; }
+//     public bool IsModerator { get; set; }
+//     public bool IsNotifying { get; set; }
+//     public string ContactId { get; set; } = null!;
+//     public DateTime? LastSeenTime { get; set; }
+//     public bool IsAdded { get; set; }
+// }
 
 public class NewDirectConversationModel : KafkaBaseModel
 {

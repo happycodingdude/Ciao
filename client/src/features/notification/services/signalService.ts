@@ -4,236 +4,266 @@ import moment from "moment";
 import { UserProfile } from "../../../types";
 import {
   AttachmentCache,
+  AttachmentModel,
   ConversationCache,
   ConversationModel,
+  ConversationModel_Member,
   MessageCache,
 } from "../../listchat/types";
 import { NewConversation, NewMessage } from "../types";
 
 let hubConnection: signalR.HubConnection | null = null;
-let queryClient: QueryClient | null = null;
-let info: UserProfile | null = null;
 
 export const startConnection = async (
-  id: string,
-  outerQueryClient: QueryClient,
-  outerInfo: UserProfile,
+  userId: string,
+  queryClient: QueryClient,
+  userInfo: UserProfile,
 ) => {
-  if (!id) {
+  if (!userId) {
     console.error("User ID is required to establish a connection.");
     return;
   }
 
   hubConnection = new signalR.HubConnectionBuilder()
-    .withUrl(`${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${id}`)
+    .withUrl(
+      `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${userId}`,
+    )
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
+  // hubConnection.onclose(async () => {
+  //   console.warn("SignalR connection lost. Reconnecting...");
+  //   await startConnection(userId,queryClient, userInfo );
+  // });
+
   try {
     await hubConnection.start();
-    console.log(`SignalR Connected for user: ${id}`);
-
-    const connectionId = await hubConnection.invoke<string>("GetConnectionId");
-    console.log(`Connection ID: ${connectionId}`);
-
-    queryClient = outerQueryClient;
-    info = outerInfo;
-
-    hubConnection.onclose(() => {
-      console.warn("🔴 Connection closed. Reconnecting...");
-    });
-
-    hubConnection.onreconnecting(() => {
-      console.warn("🟡 Reconnecting...");
-    });
-
-    hubConnection.onreconnected((connectionId) => {
-      console.log("🟢 Reconnected! New Connection ID:", connectionId);
-    });
-
-    hubConnection.on("NewMessage", (user: string, data: string) => {
-      console.log(user);
-      console.log(data);
-      if (user == info.id) return;
-      onNewMessage(JSON.parse(data));
-    });
-
-    hubConnection.on("NewConversation", (user: string, data: string) => {
-      console.log(user);
-      console.log(data);
-      if (user == info.id) return;
-      onNewConversation(JSON.parse(data));
-    });
-
-    hubConnection.on("NewMember", (user: string, data: string) => {
-      console.log(user);
-      console.log(data);
-      if (user == info.id) return;
-      onNewMembers(JSON.parse(data));
-    });
+    console.log(`Connected to SignalR as ${userId}`);
+    setupListeners(queryClient, userInfo);
   } catch (error) {
-    console.error("SignalR Connection Error: ", error);
+    console.error("Error establishing SignalR connection:", error);
   }
 };
 
-const onNewMessage = (message: NewMessage) => {
-  // const message: NewMessage_Message = JSON.parse(data);
-  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    // If exists conversation -> update state and return
-    if (
-      oldData.conversations.some(
-        (conversation) => conversation.id === message.conversation.id,
-      )
-    ) {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== message.conversation.id) return conversation;
-        return {
-          ...conversation,
-          lastMessage: message.content,
-          lastMessageContact: message.contact.id,
-          lastMessageTime: message.createdTime,
-          members: conversation.members.map((mem) => {
-            if (mem.contact.id !== info.id) return mem;
-            return { ...mem, unSeenMessages: mem.unSeenMessages + 1 };
-          }),
-        };
-      });
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
-      };
-    }
+const setupListeners = (queryClient: QueryClient, userInfo: UserProfile) => {
+  if (!hubConnection) return;
 
-    // Else generate new conversation and update state
-    const newConversation: ConversationModel[] = [
-      {
-        id: message.conversation.id,
-        title: message.conversation.title,
-        avatar: message.conversation.avatar,
-        isGroup: message.conversation.isGroup,
-        isNotifying: true,
-        lastMessage: message.content,
-        lastMessageContact: message.contact.id,
-        lastMessageTime: message.createdTime,
-        members: message.members.map((mem) => {
-          if (mem.contact.id !== info.id) return mem;
-          return { ...mem, unSeenMessages: 1 };
-        }),
-      },
-      ...oldData.conversations,
-    ];
-    return {
-      ...oldData,
-      conversations: newConversation,
-      filterConversations: newConversation,
-    } as ConversationCache;
+  hubConnection.on("NewMessage", (user: string, data: string) => {
+    console.log(data);
+    if (user == userInfo.id) return;
+    onNewMessage(queryClient, userInfo, JSON.parse(data));
   });
-  queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-    if (!oldData) return; // Case haven't click any conversation
-    if (oldData.conversationId !== message.conversation.id) return oldData; // Receive message of another conversation
-    return {
-      ...oldData,
-      messages: [
-        ...oldData.messages,
-        {
-          ...message,
-          contactId: message.contact.id,
-          currentReaction: null,
-        },
-      ],
-    } as MessageCache;
+
+  hubConnection.on("NewMembers", (user: string, data: string) => {
+    console.log(data);
+    if (user == userInfo.id) return;
+    onNewMembers(queryClient, userInfo, JSON.parse(data));
   });
-  if (message.attachments.length !== 0) {
-    const today: string = moment().format("MM/DD/YYYY");
-    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-      if (!oldData) return; // Case haven't click any conversation
-      return {
-        ...oldData,
-        attachments: oldData.attachments.map((item) =>
-          item.date === today
-            ? {
-                ...item,
-                attachments: [...message.attachments, ...item.attachments],
-              }
-            : item,
+
+  hubConnection.on("NewConversation", (user: string, data: string) => {
+    console.log(data);
+    if (user == userInfo.id) return;
+    onNewConversation(queryClient, userInfo, JSON.parse(data));
+  });
+};
+
+/* MARK: ON NEW MESSAGE */
+const onNewMessage = (
+  queryClient: QueryClient,
+  userInfo: UserProfile,
+  message: NewMessage,
+) => {
+  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
+    updateConversationCache(oldData, message.conversation, {
+      lastMessage: message.content,
+      lastMessageContact: message.contact.id,
+      lastMessageTime: message.createdTime,
+      membersUpdater: (members) =>
+        members.map((mem) =>
+          mem.contact.id !== userInfo.id
+            ? mem
+            : { ...mem, unSeenMessages: mem.unSeenMessages + 1 },
         ),
-      } as AttachmentCache;
-    });
+    }),
+  );
+
+  queryClient.setQueryData(["message"], (oldData: MessageCache) =>
+    oldData?.conversationId === message.conversation.id
+      ? updateMessagesCache(oldData, message)
+      : oldData,
+  );
+
+  if (message.attachments.length > 0) {
+    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) =>
+      oldData ? updateAttachmentsCache(oldData, message.attachments) : oldData,
+    );
   }
 };
 
-const onNewConversation = (conversation: NewConversation) => {
-  // console.log(conversation);
+/* MARK: ON NEW MEMBERS */
+const onNewMembers = (
+  queryClient: QueryClient,
+  userInfo: UserProfile,
+  conversation: NewConversation,
+) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    const newConversation: ConversationModel[] = [
-      {
-        id: conversation.conversation.id,
-        title: conversation.conversation.title,
-        avatar: conversation.conversation.avatar,
-        isGroup: conversation.conversation.isGroup,
-        isNotifying: true,
-        lastMessage: conversation.conversation.lastMessage,
-        lastMessageContact: conversation.conversation.lastMessageContact,
-        lastMessageTime: conversation.conversation.lastMessageTime,
-        members: conversation.members.map((mem) => {
-          if (mem.contact.id !== info.id) return mem;
-          return { ...mem, unSeenMessages: 0 };
-        }),
-      },
-      ...oldData.conversations,
-    ];
-    return {
-      ...oldData,
-      conversations: newConversation,
-      filterConversations: newConversation,
-    } as ConversationCache;
-  });
-};
+    if (!oldData) return oldData;
 
-const onNewMembers = (conversation: NewConversation) => {
-  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    const existedConversation = oldData.conversations.some(
+    const existingConversation = oldData.conversations.find(
       (conv) => conv.id === conversation.conversation.id,
     );
-    if (existedConversation) {
-      const updatedConversation: ConversationModel[] =
-        oldData.conversations.map((conv) => {
-          if (conv.id !== conversation.conversation.id) return conv;
-          return {
-            ...conv,
-            members: [...conv.members, ...conversation.members],
-          };
-        });
-      return {
-        ...oldData,
-        conversations: updatedConversation,
-        filterConversations: updatedConversation,
-      } as ConversationCache;
-    } else {
-      const newConversation: ConversationModel[] = [
-        {
-          id: conversation.conversation.id,
-          title: conversation.conversation.title,
-          avatar: conversation.conversation.avatar,
-          isGroup: conversation.conversation.isGroup,
-          isNotifying: true,
-          lastMessage: conversation.conversation.lastMessage,
-          lastMessageContact: conversation.conversation.lastMessageContact,
-          lastMessageTime: conversation.conversation.lastMessageTime,
-          members: conversation.members.map((mem) => {
-            if (mem.contact.id !== info.id) return mem;
-            return { ...mem, unSeenMessages: 0 };
-          }),
-        },
-        ...oldData.conversations,
-      ];
-      return {
-        ...oldData,
-        conversations: newConversation,
-        filterConversations: newConversation,
-      } as ConversationCache;
+
+    if (existingConversation) {
+      return updateConversationCache(oldData, conversation.conversation, {
+        membersUpdater: (members) => [
+          ...members,
+          ...conversation.members.filter((mem) => mem.isNew),
+        ],
+      });
     }
+
+    return createNewConversation(
+      oldData,
+      conversation.conversation,
+      userInfo,
+      conversation.members,
+    );
   });
+};
+
+/* MARK: ON NEW CONVERSATION */
+const onNewConversation = (
+  queryClient: QueryClient,
+  userInfo: UserProfile,
+  conversation: NewConversation,
+) => {
+  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    if (!oldData) return oldData;
+
+    const newConversation = {
+      id: conversation.conversation.id,
+      title: conversation.conversation.title,
+      avatar: conversation.conversation.avatar,
+      isGroup: conversation.conversation.isGroup,
+      isNotifying: true,
+      lastMessage: conversation.conversation.lastMessage,
+      lastMessageContact: conversation.conversation.lastMessageContact,
+      lastMessageTime: conversation.conversation.lastMessageTime,
+      members: conversation.members.map((mem) =>
+        mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
+      ),
+    };
+
+    return {
+      ...oldData,
+      conversations: [newConversation, ...oldData.conversations],
+      filterConversations: [newConversation, ...oldData.conversations],
+    };
+  });
+};
+
+/* MARK: HELPER FUNCTIONS */
+const createNewConversation = (
+  oldData: ConversationCache,
+  conversation: ConversationModel,
+  userInfo: UserProfile,
+  members: ConversationModel_Member[],
+  lastMessage?: string,
+  lastMessageContact?: string,
+  lastMessageTime?: string,
+) => {
+  if (!oldData) return oldData;
+
+  const newConversation = {
+    id: conversation.id,
+    title: conversation.title,
+    avatar: conversation.avatar,
+    isGroup: conversation.isGroup,
+    isNotifying: true,
+    lastMessage: lastMessage ?? conversation.lastMessage,
+    lastMessageContact: lastMessageContact ?? conversation.lastMessageContact,
+    lastMessageTime: lastMessageTime ?? conversation.lastMessageTime,
+    members: members.map((mem) =>
+      mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
+    ),
+  };
+
+  return {
+    ...oldData,
+    conversations: [newConversation, ...oldData.conversations],
+    filterConversations: [newConversation, ...oldData.conversations],
+  };
+};
+
+const updateConversationCache = (
+  oldData: ConversationCache,
+  conversation: ConversationModel,
+  {
+    lastMessage,
+    lastMessageContact,
+    lastMessageTime,
+    membersUpdater,
+  }: Partial<{
+    lastMessage: string;
+    lastMessageContact: string;
+    lastMessageTime: string;
+    membersUpdater: (
+      members: ConversationModel_Member[],
+    ) => ConversationModel_Member[];
+  }>,
+) => {
+  if (!oldData) return oldData;
+
+  const updatedConversations = oldData.conversations.map((conv) =>
+    conv.id === conversation.id
+      ? {
+          ...conv,
+          ...(lastMessage && { lastMessage }),
+          ...(lastMessageContact && { lastMessageContact }),
+          ...(lastMessageTime && { lastMessageTime }),
+          ...(membersUpdater && { members: membersUpdater(conv.members) }),
+        }
+      : conv,
+  );
+
+  return {
+    ...oldData,
+    conversations: updatedConversations,
+    filterConversations: updatedConversations,
+    selected:
+      oldData.selected?.id === conversation.id
+        ? {
+            ...oldData.selected,
+            members: membersUpdater
+              ? membersUpdater(oldData.selected.members)
+              : oldData.selected.members,
+          }
+        : oldData.selected,
+  };
+};
+
+const updateMessagesCache = (oldData: MessageCache, message: NewMessage) => {
+  return {
+    ...oldData,
+    messages: [
+      ...oldData.messages,
+      { ...message, contactId: message.contact.id, currentReaction: null },
+    ],
+  };
+};
+
+const updateAttachmentsCache = (
+  oldData: AttachmentCache,
+  attachments: AttachmentModel[],
+) => {
+  const today = moment().format("MM/DD/YYYY");
+  return {
+    ...oldData,
+    attachments: oldData.attachments.map((item) =>
+      item.date === today
+        ? { ...item, attachments: [...attachments, ...item.attachments] }
+        : item,
+    ),
+  };
 };

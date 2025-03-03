@@ -151,11 +151,12 @@ public class CacheConsumer : IGenericConsumer
 
     async Task HandleNewStoredMember(NewStoredGroupConversationModel param)
     {
-        var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(q => q.ContactId).Contains(q.Id));
+        var newMembers = _mapper.Map<List<MemberWithContactInfo>>(param.Members.Where(q => q.IsNew));
+
+        var contactFilter = Builders<Contact>.Filter.Where(q => newMembers.Select(q => q.Contact.Id).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
 
-        var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
-        foreach (var member in memberToCache)
+        foreach (var member in newMembers)
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
             member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
@@ -163,10 +164,10 @@ public class CacheConsumer : IGenericConsumer
             member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).IsOnline;
         }
 
-        await _memberCache.AddMembers(param.Conversation.Id, memberToCache);
+        await _memberCache.AddMembers(param.Conversation.Id, newMembers);
 
         // Check if any receiver is online then update receiver cache
-        var membersToNotify = param.Members.Select(q => q.ContactId).ToArray();
+        var membersToNotify = newMembers.Select(q => q.Contact.Id).ToArray();
         var receivers = await _userCache.GetInfo(membersToNotify);
         if (receivers.Any())
             await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);

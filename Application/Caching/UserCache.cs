@@ -75,6 +75,17 @@ public class UserCache
         return result;
     }
 
+    public async Task SyncUserInfo(List<GetListFriendItem> friends)
+    {
+        // Query info cache
+        var tasks = friends.Select(async friend =>
+        {
+            var userInfo = await _distributedCache.GetStringAsync($"user-{friend.Contact.Id}-info");
+            friend.Contact.IsOnline = userInfo is not null;
+        });
+        await Task.WhenAll(tasks);
+    }
+
     public void SetInfo(Contact info) => _ = _distributedCache.SetStringAsync($"user-{info.Id}-info", JsonConvert.SerializeObject(info));
 
     public void RemoveAll()

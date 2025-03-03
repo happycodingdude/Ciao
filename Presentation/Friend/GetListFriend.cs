@@ -6,14 +6,14 @@ public static class GetListFriend
 
     internal sealed class Handler : IRequestHandler<Request, IEnumerable<GetListFriendItem>>
     {
-        readonly IFriendRepository _friendRepository;
         readonly FriendCache _friendCache;
+        readonly UserCache _userCache;
         readonly IMapper _mapper;
 
-        public Handler(IFriendRepository friendRepository, FriendCache friendCache, IMapper mapper)
+        public Handler(FriendCache friendCache, UserCache userCache, IMapper mapper)
         {
-            _friendRepository = friendRepository;
             _friendCache = friendCache;
+            _userCache = userCache;
             _mapper = mapper;
         }
 
@@ -22,8 +22,9 @@ public static class GetListFriend
             // return await _friendRepository.GetListFriend();
             var friends = await _friendCache.GetFriends();
             var onlyGetFriendItem = friends.Where(q => q.FriendStatus == AppConstants.FriendStatus_Friend);
-            return _mapper.Map<List<GetListFriendItem>>(onlyGetFriendItem);
-
+            var result = _mapper.Map<List<GetListFriendItem>>(onlyGetFriendItem);
+            await _userCache.SyncUserInfo(result);
+            return result;
         }
     }
 }

@@ -66,10 +66,10 @@ public class NotificationConsumer : IGenericConsumer
             ? notify.Content
             : string.Join(",", notify.Attachments.Select(q => q.MediaName));
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
-        notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+        notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
         await _notificationProcessor.Notify(
-            "NewMessage",
+            ChatEventNames.NewMessage,
             param.Conversation.Id,
             user.Id,
             notify);
@@ -88,12 +88,13 @@ public class NotificationConsumer : IGenericConsumer
         // Push conversation
         var notify = _mapper.Map<EventNewConversation>(param);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
-        notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+        notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
 
         var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
 
-        foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
+        // foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
+        foreach (var member in notify.Members)
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
             member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
@@ -103,16 +104,16 @@ public class NotificationConsumer : IGenericConsumer
         }
 
         var user = await _contactRepository.GetInfoAsync(param.UserId);
-        var thisUser = notify.Members.SingleOrDefault(q => q.Contact.Id == param.UserId);
-        thisUser.Contact.Name = user.Name;
-        thisUser.Contact.Avatar = user.Avatar;
-        thisUser.Contact.Bio = user.Bio;
-        thisUser.Contact.IsOnline = true;
-        thisUser.IsNotifying = true;
-        thisUser.IsModerator = true;
+        // var thisUser = notify.Members.SingleOrDefault(q => q.Contact.Id == param.UserId);
+        // thisUser.Contact.Name = user.Name;
+        // thisUser.Contact.Avatar = user.Avatar;
+        // thisUser.Contact.Bio = user.Bio;
+        // thisUser.Contact.IsOnline = true;
+        // thisUser.IsNotifying = true;
+        // thisUser.IsModerator = true;
 
         _ = _notificationProcessor.Notify(
-            "NewConversation",
+            ChatEventNames.NewConversation,
             param.Conversation.Id,
             user.Id,
             notify
@@ -133,7 +134,7 @@ public class NotificationConsumer : IGenericConsumer
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         var notify = _mapper.Map<EventNewMessage>(param.Message);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
-        notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+        notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
 
         var member = notify.Members.SingleOrDefault(q => q.Contact.Id != param.UserId);
@@ -149,7 +150,7 @@ public class NotificationConsumer : IGenericConsumer
         thisUser.Contact.IsOnline = true;
 
         _ = _notificationProcessor.Notify(
-            "NewMessage",
+            ChatEventNames.NewMessage,
             param.Conversation.Id,
             user.Id,
             notify
@@ -167,12 +168,13 @@ public class NotificationConsumer : IGenericConsumer
         // Push conversation
         var notify = _mapper.Map<EventNewConversation>(param);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
-        notify.Members = _mapper.Map<MemberWithContactInfo[]>(param.Members);
+        notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
 
         var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
 
-        foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
+        // foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
+        foreach (var member in notify.Members)
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
             member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Avatar;
@@ -183,7 +185,7 @@ public class NotificationConsumer : IGenericConsumer
 
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         _ = _notificationProcessor.Notify(
-            "NewMember",
+            ChatEventNames.NewMembers,
             param.Conversation.Id,
             user.Id,
             notify

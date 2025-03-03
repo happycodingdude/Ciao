@@ -131,7 +131,7 @@ public class DataStoreConsumer : IGenericConsumer
         {
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
-            Members = conversation.Members.ToArray(),
+            Members = _mapper.Map<NewGroupConversationModel_Member[]>(conversation.Members),
         });
     }
 
@@ -174,7 +174,7 @@ public class DataStoreConsumer : IGenericConsumer
                 UserId = param.UserId,
                 ContactId = param.ContactId,
                 Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
-                Members = conversation.Members.ToArray(),
+                Members = _mapper.Map<NewGroupConversationModel_Member[]>(conversation.Members),
                 Message = message,
                 IsNewConversation = param.IsNewConversation
             });
@@ -240,11 +240,11 @@ public class DataStoreConsumer : IGenericConsumer
 
     async Task HandleNewMember(NewMemberModel param)
     {
-        // Get current Members of conversation, then filter new item to add
+        // Get current members of conversation, then filter new item to add
         var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
         var conversation = await _conversationRepository.GetItemAsync(filter);
 
-        // Filter new Members
+        // Filter new members
         var filterNewItemToAdd = param.Members
             .Select(q => q)
             .ToList()
@@ -253,13 +253,15 @@ public class DataStoreConsumer : IGenericConsumer
         // Return if no new partipants
         if (!filterNewItemToAdd.Any()) return;
 
-        // Create list new Members
+        var membersNextExecution = _mapper.Map<List<NewGroupConversationModel_Member>>(conversation.Members);
+
+        // Create list new members
         var membersToAdd = new List<Member>(filterNewItemToAdd.Count);
         filterNewItemToAdd.ForEach(q => membersToAdd.Add(
             new Member
             {
                 IsModerator = false, // Only this user is moderator
-                IsDeleted = false, // Every Members will have this conversation active
+                IsDeleted = false, // Every members will have this conversation active
                 IsNotifying = true,
                 ContactId = q
             }));
@@ -273,11 +275,17 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
+        foreach (var memberToAdd in membersToAdd)
+        {
+            var member = _mapper.Map<NewGroupConversationModel_Member>(memberToAdd);
+            member.IsNew = true;
+            membersNextExecution.Add(member);
+        }
         await _kafkaProducer.ProduceAsync(Topic.NewStoredMember, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
-            Members = membersToAdd.ToArray(),
+            Members = membersNextExecution.ToArray(),
         });
     }
 }

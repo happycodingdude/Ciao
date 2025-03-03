@@ -17,6 +17,7 @@ import {
   AttachmentCache,
   ConversationCache,
   ConversationModel,
+  ConversationModel_Member,
   MessageCache,
 } from "../../listchat/types";
 import createGroupChat, {
@@ -139,8 +140,9 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                 id: mem.id,
                 name: mem.name,
                 avatar: mem.avatar,
+                isOnline: mem.isOnline,
               },
-            };
+            } as ConversationModel_Member;
           }),
         ],
       };

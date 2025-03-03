@@ -36,12 +36,20 @@ public class MyMapping : Profile
         CreateMap<MemberWithContactInfo, Member>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
+        CreateMap<EventNewConversation_Member, NewGroupConversationModel_Member>()
+            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+            .ReverseMap();
         CreateMap<MemberWithContactInfo, NewGroupConversationModel_Member>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
+        // CreateMap<MemberWithContactInfo, NewStoredGroupConversationModel_Member>()
+        //     .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+        //     .ReverseMap();
         CreateMap<MemberWithContactInfo, Member>().ReverseMap();
         CreateMap<MemberWithContactInfo, MemberWithContactInfoAndFriendRequest>().ReverseMap();
+        CreateMap<Member, EventNewConversation_Member>().ReverseMap();
         CreateMap<Member, NewGroupConversationModel_Member>().ReverseMap();
+        // CreateMap<Member, NewStoredGroupConversationModel_Member>().ReverseMap();
         // CreateMap<EventNewMember, NewStoredMemberModel>().ReverseMap();
         // CreateMap<Conversation, ConversationWithTotalUnseen>().ReverseMap();
         // CreateMap<ConversationCacheModel, ConversationWithTotalUnseen>().ReverseMap();

@@ -7,7 +7,7 @@ public class EventNewMessage
     public string Content { get; set; } = null!;
     public DateTime CreatedTime { get; set; }
     public EventNewMessage_Conversation Conversation { get; set; } = null!;
-    public MemberWithContactInfo[] Members { get; set; } = null!;
+    public EventNewConversation_Member[] Members { get; set; } = null!;
     public EventNewMessage_Contact Contact { get; set; } = null!;
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 }
@@ -34,9 +34,22 @@ public class EventNewMessage_Contact
 public class EventNewConversation
 {
     public EventNewMessage_Conversation Conversation { get; set; } = null!;
-    public MemberWithContactInfo[] Members { get; set; } = null!;
+    public EventNewConversation_Member[] Members { get; set; } = null!;
     public Message? Message { get; set; }
 }
+
+public class EventNewConversation_Member
+{
+    public string Id { get; set; } = null!;
+    public bool IsDeleted { get; set; }
+    public bool IsModerator { get; set; }
+    public bool IsNotifying { get; set; }
+    public ContactInfoMoreDetails Contact { get; set; } = null!;
+    public DateTime? LastSeenTime { get; set; }
+    public bool IsSelected { get; set; }
+    public bool IsNew { get; set; }
+}
+
 
 // public class EventNewMember
 // {
