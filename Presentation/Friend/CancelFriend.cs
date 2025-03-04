@@ -40,14 +40,16 @@ public static class CancelFriend
         readonly IFriendRepository _friendRepository;
         readonly FriendCache _friendCache;
         readonly UserCache _userCache;
+        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IFriendRepository friendRepository, FriendCache friendCache, UserCache userCache)
+        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IFriendRepository friendRepository, FriendCache friendCache, UserCache userCache, INotificationProcessor notificationProcessor)
         {
             _validator = validator;
             _firebase = firebase;
             _friendRepository = friendRepository;
             _friendCache = friendCache;
             _userCache = userCache;
+            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -74,16 +76,16 @@ public static class CancelFriend
                 await _friendCache.SetFriends(selected.Contact.Id, receiverFriends);
             }
 
-            // Push cancelled request
-            //     var entity = await _friendRepository.GetItemAsync(filter);
-            //     await _firebase.Notify(
-            //        "CancelFriendRequest",
-            //        new string[1] { entity.ToContact.ContactId.ToString() },
-            //        new FriendToNotify
-            //        {
-            //            RequestId = request.id
-            //        }
-            //    );
+            // Push canceled request
+            var notiFriendRequest = new EventNewFriendRequest
+            {
+                FriendId = request.id
+            };
+            _ = _notificationProcessor.Notify(
+                ChatEventNames.FriendRequestCanceled,
+                selected.Contact.Id,
+                notiFriendRequest
+            );
 
             return Unit.Value;
         }

@@ -28,3 +28,4 @@ global using Application.Kafka.Model;
 global using Application.Kafka.Producer;
 global using AutoMapper;
 global using Microsoft.AspNetCore.SignalR;
+global using Application.WebSocketEvents;

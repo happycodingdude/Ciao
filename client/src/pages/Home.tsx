@@ -4,6 +4,7 @@ import useInfo from "../features/authentication/hooks/useInfo";
 // import ProfileSection from "../features/profile-new/ProfileSection";
 // import ChatSection from "../layouts/ChatSection";
 import { lazy } from "react";
+import useFriend from "../features/friend/hooks/useFriend";
 import registerConnection from "../features/notification/services/registerConnection";
 import { startConnection } from "../features/notification/services/signalService";
 import SideBar from "../layouts/SideBar";
@@ -19,6 +20,7 @@ const Home = () => {
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
+  useFriend();
 
   const isRegistered = useRef<boolean>(false);
 

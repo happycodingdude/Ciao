@@ -21,8 +21,8 @@ public static class GetListFriend
         {
             // return await _friendRepository.GetListFriend();
             var friends = await _friendCache.GetFriends();
-            var onlyGetFriendItem = friends.Where(q => q.FriendStatus == AppConstants.FriendStatus_Friend);
-            var result = _mapper.Map<List<GetListFriendItem>>(onlyGetFriendItem);
+            // var onlyGetFriendItem = friends.Where(q => q.FriendStatus == AppConstants.FriendStatus_Friend);
+            var result = _mapper.Map<List<GetListFriendItem>>(friends);
             await _userCache.SyncUserInfo(result);
             return result;
         }

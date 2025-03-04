@@ -13,6 +13,7 @@ export type ContactModel = BaseModel & {
 };
 
 export type FriendCache = BaseModel & {
+  status?: string | null;
   contact: ContactModel;
 };
 

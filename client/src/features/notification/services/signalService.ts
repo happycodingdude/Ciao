@@ -66,6 +66,21 @@ const setupListeners = (queryClient: QueryClient, userInfo: UserProfile) => {
     if (user == userInfo.id) return;
     onNewConversation(queryClient, userInfo, JSON.parse(data));
   });
+
+  hubConnection.on("NewFriendRequest", (user: string, data: string) => {
+    console.log(user);
+    console.log(data);
+  });
+
+  hubConnection.on("FriendRequestAccepted", (user: string, data: string) => {
+    console.log(user);
+    console.log(data);
+  });
+
+  hubConnection.on("FriendRequestCanceled", (user: string, data: string) => {
+    console.log(user);
+    console.log(data);
+  });
 };
 
 /* MARK: ON NEW MESSAGE */

@@ -51,19 +51,43 @@ public class WebSocketProcessor : INotificationProcessor
     //     }
     // }
 
+    public async Task Notify(string _event, string userId, object data)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var userCache = scope.ServiceProvider.GetRequiredService<UserCache>();
+
+        var connection = userCache.GetUserConnection(userId);
+        if (userId is null)
+        {
+            _logger.Information("No connection");
+            return;
+        }
+
+        try
+        {
+            await _hubContext.Clients.Client(connection).SendAsync(_event, userId, JsonConvert.SerializeObject(data,
+                new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                })
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.Information(JsonConvert.SerializeObject(ex));
+        }
+    }
+
     public async Task Notify(string _event, string group, string userId, object data)
     {
-        // _logger.Information($"group => {group}");
-        // _logger.Information($"_event => {_event}");
-        // _logger.Information($"userId => {userId}");
         try
         {
             await _hubContext.Clients.Group(group).SendAsync(_event, userId, JsonConvert.SerializeObject(data,
-                        new JsonSerializerSettings
-                        {
-                            ContractResolver = new CamelCasePropertyNamesContractResolver()
-                        })
-                    );
+                new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                })
+            );
         }
         catch (Exception ex)
         {

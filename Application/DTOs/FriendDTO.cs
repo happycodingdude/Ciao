@@ -3,6 +3,7 @@ namespace Application.DTOs;
 public class GetListFriendItem
 {
     public string Id { get; set; } = null!;
+    public string Status { get; set; } = null!;
     public GetListFriendItem_Contact Contact { get; set; } = null!;
 }
 

@@ -34,7 +34,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
   const refInputSearch = useRef<HTMLInputElement>();
   const refInputTitle = useRef<HTMLInputElement>();
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
-    data?.map((item) => item.contact),
+    data?.filter((fr) => fr.status === "friend").map((item) => item.contact),
   );
   const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
   const [avatar, setAvatar] = useState<string>();
@@ -42,7 +42,9 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
   useEffect(() => {
     if (!data) return;
-    setMembersToSearch(data.map((item) => item.contact));
+    setMembersToSearch(
+      data.filter((fr) => fr.status === "friend").map((item) => item.contact),
+    );
     refInputTitle.current.focus();
     blurImage(".list-friend-container");
   }, [data]);

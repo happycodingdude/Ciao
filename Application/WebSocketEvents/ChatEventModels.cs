@@ -50,9 +50,8 @@ public class EventNewConversation_Member
     public bool IsNew { get; set; }
 }
 
-
-// public class EventNewMember
-// {
-//     public string ConversationId { get; set; } = null!;
-//     public MemberWithContactInfo[] Members { get; set; } = null!;
-// }
+public class EventNewFriendRequest
+{
+    public string FriendId { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+}

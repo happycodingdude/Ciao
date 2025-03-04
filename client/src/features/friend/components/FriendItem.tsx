@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithLightBox from "../../../components/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import { FriendItemProps } from "../../../types";
 import FriendCtaButton from "./FriendCtaButton";
 
@@ -12,9 +12,9 @@ const FriendItem = (props: FriendItemProps) => {
       // data-key={friend.id}
       className="flex items-center gap-4 rounded-2xl px-2 py-3 hover:bg-[var(--bg-color-extrathin)]"
     >
-      <ImageWithLightBox
+      <ImageWithLightBoxAndNoLazy
         src={friend.avatar}
-        className="aspect-square rounded-2xl laptop:w-[5rem]"
+        className="aspect-square laptop:w-[5rem]"
         // imageClassName="bg-[size:160%]"
         slides={[
           {

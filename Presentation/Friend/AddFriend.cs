@@ -51,8 +51,9 @@ public static class AddFriend
         readonly IMapper _mapper;
         readonly FriendCache _friendCache;
         readonly UserCache _userCache;
+        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IContactRepository contactRepository, IFriendRepository friendRepository, INotificationRepository notificationRepository, IMapper mapper, FriendCache friendCache, UserCache userCache)
+        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IContactRepository contactRepository, IFriendRepository friendRepository, INotificationRepository notificationRepository, IMapper mapper, FriendCache friendCache, UserCache userCache, INotificationProcessor notificationProcessor)
         {
             _validator = validator;
             _firebase = firebase;
@@ -62,6 +63,7 @@ public static class AddFriend
             _mapper = mapper;
             _friendCache = friendCache;
             _userCache = userCache;
+            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -72,9 +74,14 @@ public static class AddFriend
 
             var userId = _contactRepository.GetUserId();
 
-            // Add friend             
-            var fromContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(userId));
-            var toContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.contactId));
+            // Create friend             
+            var contactFilter = Builders<Contact>.Filter.Where(q => q.Id == userId || q.Id == request.contactId);
+            var contacts = await _contactRepository.GetAllAsync(contactFilter);
+
+            // var fromContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(userId));
+            // var toContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.contactId));
+            var fromContact = contacts.SingleOrDefault(q => q.Id == userId);
+            var toContact = contacts.SingleOrDefault(q => q.Id == request.contactId);
             var friend = new Friend
             {
                 FromContact = new FriendDto_Contact
@@ -84,7 +91,7 @@ public static class AddFriend
                 },
                 ToContact = new FriendDto_Contact
                 {
-                    ContactId = request.contactId,
+                    ContactId = toContact.Id,
                     ContactName = toContact.Name
                 },
             };
@@ -114,7 +121,7 @@ public static class AddFriend
                 await _friendCache.SetFriends(request.contactId, receiverFriends);
             }
 
-            // Add notification            
+            // Create notification            
             var notification = new Notification
             {
                 SourceId = friend.Id,
@@ -124,23 +131,25 @@ public static class AddFriend
             };
             _notificationRepository.Add(notification);
 
-            //     // Push friend request
-            //     await _firebase.Notify(
-            //        "NewFriendRequest",
-            //        new string[1] { request.contactId },
-            //        new FriendToNotify
-            //        {
-            //            RequestId = friendEntity.Id
-            //        }
-            //    );
-            //     // Push notification
-            //     var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
-            //     notiDto.AddSourceData(friendEntity);
-            //     await _firebase.Notify(
-            //         "NewNotification",
-            //         new string[1] { request.contactId },
-            //         notiDto
-            //     );
+            // Push friend request
+            var notiFriendRequest = new EventNewFriendRequest
+            {
+                FriendId = friend.Id,
+                ContactId = fromContact.Id
+            };
+            _ = _notificationProcessor.Notify(
+                ChatEventNames.NewFriendRequest,
+                toContact.Id,
+                notiFriendRequest
+            );
+            // Push notification
+            // var notiDto = _mapper.Map<Notification, NotificationTypeConstraint>(notiEntity);
+            // notiDto.AddSourceData(friendEntity);
+            // await _firebase.Notify(
+            //     "NewNotification",
+            //     new string[1] { request.contactId },
+            //     notiDto
+            // );
 
             return friend.Id;
         }

@@ -57,6 +57,7 @@ public class MyMapping : Profile
         CreateMap<GetListFriendItem, Friend>().ReverseMap();
         CreateMap<FriendCacheModel, GetListFriendItem>()
             .ForMember(q => q.Id, s => s.MapFrom(w => w.FriendId))
+            .ForMember(q => q.Status, s => s.MapFrom(w => w.FriendStatus))
             .ReverseMap();
         CreateMap<ContactInfo, Contact>().ReverseMap();
         CreateMap<ContactInfo, GetListFriendItem_Contact>().ReverseMap();
