@@ -297,7 +297,7 @@ body,
     items-center items-center justify-center justify-center font-light laptop:text-md laptop:text-md desktop:text-xl desktop:text-xl;
   }
   .base-icon-sm {
-    @apply flex cursor-pointer items-center justify-center font-light laptop:text-lg desktop:text-xl;
+    @apply flex cursor-pointer items-center justify-center font-light tablet:text-lg laptop:text-lg desktop:text-xl;
   }
 
   .gradient-item {

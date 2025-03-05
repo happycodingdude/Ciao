@@ -2,7 +2,7 @@ import React from "react";
 // import { notifyMessage, registerConnection } from "../../hook/NotificationAPIs";
 // import { requestPermission } from "../../../components/Notification";
 import { useEffect } from "react";
-import ImageWithLightBox from "../components/ImageWithLightBox";
+import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import RelightBackground from "../components/RelightBackground";
 import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
@@ -25,22 +25,21 @@ const SideBar = (props: SideBarProps) => {
   }, [info.avatar]);
 
   return (
-    <section className="sidebar-container shrink-0 border-r-[.1rem] border-r-[var(--border-color)] laptop:w-[7rem] desktop:w-[10rem]">
-      <div className="flex h-full flex-col items-center px-[1rem]">
-        <div className="flex w-full items-center justify-center laptop:h-[6rem]">
-          <ImageWithLightBox
-            src={info.avatar}
-            className="cursor-pointer !rounded-full laptop:!h-[4rem] laptop:!w-[4rem]"
-            slides={[
-              {
-                src: info.avatar,
-              },
-            ]}
-            // imageClassName="bg-[size:160%]"
-            roundedClassName="rounded-full"
-          />
-        </div>
-        <div className="inline-flex grow flex-col justify-between py-[2.5rem]">
+    <section className="sidebar-container shrink-0 border-r-[.1rem] border-r-[var(--border-color)] tablet:w-[5rem] laptop:w-[7rem] desktop:w-[10rem]">
+      <div className="flex h-full flex-col items-center px-[1rem] tablet:py-[.7rem]">
+        {/* <div className="flex w-full items-center justify-center laptop:h-[6rem]"> */}
+        <ImageWithLightBoxAndNoLazy
+          src={info.avatar}
+          // className="cursor-pointer tablet:h-[3rem] tablet:w-[3rem] laptop:h-[4rem] laptop:w-[4rem]"
+          className="h-[3.5rem] w-[3.5rem] cursor-pointer"
+          slides={[
+            {
+              src: info.avatar,
+            },
+          ]}
+        />
+        {/* </div> */}
+        <div className="inline-flex grow flex-col justify-between tablet:py-[1.5rem] laptop:py-[2.5rem]">
           <div className="flex w-full flex-col items-center gap-[3rem]">
             <RelightBackground
               lighten={page === "chat"}

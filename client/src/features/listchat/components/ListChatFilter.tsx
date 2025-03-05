@@ -51,7 +51,7 @@ const ListChatFilter = () => {
       <div
         data-tab={filter}
         className="absolute bottom-0 h-[.2rem] bg-[var(--main-color)] transition-all duration-200 data-[tab=all]:translate-x-0
-        data-[tab=direct]:translate-x-[9rem] data-[tab=group]:translate-x-[18rem] laptop:w-[9rem]"
+        data-[tab=direct]:translate-x-[9rem] data-[tab=group]:translate-x-[18rem] tablet:w-[5rem] laptop:w-[9rem]"
       ></div>
     </div>
   );

@@ -142,8 +142,9 @@ const ListchatContent = () => {
                     ?.contact.id
                 : ""
             }
-            className={`chat-item group flex h-[6.5rem] shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem]
-        py-[.8rem] pl-[.5rem] pr-[1rem] 
+            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] 
+              pl-[.5rem] pr-[1rem] tablet:h-[5rem]
+        tablet:py-[.5rem] laptop:h-[6.5rem] laptop:py-[.8rem] 
         ${
           data.selected?.id === item.id
             ? `item-active bg-[var(--main-color)]`
@@ -184,7 +185,7 @@ const ListchatContent = () => {
                     : item.members.find((item) => item.contact.id !== info.id)
                         ?.contact.avatar
                 }
-                className={`loaded pointer-events-none aspect-square laptop:w-[5rem]`}
+                className={`loaded pointer-events-none aspect-square tablet:w-[4rem] laptop:w-[5rem]`}
                 // imageClassName="bg-[size:170%]"
                 circle
               />

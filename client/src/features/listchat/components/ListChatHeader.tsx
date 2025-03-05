@@ -8,7 +8,7 @@ const ListChatHeader = () => {
   const { search, setSearch } = useListchatFilter();
 
   return (
-    <div className="flex shrink-0 items-center gap-[1rem] px-[1rem] laptop:h-[6rem]">
+    <div className="flex shrink-0 items-center gap-[1rem] px-[1rem] tablet:h-[5rem] laptop:h-[6rem]">
       <div className="relative flex h-[60%] w-[70%] grow items-center">
         <input
           value={search}

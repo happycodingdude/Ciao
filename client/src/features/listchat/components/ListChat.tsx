@@ -8,7 +8,7 @@ const ListChat = () => {
   const { isLoading, isRefetching } = useConversation();
 
   return (
-    <div className="relative grow laptop:w-[27rem] laptop-lg:w-[30rem]">
+    <div className="relative grow tablet:w-[20rem] laptop:w-[27rem] laptop-lg:w-[30rem]">
       <ListChatFilter />
       {isLoading || isRefetching ? <LocalLoading /> : ""}
       <ListchatContent />
