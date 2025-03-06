@@ -16,7 +16,7 @@ const AddFriend = () => {
       />
       <BackgroundPortal
         show={open}
-        className="laptop:!w-[40rem] desktop:!w-[35%]"
+        className="laptop:w-[40rem] desktop:w-[35%]"
         title="Connect friend"
         onClose={() => setOpen(false)}
       >

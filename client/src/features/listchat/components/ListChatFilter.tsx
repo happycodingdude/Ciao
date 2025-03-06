@@ -8,7 +8,7 @@ const ListChatFilter = () => {
     <div className="relative flex justify-between border-b-[.1rem] border-b-[var(--border-color)]">
       <div
         onClick={() => setFilter("all")}
-        className="group relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
+        className="group relative flex-1 cursor-pointer text-center text-[var(--text-main-color)] phone:py-[.5rem] laptop:py-[1rem]"
       >
         <input
           type="radio"
@@ -22,7 +22,7 @@ const ListChatFilter = () => {
       </div>
       <div
         onClick={() => setFilter("direct")}
-        className="group relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
+        className="group relative flex-1 cursor-pointer text-center text-[var(--text-main-color)] phone:py-[.5rem] laptop:py-[1rem]"
       >
         <input
           type="radio"
@@ -36,7 +36,7 @@ const ListChatFilter = () => {
       </div>
       <div
         onClick={() => setFilter("group")}
-        className="group relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
+        className="group relative flex-1 cursor-pointer text-center text-[var(--text-main-color)] phone:py-[.5rem] laptop:py-[1rem]"
       >
         <input
           type="radio"
@@ -51,7 +51,7 @@ const ListChatFilter = () => {
       <div
         data-tab={filter}
         className="absolute bottom-0 h-[.2rem] bg-[var(--main-color)] transition-all duration-200 data-[tab=all]:translate-x-0
-        data-[tab=direct]:translate-x-[9rem] data-[tab=group]:translate-x-[18rem] tablet:w-[5rem] laptop:w-[9rem]"
+        data-[tab=direct]:translate-x-[9rem] data-[tab=group]:translate-x-[18rem] phone:w-[3rem] tablet:w-[5rem] laptop:w-[9rem]"
       ></div>
     </div>
   );

@@ -290,14 +290,13 @@ body,
   } */
 
   .base-icon-lg {
-    @apply flex cursor-pointer items-center justify-center font-light laptop:text-base desktop:text-lg;
+    @apply flex cursor-pointer items-center justify-center font-light phone:text-sm laptop:text-base desktop:text-lg;
   }
   .base-icon {
-    @apply /* @apply */ flex flex cursor-pointer cursor-pointer
-    items-center items-center justify-center justify-center font-light laptop:text-md laptop:text-md desktop:text-xl desktop:text-xl;
+    @apply  flex cursor-pointer items-center justify-center font-light phone:text-base laptop:text-md desktop:text-xl;
   }
   .base-icon-sm {
-    @apply flex cursor-pointer items-center justify-center font-light tablet:text-lg laptop:text-lg desktop:text-xl;
+    @apply flex cursor-pointer items-center justify-center font-light phone:text-md laptop:text-lg desktop:text-xl;
   }
 
   .gradient-item {

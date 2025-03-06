@@ -25,8 +25,8 @@ const SideBar = (props: SideBarProps) => {
   }, [info.avatar]);
 
   return (
-    <section className="sidebar-container shrink-0 border-r-[.1rem] border-r-[var(--border-color)] tablet:w-[5rem] laptop:w-[7rem] desktop:w-[10rem]">
-      <div className="flex h-full flex-col items-center px-[1rem] tablet:py-[.7rem]">
+    <section className="sidebar-container shrink-0 border-r-[.1rem] border-r-[var(--border-color)] phone:w-[4rem] tablet:w-[5rem] laptop:w-[7rem] desktop:w-[10rem]">
+      <div className="flex h-full flex-col items-center px-[1rem] phone:py-[.5rem] tablet:py-[.7rem]">
         {/* <div className="flex w-full items-center justify-center laptop:h-[6rem]"> */}
         <ImageWithLightBoxAndNoLazy
           src={info.avatar}
@@ -39,7 +39,7 @@ const SideBar = (props: SideBarProps) => {
           ]}
         />
         {/* </div> */}
-        <div className="inline-flex grow flex-col justify-between tablet:py-[1.5rem] laptop:py-[2.5rem]">
+        <div className="inline-flex grow flex-col justify-between phone:py-[1rem] tablet:py-[1.5rem] laptop:py-[2.5rem]">
           <div className="flex w-full flex-col items-center gap-[3rem]">
             <RelightBackground
               lighten={page === "chat"}
