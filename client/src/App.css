@@ -290,13 +290,13 @@ body,
   } */
 
   .base-icon-lg {
-    @apply flex cursor-pointer items-center justify-center font-light phone:text-sm laptop:text-base desktop:text-lg;
+    @apply flex cursor-pointer items-center justify-center font-light phone:text-base laptop:text-base desktop:text-lg;
   }
   .base-icon {
-    @apply  flex cursor-pointer items-center justify-center font-light phone:text-base laptop:text-md desktop:text-xl;
+    @apply  flex cursor-pointer items-center justify-center font-light phone:text-md laptop:text-md desktop:text-xl;
   }
   .base-icon-sm {
-    @apply flex cursor-pointer items-center justify-center font-light phone:text-md laptop:text-lg desktop:text-xl;
+    @apply flex cursor-pointer items-center justify-center font-light phone:text-lg laptop:text-lg desktop:text-xl;
   }
 
   .gradient-item {

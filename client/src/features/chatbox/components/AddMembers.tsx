@@ -8,8 +8,8 @@ const AddMembers = () => {
   return (
     <>
       <UsergroupAddOutlined
-        className="hover:text-[var(--main-color-bold)]"
-        style={{ fontSize: "18px", transition: "all 0.2s" }}
+        className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+        // style={{ fontSize: "18px", transition: "all 0.2s" }}
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal

@@ -30,15 +30,10 @@ import ImageItem from "./ImageItem";
 const ChatInput = (props: ChatInputProps) => {
   const { className, inputRef } = props;
 
-  // if (!inputRef?.current) return;
-
   const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
-  // const { data: messages } = useMessage();
   const { data: conversations } = useConversation();
-
-  // const inputRef = useRef();
 
   const [mentions, setMentions] = useState<MentionModel[]>([]);
   const [showMention, setShowMention] = useState<boolean>(false);
@@ -46,10 +41,6 @@ const ChatInput = (props: ChatInputProps) => {
   const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
-    // if (inputRef) {
-    //   inputRef.current.textContent = "";
-    //   inputRef.current.focus();
-    // }
     setFiles([]);
     setMentions(() => {
       return conversations?.selected?.members
@@ -65,7 +56,6 @@ const ChatInput = (props: ChatInputProps) => {
   }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace: boolean) => {
-    // inputRef.current.textContent += " ";
     if (addSpace) inputRef.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
     inputRef.current.focus();
 
@@ -82,10 +72,8 @@ const ChatInput = (props: ChatInputProps) => {
 
   const chooseMention = (id: string) => {
     const user = mentions.find((item) => item.userId === id);
-    // inputRef.current.innerHTML += "&nbsp;";
     inputRef.current.innerText =
       inputRef.current.innerText.replace("@", "") + user.name;
-    // inputRef.current.focus();
     setCaretToEnd(true);
     setShowMention(false);
   };
@@ -300,8 +288,6 @@ const ChatInput = (props: ChatInputProps) => {
   });
 
   const chat = () => {
-    // send(inputRef.current.innerText, files ?? []);
-
     if (inputRef.current.innerText.trim() === "" && files.length === 0) return;
 
     const lazyImages = files.map((item) => {
@@ -311,7 +297,6 @@ const ChatInput = (props: ChatInputProps) => {
         pending: true,
       } as AttachmentModel;
     });
-    // setFiles([]);
     sendMutation({
       type: inputRef.current.innerText.trim() === "" ? "media" : "text",
       content: inputRef.current.innerText,
@@ -356,8 +341,6 @@ const ChatInput = (props: ChatInputProps) => {
       );
       const charBeforeCursor = textBeforeCursor[textBeforeCursor.length - 1];
 
-      // console.log("Character before cursor:", charBeforeCursor);
-
       if (charBeforeCursor === "@" && e.keyCode === 32 && e.ctrlKey)
         setShowMention(true);
     }
@@ -377,15 +360,6 @@ const ChatInput = (props: ChatInputProps) => {
   }, []);
   useEventListener("keydown", hideMentionOnKey);
 
-  // const closeEmojiOnClick = useCallback((e) => {
-  //   const classList = Array.from(e.target.classList);
-  //   if (
-  //     e.target.closest("emoji-item") ||
-  //     classList.some((item) => item.includes("epr"))
-  //   )
-  //     return;
-  //   setShowEmoji(false);
-  // }, []);
   const closeEmojiOnClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const classList = Array.from(target.classList);
@@ -416,8 +390,6 @@ const ChatInput = (props: ChatInputProps) => {
     setFiles(!files ? [...mergedFiles] : [...files, ...mergedFiles]);
 
     e.target.value = null;
-
-    // onInput(files.length === 0);
   };
 
   const removeFile = useCallback(
@@ -425,44 +397,20 @@ const ChatInput = (props: ChatInputProps) => {
       setFiles((current) =>
         current.filter((item) => item.name !== e.target.dataset.key),
       );
-      // onInput(files.length === 0);
     },
     [files],
   );
 
   useEffect(() => {
     if (files?.length !== 0) setCaretToEnd(false);
-    // if (files && onInput) onInput();
   }, [files]);
-
-  // useEffect(() => {
-  //   if (!files || files.length === 0) return;
-
-  //   const fileContainer = document.querySelector(".file-container");
-  //   const callback = (e) => {
-  //     e.preventDefault();
-
-  //     fileContainer.scrollBy({
-  //       left: e.deltaY < 0 ? -100 : 100,
-  //     });
-  //   };
-  //   fileContainer.addEventListener("wheel", callback, true);
-  //   return () => {
-  //     fileContainer.removeEventListener("wheel", callback, true);
-  //   };
-  // }, [files]);
-
-  // const expandTextarea = useCallback((e) => {
-  //   e.target.style.height = "auto";
-  //   e.target.style.height = e.target.scrollHeight + "px";
-  // }, []);
 
   return (
     <div className={`flex w-full grow items-center justify-center`}>
       <div
-        // className={`${className} relative grow rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
-        className={`${className} relative flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] laptop:max-w-[65rem]`}
+        className={`${className} relative flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] phone:max-w-[35rem] tablet:max-w-[45rem] laptop:max-w-[65rem]`}
       >
+        {/* File */}
         {files?.length !== 0 ? (
           <div
             className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
@@ -477,29 +425,28 @@ const ChatInput = (props: ChatInputProps) => {
         <div
           className={`mention-item relative w-full ${files?.length !== 0 ? "py-3" : "py-2"}`}
         >
+          {/* Mention */}
           {conversations?.selected?.isGroup ? (
             <div
               data-show={showMention}
               className="hide-scrollbar absolute bottom-[4rem] left-0 flex flex-col overflow-y-scroll
           scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          laptop:max-h-[20rem] laptop:w-[20rem]"
+          phone:max-h-[18rem] phone:w-[18rem] laptop:max-h-[20rem] laptop:w-[20rem]"
             >
               {mentions?.map((item) => (
                 <div
                   className="flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
-                  // data-user={item.userId}
                   onClick={() => chooseMention(item.userId)}
                 >
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="aspect-square cursor-pointer rounded-[50%] laptop:w-[3rem]"
+                    className="aspect-square cursor-pointer rounded-[50%] phone:w-[2rem] tablet:w-[2.5rem] laptop:w-[3rem]"
                     slides={[
                       {
                         src: item.avatar,
                       },
                     ]}
-                    // onClick={() => {}}
                   />
                   <p>{item.name}</p>
                 </div>
@@ -508,34 +455,24 @@ const ChatInput = (props: ChatInputProps) => {
           ) : (
             ""
           )}
+          {/* Menu */}
           <ChatboxMenu
             chooseFile={chooseFile}
-            className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "}`}
+            className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1rem]" : "top-[.6rem]"}`}
           />
-          {/* <div
-            ref={inputRef}
-            // ref={ref}
-            contentEditable={true}
-            // data-text="Type something.."
-            // aria-placeholder="Type something.."
-            className={`hide-scrollbar w-full resize-none overflow-y-auto break-all
-            pb-2 outline-none laptop:max-h-[10rem] ${noMenu ? "px-3" : "px-16"}`}
-            onKeyDown={keyBindingFn}
-            onKeyUp={keyupBindingFn}
-          ></div> */}
+          {/* Text input */}
           <CustomContentEditable
             ref={inputRef}
             onKeyDown={keydownBindingFn}
             onKeyUp={keyupBindingFn}
             className="px-[4rem]"
           />
-          {/* <div className="relative"> */}
+          {/* Emoji select */}
           <label
-            className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1.3rem] " : "top-[.8rem] "} 
+            className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1rem]" : "top-[.6rem]"} 
           cursor-pointer text-md font-normal`}
             onClick={() => setShowEmoji(true)}
           ></label>
-          {/* </div> */}
         </div>
         {showEmoji && (
           <div className="absolute bottom-[3rem] right-0">
@@ -551,27 +488,6 @@ const ChatInput = (props: ChatInputProps) => {
             />
           </div>
         )}
-        {/* <div
-          className={`${showEmoji ? "block" : "hidden"} absolute bottom-[3rem] right-0`}
-        >
-          <Picker
-            data={appleEmojisData}
-            set="apple"
-            onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
-            onClickOutside={(e) => {
-              if (e.target.classList.contains("emoji-item")) setShowEmoji(true);
-              else setShowEmoji(false);
-            }}
-          />
-        </div> */}
-        {/* <EmojiPicker
-          open={showEmoji}
-          width={300}
-          height={400}
-          onEmojiClick={(emoji) => (inputRef.current.innerText += emoji.emoji)}
-          className="emoji-item !absolute right-[2rem] top-[-41rem]"
-          // icons="solid"
-        /> */}
       </div>
     </div>
   );

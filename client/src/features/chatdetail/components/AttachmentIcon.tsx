@@ -10,18 +10,20 @@ const AttachmentIcon = (props: AttachmentIcon) => {
   return (
     <svg
       onClick={onClick}
-      height="18px"
-      width="18px"
+      width="100%"
+      height="100%"
+      viewBox="0 0 197.696 197.696"
       version="1.1"
       id="Capa_1"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      viewBox="0 0 197.696 197.696"
       xmlSpace="preserve"
-      className="transition-all duration-200 hover:fill-[var(--main-color-bold)]"
+      className="transition-all duration-200 hover:fill-[var(--main-color-bold)] phone:w-[1.5rem]"
     >
       <g>
         <path
+          stroke="black"
+          stroke-width="5"
           className={toggle ? "active" : ""}
           d="M179.546,73.358L73.111,179.783c-13.095,13.095-34.4,13.095-47.481,0.007
 c-13.095-13.095-13.095-34.396,0-47.495l13.725-13.739l92.696-92.689l11.166-11.159c8.829-8.833,23.195-8.833,32.038,0

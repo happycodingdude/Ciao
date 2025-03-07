@@ -162,6 +162,11 @@ export type LoadingContextType = {
   setLoading: Dispatch<SetStateAction<boolean>>;
 };
 
+export type BooleanContextType = {
+  value: boolean;
+  setValue: Dispatch<SetStateAction<boolean>>;
+};
+
 export type ListchatFilterType = {
   filter: string;
   setFilter: Dispatch<SetStateAction<string>>;

@@ -9,8 +9,8 @@ const CreateGroupChat = () => {
   return (
     <>
       <UsergroupAddOutlined
-        className="hover:text-[var(--main-color-bold)]"
-        style={{ fontSize: "16px", transition: "all 0.2s" }}
+        className="base-icon transition-all duration-200 hover:text-[var(--main-color-bold)]"
+        // style={{ fontSize: "16px", transition: "all 0.2s" }}
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal

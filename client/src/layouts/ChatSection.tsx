@@ -9,14 +9,14 @@ const ChatSection = () => {
   const { data: conversations } = useConversation(1);
   return (
     // <LoadingProvider>
-    <section className={`flex grow overflow-hidden`}>
+    <section className={`relative flex grow overflow-hidden`}>
       <Suspense fallback={<LocalLoading />}>
+        {/* <ListchatTogglesProvider> */}
         <ListChatContainer />
+        {/* </ListchatTogglesProvider> */}
       </Suspense>
       <Suspense fallback={<LocalLoading />}>
         {conversations?.selected ? (
-          // || conversations?.createGroupChat
-          // || conversations?.quickChat
           <ChatDetailTogglesProvider>
             <ChatboxContainer />
           </ChatDetailTogglesProvider>

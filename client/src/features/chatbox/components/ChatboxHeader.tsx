@@ -11,8 +11,6 @@ import AddMembers from "./AddMembers";
 import UpdateConversation from "./UpdateConversation";
 
 const ChatboxHeader = () => {
-  // console.log("ChatboxHeader calling");
-  // const { toggle, setToggle } = props;
   const { toggle, setToggle } = useChatDetailToggles();
 
   const { data: conversations } = useConversation();
@@ -25,7 +23,7 @@ const ChatboxHeader = () => {
   return (
     <div
       className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] px-[1rem] 
-    py-[.5rem] text-[var(--text-main-color-normal)] laptop:h-[6rem]"
+    py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[5rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
         {/* Avatar */}
@@ -46,8 +44,7 @@ const ChatboxHeader = () => {
                   )?.contact.avatar,
             },
           ]}
-          className="loaded relative aspect-square w-[4rem] cursor-pointer"
-          // imageClassName="bg-[size:170%]"
+          className="loaded relative aspect-square cursor-pointer phone:w-[3.5rem] laptop:w-[4rem]"
           circle
         />
         <BackgroundPortal
@@ -63,7 +60,7 @@ const ChatboxHeader = () => {
         </BackgroundPortal>
 
         {/* Title */}
-        <div className="relative flex grow flex-col text-md laptop:max-w-[30rem] desktop:max-w-[50rem]">
+        <div className="relative flex grow flex-col text-md phone:max-w-[20rem] laptop:max-w-[30rem] desktop:max-w-[50rem]">
           {conversations.selected.isGroup ? (
             <>
               <div className="flex w-full gap-[.5rem]">
@@ -71,7 +68,6 @@ const ChatboxHeader = () => {
                   className="font-bold"
                   title={conversations.selected.title}
                 />
-                {/* <UpdateTitle /> */}
               </div>
               <p className="text-sm">
                 {conversations.selected.members.length} members
@@ -87,10 +83,6 @@ const ChatboxHeader = () => {
                   )?.contact.name
                 }
               />
-              {/* <FriendRequestButton
-              className="fa fa-user-plus !ml-0 w-auto px-[1rem] text-xs laptop:h-[2rem]"
-              onClose={() => {}}
-            /> */}
             </>
           )}
         </div>
@@ -101,7 +93,7 @@ const ChatboxHeader = () => {
           <>
             <AddMembers />{" "}
             <i
-              className="fa-light fa-pen-to-square flex cursor-pointer items-center justify-center text-base hover:text-[var(--main-color-bold)]"
+              className="fa-light fa-pen-to-square flex cursor-pointer items-center justify-center text-base font-medium hover:text-[var(--main-color-bold)]"
               onClick={() => {
                 if (conversations.selected.isGroup) setOpenUpdateTitle(true);
               }}
@@ -120,10 +112,7 @@ const ChatboxHeader = () => {
                 current === "information" ? null : "information",
               )
             }
-            style={{
-              fontSize: "18px",
-              transition: "all 0.2s",
-            }}
+            className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
           />
         </div>
         <AttachmentIcon

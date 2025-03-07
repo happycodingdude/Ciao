@@ -32,8 +32,6 @@ moment.locale("en", {
 });
 
 const ListchatContent = () => {
-  // console.log("ListchatContent calling");
-
   const queryClient = useQueryClient();
 
   const refPage = useRef<number>(1);
@@ -50,9 +48,6 @@ const ListchatContent = () => {
   useEffect(() => {
     if (!data) return;
     blurImage(".list-chat");
-    // data.filterConversations.forEach((item) => {
-    //   refChatItems.current[item.id] = item;
-    // });
   }, [data?.filterConversations]);
 
   const clickConversation = (id: string) => {
@@ -123,7 +118,7 @@ const ListchatContent = () => {
   return (
     <div
       ref={refChats}
-      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem] "
+      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem]"
     >
       {data.filterConversations
         .filter((conv) =>
@@ -142,8 +137,8 @@ const ListchatContent = () => {
                     ?.contact.id
                 : ""
             }
-            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] pl-[.5rem] pr-[1rem] 
-              phone:h-[4rem] phone:py-[.4rem] tablet:h-[5rem] tablet:py-[.5rem] laptop:h-[6.5rem] laptop:py-[.8rem] 
+            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] py-[.8rem] pl-[.5rem] pr-[1rem] 
+              phone:h-[6.5rem] tablet:h-[5.5rem] laptop:h-[6.5rem] 
         ${
           data.selected?.id === item.id
             ? `item-active bg-[var(--main-color)]`
@@ -154,29 +149,6 @@ const ListchatContent = () => {
             }}
           >
             <div className="relative">
-              {/* {data.noLazy ? (
-                <ImageWithLightBoxAndNoLazy
-                  src={
-                    item.isGroup
-                      ? item.avatar
-                      : item.members.find((item) => item.contact.id !== info.id)
-                          ?.contact.avatar
-                  }
-                  className={`loaded pointer-events-none aspect-square laptop:w-[5rem]`}
-                  imageClassName="bg-[size:170%]"
-                />
-              ) : (
-                <ImageWithLightBox
-                  src={
-                    item.isGroup
-                      ? item.avatar
-                      : item.members.find((item) => item.contact.id !== info.id)
-                          ?.contact.avatar
-                  }
-                  className={`pointer-events-none aspect-square laptop:w-[5rem]`}
-                  imageClassName="bg-[size:160%]"
-                />
-              )} */}
               <ImageWithLightBoxAndNoLazy
                 src={
                   item.isGroup
@@ -184,8 +156,7 @@ const ListchatContent = () => {
                     : item.members.find((item) => item.contact.id !== info.id)
                         ?.contact.avatar
                 }
-                className={`loaded pointer-events-none aspect-square phone:w-[3rem] tablet:w-[4rem] laptop:w-[5rem]`}
-                // imageClassName="bg-[size:170%]"
+                className={`loaded pointer-events-none aspect-square phone:w-[5rem] tablet:w-[4rem] laptop:w-[5rem]`}
                 circle
               />
               {!item.isGroup ? (
@@ -213,19 +184,20 @@ const ListchatContent = () => {
               />
               <CustomLabel
                 className={`
-            ${
-              item.id === data.selected?.id
-                ? "text-[var(--text-sub-color-thin)]"
-                : item.members.find((mem) => mem.contact.id === info.id)
-                      .unSeenMessages > 0
-                  ? "text-[var(--danger-text-color)]"
-                  : "text-[var(--text-main-color-blur)]"
-            }`}
+              ${
+                item.id === data.selected?.id
+                  ? "text-[var(--text-sub-color-thin)]"
+                  : item.members.find((mem) => mem.contact.id === info.id)
+                        .unSeenMessages > 0
+                    ? "text-[var(--danger-text-color)]"
+                    : "text-[var(--text-main-color-blur)]"
+              }`}
                 title={item.lastMessage}
               />
             </div>
             <div
-              className={`flex h-full shrink-0 flex-col items-end laptop:min-w-[4rem]`}
+              // className={`flex h-full shrink-0 flex-col items-end phone:min-w-[3rem] laptop:min-w-[4rem]`}
+              className={`flex h-full flex-col items-end`}
             >
               <p>
                 {item.lastMessageTime === null
