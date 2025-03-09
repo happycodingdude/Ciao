@@ -96,7 +96,7 @@ const ListchatContent = () => {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
     scrollToCenterOfSelected();
     if (data.quickChat) {
       refetchMessage().then((res) => {
