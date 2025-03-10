@@ -86,14 +86,16 @@ const Notification = () => {
       <div
         ref={refNotification}
         data-state="hide"
-        className="notification-body data-[state=show]:scale-1 absolute z-[1000] flex 
-          origin-bottom-left cursor-auto flex-col rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] transition-all
-          duration-200 data-[state=hide]:scale-0 laptop:bottom-[2rem] laptop:left-[4rem] laptop:h-[30rem] laptop:w-[27rem]"
+        className="notification-body absolute z-[1000] flex origin-bottom-left cursor-auto flex-col 
+        rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] transition-all duration-200 
+          data-[state=hide]:scale-0 data-[state=show]:scale-100 
+          phone:bottom-[2rem] phone:left-[2rem] phone:h-[25rem] phone:w-[25rem] phone:text-base 
+          laptop:bottom-[2rem] laptop:left-[2rem] laptop:h-[30rem] laptop:w-[25rem] laptop:text-md"
       >
         <div className="notification-body flex justify-between border-b-[.1rem] border-b-[var(--border-color)] px-4 py-3">
-          <p className="notification-body text-md">Notifications</p>
+          <p className="notification-body">Notifications</p>
           <div
-            className="notification-body cursor-pointer text-sm text-[var(--main-color-extrabold)] hover:text-[var(--main-color)]"
+            className="notification-body cursor-pointer text-[var(--main-color-extrabold)] hover:text-[var(--main-color)]"
             onClick={() => readAllCTA()}
           >
             Mark all as read

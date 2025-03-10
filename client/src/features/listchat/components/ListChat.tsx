@@ -12,6 +12,7 @@ const ListChat = () => {
     <div className="relative grow">
       <ListChatFilter />
       {isLoading || isRefetching ? <LocalLoading /> : ""}
+      {/* <LocalLoading /> */}
       <ListchatContent />
       <div className="mx-auto my-[.5rem] hidden items-center text-center">
         <div

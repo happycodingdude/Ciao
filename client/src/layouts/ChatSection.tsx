@@ -27,9 +27,7 @@ const ChatSection = () => {
     <section className={`relative flex grow overflow-hidden`}>
       <ChatDetailTogglesProvider>
         <Suspense>
-          {/* <ListchatTogglesProvider> */}
           <ListChatContainer />
-          {/* </ListchatTogglesProvider> */}
         </Suspense>
         <Suspense>
           {conversations?.selected ? <ChatboxContainer /> : ""}

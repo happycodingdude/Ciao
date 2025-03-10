@@ -78,7 +78,7 @@ const ChatboxContainer = () => {
           >
             <i
               className="fa-arrow-left fa absolute left-[2rem] top-[1rem] z-[11] flex cursor-pointer items-center justify-center 
-            text-2xl font-normal transition-all duration-500"
+            text-xl font-normal transition-all duration-500"
               onClick={() => setToggle(null)}
             ></i>
             <Information />
