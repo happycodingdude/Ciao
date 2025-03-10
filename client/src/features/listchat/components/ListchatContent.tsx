@@ -6,7 +6,9 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useLoading from "../../../hooks/useLoading";
 import blurImage from "../../../utils/blurImage";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
+import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useMessage from "../../chatbox/hooks/useMessage";
 import useAttachment from "../../chatdetail/hooks/useAttachment";
 import useConversation from "../hooks/useConversation";
@@ -33,6 +35,7 @@ moment.locale("en", {
 
 const ListchatContent = () => {
   const queryClient = useQueryClient();
+  const { toggle, setToggle } = useChatDetailToggles();
 
   const refPage = useRef<number>(1);
 
@@ -52,7 +55,8 @@ const ListchatContent = () => {
 
   const clickConversation = (id: string) => {
     if (data.selected?.id === id) return;
-    setLoading(true);
+    // setLoading(true);
+    if (isPhoneScreen()) setToggle(null);
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       var newConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== id) return conversation;

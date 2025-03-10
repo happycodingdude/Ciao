@@ -6,6 +6,7 @@ import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import { SigninRequest } from "../../../types";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import signin from "../services/signin";
 
@@ -109,12 +110,29 @@ const SigninForm = () => {
         ></div>
       </div>
 
-      <div
-        className="cursor-pointer self-end text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
-        onClick={() => setToggle("forgot")}
-      >
-        Forgot password?
-      </div>
+      {isPhoneScreen() ? (
+        <div className="flex w-full items-center justify-between">
+          <div
+            className="cursor-pointer self-end font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+            onClick={() => setToggle("signup")}
+          >
+            Create account
+          </div>
+          <div
+            className="cursor-pointer font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+            onClick={() => setToggle("forgot")}
+          >
+            Forgot password?
+          </div>
+        </div>
+      ) : (
+        <div
+          className="cursor-pointer self-end text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+          onClick={() => setToggle("forgot")}
+        >
+          Forgot password?
+        </div>
+      )}
 
       <ErrorComponent error={error} />
 

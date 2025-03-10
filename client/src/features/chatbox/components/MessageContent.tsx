@@ -133,7 +133,8 @@ const MessageContent = (props: MessageContentProps) => {
     <div
       id={message.id}
       key={message.id}
-      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""} laptop-kg:text-sm laptop:text-xs`}
+      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""} 
+      phone:text-base laptop:text-sm laptop-lg:text-sm`}
       // style={{ height: `${height}px` }}
     >
       {/* Sender avatar */}
@@ -160,7 +161,9 @@ const MessageContent = (props: MessageContentProps) => {
         ""
       )}
       <div
-        className={`relative flex flex-col laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] ${message.contactId === info.id ? "items-end" : "items-start"}`}
+        className={`relative flex flex-col 
+          phone:w-[30rem] laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+          ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
         <div
@@ -248,7 +251,7 @@ const MessageContent = (props: MessageContentProps) => {
                     className={`aspect-square cursor-pointer               
                       ${
                         message.attachments?.length === 1
-                          ? "laptop:w-[40%]"
+                          ? "w-[40%]"
                           : "w-[45%]"
                       }`}
                     // imageClassName={

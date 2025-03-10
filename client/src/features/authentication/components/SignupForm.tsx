@@ -5,6 +5,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
 import { SignupRequest } from "../../../types";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import signup from "../services/signup";
 
@@ -84,6 +85,16 @@ const SignupForm = () => {
               hover:text-[var(--main-color-light)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
         ></div>
       </div>
+      {isPhoneScreen() ? (
+        <div
+          className="cursor-pointer self-end text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+          onClick={() => setToggle("signin")}
+        >
+          Back to login
+        </div>
+      ) : (
+        ""
+      )}
       <ErrorComponent error={error} />
       <CustomButton
         processing={processing}

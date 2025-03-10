@@ -22,7 +22,7 @@ const ChatboxContainer = () => {
   } = useAttachment();
   const { data: conversations } = useConversation();
 
-  const { toggle } = useChatDetailToggles();
+  const { toggle, setToggle } = useChatDetailToggles();
   const { loading, setLoading } = useLoading();
 
   const isLoading = isLoadingMessage || isLoadingAttachment;
@@ -48,36 +48,43 @@ const ChatboxContainer = () => {
   return (
     <>
       {isPhoneScreen() ? (
-        <div
-          className={`absolute h-full w-full bg-[var(--bg-color)]
-            ${conversations?.selected ? "z-[10]" : "z-0"}`}
-        >
-          {/* <LocalLoading className="!z-[11]" /> */}
-          {loading ? (
-            <LocalLoading className="!z-[11]" />
-          ) : (
-            <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
-              <ChatboxHeader />
-              <div className="flex w-full phone:h-[88dvh] laptop-lg:h-[92dvh]">
-                <div
-                  ref={refChatboxContainer}
-                  className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]
+        <>
+          <div
+            className={`absolute h-full w-full bg-[var(--bg-color)]
+            ${conversations?.selected && (!toggle || toggle === "" || toggle === "null") ? "z-[10]" : "z-0"}`}
+          >
+            {/* <LocalLoading className="!z-[11]" /> */}
+            {loading ? (
+              <LocalLoading className="!z-[11]" />
+            ) : (
+              <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
+                <ChatboxHeader />
+                <div className="flex w-full phone:h-[88dvh] laptop-lg:h-[92dvh]">
+                  <div
+                    ref={refChatboxContainer}
+                    className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]
                     ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
-                >
-                  <Chatbox />
-                  <ChatInput className="chatbox" inputRef={refInput} />
-                </div>
-                <div
-                  className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
-            ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
-                >
-                  <Information />
-                  <Attachment />
+                  >
+                    <Chatbox />
+                    <ChatInput className="chatbox" inputRef={refInput} />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+          <div
+            className={`relative h-full w-full shrink-0 origin-right transition-all duration-200 
+              ${!toggle || toggle === "" || toggle === "null" ? "z-0" : "z-[10]"}`}
+          >
+            <i
+              className="fa-arrow-left fa absolute left-[2rem] top-[1rem] z-[11] flex cursor-pointer items-center justify-center 
+            text-2xl font-normal transition-all duration-500"
+              onClick={() => setToggle(null)}
+            ></i>
+            <Information />
+            <Attachment />
+          </div>
+        </>
       ) : (
         <div className="relative h-full w-full">
           {loading ? (
@@ -96,7 +103,7 @@ const ChatboxContainer = () => {
                 </div>
                 <div
                   className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
-            ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
+                    ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
                 >
                   <Information />
                   <Attachment />

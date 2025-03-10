@@ -22,6 +22,8 @@ public class SignalHub : Hub
             if (userId is not null)
             {
                 _logger.Information($"User {userId} connected with ConnectionId {Context.ConnectionId}");
+                var connection = _userCache.GetUserConnection(userId.ToString());
+                if (connection is not null) return;
                 // UserConnections[userId] = Context.ConnectionId;
                 _userCache.SetUserConnection(userId, Context.ConnectionId);
                 _userCache.SetConnectionUser(userId, Context.ConnectionId);

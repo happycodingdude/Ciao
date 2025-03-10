@@ -3,10 +3,11 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import CustomButton from "../../components/CustomButton";
-import ImageWithLightBoxWithShadowAndNoLazy from "../../components/ImageWithLightBoxWithShadowAndNoLazy";
+import ImageWithLightBoxAndNoLazy from "../../components/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../../components/MediaPicker";
 import { UpdateProfileRequest } from "../../types";
 import blurImage from "../../utils/blurImage";
+import { isPhoneScreen } from "../../utils/getScreenSize";
 import useInfo from "../authentication/hooks/useInfo";
 import updateInfo from "../authentication/services/updateInfo";
 
@@ -82,11 +83,12 @@ const ProfileSection = () => {
   return (
     <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
       <p className="text-2xl font-[600]">Edit profile</p>
-      <div className="flex flex-col gap-[1rem] laptop:w-[30rem]">
+      <div className="flex flex-col gap-[1rem] phone:w-[20rem] tablet:w-[30rem]">
         <div className="user-avatar relative flex w-full">
-          <ImageWithLightBoxWithShadowAndNoLazy
+          <ImageWithLightBoxAndNoLazy
             src={avatar ?? ""}
-            className="aspect-square cursor-pointer rounded-[50%] bg-[size:160%] laptop:w-[40%]"
+            className="aspect-square w-[40%] cursor-pointer"
+            circle
             slides={[
               {
                 src: avatar ?? "",
@@ -120,8 +122,8 @@ const ProfileSection = () => {
       </div>
       <CustomButton
         padding="py-[.5rem]"
-        gradientWidth="110%"
-        gradientHeight="125%"
+        gradientWidth={`${isPhoneScreen() ? "110%" : "110%"}`}
+        gradientHeight={`${isPhoneScreen() ? "120%" : "125%"}`}
         processing={processing}
         title="Save"
         className="!ml-0 !w-[30%]"

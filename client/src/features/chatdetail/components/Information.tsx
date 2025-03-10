@@ -4,7 +4,6 @@ import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useLocalStorage from "../../../hooks/useLocalStorage";
-import blurImage from "../../../utils/blurImage";
 import useInfo from "../../authentication/hooks/useInfo";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import QuickChat from "../../friend/components/QuickChat";
@@ -39,11 +38,11 @@ const Information = () => {
 
   useEffect(() => {
     setChosenProfile(undefined);
-    blurImage(".members-image-container");
+    // blurImage(".members-image-container");
   }, [conversations.selected?.id]);
 
   useEffect(() => {
-    blurImage(".members-image-container");
+    // blurImage(".members-image-container");
   }, [conversations.selected?.members]);
 
   useEffect(() => {
@@ -153,7 +152,7 @@ const Information = () => {
             // imageClassName="bg-[size:150%]"
             circle
           />
-          <div className="flex w-[70%] grow flex-col items-center justify-center text-md">
+          <div className="flex w-[70%] grow flex-col items-center justify-center phone:text-lg laptop:text-md">
             {conversations.selected.isGroup ? (
               <>
                 <CustomLabel
@@ -161,7 +160,7 @@ const Information = () => {
                   title={conversations.selected.title}
                   tooltip
                 />
-                <p className="text-sm">
+                <p className="phone:text-md laptop:text-sm">
                   {conversations.selected.members.length} members
                 </p>
               </>
@@ -182,12 +181,21 @@ const Information = () => {
         </div>
         {/* Members */}
         {conversations.selected?.isGroup ? (
-          <div className="flex flex-col gap-[1rem] ">
+          <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between pr-[1rem]">
               <p className="font-bold">Members</p>
+              {/* <div className="flex h-full cursor-pointer items-center justify-center">
+                <i
+                  data-show={showMembers}
+                  className="fa-arrow-down fa  font-normal transition-all duration-500 
+                data-[show=false]:rotate-90 phone:text-xl laptop:text-md"
+                  onClick={toggleMembers}
+                ></i>
+              </div> */}
               <i
                 data-show={showMembers}
-                className="fa-arrow-down fa flex cursor-pointer items-center justify-center text-base transition-all duration-500 data-[show=false]:rotate-90"
+                className="fa-arrow-down fa flex aspect-square h-full cursor-pointer items-center justify-center p-[.5rem] transition-all
+                duration-500 data-[show=false]:rotate-90 phone:text-xl laptop:text-md"
                 onClick={toggleMembers}
               ></i>
             </div>
@@ -196,7 +204,7 @@ const Information = () => {
               ref={refMembers}
               data-show={showMembers}
               className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500
-                data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 laptop:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
+                data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
             >
               {conversations.selected?.members
                 .filter((item) => item.contact.id !== info.id)
@@ -230,7 +238,7 @@ const Information = () => {
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="loaded aspect-square laptop:w-[3rem]"
+                        className="loaded aspect-square w-[3rem]"
                         // imageClassName="bg-[size:160%]"
                         // roundedClassName="rounded-[50%]"
                         circle

@@ -88,7 +88,8 @@ const Attachment = () => {
         </div>
         <div
           data-tab={attachmentToggle}
-          className="absolute bottom-0 h-[.2rem] bg-[var(--main-color)] transition-all duration-200 data-[tab=file]:translate-x-[12.5rem] data-[tab=image]:translate-x-0 laptop:w-[12.5rem]"
+          className="absolute bottom-0 h-[.2rem] w-1/2 bg-[var(--main-color)] transition-all 
+          duration-200 data-[tab=file]:translate-x-[100%] data-[tab=image]:translate-x-0"
         ></div>
       </div>
 
