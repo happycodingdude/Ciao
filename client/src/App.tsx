@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import { registerSW } from "./components/Notification";
 import LoadingProvider from "./context/LoadingContext";
 import "./Loading.css";
 import { AuthenticationContainer } from "./pages/Authentication";
@@ -21,7 +20,7 @@ function App() {
   }
 
   useEffect(() => {
-    registerSW();
+    // registerSW();
   }, []);
 
   return (

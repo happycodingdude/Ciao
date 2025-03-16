@@ -65,6 +65,7 @@ const ListFriend = (props: OnCloseType) => {
           <FriendItem
             friend={item}
             friendAction={handleFriendAction}
+            onClose={onClose}
             // setContacts={setContacts}
             // onClose={onClose}
           />

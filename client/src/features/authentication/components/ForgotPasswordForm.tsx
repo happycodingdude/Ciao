@@ -76,6 +76,13 @@ const ForgotPasswordForm = () => {
         ></div>
       </div>
 
+      <div
+        className="cursor-pointer self-end font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+        onClick={() => setToggle("signin")}
+      >
+        Back to login
+      </div>
+
       <ErrorComponent error={error} />
 
       <CustomButton
@@ -83,13 +90,6 @@ const ForgotPasswordForm = () => {
         title="Reset"
         onClick={forgotPasswordCTA}
       />
-
-      <div
-        className="cursor-pointer text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
-        onClick={() => setToggle("signin")}
-      >
-        Back to login
-      </div>
     </div>
   );
 };

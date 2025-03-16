@@ -8,6 +8,7 @@ public class MyMapping : Profile
         // CreateMap<SendMessageReq_Attachments, Attachment>().ReverseMap();
         CreateMap<Contact, ContactDto>().ReverseMap();
         CreateMap<Contact, EventNewMessage_Contact>().ReverseMap();
+        CreateMap<Contact, ContactInfoMoreDetails>().ReverseMap();
         // CreateMap<Conversation, CreateGroupConversationRequest>().ReverseMap();
         CreateMap<Conversation, EventNewMessage_Conversation>().ReverseMap();
         CreateMap<NewGroupConversationModel_Conversation, Conversation>().ReverseMap();
@@ -47,7 +48,9 @@ public class MyMapping : Profile
         //     .ReverseMap();
         CreateMap<MemberWithContactInfo, Member>().ReverseMap();
         CreateMap<MemberWithContactInfo, MemberWithContactInfoAndFriendRequest>().ReverseMap();
-        CreateMap<Member, EventNewConversation_Member>().ReverseMap();
+        CreateMap<EventNewConversation_Member, Member>()
+            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+            .ReverseMap();
         CreateMap<Member, NewGroupConversationModel_Member>().ReverseMap();
         // CreateMap<Member, NewStoredGroupConversationModel_Member>().ReverseMap();
         // CreateMap<EventNewMember, NewStoredMemberModel>().ReverseMap();

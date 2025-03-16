@@ -167,18 +167,18 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
-        if (param.Message is not null)
+        // if (param.Message is not null)
+        // {
+        await _kafkaProducer.ProduceAsync(Topic.NewStoredDirectConversation, new NewStoredDirectConversationModel
         {
-            await _kafkaProducer.ProduceAsync(Topic.NewStoredDirectConversation, new NewStoredDirectConversationModel
-            {
-                UserId = param.UserId,
-                ContactId = param.ContactId,
-                Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
-                Members = _mapper.Map<NewGroupConversationModel_Member[]>(conversation.Members),
-                Message = message,
-                IsNewConversation = param.IsNewConversation
-            });
-        }
+            UserId = param.UserId,
+            ContactId = param.ContactId,
+            Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
+            Members = _mapper.Map<NewGroupConversationModel_Member[]>(conversation.Members),
+            Message = message,
+            IsNewConversation = param.IsNewConversation
+        });
+        // }
 
 
         void HandleNewConversation(Conversation conversation, string contactId, string userId, Message message)

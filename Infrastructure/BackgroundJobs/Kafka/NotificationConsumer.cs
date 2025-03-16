@@ -67,6 +67,18 @@ public class NotificationConsumer : IGenericConsumer
             : string.Join(",", notify.Attachments.Select(q => q.MediaName));
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
+
+        var contactFilter = Builders<Contact>.Filter.Where(q => notify.Members.Select(w => w.Contact.Id).Contains(q.Id));
+        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+
+        // foreach (var member in notify.Members.Where(q => q.Contact.Id != param.UserId))
+        foreach (var member in notify.Members)
+        {
+            var contact = contacts.SingleOrDefault(q => q.Id == member.Contact.Id);
+            member.Contact = _mapper.Map<ContactInfoMoreDetails>(contact);
+            member.IsNotifying = true;
+        }
+
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
         await _notificationProcessor.Notify(
             ChatEventNames.NewMessage,
@@ -131,6 +143,8 @@ public class NotificationConsumer : IGenericConsumer
                 await _hubContext.Groups.AddToGroupAsync(connection, param.Conversation.Id);
         }
 
+        if (param.Message is null) return;
+
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         var notify = _mapper.Map<EventNewMessage>(param.Message);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
@@ -138,10 +152,11 @@ public class NotificationConsumer : IGenericConsumer
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
 
         var member = notify.Members.SingleOrDefault(q => q.Contact.Id != param.UserId);
-        member.Contact.Name = user.Name;
-        member.Contact.Avatar = user.Avatar;
-        member.Contact.Bio = user.Bio;
-        member.Contact.IsOnline = user.IsOnline;
+        var contact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(member.Contact.Id));
+        member.Contact.Name = contact.Name;
+        member.Contact.Avatar = contact.Avatar;
+        member.Contact.Bio = contact.Bio;
+        member.Contact.IsOnline = contact.IsOnline;
 
         var thisUser = notify.Members.SingleOrDefault(q => q.Contact.Id == param.UserId);
         thisUser.Contact.Name = user.Name;

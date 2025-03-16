@@ -3,7 +3,6 @@ import React from "react";
 import CustomButton from "../../../components/CustomButton";
 import useLoading from "../../../hooks/useLoading";
 import { FriendItemProps } from "../../../types";
-import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import reopenMember from "../../chatbox/services/reopenMember";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -19,7 +18,7 @@ import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";
 
 const FriendCtaButton = (props: FriendItemProps) => {
-  const { friend, friendAction } = props;
+  const { friend, friendAction, onClose } = props;
 
   if (!friend) return;
 
@@ -30,7 +29,6 @@ const FriendCtaButton = (props: FriendItemProps) => {
   const { data: conversations } = useConversation();
 
   const chat = async (contact) => {
-    friendAction();
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
       (conv) =>
@@ -164,7 +162,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
       });
 
       // Delay for smooth processing animation
-      await delay(500);
+      // await delay(500);
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
@@ -183,6 +181,8 @@ const FriendCtaButton = (props: FriendItemProps) => {
 
       setLoading(false);
     }
+
+    onClose();
   };
 
   const handleFriendAction = (

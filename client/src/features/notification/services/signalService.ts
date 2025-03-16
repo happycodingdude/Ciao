@@ -89,19 +89,55 @@ const onNewMessage = (
   userInfo: UserProfile,
   message: NewMessage,
 ) => {
-  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
-    updateConversationCache(oldData, message.conversation, {
-      lastMessage: message.content,
-      lastMessageContact: message.contact.id,
-      lastMessageTime: message.createdTime,
-      membersUpdater: (members) =>
-        members.map((mem) =>
-          mem.contact.id !== userInfo.id
-            ? mem
-            : { ...mem, unSeenMessages: mem.unSeenMessages + 1 },
+  queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    // updateConversationCache(oldData, message.conversation, {
+    //   lastMessage: message.content,
+    //   lastMessageContact: message.contact.id,
+    //   lastMessageTime: message.createdTime,
+    //   membersUpdater: (members) =>
+    //     members.map((mem) =>
+    //       mem.contact.id !== userInfo.id
+    //         ? mem
+    //         : { ...mem, unSeenMessages: mem.unSeenMessages + 1 },
+    //     ),
+    // })
+
+    if (
+      oldData.conversations.some((conv) => conv.id === message.conversation.id)
+    ) {
+      return updateConversationCache(oldData, message.conversation, {
+        lastMessage: message.content,
+        lastMessageContact: message.contact.id,
+        lastMessageTime: message.createdTime,
+        membersUpdater: (members) =>
+          members.map((mem) =>
+            mem.contact.id !== userInfo.id
+              ? mem
+              : { ...mem, unSeenMessages: mem.unSeenMessages + 1 },
+          ),
+      });
+    } else {
+      const newConversation = {
+        id: message.conversation.id,
+        title: message.conversation.title,
+        avatar: message.conversation.avatar,
+        isGroup: message.conversation.isGroup,
+        isNotifying: true,
+        lastMessage: message.content,
+        lastMessageContact: message.contact.id,
+        lastMessageTime: message.createdTime,
+        members: message.members.map((mem) =>
+          mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
         ),
-    }),
-  );
+      };
+
+      return {
+        ...oldData,
+        conversations: [newConversation, ...oldData.conversations],
+        filterConversations: [newConversation, ...oldData.conversations],
+      };
+    }
+  });
 
   queryClient.setQueryData(["message"], (oldData: MessageCache) =>
     oldData?.conversationId === message.conversation.id

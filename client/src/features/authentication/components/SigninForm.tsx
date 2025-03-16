@@ -64,7 +64,8 @@ const SigninForm = () => {
     },
     onError: (error) => {
       setProcessing(false);
-      setError("Username or password invalid. Try again please");
+      // setError("Username or password invalid. Try again please");
+      setError(error.message);
     },
   });
 
@@ -111,9 +112,9 @@ const SigninForm = () => {
       </div>
 
       {isPhoneScreen() ? (
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between text-base">
           <div
-            className="cursor-pointer self-end font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+            className="cursor-pointer font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
             onClick={() => setToggle("signup")}
           >
             Create account
@@ -127,7 +128,7 @@ const SigninForm = () => {
         </div>
       ) : (
         <div
-          className="cursor-pointer self-end text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+          className="cursor-pointer self-end font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
           onClick={() => setToggle("forgot")}
         >
           Forgot password?

@@ -4,7 +4,6 @@ import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import useLoading from "../../../hooks/useLoading";
-import delay from "../../../utils/delay";
 import useInfo from "../../authentication/hooks/useInfo";
 import sendMessage from "../../chatbox/services/sendMessage";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -223,7 +222,7 @@ const QuickChat = (props: QuickChatProps) => {
       });
 
       // Delay for smooth processing animation
-      await delay(500);
+      // await delay(500);
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
