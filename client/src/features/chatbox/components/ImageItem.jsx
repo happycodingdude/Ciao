@@ -8,12 +8,12 @@ const ImageItem = memo(
     return (
       <div
         className="relative flex aspect-square shrink-0 flex-col items-center justify-between gap-[1rem]
-              rounded-[.5rem] bg-[var(--bg-color-thin)] p-3 phone:w-[7rem] laptop:w-[10rem]"
+              rounded-[.5rem] bg-[var(--bg-color-thin)] p-3 phone:w-[10rem] laptop:w-[10rem]"
       >
-        <div className="phone:h-[2rem absolute right-[-.5rem] top-[-.5rem] flex laptop:h-[3rem]">
+        <div className="absolute right-[-.5rem] top-[-.5rem] flex h-[3rem]">
           <div
             data-key={file.name}
-            className="fa fa-trash cursor-pointer text-md text-[var(--danger-text-color)]"
+            className="fa fa-trash cursor-pointer text-[var(--danger-text-color)] phone:text-lg laptop:text-md"
             onClick={onClick}
           ></div>
         </div>

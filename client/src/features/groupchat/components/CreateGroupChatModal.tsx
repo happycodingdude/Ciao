@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
-import { twMerge } from "tailwind-merge";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
@@ -10,7 +9,10 @@ import LocalLoading from "../../../components/LocalLoading";
 import MediaPicker from "../../../components/MediaPicker";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
+import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
+import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import {
@@ -187,15 +189,21 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     onClose();
   };
 
+  const removeMemberToAdd = (id: string) => {
+    setMembersToAdd((members) => {
+      return members.filter((mem) => mem.id !== id);
+    });
+  };
+
   return (
     <>
       <div className="relative flex shrink-0 items-end gap-[5rem] pb-[.5rem]">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
-          className="loaded aspect-square cursor-pointer rounded-[1rem] bg-[size:150%] laptop:w-[5rem]"
+          className="aspect-square w-[5rem] cursor-pointer"
         />
         <MediaPicker
-          className="absolute laptop:left-[5rem] laptop:top-[-1rem]"
+          className="absolute left-[5rem] top-[-1rem]"
           accept="image/png, image/jpeg"
           id="new-conversation-avatar"
           onChange={chooseAvatar}
@@ -203,7 +211,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         <CustomInput
           type="text"
           inputRef={refInputTitle}
-          className="laptop:w-[30rem]"
+          className="phone:w-[20rem] laptop:w-[30rem]"
           placeholder="Type group name"
         />
       </div>
@@ -230,7 +238,10 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               });
           }}
         />
-        <div className="relative flex grow gap-[2rem] border-b-[.1rem] border-[var(--border-color)]">
+        <div
+          className={`relative flex grow gap-[2rem] border-b-[.1rem] border-[var(--border-color)]
+              ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
+        >
           {isLoading || isRefetching ? (
             <LocalLoading />
           ) : (
@@ -269,7 +280,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                     )}
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="aspect-square cursor-pointer laptop:w-[4rem]"
+                      className="aspect-square w-[4rem] cursor-pointer"
                       // spinnerClassName="laptop:bg-[size:2rem]"
                       // imageClassName="bg-[size:170%]"
                       circle
@@ -286,72 +297,29 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                   </div>
                 ))}
               </div>
-              <div
-                style={
-                  {
-                    "--width": `102%`,
-                    "--height": `101%`,
-                    "--rounded": ".5rem",
-                  } as CSSProperties
-                }
-                className={twMerge(
-                  "gradient-item relative h-[95%] w-[40%] translate-x-0 self-center rounded-[.5rem] bg-[var(--bg-color)] opacity-100 transition-all duration-300",
-                  membersToAdd.length === 0 && "w-0 translate-x-full opacity-0",
-                )}
-              >
-                <div className="flex h-full w-full flex-col gap-[1rem] rounded-[.5rem] bg-[var(--bg-color)] p-2">
-                  <p>
-                    Selected{" "}
-                    {/* <span className="bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"> */}
-                    <span className="text-[var(--main-color-light)]">
-                      {membersToAdd.length ?? 0}/{data?.length}
-                    </span>
-                  </p>
-                  <div className="hide-scrollbar flex flex-col gap-[.5rem] overflow-y-scroll scroll-smooth text-xs">
-                    {membersToAdd?.map((item) => (
-                      <div className="flex items-center justify-between rounded-[1rem] bg-[var(--bg-color-extrathin)] p-2 !pr-4">
-                        <div className="pointer-events-none inline-flex items-center gap-[.5rem]">
-                          <ImageWithLightBoxAndNoLazy
-                            src={item.avatar}
-                            className="loaded aspect-square cursor-pointer laptop:w-[2.5rem]"
-                            // imageClassName="bg-[size:170%]"
-                            circle
-                            slides={[
-                              {
-                                src: item.avatar,
-                              },
-                            ]}
-                            onClick={() => {}}
-                          />
-                          <div>
-                            <CustomLabel title={item.name} />
-                          </div>
-                        </div>
-                        <div
-                          className="fa fa-trash cursor-pointer text-base text-[var(--danger-text-color)]"
-                          onClick={() => {
-                            setMembersToAdd((members) => {
-                              return members.filter(
-                                (mem) => mem.id !== item.id,
-                              );
-                            });
-                          }}
-                        ></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {isPhoneScreen() ? (
+                <MemberToAdd_Phone
+                  membersToAdd={membersToAdd}
+                  total={data?.length}
+                  removeMemberToAdd={removeMemberToAdd}
+                />
+              ) : (
+                <MemberToAdd_LargeScreen
+                  membersToAdd={membersToAdd}
+                  total={data?.length}
+                  removeMemberToAdd={removeMemberToAdd}
+                />
+              )}
             </>
           )}
         </div>
       </div>
 
       <CustomButton
-        className={`!mr-0 laptop:!w-[7rem] laptop:text-base desktop:text-md`}
+        className={`!mr-0 phone:w-[7rem] phone:text-base desktop:text-md`}
         padding="py-[.3rem]"
-        gradientWidth="110%"
-        gradientHeight="120%"
+        gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
+        gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
         rounded="3rem"
         title="Save"
         onClick={createGroupChatCTA}

@@ -22,9 +22,12 @@ const CustomButton = (props: CustomButtonProps) => {
         style={
           {
             // Default width and height for auth page
-            "--width": `${gradientWidth ?? "102%"}`,
-            "--height": `${gradientHeight ?? "117%"}`,
-            "--rounded": `${rounded ?? "3rem"}`,
+            // "--width": `${gradientWidth ?? "102%"}`,
+            // "--height": `${gradientHeight ?? "117%"}`,
+            // "--rounded": `${rounded ?? "3rem"}`,
+            "--width": `${gradientWidth}`,
+            "--height": `${gradientHeight}`,
+            "--rounded": `${rounded}`,
           } as CSSProperties
         }
         className={`gradient-item relative cursor-pointer rounded-[2rem] bg-[var(--bg-color)] text-center font-medium 

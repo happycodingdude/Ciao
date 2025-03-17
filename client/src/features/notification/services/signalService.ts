@@ -90,18 +90,6 @@ const onNewMessage = (
   message: NewMessage,
 ) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    // updateConversationCache(oldData, message.conversation, {
-    //   lastMessage: message.content,
-    //   lastMessageContact: message.contact.id,
-    //   lastMessageTime: message.createdTime,
-    //   membersUpdater: (members) =>
-    //     members.map((mem) =>
-    //       mem.contact.id !== userInfo.id
-    //         ? mem
-    //         : { ...mem, unSeenMessages: mem.unSeenMessages + 1 },
-    //     ),
-    // })
-
     if (
       oldData.conversations.some((conv) => conv.id === message.conversation.id)
     ) {
@@ -111,9 +99,10 @@ const onNewMessage = (
         lastMessageTime: message.createdTime,
         membersUpdater: (members) =>
           members.map((mem) =>
-            mem.contact.id !== userInfo.id
-              ? mem
-              : { ...mem, unSeenMessages: mem.unSeenMessages + 1 },
+            mem.contact.id === userInfo.id &&
+            oldData.selected?.id !== message.conversation.id
+              ? { ...mem, unSeenMessages: mem.unSeenMessages + 1 }
+              : mem,
           ),
       });
     } else {
@@ -127,7 +116,7 @@ const onNewMessage = (
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
         members: message.members.map((mem) =>
-          mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
+          mem.contact.id === userInfo.id ? { ...mem, unSeenMessages: 0 } : mem,
         ),
       };
 
@@ -284,13 +273,17 @@ const updateConversationCache = (
     filterConversations: updatedConversations,
     selected:
       oldData.selected?.id === conversation.id
-        ? {
-            ...oldData.selected,
-            members: membersUpdater
-              ? membersUpdater(oldData.selected.members)
-              : oldData.selected.members,
-          }
+        ? updatedConversations.find((conv) => conv.id === conversation.id)
         : oldData.selected,
+    // selected:
+    //   oldData.selected?.id === conversation.id
+    //     ? {
+    //         ...oldData.selected,
+    //         members: membersUpdater
+    //           ? membersUpdater(oldData.selected.members)
+    //           : oldData.selected.members,
+    //       }
+    //     : oldData.selected,
   };
 };
 

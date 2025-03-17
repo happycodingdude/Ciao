@@ -28,6 +28,7 @@ const ChatSection = () => {
       <ChatDetailTogglesProvider>
         <Suspense>
           <ListChatContainer />
+          {/* {conversations?.selected ? <LocalLoading /> : <ListChatContainer />} */}
         </Suspense>
         <Suspense>
           {conversations?.selected ? <ChatboxContainer /> : ""}

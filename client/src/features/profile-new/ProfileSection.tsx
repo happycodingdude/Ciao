@@ -115,7 +115,7 @@ const ProfileSection = () => {
           <textarea
             ref={refBio}
             rows={4}
-            className="hide-scrollbar resize-none rounded-lg bg-[var(--bg-color-extrathin)] px-4 py-2 font-medium outline-none"
+            className="hide-scrollbar resize-none break-all rounded-lg bg-[var(--bg-color-extrathin)] px-4 py-2 font-medium outline-none"
             typeof="text"
           />
         </div>
@@ -124,6 +124,7 @@ const ProfileSection = () => {
         padding="py-[.5rem]"
         gradientWidth={`${isPhoneScreen() ? "110%" : "110%"}`}
         gradientHeight={`${isPhoneScreen() ? "120%" : "125%"}`}
+        rounded="3rem"
         processing={processing}
         title="Save"
         className="!ml-0 !w-[30%]"

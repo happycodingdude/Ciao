@@ -45,7 +45,7 @@ const Home = () => {
       // className="relative w-full text-[clamp(1.5rem,1.2vw,2.5rem)] text-[var(--text-main-color-light)]"
       className="relative w-full text-[var(--text-main-color-light)] phone:text-md tablet:text-base desktop:text-md"
     >
-      <div className="home-container absolute flex h-full w-full bg-[var(--bg-color)]">
+      <div className="home-container ">
         <SideBar page={page} setPage={setPage} />
         {
           {

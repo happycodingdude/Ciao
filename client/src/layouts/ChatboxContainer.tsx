@@ -48,36 +48,37 @@ const ChatboxContainer = () => {
   return (
     <>
       {isPhoneScreen() ? (
+        // <LocalLoading className="!z-[11]" />
         <>
           <div
             className={`absolute h-full w-full bg-[var(--bg-color)]
             ${conversations?.selected && (!toggle || toggle === "" || toggle === "null") ? "z-[10]" : "z-0"}`}
           >
-            {/* <LocalLoading className="!z-[11]" /> */}
-            {loading ? (
-              <LocalLoading className="!z-[11]" />
-            ) : (
-              <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
-                <ChatboxHeader />
-                <div className="flex w-full phone:h-[88dvh] laptop-lg:h-[92dvh]">
+            <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
+              <ChatboxHeader />
+              <div className="flex h-[91dvh] w-full">
+                {isLoading || isRefetching ? (
+                  <LocalLoading />
+                ) : (
                   <div
                     ref={refChatboxContainer}
-                    className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]
-                    ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
+                    className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] 
+                      border-r-[var(--border-color)]
+                      ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
                   >
                     <Chatbox />
                     <ChatInput className="chatbox" inputRef={refInput} />
                   </div>
-                </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
           <div
-            className={`relative h-full w-full shrink-0 origin-right transition-all duration-200 
+            className={`relative h-full w-full shrink-0 origin-right transition-all duration-200
               ${!toggle || toggle === "" || toggle === "null" ? "z-0" : "z-[10]"}`}
           >
             <i
-              className="fa-arrow-left fa absolute left-[2rem] top-[1rem] z-[11] flex cursor-pointer items-center justify-center 
+              className="fa-arrow-left fa absolute left-[2rem] top-[1rem] z-[11] flex cursor-pointer items-center justify-center
             text-xl font-normal transition-all duration-500"
               onClick={() => setToggle(null)}
             ></i>
@@ -92,10 +93,11 @@ const ChatboxContainer = () => {
           ) : (
             <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
               <ChatboxHeader />
-              <div className="flex w-full phone:h-[88dvh] laptop-lg:h-[92dvh]">
+              <div className="flex phone:h-[88dvh] laptop:w-[94rem] laptop-lg:h-[92dvh]">
                 <div
                   ref={refChatboxContainer}
-                  className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]
+                  className={`relative flex w-full flex-col items-center gap-[1rem] border-r-[.1rem]
+                    border-r-[var(--border-color)]
                     ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
                 >
                   <Chatbox />
@@ -111,27 +113,6 @@ const ChatboxContainer = () => {
               </div>
             </div>
           )}
-
-          {/* <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
-            <ChatboxHeader />
-            <div className="flex w-full phone:h-[88dvh] laptop-lg:h-[92dvh]">
-              <div
-                ref={refChatboxContainer}
-                className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)]
-                    ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
-              >
-                <Chatbox />
-                <ChatInput className="chatbox" inputRef={refInput} />
-              </div>
-              <div
-                className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
-            ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
-              >
-                <Information />
-                <Attachment />
-              </div>
-            </div>
-          </div> */}
         </div>
       )}
     </>

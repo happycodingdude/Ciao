@@ -28,7 +28,7 @@ const AcceptButton = (props: FriendCtaButtonProps) => {
   return (
     <CustomButton
       title="Accept"
-      className={`!mr-0 laptop:!w-[6rem] laptop:text-xs desktop:text-md`}
+      className={`!mr-0 phone:w-[6rem] phone:text-xs desktop:text-md`}
       padding="py-[.3rem]"
       gradientWidth="110%"
       gradientHeight="120%"

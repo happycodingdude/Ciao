@@ -13,7 +13,7 @@ const ListChatContainer = () => {
     <ListchatFilterProvider>
       {isPhoneScreen() ? (
         <div
-          className={`absolute flex h-full w-full flex-col bg-[var(--bg-color)] transition-all duration-300
+          className={`absolute flex h-full w-full flex-col bg-[var(--bg-color)]
             ${conversations?.selected ? "z-0" : "z-[10]"}`}
         >
           <ListChatHeader />
@@ -21,7 +21,7 @@ const ListChatContainer = () => {
         </div>
       ) : (
         <div
-          className={`relative flex flex-col bg-[var(--bg-color)] transition-all duration-300
+          className={`relative flex flex-col bg-[var(--bg-color)]
             tablet:w-[21rem] 
             laptop:w-[27rem] 
             laptop-lg:w-[30rem]`}

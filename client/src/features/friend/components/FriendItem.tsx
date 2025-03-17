@@ -1,4 +1,5 @@
 import React from "react";
+import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import { FriendItemProps } from "../../../types";
 import FriendCtaButton from "./FriendCtaButton";
@@ -14,7 +15,7 @@ const FriendItem = (props: FriendItemProps) => {
     >
       <ImageWithLightBoxAndNoLazy
         src={friend.avatar}
-        className="aspect-square laptop:w-[5rem]"
+        className="aspect-square phone:w-[5rem]"
         // imageClassName="bg-[size:160%]"
         slides={[
           {
@@ -22,9 +23,13 @@ const FriendItem = (props: FriendItemProps) => {
           },
         ]}
       />
-      <div className="flex h-full flex-col items-start">
+      <div className="flex h-full max-w-[50%] flex-col items-start">
         <p className="font-medium">{friend.name}</p>
-        <p className="text-[var(--text-main-color-normal)]">{friend.bio}</p>
+        <CustomLabel
+          className="text-[var(--text-main-color-normal)]"
+          title={friend.bio}
+        />
+        {/* <p className="text-[var(--text-main-color-normal)]">{friend.bio}</p> */}
       </div>
       <FriendCtaButton {...props} />
     </div>

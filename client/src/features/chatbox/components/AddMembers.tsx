@@ -14,7 +14,7 @@ const AddMembers = () => {
       />
       <BackgroundPortal
         show={open}
-        className="laptop:!w-[50rem] desktop:!w-[70rem]"
+        className="phone:w-[35rem] laptop:w-[50rem] desktop:w-[70rem]"
         title="Add members"
         onClose={() => setOpen(false)}
       >

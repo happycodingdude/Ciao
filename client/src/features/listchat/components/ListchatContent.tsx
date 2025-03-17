@@ -12,7 +12,7 @@ import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useMessage from "../../chatbox/hooks/useMessage";
 import useAttachment from "../../chatdetail/hooks/useAttachment";
 import useConversation from "../hooks/useConversation";
-import { ConversationCache, MessageCache } from "../types";
+import { ConversationCache, ConversationModel, MessageCache } from "../types";
 
 moment.locale("en", {
   relativeTime: {
@@ -53,23 +53,45 @@ const ListchatContent = () => {
     blurImage(".list-chat");
   }, [data?.filterConversations]);
 
+  // const scrollToCenterOfSelected = (id: string) => {
+  //   if (!data || !data.selected) return;
+
+  //   const chatElement = refChatItems.current[id];
+  //   if (!chatElement) return;
+
+  //   const chatList = refChats.current;
+
+  //   // Calculate the offset to center the chat
+  //   const chatTop = chatElement.offsetTop;
+  //   const chatHeight = chatElement.offsetHeight;
+  //   const listHeight = chatList.offsetHeight;
+  //   const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
+  //   chatList.scrollTop = scrollTop;
+  // };
+
   const clickConversation = (id: string) => {
     if (data.selected?.id === id) return;
     // setLoading(true);
-    if (isPhoneScreen()) setToggle(null);
+    if (isPhoneScreen()) {
+      setToggle(null);
+    } else {
+      setLoading(true);
+    }
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      var newConversations = oldData.conversations.map((conversation) => {
+      const updatedConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== id) return conversation;
         return {
           ...conversation,
-          unSeenMessages: 0,
-        };
+          members: conversation.members.map((mem) =>
+            mem.contact.id === info.id ? { ...mem, unSeenMessages: 0 } : mem,
+          ),
+        } as ConversationModel;
       });
       const data: ConversationCache = {
         ...oldData,
-        selected: oldData.conversations.find((item) => item.id === id),
-        conversations: newConversations,
-        filterConversations: newConversations,
+        selected: updatedConversations.find((item) => item.id === id),
+        conversations: updatedConversations,
+        filterConversations: updatedConversations,
         reload: true,
         quickChat: false,
         message: null,

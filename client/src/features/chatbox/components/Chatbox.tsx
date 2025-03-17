@@ -94,7 +94,7 @@ const Chatbox = () => {
   useEventListener("scroll", handleScroll, refChatContent.current);
 
   return (
-    <div className="chatbox-content relative flex h-full max-h-[92%] w-full flex-col justify-end overflow-hidden">
+    <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden">
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={scrollChatContentToBottom}

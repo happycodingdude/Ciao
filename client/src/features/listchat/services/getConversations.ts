@@ -17,6 +17,7 @@ const getConversations = async (page: number) => {
   const result: ConversationCache = {
     conversations: data,
     filterConversations: data,
+    selected: null,
   };
   return result;
 };

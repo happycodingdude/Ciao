@@ -23,7 +23,7 @@ const ChatboxHeader = () => {
   return (
     <div
       className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)] px-[1rem] 
-    py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[5rem] laptop:h-[6rem]"
+    py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[7rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
         {/* Avatar */}
@@ -44,12 +44,12 @@ const ChatboxHeader = () => {
                   )?.contact.avatar,
             },
           ]}
-          className="loaded relative aspect-square cursor-pointer phone:w-[3.5rem] laptop:w-[4rem]"
+          className="loaded relative aspect-square w-[4rem] cursor-pointer"
           circle
         />
         <BackgroundPortal
           show={openUpdateTitle}
-          className="laptop:!w-[45rem] desktop:!w-[35%]"
+          className="phone:w-[35rem] laptop:w-[45rem] desktop:w-[35%]"
           title="Update group"
           onClose={() => setOpenUpdateTitle(false)}
         >
@@ -60,7 +60,7 @@ const ChatboxHeader = () => {
         </BackgroundPortal>
 
         {/* Title */}
-        <div className="relative flex grow flex-col text-md phone:max-w-[20rem] laptop:max-w-[30rem] desktop:max-w-[50rem]">
+        <div className="relative flex grow flex-col text-md phone:max-w-[12rem] laptop:max-w-[30rem] desktop:max-w-[50rem]">
           {conversations.selected.isGroup ? (
             <>
               <div className="flex w-full gap-[.5rem]">
@@ -88,7 +88,7 @@ const ChatboxHeader = () => {
         </div>
       </div>
       {/* Functionality */}
-      <div className="flex gap-[2rem]">
+      <div className="flex phone:gap-[1.5rem] laptop:gap-[2rem]">
         {conversations.selected.isGroup ? (
           <>
             <AddMembers />{" "}

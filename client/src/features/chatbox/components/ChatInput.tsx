@@ -18,6 +18,7 @@ import {
   MessageCache,
   MessageModel,
 } from "../../listchat/types";
+import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import sendMessage from "../services/sendMessage";
 import {
   MentionModel,
@@ -32,6 +33,7 @@ const ChatInput = (props: ChatInputProps) => {
 
   const queryClient = useQueryClient();
 
+  const { toggle } = useChatDetailToggles();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
@@ -406,9 +408,11 @@ const ChatInput = (props: ChatInputProps) => {
   }, [files]);
 
   return (
-    <div className={`flex w-full grow items-center justify-center`}>
+    <div className={`flex w-full items-center justify-center`}>
       <div
-        className={`${className} relative flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] phone:max-w-[35rem] tablet:max-w-[45rem] laptop:max-w-[65rem]`}
+        className={`${className} relative flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] 
+        phone:max-w-[30rem] 
+        ${!toggle || toggle === "" || toggle === "null" ? "laptop:max-w-[90%]" : "laptop:max-w-[65rem]"} `}
       >
         {/* File */}
         {files?.length !== 0 ? (

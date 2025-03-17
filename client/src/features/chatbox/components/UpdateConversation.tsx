@@ -5,6 +5,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../../../components/MediaPicker";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import { ConversationCache } from "../../listchat/types";
 import updateConversation from "../services/updateConversation";
 import { UpdateConversationProps, UpdateConversationRequest } from "../types";
@@ -90,10 +91,10 @@ const UpdateConversation = (props: UpdateConversationProps) => {
       <div className="relative flex items-end justify-evenly">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
-          className="loaded aspect-square cursor-pointer rounded-[1rem] bg-[size:150%] laptop:w-[5rem]"
+          className="aspect-square w-[5rem] cursor-pointer rounded-[1rem]"
         />
         <MediaPicker
-          className="absolute laptop:left-[6rem] laptop:top-[-1.5rem]"
+          className="absolute left-[6rem] top-[-1.5rem]"
           accept="image/png, image/jpeg, image/webp"
           id="new-conversation-avatar"
           onChange={chooseAvatar}
@@ -101,15 +102,18 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         <CustomInput
           type="text"
           inputRef={refInput}
-          className="laptop:w-[30rem]"
+          className="phone:w-[20rem] laptop:w-[30rem]"
           placeholder="Type group name"
         />
       </div>
       <CustomButton
-        className={`!mr-0 laptop:!w-[7rem] laptop:text-base desktop:text-md`}
+        className={`!mr-0 w-[7rem] phone:text-base desktop:text-md`}
         padding="py-[.3rem]"
-        gradientWidth="110%"
-        gradientHeight="120%"
+        gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
+        gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
+        // rounded={`${isPhoneScreen() ? "3rem" : "3rem"}`}
+        // gradientWidth="110%"
+        // gradientHeight="120%"
         rounded="3rem"
         title="Save"
         onClick={updateConversationCTA}

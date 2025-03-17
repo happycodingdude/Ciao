@@ -15,7 +15,8 @@ const CustomContentEditable = forwardRef(
         contentEditable={true}
         // data-text="Type something.."
         // aria-placeholder="Type something.."
-        className={`${className ?? ""} hide-scrollbar w-full resize-none overflow-y-auto break-all outline-none phone:max-h-[7rem] laptop:max-h-[10rem]`}
+        className={`${className ?? ""} hide-scrollbar w-full resize-none overflow-y-auto break-all outline-none 
+        phone:max-h-[10rem] laptop:max-h-[10rem]`}
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}
       ></div>
