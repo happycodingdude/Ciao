@@ -58,6 +58,7 @@ const HttpRequest = async <TReq = undefined, TRes = undefined>(
       ...{
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("accessToken"),
+        "ngrok-skip-browser-warning": "true",
       },
       ...req.headers,
     },

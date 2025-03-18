@@ -9,6 +9,7 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import useEventListener from "../../../hooks/useEventListener";
 import { ChatInputProps } from "../../../types";
 import delay from "../../../utils/delay";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import {
@@ -82,19 +83,33 @@ const ChatInput = (props: ChatInputProps) => {
 
   const uploadFile = async (files: File[]) => {
     // Create a root reference
-    const storage = getStorage();
-    return Promise.all(
-      files.map((item) => {
-        if (
-          ["doc", "docx", "xls", "xlsx", "pdf"].includes(
-            item.name.split(".")[1],
-          )
-        ) {
-          return uploadBytes(ref(storage, `file/${item.name}`), item).then(
+    try {
+      const storage = getStorage();
+      return Promise.all(
+        files.map((item) => {
+          if (
+            ["doc", "docx", "xls", "xlsx", "pdf"].includes(
+              item.name.split(".")[1],
+            )
+          ) {
+            return uploadBytes(ref(storage, `file/${item.name}`), item).then(
+              (snapshot) => {
+                return getDownloadURL(snapshot.ref).then((url) => {
+                  return {
+                    type: "file",
+                    url: url,
+                    name: item.name,
+                    size: item.size,
+                  };
+                });
+              },
+            );
+          }
+          return uploadBytes(ref(storage, `img/${item.name}`), item).then(
             (snapshot) => {
               return getDownloadURL(snapshot.ref).then((url) => {
                 return {
-                  type: "file",
+                  type: "image",
                   url: url,
                   name: item.name,
                   size: item.size,
@@ -102,21 +117,11 @@ const ChatInput = (props: ChatInputProps) => {
               });
             },
           );
-        }
-        return uploadBytes(ref(storage, `img/${item.name}`), item).then(
-          (snapshot) => {
-            return getDownloadURL(snapshot.ref).then((url) => {
-              return {
-                type: "image",
-                url: url,
-                name: item.name,
-                size: item.size,
-              };
-            });
-          },
-        );
-      }),
-    );
+        }),
+      );
+    } catch (ex) {
+      console.log(ex);
+    }
   };
 
   const { mutate: sendMutation } = useMutation({
@@ -410,14 +415,20 @@ const ChatInput = (props: ChatInputProps) => {
   return (
     <div className={`flex w-full items-center justify-center`}>
       <div
-        className={`${className} relative flex grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)] 
-        phone:max-w-[30rem] 
-        ${!toggle || toggle === "" || toggle === "null" ? "laptop:max-w-[90%]" : "laptop:max-w-[65rem]"} `}
+        className={`${className} relative flex w-full grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)]
+        ${
+          isPhoneScreen()
+            ? "max-w-[30rem]"
+            : !toggle || toggle === "" || toggle === "null"
+              ? "!w-0 laptop:max-w-[80rem] laptop-lg:max-w-[100rem]"
+              : "!w-0 laptop:max-w-[60rem] laptop-lg:max-w-[80rem]"
+        }  
+        `}
       >
         {/* File */}
         {files?.length !== 0 ? (
           <div
-            className={`file-container custom-scrollbar flex w-full gap-[1rem] overflow-x-auto scroll-smooth p-[.7rem]`}
+            className={`file-container custom-scrollbar flex  w-full gap-[1rem] overflow-x-scroll scroll-smooth p-[.7rem]`}
           >
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />

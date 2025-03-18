@@ -140,6 +140,9 @@ const SigninForm = () => {
       <CustomButton
         processing={processing}
         title="Sign in"
+        gradientWidth={`${isPhoneScreen() ? "104%" : "102%"}`}
+        gradientHeight={`${isPhoneScreen() ? "120%" : "120%"}`}
+        rounded="3rem"
         onClick={() => {
           signinCTA();
         }}

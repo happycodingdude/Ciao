@@ -5,6 +5,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
 import { SigninRequest } from "../../../types";
+import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import forgotPassword from "../services/forgotPassword";
 
@@ -88,6 +89,9 @@ const ForgotPasswordForm = () => {
       <CustomButton
         processing={processing}
         title="Reset"
+        gradientWidth={`${isPhoneScreen() ? "104%" : "102%"}`}
+        gradientHeight={`${isPhoneScreen() ? "120%" : "120%"}`}
+        rounded="3rem"
         onClick={forgotPasswordCTA}
       />
     </div>

@@ -99,6 +99,9 @@ const SignupForm = () => {
       <CustomButton
         processing={processing}
         title="Sign up"
+        gradientWidth={`${isPhoneScreen() ? "104%" : "102%"}`}
+        gradientHeight={`${isPhoneScreen() ? "120%" : "120%"}`}
+        rounded="3rem"
         onClick={signupCTA}
       />
     </div>
