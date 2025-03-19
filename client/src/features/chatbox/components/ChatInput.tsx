@@ -1,13 +1,12 @@
 import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
 import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import moment from "moment";
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
 import { ChatInputProps } from "../../../types";
+import { getToday } from "../../../utils/datetime";
 import delay from "../../../utils/delay";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -19,6 +18,7 @@ import {
   MessageCache,
   MessageModel,
 } from "../../listchat/types";
+import uploadFile from "../functions/uploadFile";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import sendMessage from "../services/sendMessage";
 import {
@@ -81,49 +81,6 @@ const ChatInput = (props: ChatInputProps) => {
     setShowMention(false);
   };
 
-  const uploadFile = async (files: File[]) => {
-    // Create a root reference
-    try {
-      const storage = getStorage();
-      return Promise.all(
-        files.map((item) => {
-          if (
-            ["doc", "docx", "xls", "xlsx", "pdf"].includes(
-              item.name.split(".")[1],
-            )
-          ) {
-            return uploadBytes(ref(storage, `file/${item.name}`), item).then(
-              (snapshot) => {
-                return getDownloadURL(snapshot.ref).then((url) => {
-                  return {
-                    type: "file",
-                    url: url,
-                    name: item.name,
-                    size: item.size,
-                  };
-                });
-              },
-            );
-          }
-          return uploadBytes(ref(storage, `img/${item.name}`), item).then(
-            (snapshot) => {
-              return getDownloadURL(snapshot.ref).then((url) => {
-                return {
-                  type: "image",
-                  url: url,
-                  name: item.name,
-                  size: item.size,
-                };
-              });
-            },
-          );
-        }),
-      );
-    } catch (ex) {
-      console.log(ex);
-    }
-  };
-
   const { mutate: sendMutation } = useMutation({
     mutationFn: async (param: SendMessageRequest) => {
       const randomId: string = Math.random().toString(36).substring(2, 7);
@@ -157,9 +114,8 @@ const ChatInput = (props: ChatInputProps) => {
         type: param.type,
         content: param.content,
       };
-      let bodyLocal: SendMessageRequest = Object.assign({}, bodyToCreate);
+      // let bodyLocal: SendMessageRequest = Object.assign({}, bodyToCreate);
 
-      const today: string = moment().format("MM/DD/YYYY");
       if (hasMedia) {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           return {
@@ -181,12 +137,30 @@ const ChatInput = (props: ChatInputProps) => {
             ],
           } as MessageCache;
         });
+        // queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+        //   // If there is no attachment yet, create a new entry
+        //   if (
+        //     oldData.attachments.length === 0 ||
+        //     oldData.attachments[0].date !== getToday("MM/DD/YYYY")
+        //   ) {
+        //     return {
+        //       ...oldData,
+        //       attachments: [
+        //         {
+        //           date: getToday("MM/DD/YYYY"),
+        //           attachments: param.attachments.map((item) => {
+        //             return { ...item, id: randomId };
+        //           }),
+        //         },
+        //         ...oldData.attachments, // Return a new array to trigger state updates
+        //       ],
+        //     } as AttachmentCache;
+        //   }
+        // });
         queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-          // If there is no attachment yet, create a new entry
-          if (
-            oldData.attachments.length === 0 ||
-            oldData.attachments[0].date !== today
-          ) {
+          const today = getToday("MM/DD/YYYY");
+
+          if (!oldData?.attachments) {
             return {
               ...oldData,
               attachments: [
@@ -196,11 +170,47 @@ const ChatInput = (props: ChatInputProps) => {
                     return { ...item, id: randomId };
                   }),
                 },
-                ...oldData.attachments, // Return a new array to trigger state updates
               ],
             } as AttachmentCache;
           }
+
+          const existingItem = oldData.attachments.find(
+            (item) => item.date === today,
+          );
+
+          if (!existingItem) {
+            return {
+              ...oldData,
+              attachments: [
+                ...oldData.attachments,
+                {
+                  date: today,
+                  attachments: param.attachments.map((item) => {
+                    return { ...item, id: randomId };
+                  }),
+                },
+              ],
+            } as AttachmentCache;
+          }
+
+          return {
+            ...oldData,
+            attachments: oldData.attachments.map((item) =>
+              item.date === today
+                ? {
+                    ...item,
+                    attachments: [
+                      ...param.attachments.map((item) => {
+                        return { ...item, id: randomId };
+                      }),
+                      ...item.attachments,
+                    ],
+                  }
+                : item,
+            ),
+          } as AttachmentCache;
         });
+
         const uploaded: AttachmentModel[] = await uploadFile(param.files).then(
           (uploads) => {
             return uploads.map((item) => ({
@@ -215,10 +225,10 @@ const ChatInput = (props: ChatInputProps) => {
           ...bodyToCreate,
           attachments: uploaded,
         };
-        bodyLocal = {
-          ...bodyLocal,
-          attachments: param.attachments,
-        };
+        // bodyLocal = {
+        //   ...bodyLocal,
+        //   attachments: param.attachments,
+        // };
       } else {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           return {
@@ -274,7 +284,7 @@ const ChatInput = (props: ChatInputProps) => {
           return {
             ...oldData,
             attachments: oldData.attachments.map((item) =>
-              item.date === today
+              item.date === getToday("MM/DD/YYYY")
                 ? {
                     ...item,
                     attachments: item.attachments.map((atta, index) => {
@@ -302,6 +312,7 @@ const ChatInput = (props: ChatInputProps) => {
         type: "image",
         mediaUrl: URL.createObjectURL(item),
         pending: true,
+        local: true,
       } as AttachmentModel;
     });
     sendMutation({

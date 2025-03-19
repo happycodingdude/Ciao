@@ -26,6 +26,7 @@ const ImageItem = memo(
               src: URL.createObjectURL(file),
             },
           ]}
+          local
         />
         <p className="self-start text-xs">{file.name}</p>
       </div>

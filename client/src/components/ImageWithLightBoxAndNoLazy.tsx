@@ -1,9 +1,9 @@
-import React, { CSSProperties, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import { ImageWithLightboxProps } from "../types";
+import { isValidUrl } from "../utils/url";
 import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
-  // console.log("ImageWithLightBoxAndNoLazy calling...");
   const {
     src,
     title,
@@ -14,10 +14,24 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
     onClick,
     circle,
     pending,
+    local,
   } = props;
 
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = () => setShowLightbox(true);
+
+  const [isValid, setIsValid] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (local) {
+      setIsValid(true);
+      return;
+    }
+    const checkImage = async () => {
+      const valid = await isValidUrl(src);
+      setIsValid(valid);
+    };
+    checkImage();
+  }, [src, local]);
 
   return (
     <>
@@ -25,7 +39,7 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
         title={title}
         style={
           {
-            "--image-url": `url(${src && src !== "" ? src : "src/assets/imagenotfound.jpg"})`,
+            "--image-url": `url(${src && src !== "" && isValid ? src : "src/assets/imagenotfound.jpg"})`,
           } as CSSProperties
         }
         className={`${className ?? ""} ${imageClassName ?? "bg-[size:cover]"} ${circle ? "rounded-full" : "rounded-2xl"} ${pending ? "opacity-50" : ""}

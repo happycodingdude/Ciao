@@ -62,9 +62,8 @@ public class NotificationConsumer : IGenericConsumer
     {
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         var notify = _mapper.Map<EventNewMessage>(param.Message);
-        notify.Content = notify.Type == "text"
-            ? notify.Content
-            : string.Join(",", notify.Attachments.Select(q => q.MediaName));
+        notify.Content = notify.Type == "text" ? notify.Content : null;
+        // : string.Join(",", notify.Attachments.Select(q => q.MediaName));
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
 

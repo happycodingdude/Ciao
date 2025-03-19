@@ -46,6 +46,7 @@ export type ImageWithLightboxProps = {
   circle?: boolean;
   pending?: boolean;
   onClick?: () => void;
+  local?: boolean;
 };
 
 export type MediaPickerProps = {

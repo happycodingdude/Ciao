@@ -265,6 +265,7 @@ const MessageContent = (props: MessageContentProps) => {
                     }))}
                     index={index}
                     pending={item.pending}
+                    local={item.local}
                   />
                 );
               })}
@@ -283,6 +284,7 @@ const MessageContent = (props: MessageContentProps) => {
                 }))}
                 index={0}
                 pending={message.attachments[0].pending}
+                local={message.attachments[0].local}
               />
               <div className="flex w-[20%] flex-col justify-between">
                 <ImageWithLightBoxAndNoLazy
@@ -295,6 +297,7 @@ const MessageContent = (props: MessageContentProps) => {
                   }))}
                   index={1}
                   pending={message.attachments[1].pending}
+                  local={message.attachments[1].local}
                 />
                 <ImageWithLightBoxAndNoLazy
                   src={message.attachments[2].mediaUrl}
@@ -306,6 +309,7 @@ const MessageContent = (props: MessageContentProps) => {
                   }))}
                   index={2}
                   pending={message.attachments[2].pending}
+                  local={message.attachments[2].local}
                 />
               </div>
             </div>

@@ -4,7 +4,7 @@ public class EventNewMessage
 {
     public string Id { get; set; } = null!;
     public string Type { get; set; } = null!;
-    public string Content { get; set; } = null!;
+    public string? Content { get; set; }
     public DateTime CreatedTime { get; set; }
     public EventNewMessage_Conversation Conversation { get; set; } = null!;
     public EventNewConversation_Member[] Members { get; set; } = null!;

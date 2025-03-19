@@ -2,7 +2,6 @@
 
 public class SignalHub : Hub
 {
-    // static readonly ConcurrentDictionary<string, string> UserConnections = new();    
     readonly UserCache _userCache;
     readonly ConversationCache _conversationCache;
     readonly ILogger _logger;
@@ -23,10 +22,13 @@ public class SignalHub : Hub
             {
                 _logger.Information($"User {userId} connected with ConnectionId {Context.ConnectionId}");
                 var connection = _userCache.GetUserConnection(userId.ToString());
-                if (connection is not null) return;
-                // UserConnections[userId] = Context.ConnectionId;
-                _userCache.SetUserConnection(userId, Context.ConnectionId);
-                _userCache.SetConnectionUser(userId, Context.ConnectionId);
+                // Set cache if not exist
+                if (connection is null)
+                {
+                    _logger.Information($"Update cache User {userId} with ConnectionId {Context.ConnectionId}");
+                    _userCache.SetUserConnection(userId, Context.ConnectionId);
+                    _userCache.SetConnectionUser(userId, Context.ConnectionId);
+                }
                 var conversationIds = await _conversationCache.GetListConversationId(userId);
                 // Add to group for broadcasting
                 foreach (var conversationId in conversationIds)

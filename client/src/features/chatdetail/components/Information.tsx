@@ -296,6 +296,7 @@ const Information = () => {
                   }))}
                   index={index}
                   pending={item.pending}
+                  local={item.local}
                 />
               ))}
             </div>

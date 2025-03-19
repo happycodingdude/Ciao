@@ -58,6 +58,7 @@ export type AttachmentModel = BaseModel & {
   mediaName?: string;
   mediaSize?: number;
   pending?: boolean;
+  local?: boolean;
 };
 
 export type MessageModel = BaseModel & {
