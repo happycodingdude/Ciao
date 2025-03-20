@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
 import { ReactionModel } from "../../../types";
@@ -37,6 +37,9 @@ const MessageContent = (props: MessageContentProps) => {
       currentReaction: message.currentReaction,
     };
   });
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setReaction((current) => {
@@ -58,6 +61,14 @@ const MessageContent = (props: MessageContentProps) => {
         currentReaction: message.currentReaction,
       };
     });
+
+    if (contentRef.current) {
+      const lineHeight = parseFloat(
+        getComputedStyle(contentRef.current).lineHeight,
+      );
+      const maxHeight = lineHeight * 3; // 3 lines height
+      setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
+    }
   }, [message]);
 
   const generateMostReaction = useCallback(() => {
@@ -251,15 +262,9 @@ const MessageContent = (props: MessageContentProps) => {
                     className={`aspect-square cursor-pointer               
                       ${
                         message.attachments?.length === 1
-                          ? "w-[40%]"
-                          : "w-[45%]"
+                          ? "w-[30%]"
+                          : "w-[25%]"
                       }`}
-                    // imageClassName={
-                    //   message.attachments?.length === 1
-                    //     ? "bg-[size:140%]"
-                    //     : "bg-[size:140%]"
-                    // }
-                    // imageClassName="bg-[size:140%]"
                     slides={message.attachments.map((item) => ({
                       src: item.type === "image" ? item.mediaUrl : "",
                     }))}
@@ -271,47 +276,68 @@ const MessageContent = (props: MessageContentProps) => {
               })}
             </div>
           ) : (
+            // <div
+            //   className={`flex w-full gap-[.5rem] laptop:h-[20rem] ${message.contactId === info.id ? "justify-end" : ""}`}
+            // >
+            //   <ImageWithLightBoxAndNoLazy
+            //     src={message.attachments[0].mediaUrl}
+            //     title={message.attachments[0].mediaName?.split(".")[0]}
+            //     className={`loaded aspect-square cursor-pointer`}
+            //     slides={message.attachments.map((item) => ({
+            //       src: item.type === "image" ? item.mediaUrl : "",
+            //     }))}
+            //     index={0}
+            //     pending={message.attachments[0].pending}
+            //     local={message.attachments[0].local}
+            //   />
+            //   <div className="flex w-[20%] flex-col justify-between">
+            //     <ImageWithLightBoxAndNoLazy
+            //       src={message.attachments[1].mediaUrl}
+            //       title={message.attachments[1].mediaName?.split(".")[0]}
+            //       className={`loaded h-[45%] w-full cursor-pointer`}
+            //       slides={message.attachments.map((item) => ({
+            //         src: item.type === "image" ? item.mediaUrl : "",
+            //       }))}
+            //       index={1}
+            //       pending={message.attachments[1].pending}
+            //       local={message.attachments[1].local}
+            //     />
+            //     <ImageWithLightBoxAndNoLazy
+            //       src={message.attachments[2].mediaUrl}
+            //       title={message.attachments[2].mediaName?.split(".")[0]}
+            //       className={`loaded h-[45%] w-full cursor-pointer`}
+            //       slides={message.attachments.map((item) => ({
+            //         src: item.type === "image" ? item.mediaUrl : "",
+            //       }))}
+            //       index={2}
+            //       pending={message.attachments[2].pending}
+            //       local={message.attachments[2].local}
+            //     />
+            //   </div>
+            // </div>
+
             <div
-              className={`flex w-full  ${message.contactId === info.id ? "justify-end" : ""} gap-[.5rem] laptop:h-[20rem]`}
+              className={`grid grid-cols-[20rem_12rem] gap-2 laptop:h-[20rem] ${
+                message.contactId === info.id ? "justify-end" : ""
+              }`}
+              // style={{ gridTemplateRows: "auto auto" }} // Explicit row structure for Firefox
             >
-              <ImageWithLightBoxAndNoLazy
-                src={message.attachments[0].mediaUrl}
-                title={message.attachments[0].mediaName?.split(".")[0]}
-                className={`loaded aspect-square w-[30%] cursor-pointer`}
-                // imageClassName="bg-[size:170%]"
-                slides={message.attachments.map((item) => ({
-                  src: item.type === "image" ? item.mediaUrl : "",
-                }))}
-                index={0}
-                pending={message.attachments[0].pending}
-                local={message.attachments[0].local}
-              />
-              <div className="flex w-[20%] flex-col justify-between">
+              {message.attachments.slice(0, 3).map((attachment, index) => (
                 <ImageWithLightBoxAndNoLazy
-                  src={message.attachments[1].mediaUrl}
-                  title={message.attachments[1].mediaName?.split(".")[0]}
-                  className={`loaded h-[45%] w-full cursor-pointer`}
-                  // imageClassName="bg-[size:120%]"
+                  key={index}
+                  src={attachment.mediaUrl}
+                  title={attachment.mediaName?.split(".")[0]}
+                  className={`loaded cursor-pointer ${
+                    index === 0 ? "row-span-2 aspect-square min-h-[12rem]" : ""
+                  }`}
                   slides={message.attachments.map((item) => ({
                     src: item.type === "image" ? item.mediaUrl : "",
                   }))}
-                  index={1}
-                  pending={message.attachments[1].pending}
-                  local={message.attachments[1].local}
+                  index={index}
+                  pending={attachment.pending}
+                  local={attachment.local}
                 />
-                <ImageWithLightBoxAndNoLazy
-                  src={message.attachments[2].mediaUrl}
-                  title={message.attachments[2].mediaName?.split(".")[0]}
-                  className={`loaded h-[45%] w-full cursor-pointer`}
-                  // imageClassName="bg-[size:120%]"
-                  slides={message.attachments.map((item) => ({
-                    src: item.type === "image" ? item.mediaUrl : "",
-                  }))}
-                  index={2}
-                  pending={message.attachments[2].pending}
-                  local={message.attachments[2].local}
-                />
-              </div>
+              ))}
             </div>
           )
         ) : (
@@ -320,22 +346,40 @@ const MessageContent = (props: MessageContentProps) => {
 
         {/* Content */}
         {message.content ? (
-          <div
-            // className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
-            // ${
-            //   message.contactId === info.id
-            //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
-            //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
-            // }`}
-            className={`cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+          <>
+            <div
+              ref={contentRef}
+              // className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
+              // ${
+              //   message.contactId === info.id
+              //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
+              //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
+              // }`}
+              data-expanded={isExpanded}
+              className={`cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
                 : "bg-[var(--bg-color-light)]"
-            }`}
-          >
-            {message.content}
-          </div>
+            }
+            overflow-y-hidden data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
+            `}
+            >
+              {message.content}
+            </div>
+
+            {/* Show more message */}
+            {isOverflowing && !isExpanded && (
+              <div
+                className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"
+                onClick={() => {
+                  setIsExpanded((current) => !current);
+                }}
+              >
+                {isExpanded ? "VIew less" : "View more"}
+              </div>
+            )}
+          </>
         ) : (
           ""
         )}
