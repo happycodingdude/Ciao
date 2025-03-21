@@ -43,6 +43,10 @@ public class DataStoreConsumer : IGenericConsumer
                     var newMemberModel = JsonConvert.DeserializeObject<NewMemberModel>(param.cr.Message.Value);
                     await HandleNewMember(newMemberModel);
                     break;
+                case Topic.NewReaction:
+                    var newReactionModel = JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value);
+                    await HandleNewReaction(newReactionModel);
+                    break;
                 default:
                     break;
             }
@@ -83,7 +87,7 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredMessage, new NewStoredMessageModel
+        await _kafkaProducer.ProduceAsync(Topic.StoredMessage, new NewStoredMessageModel
         {
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
@@ -127,7 +131,7 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredGroupConversation, new NewStoredGroupConversationModel
+        await _kafkaProducer.ProduceAsync(Topic.StoredGroupConversation, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
@@ -169,7 +173,7 @@ public class DataStoreConsumer : IGenericConsumer
 
         // if (param.Message is not null)
         // {
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredDirectConversation, new NewStoredDirectConversationModel
+        await _kafkaProducer.ProduceAsync(Topic.StoredDirectConversation, new NewStoredDirectConversationModel
         {
             UserId = param.UserId,
             ContactId = param.ContactId,
@@ -281,11 +285,75 @@ public class DataStoreConsumer : IGenericConsumer
             member.IsNew = true;
             membersNextExecution.Add(member);
         }
-        await _kafkaProducer.ProduceAsync(Topic.NewStoredMember, new NewStoredGroupConversationModel
+        await _kafkaProducer.ProduceAsync(Topic.StoredMember, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
             Members = membersNextExecution.ToArray(),
+        });
+    }
+
+    async Task HandleNewReaction(NewReactionModel param)
+    {
+        // Ensure Reactions is an empty array if not present
+        var initializationFilter = Builders<Conversation>.Filter.And(
+            Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(q => q.Messages,
+                w => w.Id == param.MessageId && (w.Reactions == null || !w.Reactions.Any()))
+        );
+        var initializeReactions = Builders<Conversation>.Update.Set(
+            "Messages.$.Reactions",
+            new List<MessageReaction>()
+        );
+        _conversationRepository.UpdateNoTrackingTime(initializationFilter, initializeReactions);
+
+        var key = Guid.NewGuid();
+        // Update if exists
+        var conversationFilter = Builders<Conversation>.Filter.And(
+            Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(q => q.Messages, w => w.Id == param.MessageId)
+        ); ;
+        var updates = Builders<Conversation>.Update.Set("Messages.$.Reactions.$[elem].Type", param.Type);
+        // var userId = _contactRepository.GetUserId();
+        var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+            new BsonDocument("elem.ContactId", param.UserId)
+            );
+        _conversationRepository.Update(key, conversationFilter,
+            Builders<Conversation>.Update.Combine(updates),
+            arrayFilter);
+
+        // Fallback: add a new reaction if it doesn't exist
+        var fallbackFilter = Builders<Conversation>.Filter.And(
+            Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(
+                c => c.Messages,
+                Builders<Message>.Filter.And(
+                    Builders<Message>.Filter.Eq(m => m.Id, param.MessageId),
+                    Builders<Message>.Filter.Not(
+                        Builders<Message>.Filter.ElemMatch(m => m.Reactions, r => r.ContactId == param.UserId)
+                    )
+                )
+            )
+        );
+        var create = Builders<Conversation>.Update.Push(
+            "Messages.$.Reactions",
+            new MessageReaction
+            {
+                ContactId = param.UserId,
+                Type = param.Type
+            }
+        );
+        _conversationRepository.AddFallback(key, fallbackFilter, create);
+
+        // Save changes
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.StoredReaction, new NewReactionModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            Type = param.Type
         });
     }
 }

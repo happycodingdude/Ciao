@@ -27,21 +27,25 @@ public class NotificationConsumer : IGenericConsumer
 
             switch (param.cr.Topic)
             {
-                case Topic.NewStoredMessage:
+                case Topic.StoredMessage:
                     var newStoredMessageModel = JsonConvert.DeserializeObject<NewStoredMessageModel>(param.cr.Message.Value);
                     await HandleNewMessage(newStoredMessageModel);
                     break;
-                case Topic.NewStoredGroupConversation:
+                case Topic.StoredGroupConversation:
                     var newStoredGroupConversationModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewGroupConversation(newStoredGroupConversationModel);
                     break;
-                case Topic.NewStoredDirectConversation:
+                case Topic.StoredDirectConversation:
                     var newStoredDirectConversationModel = JsonConvert.DeserializeObject<NewStoredDirectConversationModel>(param.cr.Message.Value);
                     await HandleNewDirectConversation(newStoredDirectConversationModel);
                     break;
-                case Topic.NewStoredMember:
+                case Topic.StoredMember:
                     var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewStoredMember(newStoredMemberModel);
+                    break;
+                case Topic.StoredReaction:
+                    var newReactionModel = JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value);
+                    await HandleNewReaction(newReactionModel);
                     break;
                 default:
                     break;
@@ -204,5 +208,9 @@ public class NotificationConsumer : IGenericConsumer
             user.Id,
             notify
         );
+    }
+
+    async Task HandleNewReaction(NewReactionModel param)
+    {
     }
 }

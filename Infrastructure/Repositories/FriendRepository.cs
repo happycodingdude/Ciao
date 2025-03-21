@@ -52,9 +52,9 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
     //         .ToList();
     // }
 
-    public async Task<List<FriendCacheModel>> GetFriendItems()
+    public async Task<List<FriendCacheModel>> GetFriendItems(string userId)
     {
-        var userId = _contactRepository.GetUserId();
+        // var userId = _contactRepository.GetUserId();
 
         var pipeline = new BsonDocument[]
         {

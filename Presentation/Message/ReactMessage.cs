@@ -23,14 +23,14 @@ public static class ReactMessage
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
-        readonly IConversationRepository _conversationRepository;
         readonly IContactRepository _contactRepository;
+        readonly IKafkaProducer _kafkaProducer;
 
-        public Handler(IValidator<Request> validator, IConversationRepository conversationRepository, IContactRepository contactRepository)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
         {
             _validator = validator;
-            _conversationRepository = conversationRepository;
             _contactRepository = contactRepository;
+            _kafkaProducer = kafkaProducer;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -39,55 +39,13 @@ public static class ReactMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Ensure Reactions is an empty array if not present
-            var initializationFilter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
-                Builders<Conversation>.Filter.ElemMatch(q => q.Messages,
-                    w => w.Id == request.id && (w.Reactions == null || !w.Reactions.Any()))
-            );
-            var initializeReactions = Builders<Conversation>.Update.Set(
-                "Messages.$.Reactions",
-                new List<MessageReaction>()
-            );
-            _conversationRepository.UpdateNoTrackingTime(initializationFilter, initializeReactions);
-
-            var key = Guid.NewGuid();
-            // Update if exists
-            var conversationFilter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
-                Builders<Conversation>.Filter.ElemMatch(q => q.Messages, w => w.Id == request.id)
-            ); ;
-            var updates = Builders<Conversation>.Update.Set("Messages.$.Reactions.$[elem].Type", request.type);
-            var userId = _contactRepository.GetUserId();
-            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem.ContactId", userId)
-                );
-            _conversationRepository.Update(key, conversationFilter,
-                Builders<Conversation>.Update.Combine(updates),
-                arrayFilter);
-
-            // Fallback: add a new reaction if it doesn't exist
-            var fallbackFilter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId),
-                Builders<Conversation>.Filter.ElemMatch(
-                    c => c.Messages,
-                    Builders<Message>.Filter.And(
-                        Builders<Message>.Filter.Eq(m => m.Id, request.id),
-                        Builders<Message>.Filter.Not(
-                            Builders<Message>.Filter.ElemMatch(m => m.Reactions, r => r.ContactId == userId)
-                        )
-                    )
-                )
-            );
-            var create = Builders<Conversation>.Update.Push(
-                "Messages.$.Reactions",
-                new MessageReaction
-                {
-                    ContactId = userId,
-                    Type = request.type
-                }
-            );
-            _conversationRepository.AddFallback(key, fallbackFilter, create);
+            await _kafkaProducer.ProduceAsync(Topic.NewReaction, new NewReactionModel
+            {
+                UserId = _contactRepository.GetUserId(),
+                ConversationId = request.conversationId,
+                MessageId = request.id,
+                Type = request.type
+            });
 
             return Unit.Value;
         }

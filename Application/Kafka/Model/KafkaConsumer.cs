@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.BackgroundJobs;
+﻿namespace Application.Kafka.Model;
 
 public class KafkaConsumer
 {

@@ -5,6 +5,13 @@ public class KafkaBaseModel
     public string UserId { get; set; } = null!;
 }
 
+public class UserLoginModel : KafkaBaseModel
+{
+    public string Token { get; set; } = null!;
+    public string RefreshToken { get; set; } = null!;
+    public DateTime ExpiryDate { get; set; }
+}
+
 public class NewMessageModel : KafkaBaseModel
 {
     public string ConversationId { get; set; } = null!;
@@ -107,8 +114,9 @@ public class NewMemberModel : KafkaBaseModel
     public string[] Members { get; set; } = null!;
 }
 
-// public class NewStoredMemberModel : KafkaBaseModel
-// {
-//     public string ConversationId { get; set; } = null!;
-//     public Member[] Members { get; set; } = null!;
-// }
+public class NewReactionModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public string? Type { get; set; }
+}

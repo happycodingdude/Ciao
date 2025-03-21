@@ -25,7 +25,8 @@ public class KafkaBackground : BackgroundService
                     Topic.NewMessage,
                     Topic.NewGroupConversation,
                     Topic.NewDirectConversation,
-                    Topic.NewMember
+                    Topic.NewMember,
+                    Topic.NewReaction
                     ])
                 .Build(),
             cancellationToken));
@@ -34,10 +35,12 @@ public class KafkaBackground : BackgroundService
             new KafkaConsumer()
                 .UseGroup("cache-consumer")
                 .Subscribe([
-                    Topic.NewStoredMessage,
-                    Topic.NewStoredGroupConversation,
-                    Topic.NewStoredDirectConversation,
-                    Topic.NewStoredMember
+                    Topic.UserLogin,
+                    Topic.StoredMessage,
+                    Topic.StoredGroupConversation,
+                    Topic.StoredDirectConversation,
+                    Topic.StoredMember,
+                    Topic.StoredReaction
                     ])
                 .Build(),
             cancellationToken));
@@ -46,10 +49,11 @@ public class KafkaBackground : BackgroundService
             new KafkaConsumer()
                 .UseGroup("notification-consumer")
                 .Subscribe([
-                    Topic.NewStoredMessage,
-                    Topic.NewStoredGroupConversation,
-                    Topic.NewStoredDirectConversation,
-                    Topic.NewStoredMember
+                    Topic.StoredMessage,
+                    Topic.StoredGroupConversation,
+                    Topic.StoredDirectConversation,
+                    Topic.StoredMember,
+                    Topic.StoredReaction
                     ])
                 .Build(),
             cancellationToken));
@@ -110,9 +114,7 @@ public class KafkaBackground : BackgroundService
                         {
                             var cr = consumer.Consume(_kafkaConfig.Value.ConsumeTimeOut);
                             if (cr is not null)
-                            {
                                 await consumerHandler.ProcessMesageAsync(new ConsumerResultData(cr, consumer));
-                            }
                         }
                         catch (ConsumeException ex)
                         {

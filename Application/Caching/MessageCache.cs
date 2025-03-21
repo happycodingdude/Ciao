@@ -59,15 +59,37 @@ public class MessageCache
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 
-    // public async Task RemoveAll(List<string> conversationIds)
-    // {
-    //     var tasks = new List<Task>();
-    //     foreach (var id in conversationIds)
-    //     {
-    //         var key = $"conversation-{id}-messages";
-    //         tasks.Add(_distributedCache.RemoveAsync(key));
-    //     }
+    public async Task UpdateReactions(string conversationId, string messageId, string userId, string type)
+    {
+        // Update message cache
+        var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages") ?? "";
+        var messages = JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
+        var message = messages.SingleOrDefault(q => q.Id == messageId);
+        if (message.Reactions.Any())
+        {
+            var userReaction = message.Reactions.SingleOrDefault(q => q.ContactId == userId);
+            if (userReaction is null)
+            {
+                message.Reactions.Add(new MessageReaction
+                {
+                    ContactId = userId,
+                    Type = type
+                });
+            }
+            else
+            {
+                userReaction.Type = type;
+            }
+        }
+        else
+        {
+            message.Reactions.Add(new MessageReaction
+            {
+                ContactId = userId,
+                Type = type
+            });
+        }
 
-    //     await Task.WhenAll(tasks);
-    // }
+        await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
+    }
 }

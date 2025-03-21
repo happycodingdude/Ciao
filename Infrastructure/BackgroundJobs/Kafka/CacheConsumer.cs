@@ -8,9 +8,12 @@ public class CacheConsumer : IGenericConsumer
     readonly ConversationCache _conversationCache;
     readonly UserCache _userCache;
     readonly MemberCache _memberCache;
+    readonly FriendCache _friendCache;
     readonly IContactRepository _contactRepository;
+    readonly IConversationRepository _conversationRepository;
+    readonly IFriendRepository _friendRepository;
 
-    public CacheConsumer(ILogger logger, IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, IContactRepository contactRepository)
+    public CacheConsumer(ILogger logger, IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, FriendCache friendCache, IContactRepository contactRepository, IConversationRepository conversationRepository, IFriendRepository friendRepository)
     {
         _logger = logger;
         _mapper = mapper;
@@ -18,7 +21,10 @@ public class CacheConsumer : IGenericConsumer
         _conversationCache = conversationCache;
         _userCache = userCache;
         _memberCache = memberCache;
+        _friendCache = friendCache;
         _contactRepository = contactRepository;
+        _conversationRepository = conversationRepository;
+        _friendRepository = friendRepository;
     }
 
     public async Task ProcessMesageAsync(ConsumerResultData param)
@@ -29,21 +35,29 @@ public class CacheConsumer : IGenericConsumer
 
             switch (param.cr.Topic)
             {
-                case Topic.NewStoredMessage:
+                case Topic.UserLogin:
+                    var userLoginModel = JsonConvert.DeserializeObject<UserLoginModel>(param.cr.Message.Value);
+                    await HandleUserLogin(userLoginModel);
+                    break;
+                case Topic.StoredMessage:
                     var newStoredMessageModel = JsonConvert.DeserializeObject<NewStoredMessageModel>(param.cr.Message.Value);
                     await HandleNewMessage(newStoredMessageModel);
                     break;
-                case Topic.NewStoredGroupConversation:
+                case Topic.StoredGroupConversation:
                     var newStoredGroupConversationModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewGroupConversation(newStoredGroupConversationModel);
                     break;
-                case Topic.NewStoredDirectConversation:
+                case Topic.StoredDirectConversation:
                     var newStoredDirectConversationModel = JsonConvert.DeserializeObject<NewStoredDirectConversationModel>(param.cr.Message.Value);
                     await HandleNewDirectConversation(newStoredDirectConversationModel);
                     break;
-                case Topic.NewStoredMember:
+                case Topic.StoredMember:
                     var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewStoredMember(newStoredMemberModel);
+                    break;
+                case Topic.StoredReaction:
+                    var newReactionModel = JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value);
+                    await HandleNewReaction(newReactionModel);
                     break;
                 default:
                     break;
@@ -59,6 +73,40 @@ public class CacheConsumer : IGenericConsumer
             param.consumer.Commit(param.cr);
         }
     }
+
+    async Task HandleUserLogin(UserLoginModel param)
+    {
+        var userTask = _contactRepository.GetInfoAsync(param.UserId)
+            .ContinueWith(task =>
+            {
+                var user = task.Result;
+                _userCache.SetToken(param.UserId, param.Token);
+                _userCache.SetInfo(user);
+            });
+
+        var conversationTask = _conversationRepository
+            .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))
+            .ContinueWith(async task =>
+            {
+                var conversations = task.Result;
+                conversations.ToList().ForEach(q =>
+                {
+                    var member = q.Members.SingleOrDefault(m => m.Contact.Id == param.UserId);
+                    if (member != null)
+                        member.Contact.IsOnline = true;
+                });
+                await _conversationCache.SetConversations(param.UserId, conversations.ToList());
+            }).Unwrap();
+
+        var friendsTask = _friendRepository.GetFriendItems(param.UserId)
+            .ContinueWith(async task =>
+            {
+                await _friendCache.SetFriends(param.UserId, task.Result);
+            }).Unwrap();
+
+        await Task.WhenAll(userTask, conversationTask, friendsTask);
+    }
+
 
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
@@ -171,5 +219,10 @@ public class CacheConsumer : IGenericConsumer
         var receivers = await _userCache.GetInfo(membersToNotify);
         if (receivers.Any())
             await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
+    }
+
+    async Task HandleNewReaction(NewReactionModel param)
+    {
+        await _messageCache.UpdateReactions(param.ConversationId, param.MessageId, param.UserId, param.Type);
     }
 }

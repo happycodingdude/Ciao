@@ -16,9 +16,9 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         _contactRepository = contactRepository;
     }
 
-    public async Task<IEnumerable<ConversationWithTotalUnseenWithContactInfo>> GetConversationsWithUnseenMesages(PagingParam pagingParam)
+    public async Task<IEnumerable<ConversationWithTotalUnseenWithContactInfo>> GetConversationsWithUnseenMesages(string userId, PagingParam pagingParam)
     {
-        var userId = _contactRepository.GetUserId();
+        // var userId = _contactRepository.GetUserId();
 
         var pipeline = new BsonDocument[]
         {
@@ -134,7 +134,8 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                 { "SeenTime", "$$message.SeenTime" },
                                 { "ContactId", "$$message.ContactId" },
                                 { "Attachments", "$$message.Attachments" },
-                                { "CreatedTime", "$$message.CreatedTime" }
+                                { "CreatedTime", "$$message.CreatedTime" },
+                                { "Reactions", "$$message.Reactions" }
                             }
                         }
                     })
@@ -155,7 +156,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
         foreach (var conversation in conversations)
         {
-            conversation.IsNotifying = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
+            // conversation.IsNotifying = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
             // conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
 
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();

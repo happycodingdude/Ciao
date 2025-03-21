@@ -127,19 +127,24 @@ export type CustomLabelProps = {
 };
 
 export type ReactionModel = {
-  likeCount: number;
-  loveCount: number;
-  careCount: number;
-  wowCount: number;
-  sadCount: number;
-  angryCount: number;
+  contactId: string;
+  type: string;
+};
+
+export type MessageReactionProps_Message_Reaction = {
+  // likeCount: number;
+  // loveCount: number;
+  // careCount: number;
+  // wowCount: number;
+  // sadCount: number;
+  // angryCount: number;
   total: number;
   currentReaction: string | null;
 };
 
 export type MessageReactionProps_Message = {
   mine: boolean;
-  reaction: ReactionModel;
+  reaction: MessageReactionProps_Message_Reaction;
   topReactions: string[];
 };
 

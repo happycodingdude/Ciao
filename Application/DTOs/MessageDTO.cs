@@ -59,19 +59,21 @@ public class SendMessageRes
 //     public string Avatar { get; set; } = null!;
 // }
 
-public class MessagesWithHasMore
-{
-    public bool HasMore { get; set; }
-    public List<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
-}
-
 public class MessageWithReactions : MongoBaseModel
 {
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
-    // public string Status { get; set; } = null!;
     public bool IsPinned { get; set; }
-    // public DateTime? SeenTime { get; set; }
+    public string ContactId { get; set; } = null!;
+    public List<Attachment>? Attachments { get; set; } = new List<Attachment>();
+    public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
+}
+
+public class MessageReactionSumary : MongoBaseModel
+{
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public bool IsPinned { get; set; }
     public string ContactId { get; set; } = null!;
     public List<Attachment>? Attachments { get; set; } = new List<Attachment>();
     public int LikeCount { get; set; }
@@ -80,5 +82,11 @@ public class MessageWithReactions : MongoBaseModel
     public int WowCount { get; set; }
     public int SadCount { get; set; }
     public int AngryCount { get; set; }
-    public string CurrentReaction { get; set; } = null!;
+    public string? CurrentReaction { get; set; }
+}
+
+public class MessagesWithHasMore
+{
+    public bool HasMore { get; set; }
+    public List<MessageReactionSumary> Messages { get; set; } = new List<MessageReactionSumary>();
 }

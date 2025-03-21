@@ -15,6 +15,7 @@ public static class SignIn
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
         readonly FriendCache _friendCache;
+        readonly IKafkaProducer _kafkaProducer;
 
         public Handler(IContactRepository contactRepository,
             IConversationRepository conversationRepository,
@@ -23,7 +24,8 @@ public static class SignIn
             IHttpContextAccessor httpContextAccessor,
             UserCache userCache,
             ConversationCache conversationCache,
-            FriendCache friendCache)
+            FriendCache friendCache,
+            IKafkaProducer kafkaProducer)
         {
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
@@ -33,6 +35,7 @@ public static class SignIn
             _userCache = userCache;
             _conversationCache = conversationCache;
             _friendCache = friendCache;
+            _kafkaProducer = kafkaProducer;
         }
 
         public async Task<TokenModel> Handle(Request request, CancellationToken cancellationToken)
@@ -66,32 +69,40 @@ public static class SignIn
                     .Set(q => q.ExpiryDate, expiryDate);
                 _contactRepository.Update(filter, updates);
 
-                // Update cache
-                _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
-
-                var taskToComplete = new List<Task>(3)
+                await _kafkaProducer.ProduceAsync(Topic.UserLogin, new UserLoginModel
                 {
-                    Task.Run(() =>
-                    {
-                        _userCache.SetToken(user.Id, token);
-                        _userCache.SetInfo(user);
-                    }),
-                    Task.Run(async () =>
-                    {
-                        var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
-                        conversations.ToList().ForEach(q =>
-                        {
-                            q.Members.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
-                        });
-                        await _conversationCache.SetConversations(user.Id, conversations.ToList());
-                    }),
-                    Task.Run(async () =>
-                    {
-                        var friends = await _friendRepository.GetFriendItems();
-                        await _friendCache.SetFriends(user.Id, friends);
-                    })
-                };
-                await Task.WhenAll(taskToComplete);
+                    UserId = user.Id,
+                    Token = token,
+                    RefreshToken = refreshToken,
+                    ExpiryDate = expiryDate
+                });
+
+                // // Update cache
+                // _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
+
+                // var taskToComplete = new List<Task>(3)
+                // {
+                //     Task.Run(() =>
+                //     {
+                //         _userCache.SetToken(user.Id, token);
+                //         _userCache.SetInfo(user);
+                //     }),
+                //     Task.Run(async () =>
+                //     {
+                //         var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
+                //         conversations.ToList().ForEach(q =>
+                //         {
+                //             q.Members.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
+                //         });
+                //         await _conversationCache.SetConversations(user.Id, conversations.ToList());
+                //     }),
+                //     Task.Run(async () =>
+                //     {
+                //         var friends = await _friendRepository.GetFriendItems();
+                //         await _friendCache.SetFriends(user.Id, friends);
+                //     })
+                // };
+                // await Task.WhenAll(taskToComplete);
             }
             else
             {

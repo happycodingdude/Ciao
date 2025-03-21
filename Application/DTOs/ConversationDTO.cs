@@ -44,7 +44,7 @@ public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
     public DateTime? LastMessageTime { get; set; }
     public string LastMessageContact { get; set; } = null!;
     // public DateTime? LastSeenTime { get; set; }
-    public bool IsNotifying { get; set; }
+    // public bool IsNotifying { get; set; }
     public List<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
 }
 

@@ -2,12 +2,16 @@
 
 public static class Topic
 {
-    public const string NewMessage = "new_message";
-    public const string NewStoredMessage = "new_stored_message";
-    public const string NewGroupConversation = "new_group_conversation";
-    public const string NewStoredGroupConversation = "new_stored_group_conversation";
-    public const string NewDirectConversation = "new_direct_conversation";
-    public const string NewStoredDirectConversation = "new_stored_direct_conversation";
-    public const string NewMember = "new_member";
-    public const string NewStoredMember = "new_stored_member";
+    public const string UserLogin = "user.login";
+    public const string UserLogout = "user.logout";
+    public const string NewMessage = "message.new";
+    public const string StoredMessage = "message.stored";
+    public const string NewGroupConversation = "conversation.new";
+    public const string StoredGroupConversation = "conversation.stored";
+    public const string NewDirectConversation = "direct-conversation.new";
+    public const string StoredDirectConversation = "direct-conversation.stored";
+    public const string NewMember = "member.new";
+    public const string StoredMember = "member.stored";
+    public const string NewReaction = "reaction.new";
+    public const string StoredReaction = "reaction.stored";
 }

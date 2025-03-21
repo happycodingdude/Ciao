@@ -1,8 +1,8 @@
 import moment from "moment";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
-import { ReactionModel } from "../../../types";
+import { MessageReactionProps_Message_Reaction } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
 import reactMessage from "../services/reactMessage";
@@ -19,24 +19,21 @@ const MessageContent = (props: MessageContentProps) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
-  const [reaction, setReaction] = useState<ReactionModel>(() => {
-    return {
-      likeCount: message.likeCount,
-      loveCount: message.loveCount,
-      careCount: message.careCount,
-      wowCount: message.wowCount,
-      sadCount: message.sadCount,
-      angryCount: message.angryCount,
-      total:
-        message.likeCount +
-        message.loveCount +
-        message.careCount +
-        message.wowCount +
-        message.sadCount +
-        message.angryCount,
-      currentReaction: message.currentReaction,
-    };
-  });
+  const [reaction, setReaction] =
+    useState<MessageReactionProps_Message_Reaction>(() => {
+      return {
+        // likeCount: message.likeCount,
+        // loveCount: message.loveCount,
+        // careCount: message.careCount,
+        // wowCount: message.wowCount,
+        // sadCount: message.sadCount,
+        // angryCount: message.angryCount,
+        total: 0,
+        currentReaction:
+          message.reactions.find((reaction) => reaction.contactId === info.id)
+            ?.type || null,
+      } as MessageReactionProps_Message_Reaction;
+    });
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -45,21 +42,24 @@ const MessageContent = (props: MessageContentProps) => {
     setReaction((current) => {
       return {
         ...current,
-        likeCount: message.likeCount,
-        loveCount: message.loveCount,
-        careCount: message.careCount,
-        wowCount: message.wowCount,
-        sadCount: message.sadCount,
-        angryCount: message.angryCount,
-        total:
-          message.likeCount +
-          message.loveCount +
-          message.careCount +
-          message.wowCount +
-          message.sadCount +
-          message.angryCount,
-        currentReaction: message.currentReaction,
-      };
+        // likeCount: message.likeCount,
+        // loveCount: message.loveCount,
+        // careCount: message.careCount,
+        // wowCount: message.wowCount,
+        // sadCount: message.sadCount,
+        // angryCount: message.angryCount,
+        // total:
+        //   message.likeCount +
+        //   message.loveCount +
+        //   message.careCount +
+        //   message.wowCount +
+        //   message.sadCount +
+        //   message.angryCount,
+        total: 0,
+        currentReaction:
+          message.reactions.find((reaction) => reaction.contactId === info.id)
+            ?.type || null,
+      } as MessageReactionProps_Message_Reaction;
     });
 
     if (contentRef.current) {
@@ -71,29 +71,31 @@ const MessageContent = (props: MessageContentProps) => {
     }
   }, [message]);
 
-  const generateMostReaction = useCallback(() => {
-    const reactions = {
-      like: reaction.likeCount,
-      love: reaction.loveCount,
-      care: reaction.careCount,
-      wow: reaction.wowCount,
-      sad: reaction.sadCount,
-      angry: reaction.angryCount,
-    };
+  // const generateMostReaction = useCallback(() => {
+  //   const reactions = {
+  //     like: reaction.likeCount,
+  //     love: reaction.loveCount,
+  //     care: reaction.careCount,
+  //     wow: reaction.wowCount,
+  //     sad: reaction.sadCount,
+  //     angry: reaction.angryCount,
+  //   };
 
-    return Object.entries(reactions)
-      .filter(([_, count]) => count > 0) // Exclude zero counts
-      .sort((a, b) => b[1] - a[1]) // Sort by count
-      .slice(0, 3) // Get the top 3
-      .map(([key]) => key); // Extract reaction names
-  }, [reaction]);
+  //   return Object.entries(reactions)
+  //     .filter(([_, count]) => count > 0) // Exclude zero counts
+  //     .sort((a, b) => b[1] - a[1]) // Sort by count
+  //     .slice(0, 3) // Get the top 3
+  //     .map(([key]) => key); // Extract reaction names
+  // }, [reaction]);
 
-  const [topReactions, setTopReactions] = useState(() =>
-    generateMostReaction(),
-  );
+  // const [topReactions, setTopReactions] = useState(() =>
+  //   generateMostReaction(),
+  // );
+
+  const [topReactions, setTopReactions] = useState();
 
   useEffect(() => {
-    setTopReactions(generateMostReaction());
+    // setTopReactions(generateMostReaction());
   }, [reaction]);
 
   const react = (type: string) => {
@@ -122,12 +124,12 @@ const MessageContent = (props: MessageContentProps) => {
 
       return {
         ...current,
-        total:
-          previousReaction && !isDesc
-            ? current.total
-            : isDesc
-              ? current.total - 1
-              : current.total + 1,
+        // total:
+        //   previousReaction && !isDesc
+        //     ? current.total
+        //     : isDesc
+        //       ? current.total - 1
+        //       : current.total + 1,
         currentReaction: isDesc ? null : type,
         ...(previousKey && {
           [previousKey]: current[previousKey] - 1,
@@ -173,7 +175,7 @@ const MessageContent = (props: MessageContentProps) => {
       )}
       <div
         className={`relative flex flex-col 
-          phone:w-[30rem] laptop:w-[clamp(60rem,70%,80rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+          phone:w-[30rem] laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
         {/* Sender infor */}
@@ -349,12 +351,6 @@ const MessageContent = (props: MessageContentProps) => {
           <>
             <div
               ref={contentRef}
-              // className={` break-all rounded-[1rem] ${pending ? "opacity-50" : ""} my-[.5rem] px-[1rem] leading-[5rem]
-              // ${
-              //   message.contactId === info.id
-              //     ? "rounded-tr-none bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"
-              //     : "rounded-tl-none bg-[var(--bg-color-extrathin)] text-[var(--text-main-color)]"
-              // }`}
               data-expanded={isExpanded}
               className={`cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
@@ -362,21 +358,23 @@ const MessageContent = (props: MessageContentProps) => {
                 ? "bg-[var(--main-color)]"
                 : "bg-[var(--bg-color-light)]"
             }
-            overflow-y-hidden data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
+            data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none
+            data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
             `}
             >
               {message.content}
             </div>
 
             {/* Show more message */}
-            {isOverflowing && !isExpanded && (
+            {isOverflowing && (
               <div
-                className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"
+                // className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"
+                className="absolute bottom-[-1.2rem] right-[3rem] cursor-pointer text-base text-green-500"
                 onClick={() => {
                   setIsExpanded((current) => !current);
                 }}
               >
-                {isExpanded ? "VIew less" : "View more"}
+                {isExpanded ? "View less" : "View more"}
               </div>
             )}
           </>
