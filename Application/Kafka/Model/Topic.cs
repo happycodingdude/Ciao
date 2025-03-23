@@ -14,4 +14,5 @@ public static class Topic
     public const string StoredMember = "member.stored";
     public const string NewReaction = "reaction.new";
     public const string StoredReaction = "reaction.stored";
+    public const string NotifyNewReaction = "reaction.notify";
 }

@@ -29,9 +29,7 @@ const MessageContent = (props: MessageContentProps) => {
         // sadCount: message.sadCount,
         // angryCount: message.angryCount,
         total: 0,
-        currentReaction:
-          message.reactions.find((reaction) => reaction.contactId === info.id)
-            ?.type || null,
+        currentReaction: message.currentReaction,
       } as MessageReactionProps_Message_Reaction;
     });
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -56,9 +54,7 @@ const MessageContent = (props: MessageContentProps) => {
         //   message.sadCount +
         //   message.angryCount,
         total: 0,
-        currentReaction:
-          message.reactions.find((reaction) => reaction.contactId === info.id)
-            ?.type || null,
+        currentReaction: message.currentReaction,
       } as MessageReactionProps_Message_Reaction;
     });
 

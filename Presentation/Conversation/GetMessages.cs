@@ -1,5 +1,3 @@
-using MongoDB.Bson.Serialization.Serializers;
-
 namespace Presentation.Conversations;
 
 public static class GetMessages
@@ -61,20 +59,13 @@ public static class GetMessages
             var paging = new PagingParam(request.page, request.limit);
             var pagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.Skip).Take(paging.Limit).ToList();
             var nextPagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.NextSkip).Take(paging.Limit).ToList();
-            var result = _mapper.Map<List<MessageReactionSumary>>(pagedMessages.OrderBy(q => q.CreatedTime).ToList());
+            var result = _mapper.Map<List<MessageReactionSumary>>(pagedMessages);
             for (int i = 0; i < result.Count; i++)
-            {
-                result[i].LikeCount = pagedMessages[i].Reactions.Count(q => q.Type == AppConstants.MessageReactionType_Like);
-                result[i].LoveCount = pagedMessages[i].Reactions.Count(q => q.Type == AppConstants.MessageReactionType_Love);
-                result[i].CareCount = pagedMessages[i].Reactions.Count(q => q.Type == AppConstants.MessageReactionType_Care);
-                result[i].WowCount = pagedMessages[i].Reactions.Count(q => q.Type == AppConstants.MessageReactionType_Wow);
-                result[i].SadCount = pagedMessages[i].Reactions.Count(q => q.Type == AppConstants.MessageReactionType_Sad);
-                result[i].AngryCount = pagedMessages[i].Reactions.Count(q => q.Type == AppConstants.MessageReactionType_Angry);
                 result[i].CurrentReaction = pagedMessages[i].Reactions.SingleOrDefault(q => q.ContactId == _contactRepository.GetUserId())?.Type;
-            }
+
             return new MessagesWithHasMore
             {
-                Messages = result,
+                Messages = result.OrderBy(q => q.CreatedTime).ToList(),
                 HasMore = nextPagedMessages.Any()
             };
         }

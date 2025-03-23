@@ -8,33 +8,15 @@ public static class SignIn
     {
         readonly PasswordHasher<string> _passwordHasher = new();
         readonly IContactRepository _contactRepository;
-        readonly IConversationRepository _conversationRepository;
-        readonly IFriendRepository _friendRepository;
         readonly IJwtService _jwtService;
-        readonly IHttpContextAccessor _httpContextAccessor;
         readonly UserCache _userCache;
-        readonly ConversationCache _conversationCache;
-        readonly FriendCache _friendCache;
         readonly IKafkaProducer _kafkaProducer;
 
-        public Handler(IContactRepository contactRepository,
-            IConversationRepository conversationRepository,
-            IFriendRepository friendRepository,
-            IJwtService jwtService,
-            IHttpContextAccessor httpContextAccessor,
-            UserCache userCache,
-            ConversationCache conversationCache,
-            FriendCache friendCache,
-            IKafkaProducer kafkaProducer)
+        public Handler(IContactRepository contactRepository, IJwtService jwtService, UserCache userCache, IKafkaProducer kafkaProducer)
         {
             _contactRepository = contactRepository;
-            _conversationRepository = conversationRepository;
-            _friendRepository = friendRepository;
             _jwtService = jwtService;
-            _httpContextAccessor = httpContextAccessor;
             _userCache = userCache;
-            _conversationCache = conversationCache;
-            _friendCache = friendCache;
             _kafkaProducer = kafkaProducer;
         }
 
@@ -48,10 +30,6 @@ public static class SignIn
 
             var token = "";
             var refreshToken = "";
-
-            // _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
-            // var friends = await _friendRepository.GetFriendItems();
-            // _logger.Information(JsonConvert.SerializeObject(friends));
 
             // When signed out
             if (!user.IsOnline)
@@ -76,33 +54,6 @@ public static class SignIn
                     RefreshToken = refreshToken,
                     ExpiryDate = expiryDate
                 });
-
-                // // Update cache
-                // _httpContextAccessor.HttpContext.Items["UserId"] = user.Id;
-
-                // var taskToComplete = new List<Task>(3)
-                // {
-                //     Task.Run(() =>
-                //     {
-                //         _userCache.SetToken(user.Id, token);
-                //         _userCache.SetInfo(user);
-                //     }),
-                //     Task.Run(async () =>
-                //     {
-                //         var conversations = await _conversationRepository.GetConversationsWithUnseenMesages(new PagingParam(1, 100));
-                //         conversations.ToList().ForEach(q =>
-                //         {
-                //             q.Members.SingleOrDefault(q => q.Contact.Id == user.Id).Contact.IsOnline = true;
-                //         });
-                //         await _conversationCache.SetConversations(user.Id, conversations.ToList());
-                //     }),
-                //     Task.Run(async () =>
-                //     {
-                //         var friends = await _friendRepository.GetFriendItems();
-                //         await _friendCache.SetFriends(user.Id, friends);
-                //     })
-                // };
-                // await Task.WhenAll(taskToComplete);
             }
             else
             {

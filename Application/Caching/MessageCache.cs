@@ -59,7 +59,7 @@ public class MessageCache
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
     }
 
-    public async Task UpdateReactions(string conversationId, string messageId, string userId, string type)
+    public async Task<List<MessageReaction>> UpdateReactions(string conversationId, string messageId, string userId, string type)
     {
         // Update message cache
         var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages") ?? "";
@@ -91,5 +91,7 @@ public class MessageCache
         }
 
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
+
+        return message.Reactions;
     }
 }

@@ -53,7 +53,7 @@ public class KafkaBackground : BackgroundService
                     Topic.StoredGroupConversation,
                     Topic.StoredDirectConversation,
                     Topic.StoredMember,
-                    Topic.StoredReaction
+                    Topic.NotifyNewReaction
                     ])
                 .Build(),
             cancellationToken));

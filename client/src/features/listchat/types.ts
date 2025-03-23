@@ -1,4 +1,4 @@
-import { BaseModel, ReactionModel } from "../../types";
+import { BaseModel } from "../../types";
 
 export type ConversationModel_Contact = {
   id?: string;
@@ -74,14 +74,14 @@ export type MessageModel = BaseModel & {
   seenTime?: string | null;
   contactId?: string;
   attachments?: AttachmentModel[];
-  // likeCount?: number;
-  // loveCount?: number;
-  // careCount?: number;
-  // wowCount?: number;
-  // sadCount?: number;
-  // angryCount?: number;
-  // currentReaction?: string | null;
-  reactions?: ReactionModel[];
+  likeCount?: number;
+  loveCount?: number;
+  careCount?: number;
+  wowCount?: number;
+  sadCount?: number;
+  angryCount?: number;
+  currentReaction?: string | null;
+  // reactions?: ReactionModel[];
 };
 
 export type PendingMessageModel = MessageModel & {

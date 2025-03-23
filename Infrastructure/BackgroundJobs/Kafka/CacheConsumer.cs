@@ -12,8 +12,9 @@ public class CacheConsumer : IGenericConsumer
     readonly IContactRepository _contactRepository;
     readonly IConversationRepository _conversationRepository;
     readonly IFriendRepository _friendRepository;
+    readonly IKafkaProducer _kafkaProducer;
 
-    public CacheConsumer(ILogger logger, IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, FriendCache friendCache, IContactRepository contactRepository, IConversationRepository conversationRepository, IFriendRepository friendRepository)
+    public CacheConsumer(ILogger logger, IMapper mapper, MessageCache messageCache, ConversationCache conversationCache, UserCache userCache, MemberCache memberCache, FriendCache friendCache, IContactRepository contactRepository, IConversationRepository conversationRepository, IFriendRepository friendRepository, IKafkaProducer kafkaProducer)
     {
         _logger = logger;
         _mapper = mapper;
@@ -25,6 +26,7 @@ public class CacheConsumer : IGenericConsumer
         _contactRepository = contactRepository;
         _conversationRepository = conversationRepository;
         _friendRepository = friendRepository;
+        _kafkaProducer = kafkaProducer;
     }
 
     public async Task ProcessMesageAsync(ConsumerResultData param)
@@ -95,6 +97,19 @@ public class CacheConsumer : IGenericConsumer
                     if (member != null)
                         member.Contact.IsOnline = true;
                 });
+                foreach (var conversation in conversations)
+                {
+                    foreach (var message in conversation.Messages)
+                    {
+                        var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(message.Reactions);
+                        message.LikeCount = likes;
+                        message.LoveCount = loves;
+                        message.CareCount = cares;
+                        message.WowCount = wows;
+                        message.SadCount = sads;
+                        message.AngryCount = angries;
+                    }
+                }
                 await _conversationCache.SetConversations(param.UserId, conversations.ToList());
             }).Unwrap();
 
@@ -106,7 +121,6 @@ public class CacheConsumer : IGenericConsumer
 
         await Task.WhenAll(userTask, conversationTask, friendsTask);
     }
-
 
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
@@ -223,6 +237,31 @@ public class CacheConsumer : IGenericConsumer
 
     async Task HandleNewReaction(NewReactionModel param)
     {
-        await _messageCache.UpdateReactions(param.ConversationId, param.MessageId, param.UserId, param.Type);
+        var reactions = await _messageCache.UpdateReactions(param.ConversationId, param.MessageId, param.UserId, param.Type);
+
+        var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(reactions);
+        await _kafkaProducer.ProduceAsync(Topic.NotifyNewReaction, new NotifyNewReactionModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            LikeCount = likes,
+            LoveCount = loves,
+            CareCount = cares,
+            WowCount = wows,
+            SadCount = sads,
+            AngryCount = angries
+        });
+    }
+
+    /* MARK: HELPER FUNCTIONS */
+    (int, int, int, int, int, int) CalculateReactionCount(List<MessageReaction> reactions)
+    {
+        return (reactions.Count(q => q.Type == AppConstants.MessageReactionType_Like),
+        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Love),
+        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Care),
+        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Wow),
+        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Sad),
+        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Angry));
     }
 }

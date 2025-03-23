@@ -81,6 +81,11 @@ const setupListeners = (queryClient: QueryClient, userInfo: UserProfile) => {
     console.log(user);
     console.log(data);
   });
+
+  hubConnection.on("NewReaction", (user: string, data: string) => {
+    console.log(user);
+    console.log(data);
+  });
 };
 
 /* MARK: ON NEW MESSAGE */

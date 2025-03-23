@@ -43,8 +43,8 @@ public class NotificationConsumer : IGenericConsumer
                     var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
                     await HandleNewStoredMember(newStoredMemberModel);
                     break;
-                case Topic.StoredReaction:
-                    var newReactionModel = JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value);
+                case Topic.NotifyNewReaction:
+                    var newReactionModel = JsonConvert.DeserializeObject<NotifyNewReactionModel>(param.cr.Message.Value);
                     await HandleNewReaction(newReactionModel);
                     break;
                 default:
@@ -118,7 +118,7 @@ public class NotificationConsumer : IGenericConsumer
             member.IsNotifying = true;
         }
 
-        var user = await _contactRepository.GetInfoAsync(param.UserId);
+        // var user = await _contactRepository.GetInfoAsync(param.UserId);
         // var thisUser = notify.Members.SingleOrDefault(q => q.Contact.Id == param.UserId);
         // thisUser.Contact.Name = user.Name;
         // thisUser.Contact.Avatar = user.Avatar;
@@ -130,7 +130,7 @@ public class NotificationConsumer : IGenericConsumer
         _ = _notificationProcessor.Notify(
             ChatEventNames.NewConversation,
             param.Conversation.Id,
-            user.Id,
+            param.UserId,
             notify
         );
     }
@@ -201,16 +201,22 @@ public class NotificationConsumer : IGenericConsumer
             member.IsNotifying = true;
         }
 
-        var user = await _contactRepository.GetInfoAsync(param.UserId);
+        // var user = await _contactRepository.GetInfoAsync(param.UserId);
         _ = _notificationProcessor.Notify(
             ChatEventNames.NewMembers,
             param.Conversation.Id,
-            user.Id,
+            param.UserId,
             notify
         );
     }
 
-    async Task HandleNewReaction(NewReactionModel param)
+    async Task HandleNewReaction(NotifyNewReactionModel param)
     {
+        _ = _notificationProcessor.Notify(
+            ChatEventNames.NewReaction,
+            param.ConversationId,
+            param.UserId,
+            param
+        );
     }
 }

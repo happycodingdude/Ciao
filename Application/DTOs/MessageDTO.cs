@@ -67,6 +67,12 @@ public class MessageWithReactions : MongoBaseModel
     public string ContactId { get; set; } = null!;
     public List<Attachment>? Attachments { get; set; } = new List<Attachment>();
     public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
+    public int LikeCount { get; set; }
+    public int LoveCount { get; set; }
+    public int CareCount { get; set; }
+    public int WowCount { get; set; }
+    public int SadCount { get; set; }
+    public int AngryCount { get; set; }
 }
 
 public class MessageReactionSumary : MongoBaseModel

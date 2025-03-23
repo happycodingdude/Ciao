@@ -120,3 +120,15 @@ public class NewReactionModel : KafkaBaseModel
     public string MessageId { get; set; } = null!;
     public string? Type { get; set; }
 }
+
+public class NotifyNewReactionModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public int LikeCount { get; set; }
+    public int LoveCount { get; set; }
+    public int CareCount { get; set; }
+    public int WowCount { get; set; }
+    public int SadCount { get; set; }
+    public int AngryCount { get; set; }
+}
