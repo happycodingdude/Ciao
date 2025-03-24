@@ -76,6 +76,7 @@ public class CacheConsumer : IGenericConsumer
         }
     }
 
+    /* MARK: USER LOGIN */
     async Task HandleUserLogin(UserLoginModel param)
     {
         var userTask = _contactRepository.GetInfoAsync(param.UserId)
@@ -122,6 +123,7 @@ public class CacheConsumer : IGenericConsumer
         await Task.WhenAll(userTask, conversationTask, friendsTask);
     }
 
+    /* MARK: NEW MESSAGE */
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
         var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
@@ -130,6 +132,7 @@ public class CacheConsumer : IGenericConsumer
         await _messageCache.AddMessages(param.UserId, conversationToCache.Id, conversationToCache.UpdatedTime.Value, message);
     }
 
+    /* MARK: NEW GROUP CONVERSATION */
     async Task HandleNewGroupConversation(NewStoredGroupConversationModel param)
     {
         // var conversation = _mapper.Map<Conversation>(param);
@@ -166,6 +169,7 @@ public class CacheConsumer : IGenericConsumer
             await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
     }
 
+    /* MARK: NEW DIRECT CONVERSATION */
     async Task HandleNewDirectConversation(NewStoredDirectConversationModel param)
     {
         var user = await _contactRepository.GetInfoAsync(param.UserId);
@@ -211,6 +215,7 @@ public class CacheConsumer : IGenericConsumer
         }
     }
 
+    /* MARK: NEW MEMBER */
     async Task HandleNewStoredMember(NewStoredGroupConversationModel param)
     {
         var newMembers = _mapper.Map<List<MemberWithContactInfo>>(param.Members.Where(q => q.IsNew));
@@ -235,6 +240,7 @@ public class CacheConsumer : IGenericConsumer
             await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
     }
 
+    /* MARK: NEW REACTION */
     async Task HandleNewReaction(NewReactionModel param)
     {
         var reactions = await _messageCache.UpdateReactions(param.ConversationId, param.MessageId, param.UserId, param.Type);

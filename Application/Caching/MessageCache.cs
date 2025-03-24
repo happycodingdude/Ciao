@@ -75,9 +75,11 @@ public class MessageCache
                     ContactId = userId,
                     Type = type
                 });
+                UpdateReactionCount(message, type);
             }
             else
             {
+                UpdateReactionCount(message, userReaction.Type, type);
                 userReaction.Type = type;
             }
         }
@@ -88,10 +90,62 @@ public class MessageCache
                 ContactId = userId,
                 Type = type
             });
+            UpdateReactionCount(message, type);
         }
 
         await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
 
         return message.Reactions;
+    }
+
+    void UpdateReactionCount(MessageWithReactions message, string type)
+    {
+        switch (type)
+        {
+            case AppConstants.MessageReactionType_Like:
+                message.LikeCount++;
+                break;
+            case AppConstants.MessageReactionType_Love:
+                message.LoveCount++;
+                break;
+            case AppConstants.MessageReactionType_Care:
+                message.CareCount++;
+                break;
+            case AppConstants.MessageReactionType_Wow:
+                message.WowCount++;
+                break;
+            case AppConstants.MessageReactionType_Sad:
+                message.SadCount++;
+                break;
+            case AppConstants.MessageReactionType_Angry:
+                message.AngryCount++;
+                break;
+        }
+    }
+
+    void UpdateReactionCount(MessageWithReactions message, string lastType, string newType)
+    {
+        UpdateReactionCount(message, newType);
+        switch (lastType)
+        {
+            case AppConstants.MessageReactionType_Like:
+                message.LikeCount--;
+                break;
+            case AppConstants.MessageReactionType_Love:
+                message.LoveCount--;
+                break;
+            case AppConstants.MessageReactionType_Care:
+                message.CareCount--;
+                break;
+            case AppConstants.MessageReactionType_Wow:
+                message.WowCount--;
+                break;
+            case AppConstants.MessageReactionType_Sad:
+                message.SadCount--;
+                break;
+            case AppConstants.MessageReactionType_Angry:
+                message.AngryCount--;
+                break;
+        }
     }
 }

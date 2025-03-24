@@ -132,12 +132,12 @@ export type ReactionModel = {
 };
 
 export type MessageReactionProps_Message_Reaction = {
-  // likeCount: number;
-  // loveCount: number;
-  // careCount: number;
-  // wowCount: number;
-  // sadCount: number;
-  // angryCount: number;
+  likeCount: number;
+  loveCount: number;
+  careCount: number;
+  wowCount: number;
+  sadCount: number;
+  angryCount: number;
   total: number;
   currentReaction: string | null;
 };

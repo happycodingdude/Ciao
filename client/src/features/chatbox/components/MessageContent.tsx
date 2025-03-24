@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
 import { MessageReactionProps_Message_Reaction } from "../../../types";
@@ -22,13 +22,19 @@ const MessageContent = (props: MessageContentProps) => {
   const [reaction, setReaction] =
     useState<MessageReactionProps_Message_Reaction>(() => {
       return {
-        // likeCount: message.likeCount,
-        // loveCount: message.loveCount,
-        // careCount: message.careCount,
-        // wowCount: message.wowCount,
-        // sadCount: message.sadCount,
-        // angryCount: message.angryCount,
-        total: 0,
+        likeCount: message.likeCount,
+        loveCount: message.loveCount,
+        careCount: message.careCount,
+        wowCount: message.wowCount,
+        sadCount: message.sadCount,
+        angryCount: message.angryCount,
+        total:
+          message.likeCount +
+          message.loveCount +
+          message.careCount +
+          message.wowCount +
+          message.sadCount +
+          message.angryCount,
         currentReaction: message.currentReaction,
       } as MessageReactionProps_Message_Reaction;
     });
@@ -40,20 +46,19 @@ const MessageContent = (props: MessageContentProps) => {
     setReaction((current) => {
       return {
         ...current,
-        // likeCount: message.likeCount,
-        // loveCount: message.loveCount,
-        // careCount: message.careCount,
-        // wowCount: message.wowCount,
-        // sadCount: message.sadCount,
-        // angryCount: message.angryCount,
-        // total:
-        //   message.likeCount +
-        //   message.loveCount +
-        //   message.careCount +
-        //   message.wowCount +
-        //   message.sadCount +
-        //   message.angryCount,
-        total: 0,
+        likeCount: message.likeCount,
+        loveCount: message.loveCount,
+        careCount: message.careCount,
+        wowCount: message.wowCount,
+        sadCount: message.sadCount,
+        angryCount: message.angryCount,
+        total:
+          message.likeCount +
+          message.loveCount +
+          message.careCount +
+          message.wowCount +
+          message.sadCount +
+          message.angryCount,
         currentReaction: message.currentReaction,
       } as MessageReactionProps_Message_Reaction;
     });
@@ -67,28 +72,28 @@ const MessageContent = (props: MessageContentProps) => {
     }
   }, [message]);
 
-  // const generateMostReaction = useCallback(() => {
-  //   const reactions = {
-  //     like: reaction.likeCount,
-  //     love: reaction.loveCount,
-  //     care: reaction.careCount,
-  //     wow: reaction.wowCount,
-  //     sad: reaction.sadCount,
-  //     angry: reaction.angryCount,
-  //   };
+  const generateMostReaction = useCallback(() => {
+    const reactions = {
+      like: reaction.likeCount,
+      love: reaction.loveCount,
+      care: reaction.careCount,
+      wow: reaction.wowCount,
+      sad: reaction.sadCount,
+      angry: reaction.angryCount,
+    };
 
-  //   return Object.entries(reactions)
-  //     .filter(([_, count]) => count > 0) // Exclude zero counts
-  //     .sort((a, b) => b[1] - a[1]) // Sort by count
-  //     .slice(0, 3) // Get the top 3
-  //     .map(([key]) => key); // Extract reaction names
-  // }, [reaction]);
+    return Object.entries(reactions)
+      .filter(([_, count]) => count > 0) // Exclude zero counts
+      .sort((a, b) => b[1] - a[1]) // Sort by count
+      .slice(0, 3) // Get the top 3
+      .map(([key]) => key); // Extract reaction names
+  }, [reaction]);
 
-  // const [topReactions, setTopReactions] = useState(() =>
-  //   generateMostReaction(),
-  // );
+  const [topReactions, setTopReactions] = useState(() =>
+    generateMostReaction(),
+  );
 
-  const [topReactions, setTopReactions] = useState();
+  // const [topReactions, setTopReactions] = useState();
 
   useEffect(() => {
     // setTopReactions(generateMostReaction());
