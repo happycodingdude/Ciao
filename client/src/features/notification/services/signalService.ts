@@ -10,14 +10,19 @@ import {
   ConversationModel_Member,
   MessageCache,
 } from "../../listchat/types";
-import { NewConversation, NewMessage } from "../types";
+import { NewConversation, NewMessage, NewReaction } from "../types";
 
 let hubConnection: signalR.HubConnection | null = null;
+
+const servers = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+};
 
 export const startConnection = async (
   userId: string,
   queryClient: QueryClient,
   userInfo: UserProfile,
+  pc: RTCPeerConnection,
 ) => {
   if (!userId) {
     console.error("User ID is required to establish a connection.");
@@ -41,6 +46,7 @@ export const startConnection = async (
     await hubConnection.start();
     console.log(`Connected to SignalR as ${userId}`);
     setupListeners(queryClient, userInfo);
+    setupVideoCall(pc);
   } catch (error) {
     console.error("Error establishing SignalR connection:", error);
   }
@@ -85,7 +91,41 @@ const setupListeners = (queryClient: QueryClient, userInfo: UserProfile) => {
   hubConnection.on("NewReaction", (user: string, data: string) => {
     console.log(user);
     console.log(data);
+    if (user == userInfo.id) return;
+    onNewReaction(queryClient, JSON.parse(data));
   });
+};
+
+const setupVideoCall = (pc: RTCPeerConnection) => {
+  pc = new RTCPeerConnection(servers);
+  hubConnection.on(
+    "ReceiveOffer",
+    async (fromUserId: string, offer: string) => {
+      await pc.setRemoteDescription(
+        new RTCSessionDescription(JSON.parse(offer)),
+      );
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      hubConnection.send("SendAnswer", fromUserId, JSON.stringify(answer));
+    },
+  );
+
+  hubConnection.on(
+    "ReceiveAnswer",
+    async (_fromUserId: string, answer: string) => {
+      await pc.setRemoteDescription(
+        new RTCSessionDescription(JSON.parse(answer)),
+      );
+    },
+  );
+
+  hubConnection.on(
+    "ReceiveIceCandidate",
+    async (_fromUserId: string, candidate: string) => {
+      await pc.addIceCandidate(new RTCIceCandidate(JSON.parse(candidate)));
+    },
+  );
 };
 
 /* MARK: ON NEW MESSAGE */
@@ -205,6 +245,31 @@ const onNewConversation = (
       conversations: [newConversation, ...oldData.conversations],
       filterConversations: [newConversation, ...oldData.conversations],
     };
+  });
+};
+
+/* MARK: ON NEW REACTION */
+const onNewReaction = (queryClient: QueryClient, reaction: NewReaction) => {
+  queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+    if (!oldData || oldData.conversationId !== reaction.conversationId)
+      return oldData;
+
+    return {
+      ...oldData,
+      messages: oldData.messages.map((message) => {
+        if (message.id !== reaction.messageId) return message;
+
+        return {
+          ...message,
+          likeCount: reaction.likeCount,
+          loveCount: reaction.loveCount,
+          careCount: reaction.careCount,
+          wowCount: reaction.wowCount,
+          sadCount: reaction.sadCount,
+          angryCount: reaction.angryCount,
+        };
+      }),
+    } as MessageCache;
   });
 };
 

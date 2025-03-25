@@ -98,7 +98,10 @@ public class NotificationConsumer : IGenericConsumer
         var members = param.Members.Select(q => q.ContactId).ToList();
         var connections = await _userCache.GetUserConnection(members.ToArray());
         foreach (var connection in connections)
+        {
+            Console.WriteLine($"Add connection {connection} to conversation {param.Conversation.Id}");
             await _hubContext.Groups.AddToGroupAsync(connection, param.Conversation.Id);
+        }
 
         // Push conversation
         var notify = _mapper.Map<EventNewConversation>(param);

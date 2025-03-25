@@ -34,7 +34,7 @@ export type ReactMessageRequest = {
   conversationId: string;
   messageId: string;
   type: string;
-  isDesc: boolean;
+  isUnReact: boolean;
 };
 
 export type ChatboxMenuProps = {

@@ -48,3 +48,15 @@ export type NewConversation = {
   conversation: NewMessage_Conversation;
   members: ConversationModel_Member[];
 };
+
+export type NewReaction = {
+  conversationId: string;
+  messageId: string;
+  likeCount: number;
+  loveCount: number;
+  careCount: number;
+  wowCount: number;
+  sadCount: number;
+  angryCount: number;
+  userId: string;
+};

@@ -96,17 +96,17 @@ const MessageContent = (props: MessageContentProps) => {
   // const [topReactions, setTopReactions] = useState();
 
   useEffect(() => {
-    // setTopReactions(generateMostReaction());
+    setTopReactions(generateMostReaction());
   }, [reaction]);
 
   const react = (type: string) => {
     // console.log(`reaction type => ${type}...`);
-    const isDesc = reaction.currentReaction === type;
+    const isUnReact = reaction.currentReaction === type;
     const request: ReactMessageRequest = {
       conversationId: id,
       messageId: message.id,
       type: type,
-      isDesc: isDesc,
+      isUnReact: isUnReact,
     };
     reactMessage(request);
     setReaction((current) => {
@@ -123,20 +123,38 @@ const MessageContent = (props: MessageContentProps) => {
       const previousKey = reactionKeys[previousReaction];
       const newKey = reactionKeys[type];
 
-      return {
+      const tmp = {
         ...current,
-        // total:
-        //   previousReaction && !isDesc
-        //     ? current.total
-        //     : isDesc
-        //       ? current.total - 1
-        //       : current.total + 1,
-        currentReaction: isDesc ? null : type,
+        total:
+          previousReaction && !isUnReact
+            ? current.total
+            : isUnReact
+              ? current.total - 1
+              : current.total + 1,
+        currentReaction: isUnReact ? null : type,
         ...(previousKey && {
           [previousKey]: current[previousKey] - 1,
         }),
         ...(newKey &&
-          !isDesc && {
+          !isUnReact && {
+            [newKey]: (current[newKey] || 0) + 1,
+          }),
+      };
+
+      return {
+        ...current,
+        total:
+          previousReaction && !isUnReact
+            ? current.total
+            : isUnReact
+              ? current.total - 1
+              : current.total + 1,
+        currentReaction: isUnReact ? null : type,
+        ...(previousKey && {
+          [previousKey]: current[previousKey] - 1,
+        }),
+        ...(newKey &&
+          !isUnReact && {
             [newKey]: (current[newKey] || 0) + 1,
           }),
       };
@@ -370,7 +388,7 @@ const MessageContent = (props: MessageContentProps) => {
             {isOverflowing && (
               <div
                 // className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"
-                className="absolute bottom-[-1.2rem] right-[3rem] cursor-pointer text-base text-green-500"
+                className={`absolute bottom-[-1.2rem] ${message.contactId === info.id ? "left-[3rem]" : "right-[3rem]"} cursor-pointer text-base text-green-500`}
                 onClick={() => {
                   setIsExpanded((current) => !current);
                 }}

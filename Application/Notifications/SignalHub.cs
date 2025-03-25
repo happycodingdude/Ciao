@@ -68,4 +68,31 @@ public class SignalHub : Hub
     {
         return Task.FromResult(Context.ConnectionId);
     }
+
+    public async Task SendOffer(string targetUserId, string offer)
+    {
+        try
+        {
+            Console.WriteLine($"Offer {offer} is sent to user {targetUserId}");
+            var connection = _userCache.GetUserConnection(targetUserId);
+            await Clients.Client(connection).SendAsync("ReceiveOffer", Context.ConnectionId, offer);
+        }
+        catch (Exception ex)
+        {
+            _logger.Information(JsonConvert.SerializeObject(ex));
+        }
+    }
+
+    public async Task SendAnswer(string connection, string answer)
+    {
+        Console.WriteLine($"Connection {connection} receive answer {answer}");
+        await Clients.Client(connection).SendAsync("ReceiveAnswer", Context.ConnectionId, answer);
+    }
+
+    public async Task SendIceCandidate(string connection, string candidate)
+    {
+        Console.WriteLine($"Connection {connection} receive icecandidate {candidate}");
+        // var connection = _userCache.GetUserConnection(targetUserId);
+        await Clients.Client(connection).SendAsync("ReceiveIceCandidate", Context.ConnectionId, candidate);
+    }
 }

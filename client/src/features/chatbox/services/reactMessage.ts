@@ -5,7 +5,7 @@ const reactMessage = async (model: ReactMessageRequest) => {
   return (
     await HttpRequest({
       method: "put",
-      url: model.isDesc
+      url: model.isUnReact
         ? import.meta.env.VITE_ENDPOINT_MESSAGE_UNREACT.replace(
             "{conversationId}",
             model.conversationId,
