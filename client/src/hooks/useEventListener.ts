@@ -1,20 +1,6 @@
 import { useEffect, useRef } from "react";
 import { EventListenerHook } from "../types";
 
-// const useEventListener: EventListenerHook<HTMLElement | Window> = (
-//   event,
-//   callback,
-//   element = window,
-// ) => {
-//   if (!element || !element.addEventListener) return;
-//   useEffect(() => {
-//     element.addEventListener(event, callback, true);
-//     return () => {
-//       element.removeEventListener(event, callback, true);
-//     };
-//   }, [event, callback, element]);
-// };
-
 const useEventListener: EventListenerHook<HTMLElement | Window> = (
   event,
   callback,

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import LocalLoading from "../components/LocalLoading";
+import useInfo from "../features/authentication/hooks/useInfo";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
 import ChatInput from "../features/chatbox/components/ChatInput";
@@ -21,6 +22,7 @@ const ChatboxContainer = () => {
     isRefetching: isRefetchingAttachment,
   } = useAttachment();
   const { data: conversations } = useConversation();
+  const { data: info } = useInfo();
 
   const { toggle, setToggle } = useChatDetailToggles();
   const { loading, setLoading } = useLoading();
@@ -93,6 +95,13 @@ const ChatboxContainer = () => {
           ) : (
             <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
               <ChatboxHeader />
+              {/* <VideoCall
+                targetUserId={
+                  conversations.selected?.members.find(
+                    (mem) => mem.contact.id !== info.id,
+                  ).contact.id
+                }
+              /> */}
               <div className="flex w-full phone:h-[88dvh] laptop-lg:h-[90dvh]">
                 <div
                   ref={refChatboxContainer}

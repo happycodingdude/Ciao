@@ -1,4 +1,4 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
@@ -9,6 +9,7 @@ import useConversation from "../../listchat/hooks/useConversation";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import AddMembers from "./AddMembers";
 import UpdateConversation from "./UpdateConversation";
+import VideoCall from "./VideoCall";
 
 const ChatboxHeader = () => {
   const { toggle, setToggle } = useChatDetailToggles();
@@ -19,6 +20,7 @@ const ChatboxHeader = () => {
   const { data: info } = useInfo();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
+  const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
 
   return (
     <div
@@ -102,6 +104,24 @@ const ChatboxHeader = () => {
         ) : (
           ""
         )}
+        <VideoCameraOutlined
+          onClick={() => setOpenVideoCall(true)}
+          className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+        />
+        <BackgroundPortal
+          show={openVideoCall}
+          className="phone:w-[35rem] laptop:w-[70rem] desktop:w-[35%]"
+          title="Video call"
+          onClose={() => setOpenVideoCall(false)}
+        >
+          <VideoCall
+            targetUserId={
+              conversations.selected?.members.find(
+                (mem) => mem.contact.id !== info.id,
+              ).contact.id
+            }
+          />
+        </BackgroundPortal>
         <div
           className={`flex justify-end gap-[1rem] rounded-full 
             ${toggle === "information" ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : "hover:text-[var(--main-color-bold)]"}`}

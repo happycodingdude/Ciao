@@ -98,34 +98,65 @@ const setupListeners = (queryClient: QueryClient, userInfo: UserProfile) => {
 
 const setupVideoCall = (pc: RTCPeerConnection) => {
   pc = new RTCPeerConnection(servers);
-  hubConnection.on(
-    "ReceiveOffer",
-    async (fromUserId: string, offer: string) => {
-      await pc.setRemoteDescription(
-        new RTCSessionDescription(JSON.parse(offer)),
-      );
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
+  hubConnection.on("ReceiveOffer", async (callerId: string, offer: string) => {
+    console.log("🔔 Received offer");
+    // remoteUserIdRef.current = callerId;
+    await setupPeerConnection(pc, callerId, true);
 
-      hubConnection.send("SendAnswer", fromUserId, JSON.stringify(answer));
-    },
-  );
+    const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
+    await pc.setRemoteDescription(rtcOffer);
 
-  hubConnection.on(
-    "ReceiveAnswer",
-    async (_fromUserId: string, answer: string) => {
-      await pc.setRemoteDescription(
-        new RTCSessionDescription(JSON.parse(answer)),
-      );
-    },
-  );
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer!);
+    hubConnection.send("SendAnswer", callerId, JSON.stringify(answer));
+  });
 
-  hubConnection.on(
-    "ReceiveIceCandidate",
-    async (_fromUserId: string, candidate: string) => {
-      await pc.addIceCandidate(new RTCIceCandidate(JSON.parse(candidate)));
-    },
-  );
+  hubConnection.on("ReceiveAnswer", async (answer: string) => {
+    console.log("📩 Received answer");
+    const rtcAnswer = new RTCSessionDescription(JSON.parse(answer));
+    await pc.setRemoteDescription(rtcAnswer);
+  });
+
+  hubConnection.on("ReceiveIceCandidate", async (candidate: string) => {
+    console.log("❄️ Received ICE candidate");
+    const rtcCandidate = new RTCIceCandidate(JSON.parse(candidate));
+    await pc.addIceCandidate(rtcCandidate);
+  });
+
+  hubConnection.on("CallEnded", () => {
+    console.log("📞 Call ended");
+    // stopCall();
+  });
+};
+
+const setupPeerConnection = async (
+  pc: RTCPeerConnection,
+  peerId: string,
+  isReceiver = false,
+) => {
+  // pcRef.current = new RTCPeerConnection(servers);
+
+  if (isReceiver)
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        hubConnection.send(
+          "SendIceCandidate",
+          peerId,
+          JSON.stringify(e.candidate),
+        );
+      }
+    };
+
+  pc.ontrack = (e) => {
+    // if (remoteVideoRef.current) {
+    console.log("📡 ontrack fired");
+    // remoteVideoRef.current.srcObject = e.streams[0];
+    // }
+  };
+
+  // localStreamRef.current?.getTracks().forEach((track) => {
+  //   pcRef.current?.addTrack(track, localStreamRef.current!);
+  // });
 };
 
 /* MARK: ON NEW MESSAGE */

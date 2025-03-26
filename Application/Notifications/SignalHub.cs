@@ -69,30 +69,31 @@ public class SignalHub : Hub
         return Task.FromResult(Context.ConnectionId);
     }
 
-    public async Task SendOffer(string targetUserId, string offer)
+    public async Task SendOffer(string receiverId, string callerId, string offer)
     {
-        try
-        {
-            Console.WriteLine($"Offer {offer} is sent to user {targetUserId}");
-            var connection = _userCache.GetUserConnection(targetUserId);
-            await Clients.Client(connection).SendAsync("ReceiveOffer", Context.ConnectionId, offer);
-        }
-        catch (Exception ex)
-        {
-            _logger.Information(JsonConvert.SerializeObject(ex));
-        }
+        Console.WriteLine($"Offer {offer} is sent to user {receiverId}");
+        var connection = _userCache.GetUserConnection(receiverId);
+        await Clients.Client(connection).SendAsync("ReceiveOffer", callerId, offer);
     }
 
-    public async Task SendAnswer(string connection, string answer)
+    public async Task SendAnswer(string callerId, string answer)
     {
-        Console.WriteLine($"Connection {connection} receive answer {answer}");
-        await Clients.Client(connection).SendAsync("ReceiveAnswer", Context.ConnectionId, answer);
+        Console.WriteLine($"Answer {answer} is sent back to user {callerId}");
+        var connection = _userCache.GetUserConnection(callerId);
+        await Clients.Client(connection).SendAsync("ReceiveAnswer", answer);
     }
 
-    public async Task SendIceCandidate(string connection, string candidate)
+    public async Task SendIceCandidate(string callerId, string candidate)
     {
-        Console.WriteLine($"Connection {connection} receive icecandidate {candidate}");
-        // var connection = _userCache.GetUserConnection(targetUserId);
-        await Clients.Client(connection).SendAsync("ReceiveIceCandidate", Context.ConnectionId, candidate);
+        Console.WriteLine($"Candidate {candidate} is sent to user {callerId}");
+        var connection = _userCache.GetUserConnection(callerId);
+        await Clients.Client(connection).SendAsync("ReceiveIceCandidate", candidate);
+    }
+
+    public async Task EndCall(string targetUserId)
+    {
+        Console.WriteLine($"Send endcall to user {targetUserId}");
+        var connection = _userCache.GetUserConnection(targetUserId);
+        await Clients.Client(connection).SendAsync("CallEnded");
     }
 }
