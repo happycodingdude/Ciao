@@ -71,29 +71,29 @@ public class SignalHub : Hub
 
     public async Task SendOffer(string receiverId, string callerId, string offer)
     {
-        Console.WriteLine($"Offer {offer} is sent to user {receiverId}");
         var connection = _userCache.GetUserConnection(receiverId);
+        Console.WriteLine($"Offer is sent to user {receiverId} with connection {connection}");
         await Clients.Client(connection).SendAsync("ReceiveOffer", callerId, offer);
     }
 
     public async Task SendAnswer(string callerId, string answer)
     {
-        Console.WriteLine($"Answer {answer} is sent back to user {callerId}");
         var connection = _userCache.GetUserConnection(callerId);
+        Console.WriteLine($"Answer {answer} is sent back to user {callerId} with connection {connection}");
         await Clients.Client(connection).SendAsync("ReceiveAnswer", answer);
     }
 
     public async Task SendIceCandidate(string callerId, string candidate)
     {
-        Console.WriteLine($"Candidate {candidate} is sent to user {callerId}");
         var connection = _userCache.GetUserConnection(callerId);
+        Console.WriteLine($"Candidate {candidate} is sent to user {callerId} with connection {connection}");
         await Clients.Client(connection).SendAsync("ReceiveIceCandidate", candidate);
     }
 
     public async Task EndCall(string targetUserId)
     {
-        Console.WriteLine($"Send endcall to user {targetUserId}");
         var connection = _userCache.GetUserConnection(targetUserId);
+        Console.WriteLine($"Send endcall to user {targetUserId} with connection {connection}");
         await Clients.Client(connection).SendAsync("CallEnded");
     }
 }

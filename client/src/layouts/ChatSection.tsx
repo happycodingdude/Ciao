@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense } from "react";
 import BackgroundPortal from "../components/BackgroundPortal";
 import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
 import { useSignal } from "../context/SignalContext";
@@ -11,12 +11,12 @@ const ChatboxContainer = lazy(() => import("./ChatboxContainer"));
 const ChatSection = () => {
   const { data: conversations } = useConversation(1);
   const { data: info } = useInfo();
-  const { newCall } = useSignal();
-  const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
+  const { targetUserId, remoteStream, stopCall } = useSignal();
+  // const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
 
-  useEffect(() => {
-    console.log(`newCall: ${newCall}`);
-  }, [newCall]);
+  // useEffect(() => {
+  //   console.log(`newCall: ${newCall}`);
+  // }, [newCall]);
   return (
     // <LoadingProvider>
     // <section className={`relative flex grow overflow-hidden`}>
@@ -46,12 +46,12 @@ const ChatSection = () => {
         </Suspense>
       </ChatDetailTogglesProvider>
       <BackgroundPortal
-        show={newCall}
+        show={remoteStream !== null}
         className="phone:w-[35rem] laptop:w-[70rem] desktop:w-[35%]"
         title="Video call"
-        onClose={() => setOpenVideoCall(false)}
+        onClose={() => stopCall(true)}
       >
-        <VideoCall targetUserId="66f271809423f7e5257a712f" />
+        <VideoCall targetUserId={targetUserId} />
       </BackgroundPortal>
     </section>
     // </LoadingProvider>

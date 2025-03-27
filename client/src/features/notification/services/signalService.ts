@@ -1,4 +1,4 @@
-import * as signalR from "@microsoft/signalr";
+import { HubConnection } from "@microsoft/signalr";
 import { QueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import { UserProfile } from "../../../types";
@@ -12,151 +12,92 @@ import {
 } from "../../listchat/types";
 import { NewConversation, NewMessage, NewReaction } from "../types";
 
-let hubConnection: signalR.HubConnection | null = null;
+// let hubConnection: signalR.HubConnection | null = null;
 
-const servers = {
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-};
+// const servers = {
+//   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+// };
 
-export const startConnection = async (
-  userId: string,
+// export const startConnection = async (
+//   userId: string,
+//   queryClient: QueryClient,
+//   userInfo: UserProfile,
+//   pc: RTCPeerConnection,
+// ) => {
+//   if (!userId) {
+//     console.error("User ID is required to establish a connection.");
+//     return;
+//   }
+
+//   hubConnection = new signalR.HubConnectionBuilder()
+//     .withUrl(
+//       `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${userId}`,
+//     )
+//     .withAutomaticReconnect()
+//     .configureLogging(signalR.LogLevel.Information)
+//     .build();
+
+//   // hubConnection.onclose(async () => {
+//   //   console.warn("SignalR connection lost. Reconnecting...");
+//   //   await startConnection(userId,queryClient, userInfo );
+//   // });
+
+//   try {
+//     await hubConnection.start();
+//     console.log(`Connected to SignalR as ${userId}`);
+//     setupListeners(queryClient, userInfo);
+//     setupVideoCall(pc);
+//   } catch (error) {
+//     console.error("Error establishing SignalR connection:", error);
+//   }
+// };
+
+export const setupListeners = (
+  connection: HubConnection,
   queryClient: QueryClient,
   userInfo: UserProfile,
-  pc: RTCPeerConnection,
 ) => {
-  if (!userId) {
-    console.error("User ID is required to establish a connection.");
-    return;
-  }
+  if (!connection) return;
 
-  hubConnection = new signalR.HubConnectionBuilder()
-    .withUrl(
-      `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${userId}`,
-    )
-    .withAutomaticReconnect()
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-  // hubConnection.onclose(async () => {
-  //   console.warn("SignalR connection lost. Reconnecting...");
-  //   await startConnection(userId,queryClient, userInfo );
-  // });
-
-  try {
-    await hubConnection.start();
-    console.log(`Connected to SignalR as ${userId}`);
-    setupListeners(queryClient, userInfo);
-    setupVideoCall(pc);
-  } catch (error) {
-    console.error("Error establishing SignalR connection:", error);
-  }
-};
-
-const setupListeners = (queryClient: QueryClient, userInfo: UserProfile) => {
-  if (!hubConnection) return;
-
-  hubConnection.on("NewMessage", (user: string, data: string) => {
+  connection.on("NewMessage", (user: string, data: string) => {
     console.log(data);
     if (user == userInfo.id) return;
     onNewMessage(queryClient, userInfo, JSON.parse(data));
   });
 
-  hubConnection.on("NewMembers", (user: string, data: string) => {
+  connection.on("NewMembers", (user: string, data: string) => {
     console.log(data);
     if (user == userInfo.id) return;
     onNewMembers(queryClient, userInfo, JSON.parse(data));
   });
 
-  hubConnection.on("NewConversation", (user: string, data: string) => {
+  connection.on("NewConversation", (user: string, data: string) => {
     console.log(data);
     if (user == userInfo.id) return;
     onNewConversation(queryClient, userInfo, JSON.parse(data));
   });
 
-  hubConnection.on("NewFriendRequest", (user: string, data: string) => {
+  connection.on("NewFriendRequest", (user: string, data: string) => {
     console.log(user);
     console.log(data);
   });
 
-  hubConnection.on("FriendRequestAccepted", (user: string, data: string) => {
+  connection.on("FriendRequestAccepted", (user: string, data: string) => {
     console.log(user);
     console.log(data);
   });
 
-  hubConnection.on("FriendRequestCanceled", (user: string, data: string) => {
+  connection.on("FriendRequestCanceled", (user: string, data: string) => {
     console.log(user);
     console.log(data);
   });
 
-  hubConnection.on("NewReaction", (user: string, data: string) => {
+  connection.on("NewReaction", (user: string, data: string) => {
     console.log(user);
     console.log(data);
     if (user == userInfo.id) return;
     onNewReaction(queryClient, JSON.parse(data));
   });
-};
-
-const setupVideoCall = (pc: RTCPeerConnection) => {
-  pc = new RTCPeerConnection(servers);
-  hubConnection.on("ReceiveOffer", async (callerId: string, offer: string) => {
-    console.log("🔔 Received offer");
-    // remoteUserIdRef.current = callerId;
-    await setupPeerConnection(pc, callerId, true);
-
-    const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
-    await pc.setRemoteDescription(rtcOffer);
-
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer!);
-    hubConnection.send("SendAnswer", callerId, JSON.stringify(answer));
-  });
-
-  hubConnection.on("ReceiveAnswer", async (answer: string) => {
-    console.log("📩 Received answer");
-    const rtcAnswer = new RTCSessionDescription(JSON.parse(answer));
-    await pc.setRemoteDescription(rtcAnswer);
-  });
-
-  hubConnection.on("ReceiveIceCandidate", async (candidate: string) => {
-    console.log("❄️ Received ICE candidate");
-    const rtcCandidate = new RTCIceCandidate(JSON.parse(candidate));
-    await pc.addIceCandidate(rtcCandidate);
-  });
-
-  hubConnection.on("CallEnded", () => {
-    console.log("📞 Call ended");
-    // stopCall();
-  });
-};
-
-const setupPeerConnection = async (
-  pc: RTCPeerConnection,
-  peerId: string,
-  isReceiver = false,
-) => {
-  // pcRef.current = new RTCPeerConnection(servers);
-
-  if (isReceiver)
-    pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        hubConnection.send(
-          "SendIceCandidate",
-          peerId,
-          JSON.stringify(e.candidate),
-        );
-      }
-    };
-
-  pc.ontrack = (e) => {
-    // if (remoteVideoRef.current) {
-    console.log("📡 ontrack fired");
-    // remoteVideoRef.current.srcObject = e.streams[0];
-    // }
-  };
-
-  // localStreamRef.current?.getTracks().forEach((track) => {
-  //   pcRef.current?.addTrack(track, localStreamRef.current!);
-  // });
 };
 
 /* MARK: ON NEW MESSAGE */

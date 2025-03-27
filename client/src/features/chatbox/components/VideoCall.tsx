@@ -19,7 +19,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ targetUserId }) => {
   const calling = useRef<boolean>(false);
 
   const {
-    newCall,
+    // show,
     localStream,
     remoteStream,
     startCall,
@@ -34,31 +34,35 @@ const VideoCall: React.FC<VideoCallProps> = ({ targetUserId }) => {
   //   }
   // };
 
+  //   useEffect(() => {
+  //     console.log(`show: ${show}`);
+  //   }, [show]);
+
   useEffect(() => {
-    if (newCall || calling.current) return;
-    calling.current = true;
-    const call = async () => {
-      let stream = localStream;
-      if (!stream) stream = await startLocalStream();
-      localRef.current.srcObject = stream;
-      //   startLocalStream();
-      startCall(targetUserId);
-    };
-    call();
-  }, [newCall]);
+    if (localStream) localRef.current.srcObject = localStream;
+  }, [localStream]);
+
+  useEffect(() => {
+    if (remoteStream) remoteRef.current.srcObject = remoteStream;
+  }, [remoteStream]);
 
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "20px",
-        marginBottom: "20px",
-      }}
+      className="flex flex-wrap justify-center gap-[2rem]"
+      //   style={{
+      //     display: "flex",
+      //     justifyContent: "center",
+      //     gap: "20px",
+      //     marginBottom: "20px",
+      //     flexWrap: "wrap",
+      //   }}
     >
       <video id="localVideo" ref={localRef} autoPlay muted />
-      <video id="remoteVideo" ref={remoteRef} autoPlay />
-      {/* <button onClick={stopCall}>Stop</button> */}
+      <video id="remoteVideo" ref={remoteRef} autoPlay muted />
+      <div className="flex w-full justify-center gap-[2rem]">
+        <button onClick={() => startCall(targetUserId)}>Call</button>
+        <button onClick={() => stopCall(true)}>Stop</button>
+      </div>
     </div>
   );
 };

@@ -41,7 +41,7 @@ const Home = () => {
   if (!info) return;
 
   return (
-    <SignalProvider userId={info.id}>
+    <SignalProvider>
       <div
         id="home"
         className="relative w-full text-[var(--text-main-color-light)] phone:text-md tablet:text-base desktop:text-md"

@@ -1,4 +1,5 @@
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { useQueryClient } from "@tanstack/react-query";
 import React, {
   createContext,
   useContext,
@@ -7,29 +8,37 @@ import React, {
   useState,
 } from "react";
 import useInfo from "../features/authentication/hooks/useInfo";
+import { setupListeners } from "../features/notification/services/signalService";
 
 type SignalContextType = {
   startCall: (targetUserId: string) => void;
-  stopCall: () => void;
-  startLocalStream: () => any;
+  stopCall: (isCaller: boolean) => void;
+  startLocalStream: () => void;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
-  newCall: boolean;
+  targetUserId: string | null;
+  // show: boolean;
   // onOffer: (callerId: string, offer: string) => void;
 };
 
 const SignalContext = createContext<SignalContextType | undefined>(undefined);
 
 export const SignalProvider: React.FC<{
-  userId: string;
+  // userId: string;
   children: React.ReactNode;
-}> = ({ userId, children }) => {
+}> = ({ children }) => {
   const { data: info } = useInfo();
+  const queryClient = useQueryClient();
+
   // const [isConnected, setIsConnected] = useState(false);
-  // const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const localStreamRef = useRef<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [newCall, setNewCall] = useState<boolean>(false);
+  const [targetUserId, setTargetUserId] = useState<string | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
+  // const showRef = useRef<boolean>(false);
+  // const [show, setShow] = useState<boolean>(false);
+  // const [newCall, setNewCall] = useState<boolean>(false);
 
   const connectionRef = useRef<HubConnection | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -40,8 +49,10 @@ export const SignalProvider: React.FC<{
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
   };
 
-  // 🎥 Local camera setup
-  const startLocalStream = async (): Promise<MediaStream> => {
+  /* MARK: START CAMERA */
+  const startLocalStream = async () => {
+    // showRef.current = true;
+    // setShow(true);
     // navigator.mediaDevices
     //   .getUserMedia({
     //     video: true,
@@ -57,14 +68,16 @@ export const SignalProvider: React.FC<{
       audio: true,
     });
     localStreamRef.current = stream;
+    setLocalStream(stream);
+
     // setLocalStream(stream);
-    stream.getTracks().forEach((track) => {
-      pcRef.current?.addTrack(track, stream);
-    });
-    return stream;
+    // stream.getTracks().forEach((track) => {
+    //   pcRef.current?.addTrack(track, stream);
+    // });
+    // return stream;
   };
 
-  // 📡 Setup peer connection
+  /* MARK: SETUP CONNECTION */
   const setupPeerConnection = async (
     remoteUserId: string,
     // skipTrackAdding = false,
@@ -72,8 +85,8 @@ export const SignalProvider: React.FC<{
     pcRef.current = new RTCPeerConnection(iceServers);
     remoteUserIdRef.current = remoteUserId;
 
-    const remoteStream = new MediaStream();
-    setRemoteStream(remoteStream);
+    // const remoteStream = new MediaStream();
+    // setRemoteStream(remoteStream);
 
     pcRef.current.onicecandidate = (e) => {
       console.log(e);
@@ -87,14 +100,15 @@ export const SignalProvider: React.FC<{
     };
 
     pcRef.current.ontrack = (e) => {
-      console.log(e);
+      // console.log(e);
+      console.log("🔔 On track");
+      remoteStreamRef.current = e.streams[0];
+      // const vid: any = document.getElementById("remoteVideo");
+      // vid.srcObject = e.streams[0];
 
-      const vid: any = document.getElementById("remoteVideo");
-      vid.srcObject = e.streams[0];
+      setRemoteStream(e.streams[0]);
 
-      // event.streams[0]
-      //   .getTracks()
-      //   .forEach((track) => remoteStream.addTrack(track));
+      // e.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
     };
 
     // console.log(typeof pcRef.current.ontrack);
@@ -113,7 +127,7 @@ export const SignalProvider: React.FC<{
     });
   };
 
-  // ☎️ Call target user
+  /* MARK: START CALL */
   const startCall = async (targetUserId: string) => {
     // if (!localStream) await startLocalStream();
     await setupPeerConnection(targetUserId);
@@ -129,56 +143,64 @@ export const SignalProvider: React.FC<{
     );
   };
 
-  // 🔕 Stop call
-  const stopCall = () => {
-    localStreamRef.current.getTracks().forEach((track) => track.stop());
+  /* MARK: STOP CALL */
+  const stopCall = (isCaller = false) => {
+    localStreamRef.current?.getTracks().forEach((track) => track.stop());
+    remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
     pcRef.current?.close();
     pcRef.current = null;
-    // setLocalStream(null);
+    // showRef.current = false;
+
+    // setShow(false);
+    setLocalStream(null);
     setRemoteStream(null);
+    setTargetUserId(null);
 
     const remoteUserId = remoteUserIdRef.current;
-    if (remoteUserId && connectionRef.current?.state === "Connected") {
+    if (
+      isCaller &&
+      remoteUserId &&
+      connectionRef.current?.state === "Connected"
+    ) {
       connectionRef.current.send("EndCall", remoteUserId);
     }
   };
 
   // 🔌 SignalR setup
   useEffect(() => {
-    if (!userId || isRegistered.current) return;
+    if (!info.id || isRegistered.current) return;
     isRegistered.current = true;
 
     const connect = async () => {
       const connection = new HubConnectionBuilder()
         .withUrl(
-          `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${userId}`,
+          `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${info.id}`,
         )
         .withAutomaticReconnect()
         .build();
 
+      /* MARK: RECEIVE OFFER */
       connection.on("ReceiveOffer", async (callerId: string, offer: string) => {
         console.log("🔔 Received offer");
-        setNewCall(true);
+        setTargetUserId(callerId);
+        await setupPeerConnection(callerId);
 
-        setTimeout(async () => {
-          // await startLocalStream();
-          await setupPeerConnection(callerId);
+        const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
+        await pcRef.current?.setRemoteDescription(rtcOffer);
 
-          const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
-          await pcRef.current?.setRemoteDescription(rtcOffer);
-
-          const answer = await pcRef.current?.createAnswer();
-          await pcRef.current?.setLocalDescription(answer!);
-          connection.send("SendAnswer", callerId, JSON.stringify(answer));
-        }, 1000);
+        const answer = await pcRef.current?.createAnswer();
+        await pcRef.current?.setLocalDescription(answer!);
+        connection.send("SendAnswer", callerId, JSON.stringify(answer));
       });
 
+      /* MARK: RECEIVE ANSWER */
       connection.on("ReceiveAnswer", async (answer: string) => {
         console.log("🔔 Received answer");
         const rtcAnswer = new RTCSessionDescription(JSON.parse(answer));
         await pcRef.current?.setRemoteDescription(rtcAnswer);
       });
 
+      /* MARK: RECEIVE CANDIDATE */
       connection.on("ReceiveIceCandidate", async (candidate: string) => {
         console.log("🔔 Received candidate");
         const rtcCandidate = new RTCIceCandidate(JSON.parse(candidate));
@@ -186,8 +208,11 @@ export const SignalProvider: React.FC<{
       });
 
       connection.on("CallEnded", () => {
+        console.log("🔔 Call ended");
         stopCall();
       });
+
+      setupListeners(connection, queryClient, info);
 
       await connection.start();
       connectionRef.current = connection;
@@ -196,7 +221,7 @@ export const SignalProvider: React.FC<{
     };
 
     connect();
-  }, [userId]);
+  }, []);
 
   return (
     <SignalContext.Provider
@@ -204,9 +229,10 @@ export const SignalProvider: React.FC<{
         startCall,
         stopCall,
         startLocalStream,
-        localStream: localStreamRef.current,
+        localStream,
         remoteStream,
-        newCall,
+        targetUserId,
+        // show: show,
         // onOffer
       }}
     >

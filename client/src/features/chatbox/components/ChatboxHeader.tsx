@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import { useSignal } from "../../../context/SignalContext";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -18,9 +19,10 @@ const ChatboxHeader = () => {
   if (!conversations || !conversations.selected) return;
 
   const { data: info } = useInfo();
+  const { localStream, startLocalStream, stopCall } = useSignal();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
-  const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
+  // const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
 
   return (
     <div
@@ -105,14 +107,17 @@ const ChatboxHeader = () => {
           ""
         )}
         <VideoCameraOutlined
-          onClick={() => setOpenVideoCall(true)}
+          onClick={() => startLocalStream()}
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
         />
         <BackgroundPortal
-          show={openVideoCall}
+          show={localStream !== null}
           className="phone:w-[35rem] laptop:w-[70rem] desktop:w-[35%]"
           title="Video call"
-          onClose={() => setOpenVideoCall(false)}
+          onClose={() => {
+            stopCall(true);
+            // setOpenVideoCall(false);
+          }}
         >
           <VideoCall
             targetUserId={
