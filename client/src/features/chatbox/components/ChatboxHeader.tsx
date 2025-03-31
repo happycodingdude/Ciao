@@ -7,10 +7,10 @@ import { useSignal } from "../../../context/SignalContext";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
+import VideoCall from "../../videocall/VideoCall";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import AddMembers from "./AddMembers";
 import UpdateConversation from "./UpdateConversation";
-import VideoCall from "./VideoCall";
 
 const ChatboxHeader = () => {
   const { toggle, setToggle } = useChatDetailToggles();
@@ -112,7 +112,7 @@ const ChatboxHeader = () => {
         />
         <BackgroundPortal
           show={localStream !== null}
-          className="phone:w-[35rem] laptop:w-[70rem] desktop:w-[35%]"
+          className="phone:w-[35rem] laptop:w-[40rem] desktop:w-[35%]"
           title="Video call"
           onClose={() => {
             stopCall(true);

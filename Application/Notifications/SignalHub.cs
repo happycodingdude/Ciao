@@ -73,7 +73,8 @@ public class SignalHub : Hub
     {
         var connection = _userCache.GetUserConnection(receiverId);
         Console.WriteLine($"Offer is sent to user {receiverId} with connection {connection}");
-        await Clients.Client(connection).SendAsync("ReceiveOffer", callerId, offer);
+        var caller = _userCache.GetInfo(callerId);
+        await Clients.Client(connection).SendAsync("ReceiveOffer", caller, offer);
     }
 
     public async Task SendAnswer(string callerId, string answer)

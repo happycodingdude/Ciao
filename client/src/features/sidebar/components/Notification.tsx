@@ -1,3 +1,4 @@
+import { BellOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
 import React, { useCallback, useRef, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
@@ -79,10 +80,14 @@ const Notification = () => {
       ) : (
         ""
       )}
-      <div
-        className="fa fa-bell notification-trigger base-icon-sm"
+      {/* <div
+        className="fas fa-bell notification-trigger base-icon-sm"
         onClick={showNotification}
-      ></div>
+      ></div> */}
+      <BellOutlined
+        className="notification-trigger base-icon-sm"
+        onClick={showNotification}
+      />
       <div
         ref={refNotification}
         data-state="hide"

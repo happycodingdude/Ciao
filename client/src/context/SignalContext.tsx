@@ -9,14 +9,18 @@ import React, {
 } from "react";
 import useInfo from "../features/authentication/hooks/useInfo";
 import { setupListeners } from "../features/notification/services/signalService";
+import { UserProfile } from "../types";
 
 type SignalContextType = {
   startCall: (targetUserId: string) => void;
   stopCall: (isCaller: boolean) => void;
   startLocalStream: () => void;
+  answerCall: () => void;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
-  targetUserId: string | null;
+  targetUser: UserProfile | null;
+  isCaller: boolean;
+  receiveOffer: boolean;
   // show: boolean;
   // onOffer: (callerId: string, offer: string) => void;
 };
@@ -33,7 +37,10 @@ export const SignalProvider: React.FC<{
   // const [isConnected, setIsConnected] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [targetUserId, setTargetUserId] = useState<string | null>(null);
+  const [targetUser, setTargetUser] = useState<UserProfile | null>(null);
+  const [isCaller, setIsCaller] = useState<boolean>(false);
+  const [receiveOffer, setReceiveOffer] = useState<boolean>(false);
+  const [offer, setOffer] = useState<string | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
   // const showRef = useRef<boolean>(false);
@@ -69,12 +76,28 @@ export const SignalProvider: React.FC<{
     });
     localStreamRef.current = stream;
     setLocalStream(stream);
+    setIsCaller(true);
 
     // setLocalStream(stream);
     // stream.getTracks().forEach((track) => {
     //   pcRef.current?.addTrack(track, stream);
     // });
     // return stream;
+  };
+
+  /* MARK: ANSWER CALL */
+  const answerCall = async () => {
+    setReceiveOffer(false);
+    await setupPeerConnection(targetUser.id);
+    const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
+    await pcRef.current?.setRemoteDescription(rtcOffer);
+    const answer = await pcRef.current?.createAnswer();
+    await pcRef.current?.setLocalDescription(answer!);
+    connectionRef.current.send(
+      "SendAnswer",
+      targetUser.id,
+      JSON.stringify(answer),
+    );
   };
 
   /* MARK: SETUP CONNECTION */
@@ -107,6 +130,7 @@ export const SignalProvider: React.FC<{
       // vid.srcObject = e.streams[0];
 
       setRemoteStream(e.streams[0]);
+      setIsCaller(false);
 
       // e.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
     };
@@ -130,6 +154,7 @@ export const SignalProvider: React.FC<{
   /* MARK: START CALL */
   const startCall = async (targetUserId: string) => {
     // if (!localStream) await startLocalStream();
+    setIsCaller(false);
     await setupPeerConnection(targetUserId);
 
     const offer = await pcRef.current?.createOffer();
@@ -154,7 +179,7 @@ export const SignalProvider: React.FC<{
     // setShow(false);
     setLocalStream(null);
     setRemoteStream(null);
-    setTargetUserId(null);
+    setTargetUser(null);
 
     const remoteUserId = remoteUserIdRef.current;
     if (
@@ -180,18 +205,29 @@ export const SignalProvider: React.FC<{
         .build();
 
       /* MARK: RECEIVE OFFER */
-      connection.on("ReceiveOffer", async (callerId: string, offer: string) => {
-        console.log("🔔 Received offer");
-        setTargetUserId(callerId);
-        await setupPeerConnection(callerId);
+      connection.on(
+        "ReceiveOffer",
+        async (caller: UserProfile, offer: string) => {
+          console.log("🔔 Received offer");
 
-        const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
-        await pcRef.current?.setRemoteDescription(rtcOffer);
+          // console.log(callerStr);
+          // const caller: UserProfile = JSON.parse(callerStr);
+          console.log(caller);
 
-        const answer = await pcRef.current?.createAnswer();
-        await pcRef.current?.setLocalDescription(answer!);
-        connection.send("SendAnswer", callerId, JSON.stringify(answer));
-      });
+          setTargetUser(caller);
+          setOffer(offer);
+          setReceiveOffer(true);
+
+          // await setupPeerConnection(caller.id);
+
+          // const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
+          // await pcRef.current?.setRemoteDescription(rtcOffer);
+
+          // const answer = await pcRef.current?.createAnswer();
+          // await pcRef.current?.setLocalDescription(answer!);
+          // connection.send("SendAnswer", callerId, JSON.stringify(answer));
+        },
+      );
 
       /* MARK: RECEIVE ANSWER */
       connection.on("ReceiveAnswer", async (answer: string) => {
@@ -229,9 +265,12 @@ export const SignalProvider: React.FC<{
         startCall,
         stopCall,
         startLocalStream,
+        answerCall,
         localStream,
         remoteStream,
-        targetUserId,
+        targetUser,
+        isCaller,
+        receiveOffer,
         // show: show,
         // onOffer
       }}

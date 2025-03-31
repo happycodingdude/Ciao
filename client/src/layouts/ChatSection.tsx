@@ -2,21 +2,16 @@ import React, { lazy, Suspense } from "react";
 import BackgroundPortal from "../components/BackgroundPortal";
 import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
 import { useSignal } from "../context/SignalContext";
-import useInfo from "../features/authentication/hooks/useInfo";
-import VideoCall from "../features/chatbox/components/VideoCall";
 import useConversation from "../features/listchat/hooks/useConversation";
+import ReceiveOffer from "../features/videocall/ReceiveOffer";
+import VideoCall from "../features/videocall/VideoCall";
 const ListChatContainer = lazy(() => import("./ListChatContainer"));
 const ChatboxContainer = lazy(() => import("./ChatboxContainer"));
 
 const ChatSection = () => {
   const { data: conversations } = useConversation(1);
-  const { data: info } = useInfo();
-  const { targetUserId, remoteStream, stopCall } = useSignal();
-  // const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
-
-  // useEffect(() => {
-  //   console.log(`newCall: ${newCall}`);
-  // }, [newCall]);
+  // const { data: info } = useInfo();
+  const { targetUser, remoteStream, stopCall, receiveOffer } = useSignal();
   return (
     // <LoadingProvider>
     // <section className={`relative flex grow overflow-hidden`}>
@@ -46,12 +41,16 @@ const ChatSection = () => {
         </Suspense>
       </ChatDetailTogglesProvider>
       <BackgroundPortal
-        show={remoteStream !== null}
-        className="phone:w-[35rem] laptop:w-[70rem] desktop:w-[35%]"
+        show={receiveOffer || remoteStream !== null}
+        className="phone:w-[35rem] laptop:w-[40rem] desktop:w-[35%]"
         title="Video call"
         onClose={() => stopCall(true)}
       >
-        <VideoCall targetUserId={targetUserId} />
+        {receiveOffer ? (
+          <ReceiveOffer />
+        ) : (
+          <VideoCall targetUserId={targetUser?.id} />
+        )}
       </BackgroundPortal>
     </section>
     // </LoadingProvider>
