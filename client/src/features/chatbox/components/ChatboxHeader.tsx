@@ -19,10 +19,9 @@ const ChatboxHeader = () => {
   if (!conversations || !conversations.selected) return;
 
   const { data: info } = useInfo();
-  const { localStream, startLocalStream, stopCall } = useSignal();
+  const { localStream, isCaller, startLocalStream, stopCall } = useSignal();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
-  // const [openVideoCall, setOpenVideoCall] = useState<boolean>(false);
 
   return (
     <div
@@ -111,11 +110,12 @@ const ChatboxHeader = () => {
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
         />
         <BackgroundPortal
-          show={localStream !== null}
+          // show={localStream !== null}
+          show={isCaller}
           className="phone:w-[35rem] laptop:w-[40rem] desktop:w-[35%]"
           title="Video call"
           onClose={() => {
-            stopCall(true);
+            stopCall();
             // setOpenVideoCall(false);
           }}
         >

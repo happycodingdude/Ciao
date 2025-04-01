@@ -13,7 +13,7 @@ import { UserProfile } from "../types";
 
 type SignalContextType = {
   startCall: (targetUserId: string) => void;
-  stopCall: (isCaller: boolean) => void;
+  stopCall: (isCaller?: boolean) => void;
   startLocalStream: () => void;
   answerCall: () => void;
   localStream: MediaStream | null;
@@ -70,13 +70,17 @@ export const SignalProvider: React.FC<{
     //     vid.srcObject = stream;
     //   });
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-    localStreamRef.current = stream;
-    setLocalStream(stream);
-    setIsCaller(true);
+    try {
+      setIsCaller(true);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+    } catch (error) {
+      console.error("Error accessing media devices.", error);
+    }
 
     // setLocalStream(stream);
     // stream.getTracks().forEach((track) => {
@@ -88,7 +92,6 @@ export const SignalProvider: React.FC<{
   /* MARK: ANSWER CALL */
   const answerCall = async () => {
     setReceiveOffer(false);
-    await setupPeerConnection(targetUser.id);
     const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
     await pcRef.current?.setRemoteDescription(rtcOffer);
     const answer = await pcRef.current?.createAnswer();
@@ -180,10 +183,13 @@ export const SignalProvider: React.FC<{
     setLocalStream(null);
     setRemoteStream(null);
     setTargetUser(null);
+    setReceiveOffer(false);
+    setOffer(null);
+    setIsCaller(false);
 
     const remoteUserId = remoteUserIdRef.current;
     if (
-      isCaller &&
+      // isCaller &&
       remoteUserId &&
       connectionRef.current?.state === "Connected"
     ) {
@@ -212,11 +218,12 @@ export const SignalProvider: React.FC<{
 
           // console.log(callerStr);
           // const caller: UserProfile = JSON.parse(callerStr);
-          console.log(caller);
+          // console.log(caller);
 
           setTargetUser(caller);
           setOffer(offer);
           setReceiveOffer(true);
+          await setupPeerConnection(caller.id);
 
           // await setupPeerConnection(caller.id);
 

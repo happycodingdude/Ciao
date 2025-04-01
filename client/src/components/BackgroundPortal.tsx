@@ -6,7 +6,7 @@ import PortalHeader from "./PortalHeader";
 
 const BackgroundPortal = (props: BackgroundPortalProps) => {
   // console.log("BackgroundPortal rendering");
-  const { children, show, title, onClose, className } = props;
+  const { children, show, title, onClose, className, noHeader } = props;
 
   if (!show) return null;
 
@@ -34,7 +34,8 @@ const BackgroundPortal = (props: BackgroundPortalProps) => {
         flex-col overflow-hidden rounded-2xl bg-[var(--bg-color)] transition-all duration-500
         data-[show=false]:scale-0 data-[show=true]:scale-100`}
       >
-        <PortalHeader title={title} onClose={onClose} />
+        {noHeader ? "" : <PortalHeader title={title} onClose={onClose} />}
+
         {children}
       </div>
     </div>,

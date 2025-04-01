@@ -42,9 +42,10 @@ const ChatSection = () => {
       </ChatDetailTogglesProvider>
       <BackgroundPortal
         show={receiveOffer || remoteStream !== null}
-        className="phone:w-[35rem] laptop:w-[40rem] desktop:w-[35%]"
+        className="phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]"
         title="Video call"
-        onClose={() => stopCall(true)}
+        onClose={() => stopCall()}
+        noHeader={true}
       >
         {receiveOffer ? (
           <ReceiveOffer />

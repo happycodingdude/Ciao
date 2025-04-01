@@ -42,7 +42,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ targetUserId }) => {
         ) : (
           ""
         )}
-        <button onClick={() => stopCall(true)}>End call</button>
+        <button onClick={() => stopCall(true)}>End</button>
       </div>
     </div>
   );

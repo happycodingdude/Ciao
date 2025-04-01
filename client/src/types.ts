@@ -77,6 +77,7 @@ export type BackgroundPortalProps = OnCloseType & {
   show?: boolean;
   title?: string;
   className?: string;
+  noHeader?: boolean;
 };
 
 export type PortalHeaderProps = OnCloseType & {
