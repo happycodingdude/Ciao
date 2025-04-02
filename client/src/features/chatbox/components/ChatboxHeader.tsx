@@ -109,24 +109,47 @@ const ChatboxHeader = () => {
           onClick={() => startLocalStream()}
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
         />
-        <BackgroundPortal
-          // show={localStream !== null}
-          show={isCaller}
-          className="phone:w-[35rem] laptop:w-[40rem] desktop:w-[35%]"
-          title="Video call"
-          onClose={() => {
-            stopCall();
-            // setOpenVideoCall(false);
-          }}
-        >
+        {isCaller ? (
           <VideoCall
-            targetUserId={
+            id={
               conversations.selected?.members.find(
                 (mem) => mem.contact.id !== info.id,
               ).contact.id
             }
+            avatar={
+              conversations.selected?.members.find(
+                (mem) => mem.contact.id !== info.id,
+              ).contact.avatar
+            }
           />
-        </BackgroundPortal>
+        ) : (
+          ""
+        )}
+
+        {/* <BackgroundPortal
+          // show={localStream !== null}
+          show={isCaller}
+          className="phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]"
+          // title="Video call"
+          onClose={() => {
+            stopCall();
+            // setOpenVideoCall(false);
+          }}
+          noHeader={true}
+        >
+          <VideoCall
+            id={
+              conversations.selected?.members.find(
+                (mem) => mem.contact.id !== info.id,
+              ).contact.id
+            }
+            avatar={
+              conversations.selected?.members.find(
+                (mem) => mem.contact.id !== info.id,
+              ).contact.avatar
+            }
+          />
+        </BackgroundPortal> */}
         <div
           className={`flex justify-end gap-[1rem] rounded-full 
             ${toggle === "information" ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : "hover:text-[var(--main-color-bold)]"}`}

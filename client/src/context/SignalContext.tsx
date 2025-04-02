@@ -157,7 +157,7 @@ export const SignalProvider: React.FC<{
   /* MARK: START CALL */
   const startCall = async (targetUserId: string) => {
     // if (!localStream) await startLocalStream();
-    setIsCaller(false);
+    // setIsCaller(false);
     await setupPeerConnection(targetUserId);
 
     const offer = await pcRef.current?.createOffer();
@@ -171,8 +171,8 @@ export const SignalProvider: React.FC<{
     );
   };
 
-  /* MARK: STOP CALL */
-  const stopCall = (isCaller = false) => {
+  /* MARK: STOP CAMERA */
+  const stopCamera = () => {
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
     remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
     pcRef.current?.close();
@@ -186,15 +186,21 @@ export const SignalProvider: React.FC<{
     setReceiveOffer(false);
     setOffer(null);
     setIsCaller(false);
+  };
+
+  /* MARK: STOP CALL */
+  const stopCall = (isCaller = false) => {
+    stopCamera();
 
     const remoteUserId = remoteUserIdRef.current;
-    if (
-      // isCaller &&
-      remoteUserId &&
-      connectionRef.current?.state === "Connected"
-    ) {
-      connectionRef.current.send("EndCall", remoteUserId);
-    }
+    connectionRef.current.send("EndCall", remoteUserId);
+    // if (
+    //   // isCaller &&
+    //   remoteUserId &&
+    //   connectionRef.current?.state === "Connected"
+    // ) {
+    //   connectionRef.current.send("EndCall", remoteUserId);
+    // }
   };
 
   // 🔌 SignalR setup
@@ -252,7 +258,7 @@ export const SignalProvider: React.FC<{
 
       connection.on("CallEnded", () => {
         console.log("🔔 Call ended");
-        stopCall();
+        stopCamera();
       });
 
       setupListeners(connection, queryClient, info);
