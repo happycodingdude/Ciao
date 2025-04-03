@@ -28,7 +28,7 @@ const ReceiveOffer = () => {
       </div>
 
       <div className="absolute bottom-[10%] flex w-[70%] justify-between">
-        <button className="text-red-500" onClick={() => stopCall()}>
+        <button className="text-red-500" onClick={stopCall}>
           Canc
         </button>
         <button className="text-green-500" onClick={answerCall}>

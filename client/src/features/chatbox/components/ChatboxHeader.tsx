@@ -1,5 +1,6 @@
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import React, { useEffect, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -22,6 +23,23 @@ const ChatboxHeader = () => {
   const { localStream, isCaller, startLocalStream, stopCall } = useSignal();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  // Center the modal when it first renders
+  useEffect(() => {
+    const centerX = window.innerWidth / 2 - 200; // Adjust based on modal width
+    const centerY = window.innerHeight / 2 - 300; // Adjust based on modal height
+    setPosition({ x: centerX, y: centerY });
+  }, []);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    // console.log(event);
+    if (event.delta) {
+      setPosition((prev) => ({
+        x: prev.x + event.delta.x,
+        y: prev.y + event.delta.y,
+      }));
+    }
+  };
 
   return (
     <div
@@ -110,18 +128,16 @@ const ChatboxHeader = () => {
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
         />
         {isCaller ? (
-          <VideoCall
-            id={
-              conversations.selected?.members.find(
-                (mem) => mem.contact.id !== info.id,
-              ).contact.id
-            }
-            avatar={
-              conversations.selected?.members.find(
-                (mem) => mem.contact.id !== info.id,
-              ).contact.avatar
-            }
-          />
+          <DndContext onDragEnd={handleDragEnd}>
+            <VideoCall
+              contact={
+                conversations.selected?.members.find(
+                  (mem) => mem.contact.id !== info.id,
+                ).contact
+              }
+              position={position}
+            />
+          </DndContext>
         ) : (
           ""
         )}

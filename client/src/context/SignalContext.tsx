@@ -13,7 +13,7 @@ import { UserProfile } from "../types";
 
 type SignalContextType = {
   startCall: (targetUserId: string) => void;
-  stopCall: (isCaller?: boolean) => void;
+  stopCall: () => void;
   startLocalStream: () => void;
   answerCall: () => void;
   localStream: MediaStream | null;
@@ -189,7 +189,7 @@ export const SignalProvider: React.FC<{
   };
 
   /* MARK: STOP CALL */
-  const stopCall = (isCaller = false) => {
+  const stopCall = () => {
     stopCamera();
 
     const remoteUserId = remoteUserIdRef.current;
