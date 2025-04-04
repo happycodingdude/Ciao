@@ -40,7 +40,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      className="relative z-50 flex h-[45rem] justify-center
+      className="relative z-50 flex h-[45rem] justify-center rounded-[1rem]
       bg-black phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]"
     >
       <video
@@ -56,7 +56,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
           ref={remoteRef}
           autoPlay
           muted
-          className="absolute h-full w-full cursor-grab"
+          className="absolute h-full w-full cursor-grab rounded-[1rem]"
         />
       ) : (
         <div
@@ -65,7 +65,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
           }}
           {...listeners}
           {...attributes}
-          className={`absolute h-full w-full cursor-grab bg-[size:cover]
+          className={`absolute h-full w-full cursor-grab rounded-[1rem] bg-[size:cover]
             bg-[position:center_center] bg-no-repeat opacity-60`}
         ></div>
       )}

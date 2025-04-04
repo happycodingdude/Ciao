@@ -47,7 +47,7 @@ const ChatboxHeader = () => {
     py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[7rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
-        {/* Avatar */}
+        {/* MARK: AVATAR  */}
         <ImageWithLightBoxAndNoLazy
           src={
             conversations.selected.isGroup
@@ -79,8 +79,7 @@ const ChatboxHeader = () => {
             onClose={() => setOpenUpdateTitle(false)}
           />
         </BackgroundPortal>
-
-        {/* Title */}
+        {/* MARK: TITLE  */}
         <div className="relative flex grow flex-col text-md phone:max-w-[12rem] laptop:max-w-[30rem] desktop:max-w-[50rem]">
           {conversations.selected.isGroup ? (
             <>
@@ -108,11 +107,11 @@ const ChatboxHeader = () => {
           )}
         </div>
       </div>
-      {/* Functionality */}
       <div className="flex phone:gap-[1.5rem] laptop:gap-[2rem]">
+        {/* MARK: ADD MEMBERS, UPDATE CONVERSATION  */}
         {conversations.selected.isGroup ? (
           <>
-            <AddMembers />{" "}
+            <AddMembers />
             <i
               className="fa-light fa-pen-to-square flex cursor-pointer items-center justify-center text-base font-medium hover:text-[var(--main-color-bold)]"
               onClick={() => {
@@ -123,6 +122,7 @@ const ChatboxHeader = () => {
         ) : (
           ""
         )}
+        {/* MARK: VIDEO CALL  */}
         <VideoCameraOutlined
           onClick={() => startLocalStream()}
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
@@ -141,31 +141,7 @@ const ChatboxHeader = () => {
         ) : (
           ""
         )}
-
-        {/* <BackgroundPortal
-          // show={localStream !== null}
-          show={isCaller}
-          className="phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]"
-          // title="Video call"
-          onClose={() => {
-            stopCall();
-            // setOpenVideoCall(false);
-          }}
-          noHeader={true}
-        >
-          <VideoCall
-            id={
-              conversations.selected?.members.find(
-                (mem) => mem.contact.id !== info.id,
-              ).contact.id
-            }
-            avatar={
-              conversations.selected?.members.find(
-                (mem) => mem.contact.id !== info.id,
-              ).contact.avatar
-            }
-          />
-        </BackgroundPortal> */}
+        {/* MARK: INFO  */}
         <div
           className={`flex justify-end gap-[1rem] rounded-full 
             ${toggle === "information" ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : "hover:text-[var(--main-color-bold)]"}`}
@@ -179,6 +155,7 @@ const ChatboxHeader = () => {
             className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
           />
         </div>
+        {/* MARK: ATTACHMENT  */}
         <AttachmentIcon
           onClick={() =>
             setToggle((current) =>
