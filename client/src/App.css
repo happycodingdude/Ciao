@@ -419,4 +419,9 @@ body,
     width: 100%;  
     height: 100%;
   }
+  /* MARK: VIDEO CALL  */
+  .video-call-container {
+    @apply relative z-50 flex justify-center rounded-[1rem]
+    bg-black phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]
+  }
 }

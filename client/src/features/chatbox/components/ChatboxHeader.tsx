@@ -8,7 +8,7 @@ import { useSignal } from "../../../context/SignalContext";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
-import VideoCall from "../../videocall/VideoCall";
+import VideoCall, { PositionProps } from "../../videocall/VideoCall";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import AddMembers from "./AddMembers";
 import UpdateConversation from "./UpdateConversation";
@@ -20,15 +20,18 @@ const ChatboxHeader = () => {
   if (!conversations || !conversations.selected) return;
 
   const { data: info } = useInfo();
-  const { localStream, isCaller, startLocalStream, stopCall } = useSignal();
+  const { isCaller, startLocalStream } = useSignal();
 
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState<PositionProps>({ x: 0, y: 0 });
   // Center the modal when it first renders
   useEffect(() => {
-    const centerX = window.innerWidth / 2 - 200; // Adjust based on modal width
+    // const centerX = window.innerWidth / 4 - 200; // Adjust based on modal width
     const centerY = window.innerHeight / 2 - 300; // Adjust based on modal height
-    setPosition({ x: centerX, y: centerY });
+    setPosition({
+      x: (window.innerWidth * 2) / 3,
+      y: centerY,
+    });
   }, []);
 
   const handleDragEnd = (event: DragEndEvent) => {

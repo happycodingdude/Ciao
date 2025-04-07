@@ -4,12 +4,19 @@ import { createPortal } from "react-dom";
 import { useSignal } from "../../context/SignalContext";
 import { ConversationModel_Contact } from "../listchat/types";
 
+export type PositionProps = {
+  x: number;
+  y: number;
+};
+
 type VideoCallProps = {
   contact: ConversationModel_Contact;
-  position: { x: number; y: number };
+  position: PositionProps;
 };
 
 const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
+  if (contact === null) return null;
+
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
 
@@ -40,8 +47,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      className="relative z-50 flex h-[45rem] justify-center rounded-[1rem]
-      bg-black phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]"
+      className="video-call-container h-[45rem]"
     >
       <video
         id="localVideo"
@@ -73,7 +79,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
         {isCaller ? (
           <button
             className="bg-green-500 text-white"
-            onClick={() => startCall(contact.avatar)}
+            onClick={() => startCall(contact.id)}
           >
             <i className="fa fa-phone" />
           </button>
