@@ -56,7 +56,7 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
           circle
           onClick={() => {}}
         />
-        <p className="text-xl text-white">{targetUser?.name}</p>
+        <p className="text-lg text-white">{targetUser?.name}</p>
       </div>
 
       <div className="pointer-events-auto absolute bottom-[10%] flex w-[70%] justify-between">
