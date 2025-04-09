@@ -30,15 +30,6 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
       style={style as CSSProperties}
       className="video-call-container h-[30rem]"
     >
-      {/* <div
-        style={{
-          backgroundImage: `url(${
-            targetUser?.avatar ?? "src/assets/imagenotfound.jpg"
-          })`,
-        }}
-        className={`absolute h-full w-full bg-[size:cover]
-      bg-[position:center_center] bg-no-repeat opacity-50`}
-      ></div> */}
       <div
         style={{
           backgroundImage: `url(${targetUser?.avatar ?? "src/assets/imagenotfound.jpg"})`,
@@ -60,29 +51,14 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
       </div>
 
       <div className="pointer-events-auto absolute bottom-[10%] flex w-[70%] justify-between">
-        {/* <button className="text-red-500" onClick={stopCall}> */}
-        {/* </button> */}
         <button className="bg-red-500 text-white" onClick={stopCall}>
           <i className="fa fa-x" />
         </button>
-
-        {/* <button className="text-green-500" onClick={answerCall}>
-          Answ
-        </button> */}
 
         <button className="bg-green-500 text-white" onClick={answerCall}>
           <i className="fa fa-phone" />
         </button>
       </div>
-
-      {/* <div className="absolute bottom-[10%] flex w-[70%] justify-between">
-        <button className="text-red-500" onClick={stopCall}>
-          Canc
-        </button>
-        <button className="text-green-500" onClick={answerCall}>
-          Answ
-        </button>
-      </div> */}
     </div>,
     document.getElementById("portal"),
   );

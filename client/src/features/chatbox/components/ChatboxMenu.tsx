@@ -1,4 +1,5 @@
 // import EmojiPicker from "emoji-picker-react";
+import { MenuOutlined } from "@ant-design/icons";
 import React, { useCallback, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 import { ChatboxMenuProps } from "../types";
@@ -60,10 +61,11 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
             </label>
           </div>
         </div>
-        <div
+        <MenuOutlined onClick={() => setShow((show) => !show)} />
+        {/* <div
           onClick={() => setShow((show) => !show)}
           className="chatbox-menu-item fa fa-bars flex cursor-pointer items-center justify-center text-md font-normal"
-        ></div>
+        ></div> */}
       </div>
     </div>
   );

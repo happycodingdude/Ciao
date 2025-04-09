@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import React, { lazy, useEffect, useState } from "react";
+import { SignalProvider, useSignal } from "../context/SignalContext";
 import useInfo from "../features/authentication/hooks/useInfo";
-// import ProfileSection from "../features/profile-new/ProfileSection";
-// import ChatSection from "../layouts/ChatSection";
-import { lazy } from "react";
-import { SignalProvider } from "../context/SignalContext";
 import useFriend from "../features/friend/hooks/useFriend";
+import ReceiveOffer from "../features/videocall/ReceiveOffer";
+import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import SideBar from "../layouts/SideBar";
 
 const ChatSection = lazy(() => import("../layouts/ChatSection"));
@@ -13,30 +13,30 @@ const ProfileSection = lazy(
 );
 
 const Home = () => {
-  // console.log("Home calling");
-
-  // const queryClient = useQueryClient();
-
   const { data: info } = useInfo();
   useFriend();
 
-  // const isRegistered = useRef<boolean>(false);
   const [page, setPage] = useState<string>("chat");
 
-  // const pc = useRef<RTCPeerConnection | null>(null);
+  const { targetUser, remoteStream, stopCall, receiveOffer } = useSignal();
 
-  // Khi load được info -> đăng ký connection để nhận thông báo
-  // useEffect(() => {
-  //   if (!info) return;
-  //   if (!isRegistered.current) {
-  //     isRegistered.current = true;
-  //     // startConnection(info.id, queryClient, info, pc.current);
-  //   }
-  // }, [info]);
+  const [position, setPosition] = useState<PositionProps>({ x: 0, y: 0 });
+  // Center the modal when it first renders
+  useEffect(() => {
+    setPosition({
+      x: window.innerWidth - 300 - 50,
+      y: window.innerHeight - 300 - 50,
+    });
+  }, []);
 
-  // useSignalRegistration(info.id, (remoteStream) => {
-  //   console.log(remoteStream);
-  // });
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (event.delta) {
+      setPosition((prev) => ({
+        x: prev.x + event.delta.x,
+        y: prev.y + event.delta.y,
+      }));
+    }
+  };
 
   if (!info) return;
 
@@ -55,6 +55,15 @@ const Home = () => {
             }[page]
           }
         </div>
+        <DndContext onDragEnd={handleDragEnd}>
+          {receiveOffer ? (
+            // MARK: RECEIVE OFFER
+            <ReceiveOffer position={position} />
+          ) : (
+            // MARK: VIDEO CALL
+            <VideoCall contact={targetUser} position={position} />
+          )}
+        </DndContext>
         <div id="portal"></div>
       </div>
     </SignalProvider>

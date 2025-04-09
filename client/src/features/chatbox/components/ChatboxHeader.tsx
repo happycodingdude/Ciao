@@ -27,7 +27,7 @@ const ChatboxHeader = () => {
   // Center the modal when it first renders
   useEffect(() => {
     // const centerX = window.innerWidth / 4 - 200; // Adjust based on modal width
-    const centerY = window.innerHeight / 2 - 300; // Adjust based on modal height
+    const centerY = window.innerHeight / 2 - 150; // Adjust based on modal height
     setPosition({
       x: (window.innerWidth * 2) / 3,
       y: centerY,

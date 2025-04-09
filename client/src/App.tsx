@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import LoadingProvider from "./context/LoadingContext";
+import { SignalProvider } from "./context/SignalContext";
 import "./Loading.css";
 import { AuthenticationContainer } from "./pages/Authentication";
 import Home from "./pages/Home";
@@ -44,7 +45,14 @@ function App() {
         <Routes>
           <Route path="/auth" element={<AuthenticationContainer />}></Route>
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Home />}></Route>
+            <Route
+              path="/"
+              element={
+                <SignalProvider>
+                  <Home />
+                </SignalProvider>
+              }
+            ></Route>
           </Route>
         </Routes>
       </BrowserRouter>

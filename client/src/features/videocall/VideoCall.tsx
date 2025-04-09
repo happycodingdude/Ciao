@@ -47,7 +47,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      className="video-call-container h-[45rem]"
+      className="video-call-container laptop:h-[30rem]"
     >
       <video
         id="localVideo"
@@ -75,7 +75,10 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
             bg-[position:center_center] bg-no-repeat opacity-60`}
         ></div>
       )}
-      <div className="pointer-events-auto absolute bottom-[10%] flex w-[70%] justify-between">
+      <div
+        className={`pointer-events-auto absolute bottom-[10%] flex w-[70%]
+         ${isCaller ? "justify-between" : "justify-center"}`}
+      >
         {isCaller ? (
           <button
             className="bg-green-500 text-white"

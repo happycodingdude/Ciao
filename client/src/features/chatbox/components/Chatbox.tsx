@@ -98,11 +98,11 @@ const Chatbox = () => {
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={scrollChatContentToBottom}
-        className={`absolute bottom-[5%] right-[50%] z-20
+        className={`absolute bottom-[5%] right-[50%] z-20 transition-all duration-200
             data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
       >
-        <div className="fa fa-chevron-down base-icon"></div>
+        <div className="fa fa-arrow-down"></div>
       </RelightBackground>
       <div
         ref={refChatContent}
