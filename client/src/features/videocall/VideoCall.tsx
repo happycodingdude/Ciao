@@ -2,7 +2,7 @@ import { useDraggable } from "@dnd-kit/core";
 import React, { CSSProperties, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSignal } from "../../context/SignalContext";
-import { ConversationModel_Contact } from "../listchat/types";
+import { UserProfile } from "../../types";
 
 export type PositionProps = {
   x: number;
@@ -10,7 +10,7 @@ export type PositionProps = {
 };
 
 type VideoCallProps = {
-  contact: ConversationModel_Contact;
+  contact: UserProfile;
   position: PositionProps;
 };
 

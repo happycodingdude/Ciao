@@ -14,7 +14,7 @@ import { UserProfile } from "../types";
 type SignalContextType = {
   startCall: (targetUserId: string) => void;
   stopCall: () => void;
-  startLocalStream: () => void;
+  startLocalStream: (targetUserId: string) => void;
   answerCall: () => void;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
@@ -57,7 +57,7 @@ export const SignalProvider: React.FC<{
   };
 
   /* MARK: START CAMERA */
-  const startLocalStream = async () => {
+  const startLocalStream = async (targetUserId: string) => {
     // showRef.current = true;
     // setShow(true);
     // navigator.mediaDevices
@@ -71,6 +71,8 @@ export const SignalProvider: React.FC<{
     //   });
 
     try {
+      setTargetUser({ id: targetUserId } as UserProfile);
+      remoteUserIdRef.current = targetUserId;
       setIsCaller(true);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -109,7 +111,7 @@ export const SignalProvider: React.FC<{
     // skipTrackAdding = false,
   ) => {
     pcRef.current = new RTCPeerConnection(iceServers);
-    remoteUserIdRef.current = remoteUserId;
+    // remoteUserIdRef.current = remoteUserId;
 
     // const remoteStream = new MediaStream();
     // setRemoteStream(remoteStream);
@@ -155,9 +157,11 @@ export const SignalProvider: React.FC<{
   };
 
   /* MARK: START CALL */
-  const startCall = async (targetUserId: string) => {
+  const startCall = async () => {
     // if (!localStream) await startLocalStream();
     // setIsCaller(false);
+
+    const targetUserId = remoteUserIdRef.current;
     await setupPeerConnection(targetUserId);
 
     const offer = await pcRef.current?.createOffer();

@@ -1,5 +1,5 @@
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DragEndEvent } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
@@ -8,7 +8,7 @@ import { useSignal } from "../../../context/SignalContext";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
-import VideoCall, { PositionProps } from "../../videocall/VideoCall";
+import { PositionProps } from "../../videocall/VideoCall";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import AddMembers from "./AddMembers";
 import UpdateConversation from "./UpdateConversation";
@@ -127,10 +127,16 @@ const ChatboxHeader = () => {
         )}
         {/* MARK: VIDEO CALL  */}
         <VideoCameraOutlined
-          onClick={() => startLocalStream()}
+          onClick={() =>
+            startLocalStream(
+              conversations.selected?.members.find(
+                (mem) => mem.contact.id !== info.id,
+              ).contact.id,
+            )
+          }
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
         />
-        {isCaller ? (
+        {/* {isCaller ? (
           <DndContext onDragEnd={handleDragEnd}>
             <VideoCall
               contact={
@@ -143,7 +149,7 @@ const ChatboxHeader = () => {
           </DndContext>
         ) : (
           ""
-        )}
+        )} */}
         {/* MARK: INFO  */}
         <div
           className={`flex justify-end gap-[1rem] rounded-full 
