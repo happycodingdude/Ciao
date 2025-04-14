@@ -58,6 +58,8 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
       />
       {remoteStream !== null ? (
         <video
+          {...listeners}
+          {...attributes}
           id="remoteVideo"
           ref={remoteRef}
           autoPlay
@@ -82,7 +84,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
         {isCaller ? (
           <button
             className="bg-green-500 text-white"
-            onClick={() => startCall(contact.id)}
+            onClick={() => startCall()}
           >
             <i className="fa fa-phone" />
           </button>

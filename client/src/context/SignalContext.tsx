@@ -12,9 +12,9 @@ import { setupListeners } from "../features/notification/services/signalService"
 import { UserProfile } from "../types";
 
 type SignalContextType = {
-  startCall: (targetUserId: string) => void;
+  startCall: () => void;
   stopCall: () => void;
-  startLocalStream: (targetUserId: string) => void;
+  startLocalStream: (targetUser: UserProfile) => void;
   answerCall: () => void;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
@@ -49,7 +49,7 @@ export const SignalProvider: React.FC<{
 
   const connectionRef = useRef<HubConnection | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
-  const remoteUserIdRef = useRef<string | null>(null);
+  // const remoteUserIdRef = useRef<string | null>(null);
   const isRegistered = useRef<boolean>(false);
 
   const iceServers = {
@@ -57,7 +57,7 @@ export const SignalProvider: React.FC<{
   };
 
   /* MARK: START CAMERA */
-  const startLocalStream = async (targetUserId: string) => {
+  const startLocalStream = async (targetUser: UserProfile) => {
     // showRef.current = true;
     // setShow(true);
     // navigator.mediaDevices
@@ -71,8 +71,8 @@ export const SignalProvider: React.FC<{
     //   });
 
     try {
-      setTargetUser({ id: targetUserId } as UserProfile);
-      remoteUserIdRef.current = targetUserId;
+      setTargetUser(targetUser);
+      // remoteUserIdRef.current = targetUserId;
       setIsCaller(true);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -161,18 +161,20 @@ export const SignalProvider: React.FC<{
     // if (!localStream) await startLocalStream();
     // setIsCaller(false);
 
-    const targetUserId = remoteUserIdRef.current;
-    await setupPeerConnection(targetUserId);
+    // const targetUserId = remoteUserIdRef.current;
+    await setupPeerConnection(targetUser.id);
 
     const offer = await pcRef.current?.createOffer();
     await pcRef.current?.setLocalDescription(offer!);
 
     connectionRef.current?.send(
       "SendOffer",
-      targetUserId,
+      targetUser.id,
       info.id,
       JSON.stringify(offer),
     );
+
+    setIsCaller(false);
   };
 
   /* MARK: STOP CAMERA */
@@ -196,8 +198,8 @@ export const SignalProvider: React.FC<{
   const stopCall = () => {
     stopCamera();
 
-    const remoteUserId = remoteUserIdRef.current;
-    connectionRef.current.send("EndCall", remoteUserId);
+    // const remoteUserId = remoteUserIdRef.current;
+    connectionRef.current.send("EndCall", targetUser.id);
     // if (
     //   // isCaller &&
     //   remoteUserId &&

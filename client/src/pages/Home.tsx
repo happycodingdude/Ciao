@@ -3,6 +3,7 @@ import React, { lazy, useEffect, useState } from "react";
 import { useSignal } from "../context/SignalContext";
 import useInfo from "../features/authentication/hooks/useInfo";
 import useFriend from "../features/friend/hooks/useFriend";
+import ReceiveOffer from "../features/videocall/ReceiveOffer";
 import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import SideBar from "../layouts/SideBar";
 
@@ -56,7 +57,14 @@ const Home = () => {
       </div>
       {targetUser !== null ? (
         <DndContext onDragEnd={handleDragEnd}>
-          <VideoCall contact={targetUser} position={position} />
+          {receiveOffer ? (
+            // MARK: RECEIVE OFFER
+            <ReceiveOffer position={position} />
+          ) : (
+            // MARK: VIDEO CALL
+            <VideoCall contact={targetUser} position={position} />
+          )}
+          {/* <VideoCall contact={targetUser} position={position} /> */}
         </DndContext>
       ) : (
         ""

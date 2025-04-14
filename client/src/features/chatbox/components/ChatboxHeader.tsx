@@ -1,10 +1,15 @@
-import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  InfoCircleOutlined,
+  VideoCameraOutlined,
+} from "@ant-design/icons";
 import { DragEndEvent } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import { useSignal } from "../../../context/SignalContext";
+import { UserProfile } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -115,12 +120,18 @@ const ChatboxHeader = () => {
         {conversations.selected.isGroup ? (
           <>
             <AddMembers />
-            <i
+            <EditOutlined
+              className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+              onClick={() => {
+                if (conversations.selected.isGroup) setOpenUpdateTitle(true);
+              }}
+            />
+            {/* <i
               className="fa-light fa-pen-to-square flex cursor-pointer items-center justify-center text-base font-medium hover:text-[var(--main-color-bold)]"
               onClick={() => {
                 if (conversations.selected.isGroup) setOpenUpdateTitle(true);
               }}
-            ></i>
+            ></i> */}
           </>
         ) : (
           ""
@@ -131,7 +142,7 @@ const ChatboxHeader = () => {
             startLocalStream(
               conversations.selected?.members.find(
                 (mem) => mem.contact.id !== info.id,
-              ).contact.id,
+              ).contact as UserProfile,
             )
           }
           className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
