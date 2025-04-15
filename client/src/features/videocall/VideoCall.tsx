@@ -20,8 +20,15 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
 
-  const { localStream, remoteStream, startCall, stopCall, isCaller } =
-    useSignal();
+  const {
+    localStream,
+    remoteStream,
+    startCall,
+    stopCall,
+    isCaller,
+    answerCall,
+    receiveOffer,
+  } = useSignal();
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: contact.id,
@@ -40,20 +47,27 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   }, [localStream]);
 
   useEffect(() => {
-    if (remoteStream) remoteRef.current.srcObject = remoteStream;
+    if (remoteStream) {
+      remoteStream.getVideoTracks().forEach((track) => {
+        console.log("Remote track state:", track.readyState);
+      });
+
+      remoteRef.current.srcObject = remoteStream;
+    }
   }, [remoteStream]);
 
   return createPortal(
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      className="video-call-container laptop:h-[30rem]"
+      className="video-call-container phone:h-[30rem] laptop:h-[30rem]"
     >
       <video
         id="localVideo"
         ref={localRef}
         autoPlay
         muted
+        playsInline
         className="absolute right-[1rem] top-[1rem] z-10 h-1/3 w-1/3 bg-purple-500"
       />
       {remoteStream !== null ? (
@@ -63,7 +77,8 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
           id="remoteVideo"
           ref={remoteRef}
           autoPlay
-          muted
+          // muted
+          playsInline
           className="absolute h-full w-full cursor-grab rounded-[1rem]"
         />
       ) : (
@@ -79,13 +94,20 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
       )}
       <div
         className={`pointer-events-auto absolute bottom-[10%] flex w-[70%]
-         ${isCaller ? "justify-between" : "justify-center"}`}
+         ${isCaller || receiveOffer ? "justify-between" : "justify-center"}`}
       >
         {isCaller ? (
           <button
             className="bg-green-500 text-white"
             onClick={() => startCall()}
           >
+            <i className="fa fa-phone" />
+          </button>
+        ) : (
+          ""
+        )}
+        {receiveOffer ? (
+          <button className="bg-green-500 text-white" onClick={answerCall}>
             <i className="fa fa-phone" />
           </button>
         ) : (

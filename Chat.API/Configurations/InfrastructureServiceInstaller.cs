@@ -26,7 +26,8 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                 policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:5000")
+                        .WithOrigins("http://localhost:5000",
+                        "https://b085-113-161-75-211.ngrok-free.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

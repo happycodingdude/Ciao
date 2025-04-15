@@ -3,7 +3,6 @@ import React, { lazy, useEffect, useState } from "react";
 import { useSignal } from "../context/SignalContext";
 import useInfo from "../features/authentication/hooks/useInfo";
 import useFriend from "../features/friend/hooks/useFriend";
-import ReceiveOffer from "../features/videocall/ReceiveOffer";
 import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import SideBar from "../layouts/SideBar";
 
@@ -18,8 +17,7 @@ const Home = () => {
 
   const [page, setPage] = useState<string>("chat");
 
-  const { targetUser, remoteStream, stopCall, isCaller, receiveOffer } =
-    useSignal();
+  const { targetUser } = useSignal();
 
   const [position, setPosition] = useState<PositionProps>({ x: 0, y: 0 });
   // Center the modal when it first renders
@@ -57,27 +55,11 @@ const Home = () => {
       </div>
       {targetUser !== null ? (
         <DndContext onDragEnd={handleDragEnd}>
-          {receiveOffer ? (
-            // MARK: RECEIVE OFFER
-            <ReceiveOffer position={position} />
-          ) : (
-            // MARK: VIDEO CALL
-            <VideoCall contact={targetUser} position={position} />
-          )}
-          {/* <VideoCall contact={targetUser} position={position} /> */}
+          <VideoCall contact={targetUser} position={position} />
         </DndContext>
       ) : (
         ""
       )}
-      {/* <DndContext onDragEnd={handleDragEnd}>
-          {receiveOffer ? (
-            // MARK: RECEIVE OFFER
-            <ReceiveOffer position={position} />
-          ) : (
-            // MARK: VIDEO CALL
-            <VideoCall contact={targetUser} position={position} />
-          )}
-        </DndContext> */}
       <div id="portal"></div>
     </div>
   );

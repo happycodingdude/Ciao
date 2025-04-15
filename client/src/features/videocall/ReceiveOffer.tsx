@@ -28,7 +28,7 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      className="video-call-container h-[30rem]"
+      className="video-call-container phone:h-[30rem] laptop:h-[25rem]"
     >
       <div
         style={{
@@ -40,7 +40,7 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
             bg-[position:center_center] bg-no-repeat opacity-20`}
       ></div>
 
-      <div className="absolute top-[20%] flex flex-col items-center gap-[1rem]">
+      <div className="absolute top-[10%] flex flex-col items-center gap-[1rem]">
         <ImageWithLightBoxAndNoLazy
           src={targetUser?.avatar}
           className="aspect-square w-[10rem]"

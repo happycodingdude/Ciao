@@ -56,9 +56,9 @@ const ChatboxContainer = () => {
             className={`absolute h-full w-full bg-[var(--bg-color)]
             ${conversations?.selected && (!toggle || toggle === "" || toggle === "null") ? "z-[10]" : "z-0"}`}
           >
-            <div className="flex h-full w-full grow flex-col border-l-[.1rem] border-l-[var(--border-color)]">
+            <div className="flex h-full flex-col">
               <ChatboxHeader />
-              <div className="flex h-[91dvh] w-full">
+              <div className="flex w-full grow overflow-hidden">
                 {isLoading || isRefetching ? (
                   <LocalLoading />
                 ) : (
@@ -75,7 +75,7 @@ const ChatboxContainer = () => {
               </div>
             </div>
           </div>
-          <div
+          {/* <div
             className={`relative h-full w-full shrink-0 origin-right transition-all duration-200
               ${!toggle || toggle === "" || toggle === "null" ? "z-0" : "z-[10]"}`}
           >
@@ -86,7 +86,7 @@ const ChatboxContainer = () => {
             ></i>
             <Information />
             <Attachment />
-          </div>
+          </div> */}
         </>
       ) : (
         <div className="relative h-full w-full">

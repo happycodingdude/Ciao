@@ -21,8 +21,6 @@ type SignalContextType = {
   targetUser: UserProfile | null;
   isCaller: boolean;
   receiveOffer: boolean;
-  // show: boolean;
-  // onOffer: (callerId: string, offer: string) => void;
 };
 
 const SignalContext = createContext<SignalContextType | undefined>(undefined);
@@ -34,7 +32,6 @@ export const SignalProvider: React.FC<{
   const { data: info } = useInfo();
   const queryClient = useQueryClient();
 
-  // const [isConnected, setIsConnected] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [targetUser, setTargetUser] = useState<UserProfile | null>(null);
@@ -43,13 +40,9 @@ export const SignalProvider: React.FC<{
   const [offer, setOffer] = useState<string | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
-  // const showRef = useRef<boolean>(false);
-  // const [show, setShow] = useState<boolean>(false);
-  // const [newCall, setNewCall] = useState<boolean>(false);
 
   const connectionRef = useRef<HubConnection | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
-  // const remoteUserIdRef = useRef<string | null>(null);
   const isRegistered = useRef<boolean>(false);
 
   const iceServers = {
@@ -58,21 +51,8 @@ export const SignalProvider: React.FC<{
 
   /* MARK: START CAMERA */
   const startLocalStream = async (targetUser: UserProfile) => {
-    // showRef.current = true;
-    // setShow(true);
-    // navigator.mediaDevices
-    //   .getUserMedia({
-    //     video: true,
-    //     audio: true,
-    //   })
-    //   .then((stream) => {
-    //     const vid: any = document.getElementById("localVideo");
-    //     vid.srcObject = stream;
-    //   });
-
     try {
       setTargetUser(targetUser);
-      // remoteUserIdRef.current = targetUserId;
       setIsCaller(true);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -83,12 +63,6 @@ export const SignalProvider: React.FC<{
     } catch (error) {
       console.error("Error accessing media devices.", error);
     }
-
-    // setLocalStream(stream);
-    // stream.getTracks().forEach((track) => {
-    //   pcRef.current?.addTrack(track, stream);
-    // });
-    // return stream;
   };
 
   /* MARK: ANSWER CALL */
@@ -106,16 +80,8 @@ export const SignalProvider: React.FC<{
   };
 
   /* MARK: SETUP CONNECTION */
-  const setupPeerConnection = async (
-    remoteUserId: string,
-    // skipTrackAdding = false,
-  ) => {
+  const setupPeerConnection = async (remoteUserId: string) => {
     pcRef.current = new RTCPeerConnection(iceServers);
-    // remoteUserIdRef.current = remoteUserId;
-
-    // const remoteStream = new MediaStream();
-    // setRemoteStream(remoteStream);
-
     pcRef.current.onicecandidate = (e) => {
       console.log(e);
       if (e.candidate) {
@@ -128,28 +94,17 @@ export const SignalProvider: React.FC<{
     };
 
     pcRef.current.ontrack = (e) => {
-      // console.log(e);
       console.log("🔔 On track");
+
       remoteStreamRef.current = e.streams[0];
-      // const vid: any = document.getElementById("remoteVideo");
-      // vid.srcObject = e.streams[0];
 
       setRemoteStream(e.streams[0]);
       setIsCaller(false);
 
-      // e.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
+      // e.streams[0]
+      //   .getTracks()
+      //   .forEach((track) => remoteStreamRef.current.addTrack(track));
     };
-
-    // console.log(typeof pcRef.current.ontrack);
-
-    // if (!skipTrackAdding && localStream) {
-    // console.log(localStream);
-
-    // if (localStreamRef.current) {
-    //   localStream.getTracks().forEach((track) => {
-    //     pcRef.current?.addTrack(track, localStream);
-    //   });
-    // }
 
     localStreamRef.current?.getTracks().forEach((track) => {
       pcRef.current?.addTrack(track, localStreamRef.current!);
@@ -158,10 +113,6 @@ export const SignalProvider: React.FC<{
 
   /* MARK: START CALL */
   const startCall = async () => {
-    // if (!localStream) await startLocalStream();
-    // setIsCaller(false);
-
-    // const targetUserId = remoteUserIdRef.current;
     await setupPeerConnection(targetUser.id);
 
     const offer = await pcRef.current?.createOffer();
@@ -183,9 +134,7 @@ export const SignalProvider: React.FC<{
     remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
     pcRef.current?.close();
     pcRef.current = null;
-    // showRef.current = false;
 
-    // setShow(false);
     setLocalStream(null);
     setRemoteStream(null);
     setTargetUser(null);
@@ -197,16 +146,7 @@ export const SignalProvider: React.FC<{
   /* MARK: STOP CALL */
   const stopCall = () => {
     stopCamera();
-
-    // const remoteUserId = remoteUserIdRef.current;
     connectionRef.current.send("EndCall", targetUser.id);
-    // if (
-    //   // isCaller &&
-    //   remoteUserId &&
-    //   connectionRef.current?.state === "Connected"
-    // ) {
-    //   connectionRef.current.send("EndCall", remoteUserId);
-    // }
   };
 
   // 🔌 SignalR setup
@@ -228,23 +168,17 @@ export const SignalProvider: React.FC<{
         async (caller: UserProfile, offer: string) => {
           console.log("🔔 Received offer");
 
-          // console.log(callerStr);
-          // const caller: UserProfile = JSON.parse(callerStr);
-          // console.log(caller);
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          localStreamRef.current = stream;
+          setLocalStream(stream);
 
           setTargetUser(caller);
           setOffer(offer);
           setReceiveOffer(true);
           await setupPeerConnection(caller.id);
-
-          // await setupPeerConnection(caller.id);
-
-          // const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
-          // await pcRef.current?.setRemoteDescription(rtcOffer);
-
-          // const answer = await pcRef.current?.createAnswer();
-          // await pcRef.current?.setLocalDescription(answer!);
-          // connection.send("SendAnswer", callerId, JSON.stringify(answer));
         },
       );
 
@@ -271,7 +205,6 @@ export const SignalProvider: React.FC<{
 
       await connection.start();
       connectionRef.current = connection;
-      // setIsConnected(true);
       console.log("✅ SignalR connected");
     };
 
@@ -290,8 +223,6 @@ export const SignalProvider: React.FC<{
         targetUser,
         isCaller,
         receiveOffer,
-        // show: show,
-        // onOffer
       }}
     >
       {children}

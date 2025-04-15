@@ -384,7 +384,7 @@ body,
 
   .sidebar-container {
     @apply shrink-0 border-r-[.1rem] border-r-[var(--border-color)] flex items-center px-[1rem] pt-[1rem]
-    phone:w-full laptop:w-[7rem] desktop:w-[10rem]
+    phone:h-[7rem] phone:w-full laptop:h-full laptop:w-[7rem] desktop:w-[10rem]
     laptop:flex-col phone:flex-row 
   }
 
@@ -423,6 +423,6 @@ body,
   /* MARK: VIDEO CALL  */
   .video-call-container {
     @apply relative z-50 flex justify-center rounded-[1rem]
-    bg-black phone:w-[35rem] laptop:w-[30rem] desktop:w-[35%]
+    bg-black phone:w-[25rem] laptop:w-[30rem] desktop:w-[35%]
   }
 }
