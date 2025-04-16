@@ -132,6 +132,9 @@ export const SignalProvider: React.FC<{
   const stopCamera = () => {
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
     remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
+    pcRef.current?.getSenders().forEach((sender) => {
+      pcRef.current?.removeTrack(sender);
+    });
     pcRef.current?.close();
     pcRef.current = null;
 
@@ -168,17 +171,35 @@ export const SignalProvider: React.FC<{
         async (caller: UserProfile, offer: string) => {
           console.log("🔔 Received offer");
 
+          // const stream = await navigator.mediaDevices.getUserMedia({
+          //   video: true,
+          //   audio: true,
+          // });
+          // localStreamRef.current = stream;
+          // setLocalStream(stream);
+
+          // setTargetUser(caller);
+          // setOffer(offer);
+          // setReceiveOffer(true);
+          // await setupPeerConnection(caller.id);
+
+          // 1. Get local stream
           const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: { width: { ideal: 640 }, height: { ideal: 360 } },
             audio: true,
           });
           localStreamRef.current = stream;
           setLocalStream(stream);
 
+          // 2. Set target
           setTargetUser(caller);
+
+          // 3. Setup peer connection BEFORE setting offer
+          await setupPeerConnection(caller.id);
+
+          // 4. Set offer and show answer UI
           setOffer(offer);
           setReceiveOffer(true);
-          await setupPeerConnection(caller.id);
         },
       );
 

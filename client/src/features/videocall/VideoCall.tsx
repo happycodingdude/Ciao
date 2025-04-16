@@ -47,12 +47,21 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   }, [localStream]);
 
   useEffect(() => {
-    if (remoteStream) {
-      remoteStream.getVideoTracks().forEach((track) => {
-        console.log("Remote track state:", track.readyState);
-      });
+    // if (remoteStream) {
+    //   remoteStream.getVideoTracks().forEach((track) => {
+    //     console.log("Remote track state:", track.readyState);
+    //   });
 
-      remoteRef.current.srcObject = remoteStream;
+    //   remoteRef.current.srcObject = remoteStream;
+    // }
+
+    if (remoteStream) {
+      setTimeout(() => {
+        remoteRef.current.srcObject = remoteStream;
+        remoteRef.current
+          .play()
+          .catch((e) => console.warn("Autoplay issue:", e.message));
+      }, 200); // wait for render cycle
     }
   }, [remoteStream]);
 

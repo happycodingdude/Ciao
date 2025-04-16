@@ -26,19 +26,16 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                 policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:5000",
-                        "https://b085-113-161-75-211.ngrok-free.app")
+                        .WithOrigins("http://localhost:5000")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
-
-                    // policy.WithOrigins(
-                    //     "http://localhost:5000",         // Local frontend
-                    //     "https://45dc-113-161-75-211.ngrok-free.app" // Replace with your actual ngrok URL
-                    // )
-                    // .AllowAnyHeader()
-                    // .AllowAnyMethod()
-                    // .AllowCredentials(); // Required for SignalR WebSockets
+                    // policy
+                    //     .WithOrigins("http://localhost:5000",
+                    //     "https://76c4-27-74-249-68.ngrok-free.app")
+                    //     .AllowAnyHeader()
+                    //     .AllowAnyMethod()
+                    //     .AllowCredentials();
                 });
         });
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import LocalLoading from "../components/LocalLoading";
-import useInfo from "../features/authentication/hooks/useInfo";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
 import ChatInput from "../features/chatbox/components/ChatInput";
@@ -22,7 +21,7 @@ const ChatboxContainer = () => {
     isRefetching: isRefetchingAttachment,
   } = useAttachment();
   const { data: conversations } = useConversation();
-  const { data: info } = useInfo();
+  // const { data: info } = useInfo();
 
   const { toggle, setToggle } = useChatDetailToggles();
   const { loading, setLoading } = useLoading();
@@ -75,18 +74,23 @@ const ChatboxContainer = () => {
               </div>
             </div>
           </div>
-          {/* <div
+          <div
             className={`relative h-full w-full shrink-0 origin-right transition-all duration-200
               ${!toggle || toggle === "" || toggle === "null" ? "z-0" : "z-[10]"}`}
           >
             <i
-              className="fa-arrow-left fa absolute left-[2rem] top-[1rem] z-[11] flex cursor-pointer items-center justify-center
-            text-xl font-normal transition-all duration-500"
+              className="fa-arrow-left fa absolute left-[2rem] top-[1rem] z-[11] flex cursor-pointer items-center justify-center p-[.5rem]
+            text-xl transition-all duration-500"
               onClick={() => setToggle(null)}
             ></i>
+            {/* <i
+              className="fa-arrow-down fa z-[11] flex aspect-square h-full cursor-pointer items-center justify-center p-[.5rem] transition-all
+                duration-500 data-[show=false]:rotate-90 phone:text-xl laptop:text-md"
+              onClick={() => setToggle(null)}
+            ></i> */}
             <Information />
             <Attachment />
-          </div> */}
+          </div>
         </>
       ) : (
         <div className="relative h-full w-full">

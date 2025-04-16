@@ -51,44 +51,46 @@ const Attachment = () => {
       ref={refAttachment}
       className={`absolute top-0 pb-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
-      <div className="relative flex border-b-[.1rem] border-b-[var(--border-color)]">
-        <div
-          onClick={() => {
-            toggleAttachmentActive("image");
-            setAttachmentToggle("image");
-          }}
-          className="group relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
-        >
-          <input
-            type="radio"
-            name="radio-attachment"
-            className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
-            checked={attachmentToggle === "image"}
-          ></input>
-          <p className="group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color-bold)]">
-            Images
-          </p>
-        </div>
-        <div
-          onClick={() => {
-            toggleAttachmentActive("file");
-            setAttachmentToggle("file");
-          }}
-          className="group relative flex-1 cursor-pointer py-[1rem] text-center text-[var(--text-main-color)]"
-        >
-          <input
-            type="radio"
-            name="radio-attachment"
-            className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
-            checked={attachmentToggle === "file"}
-          ></input>
-          <p className="group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color-bold)]">
-            Files
-          </p>
+      <div className="relative border-b-[.1rem] border-b-[var(--border-color)]">
+        <div className="flex justify-evenly">
+          <div
+            onClick={() => {
+              toggleAttachmentActive("image");
+              setAttachmentToggle("image");
+            }}
+            className="group relative cursor-pointer py-[1rem] text-center text-[var(--text-main-color)] laptop:flex-1"
+          >
+            <input
+              type="radio"
+              name="radio-attachment"
+              className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+              checked={attachmentToggle === "image"}
+            ></input>
+            <p className="group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color-bold)]">
+              Images
+            </p>
+          </div>
+          <div
+            onClick={() => {
+              toggleAttachmentActive("file");
+              setAttachmentToggle("file");
+            }}
+            className="group relative cursor-pointer py-[1rem] text-center text-[var(--text-main-color)] laptop:flex-1"
+          >
+            <input
+              type="radio"
+              name="radio-attachment"
+              className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+              checked={attachmentToggle === "file"}
+            ></input>
+            <p className="group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color-bold)]">
+              Files
+            </p>
+          </div>
         </div>
         <div
           data-tab={attachmentToggle}
-          className="absolute bottom-0 h-[.2rem] w-1/2 bg-[var(--main-color)] transition-all 
+          className="absolute bottom-0 h-[.2rem] w-1/2 bg-[var(--main-color)] transition-all
           duration-200 data-[tab=file]:translate-x-[100%] data-[tab=image]:translate-x-0"
         ></div>
       </div>
