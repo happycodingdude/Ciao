@@ -1,7 +1,6 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import blurImage from "../../../utils/blurImage";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 
@@ -9,7 +8,7 @@ const Attachment = () => {
   // console.log("Attachment calling");
   // const { show, toggle } = props;
   const { toggle } = useChatDetailToggles();
-  const show = toggle === "attachment";
+  // const show = toggle === "attachment";
   const { data: attachmentCache } = useAttachment();
 
   const refAttachment = useRef();
@@ -43,13 +42,14 @@ const Attachment = () => {
   }, [attachmentCache]);
 
   useEffect(() => {
-    if (show) blurImage(".attachment-container");
-  }, [displayAttachments, show]);
+    if (toggle === "attachment") return;
+    setAttachmentToggle("image");
+  }, [toggle]);
 
   return (
     <div
       ref={refAttachment}
-      className={`absolute top-0 pb-4 ${show ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
+      className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div className="relative border-b-[.1rem] border-b-[var(--border-color)]">
         <div className="flex justify-evenly">
@@ -90,8 +90,9 @@ const Attachment = () => {
         </div>
         <div
           data-tab={attachmentToggle}
-          className="absolute bottom-0 h-[.2rem] w-1/2 bg-[var(--main-color)] transition-all
-          duration-200 data-[tab=file]:translate-x-[100%] data-[tab=image]:translate-x-0"
+          className="absolute bottom-0 h-[.2rem] w-1/4 bg-[var(--main-color)] transition-all duration-200 
+          phone:data-[tab=file]:translate-x-[225%] phone:data-[tab=image]:translate-x-[75%]
+          laptop:data-[tab=file]:translate-x-[250%] laptop:data-[tab=image]:translate-x-[50%]"
         ></div>
       </div>
 
@@ -100,7 +101,7 @@ const Attachment = () => {
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
         [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
-        {show
+        {toggle === "attachment"
           ? displayAttachments.map((date) => (
               <div className="flex flex-col gap-[2rem]">
                 <div className="text-[var(--text-main-color-normal)]">
