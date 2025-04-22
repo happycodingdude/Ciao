@@ -9,12 +9,9 @@ import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
 
 const MessageContent = (props: MessageContentProps) => {
-  // console.log("MessageContent calling");
   const { message, id, mt } = props;
 
   if (!message) return null;
-
-  // console.log(JSON.stringify(message));
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -222,53 +219,6 @@ const MessageContent = (props: MessageContentProps) => {
         </div>
 
         {/* Attachment */}
-        {/* {message.attachments && message.attachments.length !== 0 ? (
-          <div
-            className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
-          >
-            {message.attachments.map((item, index) => {
-              // return message.noLazy ? (
-              //   <ImageWithLightBoxAndNoLazy
-              //     src={item.mediaUrl}
-              //     title={item.mediaName?.split(".")[0]}
-              //     className={`aspect-[3/2] cursor-pointer !bg-[size:110%]
-              //       ${message.loaded ? "loaded" : ""}
-              //       ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
-              //     slides={message.attachments.map((item) => ({
-              //       src: item.type === "image" ? item.mediaUrl : "",
-              //     }))}
-              //     index={index}
-              //   />
-              // ) : (
-              //   <ImageWithLightBox
-              //     src={item.mediaUrl}
-              //     title={item.mediaName?.split(".")[0]}
-              //     className={`aspect-[3/2] ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"} cursor-pointer`}
-              //     slides={message.attachments.map((item) => ({
-              //       src: item.type === "image" ? item.mediaUrl : "",
-              //     }))}
-              //     index={index}
-              //     imageClassName="!bg-[size:100%]"
-              //   />
-              // );
-
-              return (
-                <ImageWithLightBoxAndNoLazy
-                  src={item.mediaUrl}
-                  title={item.mediaName?.split(".")[0]}
-                  className={`loaded aspect-[3/2] cursor-pointer !bg-[size:110%]                      
-                      ${message.attachments?.length === 1 ? "!w-[70%]" : "!w-[30%]"}`}
-                  slides={message.attachments.map((item) => ({
-                    src: item.type === "image" ? item.mediaUrl : "",
-                  }))}
-                  index={index}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          ""
-        )} */}
 
         {message.attachments && message.attachments.length !== 0 ? (
           message.attachments?.length <= 2 ? (
@@ -297,46 +247,6 @@ const MessageContent = (props: MessageContentProps) => {
               })}
             </div>
           ) : (
-            // <div
-            //   className={`flex w-full gap-[.5rem] laptop:h-[20rem] ${message.contactId === info.id ? "justify-end" : ""}`}
-            // >
-            //   <ImageWithLightBoxAndNoLazy
-            //     src={message.attachments[0].mediaUrl}
-            //     title={message.attachments[0].mediaName?.split(".")[0]}
-            //     className={`loaded aspect-square cursor-pointer`}
-            //     slides={message.attachments.map((item) => ({
-            //       src: item.type === "image" ? item.mediaUrl : "",
-            //     }))}
-            //     index={0}
-            //     pending={message.attachments[0].pending}
-            //     local={message.attachments[0].local}
-            //   />
-            //   <div className="flex w-[20%] flex-col justify-between">
-            //     <ImageWithLightBoxAndNoLazy
-            //       src={message.attachments[1].mediaUrl}
-            //       title={message.attachments[1].mediaName?.split(".")[0]}
-            //       className={`loaded h-[45%] w-full cursor-pointer`}
-            //       slides={message.attachments.map((item) => ({
-            //         src: item.type === "image" ? item.mediaUrl : "",
-            //       }))}
-            //       index={1}
-            //       pending={message.attachments[1].pending}
-            //       local={message.attachments[1].local}
-            //     />
-            //     <ImageWithLightBoxAndNoLazy
-            //       src={message.attachments[2].mediaUrl}
-            //       title={message.attachments[2].mediaName?.split(".")[0]}
-            //       className={`loaded h-[45%] w-full cursor-pointer`}
-            //       slides={message.attachments.map((item) => ({
-            //         src: item.type === "image" ? item.mediaUrl : "",
-            //       }))}
-            //       index={2}
-            //       pending={message.attachments[2].pending}
-            //       local={message.attachments[2].local}
-            //     />
-            //   </div>
-            // </div>
-
             <div
               className={`grid grid-cols-[20rem_12rem] gap-2 laptop:h-[20rem] ${
                 message.contactId === info.id ? "justify-end" : ""
@@ -411,18 +321,6 @@ const MessageContent = (props: MessageContentProps) => {
           react={react}
           pending={message.pending}
         />
-        {/* {!pending ? (
-          <MessageReaction
-            message={{
-              mine: message.contactId === info.id,
-              reaction: reaction,
-              topReactions: topReactions,
-            }}
-            react={react}
-          />
-        ) : (
-          ""
-        )} */}
       </div>
     </div>
   );

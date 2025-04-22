@@ -92,7 +92,7 @@ const Notification = () => {
         ref={refNotification}
         data-state="hide"
         className="notification-body absolute z-[1000] flex origin-bottom-left cursor-auto flex-col 
-        rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-extrathin)] transition-all duration-200 
+        rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-light)] transition-all duration-200 
           data-[state=hide]:scale-0 data-[state=show]:scale-100 
           phone:bottom-[2rem] phone:left-[2rem] phone:h-[25rem] phone:w-[25rem] phone:text-base 
           laptop:bottom-[2rem] laptop:left-[2rem] laptop:h-[30rem] laptop:w-[25rem] laptop:text-md"
@@ -108,11 +108,11 @@ const Notification = () => {
         </div>
         <div
           ref={refNotificationBody}
-          className="notification-body hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth [&>*]:px-4  [&>*]:py-2"
+          className="notification-body hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth text-base [&>*]:px-4 [&>*]:py-2"
         >
           {notifications?.map((notification) => (
             <div
-              className="notification-body flex cursor-pointer flex-wrap items-center justify-between gap-y-2 hover:bg-[var(--bg-color-thin)]"
+              className="notification-body flex cursor-pointer items-center justify-between gap-y-2 hover:bg-[var(--bg-color-extrathin)]"
               onClick={(e) => {
                 if (notification.read) return;
                 readMutation(notification.id);
