@@ -16,7 +16,7 @@ import {
   AttachmentModel,
   ConversationCache,
   MessageCache,
-  MessageModel,
+  PendingMessageModel,
 } from "../../listchat/types";
 import uploadFile from "../functions/uploadFile";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
@@ -130,33 +130,19 @@ const ChatInput = (props: ChatInputProps) => {
                 attachments: param.attachments.map((item) => {
                   return { ...item, id: randomId };
                 }),
-                currentReaction: null,
                 noLazy: true,
                 pending: true,
-              } as MessageModel,
+                likeCount: 0,
+                loveCount: 0,
+                careCount: 0,
+                wowCount: 0,
+                sadCount: 0,
+                angryCount: 0,
+                currentReaction: null,
+              } as PendingMessageModel,
             ],
           } as MessageCache;
         });
-        // queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-        //   // If there is no attachment yet, create a new entry
-        //   if (
-        //     oldData.attachments.length === 0 ||
-        //     oldData.attachments[0].date !== getToday("MM/DD/YYYY")
-        //   ) {
-        //     return {
-        //       ...oldData,
-        //       attachments: [
-        //         {
-        //           date: getToday("MM/DD/YYYY"),
-        //           attachments: param.attachments.map((item) => {
-        //             return { ...item, id: randomId };
-        //           }),
-        //         },
-        //         ...oldData.attachments, // Return a new array to trigger state updates
-        //       ],
-        //     } as AttachmentCache;
-        //   }
-        // });
         queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
           const today = getToday("MM/DD/YYYY");
 
@@ -225,10 +211,6 @@ const ChatInput = (props: ChatInputProps) => {
           ...bodyToCreate,
           attachments: uploaded,
         };
-        // bodyLocal = {
-        //   ...bodyLocal,
-        //   attachments: param.attachments,
-        // };
       } else {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           return {
@@ -241,10 +223,16 @@ const ChatInput = (props: ChatInputProps) => {
                 content: param.content,
                 contactId: info.id,
                 attachments: [],
-                currentReaction: null,
                 noLazy: true,
                 pending: true,
-              } as MessageModel,
+                likeCount: 0,
+                loveCount: 0,
+                careCount: 0,
+                wowCount: 0,
+                sadCount: 0,
+                angryCount: 0,
+                currentReaction: null,
+              } as PendingMessageModel,
             ],
           } as MessageCache;
         });

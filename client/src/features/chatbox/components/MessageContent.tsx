@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -5,13 +6,15 @@ import MessageReaction from "../../../components/MessageReaction";
 import { MessageReactionProps_Message_Reaction } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
+import { MessageCache } from "../../listchat/types";
 import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
 
 const MessageContent = (props: MessageContentProps) => {
   const { message, id, mt } = props;
-
   if (!message) return null;
+
+  const queryClient = useQueryClient();
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -106,7 +109,7 @@ const MessageContent = (props: MessageContentProps) => {
       isUnReact: isUnReact,
     };
     reactMessage(request);
-    setReaction((current) => {
+    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
       const reactionKeys = {
         like: "likeCount",
         love: "loveCount",
@@ -116,57 +119,73 @@ const MessageContent = (props: MessageContentProps) => {
         angry: "angryCount",
       };
 
-      const previousReaction = current.currentReaction;
+      const previousReaction = reaction.currentReaction;
       const previousKey = reactionKeys[previousReaction];
       const newKey = reactionKeys[type];
 
-      const tmp = {
-        ...current,
-        total:
-          previousReaction && !isUnReact
-            ? current.total
-            : isUnReact
-              ? current.total - 1
-              : current.total + 1,
-        currentReaction: isUnReact ? null : type,
-        ...(previousKey && {
-          [previousKey]: current[previousKey] - 1,
-        }),
-        ...(newKey &&
-          !isUnReact && {
-            [newKey]: (current[newKey] || 0) + 1,
-          }),
-      };
-
       return {
-        ...current,
-        total:
-          previousReaction && !isUnReact
-            ? current.total
-            : isUnReact
-              ? current.total - 1
-              : current.total + 1,
-        currentReaction: isUnReact ? null : type,
-        ...(previousKey && {
-          [previousKey]: current[previousKey] - 1,
+        ...oldData,
+        messages: oldData.messages.map((mess) => {
+          if (mess.id !== message.id) return mess;
+          return {
+            ...mess,
+            currentReaction: isUnReact ? null : type,
+            ...(previousKey && {
+              [previousKey]: mess[previousKey] - 1,
+            }),
+            ...(newKey &&
+              !isUnReact && {
+                [newKey]: (mess[newKey] || 0) + 1,
+              }),
+          };
         }),
-        ...(newKey &&
-          !isUnReact && {
-            [newKey]: (current[newKey] || 0) + 1,
-          }),
-      };
+      } as MessageCache;
     });
+
+    // setReaction((current) => {
+    //   const reactionKeys = {
+    //     like: "likeCount",
+    //     love: "loveCount",
+    //     care: "careCount",
+    //     wow: "wowCount",
+    //     sad: "sadCount",
+    //     angry: "angryCount",
+    //   };
+
+    //   const previousReaction = current.currentReaction;
+    //   const previousKey = reactionKeys[previousReaction];
+    //   const newKey = reactionKeys[type];
+
+    //   return {
+    //     ...current,
+    //     total:
+    //       previousReaction && !isUnReact
+    //         ? current.total
+    //         : isUnReact
+    //           ? current.total - 1
+    //           : current.total + 1,
+    //     currentReaction: isUnReact ? null : type,
+    //     ...(previousKey && {
+    //       [previousKey]: current[previousKey] - 1,
+    //     }),
+    //     ...(newKey &&
+    //       !isUnReact && {
+    //         [newKey]: (current[newKey] || 0) + 1,
+    //       }),
+    //   };
+    // });
   };
 
   return (
     <div
       id={message.id}
       key={message.id}
-      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""} 
-      phone:text-base laptop:text-sm laptop-lg:text-sm`}
+      // className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}
+      // phone:text-base laptop:text-sm laptop-lg:text-sm`}
+      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
       // style={{ height: `${height}px` }}
     >
-      {/* Sender avatar */}
+      {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (
         <div className="relative w-[3rem] self-start">
           <ImageWithLightBoxAndNoLazy
@@ -194,7 +213,7 @@ const MessageContent = (props: MessageContentProps) => {
           phone:w-[30rem] laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
-        {/* Sender infor */}
+        {/* MARK: SENDER INFOR */}
         <div
           className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
         >
@@ -218,8 +237,7 @@ const MessageContent = (props: MessageContentProps) => {
           </p>
         </div>
 
-        {/* Attachment */}
-
+        {/* MARK: ATTACHMENT */}
         {message.attachments && message.attachments.length !== 0 ? (
           message.attachments?.length <= 2 ? (
             <div
@@ -275,7 +293,7 @@ const MessageContent = (props: MessageContentProps) => {
           ""
         )}
 
-        {/* Content */}
+        {/* MARK: CONTENT */}
         {message.content ? (
           <>
             <div
@@ -311,7 +329,7 @@ const MessageContent = (props: MessageContentProps) => {
           ""
         )}
 
-        {/* Reaction */}
+        {/* MARK: REACTION */}
         <MessageReaction
           message={{
             mine: message.contactId === info.id,

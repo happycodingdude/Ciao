@@ -185,7 +185,8 @@ export const SignalProvider: React.FC<{
 
           // 1. Get local stream
           const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 640 }, height: { ideal: 360 } },
+            // video: { width: { ideal: 640 }, height: { ideal: 360 } },
+            video: true,
             audio: true,
           });
           localStreamRef.current = stream;

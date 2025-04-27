@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
   font-size: 62.5%;
   --danger-text-color: #ef4444;
@@ -396,13 +402,12 @@ body,
     border-radius: 10px;
   } */
 
-  button {
+  /* button {
     aspect-ratio: 1/1;
     width: 5rem;
     border-radius: 50%;
-    /* padding: 0.3rem; */
     background: #ffffff;
-  }
+  } */
 
   .centering {
     position: absolute;
@@ -423,6 +428,10 @@ body,
   /* MARK: VIDEO CALL  */
   .video-call-container {
     @apply relative z-50 flex justify-center rounded-[1rem]
-    bg-black phone:w-[25rem] laptop:w-[30rem] desktop:w-[35%]
+    bg-black phone:w-[25rem] laptop:w-[30%] aspect-square
+  }
+
+  .video-call-container button {
+    @apply aspect-square w-[4rem] rounded-full
   }
 }

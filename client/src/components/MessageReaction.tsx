@@ -7,50 +7,50 @@ const MessageReaction = (props: MessageReactionProps) => {
   return (
     <>
       <div
-        className={`absolute bottom-[-1rem] z-10 flex h-[2.5rem] items-center justify-between gap-[.5rem]      
+        className={`absolute bottom-[-1.3rem] z-10 flex items-center justify-between gap-[.5rem]  
       ${(message.mine && message.reaction.total) || (!message.mine && !message.reaction.total) ? "" : "flex-row-reverse"}`}
       >
-        {/* Total and top retions */}
+        {/* MARK: TOTAL AND TOP REACTIONS */}
         {message.reaction.total ? (
           <div
             className={`flex cursor-pointer items-center gap-[.5rem] rounded-[2rem]
-            border-[.2rem] border-[var(--main-color)] bg-[var(--sub-color)] px-[.5rem] leading-[2rem]
+            border-[.2rem] border-[var(--main-color)] bg-[var(--sub-color)] px-[.5rem] py-[.1rem]
             `}
           >
             <div className="inline-flex">
               {message.topReactions.map((item) => {
                 if (item === "like")
                   return (
-                    <div className="aspect-square h-[1.7rem] bg-[url('src/assets/like.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
+                    <div className="aspect-square h-[1.5rem] bg-[url('src/assets/like.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
                   );
                 if (item === "love")
                   return (
-                    <div className="aspect-square h-[1.7rem] bg-[url('src/assets/love.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
+                    <div className="aspect-square h-[1.5rem] bg-[url('src/assets/love.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
                   );
                 if (item === "care")
                   return (
-                    <div className="aspect-square h-[1.7rem] bg-[url('src/assets/care.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
+                    <div className="aspect-square h-[1.5rem] bg-[url('src/assets/care.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
                   );
                 if (item === "wow")
                   return (
-                    <div className="aspect-square h-[1.7rem] bg-[url('src/assets/wow.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
+                    <div className="aspect-square h-[1.5rem] bg-[url('src/assets/wow.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
                   );
                 if (item === "sad")
                   return (
-                    <div className="aspect-square h-[1.7rem] bg-[url('src/assets/sad.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
+                    <div className="aspect-square h-[1.5rem] bg-[url('src/assets/sad.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
                   );
                 if (item === "angry")
                   return (
-                    <div className="aspect-square h-[1.7rem] bg-[url('src/assets/angry.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
+                    <div className="aspect-square h-[1.5rem] bg-[url('src/assets/angry.svg')] bg-[size:80%] bg-[position:center_center] bg-no-repeat"></div>
                   );
               })}
             </div>
-            <p className="leading-[1rem]">{message.reaction.total}</p>
+            <p className="leading-[1.5rem]">{message.reaction.total}</p>
           </div>
         ) : (
           ""
         )}
-        {/* Current reaction */}
+        {/* MARK: CURRENT REACTION */}
         <div className="peer flex aspect-square w-[2rem] items-center justify-center">
           {
             {
@@ -102,7 +102,7 @@ const MessageReaction = (props: MessageReactionProps) => {
             }[message.reaction.currentReaction]
           }
         </div>
-        {/* List reactions */}
+        {/* MARK: LIST REACTIONS */}
         <div
           className={`absolute bottom-[2.2rem] z-10 flex h-[4rem] w-[20rem] scale-0 items-center justify-evenly rounded-[2rem] 
           border-[.2rem] border-[var(--main-color)] bg-[var(--sub-color)] transition-all duration-200 hover:scale-100 peer-hover:scale-100

@@ -47,29 +47,34 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   }, [localStream]);
 
   useEffect(() => {
-    // if (remoteStream) {
-    //   remoteStream.getVideoTracks().forEach((track) => {
-    //     console.log("Remote track state:", track.readyState);
-    //   });
-
-    //   remoteRef.current.srcObject = remoteStream;
-    // }
-
-    if (remoteStream) {
-      setTimeout(() => {
-        remoteRef.current.srcObject = remoteStream;
-        remoteRef.current
-          .play()
-          .catch((e) => console.warn("Autoplay issue:", e.message));
-      }, 200); // wait for render cycle
-    }
+    if (remoteStream) remoteRef.current.srcObject = remoteStream;
   }, [remoteStream]);
+
+  // useEffect(() => {
+  //   // if (remoteStream) {
+  //   //   remoteStream.getVideoTracks().forEach((track) => {
+  //   //     console.log("Remote track state:", track.readyState);
+  //   //   });
+
+  //   //   remoteRef.current.srcObject = remoteStream;
+  //   // }
+
+  //   if (remoteStream) {
+  //     setTimeout(() => {
+  //       remoteRef.current.srcObject = remoteStream;
+  //       remoteRef.current
+  //         .play()
+  //         .catch((e) => console.warn("Autoplay issue:", e.message));
+  //     }, 200); // wait for render cycle
+  //   }
+  // }, [remoteStream]);
 
   return createPortal(
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      className="video-call-container phone:h-[30rem] laptop:h-[30rem]"
+      // className="video-call-container phone:h-[30rem] laptop:h-[30rem]"
+      className="video-call-container"
     >
       <video
         id="localVideo"

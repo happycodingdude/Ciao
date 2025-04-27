@@ -9,6 +9,7 @@ import {
   ConversationModel,
   ConversationModel_Member,
   MessageCache,
+  PendingMessageModel,
 } from "../../listchat/types";
 import { NewConversation, NewMessage, NewReaction } from "../types";
 
@@ -93,7 +94,6 @@ export const setupListeners = (
   });
 
   connection.on("NewReaction", (user: string, data: string) => {
-    console.log(user);
     console.log(data);
     if (user == userInfo.id) return;
     onNewReaction(queryClient, JSON.parse(data));
@@ -334,7 +334,17 @@ const updateMessagesCache = (oldData: MessageCache, message: NewMessage) => {
     ...oldData,
     messages: [
       ...oldData.messages,
-      { ...message, contactId: message.contact.id, currentReaction: null },
+      {
+        ...message,
+        contactId: message.contact.id,
+        currentReaction: null,
+        likeCount: 0,
+        loveCount: 0,
+        careCount: 0,
+        wowCount: 0,
+        sadCount: 0,
+        angryCount: 0,
+      } as PendingMessageModel,
     ],
   };
 };
