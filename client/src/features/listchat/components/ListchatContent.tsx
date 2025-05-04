@@ -14,21 +14,40 @@ import useAttachment from "../../chatdetail/hooks/useAttachment";
 import useConversation from "../hooks/useConversation";
 import { ConversationCache, ConversationModel, MessageCache } from "../types";
 
-moment.locale("en", {
+// moment.locale("en", {
+//   relativeTime: {
+//     future: "in %s",
+//     past: "%s",
+//     s: "1m",
+//     ss: "1m",
+//     m: "%dm",
+//     mm: "%dm",
+//     h: "%dh",
+//     hh: "%dh",
+//     d: "a day",
+//     dd: "%dd",
+//     M: "a month",
+//     MM: "%dM",
+//     y: "a year",
+//     yy: "%dY",
+//   },
+// });
+
+moment.updateLocale("en", {
   relativeTime: {
     future: "in %s",
     past: "%s",
     s: "1m",
     ss: "1m",
-    m: "%dm",
+    m: "1m",
     mm: "%dm",
-    h: "%dh",
+    h: "1h",
     hh: "%dh",
-    d: "a day",
+    d: "1d",
     dd: "%dd",
-    M: "a month",
+    M: "1M",
     MM: "%dM",
-    y: "a year",
+    y: "1Y",
     yy: "%dY",
   },
 });
