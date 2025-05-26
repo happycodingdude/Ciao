@@ -51,3 +51,8 @@ export type MessageContentProps = {
   id: string;
   mt: boolean;
 };
+
+export type MessageMenuProps = {
+  id: string;
+  className?: string;
+};

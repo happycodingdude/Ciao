@@ -9,6 +9,7 @@ import useConversation from "../../listchat/hooks/useConversation";
 import { MessageCache } from "../../listchat/types";
 import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
+import MessageMenu from "./MessageMenu";
 
 const MessageContent = (props: MessageContentProps) => {
   const { message, id, mt } = props;
@@ -70,6 +71,8 @@ const MessageContent = (props: MessageContentProps) => {
       const maxHeight = lineHeight * 3; // 3 lines height
       setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
     }
+
+    setIsExpanded(false);
   }, [message]);
 
   const generateMostReaction = useCallback(() => {
@@ -299,7 +302,7 @@ const MessageContent = (props: MessageContentProps) => {
             <div
               ref={contentRef}
               data-expanded={isExpanded}
-              className={`cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+              className={`relative cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
@@ -310,9 +313,12 @@ const MessageContent = (props: MessageContentProps) => {
             `}
             >
               {message.content}
+
+              {/* MARK: Message menu */}
+              <MessageMenu id={message.id} />
             </div>
 
-            {/* Show more message */}
+            {/* MARK: Show more message */}
             {isOverflowing && (
               <div
                 // className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"
