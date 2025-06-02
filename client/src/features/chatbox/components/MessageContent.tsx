@@ -299,10 +299,11 @@ const MessageContent = (props: MessageContentProps) => {
         {/* MARK: CONTENT */}
         {message.content ? (
           <>
-            <div
-              ref={contentRef}
-              data-expanded={isExpanded}
-              className={`relative cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+            <div className="relative">
+              <div
+                ref={contentRef}
+                data-expanded={isExpanded}
+                className={`cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
@@ -311,11 +312,14 @@ const MessageContent = (props: MessageContentProps) => {
             data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none
             data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
             `}
-            >
-              {message.content}
-
+              >
+                {message.content}
+              </div>
               {/* MARK: Message menu */}
-              <MessageMenu id={message.id} />
+              <MessageMenu
+                id={message.id}
+                mine={message.contactId === info.id}
+              />
             </div>
 
             {/* MARK: Show more message */}
