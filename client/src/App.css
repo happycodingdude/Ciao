@@ -425,6 +425,7 @@ body,
     height: 100%;
     /* z-index: 1000; */
   }
+
   /* MARK: VIDEO CALL  */
   .video-call-container {
     @apply relative z-50 flex justify-center rounded-[1rem]
@@ -433,5 +434,17 @@ body,
 
   .video-call-container button {
     @apply aspect-square w-[4rem] rounded-full
+  }
+
+  /* MARK: MESSAGE MENU  */
+  .message-menu-container {
+    @apply absolute z-[10] top-[-2rem]
+        flex w-[15rem] origin-bottom-left flex-col rounded-[.7rem]
+        bg-[var(--bg-color)] py-[1rem] text-[var(--text-main-color)] transition-all duration-200
+        data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100
+  }
+
+  .message-menu-item {
+    @apply cursor-pointer p-[1rem] hover:bg-[var(--bg-color-thin)]
   }
 }

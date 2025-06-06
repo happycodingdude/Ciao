@@ -10,7 +10,8 @@ Content-Type: application/json
 }
 
 ###
-GET  {{host}}/conversations/673a0d03a419d4c14ea59b39
+GET  {{host}}/conversations
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDkyMDQyNDcsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.hCWyz2gTNKSzSF3BaCm_LCVi5YpQMIVnyw9kQaZMzY4
 
 ###
 POST  {{host}}/conversations/673a0d03a419d4c14ea59b39/messages
@@ -20,4 +21,5 @@ Content-Type: application/json
 
 
 ###
-PUT  {{host}}/conversations/673a0d03a419d4c14ea59b39/messages/673a0d03a419d4c14ea59b3c/react
+PUT  {{host}}/conversations/67c584c5d31e39ba097eea7e/messages/6833ea1ba63e39e5e62c66fb/pin?pinned=true
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDkyMDQyNDcsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.hCWyz2gTNKSzSF3BaCm_LCVi5YpQMIVnyw9kQaZMzY4

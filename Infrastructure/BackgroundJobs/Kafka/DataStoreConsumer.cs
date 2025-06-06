@@ -312,7 +312,7 @@ public class DataStoreConsumer : IGenericConsumer
         var conversationFilter = Builders<Conversation>.Filter.And(
             Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(q => q.Messages, w => w.Id == param.MessageId)
-        ); ;
+        );
         var updates = Builders<Conversation>.Update.Set("Messages.$.Reactions.$[elem].Type", param.Type);
         // var userId = _contactRepository.GetUserId();
         var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(

@@ -318,6 +318,7 @@ const MessageContent = (props: MessageContentProps) => {
               {/* MARK: Message menu */}
               <MessageMenu
                 id={message.id}
+                message={message.content}
                 mine={message.contactId === info.id}
               />
             </div>
