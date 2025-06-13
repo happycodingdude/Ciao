@@ -2,22 +2,24 @@ namespace Application.Caching;
 
 public class UserCache
 {
+    readonly IRedisCaching _redisCaching;
     readonly IDistributedCache _distributedCache;
     readonly IHttpContextAccessor _httpContextAccessor;
     readonly IMapper _mapper;
 
-    public UserCache(IDistributedCache distributedCache, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+    public UserCache(IDistributedCache distributedCache, IHttpContextAccessor httpContextAccessor, IMapper mapper, IRedisCaching redisCaching)
     {
         _distributedCache = distributedCache;
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
+        _redisCaching = redisCaching;
     }
 
     private string UserId => _httpContextAccessor.HttpContext.Items["UserId"].ToString();
 
-    public string GetToken(string userId) => _distributedCache.GetString($"user-{userId}-token");
+    public async Task<string> GetToken(string userId) => await _redisCaching.GetAsync<string>($"user-{userId}-token");
 
-    public void SetToken(string userId, string token) => _ = _distributedCache.SetStringAsync($"user-{userId}-token", token);
+    public void SetToken(string userId, string token) => _ = _redisCaching.SetAsync($"user-{userId}-token", token);
 
     public string GetUserConnection(string userId) => _distributedCache.GetString($"user-{userId}-connection");
 
@@ -54,7 +56,7 @@ public class UserCache
         await _distributedCache.RemoveAsync($"connection-{connection}");
     }
 
-    public Contact GetInfo() => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{UserId}-info"));
+    public async Task<Contact> GetInfo() => await _redisCaching.GetAsync<Contact>($"user-{UserId}-info");
 
     public Contact GetInfo(string userId) => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{userId}-info") ?? "");
 
@@ -86,14 +88,14 @@ public class UserCache
         await Task.WhenAll(tasks);
     }
 
-    public void SetInfo(Contact info) => _ = _distributedCache.SetStringAsync($"user-{info.Id}-info", JsonConvert.SerializeObject(info));
+    public void SetInfo(Contact info) => _ = _redisCaching.SetAsync($"user-{info.Id}-info", info);
 
     public void RemoveAll()
     {
-        _ = _distributedCache.RemoveAsync($"user-{UserId}-token");
-        _ = _distributedCache.RemoveAsync($"user-{UserId}-info");
+        _ = _redisCaching.DeleteAsync($"user-{UserId}-token");
+        _ = _redisCaching.DeleteAsync($"user-{UserId}-info");
         var connection = GetUserConnection(UserId);
-        _ = _distributedCache.RemoveAsync($"connection-{connection}");
-        _ = _distributedCache.RemoveAsync($"user-{UserId}-connection");
+        _ = _redisCaching.DeleteAsync($"connection-{connection}");
+        _ = _redisCaching.DeleteAsync($"user-{UserId}-connection");
     }
 }

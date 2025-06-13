@@ -65,11 +65,11 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddProblemDetails();
 
         // Redis
-        services.AddStackExchangeRedisCache(opt =>
-        {
-            opt.Configuration = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
-        });
-        services.AddMemoryCache();
+        // services.AddStackExchangeRedisCache(opt =>
+        // {
+        //     opt.Configuration = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
+        // });
+        // services.AddMemoryCache();
         // Register IConnectionMultiplexer
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
@@ -82,7 +82,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             var connectionMultiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
             return connectionMultiplexer.GetSubscriber();
         });
-        services.AddSingleton<IRedisCaching, Redis>();
+        services.AddSingleton<IRedisCaching, RedisCaching>();
 
         // Core
         services.AddScoped(typeof(IService<>), typeof(Service<>));

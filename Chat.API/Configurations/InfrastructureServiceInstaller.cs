@@ -118,17 +118,17 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddMemoryCache();
         // Register IConnectionMultiplexer
         services.AddSingleton<IConnectionMultiplexer>(sp =>
-        {
-            var config = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
-            return ConnectionMultiplexer.Connect(config);
-        });
+         {
+             var config = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
+             return ConnectionMultiplexer.Connect(config);
+         });
         // Register ISubscriber
         services.AddSingleton<ISubscriber>(sp =>
         {
             var connectionMultiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
             return connectionMultiplexer.GetSubscriber();
         });
-        services.AddSingleton<IRedisCaching, Redis>();
+        services.AddSingleton<IRedisCaching, RedisCaching>();
 
         // Core
         services.AddScoped(typeof(IService<>), typeof(Service<>));

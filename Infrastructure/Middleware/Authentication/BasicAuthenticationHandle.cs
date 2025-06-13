@@ -27,7 +27,7 @@ public class BasicAuthenticationHandle(ILogger logger, IHttpContextAccessor http
 
             var userId = principal?.FindFirst("UserId")?.Value;
             // Kiểm tra loại trừ token cũ còn hiệu lực
-            var storedToken = userCache.GetToken(userId);
+            var storedToken = await userCache.GetToken(userId);
             if (token != storedToken)
                 throw new UnauthorizedException();
 

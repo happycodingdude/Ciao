@@ -57,7 +57,7 @@ public static class SignIn
             }
             else
             {
-                token = _userCache.GetToken(user.Id);
+                token = await _userCache.GetToken(user.Id);
                 refreshToken = user.RefreshToken;
             }
 

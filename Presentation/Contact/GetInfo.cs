@@ -15,7 +15,7 @@ public static class GetInfo
 
         public async Task<Contact> Handle(Request request, CancellationToken cancellationToken)
         {
-            return _userCache.GetInfo();
+            return await _userCache.GetInfo();
         }
     }
 }
