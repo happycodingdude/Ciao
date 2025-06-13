@@ -2,69 +2,64 @@ namespace Application.Caching;
 
 public class MessageCache
 {
-    readonly IDistributedCache _distributedCache;
+    readonly IRedisCaching _redisCaching;
 
-    public MessageCache(IDistributedCache distributedCache)
+    public MessageCache(IRedisCaching redisCaching)
     {
-        _distributedCache = distributedCache;
+        _redisCaching = redisCaching;
     }
 
     public async Task<List<MessageWithReactions>> GetMessages(string conversationId)
     {
-        var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages") ?? "";
-        return JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        return messageCache;
     }
 
     public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
     {
         // Update message cache
-        var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages") ?? "";
-        var messages = JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
-        messages.Add(message);
-        await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        messageCache.Add(message);
+        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
 
         // Update list conversation cache
-        var conversationCacheData = await _distributedCache.GetStringAsync($"user-{userId}-conversations") ?? "";
-        var conversationIds = JsonConvert.DeserializeObject<List<string>>(conversationCacheData);
-        var isConversationAtTop = conversationIds.IndexOf(conversationId) == 0;
+        var conversationCacheData = await _redisCaching.GetAsync<List<string>>($"user-{userId}-conversations") ?? default;
+        var isConversationAtTop = conversationCacheData.IndexOf(conversationId) == 0;
         if (!isConversationAtTop)
         {
-            var removeThisConversationId = conversationIds.Where(q => q != conversationId).ToList();
+            var removeThisConversationId = conversationCacheData.Where(q => q != conversationId).ToList();
             removeThisConversationId.Insert(0, conversationId);
-            await _distributedCache.SetStringAsync($"user-{userId}-conversations", JsonConvert.SerializeObject(removeThisConversationId));
+            await _redisCaching.SetAsync($"user-{userId}-conversations", removeThisConversationId);
         }
 
         // Update conversation info cache
-        var conversationInfoCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-info") ?? "";
-        var conversationInfo = JsonConvert.DeserializeObject<ConversationCacheModel>(conversationInfoCacheData);
-        conversationInfo.LastMessageId = message.Id;
-        conversationInfo.LastMessage = message.Type == "text"
+        var conversationInfoCacheData = await _redisCaching.GetAsync<ConversationCacheModel>($"conversation-{conversationId}-info") ?? default;
+        conversationInfoCacheData.LastMessageId = message.Id;
+        conversationInfoCacheData.LastMessage = message.Type == "text"
             ? message.Content
             : string.Join(",", message.Attachments.Select(q => q.MediaName));
-        conversationInfo.LastMessageTime = message.CreatedTime;
-        conversationInfo.LastMessageContact = userId;
-        conversationInfo.UpdatedTime = updatedTime;
-        await _distributedCache.SetStringAsync($"conversation-{conversationId}-info", JsonConvert.SerializeObject(conversationInfo));
+        conversationInfoCacheData.LastMessageTime = message.CreatedTime;
+        conversationInfoCacheData.LastMessageContact = userId;
+        conversationInfoCacheData.UpdatedTime = updatedTime;
+        await _redisCaching.SetAsync($"conversation-{conversationId}-info", conversationInfoCacheData);
 
         // Update member cache
-        var memberCacheData = await _distributedCache.GetStringAsync($"conversation-{conversationId}-members") ?? "";
-        var members = JsonConvert.DeserializeObject<List<MemberWithContactInfo>>(memberCacheData) ?? [];
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
         var lastSeenTime = DateTime.Now;
-        members.ForEach(member =>
+        memberCacheData.ForEach(member =>
         {
             member.IsDeleted = false;
             if (member.Id != userId && member.IsSelected)
                 member.LastSeenTime = lastSeenTime;
         });
-        await _distributedCache.SetStringAsync($"conversation-{conversationId}-members", JsonConvert.SerializeObject(members));
+        await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
     }
 
     public async Task<List<MessageReaction>> UpdateReactions(string conversationId, string messageId, string userId, string type)
     {
         // Update message cache
-        var messageCache = await _distributedCache.GetStringAsync($"conversation-{conversationId}-messages") ?? "";
-        var messages = JsonConvert.DeserializeObject<List<MessageWithReactions>>(messageCache) ?? [];
-        var message = messages.SingleOrDefault(q => q.Id == messageId);
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        var message = messageCache.SingleOrDefault(q => q.Id == messageId);
         if (message.Reactions.Any())
         {
             var userReaction = message.Reactions.SingleOrDefault(q => q.ContactId == userId);
@@ -93,7 +88,7 @@ public class MessageCache
             UpdateReactionCount(message, type);
         }
 
-        await _distributedCache.SetStringAsync($"conversation-{conversationId}-messages", JsonConvert.SerializeObject(messages));
+        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
 
         return message.Reactions;
     }

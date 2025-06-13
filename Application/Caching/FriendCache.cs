@@ -2,12 +2,12 @@ namespace Application.Caching;
 
 public class FriendCache
 {
-    readonly IDistributedCache _distributedCache;
+    readonly IRedisCaching _redisCaching;
     readonly IHttpContextAccessor _httpContextAccessor;
 
-    public FriendCache(IDistributedCache distributedCache, IHttpContextAccessor httpContextAccessor)
+    public FriendCache(IRedisCaching redisCaching, IHttpContextAccessor httpContextAccessor)
     {
-        _distributedCache = distributedCache;
+        _redisCaching = redisCaching;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -15,28 +15,28 @@ public class FriendCache
 
     public async Task<List<FriendCacheModel>> GetFriends()
     {
-        var friendCacheData = await _distributedCache.GetStringAsync($"user-{UserId}-friends") ?? "";
-        return JsonConvert.DeserializeObject<List<FriendCacheModel>>(friendCacheData);
+        var friendCacheData = await _redisCaching.GetAsync<List<FriendCacheModel>>($"user-{UserId}-friends") ?? default;
+        return friendCacheData;
     }
 
     public async Task<List<FriendCacheModel>> GetFriends(string userId)
     {
-        var friendCacheData = await _distributedCache.GetStringAsync($"user-{userId}-friends") ?? "";
-        return JsonConvert.DeserializeObject<List<FriendCacheModel>>(friendCacheData);
+        var friendCacheData = await _redisCaching.GetAsync<List<FriendCacheModel>>($"user-{userId}-friends") ?? default;
+        return friendCacheData;
     }
 
     public async Task SetFriends(List<FriendCacheModel> fiends)
     {
-        await _distributedCache.SetStringAsync($"user-{UserId}-friends", JsonConvert.SerializeObject(fiends));
+        await _redisCaching.SetAsync($"user-{UserId}-friends", fiends);
     }
 
     public async Task SetFriends(string userId, List<FriendCacheModel> fiends)
     {
-        await _distributedCache.SetStringAsync($"user-{userId}-friends", JsonConvert.SerializeObject(fiends));
+        await _redisCaching.SetAsync($"user-{userId}-friends", fiends);
     }
 
     public void RemoveAll()
     {
-        _ = _distributedCache.RemoveAsync($"user-{UserId}-friends");
+        _ = _redisCaching.DeleteAsync($"user-{UserId}-friends");
     }
 }

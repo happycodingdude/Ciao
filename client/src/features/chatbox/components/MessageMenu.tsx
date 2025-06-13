@@ -10,7 +10,7 @@ import { MessageMenuProps } from "../types";
 
 const MessageMenu = (props: MessageMenuProps) => {
   // console.log("ChatboxMenu calling");
-  const { id, message, mine } = props;
+  const { id, message, mine, pin } = props;
 
   const [show, setShow] = useState(true);
 
@@ -36,7 +36,7 @@ const MessageMenu = (props: MessageMenuProps) => {
           <CopyOutlined /> Copy message
         </div>
         <div className="message-menu-item">
-          <PushpinOutlined /> Pin message
+          <PushpinOutlined /> {pin ? "Unpin " : "Pin "} message
         </div>
         <div className="message-menu-item">
           <ArrowRightOutlined /> Forward message
@@ -44,6 +44,7 @@ const MessageMenu = (props: MessageMenuProps) => {
       </div>
       <EllipsisOutlined
         className={`absolute ${mine ? "left-[-2rem]" : "right-[-2rem]"} top-[.5rem] text-lg`}
+        onClick={() => setShow(!show)}
       />
     </>
   );

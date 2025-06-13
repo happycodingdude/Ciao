@@ -49,7 +49,7 @@ public class SignalHub : Hub
     {
         try
         {
-            var userId = _userCache.GetConnectionUser(Context.ConnectionId);
+            var userId = await _userCache.GetConnectionUser(Context.ConnectionId);
             if (userId is not null)
             {
                 await _userCache.RemoveConnection(userId, Context.ConnectionId);
@@ -71,7 +71,7 @@ public class SignalHub : Hub
 
     public async Task SendOffer(string receiverId, string callerId, string offer)
     {
-        var connection = _userCache.GetUserConnection(receiverId);
+        var connection = await _userCache.GetUserConnection(receiverId);
         Console.WriteLine($"Offer is sent to user {receiverId} with connection {connection}");
         var caller = _userCache.GetInfo(callerId);
         await Clients.Client(connection).SendAsync("ReceiveOffer", caller, offer);
@@ -79,21 +79,21 @@ public class SignalHub : Hub
 
     public async Task SendAnswer(string callerId, string answer)
     {
-        var connection = _userCache.GetUserConnection(callerId);
+        var connection = await _userCache.GetUserConnection(callerId);
         Console.WriteLine($"Answer {answer} is sent back to user {callerId} with connection {connection}");
         await Clients.Client(connection).SendAsync("ReceiveAnswer", answer);
     }
 
     public async Task SendIceCandidate(string callerId, string candidate)
     {
-        var connection = _userCache.GetUserConnection(callerId);
+        var connection = await _userCache.GetUserConnection(callerId);
         Console.WriteLine($"Candidate {candidate} is sent to user {callerId} with connection {connection}");
         await Clients.Client(connection).SendAsync("ReceiveIceCandidate", candidate);
     }
 
     public async Task EndCall(string targetUserId)
     {
-        var connection = _userCache.GetUserConnection(targetUserId);
+        var connection = await _userCache.GetUserConnection(targetUserId);
         Console.WriteLine($"Send endcall to user {targetUserId} with connection {connection}");
         await Clients.Client(connection).SendAsync("CallEnded");
     }

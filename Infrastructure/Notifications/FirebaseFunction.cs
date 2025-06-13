@@ -23,7 +23,7 @@ public class FirebaseFunction : IFirebaseFunction
         var connections = new List<string>();
         foreach (var id in contactIds)
         {
-            var token = userCache.GetUserConnection(id);
+            var token = await userCache.GetUserConnection(id);
             if (!string.IsNullOrEmpty(token))
                 connections.Add(token);
         }

@@ -56,4 +56,5 @@ export type MessageMenuProps = {
   id: string;
   message?: string;
   mine: boolean;
+  pin: boolean;
 };

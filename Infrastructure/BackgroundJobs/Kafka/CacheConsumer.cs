@@ -87,41 +87,41 @@ public class CacheConsumer : IGenericConsumer
                 _userCache.SetInfo(user);
             });
 
-        // var conversationTask = _conversationRepository
-        //     .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))
-        //     .ContinueWith(async task =>
-        //     {
-        //         var conversations = task.Result;
-        //         conversations.ToList().ForEach(q =>
-        //         {
-        //             var member = q.Members.SingleOrDefault(m => m.Contact.Id == param.UserId);
-        //             if (member != null)
-        //                 member.Contact.IsOnline = true;
-        //         });
-        //         foreach (var conversation in conversations)
-        //         {
-        //             foreach (var message in conversation.Messages)
-        //             {
-        //                 var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(message.Reactions);
-        //                 message.LikeCount = likes;
-        //                 message.LoveCount = loves;
-        //                 message.CareCount = cares;
-        //                 message.WowCount = wows;
-        //                 message.SadCount = sads;
-        //                 message.AngryCount = angries;
-        //             }
-        //         }
-        //         await _conversationCache.SetConversations(param.UserId, conversations.ToList());
-        //     }).Unwrap();
+        var conversationTask = _conversationRepository
+            .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))
+            .ContinueWith(async task =>
+            {
+                var conversations = task.Result;
+                conversations.ToList().ForEach(q =>
+                {
+                    var member = q.Members.SingleOrDefault(m => m.Contact.Id == param.UserId);
+                    if (member != null)
+                        member.Contact.IsOnline = true;
+                });
+                foreach (var conversation in conversations)
+                {
+                    foreach (var message in conversation.Messages)
+                    {
+                        var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(message.Reactions);
+                        message.LikeCount = likes;
+                        message.LoveCount = loves;
+                        message.CareCount = cares;
+                        message.WowCount = wows;
+                        message.SadCount = sads;
+                        message.AngryCount = angries;
+                    }
+                }
+                await _conversationCache.SetConversations(param.UserId, conversations.ToList());
+            }).Unwrap();
 
-        // var friendsTask = _friendRepository.GetFriendItems(param.UserId)
-        //     .ContinueWith(async task =>
-        //     {
-        //         await _friendCache.SetFriends(param.UserId, task.Result);
-        //     }).Unwrap();
+        var friendsTask = _friendRepository.GetFriendItems(param.UserId)
+            .ContinueWith(async task =>
+            {
+                await _friendCache.SetFriends(param.UserId, task.Result);
+            }).Unwrap();
 
-        // await Task.WhenAll(userTask, conversationTask, friendsTask);
-        await userTask;
+        await Task.WhenAll(userTask, conversationTask, friendsTask);
+        // await userTask;
     }
 
     /* MARK: NEW MESSAGE */
@@ -176,7 +176,7 @@ public class CacheConsumer : IGenericConsumer
         var user = await _contactRepository.GetInfoAsync(param.UserId);
         // var memberToCache = new List<MemberWithContactInfo>(2);
         // Check if receiver is online then update receiver cache
-        var receiver = _userCache.GetInfo(param.ContactId);
+        var receiver = await _userCache.GetInfo(param.ContactId);
         if (param.IsNewConversation)
         {
             // Update cache

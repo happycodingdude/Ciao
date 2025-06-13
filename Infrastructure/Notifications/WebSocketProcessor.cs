@@ -56,7 +56,7 @@ public class WebSocketProcessor : INotificationProcessor
         using var scope = _serviceProvider.CreateScope();
         var userCache = scope.ServiceProvider.GetRequiredService<UserCache>();
 
-        var connection = userCache.GetUserConnection(userId);
+        var connection = await userCache.GetUserConnection(userId);
         if (userId is null)
         {
             _logger.Information("No connection");

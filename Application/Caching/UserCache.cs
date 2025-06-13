@@ -1,18 +1,16 @@
+using System.Threading.Tasks;
+
 namespace Application.Caching;
 
 public class UserCache
 {
     readonly IRedisCaching _redisCaching;
-    readonly IDistributedCache _distributedCache;
     readonly IHttpContextAccessor _httpContextAccessor;
-    readonly IMapper _mapper;
 
-    public UserCache(IDistributedCache distributedCache, IHttpContextAccessor httpContextAccessor, IMapper mapper, IRedisCaching redisCaching)
+    public UserCache(IRedisCaching redisCaching, IHttpContextAccessor httpContextAccessor)
     {
-        _distributedCache = distributedCache;
-        _httpContextAccessor = httpContextAccessor;
-        _mapper = mapper;
         _redisCaching = redisCaching;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     private string UserId => _httpContextAccessor.HttpContext.Items["UserId"].ToString();
@@ -21,7 +19,7 @@ public class UserCache
 
     public void SetToken(string userId, string token) => _ = _redisCaching.SetAsync($"user-{userId}-token", token);
 
-    public string GetUserConnection(string userId) => _distributedCache.GetString($"user-{userId}-connection");
+    public async Task<string> GetUserConnection(string userId) => await _redisCaching.GetAsync<string>($"user-{userId}-connection");
 
     public async Task<List<string>> GetUserConnection(string[] userIds)
     {
@@ -29,7 +27,7 @@ public class UserCache
         // Query info cache
         var tasks = userIds.Select(async userId =>
         {
-            var connection = await _distributedCache.GetStringAsync($"user-{userId}-connection");
+            var connection = await _redisCaching.GetAsync<string>($"user-{userId}-connection");
             if (connection is null) return;
             lock (result) // Ensure thread safety
             {
@@ -40,25 +38,25 @@ public class UserCache
         return result;
     }
 
-    public string GetConnectionUser(string connection) => _distributedCache.GetString($"connection-{connection}");
+    public async Task<string> GetConnectionUser(string connection) => await _redisCaching.GetAsync<string>($"connection-{connection}");
 
     // public string GetByConnection(string connection) => _distributedCache.GetString($"user-{userId}-connection");
 
     // public void SetConnection(string connection) => _distributedCache.SetString($"user-{UserId}-connection", connection);
 
-    public void SetUserConnection(string userId, string connection) => _distributedCache.SetString($"user-{userId}-connection", connection);
+    public async Task SetUserConnection(string userId, string connection) => await _redisCaching.SetAsync($"user-{userId}-connection", connection);
 
-    public void SetConnectionUser(string userId, string connection) => _distributedCache.SetString($"connection-{connection}", userId);
+    public async Task SetConnectionUser(string userId, string connection) => await _redisCaching.SetAsync($"connection-{connection}", userId);
 
     public async Task RemoveConnection(string userId, string connection)
     {
-        await _distributedCache.RemoveAsync($"user-{userId}-connection");
-        await _distributedCache.RemoveAsync($"connection-{connection}");
+        await _redisCaching.DeleteAsync($"user-{userId}-connection");
+        await _redisCaching.DeleteAsync($"connection-{connection}");
     }
 
     public async Task<Contact> GetInfo() => await _redisCaching.GetAsync<Contact>($"user-{UserId}-info");
 
-    public Contact GetInfo(string userId) => JsonConvert.DeserializeObject<Contact>(_distributedCache.GetString($"user-{userId}-info") ?? "");
+    public async Task<Contact> GetInfo(string userId) => await _redisCaching.GetAsync<Contact>($"user-{userId}-info");
 
     public async Task<List<Contact>> GetInfo(string[] userIds)
     {
@@ -66,11 +64,11 @@ public class UserCache
         // Query info cache
         var tasks = userIds.Select(async userId =>
         {
-            var userInfo = await _distributedCache.GetStringAsync($"user-{userId}-info");
+            var userInfo = await _redisCaching.GetAsync<Contact>($"user-{userId}-info");
             if (userInfo is null) return;
             lock (result) // Ensure thread safety
             {
-                result.Add(JsonConvert.DeserializeObject<Contact>(userInfo));
+                result.Add(userInfo);
             }
         });
         await Task.WhenAll(tasks);
@@ -82,7 +80,7 @@ public class UserCache
         // Query info cache
         var tasks = friends.Select(async friend =>
         {
-            var userInfo = await _distributedCache.GetStringAsync($"user-{friend.Contact.Id}-info");
+            var userInfo = await _redisCaching.GetAsync<Contact>($"user-{friend.Contact.Id}-info");
             friend.Contact.IsOnline = userInfo is not null;
         });
         await Task.WhenAll(tasks);

@@ -320,6 +320,7 @@ const MessageContent = (props: MessageContentProps) => {
                 id={message.id}
                 message={message.content}
                 mine={message.contactId === info.id}
+                pin={message.isPinned}
               />
             </div>
 
