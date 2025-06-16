@@ -23,7 +23,7 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
         <div
           data-show={show}
           className="chatbox-menu-item absolute left-0 top-[-10rem] z-[10] flex w-[20rem] origin-bottom-left flex-col gap-[.5rem]
-        rounded-[.7rem] bg-[var(--bg-color-light)] text-[var(--text-main-color)] transition-all duration-200
+        rounded-[.7rem] bg-[var(--bg-color)] text-[var(--text-main-color)] transition-all duration-200
         data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100"
         >
           <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] pl-[1rem] leading-[4rem] hover:bg-[var(--main-color-extrathin)]">

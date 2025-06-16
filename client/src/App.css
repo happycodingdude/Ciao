@@ -438,13 +438,13 @@ body,
 
   /* MARK: MESSAGE MENU  */
   .message-menu-container {
-    @apply absolute z-[10] top-[-2rem]
-        flex w-[15rem] origin-top-left flex-col rounded-[.7rem]
+    @apply absolute z-[10] top-0
+        flex w-[15rem] flex-col rounded-[.7rem]
         bg-[var(--bg-color)] py-[1rem] text-[var(--text-main-color)] transition-all duration-200
         data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100
   }
 
   .message-menu-item {
-    @apply cursor-pointer p-[1rem] hover:bg-[var(--bg-color-thin)]
+    @apply cursor-pointer p-[1rem] hover:bg-[var(--bg-color-thin)] flex gap-[.5rem]
   }
 }

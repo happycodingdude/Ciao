@@ -53,8 +53,15 @@ export type MessageContentProps = {
 };
 
 export type MessageMenuProps = {
+  conversationId: string;
   id: string;
   message?: string;
   mine: boolean;
-  pin: boolean;
+  pinned: boolean;
+};
+
+export type PinMessageRequest = {
+  conversationId: string;
+  messageId: string;
+  pinned: boolean;
 };

@@ -132,3 +132,10 @@ public class NotifyNewReactionModel : KafkaBaseModel
     public int SadCount { get; set; }
     public int AngryCount { get; set; }
 }
+
+public class NotifyNewMessagePinnedModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public bool IsPinned { get; set; }
+}

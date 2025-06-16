@@ -60,3 +60,9 @@ export type NewReaction = {
   angryCount: number;
   userId: string;
 };
+
+export type NewMessagePinned = {
+  conversationId: string;
+  messageId: string;
+  isPinned: boolean;
+};

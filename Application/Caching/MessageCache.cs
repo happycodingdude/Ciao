@@ -143,4 +143,14 @@ public class MessageCache
                 break;
         }
     }
+
+    public async Task UpdatePin(string conversationId, string messageId, string userId, bool pinned)
+    {
+        // Update message cache
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        var message = messageCache.SingleOrDefault(q => q.Id == messageId);
+        message.IsPinned = pinned;
+
+        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
+    }
 }

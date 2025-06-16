@@ -317,10 +317,11 @@ const MessageContent = (props: MessageContentProps) => {
               </div>
               {/* MARK: Message menu */}
               <MessageMenu
+                conversationId={id}
                 id={message.id}
                 message={message.content}
                 mine={message.contactId === info.id}
-                pin={message.isPinned}
+                pinned={message.isPinned}
               />
             </div>
 

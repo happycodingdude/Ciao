@@ -4,15 +4,35 @@ import {
   CopyOutlined,
   EllipsisOutlined,
   PushpinOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
-import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import React, { useCallback, useState } from "react";
+import useEventListener from "../../../hooks/useEventListener";
+import { MessageCache } from "../../listchat/types";
+import pinMessage from "../services/pinMessage";
 import { MessageMenuProps } from "../types";
 
 const MessageMenu = (props: MessageMenuProps) => {
   // console.log("ChatboxMenu calling");
-  const { id, message, mine, pin } = props;
+  const { conversationId, id, message, mine, pinned } = props;
 
-  const [show, setShow] = useState(true);
+  const queryClient = useQueryClient();
+
+  const [show, setShow] = useState(false);
+
+  const [pinning, setPinning] = useState(false);
+
+  // Event listener
+  const hideMenuOnClick = useCallback((e) => {
+    if (
+      Array.from(e.target.classList).includes("message-menu-container") ||
+      Array.from(e.target.classList).includes("message-menu-item")
+    )
+      return;
+    setShow(false);
+  }, []);
+  useEventListener("click", hideMenuOnClick);
 
   const copyMessage = () => {
     if (!message) return;
@@ -26,17 +46,48 @@ const MessageMenu = (props: MessageMenuProps) => {
       });
   };
 
+  const pin = async () => {
+    setPinning(true);
+    await pinMessage({
+      conversationId: conversationId,
+      messageId: id,
+      pinned: !pinned,
+    });
+
+    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+      return {
+        ...oldData,
+        messages: oldData.messages.map((mess) => {
+          if (mess.id !== id) return mess;
+          return {
+            ...mess,
+            isPinned: !pinned,
+          };
+        }),
+      } as MessageCache;
+    });
+    setPinning(false);
+  };
+
   return (
     <>
       <div
         data-show={show}
-        className={`message-menu-container ${mine ? "left-[-18rem]" : "right-[-18rem]"}`}
+        className={`message-menu-container ${mine ? "left-[-18rem] origin-top-right" : "right-[-18rem] origin-top-left"}`}
       >
         <div className="message-menu-item" onClick={copyMessage}>
           <CopyOutlined /> Copy message
         </div>
-        <div className="message-menu-item">
-          <PushpinOutlined /> {pin ? "Unpin " : "Pin "} message
+        <div
+          className={`message-menu-item ${pinning ? "pointer-events-none" : ""}`}
+          onClick={pin}
+        >
+          {pinning ? (
+            <SyncOutlined spin />
+          ) : (
+            <PushpinOutlined className={`${pinned ? "text-orange-500" : ""}`} />
+          )}
+          {pinned ? " Unpin" : " Pin"} message
         </div>
         <div className="message-menu-item">
           <ArrowRightOutlined /> Forward message

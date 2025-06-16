@@ -11,7 +11,12 @@ import {
   MessageCache,
   PendingMessageModel,
 } from "../../listchat/types";
-import { NewConversation, NewMessage, NewReaction } from "../types";
+import {
+  NewConversation,
+  NewMessage,
+  NewMessagePinned,
+  NewReaction,
+} from "../types";
 
 // let hubConnection: signalR.HubConnection | null = null;
 
@@ -97,6 +102,12 @@ export const setupListeners = (
     console.log(data);
     if (user == userInfo.id) return;
     onNewReaction(queryClient, JSON.parse(data));
+  });
+
+  connection.on("NewMessagePinned", (user: string, data: string) => {
+    console.log(data);
+    if (user == userInfo.id) return;
+    onNewMessagePinned(queryClient, JSON.parse(data));
   });
 };
 
@@ -239,6 +250,29 @@ const onNewReaction = (queryClient: QueryClient, reaction: NewReaction) => {
           wowCount: reaction.wowCount,
           sadCount: reaction.sadCount,
           angryCount: reaction.angryCount,
+        };
+      }),
+    } as MessageCache;
+  });
+};
+
+/* MARK: ON NEW MESSAGE PINNED */
+const onNewMessagePinned = (
+  queryClient: QueryClient,
+  messagePinned: NewMessagePinned,
+) => {
+  queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+    if (!oldData || oldData.conversationId !== messagePinned.conversationId)
+      return oldData;
+
+    return {
+      ...oldData,
+      messages: oldData.messages.map((message) => {
+        if (message.id !== messagePinned.messageId) return message;
+
+        return {
+          ...message,
+          isPinned: messagePinned.isPinned,
         };
       }),
     } as MessageCache;

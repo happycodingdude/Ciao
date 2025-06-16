@@ -26,13 +26,17 @@ public static class PinMessage
         readonly IContactRepository _contactRepository;
         readonly IKafkaProducer _kafkaProducer;
         readonly IConversationRepository _conversationRepository;
+        readonly MessageCache _messageCache;
+        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, IConversationRepository conversationRepository)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, IConversationRepository conversationRepository, MessageCache messageCache, INotificationProcessor notificationProcessor)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _kafkaProducer = kafkaProducer;
             _conversationRepository = conversationRepository;
+            _messageCache = messageCache;
+            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -41,12 +45,30 @@ public static class PinMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
+            // Cập nhật trạng thái pin của tin nhắn
             var filter = Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId);
             var updates = Builders<Conversation>.Update.Set("Messages.$[elem].IsPinned", request.pinned);
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem._id", request.id)
                 );
             _conversationRepository.UpdateNoTrackingTime(filter, updates, arrayFilter);
+
+            // Cập nhật cache
+            await _messageCache.UpdatePin(request.conversationId, request.id, _contactRepository.GetUserId(), request.pinned);
+
+            // Gởi sự kiện lên giao diện
+            await _notificationProcessor.Notify(
+                ChatEventNames.NewMessagePinned,
+                request.conversationId,
+                _contactRepository.GetUserId(),
+                new NotifyNewMessagePinnedModel
+                {
+                    UserId = _contactRepository.GetUserId(),
+                    ConversationId = request.conversationId,
+                    MessageId = request.id,
+                    IsPinned = request.pinned
+                }
+            );
 
             return Unit.Value;
         }
