@@ -9,10 +9,9 @@ import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
-import useMessage from "../../chatbox/hooks/useMessage";
-import useAttachment from "../../chatdetail/hooks/useAttachment";
+import getMessages from "../../chatbox/services/getMessages";
 import useConversation from "../hooks/useConversation";
-import { ConversationCache, ConversationModel, MessageCache } from "../types";
+import { ConversationCache, ConversationModel } from "../types";
 
 // moment.locale("en", {
 //   relativeTime: {
@@ -57,12 +56,14 @@ const ListchatContent = () => {
   const { toggle, setToggle } = useChatDetailToggles();
 
   const refPage = useRef<number>(1);
+  // const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
   const { data } = useConversation(refPage.current);
-  const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
-  const { refetch: refetchAttachments } = useAttachment(data?.selected?.id);
+
+  // const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
+  // const { refetch: refetchAttachments } = useAttachment(data?.selected?.id);
 
   const refChatItems = useRef<{ [key: string]: HTMLDivElement }>({});
   const refChats = useRef<HTMLDivElement>();
@@ -72,23 +73,7 @@ const ListchatContent = () => {
     blurImage(".list-chat");
   }, [data?.filterConversations]);
 
-  // const scrollToCenterOfSelected = (id: string) => {
-  //   if (!data || !data.selected) return;
-
-  //   const chatElement = refChatItems.current[id];
-  //   if (!chatElement) return;
-
-  //   const chatList = refChats.current;
-
-  //   // Calculate the offset to center the chat
-  //   const chatTop = chatElement.offsetTop;
-  //   const chatHeight = chatElement.offsetHeight;
-  //   const listHeight = chatList.offsetHeight;
-  //   const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
-  //   chatList.scrollTop = scrollTop;
-  // };
-
-  const clickConversation = (id: string) => {
+  const clickConversation = async (id: string) => {
     if (data.selected?.id === id) return;
     // setLoading(true);
     if (isPhoneScreen()) {
@@ -96,6 +81,9 @@ const ListchatContent = () => {
     } else {
       setLoading(true);
     }
+
+    // setSelectedId(id); // 👈 cập nhật id trước khi gọi refetch
+
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const updatedConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== id) return conversation;
@@ -117,6 +105,53 @@ const ListchatContent = () => {
       };
       return data;
     });
+
+    // if (data.quickChat) {
+    //   refetchMessage().then((res) => {
+    //     queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+    //       return {
+    //         ...oldData,
+    //         messages: [...oldData.messages, data.message],
+    //       };
+    //     });
+    //   });
+    // } else {
+    //   refetchMessage();
+    // }
+    // refetchAttachments();
+
+    // 🟢 refetch lại đúng key
+    // queryClient.invalidateQueries({ queryKey: ["messages", id, 1] });
+    // queryClient.invalidateQueries({ queryKey: ["attachment", id] });
+
+    // queryClient.fetchQuery({
+    //   queryKey: ["messages", id, 1],
+    //   queryFn: () => getMessages(id, 1),
+    //   // staleTime: 60_000,
+    //   // gcTime: 300_000,
+    // });
+
+    // queryClient.fetchQuery({
+    //   queryKey: ["attachment", id],
+    //   queryFn: () => getAttachments(id),
+    //   // staleTime: 60_000,
+    //   // gcTime: 300_000,
+    // });
+
+    // Gọi API lấy page 1
+    const messages = await getMessages(id, 1); // MessageCache
+
+    // Cập nhật vào cache với key duy nhất
+    queryClient.setQueryData(["message"], messages);
+
+    // Hoặc nếu bạn cần thêm metadata:
+    // queryClient.setQueryData(["messages"], {
+    //   ...messages,
+    //   conversationId: id,
+    //   page: 1,
+    // });
+
+    setLoading(false);
   };
 
   const scrollToCenterOfSelected = useCallback(() => {
@@ -135,28 +170,28 @@ const ListchatContent = () => {
     chatList.scrollTop = scrollTop;
   }, [data?.selected?.id]);
 
-  useEffect(() => {
-    if (!data || !data.selected || !data.reload) {
-      scrollToCenterOfSelected();
-      return;
-    }
+  // useEffect(() => {
+  //   if (!data || !data.selected || !data.reload) {
+  //     scrollToCenterOfSelected();
+  //     return;
+  //   }
 
-    // setLoading(true);
-    scrollToCenterOfSelected();
-    if (data.quickChat) {
-      refetchMessage().then((res) => {
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          return {
-            ...oldData,
-            messages: [...oldData.messages, data.message],
-          };
-        });
-      });
-    } else {
-      refetchMessage();
-    }
-    refetchAttachments();
-  }, [data?.selected?.id]);
+  //   // setLoading(true);
+  //   scrollToCenterOfSelected();
+  //   if (data.quickChat) {
+  //     refetchMessage().then((res) => {
+  //       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+  //         return {
+  //           ...oldData,
+  //           messages: [...oldData.messages, data.message],
+  //         };
+  //       });
+  //     });
+  //   } else {
+  //     refetchMessage();
+  //   }
+  //   refetchAttachments();
+  // }, [data?.selected?.id]);
 
   if (!data) return;
 

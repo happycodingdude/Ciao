@@ -14,14 +14,22 @@ const Chatbox = () => {
   const refPage = useRef<number>(1);
 
   const { data: conversations } = useConversation();
-  const { data: messages } = useMessage(
-    conversations?.selected?.id,
-    refPage.current,
-  );
+  // const { data: messages } = useMessage(
+  //   conversations?.selected?.id,
+  //   refPage.current,
+  // );
+
+  const { data: messages } = useMessage();
 
   const refChatContent = useRef<HTMLDivElement>();
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+
+  // useEffect(() => {
+  //   if (conversations?.selected?.id) {
+  //     refPage.current = 1; // reset lại trang đầu khi chọn hội thoại mới
+  //   }
+  // }, [conversations?.selected?.id]);
 
   const scrollChatContentToBottom = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
@@ -31,19 +39,19 @@ const Chatbox = () => {
     scrollChatContentToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    refChatContent.current.style.scrollBehavior = "auto";
-    if (autoScrollBottom) {
-      scrollChatContentToBottom();
-      setTimeout(() => {
-        refChatContent.current.style.scrollBehavior = "smooth";
-      }, 0);
-    }
-  }, [autoScrollBottom]);
+  // useEffect(() => {
+  //   refChatContent.current.style.scrollBehavior = "auto";
+  //   if (autoScrollBottom) {
+  //     scrollChatContentToBottom();
+  //     setTimeout(() => {
+  //       refChatContent.current.style.scrollBehavior = "smooth";
+  //     }, 0);
+  //   }
+  // }, [autoScrollBottom]);
 
   useEffect(() => {
     refPage.current = 1;
-    setAutoScrollBottom(true);
+    // setAutoScrollBottom(true);
   }, [conversations?.selected]);
 
   const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {
@@ -72,25 +80,45 @@ const Chatbox = () => {
 
   const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
 
-  const handleScroll = useCallback(() => {
-    // Nếu cuộn lên 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
-    const distanceFromBottom =
-      refChatContent.current.scrollHeight -
-      (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
-    if (
-      refChatContent.current.clientHeight !== 0 &&
-      distanceFromBottom >= refChatContent.current.clientHeight / 2
-    )
-      setShowScrollToBottom(true);
-    else setShowScrollToBottom(false);
+  // const handleScroll = useCallback(() => {
+  //   // Nếu cuộn lên 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
+  //   const distanceFromBottom =
+  //     refChatContent.current.scrollHeight -
+  //     (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
+  //   if (
+  //     refChatContent.current.clientHeight !== 0 &&
+  //     distanceFromBottom >= refChatContent.current.clientHeight / 2
+  //   )
+  //     setShowScrollToBottom(true);
+  //   else setShowScrollToBottom(false);
 
-    // Nếu cuộn lên top và còn dữ liệu cũ -> lấy thêm dữ liệu
-    if (refChatContent.current.scrollTop === 0) {
+  //   // Nếu cuộn lên top và còn dữ liệu cũ -> lấy thêm dữ liệu
+  //   if (refChatContent.current.scrollTop === 0) {
+  //     setAutoScrollBottom(false);
+  //     refPage.current = refPage.current + 1;
+  //     debounceFetch(conversations?.selected.id, messages.hasMore);
+  //   }
+  // }, [conversations?.selected, messages]);
+  const handleScroll = useCallback(() => {
+    const contentEl = refChatContent.current;
+    if (!contentEl) return;
+
+    const distanceFromBottom =
+      contentEl.scrollHeight - (contentEl.scrollTop + contentEl.clientHeight);
+
+    setShowScrollToBottom(
+      contentEl.clientHeight !== 0 &&
+        distanceFromBottom >= contentEl.clientHeight / 2,
+    );
+
+    if (contentEl.scrollTop === 0) {
       setAutoScrollBottom(false);
-      refPage.current = refPage.current + 1;
-      debounceFetch(conversations?.selected.id, messages.hasMore);
+      refPage.current += 1;
+
+      debounceFetch(conversations?.selected?.id, messages?.hasMore);
     }
-  }, [conversations?.selected, messages]);
+  }, [messages?.hasMore, debounceFetch, conversations?.selected?.id]);
+
   useEventListener("scroll", handleScroll, refChatContent.current);
 
   return (

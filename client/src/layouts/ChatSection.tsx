@@ -1,7 +1,6 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense } from "react";
+import LocalLoading from "../components/LocalLoading";
 import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
-import useMessage from "../features/chatbox/hooks/useMessage";
-import useAttachment from "../features/chatdetail/hooks/useAttachment";
 import useConversation from "../features/listchat/hooks/useConversation";
 import useLoading from "../hooks/useLoading";
 const ListChatContainer = lazy(() => import("./ListChatContainer"));
@@ -11,23 +10,48 @@ const ChatSection = () => {
   const { data: conversations } = useConversation(1);
   const { loading, setLoading } = useLoading();
 
-  const { isLoading: isLoadingMessage, isRefetching: isRefetchingMessage } =
-    useMessage();
-  const {
-    isLoading: isLoadingAttachment,
-    isRefetching: isRefetchingAttachment,
-  } = useAttachment();
+  // const { isLoading: isLoadingMessage, isRefetching: isRefetchingMessage } =
+  //   useMessage();
+  // const {
+  //   isLoading: isLoadingAttachment,
+  //   isRefetching: isRefetchingAttachment,
+  // } = useAttachment();
 
-  const isLoading = isLoadingMessage || isLoadingAttachment;
-  const isRefetching = isRefetchingMessage || isRefetchingAttachment;
+  // const isLoading = isLoadingMessage || isLoadingAttachment;
+  // const isRefetching = isRefetchingMessage || isRefetchingAttachment;
 
-  useEffect(() => {
-    if (!isLoading && !isRefetching) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 50);
-    }
-  }, [isLoading, isRefetching]);
+  // useEffect(() => {
+  //   if (!isLoading && !isRefetching) {
+  //     setTimeout(() => {
+  //       setLoading(false);
+  //     }, 50);
+  //   }
+  // }, [isLoading, isRefetching]);
+
+  // const conversationId = conversations?.selected?.id; // hoặc lấy từ state bạn đang dùng
+
+  // const { isLoading: isLoadingMessage, isRefetching: isRefetchingMessage } =
+  //   useMessage(conversationId, 1);
+
+  // const {
+  //   isLoading: isLoadingAttachment,
+  //   isRefetching: isRefetchingAttachment,
+  // } = useAttachment(conversationId);
+
+  // const isLoading =
+  //   !!conversationId && (isLoadingMessage || isLoadingAttachment);
+  // const isRefetching =
+  //   !!conversationId && (isRefetchingMessage || isRefetchingAttachment);
+
+  // useEffect(() => {
+  //   if (!isLoading && !isRefetching && conversationId) {
+  //     const timeout = setTimeout(() => {
+  //       setLoading(false);
+  //     }, 50);
+
+  //     return () => clearTimeout(timeout); // tránh memory leak
+  //   }
+  // }, [isLoading, isRefetching, conversationId]);
 
   return (
     <section className={`relative flex grow overflow-hidden`}>
@@ -45,11 +69,16 @@ const ChatSection = () => {
             ""
           )} */}
 
+        {/* <div className="relative h-full w-full">
+            {loading ? <LocalLoading className="!z-[11]" /> : ""}
+            {conversations?.selected ? <ChatboxContainer /> : ""}
+          </div> */}
+        {/* </Suspense> */}
+
         <div className="relative h-full w-full">
-          {/* {loading ? <LocalLoading className="!z-[11]" /> : ""} */}
+          {loading ? <LocalLoading className="!z-[11]" /> : ""}
           {conversations?.selected ? <ChatboxContainer /> : ""}
         </div>
-        {/* </Suspense> */}
       </ChatDetailTogglesProvider>
     </section>
   );

@@ -1,6 +1,5 @@
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { CSSProperties, useState } from "react";
 import { ImageWithLightboxProps } from "../types";
-import { isValidUrl } from "../utils/url";
 import CustomLightbox from "./CustomLightbox";
 
 const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
@@ -21,17 +20,17 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
   const handleShowLightbox = () => setShowLightbox(true);
 
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  useEffect(() => {
-    if (local) {
-      setIsValid(true);
-      return;
-    }
-    const checkImage = async () => {
-      const valid = await isValidUrl(src);
-      setIsValid(valid);
-    };
-    checkImage();
-  }, [src, local]);
+  // useEffect(() => {
+  //   if (local) {
+  //     setIsValid(true);
+  //     return;
+  //   }
+  //   const checkImage = async () => {
+  //     const valid = await isValidUrl(src);
+  //     setIsValid(valid);
+  //   };
+  //   checkImage();
+  // }, [src, local]);
 
   return (
     <>
