@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import getAttachments from "../services/getAttachments";
 
 // const useAttachment = (
 //   conversationId?: string,
@@ -12,11 +11,21 @@ import getAttachments from "../services/getAttachments";
 //   });
 // };
 
-const useAttachment = (conversationId?: string) => {
+// const useAttachment = (conversationId?: string) => {
+//   return useQuery({
+//     queryKey: ["attachments", conversationId ?? "none"],
+//     queryFn: () => getAttachments(conversationId!),
+//     enabled: false, // ❌ không tự gọi API
+//     staleTime: 60_000,
+//     gcTime: 300_000,
+//   });
+// };
+
+const useAttachment = () => {
   return useQuery({
-    queryKey: ["attachments", conversationId ?? "none"],
-    queryFn: () => getAttachments(conversationId!),
-    enabled: false, // ❌ không tự gọi API
+    queryKey: ["attachment"],
+    queryFn: () => Promise.resolve(null), // không thực sự fetch
+    enabled: false, // chỉ đọc cache
     staleTime: 60_000,
     gcTime: 300_000,
   });

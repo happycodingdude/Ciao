@@ -438,7 +438,7 @@ body,
 
   /* MARK: MESSAGE MENU  */
   .message-menu-container {
-    @apply absolute z-[10] top-0
+    @apply absolute z-[10]
         flex w-[15rem] flex-col rounded-[.7rem]
         bg-[var(--bg-color)] py-[1rem] text-[var(--text-main-color)] transition-all duration-200
         data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100

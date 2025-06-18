@@ -42,6 +42,7 @@ const MessageContent = (props: MessageContentProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const messageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setReaction((current) => {
@@ -179,8 +180,20 @@ const MessageContent = (props: MessageContentProps) => {
     // });
   };
 
+  const [dropUp, setDropUp] = useState(false);
+  useEffect(() => {
+    if (!messageRef.current) return;
+
+    const rect = messageRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    // Nếu không đủ khoảng cách phía dưới (ví dụ < 150px), bật drop-up
+    setDropUp(spaceBelow < 150);
+  });
+
   return (
     <div
+      ref={messageRef}
       id={message.id}
       key={message.id}
       // className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}
@@ -322,6 +335,7 @@ const MessageContent = (props: MessageContentProps) => {
                 message={message.content}
                 mine={message.contactId === info.id}
                 pinned={message.isPinned}
+                dropUp={dropUp}
               />
             </div>
 

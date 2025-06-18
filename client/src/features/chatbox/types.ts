@@ -58,6 +58,7 @@ export type MessageMenuProps = {
   message?: string;
   mine: boolean;
   pinned: boolean;
+  dropUp?: boolean;
 };
 
 export type PinMessageRequest = {

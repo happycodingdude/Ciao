@@ -15,7 +15,7 @@ import { MessageMenuProps } from "../types";
 
 const MessageMenu = (props: MessageMenuProps) => {
   // console.log("ChatboxMenu calling");
-  const { conversationId, id, message, mine, pinned } = props;
+  const { conversationId, id, message, mine, pinned, dropUp } = props;
 
   const queryClient = useQueryClient();
 
@@ -73,7 +73,7 @@ const MessageMenu = (props: MessageMenuProps) => {
     <>
       <div
         data-show={show}
-        className={`message-menu-container ${mine ? "left-[-18rem] origin-top-right" : "right-[-18rem] origin-top-left"}`}
+        className={`message-menu-container ${dropUp ? "top-[-8rem]" : "top-[-5rem]"} ${mine ? "left-[-18rem] origin-right" : "right-[-18rem] origin-left"}`}
       >
         <div className="message-menu-item" onClick={copyMessage}>
           <CopyOutlined /> Copy message

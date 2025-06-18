@@ -10,6 +10,7 @@ import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import getMessages from "../../chatbox/services/getMessages";
+import getAttachments from "../../chatdetail/services/getAttachments";
 import useConversation from "../hooks/useConversation";
 import { ConversationCache, ConversationModel } from "../types";
 
@@ -82,8 +83,6 @@ const ListchatContent = () => {
       setLoading(true);
     }
 
-    // setSelectedId(id); // 👈 cập nhật id trước khi gọi refetch
-
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const updatedConversations = oldData.conversations.map((conversation) => {
         if (conversation.id !== id) return conversation;
@@ -120,36 +119,13 @@ const ListchatContent = () => {
     // }
     // refetchAttachments();
 
-    // 🟢 refetch lại đúng key
-    // queryClient.invalidateQueries({ queryKey: ["messages", id, 1] });
-    // queryClient.invalidateQueries({ queryKey: ["attachment", id] });
+    const [messages, attachments] = await Promise.all([
+      getMessages(id, 1),
+      getAttachments(id),
+    ]);
 
-    // queryClient.fetchQuery({
-    //   queryKey: ["messages", id, 1],
-    //   queryFn: () => getMessages(id, 1),
-    //   // staleTime: 60_000,
-    //   // gcTime: 300_000,
-    // });
-
-    // queryClient.fetchQuery({
-    //   queryKey: ["attachment", id],
-    //   queryFn: () => getAttachments(id),
-    //   // staleTime: 60_000,
-    //   // gcTime: 300_000,
-    // });
-
-    // Gọi API lấy page 1
-    const messages = await getMessages(id, 1); // MessageCache
-
-    // Cập nhật vào cache với key duy nhất
     queryClient.setQueryData(["message"], messages);
-
-    // Hoặc nếu bạn cần thêm metadata:
-    // queryClient.setQueryData(["messages"], {
-    //   ...messages,
-    //   conversationId: id,
-    //   page: 1,
-    // });
+    queryClient.setQueryData(["attachment"], attachments);
 
     setLoading(false);
   };
