@@ -81,6 +81,7 @@ export type MessageModel = BaseModel & {
   sadCount?: number;
   angryCount?: number;
   currentReaction?: string | null;
+  pinnedBy?: string | null;
   // reactions?: ReactionModel[];
 };
 

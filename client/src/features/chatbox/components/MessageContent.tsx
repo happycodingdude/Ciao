@@ -229,10 +229,10 @@ const MessageContent = (props: MessageContentProps) => {
           phone:w-[30rem] laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}`}
       >
-        {/* MARK: SENDER INFOR */}
         <div
           className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
         >
+          {/* MARK: SENDER NAME */}
           {message.contactId === info.id ? (
             ""
           ) : (
@@ -245,12 +245,26 @@ const MessageContent = (props: MessageContentProps) => {
             </p>
           )}
 
+          {/* MARK: MESSAGE TIME */}
           <p>
             {moment(message.createdTime).format("DD/MM/YYYY") ===
             moment().format("DD/MM/YYYY")
               ? moment(message.createdTime).format("HH:mm")
               : moment(message.createdTime).format("DD/MM/YYYY HH:mm")}
           </p>
+
+          {message.isPinned ? (
+            <p className="text-orange-500">
+              pinned by{" "}
+              {
+                conversations.selected?.members.find(
+                  (q) => q.contact.id === message.pinnedBy,
+                )?.contact.name
+              }
+            </p>
+          ) : (
+            ""
+          )}
         </div>
 
         {/* MARK: ATTACHMENT */}

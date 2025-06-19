@@ -150,6 +150,7 @@ public class MessageCache
         var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
         var message = messageCache.SingleOrDefault(q => q.Id == messageId);
         message.IsPinned = pinned;
+        message.PinnedBy = userId;
 
         await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
     }

@@ -47,7 +47,9 @@ public static class PinMessage
 
             // Cập nhật trạng thái pin của tin nhắn
             var filter = Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId);
-            var updates = Builders<Conversation>.Update.Set("Messages.$[elem].IsPinned", request.pinned);
+            var updates = Builders<Conversation>.Update
+                .Set("Messages.$[elem].IsPinned", request.pinned)
+                .Set("Messages.$[elem].PinnedBy", _contactRepository.GetUserId());
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
                 new BsonDocument("elem._id", request.id)
                 );
@@ -66,7 +68,8 @@ public static class PinMessage
                     UserId = _contactRepository.GetUserId(),
                     ConversationId = request.conversationId,
                     MessageId = request.id,
-                    IsPinned = request.pinned
+                    IsPinned = request.pinned,
+                    PinnedBy = _contactRepository.GetUserId()
                 }
             );
 

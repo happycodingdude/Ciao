@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
@@ -76,11 +77,13 @@ const ListchatContent = () => {
 
   const clickConversation = async (id: string) => {
     if (data.selected?.id === id) return;
-    // setLoading(true);
+
     if (isPhoneScreen()) {
       setToggle(null);
     } else {
-      setLoading(true);
+      flushSync(() => {
+        setLoading(true);
+      });
     }
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
@@ -127,6 +130,8 @@ const ListchatContent = () => {
     queryClient.setQueryData(["message"], messages);
     queryClient.setQueryData(["attachment"], attachments);
 
+    // await delay(1000);
+
     setLoading(false);
   };
 
@@ -145,29 +150,6 @@ const ListchatContent = () => {
     const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
     chatList.scrollTop = scrollTop;
   }, [data?.selected?.id]);
-
-  // useEffect(() => {
-  //   if (!data || !data.selected || !data.reload) {
-  //     scrollToCenterOfSelected();
-  //     return;
-  //   }
-
-  //   // setLoading(true);
-  //   scrollToCenterOfSelected();
-  //   if (data.quickChat) {
-  //     refetchMessage().then((res) => {
-  //       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-  //         return {
-  //           ...oldData,
-  //           messages: [...oldData.messages, data.message],
-  //         };
-  //       });
-  //     });
-  //   } else {
-  //     refetchMessage();
-  //   }
-  //   refetchAttachments();
-  // }, [data?.selected?.id]);
 
   if (!data) return;
 

@@ -138,4 +138,5 @@ public class NotifyNewMessagePinnedModel : KafkaBaseModel
     public string ConversationId { get; set; } = null!;
     public string MessageId { get; set; } = null!;
     public bool IsPinned { get; set; }
+    public string PinnedBy { get; set; } = null!;
 }
