@@ -9,6 +9,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
+import useInfo from "../../authentication/hooks/useInfo";
 import { MessageCache } from "../../listchat/types";
 import pinMessage from "../services/pinMessage";
 import { MessageMenuProps } from "../types";
@@ -18,6 +19,8 @@ const MessageMenu = (props: MessageMenuProps) => {
   const { conversationId, id, message, mine, pinned, dropUp } = props;
 
   const queryClient = useQueryClient();
+
+  const { data: info } = useInfo();
 
   const [show, setShow] = useState(false);
 
@@ -62,6 +65,7 @@ const MessageMenu = (props: MessageMenuProps) => {
           return {
             ...mess,
             isPinned: !pinned,
+            pinnedBy: info.id,
           };
         }),
       } as MessageCache;

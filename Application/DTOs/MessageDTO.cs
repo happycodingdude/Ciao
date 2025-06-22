@@ -17,7 +17,7 @@ public class SendMessageReq_Attachment
 
 public class SendMessageRes
 {
-    public string Message { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
     public string[] Attachments { get; set; } = null!;
 }
 

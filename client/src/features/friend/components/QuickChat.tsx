@@ -5,7 +5,9 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import useEventListener from "../../../hooks/useEventListener";
 import useLoading from "../../../hooks/useLoading";
 import useInfo from "../../authentication/hooks/useInfo";
+import getMessages from "../../chatbox/services/getMessages";
 import sendMessage from "../../chatbox/services/sendMessage";
+import getAttachments from "../../chatdetail/services/getAttachments";
 import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
@@ -72,6 +74,11 @@ const QuickChat = (props: QuickChatProps) => {
         conv.members.some((mem) => mem.contact.id === profile.id),
     );
     if (existedConversation) {
+      const [messages, attachments] = await Promise.all([
+        getMessages(existedConversation.id, 1),
+        getAttachments(existedConversation.id),
+      ]);
+
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
@@ -113,18 +120,30 @@ const QuickChat = (props: QuickChatProps) => {
             filterConversations: updatedConversations,
             selected: existedConversation,
             reload: true,
-            quickChat: true,
-            message: {
-              id: randomId,
-              contactId: info.id,
-              type: "text",
-              content: content,
-              currentReaction: null,
-              pending: true,
-            },
+            // quickChat: true,
+            // message: {
+            //   id: randomId,
+            //   contactId: info.id,
+            //   type: "text",
+            //   content: content,
+            //   currentReaction: null,
+            //   pending: true,
+            // },
           } as ConversationCache;
         },
       );
+
+      messages.messages.push({
+        id: randomId,
+        contactId: info.id,
+        type: "text",
+        content: content,
+        currentReaction: null,
+        pending: true,
+      });
+      queryClient.setQueryData(["message"], messages);
+      queryClient.setQueryData(["attachment"], attachments);
+
       const bodyToCreate = {
         type: "text",
         content: content,
@@ -133,7 +152,7 @@ const QuickChat = (props: QuickChatProps) => {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           const updatedMessages = oldData.messages.map((message) => {
             if (message.id !== randomId) return message;
-            return { ...message, id: res, pending: false };
+            return { ...message, id: res.messageId, pending: false };
           });
           return {
             ...oldData,

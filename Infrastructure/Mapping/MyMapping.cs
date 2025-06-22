@@ -28,6 +28,7 @@ public class MyMapping : Profile
         CreateMap<NewStoredGroupConversationModel_Conversation, ConversationCacheModel>().ReverseMap();
         CreateMap<ConversationWithTotalUnseenWithContactInfo, ConversationCacheModel>().ReverseMap();
         CreateMap<ConversationWithTotalUnseenWithContactInfoAndNoMessage, ConversationCacheModel>().ReverseMap();
+        CreateMap<ConversationWithTotalUnseenWithContactInfoAndNoMessage, GetConversationsResponse>().ReverseMap();
         CreateMap<MemberWithContactInfoAndFriendRequest, MemberWithFriendRequest>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();

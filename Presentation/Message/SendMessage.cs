@@ -75,7 +75,7 @@ public static class SendMessage
 
             return new SendMessageRes
             {
-                Message = message.Id,
+                MessageId = message.Id,
                 Attachments = message.Attachments.Select(q => q.Id).ToArray()
             };
         }

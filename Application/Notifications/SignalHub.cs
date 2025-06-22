@@ -21,13 +21,13 @@ public class SignalHub : Hub
             if (userId is not null)
             {
                 _logger.Information($"User {userId} connected with ConnectionId {Context.ConnectionId}");
-                var connection = _userCache.GetUserConnection(userId.ToString());
+                var connection = await _userCache.GetUserConnection(userId.ToString());
                 // Set cache if not exist
                 if (connection is null)
                 {
                     _logger.Information($"Update cache User {userId} with ConnectionId {Context.ConnectionId}");
-                    _userCache.SetUserConnection(userId, Context.ConnectionId);
-                    _userCache.SetConnectionUser(userId, Context.ConnectionId);
+                    await _userCache.SetUserConnection(userId, Context.ConnectionId);
+                    await _userCache.SetConnectionUser(userId, Context.ConnectionId);
                 }
                 var conversationIds = await _conversationCache.GetListConversationId(userId);
                 // Add to group for broadcasting
@@ -73,7 +73,7 @@ public class SignalHub : Hub
     {
         var connection = await _userCache.GetUserConnection(receiverId);
         Console.WriteLine($"Offer is sent to user {receiverId} with connection {connection}");
-        var caller = _userCache.GetInfo(callerId);
+        var caller = await _userCache.GetInfo(callerId);
         await Clients.Client(connection).SendAsync("ReceiveOffer", caller, offer);
     }
 

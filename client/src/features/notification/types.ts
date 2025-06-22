@@ -65,4 +65,5 @@ export type NewMessagePinned = {
   conversationId: string;
   messageId: string;
   isPinned: boolean;
+  pinnedBy: string;
 };

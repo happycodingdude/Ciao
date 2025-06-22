@@ -273,6 +273,7 @@ const onNewMessagePinned = (
         return {
           ...message,
           isPinned: messagePinned.isPinned,
+          pinnedBy: messagePinned.pinnedBy,
         };
       }),
     } as MessageCache;

@@ -131,6 +131,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                 { "Content", "$$message.Content" },
                                 { "Status", "$$message.Status" },
                                 { "IsPinned", "$$message.IsPinned" },
+                                { "PinnedBy", "$$message.PinnedBy" },
                                 { "SeenTime", "$$message.SeenTime" },
                                 { "ContactId", "$$message.ContactId" },
                                 { "Attachments", "$$message.Attachments" },

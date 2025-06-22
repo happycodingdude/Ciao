@@ -108,20 +108,6 @@ const ListchatContent = () => {
       return data;
     });
 
-    // if (data.quickChat) {
-    //   refetchMessage().then((res) => {
-    //     queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-    //       return {
-    //         ...oldData,
-    //         messages: [...oldData.messages, data.message],
-    //       };
-    //     });
-    //   });
-    // } else {
-    //   refetchMessage();
-    // }
-    // refetchAttachments();
-
     const [messages, attachments] = await Promise.all([
       getMessages(id, 1),
       getAttachments(id),
@@ -129,8 +115,6 @@ const ListchatContent = () => {
 
     queryClient.setQueryData(["message"], messages);
     queryClient.setQueryData(["attachment"], attachments);
-
-    // await delay(1000);
 
     setLoading(false);
   };
@@ -223,10 +207,15 @@ const ListchatContent = () => {
               <CustomLabel
                 className={`
               ${
+                // item.id === data.selected?.id
+                //   ? "text-[var(--text-sub-color-thin)]"
+                //   : item.members.find((mem) => mem.contact.id === info.id)
+                //         .unSeenMessages > 0
+                //     ? "text-[var(--danger-text-color)]"
+                //     : "text-[var(--text-main-color-blur)]"
                 item.id === data.selected?.id
                   ? "text-[var(--text-sub-color-thin)]"
-                  : item.members.find((mem) => mem.contact.id === info.id)
-                        .unSeenMessages > 0
+                  : item.unSeen
                     ? "text-[var(--danger-text-color)]"
                     : "text-[var(--text-main-color-blur)]"
               }`}

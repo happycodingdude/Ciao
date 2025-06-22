@@ -99,6 +99,7 @@ public class NewDirectConversationModel_Message : BaseIdModel
 {
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
 }
 
 public class NewStoredDirectConversationModel : NewStoredGroupConversationModel

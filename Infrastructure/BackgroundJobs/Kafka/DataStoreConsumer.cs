@@ -23,7 +23,7 @@ public class DataStoreConsumer : IGenericConsumer
     {
         try
         {
-            _logger.Information($"[DataStoreConsumer] [{param.cr.Topic}] [{param.cr.Message.Value}]");
+            _logger.Information($"[DataStoreConsumer] [{param.cr.Topic}] {param.cr.Message.Value}");
 
             switch (param.cr.Topic)
             {

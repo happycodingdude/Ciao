@@ -2,9 +2,9 @@ namespace Presentation.Conversations;
 
 public static class GetConversations
 {
-    public record Request(int page, int limit) : IRequest<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>;
+    public record Request(int page, int limit) : IRequest<List<GetConversationsResponse>>;
 
-    internal sealed class Handler : IRequestHandler<Request, List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>
+    internal sealed class Handler : IRequestHandler<Request, List<GetConversationsResponse>>
     {
         readonly IContactRepository _contactRepository;
         readonly IMapper _mapper;
@@ -23,11 +23,11 @@ public static class GetConversations
             _messageCache = messageCache;
         }
 
-        public async Task<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<List<GetConversationsResponse>> Handle(Request request, CancellationToken cancellationToken)
         {
             var userId = _contactRepository.GetUserId();
             var conversations = await _conversationCache.GetConversations();
-            var result = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>(conversations);
+            var result = _mapper.Map<List<GetConversationsResponse>>(conversations);
             await _memberCache.GetMembers(result);
             // _logger.Information(JsonConvert.SerializeObject(result));
             var friends = await _friendCache.GetFriends();
@@ -35,17 +35,21 @@ public static class GetConversations
             {
                 var messages = await _messageCache.GetMessages(conversation.Id);
                 // _logger.Information($"{conversation.Id} has messages count => {messages.Count}");
+                var thisMember = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId);
+                var haventSeenAnyMessage = messages.Any() && thisMember.LastSeenTime is null;
+                var haventSeenLastMessage = messages.Any(q => q.ContactId != userId && q.CreatedTime >= thisMember.LastSeenTime);
+                conversation.UnSeen = haventSeenAnyMessage || haventSeenLastMessage;
                 foreach (var member in conversation.Members)
                 {
                     // Set unseen messages properties
-                    if (member.LastSeenTime is null)
-                    {
-                        member.UnSeenMessages = messages.Where(q => q.ContactId != member.Contact.Id).Count();
-                    }
-                    else
-                    {
-                        member.UnSeenMessages = messages.Where(q => q.CreatedTime >= member.LastSeenTime && q.ContactId != userId).Count();
-                    }
+                    // if (member.LastSeenTime is null)
+                    // {
+                    //     member.UnSeenMessages = messages.Where(q => q.ContactId != member.Contact.Id).Count();
+                    // }
+                    // else
+                    // {
+                    //     member.UnSeenMessages = messages.Where(q => q.CreatedTime >= member.LastSeenTime && q.ContactId != userId).Count();
+                    // }
                     // Set friend properties
                     var friend = friends.SingleOrDefault(q => q.Contact.Id == member.Contact.Id);
                     if (friend is null)

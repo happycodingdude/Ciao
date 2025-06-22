@@ -31,6 +31,7 @@ export type ConversationModel = BaseModel & {
   lastMessageContact?: string | null;
   lastSeenTime?: string | null;
   isNotifying?: boolean;
+  unSeen?: boolean;
 };
 
 export type ConversationCache = {

@@ -1,7 +1,13 @@
 import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
 import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
@@ -30,7 +36,7 @@ import ChatboxMenu from "./ChatboxMenu";
 import ImageItem from "./ImageItem";
 
 const ChatInput = (props: ChatInputProps) => {
-  const { className, inputRef } = props;
+  const { className } = props;
 
   const queryClient = useQueryClient();
 
@@ -42,6 +48,8 @@ const ChatInput = (props: ChatInputProps) => {
   const [showMention, setShowMention] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
   const [files, setFiles] = useState<File[]>([]);
+
+  const inputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFiles([]);
@@ -56,6 +64,8 @@ const ChatInput = (props: ChatInputProps) => {
           };
         });
     });
+
+    inputRef.current.focus();
   }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace: boolean) => {
@@ -251,7 +261,7 @@ const ChatInput = (props: ChatInputProps) => {
             if (message.id !== randomId) return message;
             return {
               ...message,
-              id: res.message,
+              id: res.messageId,
               loaded: true,
               pending: false,
               attachments: message.attachments.map((atta, index) => {

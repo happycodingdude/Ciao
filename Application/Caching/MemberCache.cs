@@ -21,7 +21,7 @@ public class MemberCache
     //     return JsonConvert.DeserializeObject<List<MemberWithContactInfo>>(memberCacheData);
     // }
 
-    public async Task GetMembers(List<ConversationWithTotalUnseenWithContactInfoAndNoMessage> conversations)
+    public async Task GetMembers(List<GetConversationsResponse> conversations)
     {
         var tasks = conversations.Select(async conversation =>
         {

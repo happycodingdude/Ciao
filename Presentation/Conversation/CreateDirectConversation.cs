@@ -72,7 +72,8 @@ public static class CreateDirectConversation
                 {
                     Id = ObjectId.GenerateNewId().ToString(),
                     Type = "text",
-                    Content = request.message
+                    Content = request.message,
+                    ContactId = userId,
                 };
 
             await _kafkaProducer.ProduceAsync(Topic.NewDirectConversation, new NewDirectConversationModel

@@ -20,7 +20,7 @@ export type SendMessageRequest = {
 };
 
 export type SendMessageResponse = {
-  message?: string;
+  messageId?: string;
   attachments?: string[];
 };
 

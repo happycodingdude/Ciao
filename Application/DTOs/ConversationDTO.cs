@@ -63,3 +63,8 @@ public class ConversationWithTotalUnseenWithContactInfoAndNoMessage : MongoBaseM
     // public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
 }
+
+public class GetConversationsResponse : ConversationWithTotalUnseenWithContactInfoAndNoMessage
+{
+    public bool UnSeen { get; set; }
+}

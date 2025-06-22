@@ -33,7 +33,7 @@ public class CacheConsumer : IGenericConsumer
     {
         try
         {
-            _logger.Information($"[CacheConsumer] [{param.cr.Topic}] [{param.cr.Message.Value}]");
+            _logger.Information($"[CacheConsumer] [{param.cr.Topic}] {param.cr.Message.Value}");
 
             switch (param.cr.Topic)
             {
