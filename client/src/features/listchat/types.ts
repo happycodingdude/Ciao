@@ -16,7 +16,7 @@ export type ConversationModel_Member = BaseModel & {
   friendId?: string;
   friendStatus?: "friend" | "request_sent" | "request_received" | "new";
   lastSeenTime?: string | null;
-  unSeenMessages?: number;
+  // unSeenMessages?: number;
   isNew?: boolean;
 };
 

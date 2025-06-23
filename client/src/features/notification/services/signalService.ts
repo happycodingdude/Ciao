@@ -122,16 +122,17 @@ const onNewMessage = (
       oldData.conversations.some((conv) => conv.id === message.conversation.id)
     ) {
       return updateConversationCache(oldData, message.conversation, {
+        lastMessageId: message.id,
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
-        membersUpdater: (members) =>
-          members.map((mem) =>
-            mem.contact.id === userInfo.id &&
-            oldData.selected?.id !== message.conversation.id
-              ? { ...mem, unSeenMessages: mem.unSeenMessages + 1 }
-              : mem,
-          ),
+        // membersUpdater: (members) =>
+        //   members.map((mem) =>
+        //     mem.contact.id === userInfo.id &&
+        //     oldData.selected?.id !== message.conversation.id
+        //       ? { ...mem, unSeenMessages: mem.unSeenMessages + 1 }
+        //       : mem,
+        //   ),
       });
     } else {
       const newConversation = {
@@ -143,9 +144,9 @@ const onNewMessage = (
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
-        members: message.members.map((mem) =>
-          mem.contact.id === userInfo.id ? { ...mem, unSeenMessages: 0 } : mem,
-        ),
+        // members: message.members.map((mem) =>
+        //   mem.contact.id === userInfo.id ? { ...mem, unSeenMessages: 0 } : mem,
+        // ),
       };
 
       return {
@@ -218,9 +219,9 @@ const onNewConversation = (
       lastMessage: conversation.conversation.lastMessage,
       lastMessageContact: conversation.conversation.lastMessageContact,
       lastMessageTime: conversation.conversation.lastMessageTime,
-      members: conversation.members.map((mem) =>
-        mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
-      ),
+      // members: conversation.members.map((mem) =>
+      //   mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
+      // ),
     };
 
     return {
@@ -301,9 +302,9 @@ const createNewConversation = (
     lastMessage: lastMessage ?? conversation.lastMessage,
     lastMessageContact: lastMessageContact ?? conversation.lastMessageContact,
     lastMessageTime: lastMessageTime ?? conversation.lastMessageTime,
-    members: members.map((mem) =>
-      mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
-    ),
+    // members: members.map((mem) =>
+    //   mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
+    // ),
   };
 
   return {
@@ -317,11 +318,13 @@ const updateConversationCache = (
   oldData: ConversationCache,
   conversation: ConversationModel,
   {
+    lastMessageId,
     lastMessage,
     lastMessageContact,
     lastMessageTime,
     membersUpdater,
   }: Partial<{
+    lastMessageId: string;
     lastMessage: string;
     lastMessageContact: string;
     lastMessageTime: string;
@@ -336,10 +339,14 @@ const updateConversationCache = (
     conv.id === conversation.id
       ? {
           ...conv,
+          ...(lastMessageId && { lastMessageId }),
           ...(lastMessage && { lastMessage }),
           ...(lastMessageContact && { lastMessageContact }),
           ...(lastMessageTime && { lastMessageTime }),
           ...(membersUpdater && { members: membersUpdater(conv.members) }),
+          ...(oldData.selected && oldData.selected.id === conversation.id
+            ? { unSeen: false }
+            : { unSeen: true }),
         }
       : conv,
   );
@@ -348,18 +355,9 @@ const updateConversationCache = (
     ...oldData,
     conversations: updatedConversations,
     filterConversations: updatedConversations,
-    selected:
-      oldData.selected?.id === conversation.id
-        ? updatedConversations.find((conv) => conv.id === conversation.id)
-        : oldData.selected,
     // selected:
     //   oldData.selected?.id === conversation.id
-    //     ? {
-    //         ...oldData.selected,
-    //         members: membersUpdater
-    //           ? membersUpdater(oldData.selected.members)
-    //           : oldData.selected.members,
-    //       }
+    //     ? updatedConversations.find((conv) => conv.id === conversation.id)
     //     : oldData.selected,
   };
 };
