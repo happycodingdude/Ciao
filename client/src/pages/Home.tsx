@@ -42,7 +42,7 @@ const Home = () => {
   return (
     <div
       id="home"
-      className="relative w-full text-[var(--text-main-color-light)] phone:text-md tablet:text-base desktop:text-md"
+      className="relative w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md"
     >
       <div className="home-container">
         <SideBar page={page} setPage={setPage} />

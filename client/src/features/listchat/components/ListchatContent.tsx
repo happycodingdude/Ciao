@@ -91,9 +91,9 @@ const ListchatContent = () => {
         if (conversation.id !== id) return conversation;
         return {
           ...conversation,
-          members: conversation.members.map((mem) =>
-            mem.contact.id === info.id ? { ...mem, unSeenMessages: 0 } : mem,
-          ),
+          // members: conversation.members.map((mem) =>
+          //   mem.contact.id === info.id ? { ...mem, unSeenMessages: 0 } : mem,
+          // ),
         } as ConversationModel;
       });
       const data: ConversationCache = {
@@ -159,8 +159,8 @@ const ListchatContent = () => {
                     ?.contact.id
                 : ""
             }
-            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] py-[.8rem] pl-[.5rem] pr-[1rem] 
-              phone:h-[6.5rem] tablet:h-[5.5rem] laptop:h-[6.5rem] 
+            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] py-[.8rem] 
+              pl-[.5rem] pr-[1rem] phone:h-[6.5rem] tablet:h-[5.5rem] laptop:h-[6.5rem]
         ${
           data.selected?.id === item.id
             ? `item-active bg-[var(--main-color)]`
@@ -171,6 +171,7 @@ const ListchatContent = () => {
             }}
           >
             <div className="relative">
+              {/* MARK: CONVERSATION AVATAR */}
               <ImageWithLightBoxAndNoLazy
                 src={
                   item.isGroup
@@ -193,10 +194,10 @@ const ListchatContent = () => {
                 ""
               )}
             </div>
-            {/* Title & last message */}
             <div className={`flex h-full w-1/2 grow flex-col gap-[.5rem]`}>
+              {/* MARK: CONVERSATION TITLE */}
               <CustomLabel
-                className={`${item.id === data.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} `}
+                className={`${item.id === data.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} font-semibold`}
                 title={
                   item.isGroup
                     ? item.title
@@ -204,6 +205,7 @@ const ListchatContent = () => {
                         ?.contact.name
                 }
               />
+              {/* MARK: LAST MESSAGE */}
               <CustomLabel
                 className={`
               ${

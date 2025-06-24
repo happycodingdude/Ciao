@@ -15,6 +15,8 @@
   --danger-text-color-light: #f99f9f;
   --online-color: #00dd00;
   --offline-color: #808080;
+  --pinned-message-container-color: #fffdd6;
+  --pinned-message-text-color: #874c00;
 }
 
 [data-theme="light"] {
@@ -296,13 +298,16 @@ body,
   } */
 
   .base-icon-lg {
-    @apply flex cursor-pointer items-center justify-center font-light phone:text-base laptop:text-base desktop:text-lg;
+    @apply flex cursor-pointer items-center justify-center font-light 
+    phone:text-base laptop:text-base desktop:text-lg;
   }
   .base-icon {
-    @apply  flex cursor-pointer items-center justify-center font-light phone:text-md laptop:text-md desktop:text-xl;
+    @apply  flex cursor-pointer items-center justify-center font-light 
+    phone:text-xl laptop:text-md desktop:text-xl;
   }
   .base-icon-sm {
-    @apply flex cursor-pointer items-center justify-center font-light phone:text-lg laptop:text-lg desktop:text-xl;
+    @apply flex cursor-pointer items-center justify-center font-light 
+    phone:text-xl laptop:text-lg desktop:text-xl;
   }
 
   .gradient-item {
@@ -389,9 +394,18 @@ body,
   }
 
   .sidebar-container {
-    @apply shrink-0 border-r-[.1rem] border-r-[var(--border-color)] flex items-center px-[1rem] pt-[1rem]
-    phone:h-[7rem] phone:w-full laptop:h-full laptop:w-[7rem] desktop:w-[10rem]
-    laptop:flex-col phone:flex-row 
+    @apply shrink-0 border-r-[.1rem] border-r-[var(--border-color)] flex items-center px-[1rem]
+    phone:h-[9rem] phone:w-full phone:flex-row phone:border-t-[.2rem] phone:border-t-[var(--border-color)]
+    laptop:h-full laptop:w-[7rem] laptop:flex-col laptop:pt-[1rem]
+    desktop:w-[10rem]    
+  }
+
+  .sidebar-menu-item {
+    @apply flex flex-col items-center justify-center gap-[.5rem]
+  }
+
+  .sidebar-menu-item .sidebar-menu-item-text {
+    @apply text-base;
   }
 
   /* video {
@@ -446,5 +460,26 @@ body,
 
   .message-menu-item {
     @apply cursor-pointer p-[1rem] hover:bg-[var(--bg-color-thin)] flex gap-[.5rem]
+  }
+
+  .listchat-filter-container {
+    @apply flex justify-between items-center border-b-[.2rem] border-b-[var(--border-color)] h-[6rem]
+  }
+
+  .listchat-filter-group {
+    @apply relative flex phone:w-[27rem] laptop:w-[27rem] h-[80%] items-center
+  }
+
+  .listchat-filter-item {
+    @apply  relative flex-1 cursor-pointer py-[1rem] mx-[1.5rem] text-center text-[var(--text-main-color)]
+      rounded-[1rem] h-[4rem] transition-colors duration-200
+  }
+
+  .listchat-filter-input {
+    @apply  absolute left-0 top-0 h-full w-full cursor-pointer opacity-0
+  }
+
+  .listchat-filter-text {
+    @apply transition-colors duration-200 z-[10] relative
   }
 }

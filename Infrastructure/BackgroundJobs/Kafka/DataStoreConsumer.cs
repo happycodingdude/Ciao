@@ -69,9 +69,9 @@ public class DataStoreConsumer : IGenericConsumer
         var conversation = await _conversationRepository.GetItemAsync(filter);
 
         // Prepare message
-        var user = await _contactRepository.GetInfoAsync(param.UserId);
+        // var user = await _contactRepository.GetInfoAsync(param.UserId);
         var message = _mapper.Map<Message>(param.Message);
-        message.ContactId = user.Id;
+        message.ContactId = param.UserId;
         if (message.Type == "media")
             message.Content = null;
         conversation.Messages.Add(message);

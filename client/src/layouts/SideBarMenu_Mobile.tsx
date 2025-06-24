@@ -23,35 +23,47 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
   }, [info.avatar]);
 
   return (
-    <div className="inline-flex grow flex-row justify-evenly py-[3rem]">
-      <ChatIcon
-        onClick={() => {
-          setPage("chat");
-          if (isPhoneScreen())
-            queryClient.setQueryData(
-              ["conversation"],
-              (oldData: ConversationCache) => {
-                return {
-                  ...oldData,
-                  selected: null,
-                } as ConversationCache;
-              },
-            );
-          queryClient.setQueryData(["message"], (oldData) => {
-            return null;
-          });
-          queryClient.setQueryData(["attachment"], (oldData) => {
-            return null;
-          });
-        }}
-      />
-      <ProfileIcon
-        onClick={() => {
-          setPage("profile");
-        }}
-      />
-      <Notification />
-      <Signout />
+    <div className="inline-flex grow flex-row items-center justify-evenly">
+      <div className="sidebar-menu-item">
+        <ChatIcon
+          onClick={() => {
+            setPage("chat");
+            if (isPhoneScreen())
+              queryClient.setQueryData(
+                ["conversation"],
+                (oldData: ConversationCache) => {
+                  return {
+                    ...oldData,
+                    selected: null,
+                  } as ConversationCache;
+                },
+              );
+            queryClient.setQueryData(["message"], (oldData) => {
+              return null;
+            });
+            queryClient.setQueryData(["attachment"], (oldData) => {
+              return null;
+            });
+          }}
+        />
+        <div className="sidebar-menu-item-text">Chats</div>
+      </div>
+      <div className="sidebar-menu-item">
+        <ProfileIcon
+          onClick={() => {
+            setPage("profile");
+          }}
+        />
+        <div className="sidebar-menu-item-text">Profile</div>
+      </div>
+      <div className="sidebar-menu-item">
+        <Notification />
+        <div className="sidebar-menu-item-text">Notifications</div>
+      </div>
+      <div className="sidebar-menu-item">
+        <Signout />
+        <div className="sidebar-menu-item-text">Signout</div>
+      </div>
     </div>
   );
 };

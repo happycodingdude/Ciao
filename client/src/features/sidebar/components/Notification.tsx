@@ -72,10 +72,13 @@ const Notification = () => {
         bg-red-500"
         >
           <p
-            className={`${notifications?.filter((item) => !item.read).length < 10 ? "text-xs" : "text-2xs"}  font-bold text-[var(--sub-color)]`}
+            className={`${notifications?.filter((item) => !item.read).length < 10 ? "text-sm" : "text-xs"}  font-bold text-[var(--sub-color)]`}
           >
             {notifications?.filter((item) => !item.read).length}
           </p>
+          {/* <p className={`font-bold text-[var(--sub-color)]`}>
+            {notifications?.filter((item) => !item.read).length}
+          </p> */}
         </div>
       ) : (
         ""

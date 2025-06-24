@@ -136,7 +136,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               avatar: info.avatar,
               isOnline: true,
             },
-            unSeenMessages: 0,
+            // unSeenMessages: 0,
           },
           ...membersToAdd.map((mem) => {
             return {

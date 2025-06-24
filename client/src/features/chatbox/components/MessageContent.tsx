@@ -1,3 +1,4 @@
+import { PushpinOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -188,7 +189,7 @@ const MessageContent = (props: MessageContentProps) => {
     const spaceBelow = window.innerHeight - rect.bottom;
 
     // Nếu không đủ khoảng cách phía dưới (ví dụ < 150px), bật drop-up
-    setDropUp(spaceBelow < 150);
+    setDropUp(spaceBelow < 100);
   });
 
   return (
@@ -236,7 +237,7 @@ const MessageContent = (props: MessageContentProps) => {
           {message.contactId === info.id ? (
             ""
           ) : (
-            <p className="">
+            <p className="font-bold">
               {
                 conversations.selected?.members.find(
                   (q) => q.contact.id === message.contactId,
@@ -253,7 +254,7 @@ const MessageContent = (props: MessageContentProps) => {
               : moment(message.createdTime).format("DD/MM/YYYY HH:mm")}
           </p>
 
-          {message.isPinned ? (
+          {/* {message.isPinned ? (
             <p className="text-orange-500">
               pinned by{" "}
               {
@@ -264,7 +265,7 @@ const MessageContent = (props: MessageContentProps) => {
             </p>
           ) : (
             ""
-          )}
+          )} */}
         </div>
 
         {/* MARK: ATTACHMENT */}
@@ -335,11 +336,26 @@ const MessageContent = (props: MessageContentProps) => {
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
                 : "bg-[var(--bg-color-light)]"
-            }
+            }            
+            !flex flex-col
             data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none
             data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
+            ${message.isPinned ? " pt-[1rem]" : ""}
             `}
               >
+                {message.isPinned ? (
+                  <div className="inline-flex h-[2rem] w-fit items-center gap-[.5rem] rounded-[.5rem] bg-[var(--pinned-message-container-color)] px-[1rem] text-[var(--pinned-message-text-color)]">
+                    <PushpinOutlined className="text-orange-500" />
+                    Pinned by{" "}
+                    {
+                      conversations.selected?.members.find(
+                        (q) => q.contact.id === message.pinnedBy,
+                      )?.contact.name
+                    }
+                  </div>
+                ) : (
+                  ""
+                )}
                 {message.content}
               </div>
               {/* MARK: Message menu */}

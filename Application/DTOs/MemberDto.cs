@@ -35,5 +35,5 @@ public class MemberWithContactInfoAndFriendRequest : MemberWithContactInfo
 {
     public string? FriendId { get; set; }
     public string FriendStatus { get; set; } = null!;
-    public int UnSeenMessages { get; set; }
+    // public int UnSeenMessages { get; set; }
 }
