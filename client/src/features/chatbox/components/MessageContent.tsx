@@ -335,7 +335,7 @@ const MessageContent = (props: MessageContentProps) => {
             ${
               message.contactId === info.id
                 ? "bg-[var(--main-color)]"
-                : "bg-[var(--bg-color-light)]"
+                : "bg-[var(--bg-color-extrathin)]"
             }            
             !flex flex-col
             data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none
@@ -344,7 +344,7 @@ const MessageContent = (props: MessageContentProps) => {
             `}
               >
                 {message.isPinned ? (
-                  <div className="inline-flex h-[2rem] w-fit items-center gap-[.5rem] rounded-[.5rem] bg-[var(--pinned-message-container-color)] px-[1rem] text-[var(--pinned-message-text-color)]">
+                  <div className="inline-flex h-[2rem] w-fit items-center gap-[.5rem] rounded-[.5rem] bg-[var(--pinned-message-container-color)] px-[1rem] text-sm text-[var(--pinned-message-text-color)]">
                     <PushpinOutlined className="text-orange-500" />
                     Pinned by{" "}
                     {
@@ -356,7 +356,7 @@ const MessageContent = (props: MessageContentProps) => {
                 ) : (
                   ""
                 )}
-                {message.content}
+                <p>{message.content}</p>
               </div>
               {/* MARK: Message menu */}
               <MessageMenu

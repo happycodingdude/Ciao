@@ -4,7 +4,7 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 
-const Attachment = () => {
+const Attachment_BK = () => {
   // console.log("Attachment calling");
   // const { show, toggle } = props;
   const { toggle } = useChatDetailToggles();
@@ -52,26 +52,21 @@ const Attachment = () => {
       className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div className="relative border-b-[.1rem] border-b-[var(--border-color)]">
-        <div className="attachment-filter-container">
+        <div className="flex justify-evenly">
           <div
             onClick={() => {
               toggleAttachmentActive("image");
               setAttachmentToggle("image");
             }}
-            className={`attachment-filter-item group 
-              ${
-                attachmentToggle === "image"
-                  ? ""
-                  : "bg-[var(--bg-color-light)] hover:bg-[var(--main-color-extrathin)]"
-              }`}
+            className="group relative cursor-pointer py-[1rem] text-center text-[var(--text-main-color)] laptop:flex-1"
           >
             <input
               type="radio"
               name="radio-attachment"
-              className="attachment-filter-input peer "
+              className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
               checked={attachmentToggle === "image"}
             ></input>
-            <p className="attachment-filter-text peer-checked:text-white">
+            <p className="font-bold group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color)]">
               Images
             </p>
           </div>
@@ -80,35 +75,24 @@ const Attachment = () => {
               toggleAttachmentActive("file");
               setAttachmentToggle("file");
             }}
-            className={`attachment-filter-item group 
-              ${
-                attachmentToggle === "file"
-                  ? ""
-                  : "bg-[var(--bg-color-light)] hover:bg-[var(--main-color-extrathin)]"
-              }`}
+            className="group relative cursor-pointer py-[1rem] text-center text-[var(--text-main-color)] laptop:flex-1"
           >
             <input
               type="radio"
               name="radio-attachment"
-              className="attachment-filter-input peer "
+              className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
               checked={attachmentToggle === "file"}
             ></input>
-            <p className="attachment-filter-text peer-checked:text-white">
+            <p className="group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color-bold)]">
               Files
             </p>
           </div>
         </div>
-        {/* <div
+        <div
           data-tab={attachmentToggle}
           className="absolute bottom-0 h-[.2rem] w-1/4 bg-[var(--main-color)] transition-all duration-200 
           phone:data-[tab=file]:translate-x-[225%] phone:data-[tab=image]:translate-x-[75%]
           laptop:data-[tab=file]:translate-x-[250%] laptop:data-[tab=image]:translate-x-[50%]"
-        ></div> */}
-        <div
-          data-tab={attachmentToggle}
-          className="absolute top-[.5rem] h-[4rem] w-[6rem] rounded-[1rem] bg-[var(--main-color)] transition-all duration-200 
-          phone:data-[tab=file]:translate-x-[400%] phone:data-[tab=image]:translate-x-[150%] 
-          laptop:data-[tab=file]:translate-x-[245%] laptop:data-[tab=image]:translate-x-[70%]"
         ></div>
       </div>
 
@@ -151,4 +135,4 @@ const Attachment = () => {
   );
 };
 
-export default Attachment;
+export default Attachment_BK;

@@ -80,11 +80,10 @@ const ListchatContent = () => {
 
     if (isPhoneScreen()) {
       setToggle(null);
-    } else {
-      flushSync(() => {
-        setLoading(true);
-      });
     }
+    flushSync(() => {
+      setLoading(true);
+    });
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const updatedConversations = oldData.conversations.map((conversation) => {

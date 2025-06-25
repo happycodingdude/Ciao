@@ -4,28 +4,18 @@ import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
 import ChatInput from "../features/chatbox/components/ChatInput";
 import useChatDetailToggles from "../features/chatbox/hooks/useChatDetailToggles";
-import useMessage from "../features/chatbox/hooks/useMessage";
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
-import useAttachment from "../features/chatdetail/hooks/useAttachment";
 import useConversation from "../features/listchat/hooks/useConversation";
+import useLoading from "../hooks/useLoading";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
 const ChatboxContainer = () => {
-  // console.log("ChatboxContainer calling");
-  const { isLoading: isLoadingMessage, isRefetching: isRefetchingMessage } =
-    useMessage();
-  const {
-    isLoading: isLoadingAttachment,
-    isRefetching: isRefetchingAttachment,
-  } = useAttachment();
+  const { loading, setLoading } = useLoading();
   const { data: conversations } = useConversation();
   // const { data: info } = useInfo();
 
   const { toggle, setToggle } = useChatDetailToggles();
-
-  const isLoading = isLoadingMessage || isLoadingAttachment;
-  const isRefetching = isRefetchingMessage || isRefetchingAttachment;
 
   const refChatboxContainer = useRef<HTMLDivElement>();
   const refInput = useRef<HTMLInputElement>();
@@ -42,13 +32,12 @@ const ChatboxContainer = () => {
             <div className="flex h-full flex-col">
               <ChatboxHeader />
               <div className="flex w-full grow overflow-hidden">
-                {isLoading || isRefetching ? (
-                  <LocalLoading />
+                {loading ? (
+                  <LocalLoading className="!z-[11]" />
                 ) : (
                   <div
                     ref={refChatboxContainer}
-                    className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] 
-                      border-r-[var(--border-color)] pb-[1rem]
+                    className={`relative flex w-full grow flex-col items-center gap-[1rem] border-r-[.1rem] border-r-[var(--border-color)] pb-[1rem]
                       ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
                   >
                     <Chatbox />
@@ -67,11 +56,6 @@ const ChatboxContainer = () => {
             text-xl transition-all duration-500"
               onClick={() => setToggle(null)}
             ></i>
-            {/* <i
-              className="fa-arrow-down fa z-[11] flex aspect-square h-full cursor-pointer items-center justify-center p-[.5rem] transition-all
-                duration-500 data-[show=false]:rotate-90 phone:text-xl laptop:text-md"
-              onClick={() => setToggle(null)}
-            ></i> */}
             <Information />
             <Attachment />
           </div>

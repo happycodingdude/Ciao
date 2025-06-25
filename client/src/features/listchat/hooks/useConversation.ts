@@ -5,13 +5,11 @@ import { ConversationCache } from "../types";
 const useConversation = (
   page?: number | undefined,
 ): UseQueryResult<ConversationCache> => {
-  // const axios = useAxiosRetry();
   return useQuery({
     queryKey: ["conversation"],
     queryFn: () => getConversations(page),
     staleTime: Infinity,
-    // enabled: false,
-    // refetchOnWindowFocus: false,
+    enabled: typeof page !== "undefined", // 👈 Chỉ gọi khi page đã xác định
   });
 };
 export default useConversation;

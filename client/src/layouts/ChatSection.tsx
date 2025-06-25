@@ -3,6 +3,7 @@ import LocalLoading from "../components/LocalLoading";
 import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
 import useConversation from "../features/listchat/hooks/useConversation";
 import useLoading from "../hooks/useLoading";
+import { isPhoneScreen } from "../utils/getScreenSize";
 const ListChatContainer = lazy(() => import("./ListChatContainer"));
 const ChatboxContainer = lazy(() => import("./ChatboxContainer"));
 
@@ -17,7 +18,11 @@ const ChatSection = () => {
           <ListChatContainer />
         </Suspense>
         <div className="relative h-full w-full">
-          {loading ? <LocalLoading className="!z-[11]" /> : ""}
+          {loading && !isPhoneScreen() ? (
+            <LocalLoading className="!z-[11]" />
+          ) : (
+            ""
+          )}
           {conversations?.selected ? <ChatboxContainer /> : ""}
         </div>
       </ChatDetailTogglesProvider>

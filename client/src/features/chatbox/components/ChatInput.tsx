@@ -427,7 +427,7 @@ const ChatInput = (props: ChatInputProps) => {
         className={`${className} relative flex w-full grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)]
         ${
           isPhoneScreen()
-            ? "max-w-[30rem]"
+            ? "max-w-[35rem]"
             : !toggle || toggle === "" || toggle === "null"
               ? "!w-0 laptop:max-w-[80rem] laptop-lg:max-w-[100rem]"
               : "!w-0 laptop:max-w-[60rem] laptop-lg:max-w-[80rem]"

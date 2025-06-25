@@ -471,7 +471,8 @@ body,
   }
 
   .listchat-filter-item {
-    @apply  relative flex-1 cursor-pointer py-[1rem] mx-[1.5rem] text-center text-[var(--text-main-color)]
+    @apply  relative flex-1 cursor-pointer py-[1rem] mx-[1.5rem] 
+    text-center text-[var(--text-main-color)]
       rounded-[1rem] h-[4rem] transition-colors duration-200
   }
 
@@ -480,6 +481,25 @@ body,
   }
 
   .listchat-filter-text {
+    @apply transition-colors duration-200 z-[10] relative
+  }
+
+  .attachment-filter-container {
+    @apply flex justify-evenly h-[5rem] items-center
+  }
+
+  .attachment-filter-item {
+    @apply relative cursor-pointer flex items-center justify-center
+    text-center text-[var(--text-main-color)] 
+    rounded-[1rem] h-[4rem] w-[6rem]
+    transition-colors duration-200
+  }
+
+  .attachment-filter-input {
+    @apply absolute left-0 top-0 h-full w-full cursor-pointer opacity-0
+  }
+
+  .attachment-filter-text {
     @apply transition-colors duration-200 z-[10] relative
   }
 }
