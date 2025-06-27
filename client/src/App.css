@@ -15,7 +15,9 @@
   --danger-text-color-light: #f99f9f;
   --online-color: #00dd00;
   --offline-color: #808080;
-  --pinned-message-container-color: #fffdd6;
+  --pinned-message-container-bg-color: #fff6b0;
+  --pinned-message-container-icon-color: #ff8400;
+  --pinned-message-container-border-color: #ffcc00;
   --pinned-message-text-color: #874c00;
 }
 
@@ -452,9 +454,9 @@ body,
 
   /* MARK: MESSAGE MENU  */
   .message-menu-container {
-    @apply absolute z-[10]
+    @apply absolute z-[10] bg-[var(--bg-color-extrathin)]
         flex w-[15rem] flex-col rounded-[.7rem]
-        bg-[var(--bg-color)] py-[1rem] text-[var(--text-main-color)] transition-all duration-200
+        py-[1rem] text-[var(--text-main-color)] transition-all duration-200
         data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100
   }
 

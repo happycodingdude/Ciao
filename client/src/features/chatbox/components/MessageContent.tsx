@@ -331,11 +331,15 @@ const MessageContent = (props: MessageContentProps) => {
               <div
                 ref={contentRef}
                 data-expanded={isExpanded}
-                className={`cursor-pointer whitespace-pre-line break-all rounded-[2rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+                className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
             ${
-              message.contactId === info.id
-                ? "bg-[var(--main-color)]"
-                : "bg-[var(--bg-color-extrathin)]"
+              message.isPinned
+                ? message.contactId === info.id
+                  ? "border-r-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
+                  : "border-l-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
+                : message.contactId === info.id
+                  ? "bg-[var(--main-color)]"
+                  : "bg-[var(--bg-color-extrathin)]"
             }            
             !flex flex-col
             data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none
@@ -344,8 +348,10 @@ const MessageContent = (props: MessageContentProps) => {
             `}
               >
                 {message.isPinned ? (
-                  <div className="inline-flex h-[2rem] w-fit items-center gap-[.5rem] rounded-[.5rem] bg-[var(--pinned-message-container-color)] px-[1rem] text-sm text-[var(--pinned-message-text-color)]">
-                    <PushpinOutlined className="text-orange-500" />
+                  <div
+                    className="inline-flex h-[2rem] items-center gap-[.5rem]
+                    text-sm text-[var(--pinned-message-container-icon-color)]"
+                  >
                     Pinned by{" "}
                     {
                       conversations.selected?.members.find(
@@ -358,6 +364,16 @@ const MessageContent = (props: MessageContentProps) => {
                 )}
                 <p>{message.content}</p>
               </div>
+              {message.isPinned ? (
+                <PushpinOutlined
+                  className={`absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  top-[-.2rem] z-[11] rounded-[1rem] 
+                  bg-[var(--pinned-message-container-icon-color)] 
+                  px-[.2rem] py-[.7rem] text-xs text-white`}
+                  rotate={316}
+                />
+              ) : (
+                ""
+              )}
               {/* MARK: Message menu */}
               <MessageMenu
                 conversationId={id}

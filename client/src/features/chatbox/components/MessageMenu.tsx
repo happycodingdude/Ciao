@@ -89,7 +89,10 @@ const MessageMenu = (props: MessageMenuProps) => {
           {pinning ? (
             <SyncOutlined spin />
           ) : (
-            <PushpinOutlined className={`${pinned ? "text-orange-500" : ""}`} />
+            <PushpinOutlined
+              className={`${pinned ? "text-orange-500" : ""}`}
+              rotate={316}
+            />
           )}
           {pinned ? " Unpin" : " Pin"} message
         </div>
