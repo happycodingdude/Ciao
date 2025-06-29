@@ -13,7 +13,8 @@ import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import getMessages from "../../chatbox/services/getMessages";
 import getAttachments from "../../chatdetail/services/getAttachments";
 import useConversation from "../hooks/useConversation";
-import { ConversationCache, ConversationModel } from "../types";
+import useListchatFilter from "../hooks/useListchatFilter";
+import { ConversationCache } from "../types";
 
 // moment.locale("en", {
 //   relativeTime: {
@@ -55,7 +56,8 @@ moment.updateLocale("en", {
 
 const ListchatContent = () => {
   const queryClient = useQueryClient();
-  const { toggle, setToggle } = useChatDetailToggles();
+  const { setToggle } = useChatDetailToggles();
+  const { setFilter } = useListchatFilter();
 
   const refPage = useRef<number>(1);
   // const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -75,31 +77,23 @@ const ListchatContent = () => {
     blurImage(".list-chat");
   }, [data?.filterConversations]);
 
+  {
+    /* MARK: Click conversation */
+  }
   const clickConversation = async (id: string) => {
     if (data.selected?.id === id) return;
 
-    if (isPhoneScreen()) {
-      setToggle(null);
-    }
     flushSync(() => {
       setLoading(true);
     });
-
+    if (isPhoneScreen()) {
+      setToggle(null);
+      setFilter("all");
+    }
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== id) return conversation;
-        return {
-          ...conversation,
-          // members: conversation.members.map((mem) =>
-          //   mem.contact.id === info.id ? { ...mem, unSeenMessages: 0 } : mem,
-          // ),
-        } as ConversationModel;
-      });
       const data: ConversationCache = {
         ...oldData,
-        selected: updatedConversations.find((item) => item.id === id),
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
+        selected: oldData.filterConversations.find((item) => item.id === id),
         reload: true,
         quickChat: false,
         message: null,
@@ -161,7 +155,7 @@ const ListchatContent = () => {
             className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] py-[.8rem] 
               pl-[.5rem] pr-[1rem] phone:h-[6.5rem] tablet:h-[5.5rem] laptop:h-[6.5rem]
         ${
-          data.selected?.id === item.id
+          data.selected?.id === item.id && !isPhoneScreen()
             ? `item-active bg-[var(--main-color)]`
             : "hover:bg-[var(--bg-color-extrathin)]"
         } `}

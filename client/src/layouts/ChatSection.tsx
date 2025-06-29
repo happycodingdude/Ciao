@@ -9,7 +9,7 @@ const ChatboxContainer = lazy(() => import("./ChatboxContainer"));
 
 const ChatSection = () => {
   const { data: conversations } = useConversation(1);
-  const { loading, setLoading } = useLoading();
+  const { loading } = useLoading();
 
   return (
     <section className={`relative flex grow overflow-hidden`}>
@@ -19,7 +19,7 @@ const ChatSection = () => {
         </Suspense>
         <div className="relative h-full w-full">
           {loading && !isPhoneScreen() ? (
-            <LocalLoading className="!z-[11]" />
+            <LocalLoading className="!z-[12]" />
           ) : (
             ""
           )}

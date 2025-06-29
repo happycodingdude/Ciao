@@ -11,11 +11,9 @@ import ChatboxHeaderMenu_Mobile from "./ChatboxHeaderMenu_Mobile";
 
 const ChatboxHeader = () => {
   const queryClient = useQueryClient();
-
+  const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   if (!conversations || !conversations.selected) return;
-
-  const { data: info } = useInfo();
 
   return (
     <div
@@ -28,16 +26,15 @@ const ChatboxHeader = () => {
             className="fa-arrow-left fa flex cursor-pointer items-center justify-center p-[.5rem]
             text-xl transition-all duration-500"
             onClick={() => {
-              if (isPhoneScreen())
-                queryClient.setQueryData(
-                  ["conversation"],
-                  (oldData: ConversationCache) => {
-                    return {
-                      ...oldData,
-                      selected: null,
-                    } as ConversationCache;
-                  },
-                );
+              queryClient.setQueryData(
+                ["conversation"],
+                (oldData: ConversationCache) => {
+                  return {
+                    ...oldData,
+                    selected: null,
+                  } as ConversationCache;
+                },
+              );
               queryClient.setQueryData(["message"], (oldData) => {
                 return null;
               });

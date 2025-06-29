@@ -107,7 +107,8 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         />
       </div>
       <CustomButton
-        className={`!mr-0 w-[7rem] phone:text-base desktop:text-md`}
+        className={`!mr-0 phone:text-base desktop:text-md`}
+        width={7}
         padding="py-[.3rem]"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
         gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}

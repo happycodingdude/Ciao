@@ -1,5 +1,6 @@
+import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
@@ -156,7 +157,7 @@ const AddMembersModal = (props: OnCloseType) => {
                     });
                   }}
                 >
-                  {conversations.selected.members.some(
+                  {/* {conversations.selected.members.some(
                     (mem) => mem.contact.id === item.id,
                   ) || membersToAdd.some((mem) => mem.id === item.id) ? (
                     <div
@@ -176,7 +177,16 @@ const AddMembersModal = (props: OnCloseType) => {
                         className="gradient-item relative aspect-square w-[1.8rem] rounded-full bg-[var(--bg-color)]"
                       ></div>
                     </div>
-                  )}
+                  )} */}
+                  <CheckCircleOutlined
+                    className={`base-icon-sm ${
+                      conversations.selected.members.some(
+                        (mem) => mem.contact.id === item.id,
+                      ) || membersToAdd.some((mem) => mem.id === item.id)
+                        ? "text-[var(--main-color-bold)]"
+                        : ""
+                    }`}
+                  />
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
                     className="aspect-square cursor-pointer phone:w-[3rem] laptop:w-[4rem]"
@@ -222,7 +232,8 @@ const AddMembersModal = (props: OnCloseType) => {
         )}
       </div>
       <CustomButton
-        className={`!mr-0 w-[7rem] phone:text-base desktop:text-md`}
+        className={`!mr-0 phone:text-base desktop:text-md`}
+        width={7}
         padding="py-[.3rem]"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
         gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}

@@ -11,12 +11,15 @@ const CustomButton = (props: CustomButtonProps) => {
     rounded,
     onClick,
     processing,
+    width,
   } = props;
   const handleClick = () => {
     onClick();
   };
   return (
-    <div className={`${className} relative z-0 mx-auto w-full`}>
+    <div
+      className={`${className} relative z-0 mx-auto ${width ? `w-[${width}rem]` : "w-full"}`}
+    >
       <div
         data-process={processing}
         style={

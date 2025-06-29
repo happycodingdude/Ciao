@@ -53,11 +53,15 @@ import { useQuery } from "@tanstack/react-query";
 const useMessage = () => {
   return useQuery({
     queryKey: ["message"],
-    queryFn: () => Promise.resolve(null), // không thực sự fetch
+    queryFn: () => Promise.resolve(null),
     enabled: false, // chỉ đọc cache
-    staleTime: 60_000,
-    gcTime: 300_000,
   });
 };
+
+// const useMessage = () => {
+//   const queryClient = useQueryClient();
+//   const data = queryClient.getQueryData<MessageCache>(["message"]);
+//   return { data };
+// };
 
 export default useMessage;

@@ -4,13 +4,11 @@ import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy
 import RelightBackground from "../components/RelightBackground";
 import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
-import { ConversationCache } from "../features/listchat/types";
 import ProfileIcon from "../features/profile-new/ProfileIcon";
 import ChatIcon from "../features/sidebar/components/ChatIcon";
 import Notification from "../features/sidebar/components/Notification";
 import { SideBarProps } from "../types";
 import blurImage from "../utils/blurImage";
-import { isPhoneScreen } from "../utils/getScreenSize";
 
 const SideBarMenu = (props: SideBarProps) => {
   // console.log("SideBar calling");
@@ -43,22 +41,22 @@ const SideBarMenu = (props: SideBarProps) => {
             lighten={page === "chat"}
             onClick={() => {
               setPage("chat");
-              if (isPhoneScreen())
-                queryClient.setQueryData(
-                  ["conversation"],
-                  (oldData: ConversationCache) => {
-                    return {
-                      ...oldData,
-                      selected: null,
-                    } as ConversationCache;
-                  },
-                );
-              queryClient.setQueryData(["message"], (oldData) => {
-                return null;
-              });
-              queryClient.setQueryData(["attachment"], (oldData) => {
-                return null;
-              });
+              // if (isPhoneScreen())
+              //   queryClient.setQueryData(
+              //     ["conversation"],
+              //     (oldData: ConversationCache) => {
+              //       return {
+              //         ...oldData,
+              //         selected: null,
+              //       } as ConversationCache;
+              //     },
+              //   );
+              // queryClient.setQueryData(["message"], (oldData) => {
+              //   return null;
+              // });
+              // queryClient.setQueryData(["attachment"], (oldData) => {
+              //   return null;
+              // });
             }}
           >
             <ChatIcon />

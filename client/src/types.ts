@@ -9,7 +9,7 @@ import {
   SetStateAction,
 } from "react";
 import { ContactModel } from "./features/friend/types";
-import { NotifyMessageModel } from "./features/notification/services/notifyMessage";
+// import { NotifyMessageModel } from "./features/notification/services/notifyMessage";
 
 export type CustomInputProps = {
   type?: string;
@@ -66,6 +66,7 @@ export type CustomButtonProps = {
   rounded?: string;
   onClick?: () => void;
   processing?: boolean;
+  width?: string | number;
 };
 
 export type OnCloseType = {
@@ -220,7 +221,7 @@ export type RefreshRequest = {
 
 export type RequestPermission = {
   registerConnection: (token: string) => void;
-  notifyMessage: (model: NotifyMessageModel) => void;
+  // notifyMessage: (model: NotifyMessageModel) => void;
   queryClient: QueryClient;
   info: UserProfile;
 };
