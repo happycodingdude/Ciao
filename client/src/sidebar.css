@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+.sidebar-container {
+  @apply flex shrink-0 items-center border-r-[.1rem] border-r-[var(--border-color)]
+    phone:h-[9rem] phone:w-full phone:flex-row phone:border-t-[.2rem] phone:border-t-[var(--border-color)]
+    laptop:h-full laptop:w-[7rem] laptop:flex-col laptop:border-none
+    desktop:w-[10rem];
+}
+
+.sidebar-hover-effect:hover .icon {
+  transform: translateY(-5px);
+}
+
+.sidebar-hover-effect .icon {
+  transition: all 0.3s ease;
+}
+
+.sidebar-3 {
+  color: white;
+  .active {
+    background: white;
+    color: #8b5cf6;
+    border-radius: 12px;
+  }
+}
+
+.sidebar-3 .tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+  /* z-index: 1000; */
+}
+
+.sidebar-3 .tooltip::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent rgba(255, 255, 255, 0.9) transparent transparent;
+}
+
+.sidebar-item {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.sidebar-item:hover .tooltip {
+  opacity: 1;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
