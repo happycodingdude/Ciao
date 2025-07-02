@@ -111,6 +111,48 @@ export default {
           "radial-gradient(90% 115% at 100% 0%, var(--tw-gradient-stops))",
       }),
       keyframes: {
+        float: {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        glow: {
+          "0%": {
+            boxShadow: "0 0 5px rgba(139, 92, 246, 0.5)",
+          },
+          "100%": {
+            boxShadow: "0 0 20px rgba(139, 92, 246, 0.8)",
+          },
+        },
+        slideUp: {
+          "0%": {
+            transform: "translateY(20px)",
+            opacity: 0,
+          },
+          "100%": {
+            transform: "translateY(0)",
+            opacity: 1,
+          },
+        },
+        wave: {
+          "0%, 100%": {
+            transform: "scaleY(1)",
+          },
+          "50%": {
+            transform: "scaleY(1.2)",
+          },
+        },
+        morph: {
+          "0%, 100%": {
+            borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
+          },
+          "50%": {
+            borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%",
+          },
+        },
         borderPulse: {
           "0%, 100%": {
             borderColor: "rgba(59, 130, 246, 0.5)",
@@ -336,6 +378,12 @@ export default {
         "scale-in": "scaleIn 0.2s ease-out",
         "slide-in": "slideIn 0.3s ease-out",
         "fade-in": "fadeIn 0.3s ease-out",
+
+        float: "float 3s ease-in-out infinite",
+        glow: "glow 2s ease-in-out infinite alternate",
+        "slide-up": "slideUp 0.3s ease-out",
+        wave: "wave 2s ease-in-out infinite",
+        morph: "morph 4s ease-in-out infinite",
       },
     },
   },

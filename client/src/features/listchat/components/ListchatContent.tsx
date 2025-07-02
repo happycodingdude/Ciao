@@ -202,12 +202,6 @@ const ListchatContent = () => {
               <CustomLabel
                 className={`
               ${
-                // item.id === data.selected?.id
-                //   ? "text-[var(--text-sub-color-thin)]"
-                //   : item.members.find((mem) => mem.contact.id === info.id)
-                //         .unSeenMessages > 0
-                //     ? "text-[var(--danger-text-color)]"
-                //     : "text-[var(--text-main-color-blur)]"
                 item.id === data.selected?.id
                   ? "text-[var(--text-sub-color-thin)]"
                   : item.unSeen
@@ -217,10 +211,7 @@ const ListchatContent = () => {
                 title={item.lastMessage}
               />
             </div>
-            <div
-              // className={`flex h-full shrink-0 flex-col items-end phone:min-w-[3rem] laptop:min-w-[4rem]`}
-              className={`flex h-full flex-col items-end`}
-            >
+            <div className={`flex h-full flex-col items-end`}>
               <p>
                 {item.lastMessageTime === null
                   ? ""
