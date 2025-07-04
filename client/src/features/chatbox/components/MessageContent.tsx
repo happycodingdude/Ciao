@@ -204,7 +204,7 @@ const MessageContent = (props: MessageContentProps) => {
     >
       {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (
-        <div className="relative w-[3rem] self-start">
+        <div className="relative w-[4rem] self-start">
           <ImageWithLightBoxAndNoLazy
             src={
               conversations.selected?.members.find(
@@ -226,9 +226,11 @@ const MessageContent = (props: MessageContentProps) => {
         ""
       )}
       <div
-        className={`relative flex flex-col 
+        className={`relative flex flex-col
           phone:w-[30rem] laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
-          ${message.contactId === info.id ? "items-end" : "items-start"}`}
+          ${message.contactId === info.id ? "items-end" : "items-start"}
+          ${message.isPinned ? "gap-[.5rem]" : ""}
+          `}
       >
         <div
           className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
@@ -253,19 +255,6 @@ const MessageContent = (props: MessageContentProps) => {
               ? moment(message.createdTime).format("HH:mm")
               : moment(message.createdTime).format("DD/MM/YYYY HH:mm")}
           </p>
-
-          {/* {message.isPinned ? (
-            <p className="text-orange-500">
-              pinned by{" "}
-              {
-                conversations.selected?.members.find(
-                  (q) => q.contact.id === message.pinnedBy,
-                )?.contact.name
-              }
-            </p>
-          ) : (
-            ""
-          )} */}
         </div>
 
         {/* MARK: ATTACHMENT */}
@@ -332,19 +321,20 @@ const MessageContent = (props: MessageContentProps) => {
                 ref={contentRef}
                 data-expanded={isExpanded}
                 className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
-            ${
-              message.isPinned
-                ? message.contactId === info.id
-                  ? "border-r-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
-                  : "border-l-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
-                : message.contactId === info.id
-                  ? "bg-[var(--main-color)]"
-                  : "bg-[var(--bg-color-extrathin)]"
-            }            
-            !flex flex-col
-            data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none
-            data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
-            ${message.isPinned ? " pt-[1rem]" : ""}
+                  ${
+                    message.isPinned
+                      ? message.contactId === info.id
+                        ? "border-r-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
+                        : "border-l-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
+                      : message.contactId === info.id
+                        ? "bg-[var(--main-color)]"
+                        : "bg-[var(--bg-color)]"
+                  }            
+                  !flex flex-col
+                  shadow-[0_2px_10px_rgba(0,0,0,0.1)] data-[expanded=false]:line-clamp-3
+                  data-[expanded=true]:line-clamp-none data-[expanded=false]:max-h-[9rem]
+                  data-[expanded=true]:max-h-full
+                  ${message.isPinned ? " pt-[1rem]" : ""}
             `}
               >
                 {message.isPinned ? (
@@ -374,7 +364,7 @@ const MessageContent = (props: MessageContentProps) => {
               ) : (
                 ""
               )}
-              {/* MARK: Message menu */}
+              {/* MARK: MESSAGE MENU */}
               <MessageMenu
                 conversationId={id}
                 id={message.id}
@@ -385,7 +375,7 @@ const MessageContent = (props: MessageContentProps) => {
               />
             </div>
 
-            {/* MARK: Show more message */}
+            {/* MARK: SHOW MORE MESSAGE */}
             {isOverflowing && (
               <div
                 // className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"

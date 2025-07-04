@@ -61,13 +61,12 @@ const ChatboxContainer = () => {
           </div>
         </>
       ) : (
-        <div className="flex flex-col border-l-[.1rem] border-l-[var(--border-color)]">
+        <div className="flex flex-col ">
           <ChatboxHeader />
           <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[91dvh]">
             <div
               ref={refChatboxContainer}
-              className={`relative flex w-full flex-col items-center gap-[1rem] border-r-[.1rem]
-                    border-r-[var(--border-color)]
+              className={`relative flex w-full flex-col items-center gap-[1rem] 
                     ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
             >
               <Chatbox />

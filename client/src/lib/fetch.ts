@@ -44,15 +44,23 @@ axiosRetry(axios, {
   },
 });
 
+const withApiPrefix = (endpoint: string): string => {
+  const prefix = import.meta.env.VITE_API_PREFIX || "";
+  return `${prefix}${endpoint.startsWith("/") ? endpoint : "/" + endpoint}`;
+};
+
 const HttpRequest = async <TReq = undefined, TRes = undefined>(
   req: HttpRequest<TReq, TRes>,
 ) => {
   if (req.timeout !== 0) await delay(req.timeout);
 
+  const baseUrl = import.meta.env.VITE_ASPNETCORE_CHAT_URL;
+  const fullUrl = baseUrl + withApiPrefix(req.url); // 👈 tự động chèn prefix
+
   return await axios<TRes | undefined>({
     method: req.method,
     baseURL: import.meta.env.VITE_ASPNETCORE_CHAT_URL,
-    url: req.url,
+    url: fullUrl,
     data: req.data,
     headers: {
       ...{
@@ -63,14 +71,6 @@ const HttpRequest = async <TReq = undefined, TRes = undefined>(
       ...req.headers,
     },
     // signal: req.controller.signal,
-    // transformResponse: [(data) => {
-    //   try {
-    //     return JSON.parse(data);
-    //   } catch {
-    //     return data;
-    //   }
-    // }],
-    // transformResponse: (r: TRes) => r
   })
     .then((res) => {
       if (req.alert) toast.success("😎 Mission succeeded!");

@@ -129,8 +129,8 @@ const Information = () => {
     >
       {/* Container */}
       <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
-        {/* Avatar and title */}
-        <div className="flex flex-col items-center gap-[1rem]">
+        <div className="flex flex-col items-center gap-[1rem] bg-pastel-pink bg-opacity-50">
+          {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
               conversations.selected.isGroup
@@ -152,6 +152,7 @@ const Information = () => {
             // imageClassName="bg-[size:150%]"
             circle
           />
+          {/* MARK: TITLE  */}
           <div className="flex w-[70%] grow flex-col items-center justify-center phone:text-lg laptop:text-md">
             {conversations.selected.isGroup ? (
               <>
@@ -179,7 +180,7 @@ const Information = () => {
             )}
           </div>
         </div>
-        {/* Members */}
+        {/* MARK: MEMBERS  */}
         {conversations.selected?.isGroup ? (
           <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between pr-[1rem]">

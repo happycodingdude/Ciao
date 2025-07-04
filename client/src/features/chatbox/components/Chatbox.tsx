@@ -122,7 +122,10 @@ const Chatbox = () => {
   useEventListener("scroll", handleScroll, refChatContent.current);
 
   return (
-    <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden">
+    <div
+      className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden 
+    border-b-[.1rem] border-[var(--border-color)] bg-pastel-purple bg-opacity-20 pb-[1rem]"
+    >
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={scrollChatContentToBottom}
@@ -135,7 +138,7 @@ const Chatbox = () => {
       <div
         ref={refChatContent}
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
-        className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth border-b-[.1rem] border-[var(--border-color)] px-[1rem] pb-[2rem]"
+        className="hide-scrollbar flex grow flex-col gap-[3.5rem] overflow-y-scroll scroll-smooth  px-[1rem]"
       >
         {messages?.messages
           ? [...messages?.messages].map((message, index) => (
