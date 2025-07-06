@@ -124,7 +124,7 @@ const Chatbox = () => {
   return (
     <div
       className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden 
-    border-b-[.1rem] border-[var(--border-color)] bg-pastel-purple bg-opacity-20 pb-[1rem]"
+       pb-[1rem]"
     >
       <RelightBackground
         data-show={showScrollToBottom}

@@ -424,7 +424,7 @@ const ChatInput = (props: ChatInputProps) => {
   return (
     <div className={`flex w-full items-center justify-center`}>
       <div
-        className={`${className} relative flex w-full grow flex-col rounded-[.5rem] bg-[var(--bg-color-extrathin)]
+        className={`${className} relative flex w-full grow flex-col rounded-[.5rem] bg-[var(--bg-color)] shadow-[0_2px_10px_rgba(0,0,0,0.1)]
         ${
           isPhoneScreen()
             ? "max-w-[35rem]"

@@ -50,14 +50,14 @@ const SideBarMenu = (props: SideBarProps) => {
   return (
     <div
       id="sidebar-3"
-      className="sidebar-3 from-neo-purple/90 to-neo-pink/90 relative flex h-full w-full flex-col items-center bg-gradient-to-br py-[3rem]"
+      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90 to-neo-pink/90 py-[3rem]"
     >
       {/* <div className="bg-neo-blue/40 absolute -left-10 -top-10 h-40 w-40 rounded-full blur-3xl"></div>
       <div className="bg-neo-pink/40 absolute -bottom-10 -right-10 h-40 w-40 rounded-full blur-3xl"></div> */}
 
       <div className="z-10 mb-[6rem] aspect-square w-[70%]">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
-          <i className="fa-solid fa-comments text-neo-purple text-2xl"></i>
+          <i className="fa-solid fa-comments text-2xl text-neo-purple"></i>
         </div>
       </div>
 
@@ -70,14 +70,14 @@ const SideBarMenu = (props: SideBarProps) => {
           <i className="fa-solid fa-address-book text-xl"></i>
           <div className="tooltip">Contacts</div>
         </div>
-        <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
+        {/* <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
           <i className="fa-solid fa-phone text-xl"></i>
           <div className="tooltip">Calls</div>
         </div>
         <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
           <i className="fa-solid fa-file text-xl"></i>
           <div className="tooltip">Files</div>
-        </div>
+        </div> */}
         <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
           <i className="fa-solid fa-bell text-xl"></i>
           <div className="tooltip">Notifications</div>

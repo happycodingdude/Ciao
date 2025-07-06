@@ -88,7 +88,8 @@ const ListChatContainer = () => {
       ) : (
         <div
           id="chat-list-v2"
-          className="version-2 flex h-screen w-[30rem] shrink-0 flex-col rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50"
+          // className="version-2 flex h-screen w-[30rem] shrink-0 flex-col rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50"
+          className="version-2 flex h-screen w-[30rem] shrink-0 flex-col bg-pastel-pink"
         >
           <div className="p-[2rem]">
             <div className="relative mb-6">
@@ -107,7 +108,7 @@ const ListChatContainer = () => {
               </div>
             </div>
 
-            <div className="mb-6 flex gap-[1rem]">
+            <div className="flex gap-[1rem]">
               <div
                 className={`${filter === "all" ? "selected" : ""}  cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
                 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
@@ -153,7 +154,7 @@ const ListChatContainer = () => {
                   <div className="chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]">
                     <div className="flex items-center justify-between">
                       <div className="relative">
-                        <div className="animate-morph flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-400">
+                        <div className="flex h-12 w-12 animate-morph items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-400">
                           <ImageWithLightBoxAndNoLazy
                             src={
                               item.isGroup
