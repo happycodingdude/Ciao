@@ -115,6 +115,7 @@ export type CustomContentEditableProps = {
   onKeyDown?: KeyboardEventHandler<HTMLElement>;
   onKeyUp?: KeyboardEventHandler<HTMLElement>;
   className?: string;
+  isEmpty?: boolean;
 };
 
 export type OnlineStatusDotProps = {

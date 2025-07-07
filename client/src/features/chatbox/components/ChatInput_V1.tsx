@@ -8,7 +8,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import "../../../chatinput.css";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
@@ -33,9 +32,10 @@ import {
   SendMessageRequest,
   SendMessageResponse,
 } from "../types";
+import ChatboxMenu from "./ChatboxMenu";
 import ImageItem from "./ImageItem";
 
-const ChatInput = (props: ChatInputProps) => {
+const ChatInput_V1 = (props: ChatInputProps) => {
   const { className } = props;
 
   const queryClient = useQueryClient();
@@ -48,8 +48,6 @@ const ChatInput = (props: ChatInputProps) => {
   const [showMention, setShowMention] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
   const [files, setFiles] = useState<File[]>([]);
-
-  const [isEmpty, setIsEmpty] = useState<boolean>(true);
 
   const inputRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +65,7 @@ const ChatInput = (props: ChatInputProps) => {
         });
     });
 
-    // inputRef.current.focus();
+    inputRef.current.focus();
   }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace: boolean) => {
@@ -326,69 +324,43 @@ const ChatInput = (props: ChatInputProps) => {
     setFiles([]);
   };
 
-  const keydownBindingFn = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      const key = e.key;
-
-      // Nếu nội dung đang rỗng và người dùng gõ phím không phải là Backspace
-      if (isEmpty && key !== "Backspace") {
-        setIsEmpty(false);
-      }
-
-      // Enter mà không giữ Shift -> gửi tin nhắn
-      if (key === "Enter" && !e.shiftKey) {
-        e.preventDefault(); // Ngăn xuống dòng
-        chat();
-      }
-      // Nhấn @ để hiển thị Mention
-      else if (key === "@") {
-        setShowMention(true);
-      }
-      // Mọi phím khác -> ẩn Mention
-      else {
-        setShowMention(false);
-      }
-    },
-    [isEmpty, chat, setShowMention],
-  );
-
-  const keyupBindingFn = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const keydownBindingFn = (e) => {
+    if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
+      chat();
+    } else if (e.key === "@") {
+      setShowMention(true);
+    } else {
+      setShowMention(false);
+    }
+  };
 
-      const input = inputRef.current;
-      if (!input) return;
+  const keyupBindingFn = (e) => {
+    e.preventDefault();
 
-      const text = input.innerText.trim();
+    // Cái này cho element input
+    // const cursorPosition = inputRef.current.selectionStart;
 
-      // Cập nhật isEmpty nếu cần
-      if (text === "" && !isEmpty) {
-        setIsEmpty(true);
-      }
+    // Cái này cho element contenteditable
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const clonedRange = range.cloneRange();
+    clonedRange.selectNodeContents(inputRef.current);
+    clonedRange.setEnd(range.endContainer, range.endOffset);
 
-      // Lấy selection trong contentEditable
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
+    const cursorPosition = clonedRange.toString().length;
+    // Ensure the cursor is not at the start (index 0)
+    if (cursorPosition > 0) {
+      const textBeforeCursor = inputRef.current.innerText.substring(
+        0,
+        cursorPosition,
+      );
+      const charBeforeCursor = textBeforeCursor[textBeforeCursor.length - 1];
 
-      const range = selection.getRangeAt(0);
-      const clonedRange = range.cloneRange();
-      clonedRange.selectNodeContents(input);
-      clonedRange.setEnd(range.endContainer, range.endOffset);
-
-      const cursorPosition = clonedRange.toString().length;
-
-      if (cursorPosition > 0) {
-        const textBeforeCursor = input.innerText.substring(0, cursorPosition);
-        const charBeforeCursor = textBeforeCursor[textBeforeCursor.length - 1];
-
-        // Nếu trước đó là @ và vừa nhấn Ctrl + Space
-        if (charBeforeCursor === "@" && e.key === " " && e.ctrlKey) {
-          setShowMention(true);
-        }
-      }
-    },
-    [isEmpty, setIsEmpty, setShowMention],
-  );
+      if (charBeforeCursor === "@" && e.keyCode === 32 && e.ctrlKey)
+        setShowMention(true);
+    }
+  };
 
   // Event listener
   const closeMentionOnClick = useCallback((e) => {
@@ -452,7 +424,7 @@ const ChatInput = (props: ChatInputProps) => {
   return (
     <div className={`flex w-full items-center justify-center`}>
       <div
-        className={`${className} relative flex w-full grow flex-col rounded-[.5rem]
+        className={`${className} relative flex w-full grow flex-col rounded-[.5rem] bg-[var(--bg-color)] shadow-[0_2px_10px_rgba(0,0,0,0.1)]
         ${
           isPhoneScreen()
             ? "max-w-[35rem]"
@@ -507,51 +479,24 @@ const ChatInput = (props: ChatInputProps) => {
           ) : (
             ""
           )}
-
-          <div className="input-design-1 flex flex-col gap-[1rem] border border-gray-100 bg-white p-4">
-            <div className="flex items-center space-x-3">
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-regular fa-face-smile text-lg"></i>
-              </button>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-paperclip text-lg"></i>
-              </button>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-image text-lg"></i>
-              </button>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-microphone text-lg"></i>
-              </button>
-              <div className="flex-1"></div>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-at text-lg"></i>
-              </button>
-            </div>
-
-            <div className="flex items-end gap-[1rem]">
-              <div className="flex-1 self-center">
-                {/* <textarea
-                      placeholder="Type your message here..."
-                      className="w-full resize-none border-0 bg-transparent text-base leading-relaxed text-gray-800 placeholder-gray-400 focus:ring-0"
-                      rows={1}
-                    ></textarea> */}
-                <CustomContentEditable
-                  ref={inputRef}
-                  onKeyDown={keydownBindingFn}
-                  onKeyUp={keyupBindingFn}
-                  isEmpty={isEmpty}
-                />
-              </div>
-              <button className="send-btn flex aspect-square w-[3rem] items-center justify-center rounded-full bg-neo-purple text-white">
-                <i className="fa-solid fa-paper-plane text-base"></i>
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>Press Enter to send, Shift+Enter for new line</span>
-              <span className="rounded-full bg-gray-100 px-2 py-1">0/2000</span>
-            </div>
-          </div>
+          {/* Menu */}
+          <ChatboxMenu
+            chooseFile={chooseFile}
+            className={`absolute left-[1rem] ${files?.length !== 0 ? "top-[1rem]" : "top-[.6rem]"}`}
+          />
+          {/* Text input */}
+          <CustomContentEditable
+            ref={inputRef}
+            onKeyDown={keydownBindingFn}
+            onKeyUp={keyupBindingFn}
+            className="px-[4rem]"
+          />
+          {/* Emoji select */}
+          <label
+            className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1rem]" : "top-[.6rem]"} 
+          cursor-pointer text-md font-normal`}
+            onClick={() => setShowEmoji(true)}
+          ></label>
         </div>
         {showEmoji && (
           <div className="absolute bottom-[3rem] right-0">
@@ -572,4 +517,4 @@ const ChatInput = (props: ChatInputProps) => {
   );
 };
 
-export default ChatInput;
+export default ChatInput_V1;

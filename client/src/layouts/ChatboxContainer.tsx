@@ -64,7 +64,7 @@ const ChatboxContainer = () => {
         <div className="flex h-full flex-col">
           <ChatboxHeader />
           <div className="flex w-full grow bg-pastel-purple bg-opacity-20">
-            <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[91dvh]">
+            <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[92dvh]">
               {/* <div className="flex w-full bg-pastel-purple bg-opacity-20 laptop:h-[89dvh] laptop-md:h-full"> */}
               <div
                 ref={refChatboxContainer}
