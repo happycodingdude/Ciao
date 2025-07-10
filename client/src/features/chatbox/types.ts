@@ -1,4 +1,4 @@
-import { ChangeEventHandler } from "react";
+import { ChangeEventHandler, MutableRefObject } from "react";
 import { OnCloseType } from "../../types";
 import {
   AttachmentModel,
@@ -50,6 +50,8 @@ export type MessageContentProps = {
   message: PendingMessageModel;
   id: string;
   mt: boolean;
+  refContainer?: MutableRefObject<HTMLDivElement>;
+  getContainerRect?: () => DOMRect;
 };
 
 export type MessageMenuProps = {
@@ -58,7 +60,9 @@ export type MessageMenuProps = {
   message?: string;
   mine: boolean;
   pinned: boolean;
-  dropUp?: boolean;
+  // dropUp?: boolean;
+  getContainerRect?: () => DOMRect;
+  getContentRect?: () => DOMRect;
 };
 
 export type PinMessageRequest = {

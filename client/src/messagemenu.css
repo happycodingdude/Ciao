@@ -1,0 +1,75 @@
+/* .message-menu-container {
+  position: absolute;
+  top: -5rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 15rem;
+  border-radius: 0.7rem;
+  background-color: var(--bg-color-thin);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  color: var(--text-main-color);
+  transition: all 200ms;
+}
+
+.message-menu-container[data-show="false"] {
+  pointer-events: none;
+  transform: scale(0);
+}
+
+.message-menu-container[data-show="true"] {
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.message-menu-container.above {
+  top: -8rem;
+}
+
+.message-menu-container.under {
+  top: -3rem;
+} */
+
+.message-menu-container {
+  position: absolute;
+  transform: scale(0);
+  /* transform-origin: top; */
+  transition: transform 0.2s ease;
+  pointer-events: none;
+  display: block;
+  border-radius: 0.7rem;
+  background-color: var(--bg-color-thin);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.message-menu-container[data-show="true"] {
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.message-menu-container.above {
+  /* bottom: 100%;
+  top: auto; */
+  top: -8rem;
+  /* transform-origin: bottom; */
+}
+
+.message-menu-container.below {
+  /* top: 100%;
+  bottom: auto; */
+  top: -3rem;
+  /* transform-origin: top; */
+}
+
+.message-menu-item {
+  display: flex;
+  cursor: pointer;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.message-menu-item:hover {
+  background-color: var(--bg-color-medium);
+}

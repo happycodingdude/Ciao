@@ -181,16 +181,22 @@ const MessageContent = (props: MessageContentProps) => {
     // });
   };
 
+  const refMenu = useRef<HTMLDivElement>(null);
   const [dropUp, setDropUp] = useState(false);
-  useEffect(() => {
-    if (!messageRef.current) return;
+  // useEffect(() => {
+  //   if (!messageRef.current) return;
 
-    const rect = messageRef.current.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
+  //   const menuRect = refMenu.current?.getBoundingClientRect();
+  //   const chatRect = props.containerRef.current?.getBoundingClientRect();
 
-    // Nếu không đủ khoảng cách phía dưới (ví dụ < 150px), bật drop-up
-    setDropUp(spaceBelow < 100);
-  });
+  //   // Nếu menu vượt qua đáy chat box
+  //   if (menuRect.bottom > chatRect.bottom) {
+  //     setDropUp(true); // Điều chỉnh theo thực tế layout của bạn
+  //   }
+
+  //   // Nếu không đủ khoảng cách phía dưới (ví dụ < 200px), bật drop-up
+  //   // setDropUp(spaceBelow < 500);
+  // });
 
   return (
     <div
@@ -371,7 +377,10 @@ const MessageContent = (props: MessageContentProps) => {
                 message={message.content}
                 mine={message.contactId === info.id}
                 pinned={message.isPinned}
-                dropUp={dropUp}
+                getContainerRect={props.getContainerRect}
+                getContentRect={() =>
+                  contentRef.current?.getBoundingClientRect()
+                }
               />
             </div>
 

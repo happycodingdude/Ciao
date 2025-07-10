@@ -452,16 +452,24 @@ body,
   }
 
   /* MARK: MESSAGE MENU  */
-  .message-menu-container {
-    @apply absolute z-[10] flex
-        w-[15rem] flex-col rounded-[.7rem] bg-[var(--bg-color-extrathin)]
+  /* .message-menu-container {
+    @apply absolute top-[-5rem] z-[10] flex
+        w-[15rem] flex-col rounded-[.7rem] bg-[var(--bg-color-thin)]
         py-[1rem] text-[var(--text-main-color)] transition-all duration-200
         data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100;
   }
 
-  .message-menu-item {
-    @apply flex cursor-pointer gap-[.5rem] p-[1rem] hover:bg-[var(--bg-color-thin)];
+  .message-menu-container .above {
+    @apply top-[-8rem];
   }
+
+  .message-menu-container .under {
+    @apply top-[-3rem];
+  }
+
+  .message-menu-item {
+    @apply flex cursor-pointer gap-[.5rem] p-[1rem] hover:bg-[var(--bg-color-medium)];
+  } */
 
   .listchat-filter-container {
     @apply flex h-[6rem] items-center justify-between border-b-[.2rem] border-b-[var(--border-color)];

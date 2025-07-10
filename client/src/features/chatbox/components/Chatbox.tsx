@@ -146,6 +146,9 @@ const Chatbox = () => {
                 message={message}
                 id={conversations.selected.id}
                 mt={index === 0}
+                getContainerRect={() =>
+                  refChatContent.current?.getBoundingClientRect()
+                }
               />
             ))
           : ""}
