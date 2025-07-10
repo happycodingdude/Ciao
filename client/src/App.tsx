@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
 import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import LoadingProvider from "./context/LoadingContext";
 import { SignalProvider } from "./context/SignalContext";
@@ -27,7 +29,7 @@ function App() {
   // if (typeof setImmediate === "undefined") {
   //   window.setImmediate = (fn) => setTimeout(fn, 0);
   //   window.clearImmediate = window.clearTimeout;
-  // }
+  // }import 'react-toastify/dist/ReactToastify.css';
   if (typeof window.setImmediate === "undefined") {
     (window as any).setImmediate = (fn: () => void, ...args: any[]) =>
       setTimeout(fn, 0, ...args);
@@ -40,23 +42,36 @@ function App() {
   }, []);
 
   return (
-    <LoadingProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth" element={<AuthenticationContainer />}></Route>
-          <Route element={<ProtectedRoute />}>
-            <Route
-              path="/"
-              element={
-                <SignalProvider>
-                  <Home />
-                </SignalProvider>
-              }
-            ></Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </LoadingProvider>
+    <>
+      <LoadingProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<AuthenticationContainer />}></Route>
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/"
+                element={
+                  <SignalProvider>
+                    <Home />
+                  </SignalProvider>
+                }
+              ></Route>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </LoadingProvider>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+    </>
   );
 }
 

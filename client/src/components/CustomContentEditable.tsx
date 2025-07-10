@@ -1,4 +1,9 @@
-import React, { forwardRef, MutableRefObject } from "react";
+import React, {
+  ClipboardEvent,
+  forwardRef,
+  MutableRefObject,
+  useCallback,
+} from "react";
 import { CustomContentEditableProps } from "../types";
 
 const CustomContentEditable = forwardRef(
@@ -7,53 +12,49 @@ const CustomContentEditable = forwardRef(
     ref: MutableRefObject<HTMLDivElement>,
   ) => {
     const { onKeyDown, onKeyUp, className } = props;
-    // const localRef = useRef<HTMLDivElement>(null);
-    // const [isEmpty, setIsEmpty] = useState(true);
 
-    // const checkEmpty = useCallback(() => {
-    //   const text = localRef.current?.innerText.trim() ?? "";
-    //   setIsEmpty(text === "");
-    // }, []);
+    const handleInput = useCallback(() => {
+      const el = ref.current;
+      if (!el) return;
 
-    // useEffect(() => {
-    //   checkEmpty();
-    // }, [checkEmpty]);
+      const isEmpty =
+        el.innerText.trim() === "" ||
+        el.innerHTML === "<br>" ||
+        el.innerHTML === "<div><br></div>";
 
-    // // Gán ref từ cha vào localRef
-    // useEffect(() => {
-    //   if (!ref) return;
-    //   ref.current = localRef.current;
-    // }, [ref]);
+      if (isEmpty) {
+        el.innerHTML = ""; // Dọn sạch
+      }
+    }, []);
+
+    const handlePaste = useCallback((e: ClipboardEvent<HTMLDivElement>) => {
+      e.preventDefault(); // Ngăn trình duyệt dán HTML
+
+      const text = e.clipboardData.getData("text/plain");
+
+      // Chèn text vào đúng vị trí caret
+      const selection = window.getSelection();
+      if (!selection?.rangeCount) return;
+
+      selection.deleteFromDocument();
+      selection.getRangeAt(0).insertNode(document.createTextNode(text));
+
+      // Di chuyển caret đến sau đoạn dán
+      selection.collapseToEnd();
+    }, []);
 
     return (
       <div
         ref={ref}
         contentEditable={true}
-        // data-text="Type something.."
-        // aria-placeholder="Type something.."
-        className={`${className ?? ""} hide-scrollbar relative w-full resize-none overflow-y-auto break-all 
+        data-placeholder="Type your message here..."
+        className={`${className ?? ""} editor hide-scrollbar relative min-h-[2rem] w-full resize-none overflow-y-auto break-all 
         outline-none phone:max-h-[10rem] laptop:max-h-[7rem] laptop-lg:max-h-[10rem]`}
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}
-        // onKeyDown={(e) => {
-        //   onKeyDown?.(e);
-        //   setTimeout(checkEmpty, 0);
-        // }}
-        // onKeyUp={(e) => {
-        //   onKeyUp?.(e);
-        //   setTimeout(checkEmpty, 0);
-        // }}
-        // onInput={checkEmpty}
-      >
-        {props.isEmpty && (
-          <span className="pointer-events-none absolute text-gray-400">
-            Type your message here...
-          </span>
-        )}
-        {/* <span className="pointer-events-none absolute left-2 text-gray-400">
-          Type your message here...
-        </span> */}
-      </div>
+        onInput={handleInput}
+        onPaste={handlePaste}
+      ></div>
     );
   },
 );

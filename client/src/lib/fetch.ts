@@ -8,8 +8,11 @@ import delay from "../utils/delay";
 axiosRetry(axios, {
   retries: 1,
   retryCondition: (error) => {
+    const baseUrl = import.meta.env.VITE_ASPNETCORE_CHAT_URL;
+    const fullRefreshUrl =
+      baseUrl + withApiPrefix(import.meta.env.VITE_ENDPOINT_REFRESH); // 👈 tự động chèn prefix
     if (
-      error.config.url !== import.meta.env.VITE_ENDPOINT_REFRESH &&
+      error.config.url !== fullRefreshUrl &&
       error.response?.status === 401 &&
       localStorage.getItem("refreshToken")
     ) {

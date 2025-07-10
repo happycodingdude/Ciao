@@ -68,6 +68,7 @@ const ChatInput = (props: ChatInputProps) => {
     });
 
     // inputRef.current.focus();
+    inputRef.current.innerText = "";
   }, [conversations?.selected]);
 
   const setCaretToEnd = (addSpace: boolean) => {
@@ -509,16 +510,30 @@ const ChatInput = (props: ChatInputProps) => {
           )}
 
           <div className="input-design-1 flex flex-col gap-[1rem] border border-gray-100 bg-white p-4">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-[1rem]">
               <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-regular fa-face-smile text-lg"></i>
               </button>
               <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-paperclip text-lg"></i>
               </button>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-image text-lg"></i>
-              </button>
+              <div className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+                <input
+                  multiple
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="choose-image"
+                  onChange={chooseFile}
+                ></input>
+                <label
+                  htmlFor="choose-image"
+                  className="flex w-full cursor-pointer items-center justify-center"
+                >
+                  <i className="fa-solid fa-image text-lg"></i>
+                </label>
+                {/* <i className="fa-solid fa-image text-lg"></i> */}
+              </div>
               <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-microphone text-lg"></i>
               </button>
