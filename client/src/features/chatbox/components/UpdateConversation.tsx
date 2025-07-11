@@ -92,6 +92,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
           className="aspect-square w-[5rem] cursor-pointer rounded-[1rem]"
+          local
         />
         <MediaPicker
           className="absolute left-[6rem] top-[-1.5rem]"
@@ -112,9 +113,6 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         padding="py-[.3rem]"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
         gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
-        // rounded={`${isPhoneScreen() ? "3rem" : "3rem"}`}
-        // gradientWidth="110%"
-        // gradientHeight="120%"
         rounded="3rem"
         title="Save"
         onClick={updateConversationCTA}

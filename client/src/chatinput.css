@@ -1,10 +1,10 @@
-.input-design-1 {
+.chat-input-container {
   border-radius: 24px;
   box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
   transition: all 0.3s ease;
 }
 
-.input-design-1:focus-within {
+.chat-input-container:focus-within {
   box-shadow: 0 8px 30px rgba(147, 51, 234, 0.2);
   transform: translateY(-2px);
 }

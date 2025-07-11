@@ -18,16 +18,14 @@ const CustomButton = (props: CustomButtonProps) => {
   };
   return (
     <div
-      className={`${className} relative z-0 mx-auto ${width ? `w-[${width}rem]` : "w-full"}`}
+      // className={`${className} relative z-0 mx-auto ${width ? `w-[${width}rem]` : "w-full"}`}
+      className={`${className} relative z-0 mx-auto`}
+      style={{ width: width ? `${width}rem` : "100%" }}
     >
       <div
         data-process={processing}
         style={
           {
-            // Default width and height for auth page
-            // "--width": `${gradientWidth ?? "102%"}`,
-            // "--height": `${gradientHeight ?? "117%"}`,
-            // "--rounded": `${rounded ?? "3rem"}`,
             "--width": `${gradientWidth}`,
             "--height": `${gradientHeight}`,
             "--rounded": `${rounded}`,
@@ -39,7 +37,6 @@ const CustomButton = (props: CustomButtonProps) => {
           e.stopPropagation(); // Prevent bubbling to parent
           handleClick();
         }}
-        // onClick={handleClick}
       >
         {processing ? (
           <div
@@ -49,7 +46,6 @@ const CustomButton = (props: CustomButtonProps) => {
           <span className={`leading-[2rem] ${padding ?? "py-[1rem]"}`}>
             {title}
           </span>
-          // <span className={``}>{title}</span>
         )}
       </div>
     </div>

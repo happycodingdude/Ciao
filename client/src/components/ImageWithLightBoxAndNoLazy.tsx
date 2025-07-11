@@ -19,7 +19,7 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = () => setShowLightbox(true);
 
-  const [isValid, setIsValid] = useState<boolean | null>(null);
+  const [isValid, setIsValid] = useState<boolean | null>(true);
   // useEffect(() => {
   //   if (local) {
   //     setIsValid(true);

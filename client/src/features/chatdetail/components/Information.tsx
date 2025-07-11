@@ -259,7 +259,8 @@ const Information = () => {
                   </div>
                 ))}
             </div>
-            {/* Profile quick chat */}
+
+            {/* MARK: PROFILE QUICK CHAT  */}
             <QuickChat
               profile={chosenProfile}
               rect={quickChatRect}
@@ -270,6 +271,7 @@ const Information = () => {
         ) : (
           ""
         )}
+        {/* MARK: ATTACHMENTS  */}
         {displayAttachments.length !== 0 ? (
           <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between">

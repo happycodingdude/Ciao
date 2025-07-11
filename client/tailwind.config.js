@@ -96,6 +96,13 @@ export default {
           teal: "#CCFBF1",
           indigo: "#E0E7FF",
         },
+        chat: {
+          bg: "#FDF4F9",
+          pink: "#FBE9F2",
+          purple: "#A374DB",
+          accent: "#8C52FF",
+          gray: "#EEEEEE",
+        },
       },
       backgroundImage: () => ({
         "gradient-radial-to-tr":

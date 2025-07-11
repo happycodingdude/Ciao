@@ -405,16 +405,16 @@ const ChatInput = (props: ChatInputProps) => {
   }, []);
   useEventListener("keydown", hideMentionOnKey);
 
-  const closeEmojiOnClick = useCallback((e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const classList = Array.from(target.classList);
-    if (
-      target.closest(".emoji-item") ||
-      classList.some((item) => item.includes("epr"))
-    )
-      return;
-    setShowEmoji(false);
-  }, []);
+  // const closeEmojiOnClick = useCallback((e: MouseEvent) => {
+  //   const target = e.target as HTMLElement;
+  //   const classList = Array.from(target.classList);
+  //   if (
+  //     target.closest(".emoji-item") ||
+  //     classList.some((item) => item.includes("epr"))
+  //   )
+  //     return;
+  //   setShowEmoji(false);
+  // }, []);
   // useEventListener("click", closeEmojiOnClick);
 
   const closeEmojiOnKey = useCallback((e: KeyboardEvent) => {
@@ -438,10 +438,8 @@ const ChatInput = (props: ChatInputProps) => {
   };
 
   const removeFile = useCallback(
-    (e) => {
-      setFiles((current) =>
-        current.filter((item) => item.name !== e.target.dataset.key),
-      );
+    (fileName: string) => {
+      setFiles((current) => current.filter((item) => item.name !== fileName));
     },
     [files],
   );
@@ -450,10 +448,15 @@ const ChatInput = (props: ChatInputProps) => {
     if (files?.length !== 0) setCaretToEnd(false);
   }, [files]);
 
+  useEffect(() => {
+    console.log("showEmoji changed:", showEmoji);
+  }, [showEmoji]);
+
   return (
-    <div className={`flex w-full items-center justify-center`}>
+    <div className={`mb-[2rem] flex w-full items-center justify-center`}>
       <div
-        className={`${className} relative flex w-full grow flex-col rounded-[.5rem]
+        className={`${className} chat-input-container relative flex w-full grow flex-col bg-white
+        transition-all duration-200
         ${
           isPhoneScreen()
             ? "max-w-[35rem]"
@@ -463,10 +466,11 @@ const ChatInput = (props: ChatInputProps) => {
         }  
         `}
       >
-        {/* File */}
+        {/* MARK: FILES */}
         {files?.length !== 0 ? (
           <div
-            className={`file-container custom-scrollbar flex  w-full gap-[1rem] overflow-x-scroll scroll-smooth p-[.7rem]`}
+            id="file-preview-4"
+            className="custom-scrollbar flex gap-[2rem] overflow-x-auto rounded-2xl p-[1.5rem]"
           >
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />
@@ -475,10 +479,12 @@ const ChatInput = (props: ChatInputProps) => {
         ) : (
           ""
         )}
+
         <div
-          className={`mention-item relative w-full ${files?.length !== 0 ? "py-3" : "py-2"}`}
+          // className={`mention-item relative w-full ${files?.length !== 0 ? "py-3" : "py-2"}`}
+          className={`mention-item relative w-full`}
         >
-          {/* Mention */}
+          {/* MARK: MENTION */}
           {conversations?.selected?.isGroup ? (
             <div
               data-show={showMention}
@@ -509,11 +515,15 @@ const ChatInput = (props: ChatInputProps) => {
             ""
           )}
 
-          <div className="input-design-1 flex flex-col gap-[1rem] border border-gray-100 bg-white p-4">
+          {/* MARK: MENU */}
+          <div className="flex flex-col gap-[1rem] p-4">
             <div className="flex items-center gap-[1rem]">
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-regular fa-face-smile text-lg"></i>
-              </button>
+              <label
+                className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square w-[2rem] cursor-pointer items-center justify-center rounded-full bg-gray-100 text-lg text-gray-500 hover:bg-gray-100 hover:text-neo-purple"
+                onClick={() => setShowEmoji(true)}
+              >
+                {/* <i className="fa-regular fa-face-smile text-lg"></i> */}
+              </label>
               <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-paperclip text-lg"></i>
               </button>
@@ -543,6 +553,7 @@ const ChatInput = (props: ChatInputProps) => {
               </button>
             </div>
 
+            {/* MARK: TEXT INPUT */}
             <div className="flex items-end gap-[1rem]">
               <div className="flex-1 self-center">
                 {/* <textarea
@@ -568,8 +579,9 @@ const ChatInput = (props: ChatInputProps) => {
             </div>
           </div>
         </div>
+        {/* MARK: EMOJI */}
         {showEmoji && (
-          <div className="absolute bottom-[3rem] right-0">
+          <div className="absolute -top-[44rem] left-0">
             <Picker
               data={appleEmojisData}
               set="apple"

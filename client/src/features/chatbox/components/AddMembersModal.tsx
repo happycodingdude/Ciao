@@ -199,6 +199,7 @@ const AddMembersModal = (props: OnCloseType) => {
                       },
                     ]}
                     onClick={() => {}}
+                    local
                   />
                   <div>
                     <CustomLabel title={item.name} />
