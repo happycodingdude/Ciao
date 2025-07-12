@@ -1,0 +1,16 @@
+.message-bubble {
+  transition: all 0.3s ease;
+}
+
+.message-bubble:hover {
+  transform: translateY(-1px);
+}
+
+.image-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 40%);
+}
+
+.mosaic-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}

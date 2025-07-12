@@ -190,7 +190,8 @@ const ListchatContent = () => {
             <div className={`flex h-full w-1/2 grow flex-col gap-[.5rem]`}>
               {/* MARK: CONVERSATION TITLE */}
               <CustomLabel
-                className={`${item.id === data.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} font-semibold`}
+                className={`${item.id === data.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                font-['Be_Vietnam_Pro'] font-semibold`}
                 title={
                   item.isGroup
                     ? item.title

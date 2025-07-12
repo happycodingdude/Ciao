@@ -7,28 +7,29 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.version-1 .chat-item:hover {
+/* .chat-item:hover {
   transform: translateX(8px);
   background: linear-gradient(
     135deg,
     rgba(139, 92, 246, 0.1),
     rgba(236, 72, 153, 0.1)
   );
-}
+} */
 
-.version-2 .chat-item:hover {
+.chat-item:hover,
+.chat-item.active {
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
 }
 
-.version-3 .chat-item:hover {
+/* .chat-item:hover {
   background: linear-gradient(
     45deg,
     rgba(139, 92, 246, 0.15),
     rgba(236, 72, 153, 0.15)
   );
   border-left: 4px solid #8b5cf6;
-}
+} */
 
 .version-4 .chat-item:hover {
   background: rgba(139, 92, 246, 0.1);

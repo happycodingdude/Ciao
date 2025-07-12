@@ -54,7 +54,7 @@ const MessageMenu = (props: MessageMenuProps) => {
       .writeText(message)
       .then(() => {
         toast.success("Message copied to clipboard");
-        console.log("Message copied to clipboard");
+        // console.log("Message copied to clipboard");
       })
       .catch((err) => {
         console.error("Failed to copy message: ", err);

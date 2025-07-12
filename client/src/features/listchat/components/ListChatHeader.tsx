@@ -8,13 +8,14 @@ const ListChatHeader = () => {
   const { search, setSearch } = useListchatFilter();
 
   return (
-    <div className="flex h-[6rem] shrink-0 items-center gap-[1rem] px-[1rem]">
+    <div className="flex h-[5rem] shrink-0 items-center gap-[1rem]">
       <div className="relative flex h-[60%] w-[70%] grow items-center">
         <input
           value={search}
           type="text"
           placeholder="Find and chat"
-          className="h-full w-full rounded-[.5rem] bg-[var(--bg-color-extrathin)] pl-[1rem] pr-[3rem] placeholder:text-[var(--text-main-color-light)] focus:outline-none"
+          className="h-full w-full rounded-3xl bg-white py-[1.7rem] pl-[1rem] pr-[3rem] shadow-sm 
+          focus:shadow-lg focus:outline-none"
           onChange={(e) => setSearch(e.target.value)}
         ></input>
         <CloseOutlined

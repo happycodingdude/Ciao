@@ -4,6 +4,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
+import "../../../messagecontent.css";
 import { MessageReactionProps_Message_Reaction } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -245,7 +246,7 @@ const MessageContent = (props: MessageContentProps) => {
           {message.contactId === info.id ? (
             ""
           ) : (
-            <p className="font-bold">
+            <p className="font-['Be_Vietnam_Pro'] font-semibold">
               {
                 conversations.selected?.members.find(
                   (q) => q.contact.id === message.contactId,
@@ -264,7 +265,7 @@ const MessageContent = (props: MessageContentProps) => {
         </div>
 
         {/* MARK: ATTACHMENT */}
-        {message.attachments && message.attachments.length !== 0 ? (
+        {/* {message.attachments && message.attachments.length !== 0 ? (
           message.attachments?.length <= 2 ? (
             <div
               className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
@@ -317,12 +318,65 @@ const MessageContent = (props: MessageContentProps) => {
           )
         ) : (
           ""
+        )} */}
+
+        {message.attachments && message.attachments.length !== 0 ? (
+          <div className="relative">
+            <div className="grid grid-cols-4 gap-2">
+              {message.attachments?.slice(0, 5).map((src, index) => {
+                const isFirst = index === 0;
+                const isLast =
+                  index === 5 - 1 && message.attachments?.length > 5;
+
+                return (
+                  <div
+                    key={index}
+                    className={isFirst ? "col-span-2 row-span-2" : ""}
+                  >
+                    <div className="relative aspect-square w-full">
+                      {/* <img
+                      src={src.mediaUrl}
+                      className="h-full w-full rounded-xl object-cover"
+                      alt={`Image ${index + 1}`}
+                    /> */}
+                      <ImageWithLightBoxAndNoLazy
+                        key={index}
+                        src={src.mediaUrl}
+                        title={src.mediaName?.split(".")[0]}
+                        className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-[10rem]"}`}
+                        slides={message.attachments.map((item) => ({
+                          src: item.type === "image" ? item.mediaUrl : "",
+                        }))}
+                        index={index}
+                        pending={src.pending}
+                        local={src.local}
+                      />
+                      {isLast && (
+                        <div className="mosaic-overlay pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-white">
+                              +{message.attachments?.length - 5}
+                            </div>
+                            <div className="text-xs text-white opacity-80">
+                              more photos
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          ""
         )}
 
         {/* MARK: CONTENT */}
         {message.content ? (
           <>
-            <div className="relative">
+            <div className="relative flex flex-col">
               <div
                 ref={contentRef}
                 data-expanded={isExpanded}
@@ -336,10 +390,11 @@ const MessageContent = (props: MessageContentProps) => {
                         ? "bg-[var(--main-color)]"
                         : "bg-[var(--bg-color)]"
                   }            
-                  !flex flex-col
+                  !flex w-fit
+                  flex-col self-end
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] data-[expanded=false]:line-clamp-3
-                  data-[expanded=true]:line-clamp-none data-[expanded=false]:max-h-[9rem]
-                  data-[expanded=true]:max-h-full
+                  data-[expanded=true]:line-clamp-none
+                  data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
                   ${message.isPinned ? " pt-[1rem]" : ""}
             `}
               >

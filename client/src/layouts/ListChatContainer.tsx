@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useState } from "react";
+import moment from "moment";
+import React from "react";
 import { flushSync } from "react-dom";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
@@ -11,20 +12,40 @@ import getAttachments from "../features/chatdetail/services/getAttachments";
 import AddFriend from "../features/friend/components/AddFriend";
 import CreateGroupChat from "../features/groupchat/components/CreateGroupChat";
 import ListChat from "../features/listchat/components/ListChat";
+import ListChatHeader from "../features/listchat/components/ListChatHeader";
 import ListChatHeader_Mobile from "../features/listchat/components/ListChatHeader_Mobile";
 import useConversation from "../features/listchat/hooks/useConversation";
+import useListchatFilter from "../features/listchat/hooks/useListchatFilter";
 import { ConversationCache } from "../features/listchat/types";
 import useLoading from "../hooks/useLoading";
 import "../listchat.css";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
+moment.updateLocale("en", {
+  relativeTime: {
+    future: "in %s",
+    past: "%s",
+    s: "1m",
+    ss: "1m",
+    m: "1m",
+    mm: "%dm",
+    h: "1h",
+    hh: "%dh",
+    d: "1d",
+    dd: "%dd",
+    M: "1M",
+    MM: "%dM",
+    y: "1Y",
+    yy: "%dY",
+  },
+});
+
 const ListChatContainer = () => {
-  // console.log("ListChatContainer calling");
-  // const { value, setValue } = useListchatToggle();
   const { data: conversations, isLoading, isRefetching } = useConversation();
   const { data: info } = useInfo();
 
-  const [filter, setFilter] = useState<"all" | "direct" | "group">("all");
+  // const [filter, setFilter] = useState<"all" | "direct" | "group">("all");
+  const { filter, setFilter } = useListchatFilter();
 
   const queryClient = useQueryClient();
   const { setLoading } = useLoading();
@@ -89,23 +110,24 @@ const ListChatContainer = () => {
         <div
           id="chat-list-v2"
           // className="version-2 flex h-screen w-[30rem] shrink-0 flex-col rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50"
-          className="version-2 flex h-screen w-[30rem] shrink-0 flex-col bg-pastel-pink"
+          className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] bg-pastel-pink"
         >
-          <div className="p-[2rem]">
-            <div className="relative mb-6">
-              <input
+          <div className="flex flex-col gap-[1.5rem] px-[2rem] pt-[1rem]">
+            <div className="relative">
+              {/* <input
                 type="text"
                 placeholder="Find and chat"
                 className="w-full rounded-3xl bg-white px-4 py-3 pr-20 shadow-sm focus:shadow-lg focus:outline-none"
-              />
-              <div className="absolute right-3 top-1/2 flex -translate-y-1/2 transform space-x-2">
+              /> */}
+              {/* <div className="absolute right-3 top-1/2 flex -translate-y-1/2 transform space-x-2">
                 <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200">
                   <i className="fa-solid fa-filter text-xs text-purple-600"></i>
                 </div>
                 <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200">
                   <i className="fa-solid fa-gear text-xs text-purple-600"></i>
                 </div>
-              </div>
+              </div> */}
+              <ListChatHeader />
             </div>
 
             <div className="flex gap-[1rem]">
@@ -150,44 +172,46 @@ const ListChatContainer = () => {
                   onClick={() => {
                     clickConversation(item.id);
                   }}
+                  className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
+                    ${item.id === conversations.selected?.id ? "active" : ""}`}
                 >
-                  <div className="chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]">
-                    <div className="flex items-center justify-between">
-                      <div className="relative">
-                        <div className="flex h-12 w-12 animate-morph items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-400">
-                          <ImageWithLightBoxAndNoLazy
-                            src={
-                              item.isGroup
-                                ? item.avatar
-                                : item.members.find(
-                                    (item) => item.contact.id !== info.id,
-                                  )?.contact.avatar
-                            }
-                            className={`loaded pointer-events-none aspect-square w-[2rem]`}
-                            circle
-                          />
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 h-4 w-4 animate-pulse rounded-full border-2 border-white bg-green-400"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="relative">
+                      <ImageWithLightBoxAndNoLazy
+                        src={
+                          item.isGroup
+                            ? item.avatar
+                            : item.members.find(
+                                (item) => item.contact.id !== info.id,
+                              )?.contact.avatar
+                        }
+                        className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
+                        circle
+                      />
+                      <div className="absolute -bottom-1 -right-1 h-4 w-4 animate-pulse rounded-full border-2 border-white bg-green-400"></div>
+                    </div>
+                    <div className="w-[77%]">
+                      <div className="flex gap-[1rem]">
+                        <CustomLabel
+                          className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                          font-['Be_Vietnam_Pro'] font-semibold`}
+                          title={
+                            item.isGroup
+                              ? item.title
+                              : item.members.find(
+                                  (item) => item.contact.id !== info.id,
+                                )?.contact.name
+                          }
+                        />
+                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">
+                          {item.lastMessageTime === null
+                            ? ""
+                            : moment(item.lastMessageTime).fromNow()}
+                        </span>
                       </div>
-                      <div className="w-[80%]">
-                        <div className="flex items-start justify-between">
-                          <CustomLabel
-                            className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} font-semibold`}
-                            title={
-                              item.isGroup
-                                ? item.title
-                                : item.members.find(
-                                    (item) => item.contact.id !== info.id,
-                                  )?.contact.name
-                            }
-                          />
-                          <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">
-                            2m
-                          </span>
-                        </div>
-                        <p className="mt-1 truncate text-sm text-gray-600">
-                          <CustomLabel
-                            className={`
+                      <p className="mt-1 truncate text-sm text-gray-600">
+                        <CustomLabel
+                          className={`
                               ${
                                 item.id === conversations.selected?.id
                                   ? "text-[var(--text-sub-color-thin)]"
@@ -195,10 +219,9 @@ const ListChatContainer = () => {
                                     ? "text-[var(--danger-text-color)]"
                                     : "text-[var(--text-main-color-blur)]"
                               }`}
-                            title={item.lastMessage}
-                          />
-                        </p>
-                      </div>
+                          title={item.lastMessage}
+                        />
+                      </p>
                     </div>
                   </div>
                 </div>

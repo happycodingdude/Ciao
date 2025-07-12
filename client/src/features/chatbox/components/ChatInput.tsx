@@ -448,10 +448,6 @@ const ChatInput = (props: ChatInputProps) => {
     if (files?.length !== 0) setCaretToEnd(false);
   }, [files]);
 
-  useEffect(() => {
-    console.log("showEmoji changed:", showEmoji);
-  }, [showEmoji]);
-
   return (
     <div className={`mb-[2rem] flex w-full items-center justify-center`}>
       <div
@@ -470,7 +466,7 @@ const ChatInput = (props: ChatInputProps) => {
         {files?.length !== 0 ? (
           <div
             id="file-preview-4"
-            className="custom-scrollbar flex gap-[2rem] overflow-x-auto rounded-2xl p-[1.5rem]"
+            className="custom-scrollbar flex gap-[1rem] overflow-x-auto rounded-2xl p-[1.5rem]"
           >
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />
@@ -521,12 +517,24 @@ const ChatInput = (props: ChatInputProps) => {
               <label
                 className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square w-[2rem] cursor-pointer items-center justify-center rounded-full bg-gray-100 text-lg text-gray-500 hover:bg-gray-100 hover:text-neo-purple"
                 onClick={() => setShowEmoji(true)}
-              >
-                {/* <i className="fa-regular fa-face-smile text-lg"></i> */}
-              </label>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-paperclip text-lg"></i>
-              </button>
+              ></label>
+
+              <div className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+                <input
+                  multiple
+                  type="file"
+                  accept=".doc,.docx,.xls,.xlsx,.pdf"
+                  className="hidden"
+                  id="choose-file"
+                  onChange={chooseFile}
+                ></input>
+                <label
+                  htmlFor="choose-file"
+                  className="flex w-full cursor-pointer items-center justify-center"
+                >
+                  <i className="fa-solid fa-paperclip text-lg"></i>
+                </label>
+              </div>
               <div className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <input
                   multiple
@@ -542,7 +550,6 @@ const ChatInput = (props: ChatInputProps) => {
                 >
                   <i className="fa-solid fa-image text-lg"></i>
                 </label>
-                {/* <i className="fa-solid fa-image text-lg"></i> */}
               </div>
               <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-microphone text-lg"></i>

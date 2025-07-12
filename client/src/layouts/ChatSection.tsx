@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import LocalLoading from "../components/LocalLoading";
 import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
+import ListchatFilterProvider from "../context/ListchatFilterContext";
 import useConversation from "../features/listchat/hooks/useConversation";
 import useLoading from "../hooks/useLoading";
 import { isPhoneScreen } from "../utils/getScreenSize";
@@ -15,7 +16,9 @@ const ChatSection = () => {
     <section className={`relative flex grow overflow-hidden`}>
       <ChatDetailTogglesProvider>
         <Suspense>
-          <ListChatContainer />
+          <ListchatFilterProvider>
+            <ListChatContainer />
+          </ListchatFilterProvider>
         </Suspense>
         <div className="relative h-full w-full">
           {loading && !isPhoneScreen() ? (
