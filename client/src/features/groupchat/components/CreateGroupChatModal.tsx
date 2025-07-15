@@ -1,6 +1,7 @@
+import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
@@ -30,6 +31,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
   const { onClose } = props;
 
   const queryClient = useQueryClient();
+
   const { data, isLoading, isRefetching } = useFriend();
   const { data: info } = useInfo();
 
@@ -221,8 +223,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           placeholder="Search for name"
           inputRef={refInputSearch}
           onChange={(e) => {
-            // findContact(e.target.value);
-            // console.log(e.target.value);
             if (e.target.value === "")
               setMembersToSearch(data.map((item) => item.contact));
             else
@@ -232,8 +232,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                     .toLowerCase()
                     .includes(e.target.value.toLowerCase()),
                 );
-                // console.log(found);
-
                 return found;
               });
           }}
@@ -259,30 +257,18 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                       });
                     }}
                   >
-                    {membersToAdd.some((mem) => mem.id === item.id) ? (
-                      <div
-                        className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
-                        from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
-                      ></div>
-                    ) : (
-                      <div className="relative z-10">
-                        <div
-                          style={
-                            {
-                              "--width": `120%`,
-                              "--height": `120%`,
-                              "--rounded": "50%",
-                            } as CSSProperties
-                          }
-                          className="gradient-item relative aspect-square w-[1.8rem] rounded-full bg-[var(--bg-color)]"
-                        ></div>
-                      </div>
-                    )}
+                    <CheckCircleOutlined
+                      className={`base-icon-sm 
+                        ${
+                          membersToAdd.some((mem) => mem.id === item.id)
+                            ? "text-[var(--main-color-bold)]"
+                            : ""
+                        }
+                        `}
+                    />
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
                       className="aspect-square w-[4rem] cursor-pointer"
-                      // spinnerClassName="laptop:bg-[size:2rem]"
-                      // imageClassName="bg-[size:170%]"
                       circle
                       slides={[
                         {
@@ -291,9 +277,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                       ]}
                       onClick={() => {}}
                     />
-                    {/* <div> */}
                     <CustomLabel title={item.name} className="contents" />
-                    {/* </div> */}
                   </div>
                 ))}
               </div>

@@ -157,27 +157,6 @@ const AddMembersModal = (props: OnCloseType) => {
                     });
                   }}
                 >
-                  {/* {conversations.selected.members.some(
-                    (mem) => mem.contact.id === item.id,
-                  ) || membersToAdd.some((mem) => mem.id === item.id) ? (
-                    <div
-                      className="fa fa-check flex aspect-square w-[1.8rem] items-center justify-center rounded-full bg-gradient-to-tr
-                      from-[var(--main-color)] to-[var(--main-color-extrabold)] text-xs font-normal text-[var(--sub-color)]"
-                    ></div>
-                  ) : (
-                    <div className="relative z-10">
-                      <div
-                        style={
-                          {
-                            "--width": `120%`,
-                            "--height": `120%`,
-                            "--rounded": "50%",
-                          } as CSSProperties
-                        }
-                        className="gradient-item relative aspect-square w-[1.8rem] rounded-full bg-[var(--bg-color)]"
-                      ></div>
-                    </div>
-                  )} */}
                   <CheckCircleOutlined
                     className={`base-icon-sm ${
                       conversations.selected.members.some(
@@ -190,8 +169,6 @@ const AddMembersModal = (props: OnCloseType) => {
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
                     className="aspect-square cursor-pointer phone:w-[3rem] laptop:w-[4rem]"
-                    // spinnerClassName="laptop:bg-[size:2rem]"
-                    // imageClassName="bg-[size:170%]"
                     circle
                     slides={[
                       {
