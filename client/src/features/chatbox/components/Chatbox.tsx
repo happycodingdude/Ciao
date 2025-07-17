@@ -138,7 +138,7 @@ const Chatbox = () => {
       <div
         ref={refChatContent}
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
-        className="hide-scrollbar flex grow flex-col gap-[3.5rem] overflow-y-scroll scroll-smooth  px-[1rem]"
+        className="hide-scrollbar flex grow flex-col gap-[3.5rem] overflow-y-scroll scroll-smooth px-[1rem]"
       >
         {messages?.messages
           ? [...messages?.messages].map((message, index) => (

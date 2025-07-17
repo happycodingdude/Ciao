@@ -156,7 +156,7 @@ const ListChatContainer = () => {
           </div>
 
           <div
-            className={`relative flex grow flex-col gap-[2rem] ${isLoading || isRefetching ? "" : "px-[2rem]"}`}
+            className={`relative flex grow flex-col gap-[2rem] ${isLoading || isRefetching ? "" : "px-[2rem]"} hide-scrollbar overflow-y-scroll scroll-smooth`}
           >
             {/* <LocalLoading /> */}
             {isLoading || isRefetching ? <LocalLoading /> : ""}
@@ -175,8 +175,9 @@ const ListChatContainer = () => {
                   className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
                     ${item.id === conversations.selected?.id ? "active" : ""}`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center laptop:h-[4rem]">
                     <div className="relative">
+                      {/* MARK: AVATAR */}
                       <ImageWithLightBoxAndNoLazy
                         src={
                           item.isGroup
@@ -190,28 +191,24 @@ const ListChatContainer = () => {
                       />
                       <div className="absolute -bottom-1 -right-1 h-4 w-4 animate-pulse rounded-full border-2 border-white bg-green-400"></div>
                     </div>
-                    <div className="w-[77%]">
-                      <div className="flex gap-[1rem]">
-                        <CustomLabel
-                          className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                    <div className="mb-auto ml-[1rem] flex w-[60%] flex-col">
+                      {/* MARK: TITLE */}
+                      <CustomLabel
+                        className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
                           font-['Be_Vietnam_Pro'] font-semibold`}
-                          title={
-                            item.isGroup
-                              ? item.title
-                              : item.members.find(
-                                  (item) => item.contact.id !== info.id,
-                                )?.contact.name
-                          }
-                        />
-                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">
-                          {item.lastMessageTime === null
-                            ? ""
-                            : moment(item.lastMessageTime).fromNow()}
-                        </span>
-                      </div>
-                      <p className="mt-1 truncate text-sm text-gray-600">
-                        <CustomLabel
-                          className={`
+                        title={
+                          item.isGroup
+                            ? item.title
+                            : item.members.find(
+                                (item) => item.contact.id !== info.id,
+                              )?.contact.name
+                        }
+                      />
+                      {/* MARK: LAST MESSAGE */}
+                      {item.lastMessage ? (
+                        <p className="mt-1 truncate text-sm text-gray-600">
+                          <CustomLabel
+                            className={`
                               ${
                                 item.id === conversations.selected?.id
                                   ? "text-[var(--text-sub-color-thin)]"
@@ -219,10 +216,30 @@ const ListChatContainer = () => {
                                     ? "text-[var(--danger-text-color)]"
                                     : "text-[var(--text-main-color-blur)]"
                               }`}
-                          title={item.lastMessage}
-                        />
-                      </p>
+                            title={item.lastMessage}
+                          />
+                        </p>
+                      ) : (
+                        ""
+                      )}
                     </div>
+                    {/* MARK: LAST MESSAGE TIME */}
+                    {item.lastMessageTime === null ? (
+                      ""
+                    ) : (
+                      <div
+                        className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-300 text-xs text-gray-500 laptop:w-[2.5rem]`}
+                      >
+                        <p>
+                          {item.lastMessageTime === null
+                            ? ""
+                            : moment(item.lastMessageTime).fromNow()}
+                        </p>
+                      </div>
+                      // <span className="aspect-square w-[3rem] rounded-full bg-gray-300 px-2 py-1 text-xs text-gray-500">
+                      //   {moment(item.lastMessageTime).fromNow()}
+                      // </span>
+                    )}
                   </div>
                 </div>
               ))}

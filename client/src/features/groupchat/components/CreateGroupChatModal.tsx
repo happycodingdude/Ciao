@@ -1,6 +1,5 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -11,6 +10,7 @@ import MediaPicker from "../../../components/MediaPicker";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
+import uploadFile from "../../../utils/uploadFile";
 import useInfo from "../../authentication/hooks/useInfo";
 import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
 import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
@@ -44,6 +44,8 @@ const CreateGroupChatModal = (props: OnCloseType) => {
   const [avatar, setAvatar] = useState<string>();
   const [file, setFile] = useState<File>();
 
+  const [processing, setProcessing] = useState<boolean>(false);
+
   useEffect(() => {
     if (!data) return;
     setMembersToSearch(
@@ -65,65 +67,30 @@ const CreateGroupChatModal = (props: OnCloseType) => {
   const createGroupChatCTA = async () => {
     if (membersToAdd.length === 0) return;
 
-    let url = "";
-    if (file === undefined) {
-      url = avatar;
-    } else {
-      // Create a root reference
-      const storage = getStorage();
-      url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
-        (snapshot) => {
-          return getDownloadURL(snapshot.ref).then((url) => {
-            return url;
-          });
-        },
-      );
-    }
+    setProcessing(true);
+
+    const url = file !== undefined ? await uploadFile(file) : null;
+
     const randomId = Math.random().toString(36).substring(2, 7);
-    const title = refInputTitle.current.value;
+    tempAddConversation(randomId);
+
+    // const title = refInputTitle.current.value;
     const request: CreateGroupChatRequest = {
-      title: title,
+      title: refInputTitle.current.value,
       avatar: url,
       members: membersToAdd.map((members) => members.id),
     };
     createGroupChat(request).then((res) => {
-      queryClient.setQueryData(
-        ["conversation"],
-        (oldData: ConversationCache) => {
-          const updatedConversations: ConversationModel[] =
-            oldData.conversations.map((conversation) => {
-              if (conversation.id !== randomId) return conversation;
-              conversation.id = res.data;
-              return conversation;
-            });
-          return {
-            ...oldData,
-            conversations: updatedConversations,
-            filterConversations: updatedConversations,
-            selected: {
-              ...oldData.selected,
-              id: res.data,
-            },
-          } as ConversationCache;
-        },
-      );
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          conversationId: res.data,
-        } as MessageCache;
-      });
-      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-        return {
-          ...oldData,
-          conversationId: res.data,
-        } as AttachmentCache;
-      });
+      updateAddedConversation(randomId, res.data);
     });
 
+    onClose();
+  };
+
+  const tempAddConversation = (tempId: string) => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const newConversation: ConversationModel = {
-        id: randomId,
+        id: tempId,
         title: refInputTitle.current.value,
         avatar: avatar,
         isGroup: true,
@@ -176,7 +143,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     queryClient.setQueryData(["message"], (oldData: MessageCache) => {
       return {
         ...oldData,
-        conversationId: randomId,
+        conversationId: tempId,
         messages: [],
         hasMore: false,
       } as MessageCache;
@@ -184,11 +151,42 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
       return {
         ...oldData,
-        conversationId: randomId,
+        conversationId: tempId,
         attachments: [],
       } as AttachmentCache;
     });
-    onClose();
+  };
+
+  const updateAddedConversation = (tempId: string, addedId: string) => {
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      const updatedConversations: ConversationModel[] =
+        oldData.conversations.map((conversation) => {
+          if (conversation.id !== tempId) return conversation;
+          conversation.id = addedId;
+          return conversation;
+        });
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        filterConversations: updatedConversations,
+        selected: {
+          ...oldData.selected,
+          id: addedId,
+        },
+      } as ConversationCache;
+    });
+    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+      return {
+        ...oldData,
+        conversationId: addedId,
+      } as MessageCache;
+    });
+    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+      return {
+        ...oldData,
+        conversationId: addedId,
+      } as AttachmentCache;
+    });
   };
 
   const removeMemberToAdd = (id: string) => {
@@ -224,7 +222,11 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           inputRef={refInputSearch}
           onChange={(e) => {
             if (e.target.value === "")
-              setMembersToSearch(data.map((item) => item.contact));
+              setMembersToSearch(
+                data
+                  .filter((fr) => fr.status === "friend")
+                  .map((item) => item.contact),
+              );
             else
               setMembersToSearch((current) => {
                 const found = current.filter((item) =>
@@ -308,6 +310,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         rounded="3rem"
         title="Save"
         onClick={createGroupChatCTA}
+        processing={processing}
       />
     </>
   );
