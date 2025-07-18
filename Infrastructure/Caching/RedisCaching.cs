@@ -28,6 +28,11 @@ public class RedisCaching : IRedisCaching
         return value.HasValue ? JsonConvert.DeserializeObject<T>(value!) : default;
     }
 
+    public async Task<RedisValue[]> GetAsync(RedisKey[] key)
+    {
+        return await _db.StringGetAsync(key);
+    }
+
     // #Delete: Xoá key khỏi Redis
     public async Task DeleteAsync(string key) => await _db.KeyDeleteAsync(key);
 

@@ -53,7 +53,7 @@ public class SignalHub : Hub
             if (userId is not null)
             {
                 await _userCache.RemoveConnection(userId, Context.ConnectionId);
-                _logger.Information($"User {userId} disconnected");
+                _logger.Information($"User {userId} disconnected with ConnectionId {Context.ConnectionId}");
             }
             await base.OnDisconnectedAsync(exception);
         }

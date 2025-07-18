@@ -18,6 +18,7 @@ import {
   NewReaction,
 } from "../types";
 
+/* MARK: SET UP */
 export const setupListeners = (
   connection: HubConnection,
   queryClient: QueryClient,

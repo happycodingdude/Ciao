@@ -108,13 +108,4 @@ public class MemberCache
         selected.IsNotifying = notify;
         await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
     }
-
-    // public async Task RemoveAll(List<string> conversationIds)
-    // {
-    //     var tasks = new List<Task>();
-    //     foreach (var id in conversationIds)
-    //         tasks.Add(_distributedCache.RemoveAsync($"conversation-{id}-members"));
-
-    //     await Task.WhenAll(tasks);
-    // }
 }

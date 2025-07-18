@@ -12,8 +12,9 @@ public static class GetConversations
         readonly MemberCache _memberCache;
         readonly FriendCache _friendCache;
         readonly MessageCache _messageCache;
+        readonly IRedisCaching _redisCaching;
 
-        public Handler(IContactRepository contactRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache)
+        public Handler(IContactRepository contactRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching)
         {
             _contactRepository = contactRepository;
             _mapper = mapper;
@@ -21,6 +22,7 @@ public static class GetConversations
             _memberCache = memberCache;
             _friendCache = friendCache;
             _messageCache = messageCache;
+            _redisCaching = redisCaching;
         }
 
         public async Task<List<GetConversationsResponse>> Handle(Request request, CancellationToken cancellationToken)
@@ -63,6 +65,13 @@ public static class GetConversations
                         member.FriendStatus = friend.FriendStatus;
                     }
                 }
+
+                // Cập nhật trạng thái online dựa theo cache ìnfo
+                var redisKeys = conversation.Members.Select(mem => (RedisKey)$"user-{mem.Contact.Id}-info").ToArray();
+                var values = await _redisCaching.GetAsync(redisKeys);
+
+                for (int i = 0; i < conversation.Members.Count; i++)
+                    conversation.Members[i].Contact.IsOnline = values[i].HasValue;
             }
             return result;
             // return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();

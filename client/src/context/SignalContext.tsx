@@ -21,6 +21,7 @@ type SignalContextType = {
   targetUser: UserProfile | null;
   isCaller: boolean;
   receiveOffer: boolean;
+  stopConnection: () => Promise<void>;
 };
 
 const SignalContext = createContext<SignalContextType | undefined>(undefined);
@@ -152,6 +153,13 @@ export const SignalProvider: React.FC<{
     connectionRef.current.send("EndCall", targetUser.id);
   };
 
+  /* MARK: STOP CONNECTION */
+  const stopConnection = async () => {
+    if (connectionRef.current?.state === "Connected") {
+      await connectionRef.current.stop();
+    }
+  };
+
   // 🔌 SignalR setup
   useEffect(() => {
     if (!info.id || isRegistered.current) return;
@@ -245,6 +253,7 @@ export const SignalProvider: React.FC<{
         targetUser,
         isCaller,
         receiveOffer,
+        stopConnection,
       }}
     >
       {children}

@@ -189,7 +189,10 @@ const ListChatContainer = () => {
                         className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
                         circle
                       />
-                      <div className="absolute -bottom-1 -right-1 h-4 w-4 animate-pulse rounded-full border-2 border-white bg-green-400"></div>
+                      <div
+                        className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white 
+                        ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-green-400" : "bg-gray-400"}`}
+                      ></div>
                     </div>
                     <div className="mb-auto ml-[1rem] flex w-[60%] flex-col">
                       {/* MARK: TITLE */}
