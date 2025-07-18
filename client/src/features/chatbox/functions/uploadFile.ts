@@ -2,6 +2,7 @@ import {
   getDownloadURL,
   getStorage,
   ref,
+  uploadBytes,
   uploadBytesResumable,
 } from "firebase/storage";
 
@@ -46,7 +47,7 @@ const upload = (file: File): Promise<UploadedFile> => {
   });
 };
 
-export default async function uploadFile(files: File[]) {
+export async function uploadMultipleFile(files: File[]) {
   try {
     const uploadPromises = files.map((file) => upload(file));
     const uploadedFiles = await Promise.all(uploadPromises);
@@ -57,45 +58,14 @@ export default async function uploadFile(files: File[]) {
   }
 }
 
-// export default function uploadFile(files: File[]) {
-//   // Create a root reference
-//   try {
-//     const storage = getStorage();
-//     return Promise.all(
-//       files.map((item) => {
-//         if (
-//           ["doc", "docx", "xls", "xlsx", "pdf"].includes(
-//             item.name.split(".")[1],
-//           )
-//         ) {
-//           return uploadBytes(ref(storage, `file/${item.name}`), item).then(
-//             (snapshot) => {
-//               return getDownloadURL(snapshot.ref).then((url) => {
-//                 return {
-//                   type: "file",
-//                   url: url,
-//                   name: item.name,
-//                   size: item.size,
-//                 };
-//               });
-//             },
-//           );
-//         }
-//         return uploadBytes(ref(storage, `img/${item.name}`), item).then(
-//           (snapshot) => {
-//             return getDownloadURL(snapshot.ref).then((url) => {
-//               return {
-//                 type: "image",
-//                 url: url,
-//                 name: item.name,
-//                 size: item.size,
-//               };
-//             });
-//           },
-//         );
-//       }),
-//     );
-//   } catch (ex) {
-//     console.log(ex);
-//   }
-// }
+export async function uploadFile(file: File): Promise<string> {
+  // Create a root reference
+  const storage = getStorage();
+  return await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
+    (snapshot) => {
+      return getDownloadURL(snapshot.ref).then((url) => {
+        return url;
+      });
+    },
+  );
+}

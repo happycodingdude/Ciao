@@ -228,7 +228,7 @@ const ListChatContainer = () => {
                       ""
                     ) : (
                       <div
-                        className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-300 text-xs text-gray-500 laptop:w-[2.5rem]`}
+                        className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
                       >
                         <p>
                           {item.lastMessageTime === null

@@ -70,3 +70,8 @@ export type PinMessageRequest = {
   messageId: string;
   pinned: boolean;
 };
+
+export type MessageListProps = {
+  messages: MessageContentProps[];
+  currentUserId: string;
+};

@@ -4,7 +4,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import signout from "../services/signout";
 
-const Signout = () => {
+const Signout = ({ className }: { className: string }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return (
@@ -14,7 +14,7 @@ const Signout = () => {
     // ></div>
     <LogoutOutlined
       onClick={() => signout(queryClient, navigate)}
-      className="base-icon text-red-500"
+      className={`${className} base-icon text-red-500`}
     />
   );
 };

@@ -18,46 +18,6 @@ import {
   NewReaction,
 } from "../types";
 
-// let hubConnection: signalR.HubConnection | null = null;
-
-// const servers = {
-//   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-// };
-
-// export const startConnection = async (
-//   userId: string,
-//   queryClient: QueryClient,
-//   userInfo: UserProfile,
-//   pc: RTCPeerConnection,
-// ) => {
-//   if (!userId) {
-//     console.error("User ID is required to establish a connection.");
-//     return;
-//   }
-
-//   hubConnection = new signalR.HubConnectionBuilder()
-//     .withUrl(
-//       `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${userId}`,
-//     )
-//     .withAutomaticReconnect()
-//     .configureLogging(signalR.LogLevel.Information)
-//     .build();
-
-//   // hubConnection.onclose(async () => {
-//   //   console.warn("SignalR connection lost. Reconnecting...");
-//   //   await startConnection(userId,queryClient, userInfo );
-//   // });
-
-//   try {
-//     await hubConnection.start();
-//     console.log(`Connected to SignalR as ${userId}`);
-//     setupListeners(queryClient, userInfo);
-//     setupVideoCall(pc);
-//   } catch (error) {
-//     console.error("Error establishing SignalR connection:", error);
-//   }
-// };
-
 export const setupListeners = (
   connection: HubConnection,
   queryClient: QueryClient,
@@ -126,13 +86,6 @@ const onNewMessage = (
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
-        // membersUpdater: (members) =>
-        //   members.map((mem) =>
-        //     mem.contact.id === userInfo.id &&
-        //     oldData.selected?.id !== message.conversation.id
-        //       ? { ...mem, unSeenMessages: mem.unSeenMessages + 1 }
-        //       : mem,
-        //   ),
       });
     } else {
       const newConversation = {
@@ -144,9 +97,6 @@ const onNewMessage = (
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
-        // members: message.members.map((mem) =>
-        //   mem.contact.id === userInfo.id ? { ...mem, unSeenMessages: 0 } : mem,
-        // ),
       };
 
       return {
@@ -355,10 +305,10 @@ const updateConversationCache = (
     ...oldData,
     conversations: updatedConversations,
     filterConversations: updatedConversations,
-    // selected:
-    //   oldData.selected?.id === conversation.id
-    //     ? updatedConversations.find((conv) => conv.id === conversation.id)
-    //     : oldData.selected,
+    selected:
+      oldData.selected?.id === conversation.id
+        ? updatedConversations.find((conv) => conv.id === conversation.id)
+        : oldData.selected,
   };
 };
 

@@ -1,6 +1,7 @@
 import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
 import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import moment from "moment";
 import React, {
   ChangeEvent,
   useCallback,
@@ -22,10 +23,11 @@ import {
   AttachmentCache,
   AttachmentModel,
   ConversationCache,
+  ConversationModel,
   MessageCache,
   PendingMessageModel,
 } from "../../listchat/types";
-import uploadFile from "../functions/uploadFile";
+import { uploadMultipleFile } from "../functions/uploadFile";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import sendMessage from "../services/sendMessage";
 import {
@@ -112,13 +114,18 @@ const ChatInput = (props: ChatInputProps) => {
                   param.type === "text"
                     ? param.content
                     : param.files.map((item) => item.name).join(","),
-              };
+                lastMessageTime: moment().format(),
+              } as ConversationModel;
             },
           );
           return {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
+            selected: {
+              ...oldData.selected,
+              lastMessageTime: moment().format(),
+            },
           } as ConversationCache;
         },
       );
@@ -128,7 +135,6 @@ const ChatInput = (props: ChatInputProps) => {
         content: param.content,
       };
       // let bodyLocal: SendMessageRequest = Object.assign({}, bodyToCreate);
-
       if (hasMedia) {
         queryClient.setQueryData(["message"], (oldData: MessageCache) => {
           return {
@@ -152,6 +158,7 @@ const ChatInput = (props: ChatInputProps) => {
                 sadCount: 0,
                 angryCount: 0,
                 currentReaction: null,
+                createdTime: moment().format(),
               } as PendingMessageModel,
             ],
           } as MessageCache;
@@ -210,16 +217,16 @@ const ChatInput = (props: ChatInputProps) => {
           } as AttachmentCache;
         });
 
-        const uploaded: AttachmentModel[] = await uploadFile(param.files).then(
-          (uploads) => {
-            return uploads.map((item) => ({
-              type: item.type,
-              mediaUrl: item.url,
-              mediaName: item.name,
-              mediaSize: item.size,
-            }));
-          },
-        );
+        const uploaded: AttachmentModel[] = await uploadMultipleFile(
+          param.files,
+        ).then((uploads) => {
+          return uploads.map((item) => ({
+            type: item.type,
+            mediaUrl: item.url,
+            mediaName: item.name,
+            mediaSize: item.size,
+          }));
+        });
         bodyToCreate = {
           ...bodyToCreate,
           attachments: uploaded,
@@ -245,6 +252,7 @@ const ChatInput = (props: ChatInputProps) => {
                 sadCount: 0,
                 angryCount: 0,
                 currentReaction: null,
+                createdTime: moment().format(),
               } as PendingMessageModel,
             ],
           } as MessageCache;

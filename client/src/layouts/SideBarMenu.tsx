@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
+import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
 import "../sidebar.css";
 import { SideBarProps } from "../types";
@@ -110,6 +111,8 @@ const SideBarMenu = (props: SideBarProps) => {
         ]}
         circle
       />
+
+      <Signout className="mt-4 text-white" />
     </div>
   );
 };

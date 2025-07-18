@@ -99,8 +99,6 @@ const MessageContent = (props: MessageContentProps) => {
     generateMostReaction(),
   );
 
-  // const [topReactions, setTopReactions] = useState();
-
   useEffect(() => {
     setTopReactions(generateMostReaction());
   }, [reaction]);
@@ -147,57 +145,7 @@ const MessageContent = (props: MessageContentProps) => {
         }),
       } as MessageCache;
     });
-
-    // setReaction((current) => {
-    //   const reactionKeys = {
-    //     like: "likeCount",
-    //     love: "loveCount",
-    //     care: "careCount",
-    //     wow: "wowCount",
-    //     sad: "sadCount",
-    //     angry: "angryCount",
-    //   };
-
-    //   const previousReaction = current.currentReaction;
-    //   const previousKey = reactionKeys[previousReaction];
-    //   const newKey = reactionKeys[type];
-
-    //   return {
-    //     ...current,
-    //     total:
-    //       previousReaction && !isUnReact
-    //         ? current.total
-    //         : isUnReact
-    //           ? current.total - 1
-    //           : current.total + 1,
-    //     currentReaction: isUnReact ? null : type,
-    //     ...(previousKey && {
-    //       [previousKey]: current[previousKey] - 1,
-    //     }),
-    //     ...(newKey &&
-    //       !isUnReact && {
-    //         [newKey]: (current[newKey] || 0) + 1,
-    //       }),
-    //   };
-    // });
   };
-
-  const refMenu = useRef<HTMLDivElement>(null);
-  const [dropUp, setDropUp] = useState(false);
-  // useEffect(() => {
-  //   if (!messageRef.current) return;
-
-  //   const menuRect = refMenu.current?.getBoundingClientRect();
-  //   const chatRect = props.containerRef.current?.getBoundingClientRect();
-
-  //   // Nếu menu vượt qua đáy chat box
-  //   if (menuRect.bottom > chatRect.bottom) {
-  //     setDropUp(true); // Điều chỉnh theo thực tế layout của bạn
-  //   }
-
-  //   // Nếu không đủ khoảng cách phía dưới (ví dụ < 200px), bật drop-up
-  //   // setDropUp(spaceBelow < 500);
-  // });
 
   return (
     <div
@@ -240,10 +188,10 @@ const MessageContent = (props: MessageContentProps) => {
           `}
       >
         <div
-          className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
+          className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)]`}
         >
           {/* MARK: SENDER NAME */}
-          {message.contactId === info.id ? (
+          {/* {message.contactId === info.id ? (
             ""
           ) : (
             <p className="font-['Be_Vietnam_Pro'] font-semibold">
@@ -253,73 +201,20 @@ const MessageContent = (props: MessageContentProps) => {
                 )?.contact.name
               }
             </p>
-          )}
+          )} */}
+          <p className="font-['Be_Vietnam_Pro'] font-semibold">
+            {message.contactId === info.id
+              ? "You"
+              : conversations.selected?.members.find(
+                  (q) => q.contact.id === message.contactId,
+                )?.contact.name}
+          </p>
 
           {/* MARK: MESSAGE TIME */}
-          <p>
-            {moment(message.createdTime).format("DD/MM/YYYY") ===
-            moment().format("DD/MM/YYYY")
-              ? moment(message.createdTime).format("HH:mm")
-              : moment(message.createdTime).format("DD/MM/YYYY HH:mm")}
-          </p>
+          <p>{moment(message.createdTime).format("HH:mm")}</p>
         </div>
 
         {/* MARK: ATTACHMENT */}
-        {/* {message.attachments && message.attachments.length !== 0 ? (
-          message.attachments?.length <= 2 ? (
-            <div
-              className={`flex w-full flex-wrap ${message.contactId === info.id ? "justify-end" : ""} gap-[1rem]`}
-            >
-              {message.attachments.map((item, index) => {
-                return (
-                  <ImageWithLightBoxAndNoLazy
-                    src={item.mediaUrl}
-                    title={item.mediaName?.split(".")[0]}
-                    className={`aspect-square cursor-pointer               
-                      ${
-                        message.attachments?.length === 1
-                          ? "w-[30%]"
-                          : "w-[25%]"
-                      }`}
-                    slides={message.attachments.map((item) => ({
-                      src: item.type === "image" ? item.mediaUrl : "",
-                    }))}
-                    index={index}
-                    pending={item.pending}
-                    local={item.local}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <div
-              className={`grid grid-cols-[20rem_12rem] gap-2 laptop:h-[20rem] ${
-                message.contactId === info.id ? "justify-end" : ""
-              }`}
-              // style={{ gridTemplateRows: "auto auto" }} // Explicit row structure for Firefox
-            >
-              {message.attachments.slice(0, 3).map((attachment, index) => (
-                <ImageWithLightBoxAndNoLazy
-                  key={index}
-                  src={attachment.mediaUrl}
-                  title={attachment.mediaName?.split(".")[0]}
-                  className={`loaded cursor-pointer ${
-                    index === 0 ? "row-span-2 aspect-square min-h-[12rem]" : ""
-                  }`}
-                  slides={message.attachments.map((item) => ({
-                    src: item.type === "image" ? item.mediaUrl : "",
-                  }))}
-                  index={index}
-                  pending={attachment.pending}
-                  local={attachment.local}
-                />
-              ))}
-            </div>
-          )
-        ) : (
-          ""
-        )} */}
-
         {message.attachments && message.attachments.length !== 0 ? (
           <div className="relative">
             <div className="grid grid-cols-4 gap-2">
@@ -380,7 +275,8 @@ const MessageContent = (props: MessageContentProps) => {
               <div
                 ref={contentRef}
                 data-expanded={isExpanded}
-                className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} my-[.5rem] px-[1.6rem] leading-[3rem]
+                className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} 
+                my-[.5rem] px-[1.6rem] leading-[3rem]
                   ${
                     message.isPinned
                       ? message.contactId === info.id

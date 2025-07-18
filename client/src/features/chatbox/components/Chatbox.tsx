@@ -3,8 +3,9 @@ import { debounce } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import RelightBackground from "../../../components/RelightBackground";
 import useEventListener from "../../../hooks/useEventListener";
+import { formatDate, formatDisplayDate } from "../../../utils/datetime";
 import useConversation from "../../listchat/hooks/useConversation";
-import { MessageCache } from "../../listchat/types";
+import { MessageCache, PendingMessageModel } from "../../listchat/types";
 import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
 import MessageContent from "./MessageContent";
@@ -14,11 +15,6 @@ const Chatbox = () => {
   const refPage = useRef<number>(1);
 
   const { data: conversations } = useConversation();
-  // const { data: messages } = useMessage(
-  //   conversations?.selected?.id,
-  //   refPage.current,
-  // );
-
   const { data: messages } = useMessage();
 
   const refChatContent = useRef<HTMLDivElement>();
@@ -80,25 +76,6 @@ const Chatbox = () => {
 
   const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
 
-  // const handleScroll = useCallback(() => {
-  //   // Nếu cuộn lên 1 khoảng lớn hơn kích thước ô chat thì hiện nút scroll to bottom
-  //   const distanceFromBottom =
-  //     refChatContent.current.scrollHeight -
-  //     (refChatContent.current.scrollTop + refChatContent.current.clientHeight);
-  //   if (
-  //     refChatContent.current.clientHeight !== 0 &&
-  //     distanceFromBottom >= refChatContent.current.clientHeight / 2
-  //   )
-  //     setShowScrollToBottom(true);
-  //   else setShowScrollToBottom(false);
-
-  //   // Nếu cuộn lên top và còn dữ liệu cũ -> lấy thêm dữ liệu
-  //   if (refChatContent.current.scrollTop === 0) {
-  //     setAutoScrollBottom(false);
-  //     refPage.current = refPage.current + 1;
-  //     debounceFetch(conversations?.selected.id, messages.hasMore);
-  //   }
-  // }, [conversations?.selected, messages]);
   const handleScroll = useCallback(() => {
     const contentEl = refChatContent.current;
     if (!contentEl) return;
@@ -121,6 +98,22 @@ const Chatbox = () => {
 
   useEventListener("scroll", handleScroll, refChatContent.current);
 
+  const groupMessagesByDate = (
+    messages: PendingMessageModel[],
+  ): Record<string, PendingMessageModel[]> => {
+    return messages.reduce(
+      (groups, msg) => {
+        const date = formatDate(msg.createdTime);
+        if (!groups[date]) groups[date] = [];
+        groups[date].push(msg);
+        return groups;
+      },
+      {} as Record<string, PendingMessageModel[]>,
+    );
+  };
+
+  const grouped = groupMessagesByDate(messages?.messages ?? []);
+
   return (
     <div
       className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden 
@@ -140,8 +133,17 @@ const Chatbox = () => {
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         className="hide-scrollbar flex grow flex-col gap-[3.5rem] overflow-y-scroll scroll-smooth px-[1rem]"
       >
-        {messages?.messages
-          ? [...messages?.messages].map((message, index) => (
+        {Object.entries(grouped).map(([date, messages]) => (
+          <div key={date} className="flex flex-col gap-[3.5rem]">
+            {/* Ngày hiển thị giữa */}
+            <div
+              className="pointer-events-none mx-auto w-fit rounded-[1rem] 
+            bg-[var(--bg-color)] px-[1rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+            >
+              {formatDisplayDate(date)}
+            </div>
+
+            {[...messages].map((message, index) => (
               <MessageContent
                 message={message}
                 id={conversations.selected.id}
@@ -150,8 +152,9 @@ const Chatbox = () => {
                   refChatContent.current?.getBoundingClientRect()
                 }
               />
-            ))
-          : ""}
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );
