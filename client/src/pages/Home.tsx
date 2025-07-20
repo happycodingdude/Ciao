@@ -10,12 +10,13 @@ const ChatSection = lazy(() => import("../layouts/ChatSection"));
 const ProfileSection = lazy(
   () => import("../features/profile-new/ProfileSection"),
 );
+const ConnectionSection = lazy(() => import("../layouts/ConnectionContainer"));
 
 const Home = () => {
   const { data: info } = useInfo();
   useFriend();
 
-  const [page, setPage] = useState<string>("chat");
+  const [page, setPage] = useState<string>("chats");
 
   const { targetUser } = useSignal();
 
@@ -48,8 +49,9 @@ const Home = () => {
         <SideBar page={page} setPage={setPage} />
         {
           {
-            chat: <ChatSection />,
+            chats: <ChatSection />,
             profile: <ProfileSection />,
+            connections: <ConnectionSection />,
           }[page]
         }
       </div>

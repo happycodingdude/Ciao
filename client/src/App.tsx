@@ -1,5 +1,4 @@
-import { initializeApp } from "firebase/app";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,18 +11,18 @@ import Home from "./pages/Home";
 import ProtectedRoute from "./pages/ProtectedRoute";
 
 // Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
-  authDomain: "myconnect-f2af8.firebaseapp.com",
-  projectId: "myconnect-f2af8",
-  storageBucket: "myconnect-f2af8.appspot.com",
-  messagingSenderId: "191922075446",
-  appId: "1:191922075446:web:72ab430046b40d39e22597",
-  measurementId: "G-8Q1N0TGXLZ",
-};
+// const firebaseConfig = {
+//   apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
+//   authDomain: "myconnect-f2af8.firebaseapp.com",
+//   projectId: "myconnect-f2af8",
+//   storageBucket: "myconnect-f2af8.appspot.com",
+//   messagingSenderId: "191922075446",
+//   appId: "1:191922075446:web:72ab430046b40d39e22597",
+//   measurementId: "G-8Q1N0TGXLZ",
+// };
 
 // Initialize Firebase
-initializeApp(firebaseConfig);
+// initializeApp(firebaseConfig);
 
 function App() {
   // if (typeof setImmediate === "undefined") {

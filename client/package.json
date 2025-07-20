@@ -23,6 +23,8 @@
     "@mui/material": "^6.2.1",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-query-devtools": "^5.81.5",
+    "@tanstack/react-router": "^1.128.8",
+    "@tanstack/react-router-devtools": "^1.128.8",
     "animate-css-grid": "1.5.1",
     "antd": "5.12.5",
     "axios": "1.6.2",
@@ -37,9 +39,9 @@
     "lodash": "^4.17.21",
     "moment": "2.29.4",
     "prettier-plugin-tailwindcss": "0.5.11",
-    "react": "19.0",
+    "react": "~19.0.0",
     "react-bootstrap": "2.7.4",
-    "react-dom": "19.0",
+    "react-dom": "~19.0.0",
     "react-hook-form": "7.49.3",
     "react-intersection-observer": "^9.15.0",
     "react-mentions": "4.4.10",
@@ -53,9 +55,9 @@
     "yet-another-react-lightbox": "3.15.6"
   },
   "devDependencies": {
+    "@tanstack/router-plugin": "^1.128.8",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
-    "@vitejs/plugin-react": "4.0.3",
     "autoprefixer": "10.4.16",
     "eslint": "8.45.0",
     "eslint-plugin-react": "7.32.2",
@@ -63,6 +65,7 @@
     "eslint-plugin-react-refresh": "0.4.3",
     "postcss": "8.4.31",
     "tailwindcss": "3.3.5",
-    "vite": "4.4.5"
+    "vite": "7.0.5",
+    "@vitejs/plugin-react": "4.7.0"
   }
 }

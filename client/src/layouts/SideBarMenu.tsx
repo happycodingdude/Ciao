@@ -63,13 +63,23 @@ const SideBarMenu = (props: SideBarProps) => {
       </div>
 
       <div className="z-10 flex w-[70%] flex-1 flex-col gap-[2rem]">
-        <div className="sidebar-item active relative flex cursor-pointer items-center justify-center rounded-xl transition-all duration-300">
+        <div
+          className="sidebar-item active relative flex cursor-pointer items-center justify-center rounded-xl transition-all duration-300"
+          onClick={() => {
+            setPage("chats");
+          }}
+        >
           <i className="fa-solid fa-message text-xl"></i>
           <div className="tooltip">Messages</div>
         </div>
-        <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
-          <i className="fa-solid fa-address-book text-xl"></i>
-          <div className="tooltip">Contacts</div>
+        <div
+          className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300"
+          onClick={() => {
+            setPage("connections");
+          }}
+        >
+          <i className="fa-solid fa-user-friends text-xl"></i>
+          <div className="tooltip">Connections</div>
         </div>
         {/* <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
           <i className="fa-solid fa-phone text-xl"></i>
@@ -79,11 +89,21 @@ const SideBarMenu = (props: SideBarProps) => {
           <i className="fa-solid fa-file text-xl"></i>
           <div className="tooltip">Files</div>
         </div> */}
-        <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
+        <div
+          className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300"
+          onClick={() => {
+            setPage("notifications");
+          }}
+        >
           <i className="fa-solid fa-bell text-xl"></i>
           <div className="tooltip">Notifications</div>
         </div>
-        <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
+        <div
+          className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300"
+          onClick={() => {
+            setPage("settings");
+          }}
+        >
           <i className="fa-solid fa-gear text-xl"></i>
           <div className="tooltip">Settings</div>
         </div>
