@@ -29,6 +29,7 @@ function App() {
   //   window.setImmediate = (fn) => setTimeout(fn, 0);
   //   window.clearImmediate = window.clearTimeout;
   // }import 'react-toastify/dist/ReactToastify.css';
+  // @ts-ignore
   if (typeof window.setImmediate === "undefined") {
     (window as any).setImmediate = (fn: () => void, ...args: any[]) =>
       setTimeout(fn, 0, ...args);

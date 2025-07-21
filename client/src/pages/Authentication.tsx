@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect } from "@tanstack/react-router";
+import { useRef } from "react";
 import LocalLoading from "../components/LocalLoading";
 import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
 import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
@@ -21,7 +21,7 @@ const Authentication = () => {
   const { data: info } = useInfo(true);
   // const [accessToken] = useLocalStorage("accessToken");
   const [accessToken] = useLocalStorage("accessToken", "");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { setToggle } = useAuthenticationFormToggles();
 
   const refBgContainer = useRef<HTMLDivElement>();
@@ -33,7 +33,7 @@ const Authentication = () => {
   // const [showLogin, setShowLogin] = useState(true);
   // const [showSignup, setShowSignup] = useState(false);
 
-  if (info) navigate("/");
+  if (info) redirect({ to: "/" });
 
   if (accessToken) return <LocalLoading />;
 

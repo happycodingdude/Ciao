@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
@@ -13,7 +13,8 @@ import signin from "../services/signin";
 const SigninForm = () => {
   // const { show, showContainer, toggle } = props;
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const router = useRouter();
 
   const { toggle, setToggle } = useAuthenticationFormToggles();
 
@@ -50,21 +51,17 @@ const SigninForm = () => {
   const { mutate: signinMutation } = useMutation({
     mutationFn: (req: SigninRequest) => signin(req),
     onSuccess: (res) => {
-      // queryClient.invalidateQueries(["info"]);
-      // refetch();
-      // onSuccess();
       setAccessToken(res.accessToken);
       setRefreshToken(res.refreshToken);
       setUserId(res.userId);
+
+      // Navigate về trang chủ
       setTimeout(() => {
-        navigate("/");
-      }, 100);
-      //   localStorage.setItem("accessToken", res.data.accessToken);
-      //   localStorage.setItem("refreshToken", res.data.refreshToken);
+        router.navigate({ to: "/" });
+      }, 500);
     },
     onError: (error) => {
       setProcessing(false);
-      // setError("Username or password invalid. Try again please");
       setError(error.message);
     },
   });
