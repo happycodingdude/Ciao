@@ -23,8 +23,8 @@ export type CustomInputProps = {
 };
 
 export type SideBarProps = {
-  page: string;
-  setPage: Dispatch<SetStateAction<string>>;
+  // page: string;
+  // setPage: Dispatch<SetStateAction<string>>;
 };
 
 export type RelightBackgroundProps = {

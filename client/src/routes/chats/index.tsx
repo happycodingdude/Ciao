@@ -1,15 +1,15 @@
+import { queryOptions } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { SignalProvider } from "../../context/SignalContext";
-import Home from "../../pages/Home";
+import getConversations from "../../features/listchat/services/getConversations";
+import ChatSection from "../../layouts/ChatSection";
 
-export const Route = createFileRoute("/chats/")({
-  component: RouteComponent,
+const chatQueryOption = queryOptions({
+  queryKey: ["conversation"],
+  queryFn: () => getConversations(1),
 });
 
-function RouteComponent() {
-  return (
-    <SignalProvider>
-      <Home />
-    </SignalProvider>
-  );
-}
+export const Route = createFileRoute("/chats/")({
+  component: ChatSection,
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(chatQueryOption),
+});

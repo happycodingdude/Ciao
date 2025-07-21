@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
@@ -9,7 +10,11 @@ import blurImage from "../utils/blurImage";
 
 const SideBarMenu = (props: SideBarProps) => {
   // console.log("SideBar calling");
-  const { page, setPage } = props;
+  // const { page, setPage } = props;
+
+  const router = useRouter();
+
+  // console.log(router.state.location);
 
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
@@ -63,63 +68,27 @@ const SideBarMenu = (props: SideBarProps) => {
       </div>
 
       <div className="z-10 flex w-[70%] flex-1 flex-col gap-[2rem]">
-        <div
-          className="sidebar-item active relative flex cursor-pointer items-center justify-center rounded-xl transition-all duration-300"
-          onClick={() => {
-            setPage("chats");
-          }}
-        >
+        <Link to="/" className="sidebar-item">
+          <i className="fa-solid fa-home text-xl"></i>
+          <div className="tooltip">Home</div>
+        </Link>
+        <Link to="/chats" className="sidebar-item">
           <i className="fa-solid fa-message text-xl"></i>
           <div className="tooltip">Messages</div>
-        </div>
-        <div
-          className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300"
-          onClick={() => {
-            setPage("connections");
-          }}
-        >
+        </Link>
+        <Link to="/connections" className="sidebar-item">
           <i className="fa-solid fa-user-friends text-xl"></i>
-          <div className="tooltip">Connections</div>
-        </div>
-        {/* <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
-          <i className="fa-solid fa-phone text-xl"></i>
-          <div className="tooltip">Calls</div>
-        </div>
-        <div className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300">
-          <i className="fa-solid fa-file text-xl"></i>
-          <div className="tooltip">Files</div>
-        </div> */}
-        <div
-          className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300"
-          onClick={() => {
-            setPage("notifications");
-          }}
-        >
+          <div className="tooltip">Messages</div>
+        </Link>
+        <Link to="/notifications" className="sidebar-item">
           <i className="fa-solid fa-bell text-xl"></i>
           <div className="tooltip">Notifications</div>
-        </div>
-        <div
-          className="sidebar-item relative flex cursor-pointer items-center justify-center rounded-xl  transition-all duration-300"
-          onClick={() => {
-            setPage("settings");
-          }}
-        >
+        </Link>
+        <Link to="/settings" className="sidebar-item">
           <i className="fa-solid fa-gear text-xl"></i>
           <div className="tooltip">Settings</div>
-        </div>
+        </Link>
       </div>
-
-      {/* <div className="relative z-10 mt-6 aspect-square w-[70%]">
-        <div className="h-full w-full rounded-full bg-white p-1 shadow-md">
-          <img
-            // src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg"
-            src={info.avatar}
-            className="h-full w-full rounded-full object-cover"
-            alt="User Avatar"
-          />
-        </div>
-        <div className="border-neo-pink absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 bg-green-400"></div>
-      </div> */}
 
       <ImageWithLightBoxAndNoLazy
         src={info.avatar}

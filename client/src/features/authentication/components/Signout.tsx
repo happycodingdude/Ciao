@@ -1,14 +1,13 @@
 import { LogoutOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useSignal } from "../../../context/SignalContext";
+import { useRouter } from "@tanstack/react-router";
 import signout from "../services/signout";
 
 const Signout = ({ className }: { className: string }) => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { stopConnection } = useSignal();
+  const router = useRouter();
+
+  // const { stopConnection } = useSignal();
   return (
     // <div
     //   onClick={() => signout(queryClient, navigate)}
@@ -16,8 +15,8 @@ const Signout = ({ className }: { className: string }) => {
     // ></div>
     <LogoutOutlined
       onClick={async () => {
-        await stopConnection();
-        signout(queryClient, navigate);
+        // await stopConnection();
+        signout(queryClient, router);
       }}
       className={`${className} base-icon text-red-500`}
     />

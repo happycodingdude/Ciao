@@ -1,8 +1,8 @@
 import { QueryClient } from "@tanstack/react-query";
-import { NavigateFunction } from "react-router-dom";
 import HttpRequest from "../../../lib/fetch";
+import { AppRouter } from "../../../main";
 
-const signout = (queryClient: QueryClient, navigate: NavigateFunction) => {
+const signout = (queryClient: QueryClient, router: AppRouter) => {
   HttpRequest({
     method: "get",
     url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
@@ -20,7 +20,7 @@ const signout = (queryClient: QueryClient, navigate: NavigateFunction) => {
     localStorage.removeItem("isRegistered");
     localStorage.removeItem("toggleChatDetail");
 
-    navigate("/auth");
+    router.navigate({ to: "/auth" });
   });
 };
 

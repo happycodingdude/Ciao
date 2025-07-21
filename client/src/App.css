@@ -390,10 +390,6 @@ body,
     resize: none; /* Prevent manual resizing */
   }
 
-  .home-container {
-    @apply absolute flex h-full w-full bg-[var(--bg-color)] phone:flex-col-reverse laptop:flex-row;
-  }
-
   /* .sidebar-container {
     @apply shrink-0 border-r-[.1rem] border-r-[var(--border-color)] flex items-center px-[1rem]
     phone:h-[9rem] phone:w-full phone:flex-row phone:border-t-[.2rem] phone:border-t-[var(--border-color)]

@@ -1,0 +1,21 @@
+.home-container {
+  position: absolute;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-color);
+}
+
+/* Responsive: phone = max-width: 639px (Tailwind mặc định) */
+@media (max-width: 639px) {
+  .home-container {
+    flex-direction: column-reverse;
+  }
+}
+
+/* Responsive: laptop = min-width: 1024px (Tailwind mặc định) */
+@media (min-width: 1024px) {
+  .home-container {
+    flex-direction: row;
+  }
+}

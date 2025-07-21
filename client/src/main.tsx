@@ -35,6 +35,9 @@ const router = createRouter({
   scrollRestoration: true,
 });
 
+// Xuất kiểu để tái sử dụng
+export type AppRouter = typeof router;
+
 // Register things for typesafety
 declare module "@tanstack/react-router" {
   interface Register {

@@ -1,13 +1,23 @@
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { useSignal } from "../context/SignalContext";
 import useInfo from "../features/authentication/hooks/useInfo";
+import useFriend from "../features/friend/hooks/useFriend";
 import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import "../home.css";
+import SideBar from "../layouts/SideBar";
+
+const ChatSection = lazy(() => import("../layouts/ChatSection"));
+const ProfileSection = lazy(
+  () => import("../features/profile-new/ProfileSection"),
+);
+const ConnectionSection = lazy(() => import("../layouts/ConnectionContainer"));
 
 const Home = () => {
   const { data: info } = useInfo();
-  // useFriend();
+  useFriend();
+
+  const [page, setPage] = useState<string>("chats");
 
   const { targetUser } = useSignal();
 
@@ -36,6 +46,16 @@ const Home = () => {
       id="home"
       className="relative w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md"
     >
+      <div className="home-container">
+        <SideBar page={page} setPage={setPage} />
+        {
+          {
+            chats: <ChatSection />,
+            profile: <ProfileSection />,
+            connections: <ConnectionSection />,
+          }[page]
+        }
+      </div>
       {targetUser !== null ? (
         <DndContext onDragEnd={handleDragEnd}>
           <VideoCall contact={targetUser} position={position} />
@@ -43,7 +63,6 @@ const Home = () => {
       ) : (
         ""
       )}
-      Welcome to home page
       <div id="portal"></div>
     </div>
   );

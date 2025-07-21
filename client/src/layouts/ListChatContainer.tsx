@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import moment from "moment";
-import React from "react";
 import { flushSync } from "react-dom";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
@@ -169,12 +169,16 @@ const ListChatContainer = () => {
               .map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => {
-                    clickConversation(item.id);
-                  }}
+                  // onClick={() => {
+                  //   clickConversation(item.id);
+                  // }}
                   className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
                     ${item.id === conversations.selected?.id ? "active" : ""}`}
                 >
+                  <Link
+                    to={`/chats/${item.id}`}
+                    className="block h-full w-full"
+                  ></Link>
                   <div className="flex items-center laptop:h-[4rem]">
                     <div className="relative">
                       {/* MARK: AVATAR */}
