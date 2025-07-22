@@ -34,7 +34,7 @@ const Home = () => {
   return (
     <div
       id="home"
-      className="relative w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md"
+      className="relative h-full w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md"
     >
       {targetUser !== null ? (
         <DndContext onDragEnd={handleDragEnd}>

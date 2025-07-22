@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import LocalLoading from "../components/LocalLoading";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
@@ -65,7 +65,6 @@ const ChatboxContainer = () => {
           <ChatboxHeader />
           <div className="flex w-full grow bg-pastel-purple bg-opacity-30">
             <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[92dvh]">
-              {/* <div className="flex w-full bg-pastel-purple bg-opacity-20 laptop:h-[89dvh] laptop-md:h-full"> */}
               <div
                 ref={refChatboxContainer}
                 className={`relative flex w-full flex-col items-center gap-[1rem] 
@@ -74,13 +73,6 @@ const ChatboxContainer = () => {
                 <Chatbox />
                 <ChatInput className="chatbox" inputRef={refInput} />
               </div>
-              {/* <div
-                className={`relative shrink-0 origin-right transition-all duration-200 laptop:w-[25rem] 
-                    ${!toggle || toggle === "" || toggle === "null" ? "opacity-0" : "opacity-100"}`}
-              >
-                <Information />
-                <Attachment />
-              </div> */}
             </div>
             <div
               className={`relative origin-right transition-all duration-200

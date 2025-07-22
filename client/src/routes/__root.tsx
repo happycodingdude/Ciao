@@ -1,28 +1,19 @@
-import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   Link,
+  Outlet,
   redirect,
-  useLocation,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../App.css";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
 import useInfo from "../features/authentication/hooks/useInfo";
-import getInfo from "../features/authentication/services/getInfo";
-import { AuthLayout } from "../layouts/AuthLayout";
-import { MainLayout } from "../layouts/MainLayout";
+import userQueryOptions from "../features/authentication/queries/userInfoQuery";
+import SideBar from "../layouts/SideBar";
+import { MyRouterContext } from "../main";
 
-const userQueryOptions = queryOptions({
-  queryKey: ["info"],
-  queryFn: getInfo,
-});
-
-export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient;
-}>()({
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootComponent,
   notFoundComponent: () => {
     return (
@@ -35,49 +26,45 @@ export const Route = createRootRouteWithContext<{
   // Loader chỉ chạy nếu không ở /auth/*
   loader: async ({ location, context: { queryClient } }) => {
     const isAuthPage = location.pathname.startsWith("/auth");
-    const token = localStorage.getItem("accessToken");
 
-    // if (!token) {
-    //   return redirect({ to: "/auth" });
-    // }
+    // Nếu là trang auth thì không làm gì cả
+    if (isAuthPage) return null;
 
     // Nếu KHÔNG ở trang /auth → bắt buộc phải có userInfo
-    if (!isAuthPage) {
-      try {
-        await queryClient.ensureQueryData(userQueryOptions);
-      } catch (err) {
-        // Gọi API thất bại → redirect về /auth
-        return redirect({ to: "/auth" });
-      }
-    }
+    try {
+      console.log("Fetching user info");
 
-    // Ngược lại nếu là trang /auth thì không cần gì cả
-    return null;
+      await queryClient.ensureQueryData(userQueryOptions);
+    } catch (err) {
+      // Gọi API thất bại → redirect về /auth
+      return redirect({ to: "/auth" });
+    }
   },
 });
 
 function RootComponent() {
-  const location = useLocation();
-  const isAuthPage = location.pathname.startsWith("/auth");
+  // const location = useLocation();
+  // const isAuthPage = location.pathname.startsWith("/auth");
 
   const { data: info } = useInfo();
-  // if (!info) return null;
 
   return (
-    <LoadingProvider>
-      <div className="relative flex w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md">
-        {isAuthPage ? (
-          <AuthLayout />
-        ) : info ? (
+    <div className="relative flex w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md">
+      <LoadingProvider>
+        {/* Chỉ cung cấp SignalContext nếu user đã login */}
+        {info ? (
           <SignalProvider>
-            <MainLayout />
+            <SideBar />
+            <div className="relative grow">
+              <Outlet />
+            </div>
           </SignalProvider>
         ) : (
-          ""
+          // Nếu chưa login vẫn cần render để hiện /auth/*
+          <Outlet />
         )}
-      </div>
+      </LoadingProvider>
       <ReactQueryDevtools buttonPosition="bottom-right" />
-      <TanStackRouterDevtools />
-    </LoadingProvider>
+    </div>
   );
 }

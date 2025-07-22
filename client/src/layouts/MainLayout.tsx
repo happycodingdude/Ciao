@@ -5,7 +5,9 @@ export function MainLayout() {
   return (
     <>
       <SideBar />
-      <Outlet />
+      <div className="relative grow">
+        <Outlet />
+      </div>
     </>
   );
 }

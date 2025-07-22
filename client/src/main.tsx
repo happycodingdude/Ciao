@@ -5,7 +5,23 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 // Import the generated route tree
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { initializeApp } from "firebase/app";
+import { ConversationModel } from "./features/listchat/types";
 import { routeTree } from "./routeTree.gen";
+
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
+  authDomain: "myconnect-f2af8.firebaseapp.com",
+  projectId: "myconnect-f2af8",
+  storageBucket: "myconnect-f2af8.appspot.com",
+  messagingSenderId: "191922075446",
+  appId: "1:191922075446:web:72ab430046b40d39e22597",
+  measurementId: "G-8Q1N0TGXLZ",
+};
+
+// Initialize Firebase
+initializeApp(firebaseConfig);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,13 +33,18 @@ const queryClient = new QueryClient({
   },
 });
 
+export type MyRouterContext = {
+  queryClient: QueryClient;
+  conversations?: ConversationModel[];
+};
+
 // Set up a Router instance
 // @ts-ignore
 const router = createRouter({
   routeTree,
   context: {
     queryClient,
-  },
+  } as MyRouterContext,
   defaultPreload: "none", // ✅ Không preload loader/component khi hover link
   // Since we're using React Query, we don't want loader calls to ever be stale
   // This will ensure that the loader is always called when the route is preloaded or visited

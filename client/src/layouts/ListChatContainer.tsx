@@ -1,14 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import moment from "moment";
-import { flushSync } from "react-dom";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import LocalLoading from "../components/LocalLoading";
 import ListchatFilterProvider from "../context/ListchatFilterContext";
 import useInfo from "../features/authentication/hooks/useInfo";
-import getMessages from "../features/chatbox/services/getMessages";
-import getAttachments from "../features/chatdetail/services/getAttachments";
 import AddFriend from "../features/friend/components/AddFriend";
 import CreateGroupChat from "../features/groupchat/components/CreateGroupChat";
 import ListChat from "../features/listchat/components/ListChat";
@@ -16,7 +13,6 @@ import ListChatHeader from "../features/listchat/components/ListChatHeader";
 import ListChatHeader_Mobile from "../features/listchat/components/ListChatHeader_Mobile";
 import useConversation from "../features/listchat/hooks/useConversation";
 import useListchatFilter from "../features/listchat/hooks/useListchatFilter";
-import { ConversationCache } from "../features/listchat/types";
 import useLoading from "../hooks/useLoading";
 import "../listchat.css";
 import { isPhoneScreen } from "../utils/getScreenSize";
@@ -41,7 +37,7 @@ moment.updateLocale("en", {
 });
 
 const ListChatContainer = () => {
-  const { data: conversations, isLoading, isRefetching } = useConversation();
+  const { data: conversations, isLoading, isRefetching } = useConversation(1);
   const { data: info } = useInfo();
 
   // const [filter, setFilter] = useState<"all" | "direct" | "group">("all");
@@ -49,34 +45,34 @@ const ListChatContainer = () => {
 
   const queryClient = useQueryClient();
   const { setLoading } = useLoading();
-  const clickConversation = async (id: string) => {
-    if (conversations.selected?.id === id) return;
+  // const clickConversation = async (id: string) => {
+  //   if (conversations.selected?.id === id) return;
 
-    flushSync(() => {
-      setLoading(true);
-    });
+  //   flushSync(() => {
+  //     setLoading(true);
+  //   });
 
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const data: ConversationCache = {
-        ...oldData,
-        selected: oldData.filterConversations.find((item) => item.id === id),
-        reload: true,
-        quickChat: false,
-        message: null,
-      };
-      return data;
-    });
+  //   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+  //     const data: ConversationCache = {
+  //       ...oldData,
+  //       selected: oldData.filterConversations.find((item) => item.id === id),
+  //       reload: true,
+  //       quickChat: false,
+  //       message: null,
+  //     };
+  //     return data;
+  //   });
 
-    const [messages, attachments] = await Promise.all([
-      getMessages(id, 1),
-      getAttachments(id),
-    ]);
+  //   const [messages, attachments] = await Promise.all([
+  //     getMessages(id, 1),
+  //     getAttachments(id),
+  //   ]);
 
-    queryClient.setQueryData(["message"], messages);
-    queryClient.setQueryData(["attachment"], attachments);
+  //   queryClient.setQueryData(["message"], messages);
+  //   queryClient.setQueryData(["attachment"], attachments);
 
-    setLoading(false);
-  };
+  //   setLoading(false);
+  // };
 
   return (
     <ListchatFilterProvider>
@@ -167,55 +163,55 @@ const ListChatContainer = () => {
                 ),
               )
               .map((item) => (
-                <div
-                  key={item.id}
-                  // onClick={() => {
-                  //   clickConversation(item.id);
-                  // }}
-                  className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
-                    ${item.id === conversations.selected?.id ? "active" : ""}`}
+                <Link
+                  to={`/conversations/${item.id}`}
+                  // className="block h-full w-full"
                 >
-                  <Link
-                    to={`/chats/${item.id}`}
-                    className="block h-full w-full"
-                  ></Link>
-                  <div className="flex items-center laptop:h-[4rem]">
-                    <div className="relative">
-                      {/* MARK: AVATAR */}
-                      <ImageWithLightBoxAndNoLazy
-                        src={
-                          item.isGroup
-                            ? item.avatar
-                            : item.members.find(
-                                (item) => item.contact.id !== info.id,
-                              )?.contact.avatar
-                        }
-                        className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
-                        circle
-                      />
-                      <div
-                        className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white 
+                  <div
+                    key={item.id}
+                    // onClick={() => {
+                    //   clickConversation(item.id);
+                    // }}
+                    className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
+                    ${item.id === conversations.selected?.id ? "active" : ""}`}
+                  >
+                    <div className="flex items-center laptop:h-[4rem]">
+                      <div className="relative">
+                        {/* MARK: AVATAR */}
+                        <ImageWithLightBoxAndNoLazy
+                          src={
+                            item.isGroup
+                              ? item.avatar
+                              : item.members.find(
+                                  (item) => item.contact.id !== info.id,
+                                )?.contact.avatar
+                          }
+                          className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
+                          circle
+                        />
+                        <div
+                          className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white 
                         ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-green-400" : "bg-gray-400"}`}
-                      ></div>
-                    </div>
-                    <div className="mb-auto ml-[1rem] flex w-[60%] flex-col">
-                      {/* MARK: TITLE */}
-                      <CustomLabel
-                        className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                        ></div>
+                      </div>
+                      <div className="mb-auto ml-[1rem] flex w-[60%] flex-col">
+                        {/* MARK: TITLE */}
+                        <CustomLabel
+                          className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
                           font-['Be_Vietnam_Pro'] font-semibold`}
-                        title={
-                          item.isGroup
-                            ? item.title
-                            : item.members.find(
-                                (item) => item.contact.id !== info.id,
-                              )?.contact.name
-                        }
-                      />
-                      {/* MARK: LAST MESSAGE */}
-                      {item.lastMessage ? (
-                        <p className="mt-1 truncate text-sm text-gray-600">
-                          <CustomLabel
-                            className={`
+                          title={
+                            item.isGroup
+                              ? item.title
+                              : item.members.find(
+                                  (item) => item.contact.id !== info.id,
+                                )?.contact.name
+                          }
+                        />
+                        {/* MARK: LAST MESSAGE */}
+                        {item.lastMessage ? (
+                          <p className="mt-1 truncate text-sm text-gray-600">
+                            <CustomLabel
+                              className={`
                               ${
                                 item.id === conversations.selected?.id
                                   ? "text-[var(--text-sub-color-thin)]"
@@ -223,32 +219,33 @@ const ListChatContainer = () => {
                                     ? "text-[var(--danger-text-color)]"
                                     : "text-[var(--text-main-color-blur)]"
                               }`}
-                            title={item.lastMessage}
-                          />
-                        </p>
-                      ) : (
+                              title={item.lastMessage}
+                            />
+                          </p>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                      {/* MARK: LAST MESSAGE TIME */}
+                      {item.lastMessageTime === null ? (
                         ""
+                      ) : (
+                        <div
+                          className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
+                        >
+                          <p>
+                            {item.lastMessageTime === null
+                              ? ""
+                              : moment(item.lastMessageTime).fromNow()}
+                          </p>
+                        </div>
+                        // <span className="aspect-square w-[3rem] rounded-full bg-gray-300 px-2 py-1 text-xs text-gray-500">
+                        //   {moment(item.lastMessageTime).fromNow()}
+                        // </span>
                       )}
                     </div>
-                    {/* MARK: LAST MESSAGE TIME */}
-                    {item.lastMessageTime === null ? (
-                      ""
-                    ) : (
-                      <div
-                        className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
-                      >
-                        <p>
-                          {item.lastMessageTime === null
-                            ? ""
-                            : moment(item.lastMessageTime).fromNow()}
-                        </p>
-                      </div>
-                      // <span className="aspect-square w-[3rem] rounded-full bg-gray-300 px-2 py-1 text-xs text-gray-500">
-                      //   {moment(item.lastMessageTime).fromNow()}
-                      // </span>
-                    )}
                   </div>
-                </div>
+                </Link>
               ))}
           </div>
         </div>

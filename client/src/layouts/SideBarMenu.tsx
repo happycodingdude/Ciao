@@ -72,7 +72,7 @@ const SideBarMenu = (props: SideBarProps) => {
           <i className="fa-solid fa-home text-xl"></i>
           <div className="tooltip">Home</div>
         </Link>
-        <Link to="/chats" className="sidebar-item">
+        <Link to="/conversations" className="sidebar-item">
           <i className="fa-solid fa-message text-xl"></i>
           <div className="tooltip">Messages</div>
         </Link>

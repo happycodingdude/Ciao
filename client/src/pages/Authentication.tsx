@@ -1,9 +1,6 @@
-import { redirect } from "@tanstack/react-router";
 import { useRef } from "react";
-import LocalLoading from "../components/LocalLoading";
 import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
 import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
-import useInfo from "../features/authentication/hooks/useInfo";
 import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import { isPhoneScreen } from "../utils/getScreenSize";
@@ -18,7 +15,7 @@ export const AuthenticationContainer = () => {
 };
 
 const Authentication = () => {
-  const { data: info } = useInfo(true);
+  // const { data: info } = useInfo(true);
   // const [accessToken] = useLocalStorage("accessToken");
   const [accessToken] = useLocalStorage("accessToken", "");
   // const navigate = useNavigate();
@@ -33,9 +30,9 @@ const Authentication = () => {
   // const [showLogin, setShowLogin] = useState(true);
   // const [showSignup, setShowSignup] = useState(false);
 
-  if (info) redirect({ to: "/" });
+  // if (info) redirect({ to: "/" });
 
-  if (accessToken) return <LocalLoading />;
+  // if (accessToken) return <LocalLoading />;
 
   const toggleBg = () => {
     // Animate background container

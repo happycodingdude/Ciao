@@ -8,20 +8,25 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ChatsIndexRouteImport } from './routes/chats/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as ChatsChatIdRouteImport } from './routes/chats/$chatId'
+import { Route as ConversationsLayoutRouteImport } from './routes/conversations/_layout'
+import { Route as ConversationsLayoutIndexRouteImport } from './routes/conversations/_layout.index'
+import { Route as ConversationsLayoutConversationIdRouteImport } from './routes/conversations/_layout.$conversationId'
 
+const ConversationsRouteImport = createFileRoute('/conversations')()
+
+const ConversationsRoute = ConversationsRouteImport.update({
+  id: '/conversations',
+  path: '/conversations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatsIndexRoute = ChatsIndexRouteImport.update({
-  id: '/chats/',
-  path: '/chats/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
@@ -29,60 +34,85 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChatsChatIdRoute = ChatsChatIdRouteImport.update({
-  id: '/chats/$chatId',
-  path: '/chats/$chatId',
-  getParentRoute: () => rootRouteImport,
+const ConversationsLayoutRoute = ConversationsLayoutRouteImport.update({
+  id: '/_layout',
+  getParentRoute: () => ConversationsRoute,
 } as any)
+const ConversationsLayoutIndexRoute =
+  ConversationsLayoutIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ConversationsLayoutRoute,
+  } as any)
+const ConversationsLayoutConversationIdRoute =
+  ConversationsLayoutConversationIdRouteImport.update({
+    id: '/$conversationId',
+    path: '/$conversationId',
+    getParentRoute: () => ConversationsLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chats/$chatId': typeof ChatsChatIdRoute
+  '/conversations': typeof ConversationsLayoutRouteWithChildren
   '/auth': typeof AuthIndexRoute
-  '/chats': typeof ChatsIndexRoute
+  '/conversations/$conversationId': typeof ConversationsLayoutConversationIdRoute
+  '/conversations/': typeof ConversationsLayoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/chats/$chatId': typeof ChatsChatIdRoute
+  '/conversations': typeof ConversationsLayoutIndexRoute
   '/auth': typeof AuthIndexRoute
-  '/chats': typeof ChatsIndexRoute
+  '/conversations/$conversationId': typeof ConversationsLayoutConversationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/chats/$chatId': typeof ChatsChatIdRoute
+  '/conversations': typeof ConversationsRouteWithChildren
+  '/conversations/_layout': typeof ConversationsLayoutRouteWithChildren
   '/auth/': typeof AuthIndexRoute
-  '/chats/': typeof ChatsIndexRoute
+  '/conversations/_layout/$conversationId': typeof ConversationsLayoutConversationIdRoute
+  '/conversations/_layout/': typeof ConversationsLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chats/$chatId' | '/auth' | '/chats'
+  fullPaths:
+    | '/'
+    | '/conversations'
+    | '/auth'
+    | '/conversations/$conversationId'
+    | '/conversations/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chats/$chatId' | '/auth' | '/chats'
-  id: '__root__' | '/' | '/chats/$chatId' | '/auth/' | '/chats/'
+  to: '/' | '/conversations' | '/auth' | '/conversations/$conversationId'
+  id:
+    | '__root__'
+    | '/'
+    | '/conversations'
+    | '/conversations/_layout'
+    | '/auth/'
+    | '/conversations/_layout/$conversationId'
+    | '/conversations/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChatsChatIdRoute: typeof ChatsChatIdRoute
+  ConversationsRoute: typeof ConversationsRouteWithChildren
   AuthIndexRoute: typeof AuthIndexRoute
-  ChatsIndexRoute: typeof ChatsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/conversations': {
+      id: '/conversations'
+      path: '/conversations'
+      fullPath: '/conversations'
+      preLoaderRoute: typeof ConversationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chats/': {
-      id: '/chats/'
-      path: '/chats'
-      fullPath: '/chats'
-      preLoaderRoute: typeof ChatsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/': {
@@ -92,21 +122,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chats/$chatId': {
-      id: '/chats/$chatId'
-      path: '/chats/$chatId'
-      fullPath: '/chats/$chatId'
-      preLoaderRoute: typeof ChatsChatIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/conversations/_layout': {
+      id: '/conversations/_layout'
+      path: '/conversations'
+      fullPath: '/conversations'
+      preLoaderRoute: typeof ConversationsLayoutRouteImport
+      parentRoute: typeof ConversationsRoute
+    }
+    '/conversations/_layout/': {
+      id: '/conversations/_layout/'
+      path: '/'
+      fullPath: '/conversations/'
+      preLoaderRoute: typeof ConversationsLayoutIndexRouteImport
+      parentRoute: typeof ConversationsLayoutRoute
+    }
+    '/conversations/_layout/$conversationId': {
+      id: '/conversations/_layout/$conversationId'
+      path: '/$conversationId'
+      fullPath: '/conversations/$conversationId'
+      preLoaderRoute: typeof ConversationsLayoutConversationIdRouteImport
+      parentRoute: typeof ConversationsLayoutRoute
     }
   }
 }
 
+interface ConversationsLayoutRouteChildren {
+  ConversationsLayoutConversationIdRoute: typeof ConversationsLayoutConversationIdRoute
+  ConversationsLayoutIndexRoute: typeof ConversationsLayoutIndexRoute
+}
+
+const ConversationsLayoutRouteChildren: ConversationsLayoutRouteChildren = {
+  ConversationsLayoutConversationIdRoute:
+    ConversationsLayoutConversationIdRoute,
+  ConversationsLayoutIndexRoute: ConversationsLayoutIndexRoute,
+}
+
+const ConversationsLayoutRouteWithChildren =
+  ConversationsLayoutRoute._addFileChildren(ConversationsLayoutRouteChildren)
+
+interface ConversationsRouteChildren {
+  ConversationsLayoutRoute: typeof ConversationsLayoutRouteWithChildren
+}
+
+const ConversationsRouteChildren: ConversationsRouteChildren = {
+  ConversationsLayoutRoute: ConversationsLayoutRouteWithChildren,
+}
+
+const ConversationsRouteWithChildren = ConversationsRoute._addFileChildren(
+  ConversationsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChatsChatIdRoute: ChatsChatIdRoute,
+  ConversationsRoute: ConversationsRouteWithChildren,
   AuthIndexRoute: AuthIndexRoute,
-  ChatsIndexRoute: ChatsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
