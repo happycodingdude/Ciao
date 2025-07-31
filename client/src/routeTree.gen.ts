@@ -12,16 +12,23 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as ConversationsLayoutRouteImport } from './routes/conversations/_layout'
+import { Route as AuthLayoutRouteImport } from './routes/auth/_layout'
 import { Route as ConversationsLayoutIndexRouteImport } from './routes/conversations/_layout.index'
+import { Route as AuthLayoutIndexRouteImport } from './routes/auth/_layout.index'
 import { Route as ConversationsLayoutConversationIdRouteImport } from './routes/conversations/_layout.$conversationId'
 
 const ConversationsRouteImport = createFileRoute('/conversations')()
+const AuthRouteImport = createFileRoute('/auth')()
 
 const ConversationsRoute = ConversationsRouteImport.update({
   id: '/conversations',
   path: '/conversations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -29,14 +36,13 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/auth/',
-  path: '/auth/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ConversationsLayoutRoute = ConversationsLayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => ConversationsRoute,
+} as any)
+const AuthLayoutRoute = AuthLayoutRouteImport.update({
+  id: '/_layout',
+  getParentRoute: () => AuthRoute,
 } as any)
 const ConversationsLayoutIndexRoute =
   ConversationsLayoutIndexRouteImport.update({
@@ -44,6 +50,11 @@ const ConversationsLayoutIndexRoute =
     path: '/',
     getParentRoute: () => ConversationsLayoutRoute,
   } as any)
+const AuthLayoutIndexRoute = AuthLayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthLayoutRoute,
+} as any)
 const ConversationsLayoutConversationIdRoute =
   ConversationsLayoutConversationIdRouteImport.update({
     id: '/$conversationId',
@@ -53,50 +64,56 @@ const ConversationsLayoutConversationIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthLayoutRouteWithChildren
   '/conversations': typeof ConversationsLayoutRouteWithChildren
-  '/auth': typeof AuthIndexRoute
   '/conversations/$conversationId': typeof ConversationsLayoutConversationIdRoute
+  '/auth/': typeof AuthLayoutIndexRoute
   '/conversations/': typeof ConversationsLayoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthLayoutIndexRoute
   '/conversations': typeof ConversationsLayoutIndexRoute
-  '/auth': typeof AuthIndexRoute
   '/conversations/$conversationId': typeof ConversationsLayoutConversationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/auth/_layout': typeof AuthLayoutRouteWithChildren
   '/conversations': typeof ConversationsRouteWithChildren
   '/conversations/_layout': typeof ConversationsLayoutRouteWithChildren
-  '/auth/': typeof AuthIndexRoute
   '/conversations/_layout/$conversationId': typeof ConversationsLayoutConversationIdRoute
+  '/auth/_layout/': typeof AuthLayoutIndexRoute
   '/conversations/_layout/': typeof ConversationsLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/conversations'
     | '/auth'
+    | '/conversations'
     | '/conversations/$conversationId'
+    | '/auth/'
     | '/conversations/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conversations' | '/auth' | '/conversations/$conversationId'
+  to: '/' | '/auth' | '/conversations' | '/conversations/$conversationId'
   id:
     | '__root__'
     | '/'
+    | '/auth'
+    | '/auth/_layout'
     | '/conversations'
     | '/conversations/_layout'
-    | '/auth/'
     | '/conversations/_layout/$conversationId'
+    | '/auth/_layout/'
     | '/conversations/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRouteWithChildren
   ConversationsRoute: typeof ConversationsRouteWithChildren
-  AuthIndexRoute: typeof AuthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -108,18 +125,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConversationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/': {
-      id: '/auth/'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conversations/_layout': {
@@ -129,12 +146,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConversationsLayoutRouteImport
       parentRoute: typeof ConversationsRoute
     }
+    '/auth/_layout': {
+      id: '/auth/_layout'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthLayoutRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/conversations/_layout/': {
       id: '/conversations/_layout/'
       path: '/'
       fullPath: '/conversations/'
       preLoaderRoute: typeof ConversationsLayoutIndexRouteImport
       parentRoute: typeof ConversationsLayoutRoute
+    }
+    '/auth/_layout/': {
+      id: '/auth/_layout/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthLayoutIndexRouteImport
+      parentRoute: typeof AuthLayoutRoute
     }
     '/conversations/_layout/$conversationId': {
       id: '/conversations/_layout/$conversationId'
@@ -145,6 +176,28 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthLayoutRouteChildren {
+  AuthLayoutIndexRoute: typeof AuthLayoutIndexRoute
+}
+
+const AuthLayoutRouteChildren: AuthLayoutRouteChildren = {
+  AuthLayoutIndexRoute: AuthLayoutIndexRoute,
+}
+
+const AuthLayoutRouteWithChildren = AuthLayoutRoute._addFileChildren(
+  AuthLayoutRouteChildren,
+)
+
+interface AuthRouteChildren {
+  AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthLayoutRoute: AuthLayoutRouteWithChildren,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface ConversationsLayoutRouteChildren {
   ConversationsLayoutConversationIdRoute: typeof ConversationsLayoutConversationIdRoute
@@ -174,8 +227,8 @@ const ConversationsRouteWithChildren = ConversationsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRouteWithChildren,
   ConversationsRoute: ConversationsRouteWithChildren,
-  AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

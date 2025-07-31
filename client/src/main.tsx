@@ -1,11 +1,11 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import "bootstrap/dist/css/bootstrap.css";
-import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 // Import the generated route tree
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { initializeApp } from "firebase/app";
+import { StrictMode } from "react";
 import { ConversationModel } from "./features/listchat/types";
 import { routeTree } from "./routeTree.gen";
 
@@ -72,5 +72,9 @@ if (!rootElement.innerHTML) {
         <RouterProvider router={router} />
       </QueryClientProvider>
     </StrictMode>,
+
+    // <QueryClientProvider client={queryClient}>
+    //   <RouterProvider router={router} />
+    // </QueryClientProvider>,
   );
 }

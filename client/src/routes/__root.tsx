@@ -4,6 +4,7 @@ import {
   Link,
   Outlet,
   redirect,
+  useLocation,
 } from "@tanstack/react-router";
 import "../App.css";
 import LoadingProvider from "../context/LoadingContext";
@@ -43,26 +44,32 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootComponent() {
-  // const location = useLocation();
-  // const isAuthPage = location.pathname.startsWith("/auth");
+  const { data: info, isLoading } = useInfo();
+  const location = useLocation();
 
-  const { data: info } = useInfo();
+  // Đợi user info nếu đang loading (tránh nháy giao diện)
+  if (isLoading) return null;
+
+  // Nếu chưa login và đang ở /auth hoặc các route không cần layout
+  const isAuthPage = location.pathname.startsWith("/auth");
+  if (!info && isAuthPage) {
+    return <Outlet />;
+  }
+
+  // Nếu chưa login và không phải trang auth -> tránh render layout
+  if (!info) {
+    return null;
+  }
 
   return (
     <div className="relative flex w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md">
       <LoadingProvider>
-        {/* Chỉ cung cấp SignalContext nếu user đã login */}
-        {info ? (
-          <SignalProvider>
-            <SideBar />
-            <div className="relative grow">
-              <Outlet />
-            </div>
-          </SignalProvider>
-        ) : (
-          // Nếu chưa login vẫn cần render để hiện /auth/*
-          <Outlet />
-        )}
+        <SignalProvider>
+          <SideBar />
+          <div className="relative grow">
+            <Outlet />
+          </div>
+        </SignalProvider>
       </LoadingProvider>
       <ReactQueryDevtools buttonPosition="bottom-right" />
     </div>

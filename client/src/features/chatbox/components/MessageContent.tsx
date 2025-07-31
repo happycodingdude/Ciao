@@ -1,7 +1,7 @@
 import { PushpinOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
 import "../../../messagecontent.css";
@@ -152,10 +152,7 @@ const MessageContent = (props: MessageContentProps) => {
       ref={messageRef}
       id={message.id}
       key={message.id}
-      // className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}
-      // phone:text-base laptop:text-sm laptop-lg:text-sm`}
       className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
-      // style={{ height: `${height}px` }}
     >
       {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (
@@ -191,17 +188,6 @@ const MessageContent = (props: MessageContentProps) => {
           className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)]`}
         >
           {/* MARK: SENDER NAME */}
-          {/* {message.contactId === info.id ? (
-            ""
-          ) : (
-            <p className="font-['Be_Vietnam_Pro'] font-semibold">
-              {
-                conversations.selected?.members.find(
-                  (q) => q.contact.id === message.contactId,
-                )?.contact.name
-              }
-            </p>
-          )} */}
           <p className="font-['Be_Vietnam_Pro'] font-semibold">
             {message.contactId === info.id
               ? "You"
@@ -229,11 +215,6 @@ const MessageContent = (props: MessageContentProps) => {
                     className={isFirst ? "col-span-2 row-span-2" : ""}
                   >
                     <div className="relative aspect-square w-full">
-                      {/* <img
-                      src={src.mediaUrl}
-                      className="h-full w-full rounded-xl object-cover"
-                      alt={`Image ${index + 1}`}
-                    /> */}
                       <ImageWithLightBoxAndNoLazy
                         key={index}
                         src={src.mediaUrl}
@@ -338,7 +319,6 @@ const MessageContent = (props: MessageContentProps) => {
             {/* MARK: SHOW MORE MESSAGE */}
             {isOverflowing && (
               <div
-                // className="absolute bottom-[-2rem] left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-base text-green-500"
                 className={`absolute bottom-[-1.2rem] ${message.contactId === info.id ? "left-[3rem]" : "right-[3rem]"} cursor-pointer text-base text-green-500`}
                 onClick={() => {
                   setIsExpanded((current) => !current);
