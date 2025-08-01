@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import moment from "moment";
 import CustomLabel from "../components/CustomLabel";
@@ -13,7 +12,6 @@ import ListChatHeader from "../features/listchat/components/ListChatHeader";
 import ListChatHeader_Mobile from "../features/listchat/components/ListChatHeader_Mobile";
 import useConversation from "../features/listchat/hooks/useConversation";
 import useListchatFilter from "../features/listchat/hooks/useListchatFilter";
-import useLoading from "../hooks/useLoading";
 import "../listchat.css";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
@@ -39,40 +37,7 @@ moment.updateLocale("en", {
 const ListChatContainer = () => {
   const { data: conversations, isLoading, isRefetching } = useConversation(1);
   const { data: info } = useInfo();
-
-  // const [filter, setFilter] = useState<"all" | "direct" | "group">("all");
   const { filter, setFilter } = useListchatFilter();
-
-  const queryClient = useQueryClient();
-  const { setLoading } = useLoading();
-  // const clickConversation = async (id: string) => {
-  //   if (conversations.selected?.id === id) return;
-
-  //   flushSync(() => {
-  //     setLoading(true);
-  //   });
-
-  //   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-  //     const data: ConversationCache = {
-  //       ...oldData,
-  //       selected: oldData.filterConversations.find((item) => item.id === id),
-  //       reload: true,
-  //       quickChat: false,
-  //       message: null,
-  //     };
-  //     return data;
-  //   });
-
-  //   const [messages, attachments] = await Promise.all([
-  //     getMessages(id, 1),
-  //     getAttachments(id),
-  //   ]);
-
-  //   queryClient.setQueryData(["message"], messages);
-  //   queryClient.setQueryData(["attachment"], attachments);
-
-  //   setLoading(false);
-  // };
 
   return (
     <ListchatFilterProvider>
@@ -105,27 +70,14 @@ const ListChatContainer = () => {
       ) : (
         <div
           id="chat-list-v2"
-          // className="version-2 flex h-screen w-[30rem] shrink-0 flex-col rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50"
           className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] bg-pastel-pink"
         >
           <div className="flex flex-col gap-[1.5rem] px-[2rem] pt-[1rem]">
+            {/* MARK: List chat header */}
             <div className="relative">
-              {/* <input
-                type="text"
-                placeholder="Find and chat"
-                className="w-full rounded-3xl bg-white px-4 py-3 pr-20 shadow-sm focus:shadow-lg focus:outline-none"
-              /> */}
-              {/* <div className="absolute right-3 top-1/2 flex -translate-y-1/2 transform space-x-2">
-                <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200">
-                  <i className="fa-solid fa-filter text-xs text-purple-600"></i>
-                </div>
-                <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200">
-                  <i className="fa-solid fa-gear text-xs text-purple-600"></i>
-                </div>
-              </div> */}
               <ListChatHeader />
             </div>
-
+            {/* MARK: List chat filter */}
             <div className="flex gap-[1rem]">
               <div
                 className={`${filter === "all" ? "selected" : ""}  cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
@@ -164,11 +116,11 @@ const ListChatContainer = () => {
               )
               .map((item) => (
                 <Link
+                  key={item.id}
                   to={`/conversations/${item.id}`}
                   // className="block h-full w-full"
                 >
                   <div
-                    key={item.id}
                     // onClick={() => {
                     //   clickConversation(item.id);
                     // }}
@@ -209,7 +161,7 @@ const ListChatContainer = () => {
                         />
                         {/* MARK: LAST MESSAGE */}
                         {item.lastMessage ? (
-                          <p className="mt-1 truncate text-sm text-gray-600">
+                          <div className="mt-1 truncate text-sm text-gray-600">
                             <CustomLabel
                               className={`
                               ${
@@ -221,7 +173,7 @@ const ListChatContainer = () => {
                               }`}
                               title={item.lastMessage}
                             />
-                          </p>
+                          </div>
                         ) : (
                           ""
                         )}

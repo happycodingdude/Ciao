@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import Signout from "../features/authentication/components/Signout";
@@ -9,13 +9,6 @@ import { SideBarProps } from "../types";
 import blurImage from "../utils/blurImage";
 
 const SideBarMenu = (props: SideBarProps) => {
-  // console.log("SideBar calling");
-  // const { page, setPage } = props;
-
-  const router = useRouter();
-
-  // console.log(router.state.location);
-
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
 

@@ -27,6 +27,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/auth/, ""),
       },
     },
+    // historyApiFallback: true, // ✅ Đây là phần quan trọng
   },
   define: {
     // "process.env": process.env,

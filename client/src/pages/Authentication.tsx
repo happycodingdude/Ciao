@@ -7,6 +7,7 @@ import { isPhoneScreen } from "../utils/getScreenSize";
 import Signup from "./Signup";
 
 export const AuthenticationContainer = () => {
+  console.log("Rendering AuthenticationContainer");
   return (
     <AuthenticationFormTogglesProvider>
       <Authentication />

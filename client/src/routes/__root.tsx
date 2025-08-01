@@ -44,6 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootComponent() {
+  console.log("Rendering RootComponent");
   const { data: info, isLoading } = useInfo();
   const location = useLocation();
 
@@ -62,16 +63,18 @@ function RootComponent() {
   }
 
   return (
-    <div className="relative flex w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md">
-      <LoadingProvider>
-        <SignalProvider>
-          <SideBar />
-          <div className="relative grow">
-            <Outlet />
-          </div>
-        </SignalProvider>
-      </LoadingProvider>
+    <>
+      <div className="relative flex w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md">
+        <SideBar />
+        <div className="relative grow">
+          <LoadingProvider>
+            <SignalProvider>
+              <Outlet />
+            </SignalProvider>
+          </LoadingProvider>
+        </div>
+      </div>
       <ReactQueryDevtools buttonPosition="bottom-right" />
-    </div>
+    </>
   );
 }

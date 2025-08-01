@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from "react";
+import { CSSProperties, useState } from "react";
 import { ImageWithLightboxProps } from "../types";
 import CustomLightbox from "./CustomLightbox";
 
@@ -38,7 +38,7 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
         title={title}
         style={
           {
-            "--image-url": `url(${src && src !== "" && isValid ? src : "src/assets/imagenotfound.jpg"})`,
+            "--image-url": `url(${src && src !== "" && isValid ? src : "/src/assets/imagenotfound.jpg"})`,
           } as CSSProperties
         }
         className={`${className ?? ""} ${imageClassName ?? "bg-[size:cover]"} ${circle ? "rounded-full" : "rounded-2xl"} ${pending ? "opacity-50" : ""}

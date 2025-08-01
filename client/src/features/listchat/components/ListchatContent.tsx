@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
-import React, { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -77,9 +77,7 @@ const ListchatContent = () => {
     blurImage(".list-chat");
   }, [data?.filterConversations]);
 
-  {
-    /* MARK: Click conversation */
-  }
+  /* MARK: Click conversation */
   const clickConversation = async (id: string) => {
     if (data.selected?.id === id) return;
 

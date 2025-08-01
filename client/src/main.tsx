@@ -26,7 +26,7 @@ initializeApp(firebaseConfig);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      // refetchOnWindowFocus: false,
       retry: false,
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
     },
@@ -45,11 +45,7 @@ const router = createRouter({
   context: {
     queryClient,
   } as MyRouterContext,
-  defaultPreload: "none", // ✅ Không preload loader/component khi hover link
-  // Since we're using React Query, we don't want loader calls to ever be stale
-  // This will ensure that the loader is always called when the route is preloaded or visited
-  // defaultPreloadStaleTime: 0,
-  // scrollRestoration: true,
+  defaultPreload: false, // ✅ Không preload loader/component khi hover link
 });
 
 // Xuất kiểu để tái sử dụng
@@ -72,9 +68,5 @@ if (!rootElement.innerHTML) {
         <RouterProvider router={router} />
       </QueryClientProvider>
     </StrictMode>,
-
-    // <QueryClientProvider client={queryClient}>
-    //   <RouterProvider router={router} />
-    // </QueryClientProvider>,
   );
 }

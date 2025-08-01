@@ -1,15 +1,14 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import getConversations from "../services/getConversations";
+import conversationQueryOption from "../queries/conversationQuery";
 import { ConversationCache } from "../types";
 
 const useConversation = (
   page?: number | undefined,
 ): UseQueryResult<ConversationCache> => {
   return useQuery({
-    queryKey: ["conversation"],
-    queryFn: () => getConversations(page),
-    staleTime: Infinity,
-    enabled: typeof page !== "undefined", // 👈 Chỉ gọi khi page đã xác định
+    ...conversationQueryOption(page ?? 1),
+    enabled: typeof page !== "undefined",
   });
 };
+
 export default useConversation;
