@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -59,11 +59,11 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        selected: {
-          ...oldData.selected,
-          title: refInput.current.value,
-          avatar: url,
-        },
+        // selected: {
+        //   ...oldData.selected,
+        //   title: refInput.current.value,
+        //   avatar: url,
+        // },
         noLoading: true,
       };
     });

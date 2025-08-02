@@ -3,7 +3,8 @@ import {
   InfoCircleOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import React, { useState } from "react";
+import { useParams } from "@tanstack/react-router";
+import { useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import { useSignal } from "../../../context/SignalContext";
 import { UserProfile } from "../../../types";
@@ -18,7 +19,19 @@ const ChatboxHeaderMenu = () => {
   const { toggle, setToggle } = useChatDetailToggles();
 
   const { data: conversations } = useConversation();
-  if (!conversations || !conversations.selected) return;
+  // if (!conversations || !conversations.selected) return;
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = useMemo(
+  //   () =>
+  //     conversations.filterConversations.find((c) => c.id === conversationId),
+  //   [conversations, conversationId],
+  // );
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
 
   const { data: info } = useInfo();
   const { startLocalStream } = useSignal();
@@ -28,13 +41,13 @@ const ChatboxHeaderMenu = () => {
   return (
     <>
       {/* MARK: ADD MEMBERS, UPDATE CONVERSATION  */}
-      {conversations.selected.isGroup ? (
+      {conversation.isGroup ? (
         <>
           <AddMembers />
           <EditOutlined
             className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
             onClick={() => {
-              if (conversations.selected.isGroup) setOpenUpdateTitle(true);
+              if (conversation.isGroup) setOpenUpdateTitle(true);
             }}
           />
           <BackgroundPortal
@@ -44,7 +57,7 @@ const ChatboxHeaderMenu = () => {
             onClose={() => setOpenUpdateTitle(false)}
           >
             <UpdateConversation
-              selected={conversations.selected}
+              selected={conversation}
               onClose={() => setOpenUpdateTitle(false)}
             />
           </BackgroundPortal>
@@ -56,9 +69,8 @@ const ChatboxHeaderMenu = () => {
       <VideoCameraOutlined
         onClick={() =>
           startLocalStream(
-            conversations.selected?.members.find(
-              (mem) => mem.contact.id !== info.id,
-            ).contact as UserProfile,
+            conversation.members.find((mem) => mem.contact.id !== info.id)
+              .contact as UserProfile,
           )
         }
         className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"

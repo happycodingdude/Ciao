@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { createPortal } from "react-dom";
 import useEventListener from "../hooks/useEventListener";
 import { BackgroundPortalProps } from "../types";
@@ -39,7 +39,7 @@ const BackgroundPortal = (props: BackgroundPortalProps) => {
         {children}
       </div>
     </div>,
-    document.getElementById("portal"),
+    document.getElementById("root"),
   );
 };
 

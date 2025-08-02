@@ -1,3 +1,4 @@
+import { useParams } from "@tanstack/react-router";
 import { useRef } from "react";
 import LocalLoading from "../components/LocalLoading";
 import Chatbox from "../features/chatbox/components/Chatbox";
@@ -20,6 +21,21 @@ const ChatboxContainer = () => {
   const refChatboxContainer = useRef<HTMLDivElement>();
   const refInput = useRef<HTMLInputElement>();
 
+  // if (!conversations.selected) return null;
+  // const { conversationId } = useParams({
+  //   from: "/conversations/_layout/$conversationId",
+  // });
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = conversations.filterConversations.find(
+  //   (c) => c.id === conversationId,
+  // );
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
+
   return (
     <>
       {isPhoneScreen() ? (
@@ -27,7 +43,7 @@ const ChatboxContainer = () => {
         <>
           <div
             className={`absolute h-full w-full bg-[var(--bg-color)]
-            ${conversations?.selected && (!toggle || toggle === "" || toggle === "null") ? "z-[10]" : "z-0"}`}
+            ${conversation && (!toggle || toggle === "" || toggle === "null") ? "z-[10]" : "z-0"}`}
           >
             <div className="flex h-full flex-col">
               <ChatboxHeader />

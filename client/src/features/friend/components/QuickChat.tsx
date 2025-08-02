@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useEventListener from "../../../hooks/useEventListener";
@@ -215,10 +215,10 @@ const QuickChat = (props: QuickChatProps) => {
               ...oldData,
               conversations: updatedConversations,
               filterConversations: updatedConversations,
-              selected: {
-                ...oldData.selected,
-                id: res.conversationId,
-              },
+              // selected: {
+              //   ...oldData.selected,
+              //   id: res.conversationId,
+              // },
             } as ConversationCache;
           },
         );

@@ -3,11 +3,11 @@ import "bootstrap/dist/css/bootstrap.css";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 // Import the generated route tree
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { initializeApp } from "firebase/app";
 import { StrictMode } from "react";
-import { ConversationModel } from "./features/listchat/types";
 import { routeTree } from "./routeTree.gen";
+import queryClient from "./utils/queryClient";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -23,20 +23,10 @@ const firebaseConfig = {
 // Initialize Firebase
 initializeApp(firebaseConfig);
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // refetchOnWindowFocus: false,
-      retry: false,
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-    },
-  },
-});
-
-export type MyRouterContext = {
-  queryClient: QueryClient;
-  conversations?: ConversationModel[];
-};
+// export type MyRouterContext = {
+//   queryClient: QueryClient;
+//   conversations?: ConversationModel[];
+// };
 
 // Set up a Router instance
 // @ts-ignore
@@ -44,7 +34,7 @@ const router = createRouter({
   routeTree,
   context: {
     queryClient,
-  } as MyRouterContext,
+  },
   defaultPreload: false, // ✅ Không preload loader/component khi hover link
 });
 

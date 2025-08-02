@@ -38,13 +38,27 @@ const ListChatContainer = () => {
   const { data: conversations, isLoading, isRefetching } = useConversation(1);
   const { data: info } = useInfo();
   const { filter, setFilter } = useListchatFilter();
+  // const matchRoute = useMatchRoute();
+  // const match = matchRoute("/conversations/_layout/$conversationId");
+  // const selectedConversationId = match?.params.conversationId;
+  // console.log("selectedConversationId: ", selectedConversationId);
+
+  // const [conversationId, setConversationId] = useLocalStorage<string>(
+  //   "conversationId",
+  //   "",
+  // );
+  const conversationId = localStorage.getItem("conversationId");
+  // const { conversationId } = useParams({
+  //   from: "/conversations/_layout/$conversationId",
+  // });
+  // console.log("conversationId: ", conversationId);
 
   return (
     <ListchatFilterProvider>
       {isPhoneScreen() ? (
         <div
           className={`absolute flex h-full w-full flex-col bg-[var(--bg-color)]
-            ${conversations?.selected ? "z-0" : "z-[10]"}`}
+            ${conversationId ? "z-0" : "z-[10]"}`}
         >
           <div className="flex h-[5rem] shrink-0 items-center justify-between px-[1rem]">
             <p className="text-xl font-bold">Messages</p>
@@ -125,7 +139,7 @@ const ListChatContainer = () => {
                     //   clickConversation(item.id);
                     // }}
                     className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
-                    ${item.id === conversations.selected?.id ? "active" : ""}`}
+                    ${item.id === conversationId ? "active" : ""}`}
                   >
                     <div className="flex items-center laptop:h-[4rem]">
                       <div className="relative">
@@ -149,7 +163,7 @@ const ListChatContainer = () => {
                       <div className="mb-auto ml-[1rem] flex w-[60%] flex-col">
                         {/* MARK: TITLE */}
                         <CustomLabel
-                          className={`${item.id === conversations.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                          className={`${item.id === conversationId ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
                           font-['Be_Vietnam_Pro'] font-semibold`}
                           title={
                             item.isGroup
@@ -165,7 +179,7 @@ const ListChatContainer = () => {
                             <CustomLabel
                               className={`
                               ${
-                                item.id === conversations.selected?.id
+                                item.id === conversationId
                                   ? "text-[var(--text-sub-color-thin)]"
                                   : item.unSeen
                                     ? "text-[var(--danger-text-color)]"

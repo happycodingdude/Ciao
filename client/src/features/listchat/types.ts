@@ -37,7 +37,7 @@ export type ConversationModel = BaseModel & {
 export type ConversationCache = {
   conversations?: ConversationModel[];
   filterConversations?: ConversationModel[];
-  selected?: ConversationModel;
+  // selected?: ConversationModel;
   reload?: boolean;
   createGroupChat?: boolean;
   quickChat?: boolean;

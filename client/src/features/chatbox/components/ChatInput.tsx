@@ -1,6 +1,7 @@
 import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
 import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import moment from "moment";
 import React, {
   ChangeEvent,
@@ -46,6 +47,17 @@ const ChatInput = (props: ChatInputProps) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = conversations.filterConversations.find(
+  //   (c) => c.id === conversationId,
+  // );
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
+
   const [mentions, setMentions] = useState<MentionModel[]>([]);
   const [showMention, setShowMention] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
@@ -58,7 +70,7 @@ const ChatInput = (props: ChatInputProps) => {
   useEffect(() => {
     setFiles([]);
     setMentions(() => {
-      return conversations?.selected?.members
+      return conversation.members
         .filter((item) => item.contact.id !== info.id)
         .map((item) => {
           return {
@@ -71,7 +83,7 @@ const ChatInput = (props: ChatInputProps) => {
 
     // inputRef.current.focus();
     inputRef.current.innerText = "";
-  }, [conversations?.selected]);
+  }, [conversation]);
 
   const setCaretToEnd = (addSpace: boolean) => {
     if (addSpace) inputRef.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
@@ -106,8 +118,7 @@ const ChatInput = (props: ChatInputProps) => {
         (oldData: ConversationCache) => {
           const updatedConversations = oldData.conversations.map(
             (conversation) => {
-              if (conversation.id !== conversations?.selected.id)
-                return conversation;
+              if (conversation.id !== conversation.id) return conversation;
               return {
                 ...conversation,
                 lastMessage:
@@ -122,10 +133,10 @@ const ChatInput = (props: ChatInputProps) => {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
-            selected: {
-              ...oldData.selected,
-              lastMessageTime: moment().format(),
-            },
+            // selected: {
+            //   ...oldData.selected,
+            //   lastMessageTime: moment().format(),
+            // },
           } as ConversationCache;
         },
       );
@@ -260,7 +271,7 @@ const ChatInput = (props: ChatInputProps) => {
       }
 
       const res: SendMessageResponse = await sendMessage(
-        conversations?.selected.id,
+        conversation.id,
         bodyToCreate,
       );
       await delay(500);
@@ -489,7 +500,7 @@ const ChatInput = (props: ChatInputProps) => {
           className={`mention-item relative w-full`}
         >
           {/* MARK: MENTION */}
-          {conversations?.selected?.isGroup ? (
+          {conversation.isGroup ? (
             <div
               data-show={showMention}
               className="hide-scrollbar absolute bottom-[4rem] left-0 flex flex-col overflow-y-scroll

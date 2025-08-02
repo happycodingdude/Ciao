@@ -1,6 +1,6 @@
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import React from "react";
 import { useSignal } from "../../../context/SignalContext";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 import { UserProfile } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
 import useConversation from "../../listchat/hooks/useConversation";
@@ -10,7 +10,11 @@ const ChatboxHeaderMenu_Mobile = () => {
   const { toggle, setToggle } = useChatDetailToggles();
 
   const { data: conversations } = useConversation();
-  if (!conversations || !conversations.selected) return;
+  // if (!conversations || !conversation) return;
+  const [conversationId] = useLocalStorage<string>("conversationId");
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
 
   const { data: info } = useInfo();
   const { startLocalStream } = useSignal();
@@ -21,9 +25,8 @@ const ChatboxHeaderMenu_Mobile = () => {
       <VideoCameraOutlined
         onClick={() =>
           startLocalStream(
-            conversations.selected?.members.find(
-              (mem) => mem.contact.id !== info.id,
-            ).contact as UserProfile,
+            conversation?.members.find((mem) => mem.contact.id !== info.id)
+              .contact as UserProfile,
           )
         }
         className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"

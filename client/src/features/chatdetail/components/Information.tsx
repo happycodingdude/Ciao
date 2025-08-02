@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { MouseEvent, useEffect, useRef, useState } from "react";
+import { useParams } from "@tanstack/react-router";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
@@ -24,6 +25,18 @@ const Information = () => {
   const { data: conversations } = useConversation();
   const { data: attachmentCache } = useAttachment();
 
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = conversations.filterConversations.find(
+  //   (c) => c.id === conversationId,
+  // );
+
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
+
   const refInformation = useRef<HTMLDivElement>();
   const refMembers = useRef<HTMLDivElement>();
 
@@ -39,11 +52,11 @@ const Information = () => {
   useEffect(() => {
     setChosenProfile(undefined);
     // blurImage(".members-image-container");
-  }, [conversations.selected?.id]);
+  }, [conversationId]);
 
-  useEffect(() => {
-    // blurImage(".members-image-container");
-  }, [conversations.selected?.members]);
+  // useEffect(() => {
+  //   // blurImage(".members-image-container");
+  // }, [conversations.selected?.members]);
 
   useEffect(() => {
     if (!attachmentCache) return;
@@ -133,17 +146,17 @@ const Information = () => {
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
-              conversations.selected.isGroup
-                ? conversations.selected.avatar
-                : conversations.selected.members?.find(
+              conversation?.isGroup
+                ? conversation.avatar
+                : conversation.members?.find(
                     (item) => item.contact.id !== info.id,
                   )?.contact.avatar
             }
             slides={[
               {
-                src: conversations.selected.isGroup
-                  ? conversations.selected.avatar
-                  : conversations.selected.members?.find(
+                src: conversation?.isGroup
+                  ? conversation.avatar
+                  : conversation.members?.find(
                       (item) => item.contact.id !== info.id,
                     )?.contact.avatar,
               },
@@ -154,15 +167,15 @@ const Information = () => {
           />
           {/* MARK: TITLE  */}
           <div className="flex w-[70%] grow flex-col items-center justify-center phone:text-lg laptop:text-md">
-            {conversations.selected.isGroup ? (
+            {conversation?.isGroup ? (
               <>
                 <CustomLabel
                   className="text-center font-bold"
-                  title={conversations.selected.title}
+                  title={conversation.title}
                   tooltip
                 />
                 <p className="phone:text-md laptop:text-sm">
-                  {conversations.selected.members.length} members
+                  {conversation.members.length} members
                 </p>
               </>
             ) : (
@@ -170,7 +183,7 @@ const Information = () => {
                 <CustomLabel
                   className="text-center font-bold"
                   title={
-                    conversations.selected.members?.find(
+                    conversation.members?.find(
                       (item) => item.contact.id !== info.id,
                     )?.contact.name
                   }
@@ -181,7 +194,7 @@ const Information = () => {
           </div>
         </div>
         {/* MARK: MEMBERS  */}
-        {conversations.selected?.isGroup ? (
+        {conversation?.isGroup ? (
           <div className="flex flex-col gap-[1rem]">
             <div className="flex justify-between pr-[1rem]">
               <p className="font-bold">Members</p>
@@ -207,7 +220,7 @@ const Information = () => {
               className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500
                 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
             >
-              {conversations.selected?.members
+              {conversation?.members
                 .filter((item) => item.contact.id !== info.id)
                 .map((item) => (
                   <div

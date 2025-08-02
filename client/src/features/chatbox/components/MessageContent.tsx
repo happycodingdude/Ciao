@@ -1,5 +1,6 @@
 import { PushpinOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -21,6 +22,17 @@ const MessageContent = (props: MessageContentProps) => {
 
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
+
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = conversations.filterConversations.find(
+  //   (c) => c.id === conversationId,
+  // );
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
 
   const [reaction, setReaction] =
     useState<MessageReactionProps_Message_Reaction>(() => {
@@ -159,7 +171,7 @@ const MessageContent = (props: MessageContentProps) => {
         <div className="relative w-[4rem] self-start">
           <ImageWithLightBoxAndNoLazy
             src={
-              conversations.selected?.members.find(
+              conversation.members.find(
                 (q) => q.contact.id === message.contactId,
               )?.contact.avatar
             }
@@ -167,7 +179,7 @@ const MessageContent = (props: MessageContentProps) => {
             circle
             slides={[
               {
-                src: conversations.selected?.members.find(
+                src: conversation.members.find(
                   (q) => q.contact.id === message.contactId,
                 )?.contact.avatar,
               },
@@ -191,7 +203,7 @@ const MessageContent = (props: MessageContentProps) => {
           <p className="font-['Be_Vietnam_Pro'] font-semibold">
             {message.contactId === info.id
               ? "You"
-              : conversations.selected?.members.find(
+              : conversation.members.find(
                   (q) => q.contact.id === message.contactId,
                 )?.contact.name}
           </p>
@@ -282,7 +294,7 @@ const MessageContent = (props: MessageContentProps) => {
                   >
                     Pinned by{" "}
                     {
-                      conversations.selected?.members.find(
+                      conversation.members.find(
                         (q) => q.contact.id === message.pinnedBy,
                       )?.contact.name
                     }

@@ -1,10 +1,8 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import ChatDetailTogglesProvider from "../../context/ChatDetailTogglesContext";
 import ListchatFilterProvider from "../../context/ListchatFilterContext";
 import LoadingProvider from "../../context/LoadingContext";
 import { SignalProvider } from "../../context/SignalContext";
-import conversationQueryOption from "../../features/listchat/queries/conversationQuery";
-import { ConversationCache } from "../../features/listchat/types";
 import ListChatContainer from "../../layouts/ListChatContainer";
 
 export const Route = createFileRoute("/conversations/_layout")({
@@ -28,16 +26,19 @@ export const Route = createFileRoute("/conversations/_layout")({
   },
   loader: async ({ context: { queryClient } }) => {
     console.log("Fetching conversations");
-    const data = queryClient.getQueryData<ConversationCache>(
-      conversationQueryOption(1).queryKey,
-    );
-    const selected = data?.selected;
+    localStorage.removeItem("conversationId");
+    // const conversationId = localStorage.getItem("conversationId");
 
-    if (selected?.id && location.pathname === "/conversations") {
-      // 👇 Redirect về hội thoại đang chọn
-      throw redirect({
-        to: `/conversations/${selected.id}`,
-      });
-    }
+    // const data = queryClient.getQueryData<ConversationCache>(
+    //   conversationQueryOption(1).queryKey,
+    // );
+    // const selected = data?.selected;
+
+    // if (conversationId) {
+    //   // 👇 Redirect về hội thoại đang chọn
+    //   throw redirect({
+    //     to: `/conversations/${conversationId}`,
+    //   });
+    // }
   },
 });

@@ -1,6 +1,7 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
@@ -25,6 +26,17 @@ const AddMembersModal = (props: OnCloseType) => {
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
 
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = conversations.filterConversations.find(
+  //   (c) => c.id === conversationId,
+  // );
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
+
   const refInput = useRef<HTMLInputElement>();
 
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
@@ -45,7 +57,7 @@ const AddMembersModal = (props: OnCloseType) => {
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const updatedConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== conversations.selected.id) return conversation;
+        if (conversation.id !== conversation.id) return conversation;
         return {
           ...conversation,
           members: [
@@ -65,26 +77,26 @@ const AddMembersModal = (props: OnCloseType) => {
       return {
         ...oldData,
         conversations: updatedConversations,
-        selected: {
-          ...oldData.selected,
-          members: [
-            ...oldData.selected.members,
-            ...membersToAdd.map((mem) => {
-              return {
-                contact: {
-                  id: mem.id,
-                  name: mem.name,
-                  avatar: mem.avatar,
-                },
-              };
-            }),
-          ],
-        },
+        // selected: {
+        //   ...oldData.selected,
+        //   members: [
+        //     ...oldData.selected.members,
+        //     ...membersToAdd.map((mem) => {
+        //       return {
+        //         contact: {
+        //           id: mem.id,
+        //           name: mem.name,
+        //           avatar: mem.avatar,
+        //         },
+        //       };
+        //     }),
+        //   ],
+        // },
       } as ConversationCache;
     });
 
     addMembers(
-      conversations.selected.id,
+      conversation.id,
       membersToAdd.map((mem) => {
         return mem.id;
       }),
@@ -136,9 +148,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   key={item.id}
                   className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]
                 ${
-                  conversations.selected.members.some(
-                    (mem) => mem.contact.id === item.id,
-                  )
+                  conversation.members.some((mem) => mem.contact.id === item.id)
                     ? "pointer-events-none"
                     : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
                 } `}
@@ -159,7 +169,7 @@ const AddMembersModal = (props: OnCloseType) => {
                 >
                   <CheckCircleOutlined
                     className={`base-icon-sm ${
-                      conversations.selected.members.some(
+                      conversation.members.some(
                         (mem) => mem.contact.id === item.id,
                       ) || membersToAdd.some((mem) => mem.id === item.id)
                         ? "text-[var(--main-color-bold)]"
@@ -180,7 +190,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   />
                   <div>
                     <CustomLabel title={item.name} />
-                    {conversations.selected.members.some(
+                    {conversation.members.some(
                       (mem) => mem.contact.id === item.id,
                     ) ? (
                       <p className="text-[var(--text-main-color-blur)]">

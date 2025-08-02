@@ -1,3 +1,4 @@
+import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
@@ -12,9 +13,12 @@ import { SignalProvider } from "../context/SignalContext";
 import useInfo from "../features/authentication/hooks/useInfo";
 import userQueryOptions from "../features/authentication/queries/userInfoQuery";
 import SideBar from "../layouts/SideBar";
-import { MyRouterContext } from "../main";
 
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+type RouterContext = {
+  queryClient: QueryClient;
+};
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   notFoundComponent: () => {
     return (

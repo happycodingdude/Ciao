@@ -1,11 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import useLoading from "../../../hooks/useLoading";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
@@ -58,6 +59,7 @@ const ListchatContent = () => {
   const queryClient = useQueryClient();
   const { setToggle } = useChatDetailToggles();
   const { setFilter } = useListchatFilter();
+  const [conversationId] = useLocalStorage<string>("conversationId");
 
   const refPage = useRef<number>(1);
   // const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -79,7 +81,7 @@ const ListchatContent = () => {
 
   /* MARK: Click conversation */
   const clickConversation = async (id: string) => {
-    if (data.selected?.id === id) return;
+    if (conversationId === id) return;
 
     flushSync(() => {
       setLoading(true);
@@ -91,7 +93,7 @@ const ListchatContent = () => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const data: ConversationCache = {
         ...oldData,
-        selected: oldData.filterConversations.find((item) => item.id === id),
+        // selected: oldData.filterConversations.find((item) => item.id === id),
         reload: true,
         quickChat: false,
         message: null,
@@ -110,21 +112,21 @@ const ListchatContent = () => {
     setLoading(false);
   };
 
-  const scrollToCenterOfSelected = useCallback(() => {
-    if (!data || !data.selected) return;
+  // const scrollToCenterOfSelected = useCallback(() => {
+  //   if (!data || !data.selected) return;
 
-    const chatElement = refChatItems.current[data?.selected.id];
-    if (!chatElement) return;
+  //   const chatElement = refChatItems.current[data?.selected.id];
+  //   if (!chatElement) return;
 
-    const chatList = refChats.current;
+  //   const chatList = refChats.current;
 
-    // Calculate the offset to center the chat
-    const chatTop = chatElement.offsetTop;
-    const chatHeight = chatElement.offsetHeight;
-    const listHeight = chatList.offsetHeight;
-    const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
-    chatList.scrollTop = scrollTop;
-  }, [data?.selected?.id]);
+  //   // Calculate the offset to center the chat
+  //   const chatTop = chatElement.offsetTop;
+  //   const chatHeight = chatElement.offsetHeight;
+  //   const listHeight = chatList.offsetHeight;
+  //   const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
+  //   chatList.scrollTop = scrollTop;
+  // }, [conversationId]);
 
   if (!data) return;
 
@@ -153,7 +155,7 @@ const ListchatContent = () => {
             className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] py-[.8rem] 
               pl-[.5rem] pr-[1rem] phone:h-[6.5rem] tablet:h-[5.5rem] laptop:h-[6.5rem]
         ${
-          data.selected?.id === item.id && !isPhoneScreen()
+          conversationId === item.id && !isPhoneScreen()
             ? `item-active bg-[var(--main-color)]`
             : "hover:bg-[var(--bg-color-extrathin)]"
         } `}
@@ -188,7 +190,7 @@ const ListchatContent = () => {
             <div className={`flex h-full w-1/2 grow flex-col gap-[.5rem]`}>
               {/* MARK: CONVERSATION TITLE */}
               <CustomLabel
-                className={`${item.id === data.selected?.id ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                className={`${item.id === conversationId ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
                 font-['Be_Vietnam_Pro'] font-semibold`}
                 title={
                   item.isGroup
@@ -201,7 +203,7 @@ const ListchatContent = () => {
               <CustomLabel
                 className={`
               ${
-                item.id === data.selected?.id
+                item.id === conversationId
                   ? "text-[var(--text-sub-color-thin)]"
                   : item.unSeen
                     ? "text-[var(--danger-text-color)]"

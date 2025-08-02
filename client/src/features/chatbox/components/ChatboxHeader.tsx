@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
+import { useParams } from "@tanstack/react-router";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
@@ -13,7 +13,14 @@ const ChatboxHeader = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  if (!conversations || !conversations.selected) return;
+  // if (!conversations || !conversation) return;
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
 
   return (
     <div
@@ -50,17 +57,17 @@ const ChatboxHeader = () => {
         {/* MARK: AVATAR  */}
         <ImageWithLightBoxAndNoLazy
           src={
-            conversations.selected.isGroup
-              ? conversations.selected.avatar
-              : conversations.selected.members?.find(
+            conversation.isGroup
+              ? conversation.avatar
+              : conversation.members?.find(
                   (item) => item.contact.id !== info.id,
                 )?.contact.avatar
           }
           slides={[
             {
-              src: conversations.selected.isGroup
-                ? conversations.selected.avatar
-                : conversations.selected.members?.find(
+              src: conversation.isGroup
+                ? conversation.avatar
+                : conversation.members?.find(
                     (item) => item.contact.id !== info.id,
                   )?.contact.avatar,
             },
@@ -70,24 +77,19 @@ const ChatboxHeader = () => {
         />
         {/* MARK: TITLE  */}
         <div className="relative flex grow flex-col text-md phone:max-w-[12rem] laptop:max-w-[30rem] desktop:max-w-[50rem]">
-          {conversations.selected.isGroup ? (
+          {conversation.isGroup ? (
             <>
               <div className="flex w-full gap-[.5rem]">
-                <CustomLabel
-                  className="font-bold"
-                  title={conversations.selected.title}
-                />
+                <CustomLabel className="font-bold" title={conversation.title} />
               </div>
-              <p className="text-sm">
-                {conversations.selected.members.length} members
-              </p>
+              <p className="text-sm">{conversation.members.length} members</p>
             </>
           ) : (
             <>
               <CustomLabel
                 className="font-bold"
                 title={
-                  conversations.selected.members?.find(
+                  conversation.members?.find(
                     (item) => item.contact.id !== info.id,
                   )?.contact.name
                 }

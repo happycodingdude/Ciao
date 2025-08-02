@@ -140,10 +140,10 @@ const FriendCtaButton = (props: FriendItemProps) => {
               ...oldData,
               conversations: updatedConversations,
               filterConversations: updatedConversations,
-              selected: {
-                ...oldData.selected,
-                id: res.conversationId,
-              },
+              // selected: {
+              //   ...oldData.selected,
+              //   id: res.conversationId,
+              // },
             } as ConversationCache;
           },
         );

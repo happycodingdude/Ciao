@@ -9,6 +9,7 @@ import { MessageCache, PendingMessageModel } from "../../listchat/types";
 import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
 import MessageContent from "./MessageContent";
+import { useParams } from "@tanstack/react-router";
 const Chatbox = () => {
   const queryClient = useQueryClient();
 
@@ -21,11 +22,19 @@ const Chatbox = () => {
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
+  const { conversationId } = useParams({
+      from: "/conversations/_layout/$conversationId",
+    });
+    const conversation = conversations.filterConversations.find(
+      (c) => c.id === conversationId,
+    );
+  
+
   // useEffect(() => {
-  //   if (conversations?.selected?.id) {
+  //   if (conversation?.id) {
   //     refPage.current = 1; // reset lại trang đầu khi chọn hội thoại mới
   //   }
-  // }, [conversations?.selected?.id]);
+  // }, [conversation?.id]);
 
   const scrollChatContentToBottom = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
@@ -48,7 +57,7 @@ const Chatbox = () => {
   useEffect(() => {
     refPage.current = 1;
     // setAutoScrollBottom(true);
-  }, [conversations?.selected]);
+  }, [conversation]);
 
   const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {
     if (!hasMore) return;
@@ -92,9 +101,9 @@ const Chatbox = () => {
       setAutoScrollBottom(false);
       refPage.current += 1;
 
-      debounceFetch(conversations?.selected?.id, messages?.hasMore);
+      debounceFetch(conversation?.id, messages?.hasMore);
     }
-  }, [messages?.hasMore, debounceFetch, conversations?.selected?.id]);
+  }, [messages?.hasMore, debounceFetch, conversation?.id]);
 
   useEventListener("scroll", handleScroll, refChatContent.current);
 
@@ -146,7 +155,7 @@ const Chatbox = () => {
             {[...messages].map((message, index) => (
               <MessageContent
                 message={message}
-                id={conversations.selected.id}
+                id={conversation.id}
                 mt={index === 0}
                 getContainerRect={() =>
                   refChatContent.current?.getBoundingClientRect()

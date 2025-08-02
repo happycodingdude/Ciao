@@ -1,6 +1,6 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
@@ -169,10 +169,10 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        selected: {
-          ...oldData.selected,
-          id: addedId,
-        },
+        // selected: {
+        //   ...oldData.selected,
+        //   id: addedId,
+        // },
       } as ConversationCache;
     });
     queryClient.setQueryData(["message"], (oldData: MessageCache) => {
