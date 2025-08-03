@@ -19,16 +19,6 @@ type RouterContext = {
 };
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  component: RootComponent,
-  notFoundComponent: () => {
-    return (
-      <div>
-        <p>This is the notFoundComponent configured on root route</p>
-        <Link to="/">Start Over</Link>
-      </div>
-    );
-  },
-  // Loader chỉ chạy nếu không ở /auth/*
   loader: async ({ location, context: { queryClient } }) => {
     const isAuthPage = location.pathname.startsWith("/auth");
 
@@ -44,6 +34,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       // Gọi API thất bại → redirect về /auth
       return redirect({ to: "/auth" });
     }
+  },
+  component: RootComponent,
+  notFoundComponent: () => {
+    return (
+      <div>
+        <p>This is the notFoundComponent configured on root route</p>
+        <Link to="/">Start Over</Link>
+      </div>
+    );
   },
 });
 

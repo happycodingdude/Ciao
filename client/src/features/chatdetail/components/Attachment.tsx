@@ -1,15 +1,24 @@
+import { useParams } from "@tanstack/react-router";
 import moment from "moment";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
+import useConversation from "../../listchat/hooks/useConversation";
 import useAttachment from "../hooks/useAttachment";
 
 const Attachment = () => {
   // console.log("Attachment calling");
   // const { show, toggle } = props;
   const { toggle } = useChatDetailToggles();
-  // const show = toggle === "attachment";
-  const { data: attachmentCache } = useAttachment();
+
+  const { data: conversations } = useConversation();
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
+  const { data: attachmentCache } = useAttachment(conversationId);
 
   const refAttachment = useRef();
   // const refScrollAttachment = useRef();

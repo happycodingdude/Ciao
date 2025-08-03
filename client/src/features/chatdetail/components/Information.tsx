@@ -14,28 +14,27 @@ import { AttachmentModel } from "../../listchat/types";
 import useAttachment from "../hooks/useAttachment";
 
 const Information = () => {
-  // console.log("Information calling");
-  // const { show, toggle } = props;
-  const { toggle, setToggle } = useChatDetailToggles();
-  const [showMembers, setShowMembers] = useLocalStorage("showMembers", true);
-
   const queryClient = useQueryClient();
 
-  const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { data: attachmentCache } = useAttachment();
-
-  // const [conversationId] = useLocalStorage<string>("conversationId");
-  // const conversation = conversations.filterConversations.find(
-  //   (c) => c.id === conversationId,
-  // );
-
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
   const conversation = conversations.filterConversations.find(
     (c) => c.id === conversationId,
   );
+  // console.log("Information calling");
+  // const { show, toggle } = props;
+  const { toggle, setToggle } = useChatDetailToggles();
+  const [showMembers, setShowMembers] = useLocalStorage("showMembers", true);
+
+  const { data: info } = useInfo();
+  const { data: attachmentCache } = useAttachment(conversationId);
+
+  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // const conversation = conversations.filterConversations.find(
+  //   (c) => c.id === conversationId,
+  // );
 
   const refInformation = useRef<HTMLDivElement>();
   const refMembers = useRef<HTMLDivElement>();

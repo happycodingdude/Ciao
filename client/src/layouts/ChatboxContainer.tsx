@@ -7,13 +7,16 @@ import ChatInput from "../features/chatbox/components/ChatInput";
 import useChatDetailToggles from "../features/chatbox/hooks/useChatDetailToggles";
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
-import useConversation from "../features/listchat/hooks/useConversation";
+import { ConversationCache } from "../features/listchat/types";
 import useLoading from "../hooks/useLoading";
 import { isPhoneScreen } from "../utils/getScreenSize";
+import queryClient from "../utils/queryClient";
 
 const ChatboxContainer = () => {
+  console.log("Rendering ChatboxContainer");
+
   const { loading, setLoading } = useLoading();
-  const { data: conversations } = useConversation();
+  // const { data: conversations, isLoading, isRefetching } = useConversation(1);
   // const { data: info } = useInfo();
 
   const { toggle, setToggle } = useChatDetailToggles();
@@ -29,12 +32,19 @@ const ChatboxContainer = () => {
   // const conversation = conversations.filterConversations.find(
   //   (c) => c.id === conversationId,
   // );
+
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
-  const conversation = conversations.filterConversations.find(
+  // Get conversation list from cache
+  const conversationCache = queryClient.getQueryData<ConversationCache>([
+    "conversation",
+  ]);
+  const conversation = conversationCache?.filterConversations.find(
     (c) => c.id === conversationId,
   );
+
+  if (!conversation) return <div>Loading Conversation Info...</div>;
 
   return (
     <>

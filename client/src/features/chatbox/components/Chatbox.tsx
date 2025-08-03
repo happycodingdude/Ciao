@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { debounce } from "lodash";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import RelightBackground from "../../../components/RelightBackground";
 import useEventListener from "../../../hooks/useEventListener";
 import { formatDate, formatDisplayDate } from "../../../utils/datetime";
@@ -9,26 +10,26 @@ import { MessageCache, PendingMessageModel } from "../../listchat/types";
 import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
 import MessageContent from "./MessageContent";
-import { useParams } from "@tanstack/react-router";
 const Chatbox = () => {
+  console.log("Rendering Chatbox");
+
   const queryClient = useQueryClient();
+
+  const { data: conversations } = useConversation();
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.filterConversations.find(
+    (c) => c.id === conversationId,
+  );
 
   const refPage = useRef<number>(1);
 
-  const { data: conversations } = useConversation();
-  const { data: messages } = useMessage();
+  const { data: messages } = useMessage(conversationId, refPage.current);
 
   const refChatContent = useRef<HTMLDivElement>();
   const [autoScrollBottom, setAutoScrollBottom] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
-
-  const { conversationId } = useParams({
-      from: "/conversations/_layout/$conversationId",
-    });
-    const conversation = conversations.filterConversations.find(
-      (c) => c.id === conversationId,
-    );
-  
 
   // useEffect(() => {
   //   if (conversation?.id) {
@@ -57,7 +58,7 @@ const Chatbox = () => {
   useEffect(() => {
     refPage.current = 1;
     // setAutoScrollBottom(true);
-  }, [conversation]);
+  }, [conversationId]);
 
   const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {
     if (!hasMore) return;
