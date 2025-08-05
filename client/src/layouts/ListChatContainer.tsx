@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import moment from "moment";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
-import ListchatFilterProvider from "../context/ListchatFilterContext";
 import useInfo from "../features/authentication/hooks/useInfo";
 import AddFriend from "../features/friend/components/AddFriend";
 import CreateGroupChat from "../features/groupchat/components/CreateGroupChat";
@@ -35,7 +34,7 @@ moment.updateLocale("en", {
 const ListChatContainer = () => {
   console.log("Rendering ListChatContainer");
 
-  const { data: conversations, isLoading, isRefetching } = useConversation(1);
+  const { data: conversations, isLoading, isRefetching } = useConversation();
   const { data: info } = useInfo();
   const { filter, setFilter } = useListchatFilter();
   // const matchRoute = useMatchRoute();

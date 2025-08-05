@@ -75,6 +75,10 @@ export default {
           700: "#0369a1",
           800: "#075985",
           900: "#0c4a6e",
+          light: "#F8F2FA",
+          DEFAULT: "#D16BA5",
+          dark: "#86A8E7",
+          accent: "#5FFBF1",
         },
         neo: {
           blue: "#2563eb",
@@ -102,6 +106,10 @@ export default {
           purple: "#A374DB",
           accent: "#8C52FF",
           gray: "#EEEEEE",
+        },
+        skeleton: {
+          light: "#E9DFF7",
+          dark: "#FAD6E6",
         },
       },
       backgroundImage: () => ({
@@ -361,6 +369,49 @@ export default {
             transform: "translateY(-7rem)",
           },
         },
+        shimmer: {
+          "0%": {
+            backgroundPosition: "-200% 0",
+          },
+          "100%": {
+            backgroundPosition: "200% 0",
+          },
+        },
+        "floating-dots": {
+          "0%, 100%": {
+            transform: "translateY(0)",
+            opacity: 0.5,
+          },
+          "50%": {
+            transform: "translateY(-4px)",
+            opacity: 1,
+          },
+        },
+        "wave-ripple": {
+          "0%": {
+            transform: "scale(0.95)",
+            opacity: 0.7,
+          },
+          "50%": {
+            transform: "scale(1)",
+            opacity: 0.9,
+          },
+          "100%": {
+            transform: "scale(0.95)",
+            opacity: 0.7,
+          },
+        },
+        typing: {
+          "0%": {
+            transform: "translateY(0)",
+          },
+          "28%": {
+            transform: "translateY(-5px)",
+          },
+          "44%": {
+            transform: "translateY(0)",
+          },
+        },
       },
       animation: {
         // "login-hide": "login-hide 1s linear 1",
@@ -392,6 +443,12 @@ export default {
         "slide-up": "slideUp 0.3s ease-out",
         wave: "wave 2s ease-in-out infinite",
         morph: "morph 4s ease-in-out infinite",
+
+        "pulse-slow": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        shimmer: "shimmer 1.5s infinite",
+        "floating-dots": "floating-dots 1.5s infinite",
+        "wave-ripple": "wave-ripple 1.5s infinite",
+        typing: "typing 1.5s infinite",
       },
     },
   },

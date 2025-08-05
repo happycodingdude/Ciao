@@ -115,7 +115,8 @@ const MessageMenu = (props: MessageMenuProps) => {
         data-show={show}
         // className={`message-menu-container ${dropUp ? "top-[-8rem]" : "top-[-5rem]"} ${mine ? "left-[-18rem] origin-right" : "right-[-18rem] origin-left"}`}
         // className={`message-menu-container ${mine ? "left-[-18rem] origin-right" : "right-[-18rem] origin-left"}`}
-        className={`message-menu-container ${mine ? "left-[-17rem]" : "right-[-17rem]"}`}
+        className={`message-menu-container ${mine ? "left-[-17rem]" : "right-[-17rem]"}
+        data-[show=false]:z-0 data-[show=true]:z-[2]`}
       >
         <div className="message-menu-item" onClick={copyMessage}>
           <CopyOutlined /> Copy message

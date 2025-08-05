@@ -41,23 +41,23 @@ const Chatbox = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
   };
 
-  useEffect(() => {
-    scrollChatContentToBottom();
-  }, [messages]);
-
   // useEffect(() => {
-  //   refChatContent.current.style.scrollBehavior = "auto";
-  //   if (autoScrollBottom) {
-  //     scrollChatContentToBottom();
-  //     setTimeout(() => {
-  //       refChatContent.current.style.scrollBehavior = "smooth";
-  //     }, 0);
-  //   }
-  // }, [autoScrollBottom]);
+  //   scrollChatContentToBottom();
+  // }, [messages]);
+
+  useEffect(() => {
+    refChatContent.current.style.scrollBehavior = "auto";
+    if (autoScrollBottom) {
+      scrollChatContentToBottom();
+      setTimeout(() => {
+        refChatContent.current.style.scrollBehavior = "smooth";
+      }, 0);
+    }
+  }, [autoScrollBottom]);
 
   useEffect(() => {
     refPage.current = 1;
-    // setAutoScrollBottom(true);
+    setAutoScrollBottom(true);
   }, [conversationId]);
 
   const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {

@@ -1,6 +1,6 @@
 import { Await, createFileRoute, defer, Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
-import LocalLoading from "../../components/LocalLoading";
+import ListchatLoading from "../../components/ListchatLoading";
 import ChatDetailTogglesProvider from "../../context/ChatDetailTogglesContext";
 import ListchatFilterProvider from "../../context/ListchatFilterContext";
 import LoadingProvider from "../../context/LoadingContext";
@@ -45,10 +45,10 @@ export const Route = createFileRoute("/conversations/_layout")({
                 >
                   <ListChatHeaderContainer />
                   <div className="relative grow">
-                    <Suspense fallback={<LocalLoading />}>
+                    <Suspense fallback={<ListchatLoading />}>
                       <Await promise={conversationPromise}>
                         {(data) => <ListChatContainer />}
-                        {/* {(data) => <LocalLoading />} */}
+                        {/* {(data) => <ListchatLoading />} */}
                       </Await>
                     </Suspense>
                   </div>
