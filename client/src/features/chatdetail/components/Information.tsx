@@ -20,7 +20,7 @@ const Information = () => {
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
-  const conversation = conversations.filterConversations.find(
+  const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );
   // console.log("Information calling");
@@ -141,7 +141,7 @@ const Information = () => {
     >
       {/* Container */}
       <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
-        <div className="flex flex-col items-center gap-[1rem] bg-pastel-pink bg-opacity-50">
+        <div className="flex flex-col items-center gap-[1.5rem] bg-pastel-pink bg-opacity-50">
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
@@ -165,22 +165,22 @@ const Information = () => {
             circle
           />
           {/* MARK: TITLE  */}
-          <div className="flex w-[70%] grow flex-col items-center justify-center phone:text-lg laptop:text-md">
+          <div className="flex w-[70%] grow flex-col items-center justify-center gap-[.5rem] phone:text-lg laptop:text-md">
             {conversation?.isGroup ? (
               <>
                 <CustomLabel
-                  className="text-center font-bold"
+                  className="text-center font-['Be_Vietnam_Pro'] font-semibold "
                   title={conversation.title}
                   tooltip
                 />
-                <p className="phone:text-md laptop:text-sm">
+                <p className="phone:text-md laptop:text-base">
                   {conversation.members.length} members
                 </p>
               </>
             ) : (
               <>
                 <CustomLabel
-                  className="text-center font-bold"
+                  className="text-center font-['Be_Vietnam_Pro'] font-semibold "
                   title={
                     conversation.members?.find(
                       (item) => item.contact.id !== info.id,
@@ -219,12 +219,15 @@ const Information = () => {
               className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500
                 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
             >
-              {conversation?.members
-                .filter((item) => item.contact.id !== info.id)
+              {[...conversation?.members]
+                .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
+                // conversation?.members
                 .map((item) => (
                   <div
                     key={item.id}
-                    className="information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]"
+                    className={`information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]
+                    ${item.contact.id === info.id ? "pointer-events-none" : ""}
+                    `}
                     onClick={(e: MouseEvent<HTMLElement>) => {
                       // Get the bounding rectangle of the target element
                       const target = e.target as HTMLElement;
@@ -268,6 +271,16 @@ const Information = () => {
                       />
                     </div>
                     <CustomLabel title={item.contact.name} />
+                    {item.isModerator ? (
+                      <div
+                        className="rounded-full bg-primary-light px-[1rem] py-[.2rem] 
+                      font-['Be_Vietnam_Pro'] text-sm font-bold text-[var(--main-color)]"
+                      >
+                        Admin
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 ))}
             </div>

@@ -12,7 +12,7 @@ const ChatboxHeaderMenu_Mobile = () => {
   const { data: conversations } = useConversation();
   // if (!conversations || !conversation) return;
   const [conversationId] = useLocalStorage<string>("conversationId");
-  const conversation = conversations.filterConversations.find(
+  const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );
 

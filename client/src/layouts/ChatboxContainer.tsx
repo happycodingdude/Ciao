@@ -105,7 +105,7 @@ const ChatboxContainer = () => {
             </div>
             <div
               className={`relative origin-right transition-all duration-200
-                    ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[30rem]"}`}
+                    ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[35rem]"}`}
             >
               <Information />
               <Attachment />

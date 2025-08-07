@@ -21,7 +21,7 @@ const Chatbox = () => {
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
-  const conversation = conversations.filterConversations.find(
+  const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );
 
@@ -70,13 +70,16 @@ const Chatbox = () => {
 
     const newMessages = await getMessages(conversationId, refPage.current);
 
-    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-      return {
-        ...oldData,
-        messages: [...newMessages.messages, ...oldData.messages],
-        hasMore: newMessages.hasMore,
-      };
-    });
+    queryClient.setQueryData(
+      ["message", conversationId],
+      (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          messages: [...newMessages.messages, ...oldData.messages],
+          hasMore: newMessages.hasMore,
+        };
+      },
+    );
 
     requestAnimationFrame(() => {
       refChatContent.current.style.scrollBehavior = "auto";
@@ -149,8 +152,8 @@ const Chatbox = () => {
           <div key={date} className="flex flex-col gap-[3.5rem]">
             {/* Ngày hiển thị giữa */}
             <div
-              className="pointer-events-none mx-auto w-fit rounded-[1rem] 
-            bg-[var(--bg-color)] px-[1rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+              className="pointer-events-none mx-auto w-fit rounded-[2rem] 
+            bg-[var(--bg-color)] px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
             >
               {formatDisplayDate(date)}
             </div>

@@ -9,7 +9,6 @@ import CreateGroupChat from "../features/groupchat/components/CreateGroupChat";
 import ListChat from "../features/listchat/components/ListChat";
 import ListChatHeader_Mobile from "../features/listchat/components/ListChatHeader_Mobile";
 import useConversation from "../features/listchat/hooks/useConversation";
-import useListchatFilter from "../features/listchat/hooks/useListchatFilter";
 import "../listchat.css";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
@@ -35,24 +34,10 @@ moment.updateLocale("en", {
 const ListChatContainer = () => {
   console.log("Rendering ListChatContainer");
 
-  const { data: conversations, isLoading, isRefetching } = useConversation(1);
-  const { data: info } = useInfo();
-  const { filter, setFilter } = useListchatFilter();
-  // const matchRoute = useMatchRoute();
-  // const match = matchRoute("/conversations/_layout/$conversationId");
-  // const selectedConversationId = match?.params.conversationId;
-  // console.log("selectedConversationId: ", selectedConversationId);
-
-  // const [conversationId, setConversationId] = useLocalStorage<string>(
-  //   "conversationId",
-  //   "",
-  // );
   const conversationId = localStorage.getItem("conversationId");
-  // const { conversationId } = useParams({
-  //   from: "/conversations/_layout/$conversationId",
-  // });
-  // console.log("conversationId: ", conversationId);
+  const { data: info } = useInfo();
 
+  const { data: conversations, isLoading, isRefetching } = useConversation(1);
   if (isLoading || isRefetching) return <ListchatLoading />;
 
   return (
@@ -91,15 +76,8 @@ const ListChatContainer = () => {
             ),
           )
           .map((item) => (
-            <Link
-              key={item.id}
-              to={`/conversations/${item.id}`}
-              // className="block h-full w-full"
-            >
+            <Link key={item.id} to={`/conversations/${item.id}`}>
               <div
-                // onClick={() => {
-                //   clickConversation(item.id);
-                // }}
                 className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
                     ${item.id === conversationId ? "active" : ""}`}
               >
@@ -167,9 +145,6 @@ const ListChatContainer = () => {
                           : moment(item.lastMessageTime).fromNow()}
                       </p>
                     </div>
-                    // <span className="aspect-square w-[3rem] rounded-full bg-gray-300 px-2 py-1 text-xs text-gray-500">
-                    //   {moment(item.lastMessageTime).fromNow()}
-                    // </span>
                   )}
                 </div>
               </div>

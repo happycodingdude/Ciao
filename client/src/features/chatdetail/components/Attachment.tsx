@@ -3,21 +3,14 @@ import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
-import useConversation from "../../listchat/hooks/useConversation";
 import useAttachment from "../hooks/useAttachment";
 
 const Attachment = () => {
-  // console.log("Attachment calling");
-  // const { show, toggle } = props;
   const { toggle } = useChatDetailToggles();
 
-  const { data: conversations } = useConversation();
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
-  const conversation = conversations.filterConversations.find(
-    (c) => c.id === conversationId,
-  );
   const { data: attachmentCache } = useAttachment(conversationId);
 
   const refAttachment = useRef();
@@ -60,7 +53,30 @@ const Attachment = () => {
       ref={refAttachment}
       className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
-      <div className="relative border-b-[.1rem] border-b-[var(--border-color)]">
+      <div className="flex items-center justify-evenly py-[1rem]">
+        <div
+          className={`${attachmentToggle === "image" ? "selected" : ""}  cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
+                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          onClick={() => {
+            toggleAttachmentActive("image");
+            setAttachmentToggle("image");
+          }}
+        >
+          Images
+        </div>
+        <div
+          className={`${attachmentToggle === "file" ? "selected" : ""} cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
+                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          onClick={() => {
+            toggleAttachmentActive("file");
+            setAttachmentToggle("file");
+          }}
+        >
+          Files
+        </div>
+      </div>
+
+      {/* <div className="relative border-b-[.1rem] border-b-[var(--border-color)]">
         <div className="attachment-filter-container">
           <div
             onClick={() => {
@@ -107,22 +123,15 @@ const Attachment = () => {
             </p>
           </div>
         </div>
-        {/* <div
-          data-tab={attachmentToggle}
-          className="absolute bottom-0 h-[.2rem] w-1/4 bg-[var(--main-color)] transition-all duration-200 
-          phone:data-[tab=file]:translate-x-[225%] phone:data-[tab=image]:translate-x-[75%]
-          laptop:data-[tab=file]:translate-x-[250%] laptop:data-[tab=image]:translate-x-[50%]"
-        ></div> */}
         <div
           data-tab={attachmentToggle}
           className="absolute top-[.5rem] h-[4rem] w-[6rem] rounded-[1rem] bg-[var(--main-color)] transition-all duration-200 
           phone:data-[tab=file]:translate-x-[400%] phone:data-[tab=image]:translate-x-[150%] 
           laptop:data-[tab=file]:translate-x-[225%] laptop:data-[tab=image]:translate-x-[65%]"
         ></div>
-      </div>
+      </div> */}
 
       <div
-        // ref={refScrollAttachment}
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
         [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
@@ -138,8 +147,6 @@ const Attachment = () => {
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className="aspect-square w-full cursor-pointer rounded-2xl"
-                      // spinnerClassName="laptop:bg-[size:2rem]"
-                      // imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({
                         src:
                           item.type === "image"

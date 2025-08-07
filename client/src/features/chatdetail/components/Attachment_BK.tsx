@@ -1,15 +1,17 @@
+import { useParams } from "@tanstack/react-router";
 import moment from "moment";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 
 const Attachment_BK = () => {
-  // console.log("Attachment calling");
-  // const { show, toggle } = props;
   const { toggle } = useChatDetailToggles();
-  // const show = toggle === "attachment";
-  const { data: attachmentCache } = useAttachment();
+
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const { data: attachmentCache } = useAttachment(conversationId);
 
   const refAttachment = useRef();
   // const refScrollAttachment = useRef();
@@ -52,21 +54,26 @@ const Attachment_BK = () => {
       className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
     >
       <div className="relative border-b-[.1rem] border-b-[var(--border-color)]">
-        <div className="flex justify-evenly">
+        <div className="attachment-filter-container">
           <div
             onClick={() => {
               toggleAttachmentActive("image");
               setAttachmentToggle("image");
             }}
-            className="group relative cursor-pointer py-[1rem] text-center text-[var(--text-main-color)] laptop:flex-1"
+            className={`attachment-filter-item group 
+              ${
+                attachmentToggle === "image"
+                  ? ""
+                  : "bg-[var(--bg-color-light)] hover:bg-[var(--main-color-extrathin)]"
+              }`}
           >
             <input
               type="radio"
               name="radio-attachment"
-              className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+              className="attachment-filter-input peer "
               checked={attachmentToggle === "image"}
             ></input>
-            <p className="font-bold group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color)]">
+            <p className="attachment-filter-text peer-checked:text-white">
               Images
             </p>
           </div>
@@ -75,29 +82,33 @@ const Attachment_BK = () => {
               toggleAttachmentActive("file");
               setAttachmentToggle("file");
             }}
-            className="group relative cursor-pointer py-[1rem] text-center text-[var(--text-main-color)] laptop:flex-1"
+            className={`attachment-filter-item group 
+              ${
+                attachmentToggle === "file"
+                  ? ""
+                  : "bg-[var(--bg-color-light)] hover:bg-[var(--main-color-extrathin)]"
+              }`}
           >
             <input
               type="radio"
               name="radio-attachment"
-              className="peer absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+              className="attachment-filter-input peer "
               checked={attachmentToggle === "file"}
             ></input>
-            <p className="group-hover:text-[var(--main-color-bold)] peer-checked:text-[var(--main-color-bold)]">
+            <p className="attachment-filter-text peer-checked:text-white">
               Files
             </p>
           </div>
         </div>
         <div
           data-tab={attachmentToggle}
-          className="absolute bottom-0 h-[.2rem] w-1/4 bg-[var(--main-color)] transition-all duration-200 
-          phone:data-[tab=file]:translate-x-[225%] phone:data-[tab=image]:translate-x-[75%]
-          laptop:data-[tab=file]:translate-x-[250%] laptop:data-[tab=image]:translate-x-[50%]"
+          className="absolute top-[.5rem] h-[4rem] w-[6rem] rounded-[1rem] bg-[var(--main-color)] transition-all duration-200 
+          phone:data-[tab=file]:translate-x-[400%] phone:data-[tab=image]:translate-x-[150%] 
+          laptop:data-[tab=file]:translate-x-[225%] laptop:data-[tab=image]:translate-x-[65%]"
         ></div>
       </div>
 
       <div
-        // ref={refScrollAttachment}
         className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
         [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
       >
@@ -113,8 +124,6 @@ const Attachment_BK = () => {
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className="aspect-square w-full cursor-pointer rounded-2xl"
-                      // spinnerClassName="laptop:bg-[size:2rem]"
-                      // imageClassName="bg-[size:150%]"
                       slides={date.attachments.map((item) => ({
                         src:
                           item.type === "image"

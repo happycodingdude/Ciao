@@ -30,7 +30,7 @@ const MessageContent = (props: MessageContentProps) => {
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
-  const conversation = conversations.filterConversations.find(
+  const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );
 
