@@ -1,5 +1,5 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import "bootstrap/dist/css/bootstrap.css";
+// import "bootstrap/dist/css/bootstrap.css";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 // Import the generated route tree

@@ -5,7 +5,6 @@ import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
 import ChatInput from "../features/chatbox/components/ChatInput";
 import useChatDetailToggles from "../features/chatbox/hooks/useChatDetailToggles";
-import useMessage from "../features/chatbox/hooks/useMessage";
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
 import { ConversationCache } from "../features/listchat/types";
@@ -45,10 +44,10 @@ const ChatboxContainer = () => {
     (c) => c.id === conversationId,
   );
 
-  const { isFetching, isRefetching, isLoading } = useMessage(conversationId, 1);
-  if (isFetching || isRefetching || isLoading) return <LocalLoading />;
+  // const { isFetching, isRefetching, isLoading } = useMessage(conversationId, 1);
+  // if (isFetching || isRefetching || isLoading) return <LocalLoading />;
 
-  if (!conversation) return <div>Loading Conversation Info...</div>;
+  // if (!conversation) return <div>Loading Conversation Info...</div>;
 
   return (
     <>

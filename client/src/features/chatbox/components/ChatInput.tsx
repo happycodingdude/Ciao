@@ -46,6 +46,7 @@ const ChatInput = (props: ChatInputProps) => {
   const { toggle } = useChatDetailToggles();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
+  // if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
 
   // const [conversationId] = useLocalStorage<string>("conversationId");
   // const conversation = conversations.filterConversations.find(

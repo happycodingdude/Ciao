@@ -2,30 +2,55 @@ import "../listchat.css";
 
 const ChatboxLoading = (props) => {
   const { className } = props;
+  const numberOfLoadingDiv = 8;
   return (
     <div
       id="sidebar-loading-3"
-      className="bg-primary-light flex h-full w-full grow flex-col border-r border-gray-200"
+      className="flex h-full w-full grow flex-col border-r border-gray-200 bg-primary-light"
     >
       <div
         id="chat-content-loading-3"
         className="flex flex-1 flex-col bg-white"
       >
         <div className="flex items-center border-b border-gray-200 p-4">
-          <div className="wave-line h-10 w-10 rounded-full bg-gray-200 bg-opacity-40"></div>
+          <div className="wave-line shimmer-effect aspect-square w-[4rem] rounded-full bg-opacity-40"></div>
           <div className="ml-3">
-            <div className="wave-line mb-1 h-4 w-32 rounded bg-gray-200 bg-opacity-40"></div>
-            <div className="wave-line h-3 w-24 rounded bg-gray-200 bg-opacity-40"></div>
+            <div className="wave-line shimmer-effect mb-2 h-4 w-[10rem] rounded bg-opacity-40"></div>
+            <div className="wave-line shimmer-effect h-3 w-[8rem] rounded bg-opacity-40"></div>
           </div>
           <div className="ml-auto flex space-x-3">
-            <div className="wave-line h-8 w-8 rounded-full bg-gray-200 bg-opacity-40"></div>
-            <div className="wave-line h-8 w-8 rounded-full bg-gray-200 bg-opacity-40"></div>
+            <div className="wave-line shimmer-effect h-8 w-8 rounded-full bg-opacity-40"></div>
+            <div className="wave-line shimmer-effect h-8 w-8 rounded-full bg-opacity-40"></div>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <div
-            className="animate-wave-ripple mb-4 flex"
+          {Array.from({ length: numberOfLoadingDiv }).map((_, index) =>
+            index % 2 === 0 ? (
+              <div
+                className="mb-4 flex animate-wave-ripple"
+                style={{ animationDelay: "0s" }}
+              >
+                <div className="wave-line shimmer-effect h-[4rem] w-[4rem] rounded-full bg-opacity-40"></div>
+                <div className="ml-2 max-w-[70%]">
+                  <div className="wave-line shimmer-effect h-16 w-64 rounded-lg bg-opacity-40"></div>
+                  <div className="wave-line shimmer-effect ml-1 mt-1 h-3 w-16 rounded bg-opacity-40"></div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="mb-4 flex animate-wave-ripple justify-end"
+                style={{ animationDelay: "0.3s" }}
+              >
+                <div className="mr-2 max-w-[70%]">
+                  <div className="wave-line shimmer-effect h-12 w-48 rounded-lg bg-opacity-40"></div>
+                  <div className="wave-line shimmer-effect ml-auto mt-1 h-3 w-16 rounded bg-opacity-40"></div>
+                </div>
+              </div>
+            ),
+          )}
+          {/* <div
+            className="mb-4 flex animate-wave-ripple"
             style={{ animationDelay: "0s" }}
           >
             <div className="wave-line h-8 w-8 rounded-full bg-gray-200 bg-opacity-40"></div>
@@ -36,7 +61,7 @@ const ChatboxLoading = (props) => {
           </div>
 
           <div
-            className="animate-wave-ripple mb-4 flex justify-end"
+            className="mb-4 flex animate-wave-ripple justify-end"
             style={{ animationDelay: "0.3s" }}
           >
             <div className="mr-2 max-w-[70%]">
@@ -46,7 +71,7 @@ const ChatboxLoading = (props) => {
           </div>
 
           <div
-            className="animate-wave-ripple mb-4 flex"
+            className="mb-4 flex animate-wave-ripple"
             style={{ animationDelay: "0.6s" }}
           >
             <div className="wave-line h-8 w-8 rounded-full bg-gray-200 bg-opacity-40"></div>
@@ -54,10 +79,10 @@ const ChatboxLoading = (props) => {
               <div className="wave-line h-24 w-72 rounded-lg bg-gray-200 bg-opacity-40"></div>
               <div className="wave-line ml-1 mt-1 h-3 w-16 rounded bg-gray-200 bg-opacity-40"></div>
             </div>
-          </div>
+          </div> */}
 
           <div
-            className="animate-wave-ripple flex h-32 flex-col items-center justify-center"
+            className="flex h-32 animate-wave-ripple flex-col items-center justify-center"
             style={{ animationDelay: "0.9s" }}
           >
             <div className="text-primary-DEFAULT wave-line mb-3 text-5xl opacity-30">

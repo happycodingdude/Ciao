@@ -1,4 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import ChatboxLoading from "../../components/ChatboxLoading";
+import useMessage from "../../features/chatbox/hooks/useMessage";
+import useConversation from "../../features/listchat/hooks/useConversation";
 import ChatboxContainer from "../../layouts/ChatboxContainer";
 
 // export const Route = createFileRoute("/conversations/_layout/$conversationId")({
@@ -47,6 +50,22 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
   },
 
   component: () => {
+    const { conversationId } = Route.useLoaderData();
+    const {
+      isLoading: isLoadingConversation,
+      isRefetching: isRefetchingConversation,
+    } = useConversation();
+    const { isLoading: isLoadingMessages, isRefetching: isRefetchingMessages } =
+      useMessage(conversationId, 1);
+    if (
+      isLoadingConversation ||
+      isRefetchingConversation ||
+      isLoadingMessages ||
+      isRefetchingMessages
+    )
+      return <ChatboxLoading />;
+
     return <ChatboxContainer />;
+    // return <ChatboxLoading />;
   },
 });

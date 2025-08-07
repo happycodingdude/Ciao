@@ -41,17 +41,27 @@ export const Route = createFileRoute("/conversations/_layout")({
               <ListchatFilterProvider>
                 <div
                   id="chat-list-v2"
-                  className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] bg-pastel-pink"
+                  className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] bg-primary-light"
+                  // className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] bg-pastel-pink"
                 >
                   <ListChatHeaderContainer />
-                  <div className="relative grow">
+                  {/* <div className="hide-scrollbar relative flex min-h-0 flex-1 flex-col gap-[2rem] overflow-y-scroll scroll-smooth px-[2rem]">
                     <Suspense fallback={<ListchatLoading />}>
                       <Await promise={conversationPromise}>
                         {(data) => <ListChatContainer />}
-                        {/* {(data) => <ListchatLoading />} */}
                       </Await>
                     </Suspense>
-                  </div>
+                  </div> */}
+                  <Suspense fallback={<ListchatLoading />}>
+                    <Await promise={conversationPromise}>
+                      {(data) => (
+                        <div className="hide-scrollbar relative flex min-h-0 flex-1 flex-col gap-[2rem] overflow-y-scroll scroll-smooth px-[2rem]">
+                          <ListChatContainer />
+                        </div>
+                      )}
+                    </Await>
+                  </Suspense>
+                  {/* <ListchatLoading /> */}
                 </div>
               </ListchatFilterProvider>
               <div className="relative h-screen w-full">

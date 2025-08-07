@@ -67,7 +67,7 @@ body {
 .shimmer-effect {
   background: linear-gradient(90deg, #e9dff7 0%, #fad6e6 50%, #e9dff7 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  /* animation: shimmer 1.5s infinite; */
 }
 .wave-line {
   position: relative;

@@ -13,8 +13,8 @@ const ChatboxHeader = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  // if (!conversations || !conversation) return;
-  // const [conversationId] = useLocalStorage<string>("conversationId");
+  // if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
+
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
