@@ -19,3 +19,4 @@ global using Application.Kafka.Model;
 global using Serilog;
 global using Shared.Constants;
 global using StackExchange.Redis;
+global using System.ComponentModel.DataAnnotations;

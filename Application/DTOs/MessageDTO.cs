@@ -2,6 +2,8 @@ namespace Application.DTOs;
 
 public class SendMessageReq
 {
+    [Required]
+    [RegularExpression("^(text|image)$", ErrorMessage = "Type must be either 'text' or 'image'.")]
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public List<SendMessageReq_Attachment> Attachments { get; set; } = new List<SendMessageReq_Attachment>();
@@ -59,4 +61,18 @@ public class MessagesWithHasMore
 {
     public bool HasMore { get; set; }
     public List<MessageReactionSumary> Messages { get; set; } = new List<MessageReactionSumary>();
+}
+
+public class SystemMessage
+{
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+
+    public SystemMessage(string content)
+    {
+        Type = "system";
+        Content = content;
+        ContactId = "system";
+    }
 }

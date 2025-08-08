@@ -15,63 +15,27 @@ public class MessageCache
         return messageCache;
     }
 
-    // public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
-    // {
-    //     // Update message cache
-    //     var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
-    //     messageCache.Add(message);
-    //     await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
-
-    //     // Update list conversation cache
-    //     var conversationCacheData = await _redisCaching.GetAsync<List<string>>($"user-{userId}-conversations") ?? default;
-    //     var isConversationAtTop = conversationCacheData.IndexOf(conversationId) == 0;
-    //     if (!isConversationAtTop)
-    //     {
-    //         var removeThisConversationId = conversationCacheData.Where(q => q != conversationId).ToList();
-    //         removeThisConversationId.Insert(0, conversationId);
-    //         await _redisCaching.SetAsync($"user-{userId}-conversations", removeThisConversationId);
-    //     }
-
-    //     // Update conversation info cache
-    //     var conversationInfoCacheData = await _redisCaching.GetAsync<ConversationCacheModel>($"conversation-{conversationId}-info") ?? default;
-    //     conversationInfoCacheData.LastMessageId = message.Id;
-    //     conversationInfoCacheData.LastMessage = message.Type == "text"
-    //         ? message.Content
-    //         : string.Join(",", message.Attachments.Select(q => q.MediaName));
-    //     conversationInfoCacheData.LastMessageTime = message.CreatedTime;
-    //     conversationInfoCacheData.LastMessageContact = userId;
-    //     conversationInfoCacheData.UpdatedTime = updatedTime;
-    //     await _redisCaching.SetAsync($"conversation-{conversationId}-info", conversationInfoCacheData);
-
-    //     // Update member cache
-    //     var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
-    //     var lastSeenTime = DateTime.Now;
-    //     memberCacheData.ForEach(member =>
-    //     {
-    //         // Mở lại hội thoại nếu có người khác gửi tin nhắn
-    //         member.IsDeleted = false;
-    //         // Nếu người dùng đang xem hội thoại thì cập nhật thời gian cuối cùng xem
-    //         if (member.IsSelected)
-    //             member.LastSeenTime = lastSeenTime;
-    //     });
-    //     await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
-    // }
+    public async Task AddSystemMessage(string conversationId, MessageWithReactions message)
+    {
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? new();
+        messageCache.Add(message);
+        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
+    }
 
     public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
     {
         var tasks = new List<Task>(4);
 
-        // 1. Update message cache
+        // 1. Add message to message cache
         var messageCacheTask = Task.Run(async () =>
         {
             var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? new();
             messageCache.Add(message);
             await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
         });
-
         tasks.Add(messageCacheTask);
 
-        // 2. Update conversation list cache
+        // 2. Popup conversation of users to the top
         var conversationListTask = Task.Run(async () =>
         {
             var conversationCacheData = await _redisCaching.GetAsync<List<string>>($"user-{userId}-conversations") ?? new();
@@ -82,7 +46,6 @@ public class MessageCache
                 await _redisCaching.SetAsync($"user-{userId}-conversations", reordered);
             }
         });
-
         tasks.Add(conversationListTask);
 
         // 3. Update conversation info cache
@@ -98,10 +61,9 @@ public class MessageCache
             conversationInfo.UpdatedTime = updatedTime;
             await _redisCaching.SetAsync($"conversation-{conversationId}-info", conversationInfo);
         });
-
         tasks.Add(conversationInfoTask);
 
-        // 4. Update member cache
+        // 4. Reopen conversation for members that are deleted
         var memberCacheTask = Task.Run(async () =>
         {
             var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? new();
@@ -113,13 +75,11 @@ public class MessageCache
             });
             await _redisCaching.SetAsync($"conversation-{conversationId}-members", members);
         });
-
         tasks.Add(memberCacheTask);
 
         // 🏁 Chờ tất cả task hoàn tất song song
         await Task.WhenAll(tasks);
     }
-
 
     public async Task<List<MessageReaction>> UpdateReactions(string conversationId, string messageId, string userId, string type)
     {

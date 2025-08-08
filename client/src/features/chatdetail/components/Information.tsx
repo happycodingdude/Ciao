@@ -137,11 +137,11 @@ const Information = () => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-[var(--bg-color)]`}
+      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-primary-light`}
     >
       {/* Container */}
       <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
-        <div className="flex flex-col items-center gap-[1.5rem] bg-pastel-pink bg-opacity-50">
+        <div className="flex flex-col items-center gap-[1.5rem]">
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
@@ -169,7 +169,7 @@ const Information = () => {
             {conversation?.isGroup ? (
               <>
                 <CustomLabel
-                  className="text-center font-['Be_Vietnam_Pro'] font-semibold "
+                  className="text-center font-['Be_Vietnam_Pro'] font-semibold"
                   title={conversation.title}
                   tooltip
                 />
@@ -180,7 +180,7 @@ const Information = () => {
             ) : (
               <>
                 <CustomLabel
-                  className="text-center font-['Be_Vietnam_Pro'] font-semibold "
+                  className="text-center font-['Be_Vietnam_Pro'] font-semibold"
                   title={
                     conversation.members?.find(
                       (item) => item.contact.id !== info.id,
@@ -273,8 +273,8 @@ const Information = () => {
                     <CustomLabel title={item.contact.name} />
                     {item.isModerator ? (
                       <div
-                        className="rounded-full bg-primary-light px-[1rem] py-[.2rem] 
-                      font-['Be_Vietnam_Pro'] text-sm font-bold text-[var(--main-color)]"
+                        className="rounded-full bg-white px-[1rem] py-[.2rem] font-['Be_Vietnam_Pro']
+                      text-sm font-bold text-[var(--main-color)] shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                       >
                         Admin
                       </div>

@@ -66,7 +66,7 @@ public class NewStoredGroupConversationModel : KafkaBaseModel
 {
     public NewStoredGroupConversationModel_Conversation Conversation { get; set; } = null!;
     public NewGroupConversationModel_Member[] Members { get; set; } = null!;
-    // public Member[] Members { get; set; } = null!;
+    public Message Message { get; set; }
 }
 
 public class NewStoredGroupConversationModel_Conversation : MongoBaseModel

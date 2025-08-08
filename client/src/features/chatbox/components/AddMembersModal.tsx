@@ -77,21 +77,6 @@ const AddMembersModal = (props: OnCloseType) => {
       return {
         ...oldData,
         conversations: updatedConversations,
-        // selected: {
-        //   ...oldData.selected,
-        //   members: [
-        //     ...oldData.selected.members,
-        //     ...membersToAdd.map((mem) => {
-        //       return {
-        //         contact: {
-        //           id: mem.id,
-        //           name: mem.name,
-        //           avatar: mem.avatar,
-        //         },
-        //       };
-        //     }),
-        //   ],
-        // },
       } as ConversationCache;
     });
 
@@ -168,13 +153,15 @@ const AddMembersModal = (props: OnCloseType) => {
                   }}
                 >
                   <CheckCircleOutlined
-                    className={`base-icon-sm ${
-                      conversation.members.some(
-                        (mem) => mem.contact.id === item.id,
-                      ) || membersToAdd.some((mem) => mem.id === item.id)
-                        ? "text-[var(--main-color-bold)]"
-                        : ""
-                    }`}
+                    className={`base-icon-sm 
+                      ${
+                        conversation.members.some(
+                          (mem) => mem.contact.id === item.id,
+                        ) || membersToAdd.some((mem) => mem.id === item.id)
+                          ? "text-[var(--main-color-bold)]"
+                          : ""
+                      }
+                    `}
                   />
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}

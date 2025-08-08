@@ -15,7 +15,7 @@ import { MessageContentProps, ReactMessageRequest } from "../types";
 import MessageMenu from "./MessageMenu";
 
 const MessageContent = (props: MessageContentProps) => {
-  const { message, id, mt } = props;
+  const { message, id } = props;
   if (!message) return null;
 
   const queryClient = useQueryClient();
@@ -164,7 +164,7 @@ const MessageContent = (props: MessageContentProps) => {
       ref={messageRef}
       id={message.id}
       key={message.id}
-      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""} ${mt ? "mt-auto" : ""}`}
+      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (

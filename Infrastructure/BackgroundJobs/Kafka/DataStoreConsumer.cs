@@ -62,6 +62,7 @@ public class DataStoreConsumer : IGenericConsumer
         }
     }
 
+    /* MARK: NEW MESSAGE */
     async Task HandleNewMessage(NewMessageModel param)
     {
         // Get current conversation
@@ -96,13 +97,11 @@ public class DataStoreConsumer : IGenericConsumer
         });
     }
 
+    /* MARK: NEW GROUP CONVERSATION */
     async Task HandleNewGroupConversation(NewGroupConversationModel param)
     {
         var conversation = _mapper.Map<Conversation>(param.Conversation);
         conversation.Members = _mapper.Map<List<Member>>(param.Members.ToList());
-
-        // Remove this user from input
-        // param.Conversation.Members = param.Conversation.Members.Where(q => q.ContactId != user.Id).ToList();
 
         // Assign contact info
         foreach (var member in conversation.Members.Where(q => q.ContactId != param.UserId))
@@ -115,15 +114,13 @@ public class DataStoreConsumer : IGenericConsumer
         thisUser.IsModerator = true;
         thisUser.IsDeleted = false;
         thisUser.IsNotifying = true;
-        // Add this user
-        // var user = await _contactRepository.GetInfoAsync(param.UserId);
-        // conversation.Members.Add(new Member
-        // {
-        //     IsModerator = true,
-        //     IsDeleted = false,
-        //     IsNotifying = true,
-        //     ContactId = user.Id
-        // });
+
+        // Add system message
+        var user = await _contactRepository.GetInfoAsync(param.UserId);
+        var systemMessage = new SystemMessage(AppConstants.SystemMessage_CreatedConversation.Replace("{user}", user?.Name));
+        // Convert back to Message to remove field _t in Mongo
+        var messageToAdd = _mapper.Map<Message>(systemMessage);
+        conversation.Messages.Add(messageToAdd);
 
         // Create conversation
         _conversationRepository.Add(conversation);
@@ -136,31 +133,15 @@ public class DataStoreConsumer : IGenericConsumer
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
             Members = _mapper.Map<NewGroupConversationModel_Member[]>(conversation.Members),
+            Message = messageToAdd
         });
     }
 
+    /* MARK: NEW DIRECT CONVERSATION */
     async Task HandleNewDirectConversation(NewDirectConversationModel param)
     {
         var user = await _contactRepository.GetInfoAsync(param.UserId);
 
-        // var message = string.IsNullOrEmpty(param.Message)
-        //         ? null
-        //         : new Message
-        //         {
-        //             Id = param.MessageId,
-        //             ContactId = user.Id,
-        //             Type = "text",
-        //             Content = param.Message
-        //         };
-
-        // var filter = Builders<Conversation>.Filter.And(
-        //     Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == user.Id),
-        //     Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == param.ContactId),
-        //     Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
-        // );
-        // var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
-
-        // var isNewConversation = conversation is null;
         var conversation = _mapper.Map<Conversation>(param.Conversation);
         var message = _mapper.Map<Message>(param.Message);
         if (param.IsNewConversation)
@@ -171,8 +152,6 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
-        // if (param.Message is not null)
-        // {
         await _kafkaProducer.ProduceAsync(Topic.StoredDirectConversation, new NewStoredDirectConversationModel
         {
             UserId = param.UserId,
@@ -182,19 +161,12 @@ public class DataStoreConsumer : IGenericConsumer
             Message = message,
             IsNewConversation = param.IsNewConversation
         });
-        // }
-
 
         void HandleNewConversation(Conversation conversation, string contactId, string userId, Message message)
         {
-            // var userId = _contactRepository.GetUserId();
-
-            // var newConversation = new Conversation();
             // Add target contact
             conversation.Members.Add(new Member
             {
-                // IsModerator = false,
-                // IsDeleted = false,
                 IsNotifying = true,
                 ContactId = contactId
             });
@@ -202,7 +174,6 @@ public class DataStoreConsumer : IGenericConsumer
             conversation.Members.Add(new Member
             {
                 IsModerator = true,
-                // IsDeleted = false,
                 IsNotifying = true,
                 ContactId = userId
             });
@@ -217,7 +188,6 @@ public class DataStoreConsumer : IGenericConsumer
         {
             var updateIsDeleted = false;
             var updateMessages = false;
-            // var userId = _contactRepository.GetUserId();
             // Update field IsDeleted if true
             var currentUser = conversation.Members.SingleOrDefault(q => q.ContactId == userId);
             if (currentUser.IsDeleted)
@@ -242,6 +212,7 @@ public class DataStoreConsumer : IGenericConsumer
         }
     }
 
+    /* MARK: NEW MEMBER */
     async Task HandleNewMember(NewMemberModel param)
     {
         // Get current members of conversation, then filter new item to add
@@ -271,11 +242,23 @@ public class DataStoreConsumer : IGenericConsumer
             }));
         // Concatenate to existed partipants
         var membersToUpdate = conversation.Members.Concat(membersToAdd);
+        // Create system message
+        var contactFilter = Builders<Contact>.Filter.Where(q => membersToAdd.Select(w => w.ContactId).Contains(q.Id) || q.Id == param.UserId);
+        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+        var systemMessage = new SystemMessage(
+            AppConstants.SystemMessage_AddedMembers
+                .Replace("{user}", contacts.FirstOrDefault(q => q.Id == param.UserId)?.Name)
+                .Replace("{members}", string.Join(", ", contacts.Where(q => q.Id != param.UserId).Select(q => q.Name)))
+        );
+        // Convert back to Message to remove field _t in Mongo
+        var messageToAdd = _mapper.Map<Message>(systemMessage);
+        conversation.Messages.Add(messageToAdd);
 
         // Update to db
-        var updates = Builders<Conversation>.Update.Set(q => q.Members, membersToUpdate);
+        var updates = Builders<Conversation>.Update
+            .Set(q => q.Members, membersToUpdate)
+            .Set(q => q.Messages, conversation.Messages);
         _conversationRepository.UpdateNoTrackingTime(filter, updates);
-
         // Save changes
         await _uow.SaveAsync();
 
@@ -290,9 +273,11 @@ public class DataStoreConsumer : IGenericConsumer
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
             Members = membersNextExecution.ToArray(),
+            Message = messageToAdd
         });
     }
 
+    /* MARK: NEW REACTION */
     async Task HandleNewReaction(NewReactionModel param)
     {
         // Ensure Reactions is an empty array if not present

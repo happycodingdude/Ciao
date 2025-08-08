@@ -17,11 +17,9 @@ import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import {
-  AttachmentCache,
   ConversationCache,
   ConversationModel,
   ConversationModel_Member,
-  MessageCache,
 } from "../../listchat/types";
 import createGroupChat, {
   CreateGroupChatRequest,
@@ -140,21 +138,21 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         reload: false,
       } as ConversationCache;
     });
-    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-      return {
-        ...oldData,
-        conversationId: tempId,
-        messages: [],
-        hasMore: false,
-      } as MessageCache;
-    });
-    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-      return {
-        ...oldData,
-        conversationId: tempId,
-        attachments: [],
-      } as AttachmentCache;
-    });
+    // queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+    //   return {
+    //     ...oldData,
+    //     conversationId: tempId,
+    //     messages: [],
+    //     hasMore: false,
+    //   } as MessageCache;
+    // });
+    // queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+    //   return {
+    //     ...oldData,
+    //     conversationId: tempId,
+    //     attachments: [],
+    //   } as AttachmentCache;
+    // });
   };
 
   const updateAddedConversation = (tempId: string, addedId: string) => {
@@ -175,18 +173,18 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         // },
       } as ConversationCache;
     });
-    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-      return {
-        ...oldData,
-        conversationId: addedId,
-      } as MessageCache;
-    });
-    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-      return {
-        ...oldData,
-        conversationId: addedId,
-      } as AttachmentCache;
-    });
+    // queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+    //   return {
+    //     ...oldData,
+    //     conversationId: addedId,
+    //   } as MessageCache;
+    // });
+    // queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+    //   return {
+    //     ...oldData,
+    //     conversationId: addedId,
+    //   } as AttachmentCache;
+    // });
   };
 
   const removeMemberToAdd = (id: string) => {

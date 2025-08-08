@@ -51,12 +51,12 @@ const Attachment = () => {
   return (
     <div
       ref={refAttachment}
-      className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-[var(--bg-color)]`}
+      className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-primary-light`}
     >
       <div className="flex items-center justify-evenly py-[1rem]">
         <div
-          className={`${attachmentToggle === "image" ? "selected" : ""}  cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
-                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          className={`${attachmentToggle === "image" ? "selected" : ""}  cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium 
+                text-gray-600 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
           onClick={() => {
             toggleAttachmentActive("image");
             setAttachmentToggle("image");
@@ -65,8 +65,8 @@ const Attachment = () => {
           Images
         </div>
         <div
-          className={`${attachmentToggle === "file" ? "selected" : ""} cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
-                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          className={`${attachmentToggle === "file" ? "selected" : ""} cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium 
+                text-gray-600 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
           onClick={() => {
             toggleAttachmentActive("file");
             setAttachmentToggle("file");

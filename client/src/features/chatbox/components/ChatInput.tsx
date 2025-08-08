@@ -119,7 +119,7 @@ const ChatInput = (props: ChatInputProps) => {
         (oldData: ConversationCache) => {
           const updatedConversations = oldData.conversations.map(
             (conversation) => {
-              if (conversation.id !== conversation.id) return conversation;
+              if (conversation.id !== conversationId) return conversation;
               return {
                 ...conversation,
                 lastMessage:
@@ -134,10 +134,6 @@ const ChatInput = (props: ChatInputProps) => {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
-            // selected: {
-            //   ...oldData.selected,
-            //   lastMessageTime: moment().format(),
-            // },
           } as ConversationCache;
         },
       );
@@ -148,86 +144,92 @@ const ChatInput = (props: ChatInputProps) => {
       };
       // let bodyLocal: SendMessageRequest = Object.assign({}, bodyToCreate);
       if (hasMedia) {
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          return {
-            ...oldData,
-            messages: [
-              ...(oldData.messages || []),
-              {
-                id: randomId,
-                type: param.type,
-                content: param.content,
-                contactId: info.id,
-                attachments: param.attachments.map((item) => {
-                  return { ...item, id: randomId };
-                }),
-                noLazy: true,
-                pending: true,
-                likeCount: 0,
-                loveCount: 0,
-                careCount: 0,
-                wowCount: 0,
-                sadCount: 0,
-                angryCount: 0,
-                currentReaction: null,
-                createdTime: moment().format(),
-              } as PendingMessageModel,
-            ],
-          } as MessageCache;
-        });
-        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-          const today = getToday("MM/DD/YYYY");
-
-          if (!oldData?.attachments) {
+        queryClient.setQueryData(
+          ["message", conversationId],
+          (oldData: MessageCache) => {
             return {
               ...oldData,
-              attachments: [
+              messages: [
+                ...(oldData.messages || []),
                 {
-                  date: today,
+                  id: randomId,
+                  type: param.type,
+                  content: param.content,
+                  contactId: info.id,
                   attachments: param.attachments.map((item) => {
                     return { ...item, id: randomId };
                   }),
-                },
+                  noLazy: true,
+                  pending: true,
+                  likeCount: 0,
+                  loveCount: 0,
+                  careCount: 0,
+                  wowCount: 0,
+                  sadCount: 0,
+                  angryCount: 0,
+                  currentReaction: null,
+                  createdTime: moment().format(),
+                } as PendingMessageModel,
               ],
-            } as AttachmentCache;
-          }
+            } as MessageCache;
+          },
+        );
+        queryClient.setQueryData(
+          ["attachment", conversationId],
+          (oldData: AttachmentCache) => {
+            const today = getToday("MM/DD/YYYY");
 
-          const existingItem = oldData.attachments.find(
-            (item) => item.date === today,
-          );
+            if (!oldData?.attachments) {
+              return {
+                ...oldData,
+                attachments: [
+                  {
+                    date: today,
+                    attachments: param.attachments.map((item) => {
+                      return { ...item, id: randomId };
+                    }),
+                  },
+                ],
+              } as AttachmentCache;
+            }
 
-          if (!existingItem) {
+            const existingItem = oldData.attachments.find(
+              (item) => item.date === today,
+            );
+
+            if (!existingItem) {
+              return {
+                ...oldData,
+                attachments: [
+                  ...oldData.attachments,
+                  {
+                    date: today,
+                    attachments: param.attachments.map((item) => {
+                      return { ...item, id: randomId };
+                    }),
+                  },
+                ],
+              } as AttachmentCache;
+            }
+
             return {
               ...oldData,
-              attachments: [
-                ...oldData.attachments,
-                {
-                  date: today,
-                  attachments: param.attachments.map((item) => {
-                    return { ...item, id: randomId };
-                  }),
-                },
-              ],
+              attachments: oldData.attachments.map((item) =>
+                item.date === today
+                  ? {
+                      ...item,
+                      attachments: [
+                        ...param.attachments.map((item) => {
+                          return { ...item, id: randomId };
+                        }),
+                        ...item.attachments,
+                      ],
+                    }
+                  : item,
+              ),
             } as AttachmentCache;
-          }
-
-          return {
-            ...oldData,
-            attachments: oldData.attachments.map((item) =>
-              item.date === today
-                ? {
-                    ...item,
-                    attachments: [
-                      ...param.attachments.map((item) => {
-                        return { ...item, id: randomId };
-                      }),
-                      ...item.attachments,
-                    ],
-                  }
-                : item,
-            ),
-          } as AttachmentCache;
-        });
+          },
+        );
 
         const uploaded: AttachmentModel[] = await uploadMultipleFile(
           param.files,
@@ -244,31 +246,34 @@ const ChatInput = (props: ChatInputProps) => {
           attachments: uploaded,
         };
       } else {
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          return {
-            ...oldData,
-            messages: [
-              ...(oldData.messages || []),
-              {
-                id: randomId,
-                type: param.type,
-                content: param.content,
-                contactId: info.id,
-                attachments: [],
-                noLazy: true,
-                pending: true,
-                likeCount: 0,
-                loveCount: 0,
-                careCount: 0,
-                wowCount: 0,
-                sadCount: 0,
-                angryCount: 0,
-                currentReaction: null,
-                createdTime: moment().format(),
-              } as PendingMessageModel,
-            ],
-          } as MessageCache;
-        });
+        queryClient.setQueryData(
+          ["message", conversationId],
+          (oldData: MessageCache) => {
+            return {
+              ...oldData,
+              messages: [
+                ...(oldData.messages || []),
+                {
+                  id: randomId,
+                  type: param.type,
+                  content: param.content,
+                  contactId: info.id,
+                  attachments: [],
+                  noLazy: true,
+                  pending: true,
+                  likeCount: 0,
+                  loveCount: 0,
+                  careCount: 0,
+                  wowCount: 0,
+                  sadCount: 0,
+                  angryCount: 0,
+                  currentReaction: null,
+                  createdTime: moment().format(),
+                } as PendingMessageModel,
+              ],
+            } as MessageCache;
+          },
+        );
       }
 
       const res: SendMessageResponse = await sendMessage(
@@ -277,50 +282,56 @@ const ChatInput = (props: ChatInputProps) => {
       );
       await delay(500);
 
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: oldData.messages.map((message) => {
-            if (message.id !== randomId) return message;
-            return {
-              ...message,
-              id: res.messageId,
-              loaded: true,
-              pending: false,
-              attachments: message.attachments.map((atta, index) => {
-                if (atta.id !== randomId) return atta;
-                return {
-                  ...atta,
-                  id: res.attachments[index],
-                  pending: false,
-                };
-              }),
-            };
-          }),
-        } as MessageCache;
-      });
-
-      if (hasMedia) {
-        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+      queryClient.setQueryData(
+        ["message", conversationId],
+        (oldData: MessageCache) => {
           return {
             ...oldData,
-            attachments: oldData.attachments.map((item) =>
-              item.date === getToday("MM/DD/YYYY")
-                ? {
-                    ...item,
-                    attachments: item.attachments.map((atta, index) => {
-                      if (atta.id !== randomId) return atta;
-                      return {
-                        ...atta,
-                        id: res.attachments[index],
-                        pending: false,
-                      };
-                    }),
-                  }
-                : item,
-            ),
-          } as AttachmentCache;
-        });
+            messages: oldData.messages.map((message) => {
+              if (message.id !== randomId) return message;
+              return {
+                ...message,
+                id: res.messageId,
+                loaded: true,
+                pending: false,
+                attachments: message.attachments.map((atta, index) => {
+                  if (atta.id !== randomId) return atta;
+                  return {
+                    ...atta,
+                    id: res.attachments[index],
+                    pending: false,
+                  };
+                }),
+              };
+            }),
+          } as MessageCache;
+        },
+      );
+
+      if (hasMedia) {
+        queryClient.setQueryData(
+          ["attachment", conversationId],
+          (oldData: AttachmentCache) => {
+            return {
+              ...oldData,
+              attachments: oldData.attachments.map((item) =>
+                item.date === getToday("MM/DD/YYYY")
+                  ? {
+                      ...item,
+                      attachments: item.attachments.map((atta, index) => {
+                        if (atta.id !== randomId) return atta;
+                        return {
+                          ...atta,
+                          id: res.attachments[index],
+                          pending: false,
+                        };
+                      }),
+                    }
+                  : item,
+              ),
+            } as AttachmentCache;
+          },
+        );
       }
     },
   });

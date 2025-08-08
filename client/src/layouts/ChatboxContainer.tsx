@@ -92,8 +92,8 @@ const ChatboxContainer = () => {
       ) : (
         <div className="flex h-full flex-col">
           <ChatboxHeader />
-          <div className="flex w-full grow bg-pastel-purple bg-opacity-30">
-            <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[92dvh]">
+          <div className="border-[var(--border-color)]] flex w-full grow border-t-[.1rem] bg-pastel-purple bg-opacity-40">
+            <div className="laptop-md:h-[92dvh flex w-full laptop:h-[89dvh]">
               <div
                 ref={refChatboxContainer}
                 className={`relative flex w-full flex-col items-center gap-[1rem] 

@@ -52,7 +52,7 @@ public static class CreateGroupConversation
                 throw new BadRequestException(validationResult.ToString());
 
             var userId = _contactRepository.GetUserId();
-            // Remove duplicate, just keep one item for this user
+            // Remove duplication, just keep one item for this user
             var conversation = _mapper.Map<Conversation>(request.model);
             conversation.IsGroup = true;
             var members = conversation.Members.Where(q => q.ContactId != userId).ToList();
@@ -63,7 +63,7 @@ public static class CreateGroupConversation
 
             await _kafkaProducer.ProduceAsync(Topic.NewGroupConversation, new NewGroupConversationModel
             {
-                UserId = _contactRepository.GetUserId(),
+                UserId = userId,
                 Conversation = _mapper.Map<NewGroupConversationModel_Conversation>(conversation),
                 Members = _mapper.Map<NewGroupConversationModel_Member[]>(members.ToArray())
             });

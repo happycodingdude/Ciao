@@ -136,7 +136,7 @@ public class CacheConsumer : IGenericConsumer
     /* MARK: NEW GROUP CONVERSATION */
     async Task HandleNewGroupConversation(NewStoredGroupConversationModel param)
     {
-        // var conversation = _mapper.Map<Conversation>(param);
+        // Get contact info for new members
         var contactFilter = Builders<Contact>.Filter.Where(q => param.Members.Select(w => w.ContactId).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
 
@@ -158,10 +158,12 @@ public class CacheConsumer : IGenericConsumer
         thisUser.IsNotifying = true;
         thisUser.IsModerator = true;
 
-        // _logger.Information(JsonConvert.SerializeObject(param.Conversation));
+        // Add conversation to cache
         var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
-        // _logger.Information(JsonConvert.SerializeObject(conversationToCache));
         await _conversationCache.AddConversation(user.Id, conversationToCache, memberToCache.ToArray());
+
+        // Add system message to cache
+        await _messageCache.AddSystemMessage(param.Conversation.Id, _mapper.Map<MessageWithReactions>(param.Message));
 
         // Check if any receiver is online then update receiver cache
         var membersToNotify = param.Members.Where(q => q.ContactId != user.Id).Select(q => q.ContactId).ToArray();
@@ -221,9 +223,9 @@ public class CacheConsumer : IGenericConsumer
     {
         var newMembers = _mapper.Map<List<MemberWithContactInfo>>(param.Members.Where(q => q.IsNew));
 
+        // Get contact info for new members
         var contactFilter = Builders<Contact>.Filter.Where(q => newMembers.Select(q => q.Contact.Id).Contains(q.Id));
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
-
         foreach (var member in newMembers)
         {
             member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).Name;
@@ -232,7 +234,11 @@ public class CacheConsumer : IGenericConsumer
             member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id).IsOnline;
         }
 
+        // Add members to cache
         await _memberCache.AddMembers(param.Conversation.Id, newMembers);
+
+        // Add system message to cache
+        await _messageCache.AddSystemMessage(param.Conversation.Id, _mapper.Map<MessageWithReactions>(param.Message));
 
         // Check if any receiver is online then update receiver cache
         var membersToNotify = newMembers.Select(q => q.Contact.Id).ToArray();

@@ -49,7 +49,7 @@ export type UpdateConversationProps = OnCloseType & {
 export type MessageContentProps = {
   message: PendingMessageModel;
   id: string;
-  mt: boolean;
+  // mt: boolean;
   refContainer?: MutableRefObject<HTMLDivElement>;
   getContainerRect?: () => DOMRect;
 };

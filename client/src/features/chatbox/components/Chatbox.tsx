@@ -148,8 +148,12 @@ const Chatbox = () => {
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         className="hide-scrollbar flex grow flex-col gap-[3.5rem] overflow-y-scroll scroll-smooth px-[1rem]"
       >
-        {Object.entries(grouped).map(([date, messages]) => (
-          <div key={date} className="flex flex-col gap-[3.5rem]">
+        {Object.entries(grouped).map(([date, messages], index) => (
+          <div
+            key={date}
+            className={`flex flex-col gap-[3.5rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
+            // className={`flex flex-col gap-[3.5rem]`}
+          >
             {/* Ngày hiển thị giữa */}
             <div
               className="pointer-events-none mx-auto w-fit rounded-[2rem] 
@@ -158,16 +162,24 @@ const Chatbox = () => {
               {formatDisplayDate(date)}
             </div>
 
-            {[...messages].map((message, index) => (
-              <MessageContent
-                message={message}
-                id={conversation.id}
-                mt={index === 0}
-                getContainerRect={() =>
-                  refChatContent.current?.getBoundingClientRect()
-                }
-              />
-            ))}
+            {[...messages].map((message, index) =>
+              message.type === "system" ? (
+                <div
+                  className="pointer-events-none mx-auto w-fit rounded-[2rem] 
+            bg-[var(--bg-color)] px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+                >
+                  {message.content}
+                </div>
+              ) : (
+                <MessageContent
+                  message={message}
+                  id={conversation.id}
+                  getContainerRect={() =>
+                    refChatContent.current?.getBoundingClientRect()
+                  }
+                />
+              ),
+            )}
           </div>
         ))}
       </div>

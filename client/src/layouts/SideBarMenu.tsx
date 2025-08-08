@@ -49,18 +49,19 @@ const SideBarMenu = (props: SideBarProps) => {
   return (
     <div
       id="sidebar-3"
-      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90 to-neo-pink/90 py-[3rem]"
+      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90
+      to-neo-pink/90 pb-[3rem] pt-[1.5rem]"
     >
       {/* <div className="bg-neo-blue/40 absolute -left-10 -top-10 h-40 w-40 rounded-full blur-3xl"></div>
       <div className="bg-neo-pink/40 absolute -bottom-10 -right-10 h-40 w-40 rounded-full blur-3xl"></div> */}
 
-      <div className="z-10 mb-[6rem] aspect-square w-[70%]">
+      <div className="z-10 mb-[4rem] aspect-square w-[60%]">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
-          <i className="fa-solid fa-comments text-2xl text-neo-purple"></i>
+          <i className="fa-solid fa-comments text-xl text-neo-purple"></i>
         </div>
       </div>
 
-      <div className="z-10 flex w-[70%] flex-1 flex-col gap-[2rem]">
+      <div className="z-10 flex w-[60%] flex-1 flex-col gap-[2rem]">
         <Link to="/" className="sidebar-item">
           <i className="fa-solid fa-home text-xl"></i>
           <div className="tooltip">Home</div>
