@@ -1,19 +1,15 @@
-import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
-import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import LocalLoading from "../../../components/LocalLoading";
+import ListFriendLoading from "../../../components/ListFriendLoading";
 import MediaPicker from "../../../components/MediaPicker";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import { uploadFile } from "../../chatbox/functions/uploadFile";
-import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
-import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import {
@@ -24,6 +20,10 @@ import {
 import createGroupChat, {
   CreateGroupChatRequest,
 } from "../services/createGroupChat";
+import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
+import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
+import CustomLabel from "../../../components/CustomLabel";
+import { CheckCircleOutlined } from "@ant-design/icons";
 
 const CreateGroupChatModal = (props: OnCloseType) => {
   const { onClose } = props;
@@ -241,7 +241,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
         >
           {isLoading || isRefetching ? (
-            <LocalLoading />
+            <ListFriendLoading />
           ) : (
             <>
               <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">

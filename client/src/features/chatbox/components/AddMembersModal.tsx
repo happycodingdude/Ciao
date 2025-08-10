@@ -1,12 +1,9 @@
-import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
-import CustomLabel from "../../../components/CustomLabel";
-import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import LocalLoading from "../../../components/LocalLoading";
+import ListFriendLoading from "../../../components/ListFriendLoading";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
@@ -14,9 +11,12 @@ import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
 import { ConversationCache } from "../../listchat/types";
-import MemberToAdd_LargeScreen from "../responsive/MemberToAdd_LargeScreen";
-import MemberToAdd_Phone from "../responsive/MemberToAdd_Phone";
 import addMembers from "../services/addMembers";
+import { CheckCircleOutlined } from "@ant-design/icons";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import CustomLabel from "../../../components/CustomLabel";
+import MemberToAdd_Phone from "../responsive/MemberToAdd_Phone";
+import MemberToAdd_LargeScreen from "../responsive/MemberToAdd_LargeScreen";
 
 const AddMembersModal = (props: OnCloseType) => {
   const { onClose } = props;
@@ -26,10 +26,6 @@ const AddMembersModal = (props: OnCloseType) => {
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
 
-  // const [conversationId] = useLocalStorage<string>("conversationId");
-  // const conversation = conversations.filterConversations.find(
-  //   (c) => c.id === conversationId,
-  // );
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
@@ -95,10 +91,7 @@ const AddMembersModal = (props: OnCloseType) => {
   };
 
   return (
-    <div
-      className="flex flex-col gap-[1rem] p-10 pt-12 text-[var(--text-main-color)] 
-    phone:h-[50rem] laptop:h-[45rem] laptop-lg:h-[55rem] desktop:h-[80rem]"
-    >
+    <>
       <CustomInput
         type="text"
         placeholder="Search for name"
@@ -124,7 +117,7 @@ const AddMembersModal = (props: OnCloseType) => {
       ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
       >
         {isLoading || isRefetching ? (
-          <LocalLoading />
+          <ListFriendLoading />
         ) : (
           <>
             <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
@@ -158,7 +151,7 @@ const AddMembersModal = (props: OnCloseType) => {
                         conversation.members.some(
                           (mem) => mem.contact.id === item.id,
                         ) || membersToAdd.some((mem) => mem.id === item.id)
-                          ? "text-[var(--main-color-bold)]"
+                          ? "text-pink-500"
                           : ""
                       }
                     `}
@@ -216,7 +209,7 @@ const AddMembersModal = (props: OnCloseType) => {
         title="Save"
         onClick={addMembersCTA}
       />
-    </div>
+    </>
   );
 };
 

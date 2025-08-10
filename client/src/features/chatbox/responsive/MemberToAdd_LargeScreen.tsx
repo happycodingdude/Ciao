@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import { CSSProperties } from "react";
 import { twMerge } from "tailwind-merge";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -30,8 +30,7 @@ const MemberToAdd_LargeScreen = ({
       <div className="flex h-full w-full flex-col gap-[1rem] rounded-[.5rem] bg-[var(--bg-color)] p-2">
         <p>
           Selected{" "}
-          {/* <span className="bg-gradient-to-tr from-[var(--main-color)] to-[var(--main-color-extrathin)] text-[var(--text-sub-color)]"> */}
-          <span className="text-[var(--main-color-light)]">
+          <span className="text-pink-500">
             {membersToAdd.length ?? 0}/{total}
           </span>
         </p>

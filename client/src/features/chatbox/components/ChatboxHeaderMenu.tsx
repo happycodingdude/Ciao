@@ -19,13 +19,6 @@ const ChatboxHeaderMenu = () => {
   const { toggle, setToggle } = useChatDetailToggles();
 
   const { data: conversations } = useConversation();
-  // if (!conversations || !conversations.selected) return;
-  // const [conversationId] = useLocalStorage<string>("conversationId");
-  // const conversation = useMemo(
-  //   () =>
-  //     conversations.filterConversations.find((c) => c.id === conversationId),
-  //   [conversations, conversationId],
-  // );
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
@@ -97,6 +90,8 @@ const ChatboxHeaderMenu = () => {
           )
         }
         toggle={toggle === "attachment"}
+        width="2rem"
+        height="2rem"
       />
     </>
   );

@@ -1,16 +1,12 @@
-import { SideBarProps } from "../types";
+import "../sidebar.css";
 import { isPhoneScreen } from "../utils/getScreenSize";
 import SideBarMenu from "./SideBarMenu";
 import SideBarMenu_Mobile from "./SideBarMenu_Mobile";
 
-const SideBar = (props: SideBarProps) => {
+const SideBar = () => {
   return (
     <section className="sidebar-container">
-      {isPhoneScreen() ? (
-        <SideBarMenu_Mobile {...props} />
-      ) : (
-        <SideBarMenu {...props} />
-      )}
+      {isPhoneScreen() ? <SideBarMenu_Mobile /> : <SideBarMenu />}
     </section>
   );
 };

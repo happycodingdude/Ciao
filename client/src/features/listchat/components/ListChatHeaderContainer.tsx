@@ -1,5 +1,6 @@
 import useListchatFilter from "../hooks/useListchatFilter";
 import ListChatHeader from "./ListChatHeader";
+import '../../../button.css'
 
 const ListChatHeaderContainer = () => {
   const { filter, setFilter } = useListchatFilter();
@@ -12,22 +13,19 @@ const ListChatHeaderContainer = () => {
       {/* MARK: List chat filter */}
       <div className="flex gap-[1rem]">
         <div
-          className={`${filter === "all" ? "selected" : ""}  cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
-                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          className={`${filter === "all" ? "selected" : ""} custom-button`}
           onClick={() => setFilter("all")}
         >
           All
         </div>
         <div
-          className={`${filter === "direct" ? "selected" : ""} cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
-                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          className={`${filter === "direct" ? "selected" : ""} custom-button`}
           onClick={() => setFilter("direct")}
         >
           Direct
         </div>
         <div
-          className={`${filter === "group" ? "selected" : ""} cursor-pointer rounded-full bg-white px-6 py-3 text-sm font-medium text-gray-600 
-                shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)] transition-colors duration-300 ease-in-out hover:shadow-md`}
+          className={`${filter === "group" ? "selected" : ""} custom-button`}
           onClick={() => setFilter("group")}
         >
           Group

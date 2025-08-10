@@ -78,7 +78,9 @@ const ListChatContainer = () => {
           .map((item) => (
             <Link key={item.id} to={`/conversations/${item.id}`}>
               <div
-                className={`chat-item cursor-pointer rounded-2xl bg-white p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
+                // className={`chat-item cursor-pointer rounded-2xl bg-gray-100 p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
+                //     ${item.id === conversationId ? "active" : ""}`}
+                className={`chat-item cursor-pointer rounded-2xl p-4
                     ${item.id === conversationId ? "active" : ""}`}
               >
                 <div className="flex items-center laptop:h-[4rem]">

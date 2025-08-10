@@ -1,15 +1,11 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
-import "../sidebar.css";
-import { SideBarProps } from "../types";
 import blurImage from "../utils/blurImage";
 
-const SideBarMenu = (props: SideBarProps) => {
-  const queryClient = useQueryClient();
+const SideBarMenu = () => {
   const { data: info } = useInfo();
 
   if (!info) return;
@@ -49,15 +45,13 @@ const SideBarMenu = (props: SideBarProps) => {
   return (
     <div
       id="sidebar-3"
-      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90
-      to-neo-pink/90 pb-[3rem] pt-[1.5rem]"
+      // className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90
+      // to-neo-pink/90 pb-[3rem] pt-[1.5rem]"
+      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-blue-500 pb-[3rem] pt-[1.5rem]"
     >
-      {/* <div className="bg-neo-blue/40 absolute -left-10 -top-10 h-40 w-40 rounded-full blur-3xl"></div>
-      <div className="bg-neo-pink/40 absolute -bottom-10 -right-10 h-40 w-40 rounded-full blur-3xl"></div> */}
-
       <div className="z-10 mb-[4rem] aspect-square w-[60%]">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
-          <i className="fa-solid fa-comments text-xl text-neo-purple"></i>
+          <i className="fa-solid fa-comments text-xl text-neo-blue"></i>
         </div>
       </div>
 

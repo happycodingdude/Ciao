@@ -1,5 +1,4 @@
 import { CloseOutlined } from "@ant-design/icons";
-import React from "react";
 import AddFriend from "../../friend/components/AddFriend";
 import CreateGroupChat from "../../groupchat/components/CreateGroupChat";
 import useListchatFilter from "../hooks/useListchatFilter";
@@ -14,8 +13,8 @@ const ListChatHeader = () => {
           value={search}
           type="text"
           placeholder="Find and chat"
-          className="h-full w-full rounded-3xl bg-white py-[1.7rem] pl-[1rem] pr-[3rem] shadow-sm 
-          focus:shadow-lg focus:outline-none"
+          className="h-full w-full rounded-3xl bg-gray-100 py-[1.7rem] pl-[1rem] pr-[3rem] shadow-sm 
+          focus:shadow-md focus:outline-none"
           onChange={(e) => setSearch(e.target.value)}
         ></input>
         <CloseOutlined

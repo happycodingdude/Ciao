@@ -1,29 +1,29 @@
-import React from "react";
-
 type AttachmentIcon = {
-  onClick: () => void;
-  toggle: boolean;
+  onClick?: () => void;
+  toggle?: boolean;
+  className?: string;
+  width: string | number;
+  height: string | number;
 };
 
 const AttachmentIcon = (props: AttachmentIcon) => {
-  const { onClick, toggle } = props;
+  const { onClick, toggle, className, width, height } = props;
   return (
     <svg
       onClick={onClick}
-      width="100%"
-      height="100%"
+      width={width}
+      height={height}
       viewBox="0 0 197.696 197.696"
       version="1.1"
       id="Capa_1"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
-      className="transition-all duration-200 hover:fill-[var(--main-color-bold)] phone:w-[1.7rem]"
+      className={`transition-all duration-200 hover:fill-[var(--main-color-bold)] ${className}`}
     >
       <g>
         <path
           stroke="black"
-          // stroke-width="2"
           className={toggle ? "active" : ""}
           d="M179.546,73.358L73.111,179.783c-13.095,13.095-34.4,13.095-47.481,0.007
 c-13.095-13.095-13.095-34.396,0-47.495l13.725-13.739l92.696-92.689l11.166-11.159c8.829-8.833,23.195-8.833,32.038,0

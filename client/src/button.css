@@ -1,0 +1,19 @@
+.custom-button {
+  cursor: pointer;
+  border-radius: 9999px; /* rounded-full */
+  background-color: #f3f4f6; /* bg-gray-100 */
+  padding-left: 1.5rem; /* px-6 */
+  padding-right: 1.5rem;
+  padding-top: 0.75rem; /* py-3 */
+  padding-bottom: 0.75rem;
+  font-weight: 500; /* font-medium */
+  color: #4b5563; /* text-gray-600 */
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* shadow-[...] */
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow;
+  transition-duration: 300ms; /* duration-300 */
+  transition-timing-function: ease-in-out; /* ease-in-out */
+}
+
+.custom-button:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+}

@@ -3,6 +3,7 @@ import { UserAddOutlined } from "@ant-design/icons";
 import React, { lazy, Suspense, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import LocalLoading from "../../../components/LocalLoading";
+import ModalLoading from "../../../components/ModalLoading";
 const ListFriend = lazy(() => import("./ListFriend"));
 
 const AddFriend = () => {
@@ -21,8 +22,9 @@ const AddFriend = () => {
         onClose={() => setOpen(false)}
       >
         <div className="flex flex-col p-10 pt-12 phone:h-[50rem] laptop:h-[45rem] laptop-lg:h-[55rem] desktop:h-[80rem]">
-          <Suspense fallback={<LocalLoading className="left-0 top-0" />}>
+          <Suspense fallback={<ModalLoading className="left-0 top-0" />}>
             <ListFriend onClose={() => setOpen(false)} />
+            {/* <ModalLoading /> */}
           </Suspense>
         </div>
       </BackgroundPortal>

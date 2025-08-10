@@ -507,4 +507,8 @@ body,
   .attachment-filter-text {
     @apply relative z-[10] transition-colors duration-200;
   }
+
+  .font-be-vn-bold {
+    @apply font-['Be_Vietnam_Pro'] font-semibold;
+  }
 }

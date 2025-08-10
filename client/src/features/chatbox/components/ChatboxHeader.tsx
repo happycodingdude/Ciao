@@ -24,7 +24,7 @@ const ChatboxHeader = () => {
 
   return (
     <div
-      className="flex w-full shrink-0 items-center justify-between bg-primary-light 
+      className="flex w-full shrink-0 items-center justify-between
       px-[1rem] py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[6rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
