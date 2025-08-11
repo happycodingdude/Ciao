@@ -176,7 +176,7 @@ const Information = () => {
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="loaded aspect-square w-[3rem]"
+                        className="aspect-square w-[3rem]"
                         circle
                         slides={[
                           {

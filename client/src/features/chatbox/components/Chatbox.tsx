@@ -43,9 +43,9 @@ const Chatbox = () => {
     refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
   };
 
-  // useEffect(() => {
-  //   scrollChatContentToBottom();
-  // }, [messages]);
+  useEffect(() => {
+    scrollChatContentToBottom();
+  }, [messages]);
 
   useEffect(() => {
     refChatContent.current.style.scrollBehavior = "auto";
@@ -130,10 +130,7 @@ const Chatbox = () => {
   const grouped = groupMessagesByDate(messages?.messages ?? []);
 
   return (
-    <div
-      className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden 
-       pb-[1rem]"
-    >
+    <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-[1rem]">
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={scrollChatContentToBottom}
@@ -151,23 +148,17 @@ const Chatbox = () => {
         {Object.entries(grouped).map(([date, messages], index) => (
           <div
             key={date}
-            className={`flex flex-col gap-[3.5rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
-            // className={`flex flex-col gap-[3.5rem]`}
+            // className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
+            className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-[2rem]" : ""}`}
           >
             {/* Ngày hiển thị giữa */}
-            <div
-              className="pointer-events-none mx-auto w-fit rounded-[2rem] 
-            bg-[var(--bg-color)] px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-            >
+            <div className="pointer-events-none mx-auto w-fit rounded-[2rem] bg-white px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 
             {[...messages].map((message, index) =>
               message.type === "system" ? (
-                <div
-                  className="pointer-events-none mx-auto w-fit rounded-[2rem] 
-            bg-[var(--bg-color)] px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-                >
+                <div className="pointer-events-none mx-auto w-fit rounded-[2rem] bg-white px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                   {message.content}
                 </div>
               ) : (

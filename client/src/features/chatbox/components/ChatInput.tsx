@@ -76,7 +76,7 @@ const ChatInput = (props: ChatInputProps) => {
         .map((item) => {
           return {
             name: item.contact.name,
-            avatar: item.contact.avatar ?? "src/assets/imagenotfound.jpg",
+            avatar: item.contact.avatar,
             userId: item.contact.id,
           };
         });
@@ -358,17 +358,32 @@ const ChatInput = (props: ChatInputProps) => {
     setFiles([]);
   };
 
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
   const keydownBindingFn = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const key = e.key;
 
+      if (key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % mentions.length);
+      } else if (key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex(
+          (prev) => (prev - 1 + mentions.length) % mentions.length,
+        );
+      } else if (key === "Enter" && showMention) {
+        e.preventDefault();
+        chooseMention(mentions[selectedIndex].userId);
+      }
+
       // Nếu nội dung đang rỗng và người dùng gõ phím không phải là Backspace
-      if (isEmpty && key !== "Backspace") {
+      else if (isEmpty && key !== "Backspace") {
         setIsEmpty(false);
       }
 
       // Enter mà không giữ Shift -> gửi tin nhắn
-      if (key === "Enter" && !e.shiftKey) {
+      else if (key === "Enter" && !e.shiftKey) {
         e.preventDefault(); // Ngăn xuống dòng
         chat();
       }
@@ -381,7 +396,15 @@ const ChatInput = (props: ChatInputProps) => {
         setShowMention(false);
       }
     },
-    [isEmpty, chat, setShowMention],
+    [
+      isEmpty,
+      chat,
+      setShowMention,
+      mentions,
+      selectedIndex,
+      chooseMention,
+      showMention,
+    ],
   );
 
   const keyupBindingFn = useCallback(
@@ -434,7 +457,7 @@ const ChatInput = (props: ChatInputProps) => {
       setShowMention(false);
     }
   }, []);
-  useEventListener("keydown", hideMentionOnKey);
+  // useEventListener("keydown", hideMentionOnKey);
 
   // const closeEmojiOnClick = useCallback((e: MouseEvent) => {
   //   const target = e.target as HTMLElement;
@@ -479,6 +502,26 @@ const ChatInput = (props: ChatInputProps) => {
     if (files?.length !== 0) setCaretToEnd(false);
   }, [files]);
 
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (e.key === "ArrowDown") {
+  //       e.preventDefault();
+  //       setSelectedIndex((prev) => (prev + 1) % mentions.length);
+  //     } else if (e.key === "ArrowUp") {
+  //       e.preventDefault();
+  //       setSelectedIndex(
+  //         (prev) => (prev - 1 + mentions.length) % mentions.length,
+  //       );
+  //     } else if (e.key === "Enter") {
+  //       e.preventDefault();
+  //       chooseMention(mentions[selectedIndex].userId);
+  //     }
+  //   };
+
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => window.removeEventListener("keydown", handleKeyDown);
+  // }, [mentions, selectedIndex, chooseMention]);
+
   return (
     <div className={`mb-[2rem] flex w-full items-center justify-center`}>
       <div
@@ -515,24 +558,26 @@ const ChatInput = (props: ChatInputProps) => {
           {conversation.isGroup ? (
             <div
               data-show={showMention}
-              className="hide-scrollbar absolute bottom-[4rem] left-0 flex flex-col overflow-y-scroll
-          scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
+              className="hide-scrollbar absolute bottom-[8rem] left-[5rem] z-[2] flex flex-col overflow-y-scroll
+          scroll-smooth rounded-[.7rem] bg-white p-2 text-sm shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
           phone:max-h-[18rem] phone:w-[18rem] laptop:max-h-[20rem] laptop:w-[20rem]"
             >
-              {mentions?.map((item) => (
+              {mentions?.map((item, index) => (
                 <div
-                  className="flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 hover:bg-[var(--bg-color-extrathin)]"
+                  key={item.userId}
+                  className={`mention-user flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 ${index === selectedIndex ? "active" : ""}`}
                   onClick={() => chooseMention(item.userId)}
                 >
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="aspect-square cursor-pointer rounded-[50%] phone:w-[2rem] tablet:w-[2.5rem] laptop:w-[3rem]"
                     slides={[
                       {
                         src: item.avatar,
                       },
                     ]}
+                    className="aspect-square cursor-pointer phone:w-[2rem] tablet:w-[2.5rem] laptop:w-[3rem]"
+                    circle
                   />
                   <p>{item.name}</p>
                 </div>

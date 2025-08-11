@@ -86,3 +86,8 @@
   pointer-events: none;
   position: absolute;
 }
+
+.mention-user.active,
+.mention-user:hover {
+  background-color: var(--bg-color-extrathin);
+}

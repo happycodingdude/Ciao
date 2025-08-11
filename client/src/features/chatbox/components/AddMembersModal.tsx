@@ -1,28 +1,35 @@
+import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
+import CustomLabel from "../../../components/CustomLabel";
+import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
+import useInfo from "../../authentication/hooks/useInfo";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
-import { ConversationCache } from "../../listchat/types";
-import addMembers from "../services/addMembers";
-import { CheckCircleOutlined } from "@ant-design/icons";
-import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import CustomLabel from "../../../components/CustomLabel";
-import MemberToAdd_Phone from "../responsive/MemberToAdd_Phone";
+import {
+  ConversationCache,
+  MessageCache,
+  PendingMessageModel,
+} from "../../listchat/types";
 import MemberToAdd_LargeScreen from "../responsive/MemberToAdd_LargeScreen";
+import MemberToAdd_Phone from "../responsive/MemberToAdd_Phone";
+import addMembers from "../services/addMembers";
 
 const AddMembersModal = (props: OnCloseType) => {
   const { onClose } = props;
 
   const queryClient = useQueryClient();
 
+  const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
 
@@ -76,6 +83,24 @@ const AddMembersModal = (props: OnCloseType) => {
       } as ConversationCache;
     });
 
+    queryClient.setQueryData(
+      ["message", conversationId],
+      (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          messages: [
+            ...(oldData.messages || []),
+            {
+              type: "system",
+              content: `${info.name} added new members: ${membersToAdd.map((mem) => mem.name).join(", ")}`,
+              contactId: "system",
+              createdTime: moment().format(),
+            } as PendingMessageModel,
+          ],
+        } as MessageCache;
+      },
+    );
+
     addMembers(
       conversation.id,
       membersToAdd.map((mem) => {
@@ -97,8 +122,6 @@ const AddMembersModal = (props: OnCloseType) => {
         placeholder="Search for name"
         inputRef={refInput}
         onChange={(e) => {
-          // findContact(e.target.value);
-          // console.log(e.target.value);
           if (e.target.value === "")
             setMembersToSearch(data.map((item) => item.contact));
           else
@@ -106,7 +129,6 @@ const AddMembersModal = (props: OnCloseType) => {
               const found = current.filter((item) =>
                 item.name.toLowerCase().includes(e.target.value.toLowerCase()),
               );
-              // console.log(found);
 
               return found;
             });
