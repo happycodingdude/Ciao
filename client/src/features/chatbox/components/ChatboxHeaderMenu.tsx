@@ -36,8 +36,8 @@ const ChatboxHeaderMenu = () => {
       {/* MARK: ADD MEMBERS, UPDATE CONVERSATION  */}
       {conversation.isGroup ? (
         <>
-          <AddMembers />
-          <EditOutlined
+          {/* <AddMembers /> */}
+          {/* <EditOutlined
             className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
             onClick={() => {
               if (conversation.isGroup) setOpenUpdateTitle(true);
@@ -53,13 +53,13 @@ const ChatboxHeaderMenu = () => {
               selected={conversation}
               onClose={() => setOpenUpdateTitle(false)}
             />
-          </BackgroundPortal>
+          </BackgroundPortal> */}
         </>
       ) : (
         ""
       )}
       {/* MARK: VIDEO CALL  */}
-      <VideoCameraOutlined
+      {/* <VideoCameraOutlined
         onClick={() =>
           startLocalStream(
             conversation.members.find((mem) => mem.contact.id !== info.id)
@@ -67,7 +67,7 @@ const ChatboxHeaderMenu = () => {
           )
         }
         className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
-      />
+      /> */}
       {/* MARK: INFO  */}
       <div
         className={`flex justify-end gap-[1rem] rounded-full 

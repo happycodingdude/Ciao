@@ -72,9 +72,9 @@ const ChatboxContainer = () => {
           </div>
         </>
       ) : (
-        <div className="flex h-full flex-col">
-          <ChatboxHeader />
-          <div className="border-[var(--border-color)]] flex w-full grow border-t-[.1rem]">
+        <div className="flex h-full">
+          <div className="border-[var(--border-color)]] flex w-full grow border-t-[.1rem] flex-col">
+            <ChatboxHeader />
             <div className="flex w-full bg-primary-light laptop:h-[89dvh] laptop-md:h-[92dvh]">
               <div
                 ref={refChatboxContainer}
@@ -85,13 +85,13 @@ const ChatboxContainer = () => {
                 <ChatInput className="chatbox" inputRef={refInput} />
               </div>
             </div>
-            <div
-              className={`relative origin-right transition-all duration-200
-                    ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[35rem]"}`}
-            >
-              <Information />
-              <Attachment />
-            </div>
+          </div>
+          <div
+            className={`relative h-full origin-right transition-all duration-200 shrink-0
+                    ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[30rem]"}`}
+          >
+            <Information />
+            <Attachment />
           </div>
         </div>
       )}

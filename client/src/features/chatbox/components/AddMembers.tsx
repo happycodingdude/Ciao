@@ -1,15 +1,31 @@
 import { UsergroupAddOutlined } from "@ant-design/icons";
-import { lazy, Suspense, useState } from "react";
+import {
+  forwardRef,
+  lazy,
+  Suspense,
+  useImperativeHandle,
+  useState,
+} from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import ModalLoading from "../../../components/ModalLoading";
 const AddMembersModal = lazy(() => import("./AddMembersModal"));
 
-const AddMembers = () => {
+export type AddMembersProps = {
+  open: () => void;
+};
+
+const AddMembers = forwardRef<AddMembersProps>((props, ref) => {
   const [open, setOpen] = useState<boolean>(false);
+  useImperativeHandle(ref, () => ({
+    open() {
+      setOpen(true);
+    },
+  }));
   return (
     <>
       <UsergroupAddOutlined
-        className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+        // className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+        className="base-icon-sm transition-all duration-200"
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal
@@ -26,6 +42,6 @@ const AddMembers = () => {
       </BackgroundPortal>
     </>
   );
-};
+});
 
 export default AddMembers;

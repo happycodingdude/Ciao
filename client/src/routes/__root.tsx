@@ -7,6 +7,8 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../App.css";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
@@ -78,6 +80,17 @@ function RootComponent() {
         </div>
       </div>
       <ReactQueryDevtools buttonPosition="bottom-right" />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

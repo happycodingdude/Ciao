@@ -1,11 +1,20 @@
+import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { MouseEvent, useEffect, useRef, useState } from "react";
+import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
+import { useSignal } from "../../../context/SignalContext";
 import useLocalStorage from "../../../hooks/useLocalStorage";
+import "../../../information.css";
+import { UserProfile } from "../../../types";
 import useInfo from "../../authentication/hooks/useInfo";
+import AddMembers, {
+  AddMembersProps,
+} from "../../chatbox/components/AddMembers";
+import UpdateConversation from "../../chatbox/components/UpdateConversation";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import QuickChat from "../../friend/components/QuickChat";
 import { ContactModel } from "../../friend/types";
@@ -15,6 +24,8 @@ import useAttachment from "../hooks/useAttachment";
 
 const Information = () => {
   const queryClient = useQueryClient();
+
+  const { startLocalStream } = useSignal();
 
   const { data: conversations } = useConversation();
   const { conversationId } = useParams({
@@ -32,6 +43,7 @@ const Information = () => {
 
   const refInformation = useRef<HTMLDivElement>();
   const refMembers = useRef<HTMLDivElement>();
+  const refAddMembers = useRef<AddMembersProps>();
 
   const [displayAttachments, setDisplayAttachments] = useState<
     AttachmentModel[]
@@ -40,6 +52,7 @@ const Information = () => {
   const [quickChatRect, setQuickChatRect] = useState<DOMRect>();
   const [informationoffsetWidth, setInformationoffsetWidth] =
     useState<number>();
+  const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
 
   useEffect(() => {
     setChosenProfile(undefined);
@@ -61,8 +74,12 @@ const Information = () => {
     }
   }, [attachmentCache]);
 
-  const toggleMembers = (): void => {
+  const toggleMembers = () => {
     setShowMembers((current) => !current);
+  };
+
+  const leaveGroup = () => {
+    // Logic to leave the group
   };
 
   return (
@@ -72,7 +89,43 @@ const Information = () => {
     >
       {/* Container */}
       <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
-        <div className="flex flex-col items-center gap-[1.5rem]">
+        <div className="flex items-center justify-between px-[1rem] laptop:h-[6rem]">
+          <p className="text-lg font-bold">Chat information</p>
+          <div className="flex gap-[1rem]">
+            {/* <EditOutlined
+              className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+              onClick={() => {
+                if (conversation.isGroup) setOpenUpdateTitle(true);
+              }}
+            /> */}
+            {/* MARK: UPDATE TITLE  */}
+            {conversation.isGroup ? (
+              <div
+                className="fa fa-pen-to-square base-icon"
+                onClick={() => setOpenUpdateTitle(true)}
+              ></div>
+            ) : null}
+
+            <BackgroundPortal
+              show={openUpdateTitle}
+              className="phone:w-[35rem] laptop:w-[45rem] desktop:w-[35%]"
+              title="Update group"
+              onClose={() => setOpenUpdateTitle(false)}
+            >
+              <UpdateConversation
+                selected={conversation}
+                onClose={() => setOpenUpdateTitle(false)}
+              />
+            </BackgroundPortal>
+            <CloseOutlined
+              className="base-icon-sm cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent bubbling to parent
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-[1.5rem] !py-[2rem]">
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
@@ -96,30 +149,41 @@ const Information = () => {
           />
           {/* MARK: TITLE  */}
           <div className="flex w-[70%] grow flex-col items-center justify-center gap-[.5rem] phone:text-lg laptop:text-md">
-            {conversation?.isGroup ? (
-              <>
-                <CustomLabel
-                  className="font-be-vn-bold text-center"
-                  title={conversation.title}
-                  tooltip
-                />
-                <p className="phone:text-md laptop:text-base">
-                  {conversation.members.length} members
-                </p>
-              </>
-            ) : (
-              <>
-                <CustomLabel
-                  className="font-be-vn-bold text-center"
-                  title={
-                    conversation.members?.find(
+            <CustomLabel
+              className="font-be-vn-bold text-center"
+              title={
+                conversation?.isGroup
+                  ? conversation.title
+                  : conversation.members?.find(
                       (item) => item.contact.id !== info.id,
                     )?.contact.name
-                  }
-                  tooltip
-                />
-              </>
-            )}
+              }
+              tooltip
+            />
+          </div>
+          {/* MARK: CONVERSATION ACTION */}
+          <div className="conversation-action-container">
+            <div
+              className="conversation-action"
+              onClick={() => refAddMembers.current?.open()}
+            >
+              <AddMembers ref={refAddMembers} />
+            </div>
+            <div
+              className="conversation-action"
+              onClick={() =>
+                startLocalStream(
+                  conversation.members.find((mem) => mem.contact.id !== info.id)
+                    .contact as UserProfile,
+                )
+              }
+            >
+              <VideoCameraOutlined className="base-icon-sm transition-all duration-200" />
+            </div>
+            <div
+              className="conversation-action fa fa-right-from-bracket"
+              onClick={leaveGroup}
+            ></div>
           </div>
         </div>
         {/* MARK: MEMBERS  */}
@@ -205,7 +269,7 @@ const Information = () => {
                 ))}
             </div>
 
-            {/* MARK: PROFILE QUICK CHAT  */}
+            {/* MARK: MEMBER QUICK CHAT  */}
             <QuickChat
               profile={chosenProfile}
               rect={quickChatRect}
