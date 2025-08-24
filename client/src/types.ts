@@ -254,3 +254,7 @@ export type NotificationModel = BaseModel & {
   sourceId: string;
   sourceType: string;
 };
+
+export type ForwardMessageModalProps = OnCloseType & {
+  message: string;
+};

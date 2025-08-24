@@ -27,6 +27,14 @@ type SignalContextType = {
 
 const SignalContext = createContext<SignalContextType | undefined>(undefined);
 
+export const useSignal = (): SignalContextType => {
+  console.log("Rendering useSignal");
+
+  const ctx = useContext(SignalContext);
+  if (!ctx) throw new Error("useSignal must be used inside SignalProvider");
+  return ctx;
+};
+
 export const SignalProvider: React.FC<{
   // userId: string;
   children: React.ReactNode;
@@ -276,12 +284,4 @@ export const SignalProvider: React.FC<{
       {children}
     </SignalContext.Provider>
   );
-};
-
-export const useSignal = (): SignalContextType => {
-  console.log("Rendering useSignal");
-
-  const ctx = useContext(SignalContext);
-  if (!ctx) throw new Error("useSignal must be used inside SignalProvider");
-  return ctx;
 };

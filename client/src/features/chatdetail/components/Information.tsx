@@ -163,12 +163,16 @@ const Information = () => {
           </div>
           {/* MARK: CONVERSATION ACTION */}
           <div className="conversation-action-container">
-            <div
-              className="conversation-action"
-              onClick={() => refAddMembers.current?.open()}
-            >
-              <AddMembers ref={refAddMembers} />
-            </div>
+            {conversation.isGroup ? (
+              <div
+                className="conversation-action"
+                onClick={() => refAddMembers.current?.open()}
+              >
+                <AddMembers ref={refAddMembers} />
+              </div>
+            ) : (
+              ""
+            )}
             <div
               className="conversation-action"
               onClick={() =>
@@ -180,10 +184,14 @@ const Information = () => {
             >
               <VideoCameraOutlined className="base-icon-sm transition-all duration-200" />
             </div>
-            <div
-              className="conversation-action fa fa-right-from-bracket"
-              onClick={leaveGroup}
-            ></div>
+            {conversation.isGroup ? (
+              <div
+                className="conversation-action fa fa-right-from-bracket"
+                onClick={leaveGroup}
+              ></div>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         {/* MARK: MEMBERS  */}

@@ -1,19 +1,8 @@
-import {
-  EditOutlined,
-  InfoCircleOutlined,
-  VideoCameraOutlined,
-} from "@ant-design/icons";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "@tanstack/react-router";
-import { useState } from "react";
-import BackgroundPortal from "../../../components/BackgroundPortal";
-import { useSignal } from "../../../context/SignalContext";
-import { UserProfile } from "../../../types";
-import useInfo from "../../authentication/hooks/useInfo";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
 import useConversation from "../../listchat/hooks/useConversation";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
-import AddMembers from "./AddMembers";
-import UpdateConversation from "./UpdateConversation";
 
 const ChatboxHeaderMenu = () => {
   const { toggle, setToggle } = useChatDetailToggles();
@@ -26,10 +15,10 @@ const ChatboxHeaderMenu = () => {
     (c) => c.id === conversationId,
   );
 
-  const { data: info } = useInfo();
-  const { startLocalStream } = useSignal();
+  // const { data: info } = useInfo();
+  // const { startLocalStream } = useSignal();
 
-  const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
+  // const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
 
   return (
     <>

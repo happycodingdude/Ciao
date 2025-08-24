@@ -52,7 +52,7 @@
 .message-menu-container.above {
   /* bottom: 100%;
   top: auto; */
-  top: -8rem;
+  top: -12rem;
   /* transform-origin: bottom; */
 }
 
@@ -66,8 +66,9 @@
 .message-menu-item {
   display: flex;
   cursor: pointer;
-  gap: 0.5rem;
+  gap: 1rem;
   padding: 1rem;
+  align-items: center;
 }
 
 .message-menu-item:hover {

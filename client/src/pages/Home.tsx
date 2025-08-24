@@ -6,6 +6,7 @@ import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import "../home.css";
 
 const Home = () => {
+  console.log("Rendering HomeComponent");
   const { data: info } = useInfo();
   // useFriend();
 
