@@ -47,7 +47,7 @@ export const Route = createFileRoute("/conversations/_layout")({
                   <Suspense fallback={<ListchatLoading />}>
                     <Await promise={conversationPromise}>
                       {(data) => (
-                        <div className="hide-scrollbar relative flex min-h-0 flex-1 flex-col gap-[2rem] overflow-y-scroll scroll-smooth px-[2rem] pt-[1rem]">
+                        <div className="hide-scrollbar relative flex min-h-0 flex-1 flex-col gap-[2rem] overflow-y-scroll scroll-smooth px-[2rem] py-[1rem]">
                           <ListChatContainer />
                         </div>
                       )}

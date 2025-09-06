@@ -15,7 +15,7 @@ import {
   ConversationModel,
   MessageCache,
 } from "../../listchat/types";
-import sendQuickChat from "../services/sendQuickChat";
+import createDirectChatWithMessage from "../services/createDirectChatWithMessage";
 import { ContactModel, QuickChatProps } from "../types";
 import FriendCtaButton from "./FriendCtaButton";
 
@@ -66,7 +66,7 @@ const QuickChat = (props: QuickChatProps) => {
 
   const chat = async () => {
     onClose();
-    const content = refInput.current.textContent;
+    const message = refInput.current.textContent;
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
       (conv) =>
@@ -74,200 +74,195 @@ const QuickChat = (props: QuickChatProps) => {
         conv.members.some((mem) => mem.contact.id === profile.id),
     );
     if (existedConversation) {
-      const [messages, attachments] = await Promise.all([
-        getMessages(existedConversation.id, 1),
-        getAttachments(existedConversation.id),
-      ]);
+      handleExistedConversation(existedConversation, message, randomId);
+    } else {
+      handleNewConversation(message, randomId);
+    }
+  };
 
+  const handleExistedConversation = async (
+    conversation: ConversationModel,
+    message: string,
+    randomId: string,
+  ) => {
+    const [messages, attachments] = await Promise.all([
+      getMessages(conversation.id, 1),
+      getAttachments(conversation.id),
+    ]);
+
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      // Move existed conversation to the top if the conversation was deleted
+      // else keep the current position of the conversation
+      let isDeletedConversation = conversation.members.find(
+        (mem) => mem.contact.id === info.id,
+      ).isDeleted;
+      let updatedConversations = [];
+      if (isDeletedConversation) {
+        conversation.lastMessage = message;
+        conversation.members = conversation.members.map((mem) => {
+          if (mem.contact.id !== info.id) return mem;
+          return { ...mem, isDeleted: false };
+        });
+        updatedConversations = [
+          conversation,
+          ...oldData.conversations.filter(
+            (conv) => conv.id !== conversation.id,
+          ),
+        ];
+      } else {
+        updatedConversations = oldData.conversations.map((conv) => {
+          if (conv.id !== conversation.id) return conv;
+          conv.lastMessage = message;
+          conv.members = conv.members.map((mem) => {
+            if (mem.contact.id !== info.id) return mem;
+            return { ...mem, isDeleted: false };
+          });
+          return conv;
+        });
+      }
+
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        filterConversations: updatedConversations,
+        selected: conversation,
+        reload: true,
+      } as ConversationCache;
+    });
+
+    messages.messages.push({
+      id: randomId,
+      contactId: info.id,
+      type: "text",
+      content: message,
+      currentReaction: null,
+      pending: true,
+    });
+    queryClient.setQueryData(["message"], messages);
+    queryClient.setQueryData(["attachment"], attachments);
+
+    const bodyToCreate = {
+      type: "text",
+      content: message,
+    };
+    sendMessage(conversation.id, bodyToCreate, 1000).then((res) => {
+      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+        const updatedMessages = oldData.messages.map((message) => {
+          if (message.id !== randomId) return message;
+          return { ...message, id: res.messageId, pending: false };
+        });
+        return {
+          ...oldData,
+          messages: updatedMessages,
+        } as MessageCache;
+      });
+    });
+  };
+
+  const handleNewConversation = async (message: string, randomId: string) => {
+    setLoading(true);
+
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      const newConversation: ConversationModel = {
+        id: randomId,
+        lastMessage: message,
+        isGroup: false,
+        isNotifying: true,
+        members: [
+          {
+            isModerator: true,
+            contact: {
+              id: info.id,
+              name: info.name,
+              avatar: info.avatar,
+              isOnline: true,
+            },
+          },
+          {
+            contact: {
+              id: innerFriend.id,
+              name: innerFriend.name,
+              avatar: innerFriend.avatar,
+              isOnline: innerFriend.isOnline,
+            },
+          },
+        ],
+      };
+      return {
+        ...oldData,
+        conversations: [newConversation, ...oldData.conversations],
+        filterConversations: [newConversation, ...oldData.conversations],
+        selected: newConversation,
+        reload: false,
+      } as ConversationCache;
+    });
+
+    createDirectChatWithMessage(innerFriend.id, message).then((res) => {
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          // Move existed conversation to the top if the conversation was deleted
-          // else keep the current position of the conversation
-          let isDeletedConversation = existedConversation.members.find(
-            (mem) => mem.contact.id === info.id,
-          ).isDeleted;
-          let updatedConversations = [];
-          if (isDeletedConversation) {
-            existedConversation.lastMessage = content;
-            existedConversation.members = existedConversation.members.map(
-              (mem) => {
-                if (mem.contact.id !== info.id) return mem;
-                return { ...mem, isDeleted: false };
-              },
-            );
-            updatedConversations = [
-              existedConversation,
-              ...oldData.conversations.filter(
-                (conv) => conv.id !== existedConversation.id,
-              ),
-            ];
-          } else {
-            updatedConversations = oldData.conversations.map((conv) => {
-              if (conv.id !== existedConversation.id) return conv;
-              conv.lastMessage = content;
-              conv.members = conv.members.map((mem) => {
-                if (mem.contact.id !== info.id) return mem;
-                return { ...mem, isDeleted: false };
-              });
-              return conv;
-            });
-          }
-
+          const updatedConversations = oldData.conversations.map(
+            (conversation) => {
+              if (conversation.id !== randomId) return conversation;
+              return { ...conversation, id: res.conversationId };
+            },
+          );
           return {
             ...oldData,
             conversations: updatedConversations,
             filterConversations: updatedConversations,
-            selected: existedConversation,
-            reload: true,
-            // quickChat: true,
-            // message: {
-            //   id: randomId,
-            //   contactId: info.id,
-            //   type: "text",
-            //   content: content,
-            //   currentReaction: null,
-            //   pending: true,
+            // selected: {
+            //   ...oldData.selected,
+            //   id: res.conversationId,
             // },
           } as ConversationCache;
         },
       );
-
-      messages.messages.push({
-        id: randomId,
-        contactId: info.id,
-        type: "text",
-        content: content,
-        currentReaction: null,
-        pending: true,
-      });
-      queryClient.setQueryData(["message"], messages);
-      queryClient.setQueryData(["attachment"], attachments);
-
-      const bodyToCreate = {
-        type: "text",
-        content: content,
-      };
-      sendMessage(existedConversation.id, bodyToCreate, 1000).then((res) => {
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          const updatedMessages = oldData.messages.map((message) => {
-            if (message.id !== randomId) return message;
-            return { ...message, id: res.messageId, pending: false };
-          });
-          return {
-            ...oldData,
-            messages: updatedMessages,
-          } as MessageCache;
-        });
-      });
-    } else {
-      setLoading(true);
-
-      queryClient.setQueryData(
-        ["conversation"],
-        (oldData: ConversationCache) => {
-          const newConversation: ConversationModel = {
-            id: randomId,
-            lastMessage: content,
-            isGroup: false,
-            isNotifying: true,
-            members: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
-                  isOnline: true,
-                },
-              },
-              {
-                contact: {
-                  id: innerFriend.id,
-                  name: innerFriend.name,
-                  avatar: innerFriend.avatar,
-                  isOnline: innerFriend.isOnline,
-                },
-              },
-            ],
-          };
-          return {
-            ...oldData,
-            conversations: [newConversation, ...oldData.conversations],
-            filterConversations: [newConversation, ...oldData.conversations],
-            selected: newConversation,
-            reload: false,
-          } as ConversationCache;
-        },
-      );
-
-      sendQuickChat(innerFriend.id, content).then((res) => {
-        queryClient.setQueryData(
-          ["conversation"],
-          (oldData: ConversationCache) => {
-            const updatedConversations = oldData.conversations.map(
-              (conversation) => {
-                if (conversation.id !== randomId) return conversation;
-                return { ...conversation, id: res.conversationId };
-              },
-            );
-            return {
-              ...oldData,
-              conversations: updatedConversations,
-              filterConversations: updatedConversations,
-              // selected: {
-              //   ...oldData.selected,
-              //   id: res.conversationId,
-              // },
-            } as ConversationCache;
-          },
-        );
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          const updatedMessages = oldData.messages.map((message) => {
-            if (message.id !== randomId) return message;
-            return { ...message, id: res.messageId, pending: false };
-          });
-          return {
-            ...oldData,
-            messages: updatedMessages,
-          } as MessageCache;
-        });
-        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-          return {
-            ...oldData,
-            conversationId: res.conversationId,
-          } as AttachmentCache;
-        });
-      });
-
-      // Delay for smooth processing animation
-      // await delay(500);
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+        const updatedMessages = oldData.messages.map((message) => {
+          if (message.id !== randomId) return message;
+          return { ...message, id: res.messageId, pending: false };
+        });
         return {
           ...oldData,
-          messages: [
-            {
-              id: randomId,
-              contactId: info.id,
-              type: "text",
-              content: content,
-              currentReaction: null,
-              pending: true,
-            },
-          ],
-          hasMore: false,
+          messages: updatedMessages,
         } as MessageCache;
       });
       queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
         return {
           ...oldData,
-          conversationId: randomId,
-          attachments: [],
+          conversationId: res.conversationId,
         } as AttachmentCache;
       });
+    });
 
-      setLoading(false);
-    }
+    // Delay for smooth processing animation
+    // await delay(500);
+    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
+      return {
+        ...oldData,
+        messages: [
+          {
+            id: randomId,
+            contactId: info.id,
+            type: "text",
+            content: message,
+            currentReaction: null,
+            pending: true,
+          },
+        ],
+        hasMore: false,
+      } as MessageCache;
+    });
+    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
+      return {
+        ...oldData,
+        conversationId: randomId,
+        attachments: [],
+      } as AttachmentCache;
+    });
+
+    setLoading(false);
   };
 
   const keydownBindingFn = (e) => {
@@ -306,41 +301,6 @@ const QuickChat = (props: QuickChatProps) => {
         friendStatus: status === "friend" ? null : status,
       };
     });
-    // queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    //   const updatedConversations = oldData.conversations.map((conversation) => {
-    //     let member = conversation.members.some(
-    //       (mem) => mem.contact.id === innerFriend.id,
-    //     );
-    //     if (!member) return conversation;
-    //     return {
-    //       ...conversation,
-    //       members: conversation.members.map((mem) => {
-    //         if (mem.contact.id !== innerFriend.id) return mem;
-    //         return {
-    //           ...mem,
-    //           friendId: id,
-    //           friendStatus: status,
-    //         };
-    //       }),
-    //     };
-    //   });
-    //   return {
-    //     ...oldData,
-    //     conversations: updatedConversations,
-    //     filterConversations: updatedConversations,
-    //     selected: {
-    //       ...oldData.selected,
-    //       members: oldData.selected?.members.map((mem) => {
-    //         if (mem.contact.id !== innerFriend.id) return mem;
-    //         return {
-    //           ...mem,
-    //           friendId: id,
-    //           friendStatus: status,
-    //         };
-    //       }),
-    //     },
-    //   } as ConversationCache;
-    // });
   };
 
   return (

@@ -1,5 +1,4 @@
 import { Tooltip } from "antd";
-import React from "react";
 import { CustomLabelProps } from "../types";
 
 const CustomLabel = (props: CustomLabelProps) => {
@@ -8,7 +7,6 @@ const CustomLabel = (props: CustomLabelProps) => {
     <Tooltip title={tooltip ? title : ""}>
       <p
         className={`${className ?? ""} w-full overflow-hidden text-ellipsis whitespace-nowrap`}
-        // onClick={onClick ?? (() => {})}
       >
         {title}
       </p>

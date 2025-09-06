@@ -70,7 +70,7 @@ public class MyMapping : Profile
             .ReverseMap();
         CreateMap<Message, EventNewMessage>().ReverseMap();
         CreateMap<Message, MessageWithReactions>().ReverseMap();
-        CreateMap<MessageReactionSumary, MessageWithReactions>().ReverseMap();
+        CreateMap<MessageReactionSummary, MessageWithReactions>().ReverseMap();
         CreateMap<Message, NewDirectConversationModel_Message>().ReverseMap();
         CreateMap<Message, SystemMessage>().ReverseMap();
         CreateMap<NewMessageModel_Message, Message>().ReverseMap();

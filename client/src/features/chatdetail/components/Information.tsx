@@ -1,5 +1,4 @@
 import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
@@ -23,8 +22,6 @@ import { AttachmentModel } from "../../listchat/types";
 import useAttachment from "../hooks/useAttachment";
 
 const Information = () => {
-  const queryClient = useQueryClient();
-
   const { startLocalStream } = useSignal();
 
   const { data: conversations } = useConversation();
@@ -121,6 +118,7 @@ const Information = () => {
               className="base-icon-sm cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation(); // Prevent bubbling to parent
+                setToggle(null);
               }}
             />
           </div>

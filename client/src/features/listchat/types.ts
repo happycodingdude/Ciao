@@ -70,10 +70,12 @@ export type AttachmentModel = BaseModel & {
 export type MessageModel = BaseModel & {
   type?: string;
   content?: string | null;
-  status?: string;
-  isPinned?: boolean;
-  seenTime?: string | null;
   contactId?: string;
+  isPinned?: boolean;
+  isForwarded?: boolean;
+  replyId?: string;
+  replyContent?: string;
+  seenTime?: string | null;
   attachments?: AttachmentModel[];
   likeCount?: number;
   loveCount?: number;

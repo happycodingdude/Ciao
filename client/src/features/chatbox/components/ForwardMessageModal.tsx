@@ -1,7 +1,4 @@
-import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
-import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -9,20 +6,15 @@ import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
 import { ForwardMessageModalProps } from "../../../types";
-import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import useFriend from "../../friend/hooks/useFriend";
+import createDirectChatWithMessage from "../../friend/services/createDirectChatWithMessage";
 import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
-import {
-  ConversationCache,
-  MessageCache,
-  PendingMessageModel,
-} from "../../listchat/types";
-import MemberToAdd_LargeScreen from "../responsive/MemberToAdd_LargeScreen";
-import MemberToAdd_Phone from "../responsive/MemberToAdd_Phone";
-import addMembers from "../services/addMembers";
+import { ConversationCache, ConversationModel } from "../../listchat/types";
+import sendMessage from "../services/sendMessage";
+import { SendMessageRequest } from "../types";
 
 const ForwardMessageModal = (props: ForwardMessageModalProps) => {
   const { onClose, message } = props;
@@ -35,19 +27,11 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
 
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
-  const conversation = conversations.conversations.find(
-    (c) => c.id === conversationId,
-  );
-
   const refInput = useRef<HTMLInputElement>();
 
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
     data?.map((item) => item.contact),
   );
-  const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
 
   useEffect(() => {
     if (!data) return;
@@ -56,64 +40,130 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
     // blurImage(".list-friend-container");
   }, [data]);
 
-  const addMembersCTA = () => {
-    if (membersToAdd.length === 0) return;
-    onClose();
+  const send = async (contact: ContactModel) => {
+    // onClose();
+    const randomId = Math.random().toString(36).substring(2, 7);
+    const existedConversation = conversations.conversations.find(
+      (conv) =>
+        conv.isGroup === false &&
+        conv.members.some((mem) => mem.contact.id === contact.id),
+    );
+    if (existedConversation) {
+      handleExistedConversation(existedConversation, message);
+    } else {
+      handleNewConversation(contact, message, randomId);
+    }
+  };
 
+  const handleExistedConversation = async (
+    conversation: ConversationModel,
+    message: string,
+  ) => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== conversation.id) return conversation;
-        return {
-          ...conversation,
-          members: [
-            ...conversation.members,
-            ...membersToAdd.map((mem) => {
-              return {
-                contact: {
-                  id: mem.id,
-                  name: mem.name,
-                  avatar: mem.avatar,
-                },
-              };
-            }),
-          ],
-        };
-      });
+      // Move existed conversation to the top if the conversation was deleted
+      // else keep the current position of the conversation
+      let isDeletedConversation = conversation.members.find(
+        (mem) => mem.contact.id === info.id,
+      ).isDeleted;
+      let updatedConversations = [];
+      if (isDeletedConversation) {
+        conversation.lastMessage = message;
+        conversation.members = conversation.members.map((mem) => {
+          if (mem.contact.id !== info.id) return mem;
+          return { ...mem, isDeleted: false };
+        });
+        updatedConversations = [
+          conversation,
+          ...oldData.conversations.filter(
+            (conv) => conv.id !== conversation.id,
+          ),
+        ];
+      } else {
+        updatedConversations = oldData.conversations.map((conv) => {
+          if (conv.id !== conversation.id) return conv;
+          conv.lastMessage = message;
+          conv.members = conv.members.map((mem) => {
+            if (mem.contact.id !== info.id) return mem;
+            return { ...mem, isDeleted: false };
+          });
+          return conv;
+        });
+      }
+
       return {
         ...oldData,
         conversations: updatedConversations,
+        filterConversations: updatedConversations,
+        selected: conversation,
+        reload: true,
       } as ConversationCache;
     });
 
-    queryClient.setQueryData(
-      ["message", conversationId],
-      (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: [
-            ...(oldData.messages || []),
-            {
-              type: "system",
-              content: `${info.name} added new members: ${membersToAdd.map((mem) => mem.name).join(", ")}`,
-              contactId: "system",
-              createdTime: moment().format(),
-            } as PendingMessageModel,
-          ],
-        } as MessageCache;
-      },
-    );
-
-    addMembers(
-      conversation.id,
-      membersToAdd.map((mem) => {
-        return mem.id;
-      }),
-    );
+    const bodyToCreate: SendMessageRequest = {
+      type: "text",
+      content: message,
+      isForwarded: true,
+    };
+    sendMessage(conversation.id, bodyToCreate);
   };
 
-  const removeMemberToAdd = (id: string) => {
-    setMembersToAdd((members) => {
-      return members.filter((mem) => mem.id !== id);
+  const handleNewConversation = async (
+    contact: ContactModel,
+    message: string,
+    randomId: string,
+  ) => {
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      const newConversation: ConversationModel = {
+        id: randomId,
+        lastMessage: message,
+        isGroup: false,
+        isNotifying: true,
+        members: [
+          {
+            isModerator: true,
+            contact: {
+              id: info.id,
+              name: info.name,
+              avatar: info.avatar,
+              isOnline: true,
+            },
+          },
+          {
+            contact: {
+              id: contact.id,
+              name: contact.name,
+              avatar: contact.avatar,
+              isOnline: contact.isOnline,
+            },
+          },
+        ],
+      };
+      return {
+        ...oldData,
+        conversations: [newConversation, ...oldData.conversations],
+        filterConversations: [newConversation, ...oldData.conversations],
+        selected: newConversation,
+        reload: false,
+      } as ConversationCache;
+    });
+
+    createDirectChatWithMessage(contact.id, message).then((res) => {
+      queryClient.setQueryData(
+        ["conversation"],
+        (oldData: ConversationCache) => {
+          const updatedConversations = oldData.conversations.map(
+            (conversation) => {
+              if (conversation.id !== randomId) return conversation;
+              return { ...conversation, id: res.conversationId };
+            },
+          );
+          return {
+            ...oldData,
+            conversations: updatedConversations,
+            filterConversations: updatedConversations,
+          } as ConversationCache;
+        },
+      );
     });
   };
 
@@ -137,7 +187,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
         }}
       />
       <div
-        className={`relative flex grow gap-[2rem] border-b-[.1rem] border-[var(--border-color)]
+        className={`relative flex grow gap-[2rem]
       ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
       >
         {isLoading || isRefetching ? (
@@ -148,41 +198,11 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
               {membersToSearch?.map((item) => (
                 <div
                   key={item.id}
-                  className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]
-                ${
-                  conversation.members.some((mem) => mem.contact.id === item.id)
-                    ? "pointer-events-none"
-                    : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
-                } `}
-                  onClick={() => {
-                    setMembersToAdd((members) => {
-                      return members.map((mem) => mem.id).includes(item.id)
-                        ? members.filter((mem) => mem.id !== item.id)
-                        : [
-                            ...members,
-                            {
-                              id: item.id,
-                              name: item.name,
-                              avatar: item.avatar,
-                            },
-                          ];
-                    });
-                  }}
+                  className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]`}
                 >
-                  <CheckCircleOutlined
-                    className={`base-icon-sm 
-                      ${
-                        conversation.members.some(
-                          (mem) => mem.contact.id === item.id,
-                        ) || membersToAdd.some((mem) => mem.id === item.id)
-                          ? "text-pink-500"
-                          : ""
-                      }
-                    `}
-                  />
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="aspect-square cursor-pointer phone:w-[3rem] laptop:w-[4rem]"
+                    className="pointer-events-none aspect-square phone:w-[3rem] laptop:w-[4rem]"
                     circle
                     slides={[
                       {
@@ -192,47 +212,26 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
                     onClick={() => {}}
                     local
                   />
-                  <div>
-                    <CustomLabel title={item.name} />
-                    {conversation.members.some(
-                      (mem) => mem.contact.id === item.id,
-                    ) ? (
-                      <p className="text-[var(--text-main-color-blur)]">
-                        Joined
-                      </p>
-                    ) : (
-                      ""
-                    )}
-                  </div>
+                  <CustomLabel
+                    title={item.name}
+                    className="pointer-events-none"
+                  />
+                  <CustomButton
+                    className={`phone:text-base desktop:text-md`}
+                    width={7}
+                    padding="py-[.3rem]"
+                    gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
+                    gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
+                    rounded="3rem"
+                    title="Send"
+                    onClick={() => send(item)}
+                  />
                 </div>
               ))}
             </div>
-            {isPhoneScreen() ? (
-              <MemberToAdd_Phone
-                membersToAdd={membersToAdd}
-                total={data?.length}
-                removeMemberToAdd={removeMemberToAdd}
-              />
-            ) : (
-              <MemberToAdd_LargeScreen
-                membersToAdd={membersToAdd}
-                total={data?.length}
-                removeMemberToAdd={removeMemberToAdd}
-              />
-            )}
           </>
         )}
       </div>
-      <CustomButton
-        className={`!mr-0 phone:text-base desktop:text-md`}
-        width={7}
-        padding="py-[.3rem]"
-        gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
-        gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
-        rounded="3rem"
-        title="Save"
-        onClick={addMembersCTA}
-      />
     </>
   );
 };

@@ -59,7 +59,7 @@ public static class GetMessages
             var paging = new PagingParam(request.page, request.limit);
             var pagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.Skip).Take(paging.Limit).ToList();
             var nextPagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.NextSkip).Take(paging.Limit).ToList();
-            var result = _mapper.Map<List<MessageReactionSumary>>(pagedMessages);
+            var result = _mapper.Map<List<MessageReactionSummary>>(pagedMessages);
             for (int i = 0; i < result.Count; i++)
                 result[i].CurrentReaction = pagedMessages[i].Reactions.SingleOrDefault(q => q.ContactId == _contactRepository.GetUserId())?.Type;
 

@@ -73,7 +73,7 @@ const ChatboxContainer = () => {
         </>
       ) : (
         <div className="flex h-full">
-          <div className="border-[var(--border-color)]] flex w-full grow border-t-[.1rem] flex-col">
+          <div className="flex w-full grow flex-col">
             <ChatboxHeader />
             <div className="flex w-full bg-primary-light laptop:h-[89dvh] laptop-md:h-[92dvh]">
               <div
@@ -87,7 +87,7 @@ const ChatboxContainer = () => {
             </div>
           </div>
           <div
-            className={`relative h-full origin-right transition-all duration-200 shrink-0
+            className={`relative h-full shrink-0 origin-right transition-all duration-200
                     ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[30rem]"}`}
           >
             <Information />

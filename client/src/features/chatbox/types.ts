@@ -15,6 +15,7 @@ export type MentionModel = {
 export type SendMessageRequest = {
   type: string;
   content: string;
+  isForwarded?: boolean;
   attachments?: AttachmentModel[];
   files?: File[];
 };

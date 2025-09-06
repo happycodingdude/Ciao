@@ -193,7 +193,7 @@ const MessageContent = (props: MessageContentProps) => {
         className={`relative flex flex-col
           phone:w-[30rem] laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}
-          ${message.isPinned ? "gap-[.5rem]" : ""}
+          ${message.isPinned || message.isForwarded ? "gap-[.5rem]" : ""}
           `}
       >
         <div
@@ -271,7 +271,7 @@ const MessageContent = (props: MessageContentProps) => {
                 className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} 
                 my-[.5rem] px-[1.6rem] leading-[3rem]
                   ${
-                    message.isPinned
+                    message.isPinned || message.isForwarded
                       ? message.contactId === info.id
                         ? "border-r-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
                         : "border-l-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
@@ -280,12 +280,12 @@ const MessageContent = (props: MessageContentProps) => {
                         : "bg-[var(--bg-color)]"
                   }            
                   !flex w-fit
-                  flex-col self-end
+                  flex-col items-end self-end
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] data-[expanded=false]:line-clamp-3
                   data-[expanded=true]:line-clamp-none
                   data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
-                  ${message.isPinned ? " pt-[1rem]" : ""}
-            `}
+                  ${message.isPinned || message.isForwarded ? " pt-[1rem]" : ""}
+                `}
               >
                 {message.isPinned ? (
                   <div
@@ -299,12 +299,19 @@ const MessageContent = (props: MessageContentProps) => {
                       )?.contact.name
                     }
                   </div>
+                ) : message.isForwarded ? (
+                  <div
+                    className="inline-flex h-[2rem] items-center gap-[.5rem]
+                    text-sm text-[var(--pinned-message-container-icon-color)]"
+                  >
+                    You have forwarded this message
+                  </div>
                 ) : (
                   ""
                 )}
                 <p>{message.content}</p>
               </div>
-              {message.isPinned ? (
+              {message.isPinned || message.isForwarded ? (
                 <PushpinOutlined
                   className={`absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  top-[-.2rem] z-[11] rounded-[1rem] 
                   bg-[var(--pinned-message-container-icon-color)] 
