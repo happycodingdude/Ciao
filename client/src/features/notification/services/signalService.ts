@@ -28,6 +28,7 @@ export const setupListeners = (
 
   connection.on("NewMessage", (user: string, data: string) => {
     console.log(data);
+    console.log("user: " + user);
     if (user == userInfo.id) return;
     onNewMessage(queryClient, userInfo, JSON.parse(data));
   });
@@ -108,15 +109,19 @@ const onNewMessage = (
     }
   });
 
-  queryClient.setQueryData(["message"], (oldData: MessageCache) =>
-    oldData?.conversationId === message.conversation.id
-      ? updateMessagesCache(oldData, message)
-      : oldData,
+  queryClient.setQueryData(
+    ["message", message.conversation.id],
+    (oldData: MessageCache) =>
+      oldData ? updateMessagesCache(oldData, message) : oldData,
   );
 
   if (message.attachments.length > 0) {
-    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) =>
-      oldData ? updateAttachmentsCache(oldData, message.attachments) : oldData,
+    queryClient.setQueryData(
+      ["attachment", message.conversation.id],
+      (oldData: AttachmentCache) =>
+        oldData
+          ? updateAttachmentsCache(oldData, message.attachments)
+          : oldData,
     );
   }
 };
@@ -185,27 +190,29 @@ const onNewConversation = (
 
 /* MARK: ON NEW REACTION */
 const onNewReaction = (queryClient: QueryClient, reaction: NewReaction) => {
-  queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-    if (!oldData || oldData.conversationId !== reaction.conversationId)
-      return oldData;
+  queryClient.setQueryData(
+    ["message", reaction.conversationId],
+    (oldData: MessageCache) => {
+      if (!oldData) return oldData;
 
-    return {
-      ...oldData,
-      messages: oldData.messages.map((message) => {
-        if (message.id !== reaction.messageId) return message;
+      return {
+        ...oldData,
+        messages: oldData.messages.map((message) => {
+          if (message.id !== reaction.messageId) return message;
 
-        return {
-          ...message,
-          likeCount: reaction.likeCount,
-          loveCount: reaction.loveCount,
-          careCount: reaction.careCount,
-          wowCount: reaction.wowCount,
-          sadCount: reaction.sadCount,
-          angryCount: reaction.angryCount,
-        };
-      }),
-    } as MessageCache;
-  });
+          return {
+            ...message,
+            likeCount: reaction.likeCount,
+            loveCount: reaction.loveCount,
+            careCount: reaction.careCount,
+            wowCount: reaction.wowCount,
+            sadCount: reaction.sadCount,
+            angryCount: reaction.angryCount,
+          };
+        }),
+      } as MessageCache;
+    },
+  );
 };
 
 /* MARK: ON NEW MESSAGE PINNED */
@@ -213,23 +220,25 @@ const onNewMessagePinned = (
   queryClient: QueryClient,
   messagePinned: NewMessagePinned,
 ) => {
-  queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-    if (!oldData || oldData.conversationId !== messagePinned.conversationId)
-      return oldData;
+  queryClient.setQueryData(
+    ["message", messagePinned.conversationId],
+    (oldData: MessageCache) => {
+      if (!oldData) return oldData;
 
-    return {
-      ...oldData,
-      messages: oldData.messages.map((message) => {
-        if (message.id !== messagePinned.messageId) return message;
+      return {
+        ...oldData,
+        messages: oldData.messages.map((message) => {
+          if (message.id !== messagePinned.messageId) return message;
 
-        return {
-          ...message,
-          isPinned: messagePinned.isPinned,
-          pinnedBy: messagePinned.pinnedBy,
-        };
-      }),
-    } as MessageCache;
-  });
+          return {
+            ...message,
+            isPinned: messagePinned.isPinned,
+            pinnedBy: messagePinned.pinnedBy,
+          };
+        }),
+      } as MessageCache;
+    },
+  );
 };
 
 /* MARK: HELPER FUNCTIONS */
@@ -295,9 +304,6 @@ const updateConversationCache = (
           ...(lastMessageContact && { lastMessageContact }),
           ...(lastMessageTime && { lastMessageTime }),
           ...(membersUpdater && { members: membersUpdater(conv.members) }),
-          ...(oldData.selected && oldData.selected.id === conversation.id
-            ? { unSeen: false }
-            : { unSeen: true }),
         }
       : conv,
   );
@@ -306,10 +312,6 @@ const updateConversationCache = (
     ...oldData,
     conversations: updatedConversations,
     filterConversations: updatedConversations,
-    selected:
-      oldData.selected?.id === conversation.id
-        ? updatedConversations.find((conv) => conv.id === conversation.id)
-        : oldData.selected,
   };
 };
 

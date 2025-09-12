@@ -55,6 +55,14 @@ public class SignalHub : Hub
                 await _userCache.RemoveConnection(userId, Context.ConnectionId);
                 _logger.Information($"User {userId} disconnected with ConnectionId {Context.ConnectionId}");
             }
+            var conversationIds = await _conversationCache.GetListConversationId(userId);
+            // Remove from group for broadcasting
+            foreach (var conversationId in conversationIds)
+            {
+                _logger.Information($"Remove user {userId} from group {conversationId}");
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, conversationId);
+            }
+            _conversationCache.RemoveAll(userId);
             await base.OnDisconnectedAsync(exception);
         }
         catch (Exception ex)

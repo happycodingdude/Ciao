@@ -87,7 +87,7 @@ const ChatboxContainer = () => {
             </div>
           </div>
           <div
-            className={`relative h-full shrink-0 origin-right transition-all duration-200
+            className={`relative h-full shrink-0 origin-right border-l-[.1rem] border-l-[var(--border-color)] transition-all duration-200
                     ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[30rem]"}`}
           >
             <Information />

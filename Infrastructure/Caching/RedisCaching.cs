@@ -15,10 +15,10 @@ public class RedisCaching : IRedisCaching
     }
 
     // #SetString: Lưu object thành JSON string
-    public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
+    public async Task<bool> SetAsync<T>(string key, T value, TimeSpan? expiry = null, When when = When.Always)
     {
         var json = JsonConvert.SerializeObject(value);
-        await _db.StringSetAsync(key, json, expiry);
+        return await _db.StringSetAsync(key, json, expiry, when);
     }
 
     // #GetString: Lấy object từ JSON string

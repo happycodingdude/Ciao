@@ -86,6 +86,7 @@ public class NotificationConsumer : IGenericConsumer
         await _notificationProcessor.Notify(
             ChatEventNames.NewMessage,
             param.Conversation.Id,
+            param.Message.Id,
             user.Id,
             notify);
     }

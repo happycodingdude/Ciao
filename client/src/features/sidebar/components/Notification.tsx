@@ -1,6 +1,6 @@
 import { BellOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 import useNotification from "../../notification/hooks/useNotification";
 import read from "../../notification/services/read";

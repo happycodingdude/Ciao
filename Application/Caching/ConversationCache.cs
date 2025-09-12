@@ -165,4 +165,9 @@ public class ConversationCache
     {
         _ = _redisCaching.DeleteAsync($"user-{UserId}-conversations");
     }
+
+    public void RemoveAll(string userId)
+    {
+        _ = _redisCaching.DeleteAsync($"user-{userId}-conversations");
+    }
 }

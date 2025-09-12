@@ -287,17 +287,18 @@ const Information = () => {
           ""
         )}
         {/* MARK: ATTACHMENTS  */}
-        {displayAttachments.length !== 0 ? (
-          <div className="flex flex-col gap-[1rem]">
-            <div className="flex justify-between">
-              <p className="font-be-vn-bold">Attachments</p>
-              <div
-                onClick={() => setToggle("attachment")}
-                className="cursor-pointer text-pink-500 hover:text-pink-400"
-              >
-                View all
-              </div>
+
+        <div className="flex flex-col gap-[1rem]">
+          <div className="flex justify-between">
+            <p className="font-be-vn-bold">Attachments</p>
+            <div
+              onClick={() => setToggle("attachment")}
+              className="cursor-pointer text-pink-500 hover:text-pink-400"
+            >
+              View all
             </div>
+          </div>
+          {displayAttachments.length !== 0 ? (
             <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
               {displayAttachments.map((item, index) => (
                 <ImageWithLightBoxAndNoLazy
@@ -316,10 +317,10 @@ const Information = () => {
                 />
               ))}
             </div>
-          </div>
-        ) : (
-          ""
-        )}
+          ) : (
+            <div className="aspect-square w-[5rem] self-center bg-[url('/src/assets/emptybox.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat"></div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -72,19 +72,22 @@ const MessageMenu = (props: MessageMenuProps) => {
       pinned: !pinned,
     });
 
-    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-      return {
-        ...oldData,
-        messages: oldData.messages.map((mess) => {
-          if (mess.id !== id) return mess;
-          return {
-            ...mess,
-            isPinned: !pinned,
-            pinnedBy: info.id,
-          };
-        }),
-      } as MessageCache;
-    });
+    queryClient.setQueryData(
+      ["message", conversationId],
+      (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          messages: oldData.messages.map((mess) => {
+            if (mess.id !== id) return mess;
+            return {
+              ...mess,
+              isPinned: !pinned,
+              pinnedBy: info.id,
+            };
+          }),
+        } as MessageCache;
+      },
+    );
     setPinning(false);
   };
 

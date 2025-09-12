@@ -24,7 +24,7 @@ const ChatboxHeader = () => {
 
   return (
     <div
-      className="flex w-full shrink-0 items-center justify-between
+      className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)]
       px-[1rem] py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[6rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
@@ -42,9 +42,12 @@ const ChatboxHeader = () => {
                   } as ConversationCache;
                 },
               );
-              queryClient.setQueryData(["message"], (oldData) => {
-                return null;
-              });
+              queryClient.setQueryData(
+                ["message", conversationId],
+                (oldData) => {
+                  return null;
+                },
+              );
               queryClient.setQueryData(["attachment"], (oldData) => {
                 return null;
               });

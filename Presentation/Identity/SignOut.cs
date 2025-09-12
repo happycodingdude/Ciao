@@ -37,7 +37,7 @@ public static class SignOut
             // Remove all cache
             _userCache.RemoveAll();
             // await _memberCache.MemberSignout();
-            _conversationCache.RemoveAll();
+            // _conversationCache.RemoveAll();
             _friendCache.RemoveAll();
 
             return Unit.Value;

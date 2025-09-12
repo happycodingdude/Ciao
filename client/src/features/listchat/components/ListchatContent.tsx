@@ -93,8 +93,6 @@ const ListchatContent = () => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const data: ConversationCache = {
         ...oldData,
-        // selected: oldData.filterConversations.find((item) => item.id === id),
-        reload: true,
         quickChat: false,
         message: null,
       };

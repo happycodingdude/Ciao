@@ -1,5 +1,4 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
 import CustomButton from "../../../components/CustomButton";
 import useLoading from "../../../hooks/useLoading";
 import { FriendItemProps } from "../../../types";
@@ -147,12 +146,15 @@ const FriendCtaButton = (props: FriendItemProps) => {
             } as ConversationCache;
           },
         );
-        queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-          return {
-            ...oldData,
-            conversationId: res.conversationId,
-          } as MessageCache;
-        });
+        queryClient.setQueryData(
+          ["message", res.conversationId],
+          (oldData: MessageCache) => {
+            return {
+              ...oldData,
+              conversationId: res.conversationId,
+            } as MessageCache;
+          },
+        );
         queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
           return {
             ...oldData,
@@ -207,27 +209,27 @@ const FriendCtaButton = (props: FriendItemProps) => {
           }),
         };
       });
-      if (!oldData.selected)
-        return {
-          ...oldData,
-          conversations: updatedConversations,
-          filterConversations: updatedConversations,
-        };
+      // if (!oldData.selected)
+      //   return {
+      //     ...oldData,
+      //     conversations: updatedConversations,
+      //     filterConversations: updatedConversations,
+      //   };
       return {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        selected: {
-          ...oldData.selected,
-          members: oldData.selected?.members.map((mem) => {
-            if (mem.contact.id !== friend.id) return mem;
-            return {
-              ...mem,
-              friendId: id,
-              friendStatus: status,
-            };
-          }),
-        },
+        // selected: {
+        //   ...oldData.selected,
+        //   members: oldData.selected?.members.map((mem) => {
+        //     if (mem.contact.id !== friend.id) return mem;
+        //     return {
+        //       ...mem,
+        //       friendId: id,
+        //       friendStatus: status,
+        //     };
+        //   }),
+        // },
       } as ConversationCache;
     });
     friendAction(id, status, friend.id);

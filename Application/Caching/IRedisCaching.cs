@@ -5,7 +5,7 @@ namespace Application.Caching;
 /// </summary>
 public interface IRedisCaching
 {
-    Task SetAsync<T>(string key, T value, TimeSpan? expiry = null);
+    Task<bool> SetAsync<T>(string key, T value, TimeSpan? expiry = null, When when = When.Always);
     Task<T?> GetAsync<T>(string key);
     Task<RedisValue[]> GetAsync(RedisKey[] key);
     Task DeleteAsync(string key);

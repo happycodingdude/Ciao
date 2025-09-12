@@ -38,7 +38,7 @@ export type ConversationCache = {
   conversations?: ConversationModel[];
   filterConversations?: ConversationModel[];
   // selected?: ConversationModel;
-  reload?: boolean;
+  // reload?: boolean;
   createGroupChat?: boolean;
   quickChat?: boolean;
   message?: ConversationCache_Message;

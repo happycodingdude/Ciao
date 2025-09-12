@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -32,6 +33,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
     data?.map((item) => item.contact),
   );
+  const [sentIds, setSentIds] = useState<Set<string>>(new Set()); // ✅ lưu các contact đang gửi
 
   useEffect(() => {
     if (!data) return;
@@ -41,6 +43,8 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
   }, [data]);
 
   const send = async (contact: ContactModel) => {
+    setSentIds((prev) => new Set(prev).add(contact.id)); // thêm id vào state
+
     // onClose();
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
@@ -49,9 +53,9 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
         conv.members.some((mem) => mem.contact.id === contact.id),
     );
     if (existedConversation) {
-      handleExistedConversation(existedConversation, message);
+      await handleExistedConversation(existedConversation, message);
     } else {
-      handleNewConversation(contact, message, randomId);
+      await handleNewConversation(contact, message, randomId);
     }
   };
 
@@ -59,43 +63,97 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
     conversation: ConversationModel,
     message: string,
   ) => {
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      // Move existed conversation to the top if the conversation was deleted
-      // else keep the current position of the conversation
-      let isDeletedConversation = conversation.members.find(
-        (mem) => mem.contact.id === info.id,
-      ).isDeleted;
-      let updatedConversations = [];
+    // queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    //   // Move existed conversation to the top if the conversation was deleted
+    //   // else keep the current position of the conversation
+    //   let isDeletedConversation = conversation.members.find(
+    //     (mem) => mem.contact.id === info.id,
+    //   ).isDeleted;
+    //   let updatedConversations = [];
+    //   if (isDeletedConversation) {
+    //     conversation.lastMessage = message;
+    //     conversation.members = conversation.members.map((mem) => {
+    //       if (mem.contact.id !== info.id) return mem;
+    //       return { ...mem, isDeleted: false };
+    //     });
+    //     updatedConversations = [
+    //       conversation,
+    //       ...oldData.conversations.filter(
+    //         (conv) => conv.id !== conversation.id,
+    //       ),
+    //     ];
+    //   } else {
+    //     updatedConversations = oldData.conversations.map((conv) => {
+    //       if (conv.id !== conversation.id) return conv;
+    //       conv.lastMessage = message;
+    //       conv.lastMessageTime = moment().format();
+    //       conv.members = conv.members.map((mem) => {
+    //         if (mem.contact.id !== info.id) return mem;
+    //         return { ...mem, isDeleted: false };
+    //       });
+    //       return conv;
+    //     });
+    //   }
+
+    //   return {
+    //     ...oldData,
+    //     conversations: updatedConversations,
+    //     filterConversations: updatedConversations,
+    //   } as ConversationCache;
+    // });
+
+    queryClient.setQueryData<ConversationCache>(["conversation"], (oldData) => {
+      if (!oldData) return oldData;
+
+      const now = moment().format();
+      const convs = oldData.conversations ?? [];
+
+      // Lấy conversation hiện tại từ cache (tránh dùng `conversation` "bên ngoài" nếu nó stale)
+      const cachedConv =
+        convs.find((c) => c.id === conversation.id) ?? conversation;
+
+      const isDeletedConversation =
+        cachedConv.members.find((mem) => mem.contact.id === info.id)
+          ?.isDeleted ?? false;
+
+      let updatedConversations: ConversationModel[];
+
       if (isDeletedConversation) {
-        conversation.lastMessage = message;
-        conversation.members = conversation.members.map((mem) => {
-          if (mem.contact.id !== info.id) return mem;
-          return { ...mem, isDeleted: false };
-        });
-        updatedConversations = [
-          conversation,
-          ...oldData.conversations.filter(
-            (conv) => conv.id !== conversation.id,
+        const updatedConv: ConversationModel = {
+          ...cachedConv,
+          lastMessage: message,
+          // tạo members mới (immutable)
+          members: cachedConv.members.map((mem) =>
+            mem.contact.id === info.id ? { ...mem, isDeleted: false } : mem,
           ),
+        };
+
+        // đặt conversation cập nhật lên đầu (tạo array mới)
+        updatedConversations = [
+          updatedConv,
+          ...convs.filter((c) => c.id !== cachedConv.id),
         ];
       } else {
-        updatedConversations = oldData.conversations.map((conv) => {
-          if (conv.id !== conversation.id) return conv;
-          conv.lastMessage = message;
-          conv.members = conv.members.map((mem) => {
-            if (mem.contact.id !== info.id) return mem;
-            return { ...mem, isDeleted: false };
-          });
-          return conv;
-        });
+        updatedConversations = convs.map((c) =>
+          c.id !== cachedConv.id
+            ? c
+            : {
+                ...c,
+                lastMessage: message,
+                lastMessageTime: now,
+                members: c.members.map((mem) =>
+                  mem.contact.id === info.id
+                    ? { ...mem, isDeleted: false }
+                    : mem,
+                ),
+              },
+        );
       }
 
       return {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        selected: conversation,
-        reload: true,
       } as ConversationCache;
     });
 
@@ -104,7 +162,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
       content: message,
       isForwarded: true,
     };
-    sendMessage(conversation.id, bodyToCreate);
+    await sendMessage(conversation.id, bodyToCreate);
   };
 
   const handleNewConversation = async (
@@ -142,7 +200,6 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
         ...oldData,
         conversations: [newConversation, ...oldData.conversations],
         filterConversations: [newConversation, ...oldData.conversations],
-        selected: newConversation,
         reload: false,
       } as ConversationCache;
     });
@@ -195,39 +252,42 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
         ) : (
           <>
             <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
-              {membersToSearch?.map((item) => (
-                <div
-                  key={item.id}
-                  className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]`}
-                >
-                  <ImageWithLightBoxAndNoLazy
-                    src={item.avatar}
-                    className="pointer-events-none aspect-square phone:w-[3rem] laptop:w-[4rem]"
-                    circle
-                    slides={[
-                      {
-                        src: item.avatar,
-                      },
-                    ]}
-                    onClick={() => {}}
-                    local
-                  />
-                  <CustomLabel
-                    title={item.name}
-                    className="pointer-events-none"
-                  />
-                  <CustomButton
-                    className={`phone:text-base desktop:text-md`}
-                    width={7}
-                    padding="py-[.3rem]"
-                    gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
-                    gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
-                    rounded="3rem"
-                    title="Send"
-                    onClick={() => send(item)}
-                  />
-                </div>
-              ))}
+              {membersToSearch?.map((item) => {
+                const isSent = sentIds.has(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]`}
+                  >
+                    <ImageWithLightBoxAndNoLazy
+                      src={item.avatar}
+                      className="pointer-events-none aspect-square phone:w-[3rem] laptop:w-[4rem]"
+                      circle
+                      slides={[
+                        {
+                          src: item.avatar,
+                        },
+                      ]}
+                      onClick={() => {}}
+                      local
+                    />
+                    <CustomLabel
+                      title={item.name}
+                      className="pointer-events-none"
+                    />
+                    <CustomButton
+                      className={`phone:text-base desktop:text-md ${isSent ? "pointer-events-none opacity-50" : ""}`}
+                      width={7}
+                      padding="py-[.3rem]"
+                      gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
+                      gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
+                      rounded="3rem"
+                      title="Send"
+                      onClick={() => send(item)}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </>
         )}

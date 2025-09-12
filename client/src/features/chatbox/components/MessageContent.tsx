@@ -125,38 +125,41 @@ const MessageContent = (props: MessageContentProps) => {
       isUnReact: isUnReact,
     };
     reactMessage(request);
-    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-      const reactionKeys = {
-        like: "likeCount",
-        love: "loveCount",
-        care: "careCount",
-        wow: "wowCount",
-        sad: "sadCount",
-        angry: "angryCount",
-      };
+    queryClient.setQueryData(
+      ["message", conversationId],
+      (oldData: MessageCache) => {
+        const reactionKeys = {
+          like: "likeCount",
+          love: "loveCount",
+          care: "careCount",
+          wow: "wowCount",
+          sad: "sadCount",
+          angry: "angryCount",
+        };
 
-      const previousReaction = reaction.currentReaction;
-      const previousKey = reactionKeys[previousReaction];
-      const newKey = reactionKeys[type];
+        const previousReaction = reaction.currentReaction;
+        const previousKey = reactionKeys[previousReaction];
+        const newKey = reactionKeys[type];
 
-      return {
-        ...oldData,
-        messages: oldData.messages.map((mess) => {
-          if (mess.id !== message.id) return mess;
-          return {
-            ...mess,
-            currentReaction: isUnReact ? null : type,
-            ...(previousKey && {
-              [previousKey]: mess[previousKey] - 1,
-            }),
-            ...(newKey &&
-              !isUnReact && {
-                [newKey]: (mess[newKey] || 0) + 1,
+        return {
+          ...oldData,
+          messages: oldData.messages.map((mess) => {
+            if (mess.id !== message.id) return mess;
+            return {
+              ...mess,
+              currentReaction: isUnReact ? null : type,
+              ...(previousKey && {
+                [previousKey]: mess[previousKey] - 1,
               }),
-          };
-        }),
-      } as MessageCache;
-    });
+              ...(newKey &&
+                !isUnReact && {
+                  [newKey]: (mess[newKey] || 0) + 1,
+                }),
+            };
+          }),
+        } as MessageCache;
+      },
+    );
   };
 
   return (
@@ -276,7 +279,7 @@ const MessageContent = (props: MessageContentProps) => {
                         ? "border-r-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
                         : "border-l-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
                       : message.contactId === info.id
-                        ? "bg-[var(--main-color)]"
+                        ? "bg-blue-500 text-white"
                         : "bg-[var(--bg-color)]"
                   }            
                   !flex w-fit
