@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace Presentation.Identities;
 
 public static class SignOut
@@ -9,16 +11,18 @@ public static class SignOut
         readonly IContactRepository _contactRepository;
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
-        readonly MemberCache _memberCache;
         readonly FriendCache _friendCache;
+        readonly IHubContext<SignalHub> _hubContext;
+        readonly ILogger _logger;
 
-        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache)
+        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, FriendCache friendCache, IHubContext<SignalHub> hubContext, ILogger logger)
         {
             _contactRepository = contactRepository;
             _userCache = userCache;
             _conversationCache = conversationCache;
-            _memberCache = memberCache;
             _friendCache = friendCache;
+            _hubContext = hubContext;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -34,10 +38,19 @@ public static class SignOut
                 .Set(q => q.ExpiryDate, null);
             _contactRepository.Update(filter, updates);
 
+            // Remove from group for broadcasting
+            var connection = await _userCache.GetUserConnection(userId);
+            var conversationIds = await _conversationCache.GetListConversationId(userId);
+            foreach (var conversationId in conversationIds)
+            {
+                _logger.Debug($"Remove user {userId} from group {conversationId}");
+                await _hubContext.Groups.RemoveFromGroupAsync(connection, conversationId);
+            }
+
             // Remove all cache
             _userCache.RemoveAll();
             // await _memberCache.MemberSignout();
-            // _conversationCache.RemoveAll();
+            _conversationCache.RemoveAll();
             _friendCache.RemoveAll();
 
             return Unit.Value;
