@@ -1,5 +1,3 @@
-using Serilog;
-
 namespace Presentation.Identities;
 
 public static class SignOut
@@ -12,17 +10,17 @@ public static class SignOut
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
         readonly FriendCache _friendCache;
-        readonly IHubContext<SignalHub> _hubContext;
-        readonly ILogger _logger;
+        // readonly IHubContext<SignalHub> _hubContext;
+        // readonly ILogger _logger;
 
-        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, FriendCache friendCache, IHubContext<SignalHub> hubContext, ILogger logger)
+        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, FriendCache friendCache)
         {
             _contactRepository = contactRepository;
             _userCache = userCache;
             _conversationCache = conversationCache;
             _friendCache = friendCache;
-            _hubContext = hubContext;
-            _logger = logger;
+            // _hubContext = hubContext;
+            // _logger = logger;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -39,13 +37,13 @@ public static class SignOut
             _contactRepository.Update(filter, updates);
 
             // Remove from group for broadcasting
-            var connection = await _userCache.GetUserConnection(userId);
-            var conversationIds = await _conversationCache.GetListConversationId(userId);
-            foreach (var conversationId in conversationIds)
-            {
-                _logger.Debug($"Remove user {userId} from group {conversationId}");
-                await _hubContext.Groups.RemoveFromGroupAsync(connection, conversationId);
-            }
+            // var connection = await _userCache.GetUserConnection(userId);
+            // var conversationIds = await _conversationCache.GetListConversationId(userId);
+            // foreach (var conversationId in conversationIds)
+            // {
+            //     _logger.Debug($"Remove user {userId} from group {conversationId}");
+            //     await _hubContext.Groups.RemoveFromGroupAsync(connection, conversationId);
+            // }
 
             // Remove all cache
             _userCache.RemoveAll();

@@ -80,14 +80,18 @@ const onNewMessage = (
   message: NewMessage,
 ) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    if (
-      oldData.conversations.some((conv) => conv.id === message.conversation.id)
-    ) {
+    const existingConversation = oldData.conversations.some(
+      (conv) => conv.id === message.conversation.id,
+    );
+    const isFocus =
+      localStorage.getItem("conversationId") === message.conversation.id;
+    if (existingConversation) {
       return updateConversationCache(oldData, message.conversation, {
         lastMessageId: message.id,
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
+        unSeen: !isFocus,
       });
     } else {
       const newConversation = {
@@ -282,12 +286,14 @@ const updateConversationCache = (
     lastMessage,
     lastMessageContact,
     lastMessageTime,
+    unSeen,
     membersUpdater,
   }: Partial<{
     lastMessageId: string;
     lastMessage: string;
     lastMessageContact: string;
     lastMessageTime: string;
+    unSeen: boolean;
     membersUpdater: (
       members: ConversationModel_Member[],
     ) => ConversationModel_Member[];
@@ -303,6 +309,7 @@ const updateConversationCache = (
           ...(lastMessage && { lastMessage }),
           ...(lastMessageContact && { lastMessageContact }),
           ...(lastMessageTime && { lastMessageTime }),
+          ...(unSeen && { unSeen }),
           ...(membersUpdater && { members: membersUpdater(conv.members) }),
         }
       : conv,

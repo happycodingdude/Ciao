@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import ChatboxLoading from "../../components/ChatboxLoading";
 import useMessage from "../../features/chatbox/hooks/useMessage";
 import useConversation from "../../features/listchat/hooks/useConversation";
+import { ConversationCache } from "../../features/listchat/types";
 import ChatboxContainer from "../../layouts/ChatboxContainer";
 
 // export const Route = createFileRoute("/conversations/_layout/$conversationId")({
@@ -41,6 +42,25 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
 
     // Save current conversationId (optional)
     localStorage.setItem("conversationId", conversationId);
+
+    // Set conversation cache to mark as read
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+      if (!oldData) return oldData;
+
+      const updatedConversations = oldData.conversations?.map((conv) =>
+        conv.id === conversationId
+          ? {
+              ...conv,
+              unSeen: false, // Mark as read
+            }
+          : conv,
+      );
+      return {
+        ...oldData,
+        conversations: updatedConversations,
+        filterConversations: updatedConversations,
+      } as ConversationCache;
+    });
 
     // Invalidate cache to force refetch in component
     queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
