@@ -46,6 +46,8 @@ public class WebSocketProcessor : INotificationProcessor
     {
         try
         {
+            _logger.Information($"Notify: event={_event}, group={group}");
+
             await _hubContext.Clients.Group(group).SendAsync(_event, userId, JsonConvert.SerializeObject(data,
                 new JsonSerializerSettings
                 {
@@ -84,5 +86,10 @@ public class WebSocketProcessor : INotificationProcessor
         {
             _logger.Error(ex, "");
         }
+    }
+
+    public Task Notify(string _event, string[] userIds, object data)
+    {
+        throw new NotImplementedException();
     }
 }

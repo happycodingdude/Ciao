@@ -1,4 +1,3 @@
-import { QueryClient } from "@tanstack/react-query";
 import {
   ChangeEventHandler,
   Dispatch,
@@ -222,9 +221,15 @@ export type RefreshRequest = {
 
 export type RequestPermission = {
   registerConnection: (token: string) => void;
+  onNotification?: (notificationData: NotificationData) => void;
   // notifyMessage: (model: NotifyMessageModel) => void;
-  queryClient: QueryClient;
-  info: UserProfile;
+  // queryClient: QueryClient;
+  // info: UserProfile;
+};
+
+export type NotificationData = {
+  event: string;
+  data: Record<string, any>;
 };
 
 export type BaseModel = {

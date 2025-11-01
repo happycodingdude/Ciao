@@ -4,7 +4,6 @@ import ListchatLoading from "../../components/ListchatLoading";
 import ChatDetailTogglesProvider from "../../context/ChatDetailTogglesContext";
 import ListchatFilterProvider from "../../context/ListchatFilterContext";
 import LoadingProvider from "../../context/LoadingContext";
-import { SignalProvider } from "../../context/SignalContext";
 import ListChatHeaderContainer from "../../features/listchat/components/ListChatHeaderContainer";
 import conversationQueryOption from "../../features/listchat/queries/conversationQuery";
 import ListChatContainer from "../../layouts/ListChatContainer";
@@ -35,30 +34,30 @@ export const Route = createFileRoute("/conversations/_layout")({
     const { conversationPromise } = Route.useLoaderData();
     return (
       <LoadingProvider>
-        <SignalProvider>
-          <section className={`relative flex grow overflow-hidden`}>
-            <ChatDetailTogglesProvider>
-              <ListchatFilterProvider>
-                <div className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] border-r-[.1rem] border-r-[var(--border-color)]">
-                  <ListChatHeaderContainer />
-                  <Suspense fallback={<ListchatLoading />}>
-                    <Await promise={conversationPromise}>
-                      {(data) => (
-                        <div className="hide-scrollbar relative flex min-h-0 flex-1 flex-col gap-[2rem] overflow-y-scroll scroll-smooth px-[2rem] py-[1rem]">
-                          <ListChatContainer />
-                        </div>
-                      )}
-                    </Await>
-                  </Suspense>
-                  {/* <ListchatLoading /> */}
-                </div>
-              </ListchatFilterProvider>
-              <div className="relative h-screen w-full">
-                <Outlet />
+        {/* <SignalProvider> */}
+        <section className={`relative flex grow overflow-hidden`}>
+          <ChatDetailTogglesProvider>
+            <ListchatFilterProvider>
+              <div className="flex h-screen w-[30rem] shrink-0 flex-col gap-[2rem] border-r-[.1rem] border-r-[var(--border-color)]">
+                <ListChatHeaderContainer />
+                <Suspense fallback={<ListchatLoading />}>
+                  <Await promise={conversationPromise}>
+                    {(data) => (
+                      <div className="hide-scrollbar relative flex min-h-0 flex-1 flex-col gap-[2rem] overflow-y-scroll scroll-smooth px-[2rem] py-[1rem]">
+                        <ListChatContainer />
+                      </div>
+                    )}
+                  </Await>
+                </Suspense>
+                {/* <ListchatLoading /> */}
               </div>
-            </ChatDetailTogglesProvider>
-          </section>
-        </SignalProvider>
+            </ListchatFilterProvider>
+            <div className="relative h-screen w-full">
+              <Outlet />
+            </div>
+          </ChatDetailTogglesProvider>
+        </section>
+        {/* </SignalProvider> */}
       </LoadingProvider>
     );
   },

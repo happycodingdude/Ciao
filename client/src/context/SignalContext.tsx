@@ -8,9 +8,10 @@ import React, {
   useState,
 } from "react";
 import useInfo from "../features/authentication/hooks/useInfo";
-import { setupListeners } from "../features/notification/services/signalService";
+import { requestPermission } from "../features/notification/services/firebaseService";
+import registerConnection from "../features/notification/services/registerConnection";
+import { classifyNotification } from "../features/notification/services/signalService";
 import { UserProfile } from "../types";
-import { getSignalConnection } from "../utils/signalManager";
 
 type SignalContextType = {
   startCall: () => void;
@@ -172,99 +173,123 @@ export const SignalProvider: React.FC<{
   };
 
   // 🔌 SignalR setup
+  // useEffect(() => {
+  //   if (!info?.id) return;
+  //   // if (connectionRef.current) return; // ✅ đã có connection → không tạo lại
+
+  //   getSignalConnection(info.id).then((connection) => {
+  //     /* MARK: RECEIVE OFFER */
+  //     connection.on(
+  //       "ReceiveOffer",
+  //       async (caller: UserProfile, offer: string) => {
+  //         console.log("🔔 Received offer");
+
+  //         // const stream = await navigator.mediaDevices.getUserMedia({
+  //         //   video: true,
+  //         //   audio: true,
+  //         // });
+  //         // localStreamRef.current = stream;
+  //         // setLocalStream(stream);
+
+  //         // setTargetUser(caller);
+  //         // setOffer(offer);
+  //         // setReceiveOffer(true);
+  //         // await setupPeerConnection(caller.id);
+
+  //         // 1. Get local stream
+  //         const stream = await navigator.mediaDevices.getUserMedia({
+  //           // video: { width: { ideal: 640 }, height: { ideal: 360 } },
+  //           video: true,
+  //           audio: true,
+  //         });
+  //         localStreamRef.current = stream;
+  //         setLocalStream(stream);
+
+  //         // 2. Set target
+  //         setTargetUser(caller);
+
+  //         // 3. Setup peer connection BEFORE setting offer
+  //         await setupPeerConnection(caller.id);
+
+  //         // 4. Set offer and show answer UI
+  //         setOffer(offer);
+  //         setReceiveOffer(true);
+  //       },
+  //     );
+
+  //     /* MARK: RECEIVE ANSWER */
+  //     connection.on("ReceiveAnswer", async (answer: string) => {
+  //       console.log("🔔 Received answer");
+  //       const rtcAnswer = new RTCSessionDescription(JSON.parse(answer));
+  //       await pcRef.current?.setRemoteDescription(rtcAnswer);
+  //     });
+
+  //     /* MARK: RECEIVE CANDIDATE */
+  //     connection.on("ReceiveIceCandidate", async (candidate: string) => {
+  //       console.log("🔔 Received candidate");
+  //       const rtcCandidate = new RTCIceCandidate(JSON.parse(candidate));
+  //       await pcRef.current?.addIceCandidate(rtcCandidate);
+  //     });
+
+  //     /* MARK: CALL ENDED */
+  //     connection.on("CallEnded", () => {
+  //       console.log("🔔 Call ended");
+  //       stopCamera();
+  //     });
+
+  //     setupListeners(connection, queryClient, info);
+  //     connectionRef.current = connection;
+  //   });
+
+  //   // const connect = async () => {
+  //   //   const connection = new HubConnectionBuilder()
+  //   //     .withUrl(
+  //   //       `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${info?.id}`,
+  //   //     )
+  //   //     .withAutomaticReconnect()
+  //   //     .build();
+
+  //   //   setupListeners(connection, queryClient, info);
+
+  //   //   await connection.start();
+  //   //   connectionRef.current = connection;
+  //   //   console.log("✅ SignalR connected");
+  //   // };
+
+  //   // connect();
+
+  //   return () => {
+  //     console.log("Cleaning up SignalR connection");
+  //     // if (connectionRef.current?.state === "Connected") {
+  //     //   connectionRef.current.stop();
+  //     // }
+  //     // connectionRef.current = null;
+  //   };
+  // }, [info?.id]);
+
+  // Setup firebase
   useEffect(() => {
     if (!info?.id) return;
-    // if (connectionRef.current) return; // ✅ đã có connection → không tạo lại
 
-    getSignalConnection(info.id).then((connection) => {
-      /* MARK: RECEIVE OFFER */
-      connection.on(
-        "ReceiveOffer",
-        async (caller: UserProfile, offer: string) => {
-          console.log("🔔 Received offer");
+    let isMounted = true;
 
-          // const stream = await navigator.mediaDevices.getUserMedia({
-          //   video: true,
-          //   audio: true,
-          // });
-          // localStreamRef.current = stream;
-          // setLocalStream(stream);
-
-          // setTargetUser(caller);
-          // setOffer(offer);
-          // setReceiveOffer(true);
-          // await setupPeerConnection(caller.id);
-
-          // 1. Get local stream
-          const stream = await navigator.mediaDevices.getUserMedia({
-            // video: { width: { ideal: 640 }, height: { ideal: 360 } },
-            video: true,
-            audio: true,
-          });
-          localStreamRef.current = stream;
-          setLocalStream(stream);
-
-          // 2. Set target
-          setTargetUser(caller);
-
-          // 3. Setup peer connection BEFORE setting offer
-          await setupPeerConnection(caller.id);
-
-          // 4. Set offer and show answer UI
-          setOffer(offer);
-          setReceiveOffer(true);
-        },
-      );
-
-      /* MARK: RECEIVE ANSWER */
-      connection.on("ReceiveAnswer", async (answer: string) => {
-        console.log("🔔 Received answer");
-        const rtcAnswer = new RTCSessionDescription(JSON.parse(answer));
-        await pcRef.current?.setRemoteDescription(rtcAnswer);
-      });
-
-      /* MARK: RECEIVE CANDIDATE */
-      connection.on("ReceiveIceCandidate", async (candidate: string) => {
-        console.log("🔔 Received candidate");
-        const rtcCandidate = new RTCIceCandidate(JSON.parse(candidate));
-        await pcRef.current?.addIceCandidate(rtcCandidate);
-      });
-
-      /* MARK: CALL ENDED */
-      connection.on("CallEnded", () => {
-        console.log("🔔 Call ended");
-        stopCamera();
-      });
-
-      setupListeners(connection, queryClient, info);
-      connectionRef.current = connection;
+    requestPermission({
+      registerConnection: async (token: string) => {
+        if (!isMounted) return;
+        await registerConnection(token);
+      },
+      onNotification: (notificationData: any) => {
+        if (!isMounted) return;
+        // Bridge: Firebase notification -> signalService classifier
+        classifyNotification(notificationData, queryClient, info);
+      },
     });
 
-    // const connect = async () => {
-    //   const connection = new HubConnectionBuilder()
-    //     .withUrl(
-    //       `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${info?.id}`,
-    //     )
-    //     .withAutomaticReconnect()
-    //     .build();
-
-    //   setupListeners(connection, queryClient, info);
-
-    //   await connection.start();
-    //   connectionRef.current = connection;
-    //   console.log("✅ SignalR connected");
-    // };
-
-    // connect();
-
     return () => {
-      console.log("Cleaning up SignalR connection");
-      // if (connectionRef.current?.state === "Connected") {
-      //   connectionRef.current.stop();
-      // }
-      // connectionRef.current = null;
+      console.log("Cleaning up Firebase connection");
+      isMounted = false;
     };
-  }, [info?.id]);
+  }, [info?.id, queryClient]);
 
   return (
     <SignalContext.Provider

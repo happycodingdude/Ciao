@@ -29,7 +29,7 @@ public static class RegisterConnection
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // _userCache.SetUserConnection(request.token);
+            await _userCache.SetUserConnection(request.token);
 
             return Unit.Value;
         }

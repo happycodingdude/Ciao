@@ -18,6 +18,52 @@ import {
   NewReaction,
 } from "../types";
 
+/* MARK: NOTIFICATION CLASSIFIER */
+export const classifyNotification = (
+  notificationData: any,
+  queryClient: QueryClient,
+  userInfo: UserProfile,
+) => {
+  const { event, data } = notificationData;
+
+  // Skip if notification is from current user
+  // if (userId === userInfo.id) return;
+
+  console.log(`Processing notification: ${event}`, data);
+
+  switch (event) {
+    case "NewMessage":
+      onNewMessage(queryClient, userInfo, data);
+      break;
+    case "NewMembers":
+      onNewMembers(queryClient, userInfo, JSON.parse(data));
+      break;
+    case "NewConversation":
+      onNewConversation(queryClient, userInfo, JSON.parse(data));
+      break;
+    case "NewFriendRequest":
+      console.log("NewFriendRequest:", data);
+      // TODO: Implement friend request handling
+      break;
+    case "FriendRequestAccepted":
+      console.log("FriendRequestAccepted:", data);
+      // TODO: Implement friend request accepted handling
+      break;
+    case "FriendRequestCanceled":
+      console.log("FriendRequestCanceled:", data);
+      // TODO: Implement friend request canceled handling
+      break;
+    case "NewReaction":
+      onNewReaction(queryClient, JSON.parse(data));
+      break;
+    case "NewMessagePinned":
+      onNewMessagePinned(queryClient, JSON.parse(data));
+      break;
+    default:
+      console.warn(`Unknown notification event: ${event}`);
+  }
+};
+
 /* MARK: SET UP */
 export const setupListeners = (
   connection: HubConnection,

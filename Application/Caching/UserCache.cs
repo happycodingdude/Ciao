@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace Application.Caching;
 
 public class UserCache
@@ -45,6 +43,7 @@ public class UserCache
     // public void SetConnection(string connection) => _distributedCache.SetString($"user-{UserId}-connection", connection);
 
     public async Task SetUserConnection(string userId, string connection) => await _redisCaching.SetAsync($"user-{userId}-connection", connection);
+    public async Task SetUserConnection(string connection) => await _redisCaching.SetAsync($"user-{UserId}-connection", connection);
 
     public async Task SetConnectionUser(string userId, string connection) => await _redisCaching.SetAsync($"connection-{connection}", userId);
 

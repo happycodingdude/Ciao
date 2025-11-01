@@ -1,10 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 // import notifyMessage, {
 //   NotifyMessage,
 //   NotifyMessageModel,
 // } from "../features/notification/services/notifyMessage";
-import { RequestPermission } from "../types";
+import { NotificationData, RequestPermission } from "../../../types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
@@ -39,9 +39,7 @@ const messaging = getMessaging(app);
 
 export const requestPermission = ({
   registerConnection,
-  // notifyMessage,
-  // queryClient,
-  // info,
+  onNotification,
 }: RequestPermission) => {
   Notification.requestPermission().then((permission) => {
     if (permission == "granted") {
@@ -53,15 +51,18 @@ export const requestPermission = ({
           // console.log(token);
           if (token) {
             // Receive message
-            // onMessage(messaging, (payload) => {
-            //   console.log("Message received. ", payload.data);
-            //   const message: NotifyMessageModel = {
-            //     message: payload.data as NotifyMessage,
-            //     queryClient: queryClient,
-            //     info: info,
-            //   };
-            //   notifyMessage(message);
-            // });
+            onMessage(messaging, (payload) => {
+              // console.log("Message received. ", payload.data);
+
+              // Call the notification handler if provided
+              if (onNotification && payload.data) {
+                const notification = {
+                  event: payload.data.event,
+                  data: JSON.parse(payload.data.data ?? "{}"),
+                } as NotificationData;
+                onNotification(notification);
+              }
+            });
 
             registerConnection(token);
           } else console.log("Token failed");

@@ -7,15 +7,17 @@ public class NotificationConsumer : IGenericConsumer
     readonly UserCache _userCache;
     readonly IContactRepository _contactRepository;
     readonly INotificationProcessor _notificationProcessor;
+    readonly IFirebaseFunction _firebaseFunction;
     readonly IHubContext<SignalHub> _hubContext;
 
-    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, IContactRepository contactRepository, INotificationProcessor notificationProcessor, IHubContext<SignalHub> hubContext)
+    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, IContactRepository contactRepository, INotificationProcessor notificationProcessor, IFirebaseFunction firebaseFunction, IHubContext<SignalHub> hubContext)
     {
         _logger = logger;
         _mapper = mapper;
         _userCache = userCache;
         _contactRepository = contactRepository;
         _notificationProcessor = notificationProcessor;
+        _firebaseFunction = firebaseFunction;
         _hubContext = hubContext;
     }
 
@@ -83,11 +85,16 @@ public class NotificationConsumer : IGenericConsumer
         }
 
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(user);
-        await _notificationProcessor.Notify(
+        // await _notificationProcessor.Notify(
+        //     ChatEventNames.NewMessage,
+        //     param.Conversation.Id,
+        //     // param.Message.Id,
+        //     user.Id,
+        //     notify);
+
+        await _firebaseFunction.Notify(
             ChatEventNames.NewMessage,
-            param.Conversation.Id,
-            param.Message.Id,
-            user.Id,
+            param.Members.Select(q => q.ContactId).ToArray(),
             notify);
     }
 

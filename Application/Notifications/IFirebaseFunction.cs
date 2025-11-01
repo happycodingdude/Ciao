@@ -2,5 +2,5 @@
 
 public interface IFirebaseFunction
 {
-    // Task Notify(string _event, string[] contactIds, object data);
+    Task Notify(string _event, string[] contactIds, object data);
 }

@@ -4,7 +4,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import LoadingProvider from "./context/LoadingContext";
-import { SignalProvider } from "./context/SignalContext";
 import "./Loading.css";
 import { AuthenticationContainer } from "./pages/Authentication";
 import Home from "./pages/Home";
@@ -51,9 +50,9 @@ function App() {
               <Route
                 path="/"
                 element={
-                  <SignalProvider>
-                    <Home />
-                  </SignalProvider>
+                  // <SignalProvider>
+                  // </SignalProvider>
+                  <Home />
                 }
               ></Route>
             </Route>

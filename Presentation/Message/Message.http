@@ -1,23 +1,34 @@
-@host = http://localhost:4000/api
+@host = http://localhost:4000/api/v1
 
-###
+### login
 POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"trint2",
     "Password":"Qwerty@123"
 }
 
-###
+### refresh token
+POST {{host}}/identity/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "ZmGw1MhGNnz9K0/Nljk23JNptf25oM7JAcCOH3kcg1fB5sq42EZdDwVwwsTIF6YU94ORxxE+KeoCImjL8IIqdicmJtc09pPuCs1mEQ3xI5cxxYHap3NYo92tF3nwvC2ngfzW1pUiscigM8Leu+7LtNudckZzmm4Xah3nIMW//ls=",
+  "userId": "66f271809423f7e5257a712f"
+}
+
+
+### get conversations
 GET  {{host}}/conversations
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDkyMDQyNDcsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.hCWyz2gTNKSzSF3BaCm_LCVi5YpQMIVnyw9kQaZMzY4
 
-###
-POST  {{host}}/conversations/673a0d03a419d4c14ea59b39/messages
+### send message
+POST  {{host}}/conversations/67c584c5d31e39ba097eea7e/messages
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzE4MDk0MjNmN2U1MjU3YTcxMmYiLCJleHAiOjE3NjIwMTU1MzUsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.k9ooYKFYBd-lWP7D_Rdl5ZknFX7qfrBDaXdJxoVpdKI
 
-{"moderator":"66f270cf9423f7e5257a711e","type":"text","content":"myy"}
+{"type":"text","content":"qww"}
 
 
 ###

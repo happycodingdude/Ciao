@@ -15,13 +15,13 @@ public class FirebaseFunction : IFirebaseFunction
         _logger = logger;
     }
 
-    public async Task Notify(string _event, string[] contactIds, object data)
+    public async Task Notify(string _event, string[] userIds, object data)
     {
         using var scope = _serviceProvider.CreateScope();
         var userCache = scope.ServiceProvider.GetRequiredService<UserCache>();
 
         var connections = new List<string>();
-        foreach (var id in contactIds)
+        foreach (var id in userIds)
         {
             var token = await userCache.GetUserConnection(id);
             if (!string.IsNullOrEmpty(token))
@@ -59,5 +59,20 @@ public class FirebaseFunction : IFirebaseFunction
         };
         var response = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message);
         _logger.Information(JsonConvert.SerializeObject(response));
+    }
+
+    public Task Notify(string _event, string userId, object data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task Notify(string _event, string group, string userId, object data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task Notify(string _event, string group, string uniqueId, string userId, object data)
+    {
+        throw new NotImplementedException();
     }
 }
