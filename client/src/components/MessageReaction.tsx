@@ -6,7 +6,7 @@ const MessageReaction = (props: MessageReactionProps) => {
   return (
     <>
       <div
-        className={`absolute bottom-[-2rem] z-10 flex items-center justify-between gap-[.5rem]  
+        className={`absolute bottom-[-1.2rem] z-10 flex items-center justify-between gap-[.5rem]  
       ${(message.mine && message.reaction.total) || (!message.mine && !message.reaction.total) ? "" : "flex-row-reverse"}`}
       >
         {/* MARK: TOTAL AND TOP REACTIONS */}
@@ -92,7 +92,7 @@ const MessageReaction = (props: MessageReactionProps) => {
               null: (
                 <LikeOutlined
                   className={`flex aspect-square h-[2rem] cursor-pointer items-center justify-center rounded-full border-[.15rem] 
-                  border-[var(--main-color)] bg-[var(--sub-color)]
+                  border-blue-300 bg-[var(--sub-color)]
                   ${pending ? "pointer-events-none opacity-50" : ""}`}
                   style={{ fontSize: "12px" }}
                   onClick={() => react("like")}
@@ -104,7 +104,7 @@ const MessageReaction = (props: MessageReactionProps) => {
         {/* MARK: LIST REACTIONS */}
         <div
           className={`absolute bottom-[2.2rem] z-10 flex h-[4rem] w-[20rem] scale-0 items-center justify-evenly rounded-[2rem] 
-          border-[.2rem] border-[var(--main-color)] bg-[var(--sub-color)] transition-all duration-200 hover:scale-100 peer-hover:scale-100
+          border-[.2rem] border-blue-300 bg-[var(--sub-color)] transition-all duration-200 hover:scale-100 peer-hover:scale-100
           ${message.mine ? "right-[.1rem] origin-bottom-right" : "left-0 origin-bottom-left"}`}
         >
           <div

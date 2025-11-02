@@ -143,13 +143,13 @@ const Chatbox = () => {
       <div
         ref={refChatContent}
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
-        className="hide-scrollbar flex grow flex-col gap-[3.5rem] overflow-y-scroll scroll-smooth px-[1rem]"
+        className="hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth px-[1rem]"
       >
         {Object.entries(grouped).map(([date, messages], index) => (
           <div
             key={date}
             // className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
-            className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-[2rem]" : ""}`}
+            className={`flex flex-col gap-[4rem] ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-[2rem]" : ""}`}
           >
             {/* Ngày hiển thị giữa */}
             <div className="pointer-events-none mx-auto w-fit rounded-[2rem] bg-white px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">

@@ -1,4 +1,3 @@
-import { HubConnection } from "@microsoft/signalr";
 import { QueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import { UserProfile } from "../../../types";
@@ -33,13 +32,13 @@ export const classifyNotification = (
 
   switch (event) {
     case "NewMessage":
-      onNewMessage(queryClient, userInfo, data);
+      onNewMessage(queryClient, data);
       break;
     case "NewMembers":
-      onNewMembers(queryClient, userInfo, JSON.parse(data));
+      onNewMembers(queryClient, userInfo, data);
       break;
     case "NewConversation":
-      onNewConversation(queryClient, userInfo, JSON.parse(data));
+      onNewConversation(queryClient, userInfo, data);
       break;
     case "NewFriendRequest":
       console.log("NewFriendRequest:", data);
@@ -54,10 +53,10 @@ export const classifyNotification = (
       // TODO: Implement friend request canceled handling
       break;
     case "NewReaction":
-      onNewReaction(queryClient, JSON.parse(data));
+      onNewReaction(queryClient, data);
       break;
     case "NewMessagePinned":
-      onNewMessagePinned(queryClient, JSON.parse(data));
+      onNewMessagePinned(queryClient, data);
       break;
     default:
       console.warn(`Unknown notification event: ${event}`);
@@ -65,67 +64,65 @@ export const classifyNotification = (
 };
 
 /* MARK: SET UP */
-export const setupListeners = (
-  connection: HubConnection,
-  queryClient: QueryClient,
-  userInfo: UserProfile,
-) => {
-  if (!connection) return;
+// export const setupListeners = (
+//   connection: HubConnection,
+//   queryClient: QueryClient,
+//   userInfo: UserProfile,
+// ) => {
+//   if (!connection) return;
 
-  connection.on("NewMessage", (user: string, data: string) => {
-    console.log(data);
-    console.log("user: " + user);
-    if (user == userInfo.id) return;
-    onNewMessage(queryClient, userInfo, JSON.parse(data));
-  });
+//   connection.on("NewMessage", (user: string, data: string) => {
+//     console.log(data);
+//     console.log("user: " + user);
+//     if (user == userInfo.id) return;
+//     onNewMessage(queryClient, userInfo, JSON.parse(data));
+//   });
 
-  connection.on("NewMembers", (user: string, data: string) => {
-    console.log(data);
-    if (user == userInfo.id) return;
-    onNewMembers(queryClient, userInfo, JSON.parse(data));
-  });
+//   connection.on("NewMembers", (user: string, data: string) => {
+//     console.log(data);
+//     if (user == userInfo.id) return;
+//     onNewMembers(queryClient, userInfo, JSON.parse(data));
+//   });
 
-  connection.on("NewConversation", (user: string, data: string) => {
-    console.log(data);
-    if (user == userInfo.id) return;
-    onNewConversation(queryClient, userInfo, JSON.parse(data));
-  });
+//   connection.on("NewConversation", (user: string, data: string) => {
+//     console.log(data);
+//     if (user == userInfo.id) return;
+//     onNewConversation(queryClient, userInfo, JSON.parse(data));
+//   });
 
-  connection.on("NewFriendRequest", (user: string, data: string) => {
-    console.log(user);
-    console.log(data);
-  });
+//   connection.on("NewFriendRequest", (user: string, data: string) => {
+//     console.log(user);
+//     console.log(data);
+//   });
 
-  connection.on("FriendRequestAccepted", (user: string, data: string) => {
-    console.log(user);
-    console.log(data);
-  });
+//   connection.on("FriendRequestAccepted", (user: string, data: string) => {
+//     console.log(user);
+//     console.log(data);
+//   });
 
-  connection.on("FriendRequestCanceled", (user: string, data: string) => {
-    console.log(user);
-    console.log(data);
-  });
+//   connection.on("FriendRequestCanceled", (user: string, data: string) => {
+//     console.log(user);
+//     console.log(data);
+//   });
 
-  connection.on("NewReaction", (user: string, data: string) => {
-    console.log(data);
-    if (user == userInfo.id) return;
-    onNewReaction(queryClient, JSON.parse(data));
-  });
+//   connection.on("NewReaction", (user: string, data: string) => {
+//     console.log(data);
+//     if (user == userInfo.id) return;
+//     onNewReaction(queryClient, JSON.parse(data));
+//   });
 
-  connection.on("NewMessagePinned", (user: string, data: string) => {
-    console.log(data);
-    if (user == userInfo.id) return;
-    onNewMessagePinned(queryClient, JSON.parse(data));
-  });
-};
+//   connection.on("NewMessagePinned", (user: string, data: string) => {
+//     console.log(data);
+//     if (user == userInfo.id) return;
+//     onNewMessagePinned(queryClient, JSON.parse(data));
+//   });
+// };
 
 /* MARK: ON NEW MESSAGE */
-const onNewMessage = (
-  queryClient: QueryClient,
-  userInfo: UserProfile,
-  message: NewMessage,
-) => {
+const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
+    if (!oldData) return oldData;
+
     const existingConversation = oldData.conversations.some(
       (conv) => conv.id === message.conversation.id,
     );

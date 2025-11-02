@@ -4,13 +4,8 @@ import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import ListchatLoading from "../components/ListchatLoading";
 import useInfo from "../features/authentication/hooks/useInfo";
-import AddFriend from "../features/friend/components/AddFriend";
-import CreateGroupChat from "../features/groupchat/components/CreateGroupChat";
-import ListChat from "../features/listchat/components/ListChat";
-import ListChatHeader_Mobile from "../features/listchat/components/ListChatHeader_Mobile";
 import useConversation from "../features/listchat/hooks/useConversation";
 import "../listchat.css";
-import { isPhoneScreen } from "../utils/getScreenSize";
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -41,85 +36,171 @@ const ListChatContainer = () => {
   if (isLoading || isRefetching) return <ListchatLoading />;
 
   return (
-    <>
-      {isPhoneScreen() ? (
-        <div
-          className={`absolute flex h-full w-full flex-col bg-[var(--bg-color)]
-            ${conversationId ? "z-0" : "z-[10]"}`}
-        >
-          <div className="flex h-[5rem] shrink-0 items-center justify-between px-[1rem]">
-            <p className="text-xl font-bold">Messages</p>
-            <div className="flex h-full items-center gap-[2rem]">
-              <AddFriend />
-              <CreateGroupChat />
-              <ImageWithLightBoxAndNoLazy
-                src={info.avatar}
-                className="aspect-square w-[3rem] cursor-pointer"
-                slides={[
-                  {
-                    src: info.avatar,
-                  },
-                ]}
-                circle
-              />
-            </div>
-          </div>
+    // <>
+    //   {isPhoneScreen() ? (
+    //     <div
+    //       className={`absolute flex h-full w-full flex-col bg-[var(--bg-color)]
+    //         ${conversationId ? "z-0" : "z-[10]"}`}
+    //     >
+    //       <div className="flex h-[5rem] shrink-0 items-center justify-between px-[1rem]">
+    //         <p className="text-xl font-bold">Messages</p>
+    //         <div className="flex h-full items-center gap-[2rem]">
+    //           <AddFriend />
+    //           <CreateGroupChat />
+    //           <ImageWithLightBoxAndNoLazy
+    //             src={info.avatar}
+    //             className="aspect-square w-[3rem] cursor-pointer"
+    //             slides={[
+    //               {
+    //                 src: info.avatar,
+    //               },
+    //             ]}
+    //             circle
+    //           />
+    //         </div>
+    //       </div>
 
-          <ListChatHeader_Mobile />
-          <ListChat />
-        </div>
-      ) : (
-        conversations?.filterConversations
-          .filter((conv) =>
-            conv.members.some(
-              (mem) => mem.contact.id === info.id && !mem.isDeleted,
-            ),
-          )
-          .map((item) => (
-            <Link key={item.id} to={`/conversations/${item.id}`}>
-              <div
-                // className={`chat-item cursor-pointer rounded-2xl bg-gray-100 p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
-                //     ${item.id === conversationId ? "active" : ""}`}
-                className={`chat-item cursor-pointer rounded-2xl p-4
-                    ${item.id === conversationId ? "active" : ""}`}
-              >
-                <div className="flex items-center laptop:h-[4rem]">
-                  <div className="relative">
-                    {/* MARK: AVATAR */}
-                    <ImageWithLightBoxAndNoLazy
-                      src={
-                        item.isGroup
-                          ? item.avatar
-                          : item.members.find(
-                              (item) => item.contact.id !== info.id,
-                            )?.contact.avatar
-                      }
-                      className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
-                      circle
-                    />
-                    <div
-                      className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white 
+    //       <ListChatHeader_Mobile />
+    //       <ListChat />
+    //     </div>
+    //   ) : (
+    //     conversations?.filterConversations
+    //       .filter((conv) =>
+    //         conv.members.some(
+    //           (mem) => mem.contact.id === info.id && !mem.isDeleted,
+    //         ),
+    //       )
+    //       .map((item) => (
+    //         <Link key={item.id} to={`/conversations/${item.id}`}>
+    //           <div
+    //             // className={`chat-item cursor-pointer rounded-2xl bg-gray-100 p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
+    //             //     ${item.id === conversationId ? "active" : ""}`}
+    //             className={`chat-item cursor-pointer rounded-2xl p-4
+    //               laptop-md:text-md
+    //               ${item.id === conversationId ? "active" : ""}`}
+    //           >
+    //             <div className="flex items-center laptop:h-[4rem] laptop-md:h-[5rem]">
+    //               <div className="relative">
+    //                 {/* MARK: AVATAR */}
+    //                 <ImageWithLightBoxAndNoLazy
+    //                   src={
+    //                     item.isGroup
+    //                       ? item.avatar
+    //                       : item.members.find(
+    //                           (item) => item.contact.id !== info.id,
+    //                         )?.contact.avatar
+    //                   }
+    //                   className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
+    //                   circle
+    //                 />
+    //                 <div
+    //                   className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white
+    //                     ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-green-400" : "bg-gray-400"}`}
+    //                 ></div>
+    //               </div>
+    //               <div className="my-auto ml-[1rem] flex w-[60%] flex-col">
+    //                 {/* MARK: TITLE */}
+    //                 <CustomLabel
+    //                   className={`${item.id === conversationId ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"}
+    //                       font-['Be_Vietnam_Pro'] font-semibold`}
+    //                   title={
+    //                     item.isGroup
+    //                       ? item.title
+    //                       : item.members.find(
+    //                           (item) => item.contact.id !== info.id,
+    //                         )?.contact.name
+    //                   }
+    //                 />
+    //                 {/* MARK: LAST MESSAGE */}
+    //                 {item.lastMessage ? (
+    //                   <div className="mt-1 truncate laptop-md:text-base text-gray-600">
+    //                     <CustomLabel
+    //                       className={`
+    //                           ${
+    //                             item.id === conversationId
+    //                               ? "text-[var(--text-sub-color-thin)]"
+    //                               : item.unSeen
+    //                                 ? "text-[var(--danger-text-color)]"
+    //                                 : "text-[var(--text-main-color-blur)]"
+    //                           }`}
+    //                       title={item.lastMessage}
+    //                     />
+    //                   </div>
+    //                 ) : (
+    //                   ""
+    //                 )}
+    //               </div>
+    //               {/* MARK: LAST MESSAGE TIME */}
+    //               {item.lastMessageTime === null ? (
+    //                 ""
+    //               ) : (
+    //                 <div
+    //                   className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
+    //                 >
+    //                   <p>
+    //                     {item.lastMessageTime === null
+    //                       ? ""
+    //                       : moment(item.lastMessageTime).fromNow()}
+    //                   </p>
+    //                 </div>
+    //               )}
+    //             </div>
+    //           </div>
+    //         </Link>
+    //       ))
+    //   )}
+    // </>
+
+    conversations?.filterConversations
+      .filter((conv) =>
+        conv.members.some(
+          (mem) => mem.contact.id === info.id && !mem.isDeleted,
+        ),
+      )
+      .map((item) => (
+        <Link key={item.id} to={`/conversations/${item.id}`}>
+          <div
+            // className={`chat-item cursor-pointer rounded-2xl bg-gray-100 p-4 shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]
+            //     ${item.id === conversationId ? "active" : ""}`}
+            className={`chat-item cursor-pointer rounded-2xl p-4
+                  laptop-md:text-md
+                  ${item.id === conversationId ? "active" : ""}`}
+          >
+            <div className="flex items-center laptop:h-[4rem] laptop-md:h-[5rem]">
+              <div className="relative">
+                {/* MARK: AVATAR */}
+                <ImageWithLightBoxAndNoLazy
+                  src={
+                    item.isGroup
+                      ? item.avatar
+                      : item.members.find((item) => item.contact.id !== info.id)
+                          ?.contact.avatar
+                  }
+                  className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
+                  circle
+                />
+                <div
+                  className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white 
                         ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-green-400" : "bg-gray-400"}`}
-                    ></div>
-                  </div>
-                  <div className="mb-auto ml-[1rem] flex w-[60%] flex-col">
-                    {/* MARK: TITLE */}
-                    <CustomLabel
-                      className={`${item.id === conversationId ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                ></div>
+              </div>
+              <div className="my-auto ml-[1rem] flex w-[60%] flex-col">
+                {/* MARK: TITLE */}
+                <CustomLabel
+                  className={`${item.id === conversationId ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
                           font-['Be_Vietnam_Pro'] font-semibold`}
-                      title={
-                        item.isGroup
-                          ? item.title
-                          : item.members.find(
-                              (item) => item.contact.id !== info.id,
-                            )?.contact.name
-                      }
-                    />
-                    {/* MARK: LAST MESSAGE */}
-                    {item.lastMessage ? (
-                      <div className="mt-1 truncate text-sm text-gray-600">
-                        <CustomLabel
-                          className={`
+                  title={
+                    item.isGroup
+                      ? item.title
+                      : item.members.find((item) => item.contact.id !== info.id)
+                          ?.contact.name
+                  }
+                />
+                {/* MARK: LAST MESSAGE */}
+                {item.lastMessage ? (
+                  <div className="mt-1 truncate text-gray-600 laptop-md:text-base">
+                    <CustomLabel
+                      className={`
                               ${
                                 item.id === conversationId
                                   ? "text-[var(--text-sub-color-thin)]"
@@ -127,33 +208,31 @@ const ListChatContainer = () => {
                                     ? "text-[var(--danger-text-color)]"
                                     : "text-[var(--text-main-color-blur)]"
                               }`}
-                          title={item.lastMessage}
-                        />
-                      </div>
-                    ) : (
-                      ""
-                    )}
+                      title={item.lastMessage}
+                    />
                   </div>
-                  {/* MARK: LAST MESSAGE TIME */}
-                  {item.lastMessageTime === null ? (
-                    ""
-                  ) : (
-                    <div
-                      className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
-                    >
-                      <p>
-                        {item.lastMessageTime === null
-                          ? ""
-                          : moment(item.lastMessageTime).fromNow()}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                ) : (
+                  ""
+                )}
               </div>
-            </Link>
-          ))
-      )}
-    </>
+              {/* MARK: LAST MESSAGE TIME */}
+              {item.lastMessageTime === null ? (
+                ""
+              ) : (
+                <div
+                  className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
+                >
+                  <p>
+                    {item.lastMessageTime === null
+                      ? ""
+                      : moment(item.lastMessageTime).fromNow()}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </Link>
+      ))
   );
 };
 

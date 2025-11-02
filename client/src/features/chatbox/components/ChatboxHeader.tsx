@@ -13,7 +13,7 @@ const ChatboxHeader = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  // if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
+  if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
 
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
@@ -25,7 +25,7 @@ const ChatboxHeader = () => {
   return (
     <div
       className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)]
-      px-[1rem] py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[6rem] laptop:h-[6rem] bg-white"
+      bg-white px-[1rem] py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[6rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
         {isPhoneScreen() ? (

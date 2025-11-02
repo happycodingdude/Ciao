@@ -34,7 +34,6 @@ export const Route = createFileRoute("/conversations/_layout")({
     const { conversationPromise } = Route.useLoaderData();
     return (
       <LoadingProvider>
-        {/* <SignalProvider> */}
         <section className={`relative flex grow overflow-hidden`}>
           <ChatDetailTogglesProvider>
             <ListchatFilterProvider>
@@ -49,7 +48,6 @@ export const Route = createFileRoute("/conversations/_layout")({
                     )}
                   </Await>
                 </Suspense>
-                {/* <ListchatLoading /> */}
               </div>
             </ListchatFilterProvider>
             <div className="relative h-screen w-full">
@@ -57,7 +55,6 @@ export const Route = createFileRoute("/conversations/_layout")({
             </div>
           </ChatDetailTogglesProvider>
         </section>
-        {/* </SignalProvider> */}
       </LoadingProvider>
     );
   },
