@@ -53,9 +53,9 @@ public class UserCache
         await _redisCaching.DeleteAsync($"connection-{connection}");
     }
 
-    public async Task<Contact> GetInfo() => await _redisCaching.GetAsync<Contact>($"user-{UserId}-info");
+    public async Task<Contact> GetInfo() => await _redisCaching.GetAsync<Contact>($"user-{UserId}-info") ?? default!;
 
-    public async Task<Contact> GetInfo(string userId) => await _redisCaching.GetAsync<Contact>($"user-{userId}-info");
+    public async Task<Contact> GetInfo(string userId) => await _redisCaching.GetAsync<Contact>($"user-{userId}-info") ?? default!;
 
     public async Task<List<Contact>> GetInfo(string[] userIds)
     {

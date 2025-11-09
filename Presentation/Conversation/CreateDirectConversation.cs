@@ -21,6 +21,7 @@ public static class CreateDirectConversation
 
         public async Task<CreateDirectConversationRes> Handle(Request request, CancellationToken cancellationToken)
         {
+            // Tìm cuộc trò chuyện trực tiếp giữa 2 người
             var userId = _contactRepository.GetUserId();
             var filter = Builders<Conversation>.Filter.And(
                 Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == userId),
@@ -28,7 +29,7 @@ public static class CreateDirectConversation
                 Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
             );
             var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
-            // Đánh dấu cuộc trò chuyện mới
+            // Đánh dấu cuộc trò chuyện mới và tạo cuộc trò chuyện nếu chưa có
             var isNewConversation = conversation is null;
             conversation ??= new Conversation
             {

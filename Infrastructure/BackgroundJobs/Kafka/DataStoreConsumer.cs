@@ -29,23 +29,23 @@ public class DataStoreConsumer : IGenericConsumer
             {
                 case Topic.NewMessage:
                     var newMessageModel = JsonConvert.DeserializeObject<NewMessageModel>(param.cr.Message.Value);
-                    await HandleNewMessage(newMessageModel);
+                    await HandleNewMessage(newMessageModel!);
                     break;
                 case Topic.NewGroupConversation:
                     var newGroupConversationModel = JsonConvert.DeserializeObject<NewGroupConversationModel>(param.cr.Message.Value);
-                    await HandleNewGroupConversation(newGroupConversationModel);
+                    await HandleNewGroupConversation(newGroupConversationModel!);
                     break;
                 case Topic.NewDirectConversation:
                     var newDirectConversationModel = JsonConvert.DeserializeObject<NewDirectConversationModel>(param.cr.Message.Value);
-                    await HandleNewDirectConversation(newDirectConversationModel);
+                    await HandleNewDirectConversation(newDirectConversationModel!);
                     break;
                 case Topic.NewMember:
                     var newMemberModel = JsonConvert.DeserializeObject<NewMemberModel>(param.cr.Message.Value);
-                    await HandleNewMember(newMemberModel);
+                    await HandleNewMember(newMemberModel!);
                     break;
                 case Topic.NewReaction:
                     var newReactionModel = JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value);
-                    await HandleNewReaction(newReactionModel);
+                    await HandleNewReaction(newReactionModel!);
                     break;
                 default:
                     break;
@@ -69,25 +69,25 @@ public class DataStoreConsumer : IGenericConsumer
         var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
         var conversation = await _conversationRepository.GetItemAsync(filter);
 
-        // Prepare message
-        // var user = await _contactRepository.GetInfoAsync(param.UserId);
+        // Prepare data
+        // Add new message
         var message = _mapper.Map<Message>(param.Message);
         message.ContactId = param.UserId;
-        if (message.Type == "media")
-            message.Content = null;
+        if (message.Type == "media") message.Content = default!;
         conversation.Messages.Add(message);
 
-        // When a message sent, all members of that group will be having that group conversation back
-        // if contain any member has deleted the conversation
+        // When a message sent, all members of that group will receive that group conversation back
+        // if contain any member deleted the conversation
         foreach (var member in conversation.Members.Where(q => q.IsDeleted))
             member.IsDeleted = false;
 
-        // Update conversation
+        // Update to db
         _conversationRepository.Replace(filter, conversation);
 
         // Save changes
         await _uow.SaveAsync();
 
+        // Send to kafka to update cache and push notification
         await _kafkaProducer.ProduceAsync(Topic.StoredMessage, new NewStoredMessageModel
         {
             UserId = param.UserId,
@@ -103,7 +103,7 @@ public class DataStoreConsumer : IGenericConsumer
         var conversation = _mapper.Map<Conversation>(param.Conversation);
         conversation.Members = _mapper.Map<List<Member>>(param.Members.ToList());
 
-        // Assign contact info
+        // Get member details
         foreach (var member in conversation.Members.Where(q => q.ContactId != param.UserId))
         {
             member.IsModerator = false; // Only this user is moderator
@@ -111,7 +111,7 @@ public class DataStoreConsumer : IGenericConsumer
             member.IsNotifying = true; // Every members will be notified
         }
         var thisUser = conversation.Members.SingleOrDefault(q => q.ContactId == param.UserId);
-        thisUser.IsModerator = true;
+        thisUser!.IsModerator = true;
         thisUser.IsDeleted = false;
         thisUser.IsNotifying = true;
 
@@ -122,12 +122,13 @@ public class DataStoreConsumer : IGenericConsumer
         var messageToAdd = _mapper.Map<Message>(systemMessage);
         conversation.Messages.Add(messageToAdd);
 
-        // Create conversation
+        // Update to db
         _conversationRepository.Add(conversation);
 
         // Save changes
         await _uow.SaveAsync();
 
+        // Send to kafka to update cache and push notification
         await _kafkaProducer.ProduceAsync(Topic.StoredGroupConversation, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
@@ -140,8 +141,6 @@ public class DataStoreConsumer : IGenericConsumer
     /* MARK: NEW DIRECT CONVERSATION */
     async Task HandleNewDirectConversation(NewDirectConversationModel param)
     {
-        var user = await _contactRepository.GetInfoAsync(param.UserId);
-
         var conversation = _mapper.Map<Conversation>(param.Conversation);
         var message = _mapper.Map<Message>(param.Message);
         if (param.IsNewConversation)
@@ -152,6 +151,7 @@ public class DataStoreConsumer : IGenericConsumer
         // Save changes
         await _uow.SaveAsync();
 
+        // Send to kafka to update cache and push notification
         await _kafkaProducer.ProduceAsync(Topic.StoredDirectConversation, new NewStoredDirectConversationModel
         {
             UserId = param.UserId,
@@ -190,7 +190,7 @@ public class DataStoreConsumer : IGenericConsumer
             var updateMessages = false;
             // Update field IsDeleted if true
             var currentUser = conversation.Members.SingleOrDefault(q => q.ContactId == userId);
-            if (currentUser.IsDeleted)
+            if (currentUser!.IsDeleted)
             {
                 currentUser.IsDeleted = false;
                 updateIsDeleted = true;
@@ -220,19 +220,19 @@ public class DataStoreConsumer : IGenericConsumer
         var conversation = await _conversationRepository.GetItemAsync(filter);
 
         // Filter new members
-        var filterNewItemToAdd = param.Members
+        var newMembersToAdd = param.Members
             .Select(q => q)
             .ToList()
             .Except(conversation.Members.Select(q => q.ContactId).ToList())
             .ToList();
-        // Return if no new partipants
-        if (!filterNewItemToAdd.Any()) return;
+        // Return if no new members
+        if (!newMembersToAdd.Any()) return;
 
-        var membersNextExecution = _mapper.Map<List<NewGroupConversationModel_Member>>(conversation.Members);
+        // var membersNextExecution = _mapper.Map<List<NewGroupConversationModel_Member>>(conversation.Members);
 
-        // Create list new members
-        var membersToAdd = new List<Member>(filterNewItemToAdd.Count);
-        filterNewItemToAdd.ForEach(q => membersToAdd.Add(
+        // Create new members
+        var membersToAdd = new List<Member>(newMembersToAdd.Count);
+        newMembersToAdd.ForEach(q => membersToAdd.Add(
             new Member
             {
                 IsModerator = false, // Only this user is moderator
@@ -240,14 +240,14 @@ public class DataStoreConsumer : IGenericConsumer
                 IsNotifying = true,
                 ContactId = q
             }));
-        // Concatenate to existed partipants
+        // Concatenate to existed members
         var membersToUpdate = conversation.Members.Concat(membersToAdd);
         // Create system message
         var contactFilter = Builders<Contact>.Filter.Where(q => membersToAdd.Select(w => w.ContactId).Contains(q.Id) || q.Id == param.UserId);
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
         var systemMessage = new SystemMessage(
             AppConstants.SystemMessage_AddedMembers
-                .Replace("{user}", contacts.FirstOrDefault(q => q.Id == param.UserId)?.Name)
+                .Replace("{user}", contacts.SingleOrDefault(q => q.Id == param.UserId)?.Name)
                 .Replace("{members}", string.Join(", ", contacts.Where(q => q.Id != param.UserId).Select(q => q.Name)))
         );
         // Convert back to Message to remove field _t in Mongo
@@ -259,20 +259,33 @@ public class DataStoreConsumer : IGenericConsumer
             .Set(q => q.Members, membersToUpdate)
             .Set(q => q.Messages, conversation.Messages);
         _conversationRepository.UpdateNoTrackingTime(filter, updates);
+
         // Save changes
         await _uow.SaveAsync();
 
-        foreach (var memberToAdd in membersToAdd)
-        {
-            var member = _mapper.Map<NewGroupConversationModel_Member>(memberToAdd);
-            member.IsNew = true;
-            membersNextExecution.Add(member);
-        }
+        // foreach (var memberToAdd in membersToAdd)
+        // {
+        //     var member = _mapper.Map<NewGroupConversationModel_Member>(memberToAdd);
+        //     member.IsNew = true;
+        //     membersNextExecution.Add(member);
+        // }
+
+        // Create members for next execution
+        var storedMembers = new List<NewGroupConversationModel_Member>(newMembersToAdd.Count);
+        newMembersToAdd.ForEach(q => storedMembers.Add(
+            new NewGroupConversationModel_Member
+            {
+                ContactId = q,
+                IsNew = true
+            }));
+
+        // Send to kafka to update cache and push notification
         await _kafkaProducer.ProduceAsync(Topic.StoredMember, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
-            Members = membersNextExecution.ToArray(),
+            Members = storedMembers.ToArray(),
+            // Members = membersNextExecution.ToArray(),
             Message = messageToAdd
         });
     }
@@ -280,7 +293,7 @@ public class DataStoreConsumer : IGenericConsumer
     /* MARK: NEW REACTION */
     async Task HandleNewReaction(NewReactionModel param)
     {
-        // Ensure Reactions is an empty array if not present
+        // Ensure Reactions is an empty array if not exists
         var initializationFilter = Builders<Conversation>.Filter.And(
             Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(q => q.Messages,
@@ -292,14 +305,15 @@ public class DataStoreConsumer : IGenericConsumer
         );
         _conversationRepository.UpdateNoTrackingTime(initializationFilter, initializeReactions);
 
+        // Initialize key for operation and fallback
         var key = Guid.NewGuid();
+
         // Update if exists
         var conversationFilter = Builders<Conversation>.Filter.And(
             Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(q => q.Messages, w => w.Id == param.MessageId)
         );
         var updates = Builders<Conversation>.Update.Set("Messages.$.Reactions.$[elem].Type", param.Type);
-        // var userId = _contactRepository.GetUserId();
         var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
             new BsonDocument("elem.ContactId", param.UserId)
             );
@@ -320,19 +334,20 @@ public class DataStoreConsumer : IGenericConsumer
                 )
             )
         );
-        var create = Builders<Conversation>.Update.Push(
+        var fallbackUpdate = Builders<Conversation>.Update.Push(
             "Messages.$.Reactions",
             new MessageReaction
             {
                 ContactId = param.UserId,
-                Type = param.Type
+                Type = param.Type!
             }
         );
-        _conversationRepository.AddFallback(key, fallbackFilter, create);
+        _conversationRepository.AddFallback(key, fallbackFilter, fallbackUpdate);
 
         // Save changes
         await _uow.SaveAsync();
 
+        // Send to kafka to update cache
         await _kafkaProducer.ProduceAsync(Topic.StoredReaction, new NewReactionModel
         {
             UserId = param.UserId,

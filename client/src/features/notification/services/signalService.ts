@@ -213,7 +213,7 @@ const onNewConversation = (
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
     if (!oldData) return oldData;
 
-    const newConversation = {
+    const newConversation: ConversationModel = {
       id: conversation.conversation.id,
       title: conversation.conversation.title,
       avatar: conversation.conversation.avatar,
@@ -222,6 +222,9 @@ const onNewConversation = (
       lastMessage: conversation.conversation.lastMessage,
       lastMessageContact: conversation.conversation.lastMessageContact,
       lastMessageTime: conversation.conversation.lastMessageTime,
+      unSeen: true,
+      members: conversation.members,
+
       // members: conversation.members.map((mem) =>
       //   mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
       // ),

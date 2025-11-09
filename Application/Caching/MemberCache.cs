@@ -37,8 +37,7 @@ public class MemberCache
 
     public async Task<List<MemberWithContactInfo>> GetMembers(string conversationId)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
-        return memberCacheData;
+        return await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
     }
 
     public async Task AddMembers(string conversationId, List<MemberWithContactInfo> membersToAdd)

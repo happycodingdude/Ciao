@@ -45,7 +45,7 @@ public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOf
                     var result = await operation.Value.Invoke(session);
                     logger.Information($"operation result => {JsonConvert.SerializeObject(result)}");
                     var invokeResult = JsonConvert.DeserializeObject<InvokeResult>(JsonConvert.SerializeObject(result));
-                    if (invokeResult.ModifiedCount == 0)
+                    if (invokeResult!.ModifiedCount == 0)
                     {
                         fallbacks.TryGetValue(operation.Key, out var fallback);
                         if (fallback is null) continue;

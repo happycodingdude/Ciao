@@ -2,7 +2,7 @@ namespace Presentation.Conversations;
 
 public static class CreateGroupConversation
 {
-    public record Request(CreateGroupConversationReq model) : IRequest<string>;
+    public record Request(CreateGroupConversationReq request) : IRequest<string>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -11,14 +11,13 @@ public static class CreateGroupConversation
         public Validator(IServiceProvider serviceProvider)
         {
             using (var scope = serviceProvider.CreateScope())
-            {
                 _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-            }
-            RuleFor(c => c.model.Members).ShouldHaveValue().DependentRules(() =>
+
+            RuleFor(c => c.request.Members).ShouldHaveValue().DependentRules(() =>
             {
-                RuleFor(c => c.model.Members.ToList()).ShouldHaveContactId();
-                RuleFor(c => c.model.Members.ToList()).ShouldNotHaveDuplicatedContactId();
-                RuleFor(c => c).Must((item, cancellation) => MustContainAtLeastOneContact(item.model.Members))
+                RuleFor(c => c.request.Members.ToList()).ShouldHaveContactId();
+                RuleFor(c => c.request.Members.ToList()).ShouldNotHaveDuplicatedContactId();
+                RuleFor(c => c).Must((item, cancellation) => MustContainAtLeastOneContact(item.request.Members))
                     .WithMessage("Group conversation should contain at least 1 Member");
             });
         }
@@ -53,7 +52,7 @@ public static class CreateGroupConversation
 
             var userId = _contactRepository.GetUserId();
             // Remove duplication, just keep one item for this user
-            var conversation = _mapper.Map<Conversation>(request.model);
+            var conversation = _mapper.Map<Conversation>(request.request);
             conversation.IsGroup = true;
             var members = conversation.Members.Where(q => q.ContactId != userId).ToList();
             members.Add(new Member
@@ -78,9 +77,9 @@ public class CreateGroupConversationEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("",
-        async (ISender sender, CreateGroupConversationReq model) =>
+        async (ISender sender, CreateGroupConversationReq request) =>
         {
-            var query = new CreateGroupConversation.Request(model);
+            var query = new CreateGroupConversation.Request(request);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();
