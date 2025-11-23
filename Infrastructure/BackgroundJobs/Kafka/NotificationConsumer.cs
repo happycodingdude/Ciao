@@ -96,7 +96,7 @@ public class NotificationConsumer : IGenericConsumer
 
         await _firebaseFunction.Notify(
             ChatEventNames.NewMessage,
-            param.Members.Select(q => q.ContactId).ToArray(),
+            notify.Members.Select(q => q.Contact.Id).ToArray(),
             notify
         );
     }

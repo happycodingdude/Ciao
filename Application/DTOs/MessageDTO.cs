@@ -7,7 +7,7 @@ public class SendMessageReq
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public bool IsForwarded { get; set; }
-    public List<SendMessageReq_Attachment> Attachments { get; set; } = new List<SendMessageReq_Attachment>();
+    public List<SendMessageReq_Attachment> Attachments { get; set; } = new();
 }
 
 public class SendMessageReq_Attachment
@@ -34,7 +34,7 @@ public class MessageReactionSummary : MongoBaseModel
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
-    public List<Attachment>? Attachments { get; set; } = new List<Attachment>();
+    public List<Attachment> Attachments { get; set; } = new();
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }
     public int CareCount { get; set; }
@@ -46,13 +46,13 @@ public class MessageReactionSummary : MongoBaseModel
 
 public class MessageWithReactions : MessageReactionSummary
 {
-    public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
+    public List<MessageReaction> Reactions { get; set; } = new();
 }
 
 public class MessagesWithHasMore
 {
     public bool HasMore { get; set; }
-    public List<MessageReactionSummary> Messages { get; set; } = new List<MessageReactionSummary>();
+    public List<MessageReactionSummary> Messages { get; set; } = new();
 }
 
 public class SystemMessage
