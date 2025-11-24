@@ -31,27 +31,16 @@ public static class GetConversations
             var conversations = await _conversationCache.GetConversations();
             var result = _mapper.Map<List<GetConversationsResponse>>(conversations);
             await _memberCache.GetMembers(result);
-            // _logger.Information(JsonConvert.SerializeObject(result));
             var friends = await _friendCache.GetFriends();
             foreach (var conversation in result)
             {
                 var messages = await _messageCache.GetMessages(conversation.Id);
-                // _logger.Information($"{conversation.Id} has messages count => {messages.Count}");
                 var thisMember = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId);
                 var haventSeenAnyMessage = messages.Any() && thisMember.LastSeenTime is null;
                 var haventSeenLastMessage = messages.Any(q => q.ContactId != userId && q.CreatedTime >= thisMember.LastSeenTime);
                 conversation.UnSeen = haventSeenAnyMessage || haventSeenLastMessage;
                 foreach (var member in conversation.Members)
                 {
-                    // Set unseen messages properties
-                    // if (member.LastSeenTime is null)
-                    // {
-                    //     member.UnSeenMessages = messages.Where(q => q.ContactId != member.Contact.Id).Count();
-                    // }
-                    // else
-                    // {
-                    //     member.UnSeenMessages = messages.Where(q => q.CreatedTime >= member.LastSeenTime && q.ContactId != userId).Count();
-                    // }
                     // Set friend properties
                     var friend = friends.SingleOrDefault(q => q.Contact.Id == member.Contact.Id);
                     if (friend is null)
@@ -63,18 +52,17 @@ public static class GetConversations
                     {
                         member.FriendId = friend.FriendId;
                         member.FriendStatus = friend.FriendStatus;
+                        member.DirectConversation = friend.DirectConversation;
                     }
                 }
 
                 // Cập nhật trạng thái online dựa theo cache ìnfo
                 var redisKeys = conversation.Members.Select(mem => (RedisKey)$"user-{mem.Contact.Id}-info").ToArray();
                 var values = await _redisCaching.GetAsync(redisKeys);
-
                 for (int i = 0; i < conversation.Members.Count; i++)
                     conversation.Members[i].Contact.IsOnline = values[i].HasValue;
             }
             return result;
-            // return result.Where(q => q.Participants.SingleOrDefault(q => q.Contact.Id == _contactRepository.GetUserId()).IsDeleted == false).ToList();
         }
     }
 }

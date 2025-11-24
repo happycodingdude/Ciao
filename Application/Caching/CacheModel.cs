@@ -29,4 +29,6 @@ public class FriendCacheModel
     // public string ContactId { get; set; } = null!;
     public string? FriendId { get; set; }
     public string FriendStatus { get; set; } = null!;
+    public List<string> Conversations { get; set; } = new();
+    public string? DirectConversation { get; set; }
 }

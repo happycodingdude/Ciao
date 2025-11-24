@@ -22,47 +22,18 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
         else return "request_received";
     }
 
-    // public async Task<List<(string, string)>> GetFriendItems()
-    // {
-    //     var userId = _contactRepository.GetUserId();
-    //     var filter = Builders<Friend>.Filter.Or(
-    //         Builders<Friend>.Filter.And(
-    //             Builders<Friend>.Filter.Eq(f => f.FromContact.ContactId, userId)
-    //         ),
-    //         Builders<Friend>.Filter.And(
-    //             Builders<Friend>.Filter.Eq(f => f.ToContact.ContactId, userId)
-    //         )
-    //     );
-    //     var projection = Builders<Friend>.Projection.Expression(friend =>
-    //         new
-    //         {
-    //             friend.Id,
-    //             Status = friend.AcceptTime != null
-    //                 ? "friend"
-    //                 : (friend.FromContact.ContactId == userId ? "request_sent" : "request_received")
-    //         });
-
-    //     var result = await _collection
-    //         .Find(filter)
-    //         .Project(projection)
-    //         .ToListAsync();
-
-    //     return result
-    //         .Select(r => (r.Id.ToString(), r.Status))
-    //         .ToList();
-    // }
-
     public async Task<List<FriendCacheModel>> GetFriendItems(string userId)
     {
-        // var userId = _contactRepository.GetUserId();
-
         var pipeline = new BsonDocument[]
         {
+            // 1. Match all relations of user
             new BsonDocument("$match", new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("FromContact.ContactId", userId),
                 new BsonDocument("ToContact.ContactId", userId)
             })),
+
+            // 2. Lookup contact of the other person
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "Contact" },
@@ -80,6 +51,42 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
                 { "as", "contactInfo" }
             }),
             new BsonDocument("$unwind", "$contactInfo"),
+
+            // 3. Lookup Conversation between user and friend
+            new BsonDocument("$lookup", new BsonDocument
+            {
+                { "from", "Conversation" },
+                { "let", new BsonDocument
+                    {
+                        { "userId", userId },
+                        { "friendId", "$contactInfo._id" }
+                    }
+                },
+                { "pipeline", new BsonArray
+                    {
+                        new BsonDocument("$match", new BsonDocument
+                        {
+                            { "$expr", new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$in", new BsonArray
+                                    {
+                                        "$$userId",
+                                        "$Members.ContactId"
+                                    }),
+                                    new BsonDocument("$in", new BsonArray
+                                    {
+                                        "$$friendId",
+                                        "$Members.ContactId"
+                                    })
+                                })
+                            }
+                        })
+                    }
+                },
+                { "as", "Conversations" }
+            }),
+
+            // 4. Project output
             new BsonDocument("$project", new BsonDocument
             {
                 { "FriendId", "$_id" },
@@ -96,97 +103,58 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
                         )
                     })
                 },
-                // {
-                //     "ContactId","$contactInfo._id"
-                // }
                 {
                     "Contact","$contactInfo"
+                },
+                // Convert Conversations to list<string>
+                {
+                    "Conversations",
+                    new BsonDocument("$map", new BsonDocument
+                    {
+                        { "input", "$Conversations" },
+                        { "as", "c" },
+                        { "in", new BsonDocument("$toString", "$$c._id") }
+                    })
+                },
+                // DirectConversation = string or null
+                {
+                    "DirectConversation",
+                    new BsonDocument("$let", new BsonDocument
+                    {
+                        { "vars", new BsonDocument
+                            {
+                                { "directList", new BsonDocument("$filter", new BsonDocument
+                                    {
+                                        { "input", "$Conversations" },
+                                        { "as", "c" },
+                                        { "cond", new BsonDocument("$eq", new BsonArray { "$$c.IsGroup", false }) }
+                                    })
+                                }
+                            }
+                        },
+                        { "in",
+                            new BsonDocument("$cond", new BsonArray
+                            {
+                                new BsonDocument("$gt", new BsonArray
+                                {
+                                    new BsonDocument("$size", "$$directList"),
+                                    0
+                                }),
+                                new BsonDocument("$toString",
+                                    new BsonDocument("$arrayElemAt", new BsonArray
+                                    {
+                                        "$$directList._id",
+                                        0
+                                    })
+                                ),
+                                BsonNull.Value
+                            })
+                        }
+                    })
                 }
             })
         };
 
         return await _collection.Aggregate<FriendCacheModel>(pipeline).ToListAsync();
     }
-
-    // public async Task<IEnumerable<GetListFriendItem>> GetListFriend()
-    // {
-    //     var user = await _contactRepository.GetInfoAsync();
-
-    //     var pipeline = new[]
-    //     {
-    //         new BsonDocument("$match", new BsonDocument
-    //         {
-    //             { "$expr", new BsonDocument("$and", new BsonArray
-    //                 {
-    //                     new BsonDocument("$or", new BsonArray
-    //                     {
-    //                         new BsonDocument("$eq", new BsonArray { "$FromContact.ContactId", user.Id }),
-    //                         new BsonDocument("$eq", new BsonArray { "$ToContact.ContactId", user.Id })
-    //                     }),
-    //                     new BsonDocument("$ne", new BsonArray { "$AcceptTime", BsonNull.Value })
-    //                 })
-    //             }
-    //         }),
-    //         new BsonDocument("$lookup", new BsonDocument
-    //         {
-    //             { "from", "Contact" }, // replace with the actual name of the Contact collection
-    //             { "let", new BsonDocument
-    //                 {
-    //                     { "fromId", "$FromContact.ContactId" },
-    //                     { "toId", "$ToContact.ContactId" }
-    //                 }
-    //             },
-    //             { "pipeline", new BsonArray
-    //                 {
-    //                     new BsonDocument("$match", new BsonDocument
-    //                     {
-    //                         { "$expr", new BsonDocument("$or", new BsonArray
-    //                             {
-    //                                 new BsonDocument("$eq", new BsonArray { "$_id", "$$fromId" }),
-    //                                 new BsonDocument("$eq", new BsonArray { "$_id", "$$toId" })
-    //                             })
-    //                         }
-    //                     }),
-    //                     new BsonDocument("$project", new BsonDocument
-    //                     {
-    //                         { "Name", 1 },
-    //                         { "Avatar", 1 },
-    //                         { "ContactId", 1 }
-    //                     })
-    //                 }
-    //             },
-    //             { "as", "ContactDetails" }
-    //         }),
-    //         new BsonDocument("$addFields", new BsonDocument
-    //         {
-    //             { "Contact", new BsonDocument("$filter", new BsonDocument
-    //                 {
-    //                     { "input", "$ContactDetails" },
-    //                     { "as", "contact" },
-    //                     { "cond", new BsonDocument("$ne", new BsonArray { "$$contact._id", user.Id }) }
-    //                 })
-    //             }
-    //         }),
-    //         new BsonDocument("$addFields", new BsonDocument
-    //         {
-    //             { "Contact", new BsonDocument("$arrayElemAt", new BsonArray { "$Contact", 0 }) }
-    //         }),
-    //         new BsonDocument("$project", new BsonDocument
-    //         {
-    //             { "ContactDetails", 0 },
-    //             { "FromContact", 0 },
-    //             { "ToContact", 0 },
-    //             { "CreatedTime", 0 },
-    //             { "UpdatedTime", 0 },
-    //             { "AcceptTime", 0 }
-    //         })
-    //     };
-
-    //     var friends = (await _collection
-    //         .Aggregate<BsonDocument>(pipeline)
-    //         .ToListAsync())
-    //         .Select(bson => BsonSerializer.Deserialize<GetListFriendItem>(bson));
-
-    //     return friends;
-    // }
 }

@@ -79,6 +79,7 @@ public class CacheConsumer : IGenericConsumer
     /* MARK: USER LOGIN */
     async Task HandleUserLogin(UserLoginModel param)
     {
+        // Cập nhật user cache
         var userTask = _contactRepository.GetInfoAsync(param.UserId)
             .ContinueWith(task =>
             {
@@ -87,6 +88,7 @@ public class CacheConsumer : IGenericConsumer
                 _userCache.SetInfo(user);
             });
 
+        // Cập nhật conversation cache
         var conversationTask = _conversationRepository
             .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))
             .ContinueWith(async task =>
@@ -114,6 +116,7 @@ public class CacheConsumer : IGenericConsumer
                 await _conversationCache.SetConversations(param.UserId, conversations.ToList());
             }).Unwrap();
 
+        // Cập nhật friend cache
         var friendsTask = _friendRepository.GetFriendItems(param.UserId)
             .ContinueWith(async task =>
             {
@@ -121,7 +124,6 @@ public class CacheConsumer : IGenericConsumer
             }).Unwrap();
 
         await Task.WhenAll(userTask, conversationTask, friendsTask);
-        // await userTask;
     }
 
     /* MARK: NEW MESSAGE */
