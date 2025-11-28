@@ -18,6 +18,7 @@ export type ConversationModel_Member = BaseModel & {
   lastSeenTime?: string | null;
   // unSeenMessages?: number;
   isNew?: boolean;
+  directConversation?: string | null;
 };
 
 export type ConversationModel = BaseModel & {

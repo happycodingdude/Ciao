@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
@@ -7,8 +8,23 @@ import blurImage from "../utils/blurImage";
 
 const SideBarMenu = () => {
   const { data: info } = useInfo();
+  const queryClient = useQueryClient();
 
   if (!info) return;
+
+  const handleChatClick = () => {
+    console.log("Refreshing conversation list");
+    // Clear selected conversation
+    localStorage.removeItem("conversationId");
+    // Dispatch event to notify ListChatContainer
+    window.dispatchEvent(
+      new CustomEvent("localstorage-changed", {
+        detail: { key: "conversationId" },
+      }),
+    );
+    // Refresh conversation list
+    queryClient.invalidateQueries({ queryKey: ["conversation"] });
+  };
 
   useEffect(() => {
     blurImage(".sidebar-container");
@@ -60,13 +76,17 @@ const SideBarMenu = () => {
           <i className="fa-solid fa-home text-xl"></i>
           <div className="tooltip">Home</div>
         </Link>
-        <Link to="/conversations" className="sidebar-item">
+        <Link
+          to="/conversations"
+          className="sidebar-item"
+          onClick={handleChatClick}
+        >
           <i className="fa-solid fa-message text-xl"></i>
-          <div className="tooltip">Messages</div>
+          <div className="tooltip">Chats</div>
         </Link>
         <Link to="/connections" className="sidebar-item">
           <i className="fa-solid fa-user-friends text-xl"></i>
-          <div className="tooltip">Messages</div>
+          <div className="tooltip">Connections</div>
         </Link>
         <Link to="/notifications" className="sidebar-item">
           <i className="fa-solid fa-bell text-xl"></i>

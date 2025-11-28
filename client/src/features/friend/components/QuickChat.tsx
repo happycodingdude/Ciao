@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -18,6 +19,7 @@ import {
 import createDirectChatWithMessage from "../services/createDirectChatWithMessage";
 import { ContactModel, QuickChatProps } from "../types";
 import FriendCtaButton from "./FriendCtaButton";
+import moment from "moment";
 
 const QuickChat = (props: QuickChatProps) => {
   // console.log("QuickChat calling");
@@ -26,6 +28,7 @@ const QuickChat = (props: QuickChatProps) => {
   if (!profile) return;
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { setLoading } = useLoading();
   const { data: info } = useInfo();
@@ -69,9 +72,7 @@ const QuickChat = (props: QuickChatProps) => {
     const message = refInput.current.textContent;
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
-      (conv) =>
-        conv.isGroup === false &&
-        conv.members.some((mem) => mem.contact.id === profile.id),
+      (conv) => conv.id === innerFriend.directConversation,
     );
     if (existedConversation) {
       handleExistedConversation(existedConversation, message, randomId);
@@ -85,10 +86,22 @@ const QuickChat = (props: QuickChatProps) => {
     message: string,
     randomId: string,
   ) => {
-    const [messages, attachments] = await Promise.all([
-      getMessages(conversation.id, 1),
-      getAttachments(conversation.id),
+    // Check if cache exists first, if not then fetch
+    let messages = queryClient.getQueryData<MessageCache>([
+      "message",
+      conversation.id,
     ]);
+    let attachments = queryClient.getQueryData<AttachmentCache>([
+      "attachment",
+      conversation.id,
+    ]);
+
+    if (!messages || !attachments) {
+      [messages, attachments] = await Promise.all([
+        getMessages(conversation.id, 1),
+        getAttachments(conversation.id),
+      ]);
+    }
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       // Move existed conversation to the top if the conversation was deleted
@@ -125,11 +138,10 @@ const QuickChat = (props: QuickChatProps) => {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        selected: conversation,
-        reload: true,
       } as ConversationCache;
     });
 
+    // Push message first
     messages.messages.push({
       id: randomId,
       contactId: info.id,
@@ -137,25 +149,32 @@ const QuickChat = (props: QuickChatProps) => {
       content: message,
       currentReaction: null,
       pending: true,
+      createdTime: moment().format()
     });
-    queryClient.setQueryData(["message"], messages);
-    queryClient.setQueryData(["attachment"], attachments);
+    queryClient.setQueryData(["message", conversation.id], messages);
+    queryClient.setQueryData(["attachment", conversation.id], attachments);
+
+    // Then navigate to the conversation
+    navigate({ to: `/conversations/${conversation.id}` });
 
     const bodyToCreate = {
       type: "text",
       content: message,
     };
     sendMessage(conversation.id, bodyToCreate, 1000).then((res) => {
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        const updatedMessages = oldData.messages.map((message) => {
-          if (message.id !== randomId) return message;
-          return { ...message, id: res.messageId, pending: false };
-        });
-        return {
-          ...oldData,
-          messages: updatedMessages,
-        } as MessageCache;
-      });
+      queryClient.setQueryData(
+        ["message", conversation.id],
+        (oldData: MessageCache) => {
+          const updatedMessages = oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            return { ...message, id: res.messageId, pending: false };
+          });
+          return {
+            ...oldData,
+            messages: updatedMessages,
+          } as MessageCache;
+        },
+      );
     });
   };
 
@@ -192,8 +211,8 @@ const QuickChat = (props: QuickChatProps) => {
         ...oldData,
         conversations: [newConversation, ...oldData.conversations],
         filterConversations: [newConversation, ...oldData.conversations],
-        selected: newConversation,
-        reload: false,
+        // selected: newConversation,
+        // reload: false,
       } as ConversationCache;
     });
 

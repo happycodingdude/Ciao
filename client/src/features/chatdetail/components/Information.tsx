@@ -240,6 +240,7 @@ const Information = () => {
                           item.friendStatus === "friend"
                             ? null
                             : item.friendStatus,
+                        directConversation: item.directConversation,
                       });
                     }}
                   >

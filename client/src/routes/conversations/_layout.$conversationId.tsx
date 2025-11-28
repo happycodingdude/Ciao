@@ -1,47 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import ChatboxLoading from "../../components/ChatboxLoading";
 import useMessage from "../../features/chatbox/hooks/useMessage";
 import useConversation from "../../features/listchat/hooks/useConversation";
-import { ConversationCache } from "../../features/listchat/types";
+import { ConversationCache, MessageCache } from "../../features/listchat/types";
 import ChatboxContainer from "../../layouts/ChatboxContainer";
-
-// export const Route = createFileRoute("/conversations/_layout/$conversationId")({
-//   loader: async ({ params, context }) => {
-//     const { queryClient } = context;
-//     const conversationId = params.conversationId;
-//     localStorage.setItem("conversationId", conversationId);
-
-//     const messagesPromise = defer(
-//       queryClient.ensureQueryData(messageQueryOption(conversationId, 1)),
-//     );
-//     const attachmentsPromise = defer(
-//       queryClient.ensureQueryData(attachmentQueryOption(conversationId)),
-//     );
-
-//     return {
-//       messagesPromise,
-//       attachmentsPromise,
-//     };
-//   },
-//   component: () => {
-//     const { messagesPromise } = Route.useLoaderData();
-//     return (
-//       <Suspense fallback={<LocalLoading />}>
-//         <Await promise={messagesPromise}>
-//           {(data) => <ChatboxContainer />}
-//         </Await>
-//       </Suspense>
-//     );
-//   },
-// });
 
 export const Route = createFileRoute("/conversations/_layout/$conversationId")({
   loader: async ({ params, context }) => {
     const { queryClient } = context;
     const conversationId = params.conversationId;
-
-    // Save current conversationId (optional)
-    localStorage.setItem("conversationId", conversationId);
 
     // Set conversation cache to mark as read
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
@@ -62,15 +30,57 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
       } as ConversationCache;
     });
 
-    // Invalidate cache to force refetch in component
-    queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
-    queryClient.invalidateQueries({ queryKey: ["attachment", conversationId] });
+    // Check if queries are already fetching or have pending messages
+    const messageQueryState = queryClient.getQueryState([
+      "message",
+      conversationId,
+    ]);
+    const messageCache = queryClient.getQueryData<MessageCache>([
+      "message",
+      conversationId,
+    ]);
+    const hasPendingMessages = messageCache?.messages?.some(
+      (msg) => msg.pending === true,
+    );
+    const isFetching = messageQueryState?.fetchStatus === "fetching";
+
+    console.log("Loader check:", {
+      conversationId,
+      hasPendingMessages,
+      isFetching,
+      messageCount: messageCache?.messages?.length,
+    });
+
+    // Only invalidate if:
+    // 1. NOT currently fetching (prevent multiple simultaneous requests)
+    // 2. NO pending messages (preserve QuickChat messages)
+    if (!isFetching && !hasPendingMessages) {
+      console.log("Invalidating cache for refresh");
+      queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["attachment", conversationId],
+      });
+    } else {
+      console.log("Skipping invalidate:", { isFetching, hasPendingMessages });
+    }
 
     return { conversationId };
   },
 
   component: () => {
     const { conversationId } = Route.useLoaderData();
+
+    // Use useEffect to avoid infinite re-renders
+    useEffect(() => {
+      localStorage.setItem("conversationId", conversationId);
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(
+        new CustomEvent("localstorage-changed", {
+          detail: { key: "conversationId" },
+        }),
+      );
+    }, [conversationId]);
+
     const {
       isLoading: isLoadingConversation,
       isRefetching: isRefetchingConversation,
@@ -86,6 +96,5 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
       return <ChatboxLoading />;
 
     return <ChatboxContainer />;
-    // return <ChatboxLoading />;
   },
 });

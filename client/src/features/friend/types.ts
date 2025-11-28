@@ -10,6 +10,7 @@ export type ContactModel = BaseModel & {
   lastLogout?: string | null;
   friendId?: string | null;
   friendStatus?: "friend" | "request_sent" | "request_received" | "new";
+  directConversation?: string | null;
 };
 
 export type FriendCache = BaseModel & {
