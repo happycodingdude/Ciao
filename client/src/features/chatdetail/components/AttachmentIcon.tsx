@@ -19,7 +19,7 @@ const AttachmentIcon = (props: AttachmentIcon) => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
-      className={`transition-all duration-200 hover:fill-[var(--main-color-bold)] ${className}`}
+      className={`transition-all duration-200 hover:fill-light-blue-500 ${className}`}
     >
       <g>
         <path

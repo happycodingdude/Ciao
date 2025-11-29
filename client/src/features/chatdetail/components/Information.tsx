@@ -98,7 +98,7 @@ const Information = () => {
             {/* MARK: UPDATE TITLE  */}
             {conversation.isGroup ? (
               <div
-                className="fa fa-pen-to-square base-icon"
+                className="fa fa-pen-to-square base-icon hover:text-light-blue-500"
                 onClick={() => setOpenUpdateTitle(true)}
               ></div>
             ) : null}
@@ -264,7 +264,7 @@ const Information = () => {
                     <CustomLabel title={item.contact.name} />
                     {item.isModerator ? (
                       <div
-                        className="font-be-vn-bold rounded-full bg-pink-400 px-[1rem] py-[.2rem] 
+                        className="font-be-vn-bold bg-light-blue-400 rounded-full px-[1rem] py-[.2rem] 
                         text-sm text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                       >
                         Admin
@@ -294,7 +294,7 @@ const Information = () => {
             <p className="font-be-vn-bold">Attachments</p>
             <div
               onClick={() => setToggle("attachment")}
-              className="cursor-pointer text-pink-500 hover:text-pink-400"
+              className="text-light-blue-500 hover:text-light-blue-400 cursor-pointer"
             >
               View all
             </div>

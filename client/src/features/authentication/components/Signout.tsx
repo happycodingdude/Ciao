@@ -20,6 +20,7 @@ const Signout = ({ className }: { className: string }) => {
         await stopSignalConnection();
         signout(queryClient, router);
       }}
+      style={{ fontSize: "2rem" }}
       className={`${className} base-icon text-red-500`}
     />
   );

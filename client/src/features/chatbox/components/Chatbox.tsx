@@ -143,7 +143,7 @@ const Chatbox = () => {
       <div
         ref={refChatContent}
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
-        className="hide-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth px-[1rem]"
+        className="hide-scrollbar flex grow flex-col gap-[4rem] overflow-y-scroll scroll-smooth px-[1rem]"
       >
         {Object.entries(grouped).map(([date, messages], index) => (
           <div

@@ -63,45 +63,6 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
     conversation: ConversationModel,
     message: string,
   ) => {
-    // queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-    //   // Move existed conversation to the top if the conversation was deleted
-    //   // else keep the current position of the conversation
-    //   let isDeletedConversation = conversation.members.find(
-    //     (mem) => mem.contact.id === info.id,
-    //   ).isDeleted;
-    //   let updatedConversations = [];
-    //   if (isDeletedConversation) {
-    //     conversation.lastMessage = message;
-    //     conversation.members = conversation.members.map((mem) => {
-    //       if (mem.contact.id !== info.id) return mem;
-    //       return { ...mem, isDeleted: false };
-    //     });
-    //     updatedConversations = [
-    //       conversation,
-    //       ...oldData.conversations.filter(
-    //         (conv) => conv.id !== conversation.id,
-    //       ),
-    //     ];
-    //   } else {
-    //     updatedConversations = oldData.conversations.map((conv) => {
-    //       if (conv.id !== conversation.id) return conv;
-    //       conv.lastMessage = message;
-    //       conv.lastMessageTime = moment().format();
-    //       conv.members = conv.members.map((mem) => {
-    //         if (mem.contact.id !== info.id) return mem;
-    //         return { ...mem, isDeleted: false };
-    //       });
-    //       return conv;
-    //     });
-    //   }
-
-    //   return {
-    //     ...oldData,
-    //     conversations: updatedConversations,
-    //     filterConversations: updatedConversations,
-    //   } as ConversationCache;
-    // });
-
     queryClient.setQueryData<ConversationCache>(["conversation"], (oldData) => {
       if (!oldData) return oldData;
 

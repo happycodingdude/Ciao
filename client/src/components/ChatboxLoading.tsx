@@ -2,7 +2,7 @@ import "../listchat.css";
 
 const ChatboxLoading = (props) => {
   const { className } = props;
-  const numberOfLoadingDiv = 8;
+  const numberOfLoadingDiv = 10;
   return (
     <div
       id="sidebar-loading-3"
@@ -24,7 +24,7 @@ const ChatboxLoading = (props) => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 pt-[3rem]">
           {Array.from({ length: numberOfLoadingDiv }).map((_, index) =>
             index % 2 === 0 ? (
               <div
@@ -49,37 +49,6 @@ const ChatboxLoading = (props) => {
               </div>
             ),
           )}
-          {/* <div
-            className="mb-4 flex animate-wave-ripple"
-            style={{ animationDelay: "0s" }}
-          >
-            <div className="wave-line h-8 w-8 rounded-full bg-gray-200 bg-opacity-40"></div>
-            <div className="ml-2 max-w-[70%]">
-              <div className="wave-line h-16 w-64 rounded-lg bg-gray-200 bg-opacity-40"></div>
-              <div className="wave-line ml-1 mt-1 h-3 w-16 rounded bg-gray-200 bg-opacity-40"></div>
-            </div>
-          </div>
-
-          <div
-            className="mb-4 flex animate-wave-ripple justify-end"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <div className="mr-2 max-w-[70%]">
-              <div className="wave-line h-12 w-48 rounded-lg bg-gray-200 bg-opacity-40"></div>
-              <div className="wave-line ml-auto mt-1 h-3 w-16 rounded bg-gray-200 bg-opacity-40"></div>
-            </div>
-          </div>
-
-          <div
-            className="mb-4 flex animate-wave-ripple"
-            style={{ animationDelay: "0.6s" }}
-          >
-            <div className="wave-line h-8 w-8 rounded-full bg-gray-200 bg-opacity-40"></div>
-            <div className="ml-2 max-w-[70%]">
-              <div className="wave-line h-24 w-72 rounded-lg bg-gray-200 bg-opacity-40"></div>
-              <div className="wave-line ml-1 mt-1 h-3 w-16 rounded bg-gray-200 bg-opacity-40"></div>
-            </div>
-          </div> */}
 
           <div
             className="flex h-32 animate-wave-ripple flex-col items-center justify-center"

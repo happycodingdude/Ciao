@@ -1,13 +1,12 @@
 import "../listchat.css";
 
-const ListchatLoading = (props) => {
-  const { className } = props;
+const ListchatLoading = () => {
   const numberOfLoadingDiv = 7;
   return (
     <div id="sidebar-loading-3" className="flex h-full w-full grow flex-col">
       {Array.from({ length: numberOfLoadingDiv }).map((_, index) => (
         <div
-          className="flex flex-1 animate-wave-ripple items-center border-b border-gray-100  p-3"
+          className="flex flex-1 animate-wave-ripple items-center border-b border-gray-100 p-3"
           style={{ animationDelay: "0s" }}
         >
           {/* MARK: Avatar */}

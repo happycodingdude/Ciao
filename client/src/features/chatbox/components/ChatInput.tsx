@@ -651,7 +651,10 @@ const ChatInput = (props: ChatInputProps) => {
                   isEmpty={isEmpty}
                 />
               </div>
-              <button className="send-btn flex aspect-square w-[3rem] items-center justify-center rounded-full bg-neo-purple text-white">
+              <button
+                className="send-btn bg-light-blue-400 flex aspect-square w-[3rem] items-center justify-center 
+                rounded-full text-white"
+              >
                 <i className="fa-solid fa-paper-plane text-base"></i>
               </button>
             </div>

@@ -214,7 +214,6 @@ const MessageContent = (props: MessageContentProps) => {
           {/* MARK: MESSAGE TIME */}
           <p>{moment(message.createdTime).format("HH:mm")}</p>
         </div>
-
         {/* MARK: ATTACHMENT */}
         {message.attachments && message.attachments.length !== 0 ? (
           <div className="relative">
@@ -263,7 +262,10 @@ const MessageContent = (props: MessageContentProps) => {
         ) : (
           ""
         )}
-
+        {/* $
+        {message.contactId === info.id
+          ? "bg-blue-500 text-white"
+          : "bg-[var(--bg-color)]"} */}
         {/* MARK: CONTENT */}
         {message.content ? (
           <>
@@ -272,28 +274,26 @@ const MessageContent = (props: MessageContentProps) => {
                 ref={contentRef}
                 data-expanded={isExpanded}
                 className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} 
-                my-[.5rem] px-[1.6rem] leading-[3rem]
+                my-[.5rem] bg-[var(--bg-color)] px-[1.6rem] leading-[3rem]
                   ${
                     message.isPinned || message.isForwarded
                       ? message.contactId === info.id
-                        ? "border-r-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
-                        : "border-l-[.4rem] border-[var(--pinned-message-container-border-color)] bg-[var(--pinned-message-container-bg-color)]"
-                      : message.contactId === info.id
-                        ? "bg-blue-500 text-white"
-                        : "bg-[var(--bg-color)]"
-                  }            
-                  !flex w-fit
-                  flex-col items-end self-end
+                        ? "border-light-blue-500 border-r-[.4rem]"
+                        : "border-light-blue-500 border-l-[.4rem]"
+                      : ""
+                  }                                       
+                  !flex w-fit flex-col
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] data-[expanded=false]:line-clamp-3
                   data-[expanded=true]:line-clamp-none
                   data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
+                  ${message.contactId === info.id ? "items-end" : ""}                                    
                   ${message.isPinned || message.isForwarded ? " pt-[1rem]" : ""}
                 `}
               >
                 {message.isPinned ? (
                   <div
-                    className="inline-flex h-[2rem] items-center gap-[.5rem]
-                    text-sm text-[var(--pinned-message-container-icon-color)]"
+                    className="text-light-blue-500 inline-flex h-[2rem] items-center
+                    gap-[.5rem] text-sm"
                   >
                     Pinned by{" "}
                     {
@@ -304,22 +304,36 @@ const MessageContent = (props: MessageContentProps) => {
                   </div>
                 ) : message.isForwarded ? (
                   <div
-                    className="inline-flex h-[2rem] items-center gap-[.5rem]
-                    text-sm text-[var(--pinned-message-container-icon-color)]"
+                    className="text-light-blue-500 inline-flex h-[2rem] items-center
+                    gap-[.5rem] text-sm"
                   >
-                    You have forwarded this message
+                    {message.contactId === info.id
+                      ? "You"
+                      : conversation.members.find(
+                          (q) => q.contact.id === message.contactId,
+                        )?.contact.name}{" "}
+                    have forwarded this message
                   </div>
                 ) : (
                   ""
                 )}
                 <p>{message.content}</p>
               </div>
-              {message.isPinned || message.isForwarded ? (
+              {message.isPinned ? (
                 <PushpinOutlined
-                  className={`absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  top-[-.2rem] z-[11] rounded-[1rem] 
-                  bg-[var(--pinned-message-container-icon-color)] 
-                  px-[.2rem] py-[.7rem] text-xs text-white`}
+                  className={`absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  bg-light-blue-500 top-[-.2rem] z-[11] 
+                  rounded-[1rem] px-[.2rem] py-[.7rem] text-xs text-white`}
+                  style={{
+                    strokeWidth: "80", // --> higher value === more thickness the filled area
+                    stroke: "white",
+                  }}
                   rotate={316}
+                />
+              ) : message.isForwarded ? (
+                <i
+                  className={`fa fa-share absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  bg-light-blue-500 top-[-.2rem] z-[11] 
+                  rounded-[1rem] 
+                  px-[.2rem] py-[.7rem] text-xs text-white`}
                 />
               ) : (
                 ""
@@ -353,7 +367,6 @@ const MessageContent = (props: MessageContentProps) => {
         ) : (
           ""
         )}
-
         {/* MARK: REACTION */}
         <MessageReaction
           message={{

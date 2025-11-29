@@ -73,7 +73,7 @@
 
 .send-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3);
+  /* box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3); */
 }
 
 .send-btn:active {

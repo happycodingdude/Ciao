@@ -10,7 +10,7 @@ body {
 .chat-item:hover,
 .chat-item.active {
   transform: scale(1.02);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 25px #bae6fd;
 }
 
 .version-4 .chat-item:hover {
@@ -34,7 +34,7 @@ body {
 }
 
 .selected {
-  background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+  background: linear-gradient(135deg, #7dd3fc, #0ea5e9) !important;
   color: white !important;
 }
 
@@ -47,7 +47,8 @@ body {
   background: linear-gradient(135deg, #d16ba5, #86a8e7, #5ffbf1);
 }
 .shimmer-effect {
-  background: linear-gradient(90deg, #e9dff7 0%, #fad6e6 50%, #e9dff7 100%);
+  background: linear-gradient(90deg, #e9dff7 0%, #0ea5e9 50%, #e9dff7 100%);
+  /* background-color: #0ea5e9; */
   background-size: 200% 100%;
   /* animation: shimmer 1.5s infinite; */
 }

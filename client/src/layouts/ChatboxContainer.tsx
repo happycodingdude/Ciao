@@ -96,7 +96,7 @@ const ChatboxContainer = () => {
     // </>
 
     <div className="flex h-full">
-      <div className="flex w-full grow flex-col bg-primary-light">
+      <div className="flex w-full grow flex-col bg-gradient-to-br from-light-blue-50 to-light-blue-100">
         <ChatboxHeader />
         <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[92dvh]">
           <div

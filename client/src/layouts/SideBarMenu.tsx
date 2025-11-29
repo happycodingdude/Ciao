@@ -63,11 +63,11 @@ const SideBarMenu = () => {
       id="sidebar-3"
       // className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90
       // to-neo-pink/90 pb-[3rem] pt-[1.5rem]"
-      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-blue-500 pb-[3rem] pt-[1.5rem]"
+      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-light-blue-300 to-light-blue-500 pb-[3rem] pt-[1.5rem]"
     >
       <div className="z-10 mb-[4rem] aspect-square w-[60%]">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
-          <i className="fa-solid fa-comments text-xl text-neo-blue"></i>
+          <i className="fa-solid fa-comments text-xl text-light-blue-600"></i>
         </div>
       </div>
 

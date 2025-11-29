@@ -42,6 +42,7 @@ export type NewMessage = {
   members: ConversationModel_Member[];
   contact: NewMessage_Contact;
   attachments: any[];
+  isForwarded?: boolean;
 };
 
 export type NewConversation = {

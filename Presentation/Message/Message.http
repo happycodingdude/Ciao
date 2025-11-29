@@ -14,7 +14,7 @@ POST {{host}}/identity/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": "ZmGw1MhGNnz9K0/Nljk23JNptf25oM7JAcCOH3kcg1fB5sq42EZdDwVwwsTIF6YU94ORxxE+KeoCImjL8IIqdicmJtc09pPuCs1mEQ3xI5cxxYHap3NYo92tF3nwvC2ngfzW1pUiscigM8Leu+7LtNudckZzmm4Xah3nIMW//ls=",
+  "refreshToken": "oCCV/9SfQfDsgzfkINt/DjaIHtsrdZA4MuBcOWs4fHLREbxAhMKTSaBZswGwIOsVNjrHcaOHuBp6fpFPe4lf9xkMO7OmCU+8S3zy20aQ4tBT4hhnySDdTCepY2bD/2qYx7Tm8X3DTj3qqVaovFWL1tl5GoA5IgaUzBaB6aRsJIM=",
   "userId": "66f271809423f7e5257a712f"
 }
 
@@ -31,6 +31,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyN
 {"type":"text","content":"qww"}
 
 
-###
+### pin message
 PUT  {{host}}/conversations/67c584c5d31e39ba097eea7e/messages/6833ea1ba63e39e5e62c66fb/pin?pinned=true
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDkyMDQyNDcsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.hCWyz2gTNKSzSF3BaCm_LCVi5YpQMIVnyw9kQaZMzY4
+
+### forward message
+POST  {{host}}/conversations/690f7e469419e98d77505dc1/messages
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzE4MDk0MjNmN2U1MjU3YTcxMmYiLCJleHAiOjE3NjQ0MzUyMTAsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.9RdafaAVO1vmNIYgxXbiqGXeJTnffzUzPuWXdTOhgo8
+
+{"type":"text","content":"ok fen"}

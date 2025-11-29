@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -19,7 +20,6 @@ import {
 import createDirectChatWithMessage from "../services/createDirectChatWithMessage";
 import { ContactModel, QuickChatProps } from "../types";
 import FriendCtaButton from "./FriendCtaButton";
-import moment from "moment";
 
 const QuickChat = (props: QuickChatProps) => {
   // console.log("QuickChat calling");
@@ -112,6 +112,7 @@ const QuickChat = (props: QuickChatProps) => {
       let updatedConversations = [];
       if (isDeletedConversation) {
         conversation.lastMessage = message;
+        conversation.lastMessageTime = moment().format();
         conversation.members = conversation.members.map((mem) => {
           if (mem.contact.id !== info.id) return mem;
           return { ...mem, isDeleted: false };
@@ -126,6 +127,7 @@ const QuickChat = (props: QuickChatProps) => {
         updatedConversations = oldData.conversations.map((conv) => {
           if (conv.id !== conversation.id) return conv;
           conv.lastMessage = message;
+          conv.lastMessageTime = moment().format();
           conv.members = conv.members.map((mem) => {
             if (mem.contact.id !== info.id) return mem;
             return { ...mem, isDeleted: false };
@@ -149,7 +151,7 @@ const QuickChat = (props: QuickChatProps) => {
       content: message,
       currentReaction: null,
       pending: true,
-      createdTime: moment().format()
+      createdTime: moment().format(),
     });
     queryClient.setQueryData(["message", conversation.id], messages);
     queryClient.setQueryData(["attachment", conversation.id], attachments);

@@ -383,6 +383,7 @@ const updateMessagesCache = (oldData: MessageCache, message: NewMessage) => {
         wowCount: 0,
         sadCount: 0,
         angryCount: 0,
+        isForwarded: message.isForwarded,
       } as PendingMessageModel,
     ],
   };

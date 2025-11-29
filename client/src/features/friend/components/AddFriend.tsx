@@ -11,7 +11,7 @@ const AddFriend = () => {
   return (
     <>
       <UserAddOutlined
-        className="base-icon transition-all duration-200 hover:text-[var(--main-color-bold)]"
+        className="base-icon-sm transition-all duration-200 hover:text-light-blue-500"
         // style={{ fontSize: "16px", transition: "all 0.2s" }}
         onClick={() => setOpen(true)}
       />

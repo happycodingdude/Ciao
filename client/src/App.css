@@ -357,7 +357,7 @@ body,
   } */
 
   svg .active {
-    fill: var(--main-color-bold);
+    fill: #0ea5e9;
   }
 
   .message-item {

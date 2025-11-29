@@ -60,7 +60,11 @@ const ChatboxHeaderMenu = () => {
       {/* MARK: INFO  */}
       <div
         className={`flex justify-end gap-[1rem] rounded-full 
-            ${toggle === "information" ? "text-[var(--main-color-bold)] hover:text-[var(--main-color)]" : "hover:text-[var(--main-color-bold)]"}`}
+            ${
+              toggle === "information"
+                ? "text-light-blue-500"
+                : "hover:text-light-blue-500"
+            }`}
       >
         <InfoCircleOutlined
           onClick={() =>
@@ -68,7 +72,7 @@ const ChatboxHeaderMenu = () => {
               current === "information" ? null : "information",
             )
           }
-          className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
+          className="base-icon-sm transition-all duration-200"
         />
       </div>
       {/* MARK: ATTACHMENT  */}
