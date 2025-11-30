@@ -14,7 +14,7 @@ POST {{host}}/identity/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": "oCCV/9SfQfDsgzfkINt/DjaIHtsrdZA4MuBcOWs4fHLREbxAhMKTSaBZswGwIOsVNjrHcaOHuBp6fpFPe4lf9xkMO7OmCU+8S3zy20aQ4tBT4hhnySDdTCepY2bD/2qYx7Tm8X3DTj3qqVaovFWL1tl5GoA5IgaUzBaB6aRsJIM=",
+  "refreshToken": "W8hM8AdnXUn0MkkiEJyxFf57+C68mhCmhY23iSfEf5nY/sV+zYIt+tegXTVfGX+IoINXMDoIMqfaOLAuFlGHO5LGEj3ApGX+Xcv+HPudq7O/daNzZyUtTim3vcR2+5/5lRTZWlF0yFFwJYI/kUlNtRAAQCMXn8N8fScbzMzD2oI=",
   "userId": "66f271809423f7e5257a712f"
 }
 
@@ -41,3 +41,10 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzE4MDk0MjNmN2U1MjU3YTcxMmYiLCJleHAiOjE3NjQ0MzUyMTAsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.9RdafaAVO1vmNIYgxXbiqGXeJTnffzUzPuWXdTOhgo8
 
 {"type":"text","content":"ok fen"}
+
+### reply message
+POST  {{host}}/conversations/690f7e469419e98d77505dc1/messages
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NjQ1MDIzMzQsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.xyCQnEsc5jNw9NdRtIo8aUNKx24-CQpH9Plquu-c9Ns
+
+{"type":"text","content":"reply message 5","replyId":"692c07d93a5b6b887ae2f75e","replyContent":"reply message 3"}

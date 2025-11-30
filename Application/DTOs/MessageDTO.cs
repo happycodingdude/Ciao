@@ -7,6 +7,8 @@ public class SendMessageReq
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public bool IsForwarded { get; set; }
+    public string? ReplyId { get; set; }
+    public string? ReplyContent { get; set; }
     public List<SendMessageReq_Attachment> Attachments { get; set; } = new();
 }
 

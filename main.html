@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply Message UI Versions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>::-webkit-scrollbar { display: none;}</style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 font-sans">
+
+<div id="header" class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-8 py-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-reply text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Reply Message UI Showcase</h1>
+                    <p class="text-sm text-gray-500">3 phiên bản thiết kế khác nhau</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main id="main-content" class="max-w-7xl mx-auto px-8 py-12">
+    
+    <div id="version-1-section" class="mb-16">
+        <div class="mb-8">
+            <div class="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 mb-3">
+                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span class="text-sm font-semibold text-gray-700">Phiên bản 1</span>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Minimal Modern</h2>
+            <p class="text-gray-600">Thiết kế tối giản với nền pastel nhẹ nhàng và đường vertical line mảnh</p>
+        </div>
+
+        <div id="version-1-chat" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg" class="w-10 h-10 rounded-full object-cover">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Sarah Johnson</h3>
+                        <p class="text-xs text-gray-500">Online</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-[500px] overflow-y-auto px-6 py-6 space-y-4">
+                <div class="flex gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <div class="flex flex-col gap-2 max-w-md">
+                        <div id="original-message-v1" class="bg-gray-100 px-4 py-3 rounded-2xl rounded-tl-sm">
+                            <p class="text-gray-800 text-sm">Hey! Bạn có rảnh vào cuối tuần này không? Mình đang lên kế hoạch đi picnic.</p>
+                        </div>
+                        <span class="text-xs text-gray-400 px-2">10:30 AM</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <div class="flex flex-col gap-2 max-w-md">
+                        <div class="bg-gray-100 px-4 py-3 rounded-2xl rounded-tl-sm">
+                            <p class="text-gray-800 text-sm">Địa điểm mình nghĩ là công viên gần trung tâm, view đẹp lắm!</p>
+                        </div>
+                        <span class="text-xs text-gray-400 px-2">10:31 AM</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end">
+                    <div class="flex flex-col gap-2 max-w-md items-end">
+                        <div class="bg-blue-500 px-4 py-3 rounded-2xl rounded-tr-sm">
+                            <div class="border-l-2 border-blue-300 pl-3 mb-2 pb-2">
+                                <p class="text-xs font-semibold text-blue-100">Reply to Sarah Johnson</p>
+                                <p class="text-xs text-blue-200 truncate">Hey! Bạn có rảnh vào cuối tuần này không?...</p>
+                            </div>
+                            <p class="text-white text-sm">Sounds great! Mình sẽ tham gia. Mấy giờ nhỉ?</p>
+                        </div>
+                        <span class="text-xs text-gray-400 px-2">10:32 AM</span>
+                    </div>
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 px-6 py-4">
+                <div id="reply-preview-v1" class="bg-blue-50 border-l-2 border-blue-400 rounded-lg px-4 py-2 mb-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-semibold text-gray-700 mb-1">Replying to Sarah Johnson</p>
+                            <p class="text-xs text-gray-600 truncate">Địa điểm mình nghĩ là công viên gần trung tâm, view đẹp lắm!</p>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <i class="fa-solid fa-times text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-paperclip text-lg"></i>
+                    </button>
+                    <input type="text" placeholder="Type your message..." class="flex-1 bg-gray-100 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="version-2-section" class="mb-16">
+        <div class="mb-8">
+            <div class="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 mb-3">
+                <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                <span class="text-sm font-semibold text-gray-700">Phiên bản 2</span>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Glassmorphism</h2>
+            <p class="text-gray-600">Nền trong suốt với hiệu ứng glass blur và gradient subtle</p>
+        </div>
+
+        <div id="version-2-chat" class="bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 rounded-2xl shadow-lg border border-white/40 overflow-hidden backdrop-blur-xl">
+            <div class="bg-white/30 backdrop-blur-md px-6 py-4 border-b border-white/40">
+                <div class="flex items-center gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg" class="w-10 h-10 rounded-full object-cover ring-2 ring-white/50">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Emma Wilson</h3>
+                        <p class="text-xs text-gray-600">Active now</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-[500px] overflow-y-auto px-6 py-6 space-y-4">
+                <div class="flex gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg" class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-white/50">
+                    <div class="flex flex-col gap-2 max-w-md">
+                        <div id="original-message-v2" class="bg-white/60 backdrop-blur-md border border-white/60 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm">
+                            <p class="text-gray-800 text-sm">Hi! Dự án mới của chúng ta sẽ bắt đầu vào tuần tới nhé!</p>
+                        </div>
+                        <span class="text-xs text-gray-500 px-2">11:15 AM</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg" class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-white/50">
+                    <div class="flex flex-col gap-2 max-w-md">
+                        <div class="bg-white/60 backdrop-blur-md border border-white/60 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm">
+                            <p class="text-gray-800 text-sm">Bạn đã chuẩn bị xong tài liệu chưa?</p>
+                        </div>
+                        <span class="text-xs text-gray-500 px-2">11:16 AM</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end">
+                    <div class="flex flex-col gap-2 max-w-md items-end">
+                        <div class="bg-gradient-to-br from-purple-500/90 to-pink-500/90 backdrop-blur-md border border-white/30 px-4 py-3 rounded-2xl rounded-tr-sm shadow-lg">
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 mb-2 border border-white/30">
+                                <p class="text-xs font-semibold text-white/90">Reply to Emma Wilson</p>
+                                <p class="text-xs text-white/80 truncate">Hi! Dự án mới của chúng ta sẽ bắt đầu...</p>
+                            </div>
+                            <p class="text-white text-sm">Rồi! Mình đã hoàn thành và gửi qua email rồi.</p>
+                        </div>
+                        <span class="text-xs text-gray-500 px-2">11:17 AM</span>
+                    </div>
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-white/50">
+                </div>
+            </div>
+
+            <div class="bg-white/30 backdrop-blur-md border-t border-white/40 px-6 py-4">
+                <div id="reply-preview-v2" class="bg-white/40 backdrop-blur-lg border border-white/60 rounded-2xl px-4 py-3 mb-3 shadow-sm">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-semibold text-gray-800 mb-1">Replying to Emma Wilson</p>
+                            <p class="text-xs text-gray-700 truncate">Bạn đã chuẩn bị xong tài liệu chưa?</p>
+                        </div>
+                        <button class="bg-white/50 hover:bg-white/70 backdrop-blur-sm w-6 h-6 rounded-full flex items-center justify-center border border-white/60">
+                            <i class="fa-solid fa-times text-xs text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="text-gray-700 hover:text-gray-900 bg-white/40 backdrop-blur-sm w-10 h-10 rounded-full flex items-center justify-center border border-white/60">
+                        <i class="fa-solid fa-paperclip text-lg"></i>
+                    </button>
+                    <input type="text" placeholder="Type your message..." class="flex-1 bg-white/50 backdrop-blur-md border border-white/60 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white/70">
+                    <button class="bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="version-3-section" class="mb-16">
+        <div class="mb-8">
+            <div class="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 mb-3">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                <span class="text-sm font-semibold text-gray-700">Phiên bản 3</span>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Card-based Bold</h2>
+            <p class="text-gray-600">Thiết kế dạng card nổi bật với avatar và khối phân lớp rõ ràng</p>
+        </div>
+
+        <div id="version-3-chat" class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" class="w-11 h-11 rounded-full object-cover ring-4 ring-white/30">
+                    <div>
+                        <h3 class="font-bold text-white">Michael Chen</h3>
+                        <p class="text-xs text-emerald-100">Online • Last seen 2m ago</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-[500px] overflow-y-auto px-6 py-6 space-y-4 bg-gray-50">
+                <div class="flex gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" class="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-gray-200">
+                    <div class="flex flex-col gap-2 max-w-md">
+                        <div id="original-message-v3" class="bg-white border-2 border-gray-300 px-5 py-3 rounded-2xl rounded-tl-md shadow-md">
+                            <p class="text-gray-900 text-sm font-medium">Chào bạn! Meeting lúc 3PM hôm nay vẫn diễn ra đúng không?</p>
+                        </div>
+                        <span class="text-xs text-gray-500 px-2 font-medium">2:45 PM</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" class="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-gray-200">
+                    <div class="flex flex-col gap-2 max-w-md">
+                        <div class="bg-white border-2 border-gray-300 px-5 py-3 rounded-2xl rounded-tl-md shadow-md">
+                            <p class="text-gray-900 text-sm font-medium">Nhớ mang theo tài liệu presentation nhé!</p>
+                        </div>
+                        <span class="text-xs text-gray-500 px-2 font-medium">2:46 PM</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end">
+                    <div class="flex flex-col gap-2 max-w-md items-end">
+                        <div class="bg-gradient-to-br from-emerald-500 to-teal-500 border-2 border-emerald-600 px-5 py-3 rounded-2xl rounded-tr-md shadow-lg">
+                            <div class="bg-emerald-600/30 border border-emerald-400/50 rounded-xl px-3 py-2 mb-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" class="w-5 h-5 rounded-full object-cover ring-1 ring-white/50">
+                                    <p class="text-xs font-bold text-white">Michael Chen</p>
+                                </div>
+                                <p class="text-xs text-emerald-100 font-medium">Chào bạn! Meeting lúc 3PM hôm nay vẫn diễn ra...</p>
+                            </div>
+                            <p class="text-white text-sm font-medium">Vâng, đúng rồi! Mình đã chuẩn bị đầy đủ.</p>
+                        </div>
+                        <span class="text-xs text-gray-500 px-2 font-medium">2:47 PM</span>
+                    </div>
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-gray-200">
+                </div>
+            </div>
+
+            <div class="bg-white border-t-2 border-gray-200 px-6 py-4">
+                <div id="reply-preview-v3" class="bg-emerald-50 border-2 border-emerald-300 rounded-xl px-4 py-3 mb-3 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" class="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-emerald-200">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-emerald-800 mb-1">Replying to Michael Chen</p>
+                            <p class="text-xs text-emerald-700 font-medium truncate">Nhớ mang theo tài liệu presentation nhé!</p>
+                        </div>
+                        <button class="bg-emerald-200 hover:bg-emerald-300 text-emerald-700 w-7 h-7 rounded-lg flex items-center justify-center border border-emerald-300 flex-shrink-0">
+                            <i class="fa-solid fa-times text-sm font-bold"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 w-11 h-11 rounded-xl flex items-center justify-center border border-gray-300">
+                        <i class="fa-solid fa-paperclip text-lg"></i>
+                    </button>
+                    <input type="text" placeholder="Type your message..." class="flex-1 bg-gray-100 border-2 border-gray-300 rounded-xl px-5 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400">
+                    <button class="bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white w-11 h-11 rounded-xl flex items-center justify-center shadow-lg border-2 border-emerald-600">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div id="footer" class="bg-white border-t border-gray-200 mt-16">
+    <div class="max-w-7xl mx-auto px-8 py-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-reply text-white text-sm"></i>
+                </div>
+                <span class="text-sm text-gray-600">Reply Message UI Showcase</span>
+            </div>
+            <p class="text-sm text-gray-500">© 2024 All rights reserved</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

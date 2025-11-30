@@ -23,6 +23,8 @@ public class NewMessageModel_Message : BaseIdModel
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public bool IsForwarded { get; set; }
+    public string? ReplyId { get; set; }
+    public string? ReplyContent { get; set; }
     public List<NewMessageModel_Message_Attachment> Attachments { get; set; } = new List<NewMessageModel_Message_Attachment>();
 }
 

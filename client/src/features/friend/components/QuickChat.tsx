@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
@@ -28,7 +28,8 @@ const QuickChat = (props: QuickChatProps) => {
   if (!profile) return;
 
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const router = useRouter();
 
   const { setLoading } = useLoading();
   const { data: info } = useInfo();
@@ -68,7 +69,6 @@ const QuickChat = (props: QuickChatProps) => {
   }, [innerFriend, rect]);
 
   const chat = async () => {
-    onClose();
     const message = refInput.current.textContent;
     const randomId = Math.random().toString(36).substring(2, 7);
     const existedConversation = conversations.conversations.find(
@@ -79,6 +79,7 @@ const QuickChat = (props: QuickChatProps) => {
     } else {
       handleNewConversation(message, randomId);
     }
+    onClose();
   };
 
   const handleExistedConversation = async (
@@ -157,7 +158,8 @@ const QuickChat = (props: QuickChatProps) => {
     queryClient.setQueryData(["attachment", conversation.id], attachments);
 
     // Then navigate to the conversation
-    navigate({ to: `/conversations/${conversation.id}` });
+    // navigate({ to: `/conversations/${conversation.id}` });
+    router.navigate({ to: `/conversations/${conversation.id}` });
 
     const bodyToCreate = {
       type: "text",

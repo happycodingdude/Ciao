@@ -1,4 +1,3 @@
-import { PushpinOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import moment from "moment";
@@ -13,6 +12,7 @@ import { MessageCache } from "../../listchat/types";
 import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
 import MessageMenu from "./MessageMenu";
+import { ForwardedMessage, PinnedMessage, ReplyMessage } from "./PinnedMessage";
 
 const MessageContent = (props: MessageContentProps) => {
   const { message, id } = props;
@@ -278,66 +278,50 @@ const MessageContent = (props: MessageContentProps) => {
                   ${
                     message.isPinned || message.isForwarded
                       ? message.contactId === info.id
-                        ? "border-light-blue-500 border-r-[.4rem]"
-                        : "border-light-blue-500 border-l-[.4rem]"
+                        ? "border-r-[.4rem] border-light-blue-500"
+                        : "border-l-[.4rem] border-light-blue-500"
                       : ""
                   }                                       
-                  !flex w-fit flex-col
+                  relative !flex w-fit flex-col !overflow-visible
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] data-[expanded=false]:line-clamp-3
                   data-[expanded=true]:line-clamp-none
                   data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
-                  ${message.contactId === info.id ? "items-end" : ""}                                    
-                  ${message.isPinned || message.isForwarded ? " pt-[1rem]" : ""}
+                  ${message.isPinned || message.isForwarded || message.replyId ? " pt-[.5rem]" : ""}
                 `}
               >
                 {message.isPinned ? (
-                  <div
-                    className="text-light-blue-500 inline-flex h-[2rem] items-center
-                    gap-[.5rem] text-sm"
-                  >
-                    Pinned by{" "}
-                    {
+                  <PinnedMessage
+                    message={message.content}
+                    contact={
                       conversation.members.find(
                         (q) => q.contact.id === message.pinnedBy,
-                      )?.contact.name
+                      )?.contact.name || ""
                     }
-                  </div>
+                    mine={message.contactId === info.id}
+                  />
                 ) : message.isForwarded ? (
-                  <div
-                    className="text-light-blue-500 inline-flex h-[2rem] items-center
-                    gap-[.5rem] text-sm"
-                  >
-                    {message.contactId === info.id
-                      ? "You"
-                      : conversation.members.find(
-                          (q) => q.contact.id === message.contactId,
-                        )?.contact.name}{" "}
-                    have forwarded this message
-                  </div>
+                  <ForwardedMessage
+                    message={message.content}
+                    contact={
+                      message.contactId === info.id
+                        ? "You"
+                        : conversation.members.find(
+                            (q) => q.contact.id === message.contactId,
+                          )?.contact.name
+                    }
+                    mine={message.contactId === info.id}
+                  />
+                ) : message.replyId && message.replyContent ? (
+                  <ReplyMessage
+                    message={message.content}
+                    replyId={message.replyId}
+                    replyContent={message.replyContent}
+                  />
                 ) : (
-                  ""
+                  <p>{message.content}</p>
                 )}
-                <p>{message.content}</p>
               </div>
-              {message.isPinned ? (
-                <PushpinOutlined
-                  className={`absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  bg-light-blue-500 top-[-.2rem] z-[11] 
-                  rounded-[1rem] px-[.2rem] py-[.7rem] text-xs text-white`}
-                  style={{
-                    strokeWidth: "80", // --> higher value === more thickness the filled area
-                    stroke: "white",
-                  }}
-                  rotate={316}
-                />
-              ) : message.isForwarded ? (
-                <i
-                  className={`fa fa-share absolute ${message.contactId === info.id ? "right-[-.4rem]" : "left-[-.4rem]"}  bg-light-blue-500 top-[-.2rem] z-[11] 
-                  rounded-[1rem] 
-                  px-[.2rem] py-[.7rem] text-xs text-white`}
-                />
-              ) : (
-                ""
-              )}
+
               {/* MARK: MESSAGE MENU */}
               <MessageMenu
                 conversationId={id}
