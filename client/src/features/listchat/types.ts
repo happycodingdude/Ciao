@@ -76,6 +76,7 @@ export type MessageModel = BaseModel & {
   isForwarded?: boolean;
   replyId?: string;
   replyContent?: string;
+  replyContact?: string;
   seenTime?: string | null;
   attachments?: AttachmentModel[];
   likeCount?: number;

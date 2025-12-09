@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import fixReactVirtualized from "esbuild-plugin-react-virtualized";
@@ -12,6 +13,7 @@ export default defineConfig({
       autoCodeSplitting: true,
     }),
     react(),
+    tailwindcss(),
   ],
   server: {
     proxy: {

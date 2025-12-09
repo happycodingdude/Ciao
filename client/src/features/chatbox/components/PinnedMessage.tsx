@@ -6,15 +6,20 @@ export type PinnedMessageProps = {
   mine?: boolean;
   replyId?: string;
   replyContent?: string;
+  expanded?: boolean;
 };
 
 export function PinnedMessage(props: PinnedMessageProps) {
   return (
     <>
-      <div className="inline-flex h-[2rem] items-center gap-[.5rem] italic text-sm text-light-blue-500">
+      <div className="inline-flex h-[2rem] items-center gap-[.5rem] text-sm italic text-light-blue-500">
         Pinned by {props.contact}
       </div>
-      <p>{props.message}</p>
+      <p
+        className={`overflow-hidden text-ellipsis ${props.expanded ? "line-clamp-none" : "line-clamp-3"}`}
+      >
+        {props.message}
+      </p>
       <PushpinOutlined
         className={`absolute ${props.mine ? "right-[-.4rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-[1rem] 
         bg-light-blue-500 px-[.2rem] py-[.7rem] text-xs text-white`}
@@ -31,12 +36,16 @@ export function PinnedMessage(props: PinnedMessageProps) {
 export function ForwardedMessage(props: PinnedMessageProps) {
   return (
     <>
-      <div className="inline-flex h-[2rem] items-center gap-[.5rem] italic text-sm text-light-blue-500">
+      <div className="inline-flex h-[2rem] items-center gap-[.5rem] text-sm italic text-light-blue-500">
         {props.contact} have forwarded this message
       </div>
-      <p>{props.message}</p>
+      <p
+        className={`overflow-hidden text-ellipsis ${props.expanded ? "line-clamp-none" : "line-clamp-3"}`}
+      >
+        {props.message}
+      </p>
       <i
-        className={`fa fa-share absolute ${props.mine ? "right-[-.4rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-[1rem] 
+        className={`fa fa-share absolute ${props.mine ? "rotate-x-50 right-[-.8rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-[1rem] 
         bg-light-blue-500 px-[.2rem] py-[.7rem] text-xs text-white`}
       />
     </>
@@ -46,10 +55,15 @@ export function ForwardedMessage(props: PinnedMessageProps) {
 export function ReplyMessage(props: PinnedMessageProps) {
   return (
     <>
-      <div className="mb-2 rounded-lg border border-light-blue-500/30 bg-light-blue-500/20 px-3 py-2">
-        <p className="truncate text-sm">{props.replyContent}</p>
+      <div className="my-2 border-l-[.3rem] border-l-light-blue-500/50 px-3 py-2 text-sm">
+        <p className="truncate">Reply to {props.contact}</p>
+        <p className="truncate">{props.replyContent}</p>
       </div>
-      <p>{props.message}</p>
+      <p
+        className={`overflow-hidden text-ellipsis ${props.expanded ? "line-clamp-none" : "line-clamp-3"}`}
+      >
+        {props.message}
+      </p>
     </>
   );
 }

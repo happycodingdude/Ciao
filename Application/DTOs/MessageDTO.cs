@@ -9,6 +9,7 @@ public class SendMessageReq
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
+    public string? ReplyContact { get; set; }
     public List<SendMessageReq_Attachment> Attachments { get; set; } = new();
 }
 
@@ -36,6 +37,7 @@ public class MessageReactionSummary : MongoBaseModel
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
+    public string? ReplyContact { get; set; }
     public List<Attachment> Attachments { get; set; } = new();
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }

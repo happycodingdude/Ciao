@@ -83,7 +83,7 @@ const MessageContent = (props: MessageContentProps) => {
       const lineHeight = parseFloat(
         getComputedStyle(contentRef.current).lineHeight,
       );
-      const maxHeight = lineHeight * 3; // 3 lines height
+      const maxHeight = lineHeight * 3; // 4 lines height
       setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
     }
 
@@ -272,9 +272,8 @@ const MessageContent = (props: MessageContentProps) => {
             <div className="relative flex flex-col">
               <div
                 ref={contentRef}
-                data-expanded={isExpanded}
                 className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} 
-                my-[.5rem] bg-[var(--bg-color)] px-[1.6rem] leading-[3rem]
+                my-[.5rem] bg-[var(--bg-color)] px-[1.6rem] leading-8
                   ${
                     message.isPinned || message.isForwarded
                       ? message.contactId === info.id
@@ -283,10 +282,10 @@ const MessageContent = (props: MessageContentProps) => {
                       : ""
                   }                                       
                   relative !flex w-fit flex-col !overflow-visible
-                  shadow-[0_2px_10px_rgba(0,0,0,0.1)] data-[expanded=false]:line-clamp-3
+                  shadow-[0_2px_10px_rgba(0,0,0,0.1)] 
                   data-[expanded=true]:line-clamp-none
-                  data-[expanded=false]:max-h-[9rem] data-[expanded=true]:max-h-full
-                  ${message.isPinned || message.isForwarded || message.replyId ? " pt-[.5rem]" : ""}
+                  data-[expanded=false]:max-h-[10rem] data-[expanded=true]:max-h-full
+                  ${message.isPinned || message.isForwarded || message.replyId ? " py-[.5rem]" : "py-[.8rem]"}
                 `}
               >
                 {message.isPinned ? (
@@ -298,6 +297,7 @@ const MessageContent = (props: MessageContentProps) => {
                       )?.contact.name || ""
                     }
                     mine={message.contactId === info.id}
+                    expanded={isExpanded}
                   />
                 ) : message.isForwarded ? (
                   <ForwardedMessage
@@ -310,15 +310,27 @@ const MessageContent = (props: MessageContentProps) => {
                           )?.contact.name
                     }
                     mine={message.contactId === info.id}
+                    expanded={isExpanded}
                   />
                 ) : message.replyId && message.replyContent ? (
                   <ReplyMessage
                     message={message.content}
                     replyId={message.replyId}
                     replyContent={message.replyContent}
+                    contact={
+                      conversation.members.find(
+                        (q) => q.contact.id === message.replyContact,
+                      )?.contact.name || ""
+                    }
+                    expanded={isExpanded}
                   />
                 ) : (
-                  <p>{message.content}</p>
+                  <p
+                    data-expanded={isExpanded}
+                    className="overflow-hidden text-ellipsis data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none"
+                  >
+                    {message.content}
+                  </p>
                 )}
               </div>
 

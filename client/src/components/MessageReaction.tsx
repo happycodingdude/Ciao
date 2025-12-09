@@ -6,7 +6,7 @@ const MessageReaction = (props: MessageReactionProps) => {
   return (
     <>
       <div
-        className={`absolute bottom-[-1.2rem] z-10 flex items-center justify-between gap-[.5rem]  
+        className={`absolute bottom-[-1.5rem] z-10 flex items-center justify-between gap-[.5rem]  
       ${(message.mine && message.reaction.total) || (!message.mine && !message.reaction.total) ? "" : "flex-row-reverse"}`}
       >
         {/* MARK: TOTAL AND TOP REACTIONS */}

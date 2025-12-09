@@ -25,6 +25,7 @@ public class NewMessageModel_Message : BaseIdModel
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
+    public string? ReplyContact { get; set; }
     public List<NewMessageModel_Message_Attachment> Attachments { get; set; } = new List<NewMessageModel_Message_Attachment>();
 }
 

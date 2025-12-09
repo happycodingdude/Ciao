@@ -135,6 +135,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                 { "IsForwarded", "$$message.IsForwarded" },
                                 { "ReplyId", "$$message.ReplyId" },
                                 { "ReplyContent", "$$message.ReplyContent" },
+                                { "ReplyContact", "$$message.ReplyContact" },
                                 { "SeenTime", "$$message.SeenTime" },
                                 { "Attachments", "$$message.Attachments" },
                                 { "CreatedTime", "$$message.CreatedTime" },

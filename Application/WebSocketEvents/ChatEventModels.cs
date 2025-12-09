@@ -8,6 +8,7 @@ public class EventNewMessage
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
+    public string? ReplyContact { get; set; }
     public DateTime CreatedTime { get; set; }
     public EventNewMessage_Conversation Conversation { get; set; } = null!;
     public EventNewConversation_Member[] Members { get; set; } = null!;

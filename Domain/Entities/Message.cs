@@ -10,6 +10,7 @@ public class Message : MongoBaseModel
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
+    public string? ReplyContact { get; set; }
     public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 }
