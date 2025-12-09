@@ -1,4 +1,7 @@
+/* App.css - Custom styles and component classes */
+/* Import Tailwind and shared custom config for @apply support */
 @import "tailwindcss";
+@import "./tailwind-config.css";
 
 * {
   box-sizing: border-box;

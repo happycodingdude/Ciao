@@ -1,0 +1,475 @@
+@import "tailwindcss";
+@import "./tailwind-config.css";
+
+/* ============================================================================
+ * Tailwind CSS v4 Main Entry Point
+ * ============================================================================
+ * This file imports Tailwind and shared custom configuration.
+ * All custom variants and utilities are defined in tailwind-config.css
+ * ============================================================================
+ */
+
+/* Custom Keyframes */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.2);
+  }
+}
+
+@keyframes morph {
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+}
+
+@keyframes borderPulse {
+  0%,
+  100% {
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 1);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes show-signup {
+  0% {
+    transform: translateX(-50%);
+  }
+  10% {
+    transform: translateX(-200%);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(250%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+}
+
+@keyframes registration-show {
+  0% {
+    transform: translateX(-80rem) rotateY(30deg) scale(0);
+    transform-origin: -100% 50%;
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotateY(0) scale(1);
+    transform-origin: 240rem 50%;
+    opacity: 1;
+  }
+}
+
+@keyframes registration-hide {
+  0% {
+    transform: translateX(0) rotateY(0) scale(1);
+    transform-origin: -220rem 50%;
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100rem) rotateY(-30deg) scale(0);
+    transform-origin: -100% 50%;
+    opacity: 0;
+  }
+}
+
+@keyframes information-hide {
+  50% {
+    opacity: 0;
+  }
+  100% {
+    flex-grow: 0;
+    opacity: 0;
+    margin-right: 0;
+  }
+}
+
+@keyframes information-show {
+  0% {
+    flex-grow: 0;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    flex-grow: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes logo {
+  0% {
+    transform: translateX(-22px) translateY(-22px);
+    animation-timing-function: linear;
+  }
+  19% {
+    transform: translateX(-10px) translateY(-16px);
+    animation-timing-function: linear;
+  }
+  38% {
+    transform: translateX(0) translateY(0);
+    animation-timing-function: ease-out;
+  }
+  55% {
+    transform: translateY(-15px);
+    animation-timing-function: ease-in;
+  }
+  72% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  81% {
+    transform: translateY(-10px);
+    animation-timing-function: ease-in;
+  }
+  90% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  95% {
+    transform: translateY(-5px);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes information-hide-arrow {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+  80% {
+    transform: scale(1.5) rotate(-90deg);
+  }
+  100% {
+    transform: scale(1) rotate(-180deg);
+  }
+}
+
+@keyframes information-show-arrow {
+  0% {
+    transform: scale(1) rotate(180deg);
+  }
+  50% {
+    transform: scale(1.5) rotate(270deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+@keyframes flip-scale-down-vertical {
+  0% {
+    transform: scale(1) rotateY(0);
+  }
+  50% {
+    transform: scale(0.4) rotateY(90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotateY(0);
+    opacity: 0;
+    z-index: 0;
+  }
+}
+
+@keyframes flip-scale-up-vertical {
+  0% {
+    transform: scale(1) rotateY(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(0.4) rotateY(-90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+    z-index: 10;
+  }
+}
+
+@keyframes waving-text {
+  0%,
+  40%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-7rem);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes floating-dots {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes wave-ripple {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+@keyframes typing {
+  0% {
+    transform: translateY(0);
+  }
+  28% {
+    transform: translateY(-5px);
+  }
+  44% {
+    transform: translateY(0);
+  }
+}
+
+/* Animation Utilities */
+@utility animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@utility animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@utility animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@utility animate-wave {
+  animation: wave 2s ease-in-out infinite;
+}
+
+@utility animate-morph {
+  animation: morph 4s ease-in-out infinite;
+}
+
+@utility animate-border-pulse {
+  animation: borderPulse 2s ease-in-out infinite;
+}
+
+@utility animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@utility animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@utility animate-registration-show {
+  animation: registration-show 1s linear 1 both;
+}
+
+@utility animate-registration-hide {
+  animation: registration-hide 1s linear 1 both;
+}
+
+@utility animate-information-hide {
+  animation: information-hide 0.5s both;
+}
+
+@utility animate-information-show {
+  animation: information-show 0.5s both;
+}
+
+@utility animate-information-hide-arrow {
+  animation: information-hide-arrow 0.5s both;
+}
+
+@utility animate-information-show-arrow {
+  animation: information-show-arrow 0.5s both;
+}
+
+@utility animate-logo {
+  animation: logo 2s infinite;
+}
+
+@utility animate-flip-scale-down-vertical {
+  animation: flip-scale-down-vertical 0.5s both;
+}
+
+@utility animate-flip-scale-up-vertical {
+  animation: flip-scale-up-vertical 0.5s both;
+}
+
+@utility animate-show-signup {
+  animation: show-signup 15s both infinite;
+}
+
+@utility animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@utility animate-bounce-slow {
+  animation: bounce 3s infinite;
+}
+
+@utility animate-ping-slow {
+  animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@utility animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+@utility animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+@utility animate-floating-dots {
+  animation: floating-dots 1.5s infinite;
+}
+
+@utility animate-wave-ripple {
+  animation: wave-ripple 1.5s infinite;
+}
+
+@utility animate-typing {
+  animation: typing 1.5s infinite;
+}
+
+/* Custom Background Gradients */
+@utility bg-gradient-radial-to-tr {
+  background-image: radial-gradient(
+    115% 90% at 0% 100%,
+    var(--tw-gradient-stops)
+  );
+}
+
+@utility bg-gradient-radial-to-tc {
+  background-image: radial-gradient(
+    115% 90% at 50% 120%,
+    var(--tw-gradient-stops)
+  );
+}
+
+@utility bg-gradient-radial-to-tl {
+  background-image: radial-gradient(
+    115% 90% at 100% 100%,
+    var(--tw-gradient-stops)
+  );
+}
+
+@utility bg-gradient-radial-to-br {
+  background-image: radial-gradient(
+    90% 115% at 0% 0%,
+    var(--tw-gradient-stops)
+  );
+}
+
+@utility bg-gradient-radial-to-bc {
+  background-image: radial-gradient(
+    90% 115% at 50% -50%,
+    var(--tw-gradient-stops)
+  );
+}
+
+@utility bg-gradient-radial-to-bl {
+  background-image: radial-gradient(
+    90% 115% at 100% 0%,
+    var(--tw-gradient-stops)
+  );
+}

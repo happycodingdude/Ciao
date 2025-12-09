@@ -1,17 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Signout from "../features/authentication/components/Signout";
 import useInfo from "../features/authentication/hooks/useInfo";
 import { ConversationCache } from "../features/listchat/types";
 import ProfileIcon from "../features/profile-new/ProfileIcon";
 import ChatIcon from "../features/sidebar/components/ChatIcon";
 import Notification from "../features/sidebar/components/Notification";
-import { SideBarProps } from "../types";
 import blurImage from "../utils/blurImage";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
-const SideBarMenu_Mobile = (props: SideBarProps) => {
-  const { page, setPage } = props;
+const SideBarMenu_Mobile = () => {
+  // Note: page/setPage removed as they're not used in this component
 
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
@@ -27,7 +26,6 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
       <div className="sidebar-menu-item">
         <ChatIcon
           onClick={() => {
-            setPage("chat");
             if (isPhoneScreen())
               queryClient.setQueryData(
                 ["conversation"],
@@ -49,11 +47,7 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
         <div className="sidebar-menu-item-text">Chats</div>
       </div>
       <div className="sidebar-menu-item">
-        <ProfileIcon
-          onClick={() => {
-            setPage("profile");
-          }}
-        />
+        <ProfileIcon onClick={() => {}} />
         <div className="sidebar-menu-item-text">Profile</div>
       </div>
       <div className="sidebar-menu-item">

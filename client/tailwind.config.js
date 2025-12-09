@@ -1,9 +1,11 @@
 /** @type {import('tailwindcss').Config} */
-// const plugin = require("tailwindcss/plugin");
-import plugin from "tailwindcss/plugin";
+// Tailwind CSS v4 uses CSS-first configuration
+// All theme customization is now in src/index.css using @theme directive
+// This file is kept minimal for compatibility
 
 export default {
-  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  // Content paths are automatically detected by @tailwindcss/vite plugin
+  // No need to specify content in v4
   theme: {
     // screens: {
     //   phone: "320px",

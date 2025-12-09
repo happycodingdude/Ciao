@@ -1,48 +1,18 @@
+/* Import Tailwind and shared config for @apply support */
+@import "tailwindcss";
+@import "./tailwind-config.css";
+
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 body {
   font-family: "Inter", sans-serif;
 }
 
-/* .sidebar-container {
+.sidebar-container {
   @apply flex shrink-0 items-center border-r-[.1rem] border-r-[var(--border-color)]
     phone:h-[9rem] phone:w-full phone:flex-row phone:border-t-[.2rem] phone:border-t-[var(--border-color)]
     laptop:h-full laptop:w-[7rem] laptop:flex-col laptop:border-none
     desktop:w-[10rem];
-} */
-
-.sidebar-container {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  border-right: 0.1rem solid var(--border-color);
-}
-
-/* 📱 Phone (≤ 375px) */
-@media (max-width: 375px) {
-  .sidebar-container {
-    height: 9rem;
-    width: 100%;
-    flex-direction: row;
-    border-top: 0.2rem solid var(--border-color);
-  }
-}
-
-/* 💻 Laptop (≥ 1280px) */
-@media (min-width: 1280px) {
-  .sidebar-container {
-    height: 100%;
-    width: 7rem;
-    flex-direction: column;
-    border: none;
-  }
-}
-
-/* 🖥️ Desktop (≥ 1920px) */
-@media (min-width: 1920px) {
-  .sidebar-container {
-    width: 10rem;
-  }
 }
 
 .sidebar-hover-effect:hover .icon {
