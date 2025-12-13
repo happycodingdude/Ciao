@@ -1,4 +1,4 @@
-import React, {
+import {
   ClipboardEvent,
   forwardRef,
   MutableRefObject,
@@ -48,8 +48,8 @@ const CustomContentEditable = forwardRef(
         ref={ref}
         contentEditable={true}
         data-placeholder="Type your message here..."
-        className={`${className ?? ""} editor hide-scrollbar relative min-h-[2rem] w-full resize-none overflow-y-auto break-all 
-        outline-none phone:max-h-[10rem] laptop:max-h-[7rem] laptop-lg:max-h-[10rem]`}
+        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-8 w-full resize-none overflow-y-auto 
+        break-all phone:max-h-[10rem] laptop:max-h-[7rem] laptop-lg:max-h-[10rem]`}
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}
         onInput={handleInput}

@@ -24,8 +24,8 @@ const ChatboxHeader = () => {
 
   return (
     <div
-      className="flex w-full shrink-0 items-center justify-between border-b-[.1rem] border-b-[var(--border-color)]
-      bg-white px-[1rem] py-[.5rem] text-[var(--text-main-color-normal)] phone:h-[6rem] laptop:h-[6rem]"
+      className="border-b-(--border-color) text-(--text-main-color-normal) flex w-full shrink-0 items-center justify-between
+      border-b-[.1rem] bg-white px-[1rem] py-[.5rem] phone:h-[6rem] laptop:h-[6rem]"
     >
       <div className="relative flex items-center gap-[1rem]">
         {isPhoneScreen() ? (
@@ -82,14 +82,17 @@ const ChatboxHeader = () => {
           {conversation.isGroup ? (
             <>
               <div className="flex w-full gap-[.5rem]">
-                <CustomLabel className="font-bold" title={conversation.title} />
+                <CustomLabel
+                  className="font-['Be_Vietnam_Pro'] font-bold"
+                  title={conversation.title}
+                />
               </div>
               <p className="text-sm">{conversation.members.length} members</p>
             </>
           ) : (
             <>
               <CustomLabel
-                className="font-bold"
+                className="font-['Be_Vietnam_Pro'] font-bold"
                 title={
                   conversation.members?.find(
                     (item) => item.contact.id !== info.id,

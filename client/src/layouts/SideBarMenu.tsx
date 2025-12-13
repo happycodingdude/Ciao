@@ -63,17 +63,17 @@ const SideBarMenu = () => {
       id="sidebar-3"
       // className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90
       // to-neo-pink/90 pb-[3rem] pt-[1.5rem]"
-      className="sidebar-3 relative flex h-full w-full flex-col items-center bg-linear-to-br from-light-blue-300 to-light-blue-500 pb-[3rem] pt-[1.5rem]"
+      className="sidebar-3 bg-linear-to-br relative flex h-full w-full flex-col items-center from-light-blue-300 to-light-blue-500 pb-12 pt-6"
     >
-      <div className="z-10 mb-[4rem] aspect-square w-[60%]">
+      <div className="z-10 mb-16 aspect-square w-[60%]">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
-          <i className="fa-solid fa-comments text-xl text-light-blue-600"></i>
+          <i className="fa-solid fa-comments  text-light-blue-600"></i>
         </div>
       </div>
 
-      <div className="z-10 flex w-[60%] flex-1 flex-col gap-[2rem]">
+      <div className="z-10 flex w-[60%] flex-1 flex-col gap-8">
         <Link to="/" className="sidebar-item">
-          <i className="fa-solid fa-home text-xl"></i>
+          <i className="fa-solid fa-home "></i>
           <div className="tooltip">Home</div>
         </Link>
         <Link
@@ -81,26 +81,26 @@ const SideBarMenu = () => {
           className="sidebar-item"
           onClick={handleChatClick}
         >
-          <i className="fa-solid fa-message text-xl"></i>
+          <i className="fa-solid fa-message"></i>
           <div className="tooltip">Chats</div>
         </Link>
         <Link to="/connections" className="sidebar-item">
-          <i className="fa-solid fa-user-friends text-xl"></i>
+          <i className="fa-solid fa-user-friends"></i>
           <div className="tooltip">Connections</div>
         </Link>
         <Link to="/notifications" className="sidebar-item">
-          <i className="fa-solid fa-bell text-xl"></i>
+          <i className="fa-solid fa-bell"></i>
           <div className="tooltip">Notifications</div>
         </Link>
         <Link to="/settings" className="sidebar-item">
-          <i className="fa-solid fa-gear text-xl"></i>
+          <i className="fa-solid fa-gear"></i>
           <div className="tooltip">Settings</div>
         </Link>
       </div>
 
       <ImageWithLightBoxAndNoLazy
         src={info.avatar}
-        className="h-[4rem] w-[4rem] cursor-pointer"
+        className="h-16 w-16 cursor-pointer"
         slides={[
           {
             src: info.avatar,

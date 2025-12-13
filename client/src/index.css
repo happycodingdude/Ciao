@@ -1,15 +1,173 @@
+/* Tailwind CSS v4 - CSS-first configuration */
 @import "tailwindcss";
-@import "./tailwind-config.css";
 
-/* ============================================================================
- * Tailwind CSS v4 Main Entry Point
- * ============================================================================
- * This file imports Tailwind and shared custom configuration.
- * All custom variants and utilities are defined in tailwind-config.css
- * ============================================================================
- */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-color-medium) var(--bg-color-extrathin);
+  }
 
-/* Custom Keyframes */
+  /* *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: var(--bg-color-extrathin);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--bg-color-medium);
+    border-radius: 999px;
+  } */
+
+  :root {
+    --text-3xs: var(--font-size-3xs);
+    --text-2xs: var(--font-size-2xs);
+    --text-xs: var(--font-size-xs);
+    --text-sm: var(--font-size-sm);
+    --text-base: var(--font-size-base);
+    --text-md: var(--font-size-md);
+    --text-lg: var(--font-size-lg);
+    --text-xl: var(--font-size-xl);
+    --text-2xl: var(--font-size-2xl);
+    --text-3xl: var(--font-size-3xl);
+    --text-4xl: var(--font-size-4xl);
+    --text-5xl: var(--font-size-5xl);
+    --text-6xl: var(--font-size-6xl);
+    --text-7xl: var(--font-size-7xl);
+    --text-8xl: var(--font-size-8xl);
+    --text-9xl: var(--font-size-9xl);
+    --text-10xl: var(--font-size-10xl);
+  }
+}
+
+/* Theme Configuration using @theme directive */
+@theme {
+  /* Custom Breakpoints */
+  --breakpoint-phone: 375px;
+  --breakpoint-phone-lg: 430px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-tablet-lg: 900px;
+  --breakpoint-laptop: 1280px;
+  --breakpoint-laptop-md: 1440px;
+  --breakpoint-laptop-lg: 1600px;
+  --breakpoint-desktop: 1920px;
+  --breakpoint-desktop-lg: 2560px;
+  --breakpoint-desktop-4k: 3840px;
+
+  /* Custom Font Sizes */
+  --font-size-3xs: 0.75rem; /* ~12px */
+  --font-size-2xs: 0.875rem; /* ~14px */
+  --font-size-xs: 1rem; /* ~16px */
+  --font-size-sm: 1.125rem; /* ~18px */
+  --font-size-base: 1.25rem; /* ~20px */
+  --font-size-md: 1.5rem; /* ~24px */
+  --font-size-lg: 1.75rem; /* ~28px */
+  --font-size-xl: 2rem; /* ~32px */
+  --font-size-2xl: 2.5rem; /* ~40px */
+  --font-size-3xl: 3rem; /* ~48px */
+  --font-size-4xl: 3.5rem; /* ~56px */
+  --font-size-5xl: 4rem; /* ~64px */
+  --font-size-6xl: 4.5rem; /* ~72px */
+  --font-size-7xl: 5rem; /* ~80px */
+  --font-size-8xl: 6rem; /* ~96px */
+  --font-size-9xl: 7rem; /* ~112px */
+  --font-size-10xl: 8rem; /* ~128px */
+
+  /* Primary Colors */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  --color-primary-light: #f8f2fa;
+  --color-primary: #d16ba5;
+  --color-primary-dark: #86a8e7;
+  --color-primary-accent: #5ffbf1;
+
+  /* Neo Colors */
+  --color-neo-blue: #2563eb;
+  --color-neo-purple: #8b5cf6;
+  --color-neo-pink: #ec4899;
+  --color-neo-orange: #f97316;
+  --color-neo-green: #10b981;
+  --color-neo-teal: #14b8a6;
+  --color-neo-red: #ef4444;
+
+  /* Pastel Colors */
+  --color-pastel-purple: #e9d5ff;
+  --color-pastel-pink: #fce7f3;
+  --color-pastel-blue: #dbeafe;
+  --color-pastel-green: #d1fae5;
+  --color-pastel-yellow: #fef3c7;
+  --color-pastel-red: #fee2e2;
+  --color-pastel-gray: #f3f4f6;
+  --color-pastel-teal: #ccfbf1;
+  --color-pastel-indigo: #e0e7ff;
+
+  /* Chat Colors */
+  --color-chat-bg: #fdf4f9;
+  --color-chat-pink: #fbe9f2;
+  --color-chat-purple: #a374db;
+  --color-chat-accent: #8c52ff;
+  --color-chat-gray: #eeeeee;
+
+  /* Skeleton Colors */
+  --color-skeleton-light: #e9dff7;
+  --color-skeleton-dark: #fad6e6;
+
+  /* Light Blue Colors */
+  --color-light-blue-50: #f0f9ff;
+  --color-light-blue-100: #e0f2fe;
+  --color-light-blue-200: #bae6fd;
+  --color-light-blue-300: #7dd3fc;
+  --color-light-blue-400: #38bdf8;
+  --color-light-blue-500: #0ea5e9;
+  --color-light-blue-600: #0284c7;
+  --color-light-blue-700: #0369a1;
+  --color-light-blue-800: #075985;
+  --color-light-blue-900: #0c4a6e;
+
+  /* Custom Animations */
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-wave: wave 2s ease-in-out infinite;
+  --animate-morph: morph 4s ease-in-out infinite;
+  --animate-border-pulse: borderPulse 2s ease-in-out infinite;
+  --animate-scale-in: scaleIn 0.2s ease-out;
+  --animate-slide-in: slideIn 0.3s ease-out;
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-registration-show: registration-show 1s linear 1 both;
+  --animate-registration-hide: registration-hide 1s linear 1 both;
+  --animate-information-hide: information-hide 0.5s both;
+  --animate-information-show: information-show 0.5s both;
+  --animate-information-hide-arrow: information-hide-arrow 0.5s both;
+  --animate-information-show-arrow: information-show-arrow 0.5s both;
+  --animate-logo: logo 2s infinite;
+  --animate-flip-scale-down-vertical: flip-scale-down-vertical 0.5s both;
+  --animate-flip-scale-up-vertical: flip-scale-up-vertical 0.5s both;
+  --animate-show-signup: show-signup 15s both infinite;
+  --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bounce-slow: bounce 3s infinite;
+  --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-spin-slow: spin 3s linear infinite;
+  --animate-shimmer: shimmer 1.5s infinite;
+  --animate-floating-dots: floating-dots 1.5s infinite;
+  --animate-wave-ripple: wave-ripple 1.5s infinite;
+  --animate-typing: typing 1.5s infinite;
+}
+
+/* Keyframes for Custom Animations */
 @keyframes float {
   0%,
   100% {
@@ -322,113 +480,37 @@
   }
 }
 
-/* Animation Utilities */
-@utility animate-float {
-  animation: float 3s ease-in-out infinite;
+/* Custom Utilities for Animation Delay */
+@utility animation-delay-75 {
+  animation-delay: 75ms;
 }
 
-@utility animate-glow {
-  animation: glow 2s ease-in-out infinite alternate;
+@utility animation-delay-100 {
+  animation-delay: 100ms;
 }
 
-@utility animate-slide-up {
-  animation: slideUp 0.3s ease-out;
+@utility animation-delay-150 {
+  animation-delay: 150ms;
 }
 
-@utility animate-wave {
-  animation: wave 2s ease-in-out infinite;
+@utility animation-delay-200 {
+  animation-delay: 200ms;
 }
 
-@utility animate-morph {
-  animation: morph 4s ease-in-out infinite;
+@utility animation-delay-300 {
+  animation-delay: 300ms;
 }
 
-@utility animate-border-pulse {
-  animation: borderPulse 2s ease-in-out infinite;
+@utility animation-delay-500 {
+  animation-delay: 500ms;
 }
 
-@utility animate-scale-in {
-  animation: scaleIn 0.2s ease-out;
+@utility animation-delay-700 {
+  animation-delay: 700ms;
 }
 
-@utility animate-slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@utility animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@utility animate-registration-show {
-  animation: registration-show 1s linear 1 both;
-}
-
-@utility animate-registration-hide {
-  animation: registration-hide 1s linear 1 both;
-}
-
-@utility animate-information-hide {
-  animation: information-hide 0.5s both;
-}
-
-@utility animate-information-show {
-  animation: information-show 0.5s both;
-}
-
-@utility animate-information-hide-arrow {
-  animation: information-hide-arrow 0.5s both;
-}
-
-@utility animate-information-show-arrow {
-  animation: information-show-arrow 0.5s both;
-}
-
-@utility animate-logo {
-  animation: logo 2s infinite;
-}
-
-@utility animate-flip-scale-down-vertical {
-  animation: flip-scale-down-vertical 0.5s both;
-}
-
-@utility animate-flip-scale-up-vertical {
-  animation: flip-scale-up-vertical 0.5s both;
-}
-
-@utility animate-show-signup {
-  animation: show-signup 15s both infinite;
-}
-
-@utility animate-pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@utility animate-bounce-slow {
-  animation: bounce 3s infinite;
-}
-
-@utility animate-ping-slow {
-  animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@utility animate-spin-slow {
-  animation: spin 3s linear infinite;
-}
-
-@utility animate-shimmer {
-  animation: shimmer 1.5s infinite;
-}
-
-@utility animate-floating-dots {
-  animation: floating-dots 1.5s infinite;
-}
-
-@utility animate-wave-ripple {
-  animation: wave-ripple 1.5s infinite;
-}
-
-@utility animate-typing {
-  animation: typing 1.5s infinite;
+@utility animation-delay-1000 {
+  animation-delay: 1000ms;
 }
 
 /* Custom Background Gradients */
@@ -472,4 +554,415 @@
     90% 115% at 100% 0%,
     var(--tw-gradient-stops)
   );
+}
+
+/* Custom utility classes using @utility directive for Tailwind v4 */
+@utility hide-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+}
+
+/* @utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    height: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--bg-color-thin);
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--bg-color-medium);
+    border-radius: 10px;
+  }
+} */
+
+@utility grid-transition {
+  transition: all 2s;
+}
+
+@utility mention-input {
+  border-radius: 0;
+  border: none !important;
+  box-shadow: none !important;
+  &:hover {
+    outline: unset !important;
+  }
+  textarea {
+    border: 0.2rem #ffb7df solid;
+    border-radius: 1rem;
+    padding: 0.7rem 4rem 0.7rem 2rem;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+  }
+}
+
+@utility close-button {
+  background-image: var(--bs-btn-close-bg);
+}
+
+@utility error-show {
+  scale: 1 !important;
+}
+
+.waving-text {
+  animation: waving-text 1.3s both infinite;
+  animation-delay: calc(0.1s * var(--i));
+}
+
+@utility waving-text {
+  animation: waving-text 1.3s both infinite;
+  animation-delay: calc(0.1s * var(--i));
+}
+
+@keyframes waving-text {
+  0%,
+  40%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-2rem);
+  }
+}
+
+@utility pulsing {
+  animation: pulsing 1s both infinite;
+}
+
+@keyframes pulsing {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@utility blurred-div {
+  position: relative;
+}
+
+.blurred-div img {
+  border-radius: 1rem;
+  opacity: 0.3;
+  transition: opacity 500ms ease-in-out;
+}
+
+.blurred-div.loaded img {
+  opacity: 1;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: rgba(255, 255, 255, 0);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0);
+  }
+}
+
+@utility lazy-image {
+  &.blurred {
+    opacity: 0.5;
+  }
+}
+
+@utility relight-background {
+  width: 0;
+  height: 0;
+  &.lighten {
+    box-shadow: 0 0 20px 10px var(--main-color);
+  }
+  &:hover {
+    box-shadow: 0 0 20px 10px var(--main-color);
+  }
+}
+
+@utility lazy-background {
+  background-image: url("images/svg-spinners--bars-rotate-fade.svg");
+}
+
+@utility lazy-background-sm {
+  background-image: url("images/svg-spinners--bars-rotate-fade.svg");
+  background-size: 10% !important;
+}
+
+@utility base-icon-lg {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  font-size: var(--font-size-base);
+  @media (min-width: 1280px) {
+    font-size: var(--font-size-base);
+  }
+  @media (min-width: 1920px) {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@utility base-icon {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  font-size: var(--font-size-xl);
+  @media (min-width: 1280px) {
+    font-size: var(--font-size-md);
+  }
+  @media (min-width: 1920px) {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@utility base-icon-sm {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  font-size: var(--font-size-xl);
+  @media (min-width: 1280px) {
+    font-size: var(--font-size-lg);
+  }
+  @media (min-width: 1920px) {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@utility gradient-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gradient-item::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: var(--rounded);
+  background-image: linear-gradient(
+    to top right,
+    var(--from-color, var(--main-color)),
+    var(--to-color, var(--main-color-extrabold))
+  );
+  height: var(--height);
+  width: var(--width);
+}
+
+@utility nolazy-image {
+  opacity: 0.5;
+  &.loaded {
+    opacity: 1;
+  }
+}
+
+svg {
+  cursor: pointer;
+  /* transition: all 0.1s; */
+}
+
+/* svg.hovered {
+    fill: var(--main-color-bold);
+  } */
+svg {
+  cursor: pointer;
+}
+
+svg .active {
+  fill: #0ea5e9;
+}
+
+@utility message-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+@utility chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@utility messages-container {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+textarea {
+  flex-grow: 1;
+  resize: none;
+}
+
+.sidebar-menu-item .sidebar-menu-item-text {
+  font-size: var(--font-size-base);
+}
+
+@utility centering {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#portal {
+  width: 100%;
+  height: 100%;
+}
+
+/* MARK: VIDEO CALL  */
+@utility video-call-container {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  aspect-ratio: 1 / 1;
+  justify-content: center;
+  border-radius: 1rem;
+  background-color: black;
+  @media (min-width: 375px) {
+    width: 25rem;
+  }
+  @media (min-width: 1280px) {
+    width: 30%;
+  }
+}
+
+.video-call-container button {
+  aspect-ratio: 1 / 1;
+  width: 4rem;
+  border-radius: 9999px;
+}
+
+/* MARK: MESSAGE MENU  */
+/* .message-menu-container {
+    @apply absolute top-[-5rem] z-[10] flex
+        w-[15rem] flex-col rounded-[.7rem] bg-[var(--bg-color-thin)]
+        py-[1rem] text-[var(--text-main-color)] transition-all duration-200
+        data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100;
+  }
+
+  .message-menu-container .above {
+    @apply top-[-8rem];
+  }
+
+  .message-menu-container .under {
+    @apply top-[-3rem];
+  }
+
+  .message-menu-item {
+    @apply flex cursor-pointer gap-[.5rem] p-[1rem] hover:bg-[var(--bg-color-medium)];
+  } */
+
+@utility listchat-filter-container {
+  display: flex;
+  height: 6rem;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.2rem solid var(--border-color);
+}
+
+@utility listchat-filter-group {
+  position: relative;
+  display: flex;
+  height: 80%;
+  align-items: center;
+  @media (min-width: 375px) {
+    width: 27rem;
+  }
+  @media (min-width: 1280px) {
+    width: 27rem;
+  }
+}
+
+@utility listchat-filter-item {
+  position: relative;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  height: 4rem;
+  flex: 1;
+  cursor: pointer;
+  border-radius: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  text-align: center;
+  color: var(--text-main-color);
+  transition-property: color;
+  transition-duration: 200ms;
+}
+
+@utility listchat-filter-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+@utility listchat-filter-text {
+  position: relative;
+  z-index: 10;
+  transition-property: color;
+  transition-duration: 200ms;
+}
+
+@utility attachment-filter-container {
+  display: flex;
+  height: 5rem;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+@utility attachment-filter-item {
+  position: relative;
+  display: flex;
+  height: 4rem;
+  width: 6rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  text-align: center;
+  color: var(--text-main-color);
+  transition-property: color;
+  transition-duration: 200ms;
+}
+
+@utility attachment-filter-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+@utility attachment-filter-text {
+  position: relative;
+  z-index: 10;
+  transition-property: color;
+  transition-duration: 200ms;
+}
+
+@utility font-be-vn-bold {
+  font-family: "Be_Vietnam_Pro";
+  font-weight: 600;
 }

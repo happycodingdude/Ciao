@@ -1,4 +1,3 @@
-import React from "react";
 import { RelightBackgroundProps } from "../types";
 
 const RelightBackground = (props: RelightBackgroundProps) => {
@@ -13,10 +12,10 @@ const RelightBackground = (props: RelightBackgroundProps) => {
   return (
     <div
       {...restProps}
-      className={`${className ?? ""} flex aspect-square cursor-pointer items-center justify-center rounded-[1rem] 
-      transition-all duration-200 hover:bg-[var(--main-color)] hover:text-[var(--sub-color)]
+      className={`${className ?? ""} hover:bg-(--main-color) hover:text-(--sub-color) flex aspect-square cursor-pointer items-center 
+      justify-center rounded-[1rem] transition-all duration-200
       ${paddingClassName ?? "p-[1rem]"}
-      ${lighten ? "bg-[var(--main-color)] text-[var(--sub-color)]" : "bg-[var(--bg-color-thin)]"}`}
+      ${lighten ? "bg-(--main-color) text-(--sub-color)" : "bg-(--bg-color-thin)"}`}
       onClick={onClick ?? (() => {})}
     >
       {children}

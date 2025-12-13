@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useState } from "react";
 import { AuthenticationFormType, TogglesContextType } from "../types";
 
 // Create the context

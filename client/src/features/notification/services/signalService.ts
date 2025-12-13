@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import { UserProfile } from "../../../types";
+import { isConversationActive } from "../../chatbox/hooks/useActiveConversation";
 import {
   AttachmentCache,
   AttachmentModel,
@@ -120,21 +121,25 @@ export const classifyNotification = (
 
 /* MARK: ON NEW MESSAGE */
 const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
+  const conversationId = message.conversation.id;
+  const isActive = isConversationActive(conversationId);
+
+  /* -----------------------------
+   * 1. UPDATE CONVERSATION LIST
+   * ----------------------------- */
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
     if (!oldData) return oldData;
 
     const existingConversation = oldData.conversations.some(
       (conv) => conv.id === message.conversation.id,
     );
-    const isFocus =
-      localStorage.getItem("conversationId") === message.conversation.id;
     if (existingConversation) {
       return updateConversationCache(oldData, message.conversation, {
         lastMessageId: message.id,
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
-        unSeen: !isFocus,
+        unSeen: !isActive,
       });
     } else {
       const newConversation = {
@@ -156,15 +161,31 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
     }
   });
 
-  queryClient.setQueryData(
-    ["message", message.conversation.id],
-    (oldData: MessageCache) =>
-      oldData ? updateMessagesCache(oldData, message) : oldData,
-  );
-
-  if (message.attachments.length > 0) {
+  /* -----------------------------
+   * 2. MESSAGE CACHE (ACTIVE ONLY)
+   * ----------------------------- */
+  if (isActive) {
     queryClient.setQueryData(
-      ["attachment", message.conversation.id],
+      ["message", conversationId],
+      (oldData: MessageCache) =>
+        oldData ? updateMessagesCache(oldData, message) : oldData,
+    );
+  }
+
+  /* -----------------------------
+   * 3. INVALIDATE FOR SYNC
+   * ----------------------------- */
+  queryClient.invalidateQueries({
+    queryKey: ["message", conversationId],
+    refetchType: "inactive",
+  });
+
+  /* -----------------------------
+   * 4. ATTACHMENT (ACTIVE ONLY)
+   * ----------------------------- */
+  if (isActive && message.attachments.length > 0) {
+    queryClient.setQueryData(
+      ["attachment", conversationId],
       (oldData: AttachmentCache) =>
         oldData
           ? updateAttachmentsCache(oldData, message.attachments)
@@ -369,6 +390,9 @@ const updateConversationCache = (
 };
 
 const updateMessagesCache = (oldData: MessageCache, message: NewMessage) => {
+  if (oldData.messages.some((m) => m.id === message.id)) {
+    return oldData;
+  }
   return {
     ...oldData,
     messages: [

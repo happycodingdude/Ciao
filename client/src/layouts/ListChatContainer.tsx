@@ -7,6 +7,7 @@ import ListchatLoading from "../components/ListchatLoading";
 import useInfo from "../features/authentication/hooks/useInfo";
 import useConversation from "../features/listchat/hooks/useConversation";
 import "../listchat.css";
+import { useActiveConversation } from "../features/chatbox/hooks/useActiveConversation";
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -30,40 +31,42 @@ moment.updateLocale("en", {
 const ListChatContainer = () => {
   console.log("Rendering ListChatContainer");
 
-  const [storedConversationId, setStoredConversationId] = useState<string>(
-    () => {
-      const value = localStorage.getItem("conversationId");
-      console.log("Initial conversationId from localStorage:", value);
-      return value || "";
-    },
-  );
+  // const [storedConversationId, setStoredConversationId] = useState<string>(
+  //   () => {
+  //     const value = localStorage.getItem("conversationId");
+  //     console.log("Initial conversationId from localStorage:", value);
+  //     return value || "";
+  //   },
+  // );
 
-  // Listen for localStorage changes
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "conversationId") {
-        console.log("Storage changed - new value:", e.newValue);
-        setStoredConversationId(e.newValue || "");
-      }
-    };
+  // // Listen for localStorage changes
+  // useEffect(() => {
+  //   const handleStorageChange = (e: StorageEvent) => {
+  //     if (e.key === "conversationId") {
+  //       console.log("Storage changed - new value:", e.newValue);
+  //       setStoredConversationId(e.newValue || "");
+  //     }
+  //   };
 
-    const handleCustomEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<{ key: string }>;
-      if (customEvent.detail.key === "conversationId") {
-        const newValue = localStorage.getItem("conversationId") || "";
-        console.log("Custom event - new conversationId:", newValue);
-        setStoredConversationId(newValue);
-      }
-    };
+  //   const handleCustomEvent = (e: Event) => {
+  //     const customEvent = e as CustomEvent<{ key: string }>;
+  //     if (customEvent.detail.key === "conversationId") {
+  //       const newValue = localStorage.getItem("conversationId") || "";
+  //       console.log("Custom event - new conversationId:", newValue);
+  //       setStoredConversationId(newValue);
+  //     }
+  //   };
 
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("localstorage-changed", handleCustomEvent);
+  //   window.addEventListener("storage", handleStorageChange);
+  //   window.addEventListener("localstorage-changed", handleCustomEvent);
 
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("localstorage-changed", handleCustomEvent);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("storage", handleStorageChange);
+  //     window.removeEventListener("localstorage-changed", handleCustomEvent);
+  //   };
+  // }, []);
+
+  const activeConversationId = useActiveConversation();
 
   const { data: info } = useInfo();
 
@@ -193,16 +196,15 @@ const ListChatContainer = () => {
         ),
       )
       .map((item) => {
-        const isActive = item.id === storedConversationId;
+        const isActive = item.id === activeConversationId;
 
         return (
           <Link key={item.id} to={`/conversations/${item.id}`}>
             <div
               className={`chat-item cursor-pointer rounded-2xl p-4
-                  laptop-md:text-md
                   ${isActive ? "active" : ""}`}
             >
-              <div className="flex items-center laptop:h-[4rem] laptop-md:h-[5rem]">
+              <div className="flex items-center laptop:h-16 laptop-md:h-20">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -213,18 +215,18 @@ const ListChatContainer = () => {
                             (item) => item.contact.id !== info.id,
                           )?.contact.avatar
                     }
-                    className={`loaded pointer-events-none aspect-square w-[4rem] animate-morph`}
+                    className={`loaded pointer-events-none aspect-square w-16 animate-morph`}
                     circle
                   />
                   <div
-                    className={`absolute -bottom-1 -right-1 aspect-square w-[1.5rem] rounded-full border-2 border-white 
+                    className={`absolute -bottom-1 -right-1 aspect-square w-6 rounded-full border-2 border-white 
                         ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-green-400" : "bg-gray-400"}`}
                   ></div>
                 </div>
-                <div className="my-auto ml-[1rem] flex w-[60%] flex-col">
+                <div className="my-auto ml-4 flex w-[60%] flex-col">
                   {/* MARK: TITLE */}
                   <CustomLabel
-                    className={`${isActive ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                    className={`${isActive ? "text-(--text-sub-color)" : "text-(--text-main-color)"} 
                           font-['Be_Vietnam_Pro'] font-semibold`}
                     title={
                       item.isGroup
@@ -241,10 +243,10 @@ const ListChatContainer = () => {
                         className={`
                               ${
                                 isActive
-                                  ? "text-[var(--text-sub-color-thin)]"
+                                  ? "text-(--text-sub-color-thin)"
                                   : item.unSeen
-                                    ? "text-[var(--danger-text-color)]"
-                                    : "text-[var(--text-main-color-blur)]"
+                                    ? "text-(--danger-text-color)"
+                                    : "text-(--text-main-color-blur)"
                               }`}
                         title={item.lastMessage}
                       />
@@ -258,7 +260,7 @@ const ListChatContainer = () => {
                   ""
                 ) : (
                   <div
-                    className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-[2.5rem]`}
+                    className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-base text-gray-500 laptop:w-10`}
                   >
                     <p>
                       {item.lastMessageTime === null

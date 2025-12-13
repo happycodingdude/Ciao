@@ -18,19 +18,7 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
 
   const [showLightbox, setShowLightbox] = useState(false);
   const handleShowLightbox = () => setShowLightbox(true);
-
   const [isValid, setIsValid] = useState<boolean | null>(true);
-  // useEffect(() => {
-  //   if (local) {
-  //     setIsValid(true);
-  //     return;
-  //   }
-  //   const checkImage = async () => {
-  //     const valid = await isValidUrl(src);
-  //     setIsValid(valid);
-  //   };
-  //   checkImage();
-  // }, [src, local]);
 
   return (
     <>
@@ -41,10 +29,9 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
             "--image-url": `url(${src && src !== "" && isValid ? src : "/src/assets/imagenotfound.jpg"})`,
           } as CSSProperties
         }
-        className={`${className ?? ""} ${imageClassName ?? "bg-[size:cover]"} ${circle ? "rounded-full" : "rounded-2xl"} ${pending ? "opacity-50" : ""}
-        cursor-pointer bg-[image:var(--image-url)] bg-[position:center_center] bg-no-repeat transition-opacity duration-300`}
+        className={`${className ?? ""} ${imageClassName ?? "bg-cover"} ${circle ? "rounded-full" : "rounded-2xl"} ${pending ? "opacity-50" : ""}
+        bg-(image:--image-url) bg-position-[center_center] cursor-pointer bg-no-repeat transition-opacity duration-300`}
         onClick={onClick ?? handleShowLightbox}
-        // onClick={handleShowLightbox}
       ></div>
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}

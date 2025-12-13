@@ -6,10 +6,12 @@ const messageQueryOption = (conversationId: string, page: number) =>
   queryOptions<MessageCache>({
     queryKey: ["message", conversationId],
     queryFn: () => getMessages(conversationId, page),
-    staleTime: Infinity, // Keep cache fresh indefinitely until manually invalidated
-    refetchOnMount: false, // Don't refetch if cache exists
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnReconnect: false, // Don't refetch when network reconnects
+    staleTime: 30_000, // 30s
+    gcTime: 5 * 60_000, // v5 rename cacheTime → gcTime
+
+    refetchOnMount: true, // chỉ fetch nếu stale
+    refetchOnReconnect: true, // reconnect → fetch nếu stale
+    refetchOnWindowFocus: false,
   });
 
 export default messageQueryOption;

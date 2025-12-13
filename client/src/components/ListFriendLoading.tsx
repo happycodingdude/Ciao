@@ -11,14 +11,14 @@ const ListFriendLoading = (props) => {
           style={{ animationDelay: "0s" }}
         >
           {/* MARK: Avatar */}
-          <div className="wave-line shimmer-effect aspect-square w-[4rem] rounded-full bg-gray-200 bg-opacity-40"></div>
+          <div className="wave-line shimmer-effect aspect-square w-16 rounded-full bg-gray-200 bg-opacity-40"></div>
           {/* MARK: Content */}
           <div className="ml-3 flex-1">
-            <div className="wave-line shimmer-effect mb-2 h-4 w-[10rem] rounded bg-gray-200 bg-opacity-40"></div>
+            <div className="wave-line shimmer-effect mb-2 h-4 w-40 rounded-sm bg-gray-200 bg-opacity-40"></div>
           </div>
           {/* MARK: Time */}
-          <div className="w-[2.5rem] text-xs text-gray-400">
-            <div className="wave-line shimmer-effect h-3 rounded bg-gray-200 bg-opacity-40"></div>
+          <div className="w-10 text-xs text-gray-400">
+            <div className="wave-line shimmer-effect h-3 rounded-sm bg-gray-200 bg-opacity-40"></div>
           </div>
         </div>
       ))}

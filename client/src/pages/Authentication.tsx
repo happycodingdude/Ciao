@@ -64,7 +64,7 @@ const Authentication = () => {
   };
 
   return (
-    <div className="flex w-full flex-col bg-[var(--bg-color)] tablet:text-[clamp(1rem,1.2vw,2rem)]">
+    <div className="bg-(--bg-color) flex w-full flex-col tablet:text-[clamp(1rem,1.2vw,2rem)]">
       <section className="relative flex h-full w-full transition-all duration-500">
         {isPhoneScreen() ? (
           <>
@@ -75,8 +75,8 @@ const Authentication = () => {
           <>
             <div
               ref={refBgContainer}
-              className={`absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] rounded-tr-[20rem] 
-            bg-[url('src/assets/hoian10.png')] bg-[size:cover] bg-[position:center_center] bg-no-repeat transition-all duration-500
+              className={`bg-position-[center_center] absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] 
+            rounded-tr-[20rem] bg-[url('src/assets/hoian10.png')] bg-cover bg-no-repeat transition-all duration-500
             before:absolute before:bottom-0 before:left-0 before:right-0 before:top-0
             before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]`}
             ></div>
@@ -88,13 +88,13 @@ const Authentication = () => {
 
             <div
               ref={refBgSignUpLabelContainer}
-              className="absolute left-[10%] top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-[2rem] text-center 
+              className="absolute left-[10%] top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center 
             text-white transition-all duration-500"
             >
               <p className="text-7xl">Hello, friend</p>
               <div
                 onClick={toggleSignup}
-                className="cursor-pointer rounded-[1rem] border-[.2rem] border-white px-[5rem] py-[.5rem] text-2xl 
+                className="cursor-pointer rounded-2xl border-[.2rem] border-white px-20 py-2 text-3xl 
               transition-all duration-500 hover:shadow-[0_3px_10px_white]"
               >
                 Sign up
@@ -102,13 +102,13 @@ const Authentication = () => {
             </div>
             <div
               ref={refBgSignInLabelContainer}
-              className="absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-[2rem] text-center text-white opacity-0 
+              className="absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center text-white opacity-0 
             transition-all duration-500 tablet:right-[-35%] laptop:right-[-20%]"
             >
               <p className="text-7xl">Welcome back</p>
               <div
                 onClick={toggleLogin}
-                className="cursor-pointer rounded-[1rem] border-[.2rem] border-white px-[5rem] py-[.5rem] text-2xl 
+                className="cursor-pointer rounded-2xl border-[.2rem] border-white px-20 py-2 text-2xl 
               transition-all duration-500 hover:shadow-[0_3px_10px_white]"
               >
                 Sign in

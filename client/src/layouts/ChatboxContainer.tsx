@@ -96,12 +96,12 @@ const ChatboxContainer = () => {
     // </>
 
     <div className="flex h-full">
-      <div className="flex w-full grow flex-col bg-gradient-to-br from-light-blue-50 to-light-blue-100">
+      <div className="bg-linear-to-br flex w-full grow flex-col from-light-blue-50 to-light-blue-100">
         <ChatboxHeader />
         <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[92dvh]">
           <div
             ref={refChatboxContainer}
-            className={`relative flex w-full flex-col items-center gap-[1rem] 
+            className={`relative flex w-full flex-col items-center gap-4 
                     ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
           >
             <Chatbox />
@@ -110,7 +110,7 @@ const ChatboxContainer = () => {
         </div>
       </div>
       <div
-        className={`relative h-full shrink-0 origin-right border-l-[.1rem] border-l-[var(--border-color)] transition-all duration-200
+        className={`relative h-full shrink-0 origin-right border-l-[.1rem] border-l-(--border-color) transition-all duration-200
                     ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[30rem]"}`}
       >
         <Information />

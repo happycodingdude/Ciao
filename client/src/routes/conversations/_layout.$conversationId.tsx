@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import ChatboxLoading from "../../components/ChatboxLoading";
+import { setActiveConversation } from "../../features/chatbox/hooks/useActiveConversation";
 import useMessage from "../../features/chatbox/hooks/useMessage";
 import useConversation from "../../features/listchat/hooks/useConversation";
 import { ConversationCache, MessageCache } from "../../features/listchat/types";
@@ -54,15 +55,24 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
     // Only invalidate if:
     // 1. NOT currently fetching (prevent multiple simultaneous requests)
     // 2. NO pending messages (preserve QuickChat messages)
-    if (!isFetching && !hasPendingMessages) {
-      console.log("Invalidating cache for refresh");
-      queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
-      queryClient.invalidateQueries({
-        queryKey: ["attachment", conversationId],
-      });
-    } else {
-      console.log("Skipping invalidate:", { isFetching, hasPendingMessages });
-    }
+    // if (!isFetching && !hasPendingMessages) {
+    //   console.log("Invalidating cache for refresh");
+    //   queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
+    //   queryClient.invalidateQueries({
+    //     queryKey: ["attachment", conversationId],
+    //   });
+    // } else {
+    //   console.log("Skipping invalidate:", { isFetching, hasPendingMessages });
+    // }
+    // if (!hasPendingMessages) {
+    //   console.log("Invalidating cache for refresh");
+    //   queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
+    //   queryClient.invalidateQueries({
+    //     queryKey: ["attachment", conversationId],
+    //   });
+    // } else {
+    //   console.log("Skipping invalidate:", { isFetching, hasPendingMessages });
+    // }
 
     return { conversationId };
   },
@@ -71,14 +81,25 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
     const { conversationId } = Route.useLoaderData();
 
     // Use useEffect to avoid infinite re-renders
+    // useEffect(() => {
+    //   localStorage.setItem("conversationId", conversationId);
+    //   // Dispatch custom event to notify other components
+    //   window.dispatchEvent(
+    //     new CustomEvent("localstorage-changed", {
+    //       detail: { key: "conversationId" },
+    //     }),
+    //   );
+    // }, [conversationId]);
+    // UseEffect chỉ để sync active conversation
     useEffect(() => {
-      localStorage.setItem("conversationId", conversationId);
-      // Dispatch custom event to notify other components
-      window.dispatchEvent(
-        new CustomEvent("localstorage-changed", {
-          detail: { key: "conversationId" },
-        }),
-      );
+      if (!conversationId) return;
+
+      setActiveConversation(conversationId);
+
+      return () => {
+        // Khi rời conversation (unmount hoặc route change)
+        setActiveConversation(null);
+      };
     }, [conversationId]);
 
     const {

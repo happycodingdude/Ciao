@@ -1,17 +1,15 @@
-import React from "react";
 import ForgotPasswordForm from "../features/authentication/components/ForgotPasswordForm";
 import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
 
 const ForgotPassword = () => {
   const { toggle } = useAuthenticationFormToggles();
-
   return (
     <div
       data-state={toggle === "forgot"}
-      className="m-auto flex h-full w-[70%] flex-col justify-center gap-[5rem] bg-[var(--bg-color-bold)] duration-500 
-        data-[state=false]:translate-y-0 data-[state=true]:translate-y-[-100%]"
+      className="bg-(--bg-color-bold) m-auto flex h-full flex-col justify-center gap-20 duration-500 
+        data-[state=false]:translate-y-0 data-[state=true]:-translate-y-full"
     >
-      <p className="text-5xl text-[var(--text-main-color)]">Reset</p>
+      <p className="text-(--text-main-color) text-5xl">Reset</p>
 
       <ForgotPasswordForm />
     </div>

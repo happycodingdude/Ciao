@@ -200,7 +200,7 @@ const MessageContent = (props: MessageContentProps) => {
           `}
       >
         <div
-          className={`flex items-center gap-[1rem] text-[var(--text-main-color-thin)]`}
+          className={`text-(--text-main-color-thin) flex items-center gap-[1rem]`}
         >
           {/* MARK: SENDER NAME */}
           <p className="font-['Be_Vietnam_Pro'] font-semibold">
@@ -273,7 +273,7 @@ const MessageContent = (props: MessageContentProps) => {
               <div
                 ref={contentRef}
                 className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} 
-                my-[.5rem] bg-[var(--bg-color)] px-[1.6rem] leading-8
+                bg-(--bg-color) my-[.5rem] px-[1.6rem] leading-8
                   ${
                     message.isPinned || message.isForwarded
                       ? message.contactId === info.id
@@ -281,7 +281,7 @@ const MessageContent = (props: MessageContentProps) => {
                         : "border-l-[.4rem] border-light-blue-500"
                       : ""
                   }                                       
-                  relative !flex w-fit flex-col !overflow-visible
+                  flex! overflow-visible! relative w-fit flex-col
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] 
                   data-[expanded=true]:line-clamp-none
                   data-[expanded=false]:max-h-[10rem] data-[expanded=true]:max-h-full
@@ -290,6 +290,7 @@ const MessageContent = (props: MessageContentProps) => {
               >
                 {message.isPinned ? (
                   <PinnedMessage
+                    type="pinned"
                     message={message.content}
                     contact={
                       conversation.members.find(
@@ -297,7 +298,6 @@ const MessageContent = (props: MessageContentProps) => {
                       )?.contact.name || ""
                     }
                     mine={message.contactId === info.id}
-                    expanded={isExpanded}
                   />
                 ) : message.isForwarded ? (
                   <ForwardedMessage
@@ -310,7 +310,6 @@ const MessageContent = (props: MessageContentProps) => {
                           )?.contact.name
                     }
                     mine={message.contactId === info.id}
-                    expanded={isExpanded}
                   />
                 ) : message.replyId && message.replyContent ? (
                   <ReplyMessage
@@ -322,15 +321,17 @@ const MessageContent = (props: MessageContentProps) => {
                         (q) => q.contact.id === message.replyContact,
                       )?.contact.name || ""
                     }
-                    expanded={isExpanded}
                   />
                 ) : (
-                  <p
-                    data-expanded={isExpanded}
-                    className="overflow-hidden text-ellipsis data-[expanded=false]:line-clamp-3 data-[expanded=true]:line-clamp-none"
-                  >
-                    {message.content}
-                  </p>
+                  <PinnedMessage
+                    message={message.content}
+                    contact={
+                      conversation.members.find(
+                        (q) => q.contact.id === message.pinnedBy,
+                      )?.contact.name || ""
+                    }
+                    mine={message.contactId === info.id}
+                  />
                 )}
               </div>
 
@@ -349,7 +350,7 @@ const MessageContent = (props: MessageContentProps) => {
             </div>
 
             {/* MARK: SHOW MORE MESSAGE */}
-            {isOverflowing && (
+            {/* {isOverflowing && (
               <div
                 className={`absolute bottom-[-1.2rem] ${message.contactId === info.id ? "left-[3rem]" : "right-[3rem]"} cursor-pointer text-base text-green-500`}
                 onClick={() => {
@@ -358,7 +359,7 @@ const MessageContent = (props: MessageContentProps) => {
               >
                 {isExpanded ? "View less" : "View more"}
               </div>
-            )}
+            )} */}
           </>
         ) : (
           ""

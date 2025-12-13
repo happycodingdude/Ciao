@@ -1,11 +1,9 @@
 /** @type {import('tailwindcss').Config} */
-// Tailwind CSS v4 uses CSS-first configuration
-// All theme customization is now in src/index.css using @theme directive
-// This file is kept minimal for compatibility
+// const plugin = require("tailwindcss/plugin");
+import plugin from "tailwindcss/plugin";
 
 export default {
-  // Content paths are automatically detected by @tailwindcss/vite plugin
-  // No need to specify content in v4
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     // screens: {
     //   phone: "320px",
@@ -25,44 +23,6 @@ export default {
       desktop: "1920px", // Standard full HD monitors
       "desktop-lg": "2560px", // 2K+ high-resolution monitors
       "desktop-4k": "3840px", // 4K screens for ultra-high-res displays
-    },
-    // fontSize: {
-    //   "3xs": ".8rem",
-    //   "2xs": "1rem",
-    //   xs: "1.2rem",
-    //   sm: "1.4rem",
-    //   base: "1.6rem",
-    //   md: "1.8rem",
-    //   lg: "2rem",
-    //   xl: "2.4rem",
-    //   "2xl": ["2.8rem", { fontWeight: "bold" }],
-    //   "3xl": ["3.2rem", { fontWeight: "bold" }],
-    //   "4xl": ["3.6rem", { fontWeight: "bold" }],
-    //   "5xl": ["4.0rem", { fontWeight: "bold" }],
-    //   "6xl": ["4.3rem", { fontWeight: "bold" }],
-    //   "7xl": ["4.8rem", { fontWeight: "bold" }],
-    //   "8xl": ["5.2rem", { fontWeight: "bold" }],
-    //   "9xl": ["5.6rem", { fontWeight: "bold" }],
-    //   "10xl": ["6rem", { fontWeight: "bold" }],
-    // },
-    fontSize: {
-      "3xs": "0.75rem", // ~12px - Extra small text for captions/hints
-      "2xs": "0.875rem", // ~14px - Small text for footnotes, helper text
-      xs: "1rem", // ~16px - Standard small text
-      sm: "1.125rem", // ~18px - Default text size for readability
-      base: "1.25rem", // ~20px - Modern default body text size
-      md: "1.5rem", // ~24px - Slightly larger body text for readability
-      lg: "1.75rem", // ~28px - Used for subtitles or headings
-      xl: "2rem", // ~32px - Small headings or callout text
-      "2xl": "2.5rem", // ~40px - Section headings
-      "3xl": "3rem", // ~48px - Large section headings
-      "4xl": "3.5rem", // ~56px - Hero headings
-      "5xl": "4rem", // ~64px - Display text for main sections
-      "6xl": "4.5rem", // ~72px - Standout hero text
-      "7xl": "5rem", // ~80px - Large banners or key highlights
-      "8xl": "6rem", // ~96px - Huge headlines
-      "9xl": "7rem", // ~112px - Massive display text
-      "10xl": "8rem", // ~128px - Super large hero headlines
     },
     extend: {
       colors: {

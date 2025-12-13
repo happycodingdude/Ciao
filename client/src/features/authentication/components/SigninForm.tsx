@@ -84,7 +84,7 @@ const SigninForm = () => {
   };
 
   return (
-    <div className="flex flex-col gap-[3rem]">
+    <div className="flex flex-col gap-12">
       <CustomInput
         tabIndex={toggle === "signin" ? 1 : -1}
         inputRef={refUsername}
@@ -103,21 +103,21 @@ const SigninForm = () => {
         />
         <div
           onClick={() => setShowPassword(!showPassword)}
-          className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center 
-              hover:text-[var(--main-color-light)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
+          className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-8 cursor-pointer items-center justify-center 
+              hover:text-(--main-color-light) ${showPassword ? "fa-eye text-(--main-color)" : "fa-eye-slash text-(--main-color)"}`}
         ></div>
       </div>
 
       {isPhoneScreen() ? (
         <div className="flex w-full items-center justify-between text-base">
           <div
-            className="cursor-pointer font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+            className="cursor-pointer font-bold text-(--text-main-color-light) hover:text-(--text-main-color)"
             onClick={() => setToggle("signup")}
           >
             Create account
           </div>
           <div
-            className="cursor-pointer font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+            className="cursor-pointer font-bold text-(--text-main-color-light) hover:text-(--text-main-color)"
             onClick={() => setToggle("forgot")}
           >
             Forgot password?
@@ -125,7 +125,7 @@ const SigninForm = () => {
         </div>
       ) : (
         <div
-          className="cursor-pointer self-end font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+          className="cursor-pointer self-end font-bold text-(--text-main-color-light) hover:text-(--text-main-color)"
           onClick={() => setToggle("forgot")}
         >
           Forgot password?

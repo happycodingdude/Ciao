@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import CustomButton from "../../components/CustomButton";
 import ImageWithLightBoxAndNoLazy from "../../components/ImageWithLightBoxAndNoLazy";
@@ -81,9 +81,9 @@ const ProfileSection = () => {
   };
 
   return (
-    <div className="flex flex-col gap-[5rem] px-[5rem] py-[2rem]">
-      <p className="text-2xl font-[600]">Edit profile</p>
-      <div className="flex flex-col gap-[1rem] phone:w-[20rem] tablet:w-[30rem]">
+    <div className="flex flex-col gap-20 px-20 py-8">
+      <p className="text-2xl font-semibold">Edit profile</p>
+      <div className="flex flex-col gap-4 phone:w-[20rem] tablet:w-[30rem]">
         <div className="user-avatar relative flex w-full">
           <ImageWithLightBoxAndNoLazy
             src={avatar ?? ""}
@@ -102,20 +102,20 @@ const ProfileSection = () => {
             onChange={chooseAvatar}
           />
         </div>
-        <div className="flex flex-col gap-[.5rem]">
-          <p className="font-[600]">Name</p>
+        <div className="flex flex-col gap-2">
+          <p className="font-semibold">Name</p>
           <input
             ref={refName}
-            className="rounded-lg bg-[var(--bg-color-extrathin)] px-4 py-2 font-medium outline-none"
+            className="outline-hidden rounded-lg bg-(--bg-color-extrathin) px-4 py-2 font-medium"
             type="text"
           />
         </div>
-        <div className="flex flex-col gap-[.5rem]">
-          <p className="font-[600]">Bio</p>
+        <div className="flex flex-col gap-2">
+          <p className="font-semibold">Bio</p>
           <textarea
             ref={refBio}
             rows={4}
-            className="hide-scrollbar resize-none break-all rounded-lg bg-[var(--bg-color-extrathin)] px-4 py-2 font-medium outline-none"
+            className="hide-scrollbar outline-hidden resize-none break-all rounded-lg bg-(--bg-color-extrathin) px-4 py-2 font-medium"
             typeof="text"
           />
         </div>
@@ -127,7 +127,7 @@ const ProfileSection = () => {
         rounded="3rem"
         processing={processing}
         title="Save"
-        className="!ml-0 !w-[30%]"
+        className="ml-0! w-[30%]!"
         onClick={() => {
           updateInfoCTA();
         }}
