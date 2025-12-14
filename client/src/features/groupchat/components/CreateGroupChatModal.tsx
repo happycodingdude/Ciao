@@ -1,7 +1,9 @@
+import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
+import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
 import MediaPicker from "../../../components/MediaPicker";
@@ -10,6 +12,8 @@ import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import { uploadFile } from "../../chatbox/functions/uploadFile";
+import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
+import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
 import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import {
@@ -20,10 +24,6 @@ import {
 import createGroupChat, {
   CreateGroupChatRequest,
 } from "../services/createGroupChat";
-import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
-import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
-import CustomLabel from "../../../components/CustomLabel";
-import { CheckCircleOutlined } from "@ant-design/icons";
 
 const CreateGroupChatModal = (props: OnCloseType) => {
   const { onClose } = props;
@@ -195,13 +195,13 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
   return (
     <>
-      <div className="relative flex shrink-0 items-end gap-[5rem] pb-[.5rem]">
+      <div className="relative flex shrink-0 items-end gap-20 pb-2">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
-          className="aspect-square w-[5rem] cursor-pointer"
+          className="aspect-square w-20 cursor-pointer"
         />
         <MediaPicker
-          className="absolute left-[5rem] top-[-1rem]"
+          className="absolute -top-4 left-20"
           accept="image/png, image/jpeg"
           id="new-conversation-avatar"
           onChange={chooseAvatar}
@@ -209,11 +209,11 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         <CustomInput
           type="text"
           inputRef={refInputTitle}
-          className="phone:w-[20rem] laptop:w-[30rem]"
+          className="laptop:w-120 phone:w-[20rem]"
           placeholder="Type group name"
         />
       </div>
-      <div className="flex grow flex-col gap-[1rem]">
+      <div className="flex grow flex-col gap-4">
         <CustomInput
           type="text"
           placeholder="Search for name"
@@ -237,18 +237,18 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           }}
         />
         <div
-          className={`relative flex grow gap-[2rem] border-b-[.1rem] border-[var(--border-color)]
+          className={`border-(--border-color) relative flex grow gap-8 border-b-[.1rem]
               ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
         >
           {isLoading || isRefetching ? (
             <ListFriendLoading />
           ) : (
             <>
-              <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
+              <div className="list-friend-container hide-scrollbar flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
                 {membersToSearch?.map((item) => (
                   <div
                     key={item.id}
-                    className={`information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-[.7rem] hover:bg-[var(--bg-color-extrathin)]`}
+                    className={`information-members flex w-full cursor-pointer items-center gap-4 rounded-lg p-[.7rem] hover:bg-(--bg-color-extrathin)`}
                     onClick={() => {
                       setMembersToAdd((members) => {
                         return members.map((mem) => mem.id).includes(item.id)
@@ -261,14 +261,14 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                       className={`base-icon-sm 
                         ${
                           membersToAdd.some((mem) => mem.id === item.id)
-                            ? "text-[var(--main-color-bold)]"
+                            ? "text-(--main-color-bold)"
                             : ""
                         }
                         `}
                     />
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="aspect-square w-[4rem] cursor-pointer"
+                      className="aspect-square w-16 cursor-pointer"
                       circle
                       slides={[
                         {
@@ -300,7 +300,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
       </div>
 
       <CustomButton
-        className={`!mr-0 phone:text-base desktop:text-md`}
+        className={`desktop:text-md mr-0! phone:text-base`}
         width={7}
         padding="py-[.3rem]"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}

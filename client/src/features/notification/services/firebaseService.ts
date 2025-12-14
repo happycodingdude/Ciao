@@ -1,23 +1,9 @@
-import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-// import notifyMessage, {
-//   NotifyMessage,
-//   NotifyMessageModel,
-// } from "../features/notification/services/notifyMessage";
 import { NotificationData, RequestPermission } from "../../../types";
+import getFirebaseApp from "../../../utils/firebaseConfig";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
-  authDomain: "myconnect-f2af8.firebaseapp.com",
-  projectId: "myconnect-f2af8",
-  storageBucket: "myconnect-f2af8.appspot.com",
-  messagingSenderId: "191922075446",
-  appId: "1:191922075446:web:72ab430046b40d39e22597",
-  measurementId: "G-8Q1N0TGXLZ",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// ✅ Use centralized Firebase app
+const app = getFirebaseApp();
 const messaging = getMessaging(app);
 
 // Function to set up message listener

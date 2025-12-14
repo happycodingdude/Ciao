@@ -5,6 +5,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../../../components/MediaPicker";
+import getFirebaseApp from "../../../utils/firebaseConfig";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import { ConversationCache } from "../../listchat/types";
 import updateConversation from "../services/updateConversation";
@@ -36,7 +37,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
       url = avatar;
     } else {
       // Create a root reference
-      const storage = getStorage();
+      const storage = getStorage(getFirebaseApp());
       url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
         (snapshot) => {
           return getDownloadURL(snapshot.ref).then((url) => {
@@ -108,7 +109,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         />
       </div>
       <CustomButton
-        className={`!mr-0 phone:text-base desktop:text-md`}
+        className={`desktop:text-md !mr-0 phone:text-base`}
         width={7}
         padding="py-[.3rem]"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}

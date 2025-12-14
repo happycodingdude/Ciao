@@ -1,8 +1,8 @@
-import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
-import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, {
+import {
   ChangeEvent,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -34,6 +34,11 @@ import {
 } from "../types";
 import ChatboxMenu from "./ChatboxMenu";
 import ImageItem from "./ImageItem";
+
+// ✅ Lazy load emoji picker
+const LazyEmojiPicker = lazy(
+  () => import("../../../components/LazyEmojiPicker"),
+);
 
 const ChatInput_V1 = (props: ChatInputProps) => {
   const { className } = props;
@@ -494,22 +499,26 @@ const ChatInput_V1 = (props: ChatInputProps) => {
           {/* Emoji select */}
           <label
             className={`emoji-item fa fa-smile choose-emoji absolute right-[1rem] ${files?.length !== 0 ? "top-[1rem]" : "top-[.6rem]"} 
-          cursor-pointer text-md font-normal`}
+          text-md cursor-pointer font-normal`}
             onClick={() => setShowEmoji(true)}
           ></label>
         </div>
         {showEmoji && (
           <div className="absolute bottom-[3rem] right-0">
-            <Picker
-              data={appleEmojisData}
-              set="apple"
-              onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
-              onClickOutside={(e) => {
-                if (e.target.classList.contains("emoji-item"))
-                  setShowEmoji(true);
-                else setShowEmoji(false);
-              }}
-            />
+            <Suspense
+              fallback={
+                <div className="h-[44rem] w-[21rem] animate-pulse rounded-lg bg-gray-100" />
+              }
+            >
+              <LazyEmojiPicker
+                onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
+                onClickOutside={(e) => {
+                  if (e.target.classList.contains("emoji-item"))
+                    setShowEmoji(true);
+                  else setShowEmoji(false);
+                }}
+              />
+            </Suspense>
           </div>
         )}
       </div>

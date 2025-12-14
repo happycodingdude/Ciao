@@ -25,12 +25,12 @@ const ChatboxHeader = () => {
   return (
     <div
       className="border-b-(--border-color) text-(--text-main-color-normal) flex w-full shrink-0 items-center justify-between
-      border-b-[.1rem] bg-white px-[1rem] py-[.5rem] phone:h-[6rem] laptop:h-[6rem]"
+      border-b-[.1rem] bg-white px-4 py-2 phone:h-24 laptop:h-24"
     >
-      <div className="relative flex items-center gap-[1rem]">
+      <div className="relative flex items-center gap-4">
         {isPhoneScreen() ? (
           <i
-            className="fa-arrow-left fa flex cursor-pointer items-center justify-center p-[.5rem]
+            className="fa-arrow-left fa flex cursor-pointer items-center justify-center p-2
             text-xl transition-all duration-500"
             onClick={() => {
               queryClient.setQueryData(
@@ -74,14 +74,14 @@ const ChatboxHeader = () => {
                   )?.contact.avatar,
             },
           ]}
-          className="loaded relative aspect-square w-[4rem] cursor-pointer"
+          className="loaded relative aspect-square w-16 cursor-pointer"
           circle
         />
         {/* MARK: TITLE  */}
-        <div className="relative flex grow flex-col text-md phone:max-w-[12rem] laptop:max-w-[30rem] desktop:max-w-[50rem]">
+        <div className="relative flex grow flex-col text-md phone:max-w-48 laptop:max-w-120 desktop:max-w-200">
           {conversation.isGroup ? (
             <>
-              <div className="flex w-full gap-[.5rem]">
+              <div className="flex w-full gap-2">
                 <CustomLabel
                   className="font-['Be_Vietnam_Pro'] font-bold"
                   title={conversation.title}
@@ -103,7 +103,7 @@ const ChatboxHeader = () => {
           )}
         </div>
       </div>
-      <div className="flex gap-[2rem]">
+      <div className="flex gap-8">
         {isPhoneScreen() ? <ChatboxHeaderMenu_Mobile /> : <ChatboxHeaderMenu />}
       </div>
     </div>

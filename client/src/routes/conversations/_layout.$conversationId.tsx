@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import ChatboxLoading from "../../components/ChatboxLoading";
 import { setActiveConversation } from "../../features/chatbox/hooks/useActiveConversation";
 import useMessage from "../../features/chatbox/hooks/useMessage";
 import useConversation from "../../features/listchat/hooks/useConversation";
 import { ConversationCache, MessageCache } from "../../features/listchat/types";
-import ChatboxContainer from "../../layouts/ChatboxContainer";
+
+// ✅ Lazy load heavy component to reduce initial bundle
+const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));
 
 export const Route = createFileRoute("/conversations/_layout/$conversationId")({
   loader: async ({ params, context }) => {
@@ -45,12 +47,15 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
     );
     const isFetching = messageQueryState?.fetchStatus === "fetching";
 
-    console.log("Loader check:", {
-      conversationId,
-      hasPendingMessages,
-      isFetching,
-      messageCount: messageCache?.messages?.length,
-    });
+    // ✅ Only log in development
+    if (import.meta.env.DEV) {
+      console.log("Loader check:", {
+        conversationId,
+        hasPendingMessages,
+        isFetching,
+        messageCount: messageCache?.messages?.length,
+      });
+    }
 
     return { conversationId };
   },
@@ -83,6 +88,11 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
     )
       return <ChatboxLoading />;
 
-    return <ChatboxContainer />;
+    // ✅ Wrap lazy component with Suspense
+    return (
+      <Suspense fallback={<ChatboxLoading />}>
+        <ChatboxContainer />
+      </Suspense>
+    );
   },
 });

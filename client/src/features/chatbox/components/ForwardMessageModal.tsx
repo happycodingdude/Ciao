@@ -205,24 +205,24 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
         }}
       />
       <div
-        className={`relative flex grow gap-[2rem]
+        className={`relative flex grow gap-8
       ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
       >
         {isLoading || isRefetching ? (
           <ListFriendLoading />
         ) : (
           <>
-            <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
+            <div className="list-friend-container hide-scrollbar flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
               {membersToSearch?.map((item) => {
                 const isSent = sentIds.has(item.id);
                 return (
                   <div
                     key={item.id}
-                    className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]`}
+                    className={`information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]`}
                   >
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="pointer-events-none aspect-square phone:w-[3rem] laptop:w-[4rem]"
+                      className="pointer-events-none aspect-square phone:w-12 laptop:w-16"
                       circle
                       slides={[
                         {

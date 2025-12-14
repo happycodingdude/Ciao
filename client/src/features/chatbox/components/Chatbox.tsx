@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { debounce } from "lodash";
+import debounce from "lodash-es/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import RelightBackground from "../../../components/RelightBackground";
 import useEventListener from "../../../hooks/useEventListener";
@@ -149,16 +149,16 @@ const Chatbox = () => {
           <div
             key={date}
             // className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
-            className={`flex flex-col gap-16 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-[2rem]" : ""}`}
+            className={`flex flex-col gap-16 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-8" : ""}`}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="pointer-events-none mx-auto w-fit rounded-4xl bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 
             {[...messages].map((message, index) =>
               message.type === "system" ? (
-                <div className="pointer-events-none mx-auto w-fit rounded-4xl bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                   {message.content}
                 </div>
               ) : (

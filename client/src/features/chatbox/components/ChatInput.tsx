@@ -1,9 +1,10 @@
-import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
-import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import dayjs from "dayjs";
 import React, {
   ChangeEvent,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -36,7 +37,11 @@ import {
   SendMessageResponse,
 } from "../types";
 import ImageItem from "./ImageItem";
-import dayjs from "dayjs";
+
+// ✅ Lazy load emoji picker to reduce initial bundle (-550KB)
+const LazyEmojiPicker = lazy(
+  () => import("../../../components/LazyEmojiPicker"),
+);
 
 const ChatInput = (props: ChatInputProps) => {
   const { className } = props;
@@ -523,16 +528,16 @@ const ChatInput = (props: ChatInputProps) => {
   // }, [mentions, selectedIndex, chooseMention]);
 
   return (
-    <div className={`mb-[2rem] flex w-full items-center justify-center`}>
+    <div className={`mb-8 flex w-full items-center justify-center`}>
       <div
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white
         transition-all duration-200
         ${
           isPhoneScreen()
-            ? "max-w-[35rem]"
+            ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "!w-0 laptop:max-w-[80rem] laptop-lg:max-w-[100rem]"
-              : "!w-0 laptop:max-w-[60rem] laptop-lg:max-w-[80rem]"
+              ? "w-0! laptop:max-w-7xl laptop-lg:max-w-400"
+              : "w-0! laptop:max-w-240 laptop-lg:max-w-7xl"
         }  
         `}
       >
@@ -558,15 +563,15 @@ const ChatInput = (props: ChatInputProps) => {
           {conversation.isGroup ? (
             <div
               data-show={showMention}
-              className="hide-scrollbar absolute bottom-[8rem] left-[5rem] z-[2] flex flex-col overflow-y-scroll
+              className="hide-scrollbar absolute bottom-32 left-20 z-2 flex flex-col overflow-y-scroll
           scroll-smooth rounded-[.7rem] bg-white p-2 text-sm shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          phone:max-h-[18rem] phone:w-[18rem] laptop:max-h-[20rem] laptop:w-[20rem]"
+          phone:max-h-72 phone:w-[18rem] laptop:max-h-80 laptop:w-[20rem]"
             >
               {mentions?.map((item, index) => (
                 <div
                   key={item.userId}
-                  className={`mention-user flex cursor-pointer gap-[1rem] rounded-[.7rem] p-3 ${index === selectedIndex ? "active" : ""}`}
+                  className={`mention-user flex cursor-pointer gap-4 rounded-[.7rem] p-3 ${index === selectedIndex ? "active" : ""}`}
                   onClick={() => chooseMention(item.userId)}
                 >
                   <ImageWithLightBoxAndNoLazy
@@ -576,7 +581,7 @@ const ChatInput = (props: ChatInputProps) => {
                         src: item.avatar,
                       },
                     ]}
-                    className="aspect-square cursor-pointer phone:w-[2rem] tablet:w-[2.5rem] laptop:w-[3rem]"
+                    className="aspect-square cursor-pointer phone:w-8 tablet:w-10 laptop:w-12"
                     circle
                   />
                   <p>{item.name}</p>
@@ -588,14 +593,14 @@ const ChatInput = (props: ChatInputProps) => {
           )}
 
           {/* MARK: MENU */}
-          <div className="flex flex-col gap-[1rem] p-4">
-            <div className="flex items-center gap-[1rem]">
+          <div className="flex flex-col gap-4 p-4">
+            <div className="flex items-center gap-4">
               <label
-                className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square w-[2rem] cursor-pointer items-center justify-center rounded-full bg-gray-100 text-lg text-gray-500 hover:bg-gray-100 hover:text-neo-purple"
+                className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 text-lg text-gray-500 hover:bg-gray-100 hover:text-neo-purple"
                 onClick={() => setShowEmoji(true)}
               ></label>
 
-              <div className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <input
                   multiple
                   type="file"
@@ -611,7 +616,7 @@ const ChatInput = (props: ChatInputProps) => {
                   <i className="fa-solid fa-paperclip text-lg"></i>
                 </label>
               </div>
-              <div className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <input
                   multiple
                   type="file"
@@ -627,11 +632,11 @@ const ChatInput = (props: ChatInputProps) => {
                   <i className="fa-solid fa-image text-lg"></i>
                 </label>
               </div>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-microphone text-lg"></i>
               </button>
               <div className="flex-1"></div>
-              <button className="toolbar-btn flex aspect-square w-[2rem] items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-at text-lg"></i>
               </button>
             </div>
@@ -652,8 +657,8 @@ const ChatInput = (props: ChatInputProps) => {
                 />
               </div>
               <button
-                className="send-btn bg-light-blue-400 flex aspect-square w-[3rem] items-center justify-center 
-                rounded-full text-white"
+                className="send-btn flex aspect-square w-12 items-center justify-center rounded-full 
+                bg-light-blue-400 text-white"
               >
                 <i className="fa-solid fa-paper-plane text-base"></i>
               </button>
@@ -667,17 +672,21 @@ const ChatInput = (props: ChatInputProps) => {
         </div>
         {/* MARK: EMOJI */}
         {showEmoji && (
-          <div className="absolute -top-[44rem] left-0">
-            <Picker
-              data={appleEmojisData}
-              set="apple"
-              onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
-              onClickOutside={(e) => {
-                if (e.target.classList.contains("emoji-item"))
-                  setShowEmoji(true);
-                else setShowEmoji(false);
-              }}
-            />
+          <div className="absolute -top-176 left-0">
+            <Suspense
+              fallback={
+                <div className="h-176 w-84 animate-pulse rounded-lg bg-gray-100" />
+              }
+            >
+              <LazyEmojiPicker
+                onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
+                onClickOutside={(e) => {
+                  if (e.target.classList.contains("emoji-item"))
+                    setShowEmoji(true);
+                  else setShowEmoji(false);
+                }}
+              />
+            </Suspense>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import debounce from "lodash-es/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CustomInput from "../../../components/CustomInput";
 import { OnCloseType } from "../../../types";

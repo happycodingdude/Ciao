@@ -5,8 +5,9 @@ import {
   uploadBytes,
   uploadBytesResumable,
 } from "firebase/storage";
+import getFirebaseApp from "../../../utils/firebaseConfig";
 
-const storage = getStorage();
+const storage = getStorage(getFirebaseApp());
 
 interface UploadedFile {
   type: "file" | "image";
@@ -60,7 +61,7 @@ export async function uploadMultipleFile(files: File[]) {
 
 export async function uploadFile(file: File): Promise<string> {
   // Create a root reference
-  const storage = getStorage();
+  const storage = getStorage(getFirebaseApp());
   return await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
     (snapshot) => {
       return getDownloadURL(snapshot.ref).then((url) => {

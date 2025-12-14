@@ -85,7 +85,7 @@ const Information = () => {
       className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-white`}
     >
       {/* Container */}
-      <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-(--border-color) *:p-4">
+      <div className="[&>*:not(:last-child)]:border-b-(--border-color) flex grow flex-col *:p-4 [&>*:not(:last-child)]:border-b-[.1rem]">
         <div className="flex items-center justify-between px-4 laptop:h-24">
           <p className="text-lg font-bold">Chat information</p>
           <div className="flex gap-4">
@@ -123,7 +123,7 @@ const Information = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col items-center gap-6 py-8!">
+        <div className="py-8! flex flex-col items-center gap-6">
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
@@ -146,9 +146,9 @@ const Information = () => {
             circle
           />
           {/* MARK: TITLE  */}
-          <div className="flex w-[70%] grow flex-col items-center justify-center gap-2 phone:text-lg laptop:text-md">
+          <div className="laptop:text-md flex w-[70%] grow flex-col items-center justify-center gap-2 phone:text-lg">
             <CustomLabel
-              className="font-be-vn-bold text-center"
+              className="text-center font-['Be_Vietnam_Pro'] font-bold"
               title={
                 conversation?.isGroup
                   ? conversation.title
@@ -201,8 +201,8 @@ const Information = () => {
               </p>
               <i
                 data-show={showMembers}
-                className="fa-arrow-down fa flex aspect-square h-full cursor-pointer items-center justify-center p-2 transition-all
-                duration-500 data-[show=false]:rotate-90 phone:text-xl laptop:text-md"
+                className="fa-arrow-down fa laptop:text-md flex aspect-square h-full cursor-pointer items-center justify-center p-2
+                transition-all duration-500 data-[show=false]:rotate-90 phone:text-xl"
                 onClick={toggleMembers}
               ></i>
             </div>
@@ -210,15 +210,15 @@ const Information = () => {
             <div
               ref={refMembers}
               data-show={showMembers}
-              className="members-image-container hide-scrollbar flex flex-col gap-4 overflow-y-auto scroll-smooth transition-all duration-500
-                data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-80 laptop-lg:max-h-100 desktop:max-h-200"
+              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 flex flex-col gap-4 overflow-y-auto scroll-smooth
+                transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-80"
             >
               {[...conversation?.members]
                 .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
                 .map((item) => (
                   <div
                     key={item.id}
-                    className={`information-members flex w-full cursor-pointer items-center gap-4 rounded-lg p-2 hover:bg-(--bg-color-extrathin)
+                    className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-4 rounded-lg p-2
                     ${item.contact.id === info.id ? "pointer-events-none" : ""}
                     `}
                     onClick={(e: MouseEvent<HTMLElement>) => {
@@ -264,7 +264,7 @@ const Information = () => {
                     <CustomLabel title={item.contact.name} />
                     {item.isModerator ? (
                       <div
-                        className="font-be-vn-bold bg-light-blue-400 rounded-full px-4 py-1 
+                        className="font-be-vn-bold rounded-full bg-light-blue-400 px-4 py-1 
                         text-sm text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                       >
                         Admin
@@ -294,7 +294,7 @@ const Information = () => {
             <p className="font-be-vn-bold">Attachments</p>
             <div
               onClick={() => setToggle("attachment")}
-              className="text-light-blue-500 hover:text-light-blue-400 cursor-pointer"
+              className="cursor-pointer text-light-blue-500 hover:text-light-blue-400"
             >
               View all
             </div>
@@ -319,7 +319,7 @@ const Information = () => {
               ))}
             </div>
           ) : (
-            <div className="aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-size-[100%] bg-position-[center_center] bg-no-repeat"></div>
+            <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-no-repeat"></div>
           )}
         </div>
       </div>

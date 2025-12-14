@@ -135,22 +135,22 @@ const AddMembersModal = (props: OnCloseType) => {
         }}
       />
       <div
-        className={`relative flex grow gap-[2rem] border-b-[.1rem] border-[var(--border-color)]
+        className={`relative flex grow gap-8 border-b-[.1rem] border-(--border-color)
       ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
       >
         {isLoading || isRefetching ? (
           <ListFriendLoading />
         ) : (
           <>
-            <div className="list-friend-container hide-scrollbar flex grow flex-col gap-[.5rem] overflow-y-scroll scroll-smooth">
+            <div className="list-friend-container hide-scrollbar flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
               {membersToSearch?.map((item) => (
                 <div
                   key={item.id}
-                  className={`information-members flex w-full items-center gap-[1rem] rounded-[.5rem] p-[.7rem]
+                  className={`information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]
                 ${
                   conversation.members.some((mem) => mem.contact.id === item.id)
                     ? "pointer-events-none"
-                    : "cursor-pointer hover:bg-[var(--bg-color-extrathin)]"
+                    : "cursor-pointer hover:bg-(--bg-color-extrathin)"
                 } `}
                   onClick={() => {
                     setMembersToAdd((members) => {
@@ -180,7 +180,7 @@ const AddMembersModal = (props: OnCloseType) => {
                   />
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="aspect-square cursor-pointer phone:w-[3rem] laptop:w-[4rem]"
+                    className="aspect-square cursor-pointer phone:w-12 laptop:w-16"
                     circle
                     slides={[
                       {
@@ -195,7 +195,7 @@ const AddMembersModal = (props: OnCloseType) => {
                     {conversation.members.some(
                       (mem) => mem.contact.id === item.id,
                     ) ? (
-                      <p className="text-[var(--text-main-color-blur)]">
+                      <p className="text-(--text-main-color-blur)">
                         Joined
                       </p>
                     ) : (
@@ -222,7 +222,7 @@ const AddMembersModal = (props: OnCloseType) => {
         )}
       </div>
       <CustomButton
-        className={`!mr-0 phone:text-base desktop:text-md`}
+        className={`mr-0! phone:text-base desktop:text-md`}
         width={7}
         padding="py-[.3rem]"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}

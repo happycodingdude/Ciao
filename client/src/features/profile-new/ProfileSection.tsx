@@ -7,6 +7,7 @@ import ImageWithLightBoxAndNoLazy from "../../components/ImageWithLightBoxAndNoL
 import MediaPicker from "../../components/MediaPicker";
 import { UpdateProfileRequest } from "../../types";
 import blurImage from "../../utils/blurImage";
+import getFirebaseApp from "../../utils/firebaseConfig";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import useInfo from "../authentication/hooks/useInfo";
 import updateInfo from "../authentication/services/updateInfo";
@@ -64,7 +65,7 @@ const ProfileSection = () => {
       url = avatar;
     } else {
       // Create a root reference
-      const storage = getStorage();
+      const storage = getStorage(getFirebaseApp());
       url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
         (snapshot) => {
           return getDownloadURL(snapshot.ref).then((url) => {
@@ -106,7 +107,7 @@ const ProfileSection = () => {
           <p className="font-semibold">Name</p>
           <input
             ref={refName}
-            className="outline-hidden rounded-lg bg-(--bg-color-extrathin) px-4 py-2 font-medium"
+            className="outline-hidden bg-(--bg-color-extrathin) rounded-lg px-4 py-2 font-medium"
             type="text"
           />
         </div>
@@ -115,7 +116,7 @@ const ProfileSection = () => {
           <textarea
             ref={refBio}
             rows={4}
-            className="hide-scrollbar outline-hidden resize-none break-all rounded-lg bg-(--bg-color-extrathin) px-4 py-2 font-medium"
+            className="hide-scrollbar outline-hidden bg-(--bg-color-extrathin) resize-none break-all rounded-lg px-4 py-2 font-medium"
             typeof="text"
           />
         </div>

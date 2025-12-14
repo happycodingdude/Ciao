@@ -1,12 +1,10 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-// import "bootstrap/dist/css/bootstrap.css";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-// Import the generated route tree
-import { QueryClientProvider } from "@tanstack/react-query";
-import { initializeApp } from "firebase/app";
-import { StrictMode } from "react";
 import { routeTree } from "./routeTree.gen";
+import getFirebaseApp from "./utils/firebaseConfig";
 import queryClient from "./utils/queryClient";
 
 import dayjs from "dayjs";
@@ -14,19 +12,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",
-  authDomain: "myconnect-f2af8.firebaseapp.com",
-  projectId: "myconnect-f2af8",
-  storageBucket: "myconnect-f2af8.appspot.com",
-  messagingSenderId: "191922075446",
-  appId: "1:191922075446:web:72ab430046b40d39e22597",
-  measurementId: "G-8Q1N0TGXLZ",
-};
-
-// Initialize Firebase
-initializeApp(firebaseConfig);
+// ✅ Initialize Firebase (singleton pattern)
+getFirebaseApp();
 
 // export type MyRouterContext = {
 //   queryClient: QueryClient;
