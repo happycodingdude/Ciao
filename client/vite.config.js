@@ -3,6 +3,7 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import fixReactVirtualized from "esbuild-plugin-react-virtualized";
 import { defineConfig, loadEnv } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const env = loadEnv("all", process.cwd());
 
@@ -14,6 +15,13 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
+    visualizer({
+      open: true,          // tự mở browser sau build
+      gzipSize: true,      // hiển thị gzip size
+      brotliSize: true,    // hiển thị brotli size
+      filename: "stats.html", // file output
+      template: "treemap", // dễ nhìn nhất
+    }),
   ],
   server: {
     proxy: {

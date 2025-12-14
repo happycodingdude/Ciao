@@ -2,7 +2,6 @@ import appleEmojisData from "@emoji-mart/data/sets/14/apple.json";
 import Picker from "@emoji-mart/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import moment from "moment";
 import React, {
   ChangeEvent,
   useCallback,
@@ -37,6 +36,7 @@ import {
   SendMessageResponse,
 } from "../types";
 import ImageItem from "./ImageItem";
+import dayjs from "dayjs";
 
 const ChatInput = (props: ChatInputProps) => {
   const { className } = props;
@@ -126,7 +126,7 @@ const ChatInput = (props: ChatInputProps) => {
                   param.type === "text"
                     ? param.content
                     : param.files.map((item) => item.name).join(","),
-                lastMessageTime: moment().format(),
+                lastMessageTime: dayjs().format(),
               } as ConversationModel;
             },
           );
@@ -168,7 +168,7 @@ const ChatInput = (props: ChatInputProps) => {
                   sadCount: 0,
                   angryCount: 0,
                   currentReaction: null,
-                  createdTime: moment().format(),
+                  createdTime: dayjs().format(),
                 } as PendingMessageModel,
               ],
             } as MessageCache;
@@ -268,7 +268,7 @@ const ChatInput = (props: ChatInputProps) => {
                   sadCount: 0,
                   angryCount: 0,
                   currentReaction: null,
-                  createdTime: moment().format(),
+                  createdTime: dayjs().format(),
                 } as PendingMessageModel,
               ],
             } as MessageCache;

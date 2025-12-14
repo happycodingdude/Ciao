@@ -9,6 +9,11 @@ import { StrictMode } from "react";
 import { routeTree } from "./routeTree.gen";
 import queryClient from "./utils/queryClient";
 
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+
 // Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyB7JnGdGGjcoFN3gR8XPVu4nYpVSORuVnA",

@@ -1,5 +1,4 @@
 import { QueryClient } from "@tanstack/react-query";
-import moment from "moment";
 import { UserProfile } from "../../../types";
 import { isConversationActive } from "../../chatbox/hooks/useActiveConversation";
 import {
@@ -17,6 +16,7 @@ import {
   NewMessagePinned,
   NewReaction,
 } from "../types";
+import dayjs from "dayjs";
 
 /* MARK: NOTIFICATION CLASSIFIER */
 export const classifyNotification = (
@@ -417,7 +417,7 @@ const updateAttachmentsCache = (
   oldData: AttachmentCache,
   attachments: AttachmentModel[],
 ) => {
-  const today = moment().format("MM/DD/YYYY");
+  const today = dayjs().format("MM/DD/YYYY");
   return {
     ...oldData,
     attachments: oldData.attachments.map((item) =>

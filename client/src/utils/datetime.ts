@@ -1,6 +1,7 @@
-import moment from "moment";
+import dayjs from "dayjs";
 
-export const getToday = (format?: string): string => moment().format(format);
+
+export const getToday = (format?: string): string => dayjs().format(format);
 
 export const formatDate = (datetime: string) =>
   new Date(datetime).toLocaleDateString("vi-VN");
@@ -13,8 +14,8 @@ export const formatTime = (datetime: string) =>
   });
 
 export const formatDisplayDate = (rawDate: string): string => {
-  const date = moment(rawDate, "DD/MM/YYYY"); // hoặc "YYYY-MM-DD" nếu là ISO
-  const today = moment();
+  const date = dayjs(rawDate, "DD/MM/YYYY"); // hoặc "YYYY-MM-DD" nếu là ISO
+  const today = dayjs();
 
   if (date.isSame(today, "day")) {
     return `Today, ${date.format("MMMM D")}`; // Today, July 18

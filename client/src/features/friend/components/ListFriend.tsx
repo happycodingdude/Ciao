@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CustomInput from "../../../components/CustomInput";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
@@ -60,7 +60,7 @@ const ListFriend = (props: OnCloseType) => {
           findContact(e.target.value);
         }}
       />
-      <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth text-[var(--text-main-color)]">
+      <div className="list-friend-container hide-scrollbar text-(--text-main-color) mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
         {contacts.map((item, i) => (
           <FriendItem
             friend={item}

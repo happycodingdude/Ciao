@@ -52,44 +52,11 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
       messageCount: messageCache?.messages?.length,
     });
 
-    // Only invalidate if:
-    // 1. NOT currently fetching (prevent multiple simultaneous requests)
-    // 2. NO pending messages (preserve QuickChat messages)
-    // if (!isFetching && !hasPendingMessages) {
-    //   console.log("Invalidating cache for refresh");
-    //   queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
-    //   queryClient.invalidateQueries({
-    //     queryKey: ["attachment", conversationId],
-    //   });
-    // } else {
-    //   console.log("Skipping invalidate:", { isFetching, hasPendingMessages });
-    // }
-    // if (!hasPendingMessages) {
-    //   console.log("Invalidating cache for refresh");
-    //   queryClient.invalidateQueries({ queryKey: ["message", conversationId] });
-    //   queryClient.invalidateQueries({
-    //     queryKey: ["attachment", conversationId],
-    //   });
-    // } else {
-    //   console.log("Skipping invalidate:", { isFetching, hasPendingMessages });
-    // }
-
     return { conversationId };
   },
 
   component: () => {
     const { conversationId } = Route.useLoaderData();
-
-    // Use useEffect to avoid infinite re-renders
-    // useEffect(() => {
-    //   localStorage.setItem("conversationId", conversationId);
-    //   // Dispatch custom event to notify other components
-    //   window.dispatchEvent(
-    //     new CustomEvent("localstorage-changed", {
-    //       detail: { key: "conversationId" },
-    //     }),
-    //   );
-    // }, [conversationId]);
     // UseEffect chỉ để sync active conversation
     useEffect(() => {
       if (!conversationId) return;

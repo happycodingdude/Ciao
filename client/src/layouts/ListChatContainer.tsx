@@ -1,32 +1,31 @@
 import { Link } from "@tanstack/react-router";
-import moment from "moment";
-import { useEffect, useState } from "react";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import ListchatLoading from "../components/ListchatLoading";
 import useInfo from "../features/authentication/hooks/useInfo";
+import { useActiveConversation } from "../features/chatbox/hooks/useActiveConversation";
 import useConversation from "../features/listchat/hooks/useConversation";
 import "../listchat.css";
-import { useActiveConversation } from "../features/chatbox/hooks/useActiveConversation";
+import dayjs from "dayjs";
 
-moment.updateLocale("en", {
-  relativeTime: {
-    future: "in %s",
-    past: "%s",
-    s: "1m",
-    ss: "1m",
-    m: "1m",
-    mm: "%dm",
-    h: "1h",
-    hh: "%dh",
-    d: "1d",
-    dd: "%dd",
-    M: "1M",
-    MM: "%dM",
-    y: "1Y",
-    yy: "%dY",
-  },
-});
+// moment.updateLocale("en", {
+//   relativeTime: {
+//     future: "in %s",
+//     past: "%s",
+//     s: "1m",
+//     ss: "1m",
+//     m: "1m",
+//     mm: "%dm",
+//     h: "1h",
+//     hh: "%dh",
+//     d: "1d",
+//     dd: "%dd",
+//     M: "1M",
+//     MM: "%dM",
+//     y: "1Y",
+//     yy: "%dY",
+//   },
+// });
 
 const ListChatContainer = () => {
   console.log("Rendering ListChatContainer");
@@ -265,7 +264,7 @@ const ListChatContainer = () => {
                     <p>
                       {item.lastMessageTime === null
                         ? ""
-                        : moment(item.lastMessageTime).fromNow()}
+                        : dayjs(item.lastMessageTime).fromNow()}
                     </p>
                   </div>
                 )}

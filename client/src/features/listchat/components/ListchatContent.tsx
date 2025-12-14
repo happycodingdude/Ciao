@@ -1,5 +1,4 @@
 import { useQueryClient } from "@tanstack/react-query";
-import moment from "moment";
 import { useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import CustomLabel from "../../../components/CustomLabel";
@@ -16,6 +15,7 @@ import getAttachments from "../../chatdetail/services/getAttachments";
 import useConversation from "../hooks/useConversation";
 import useListchatFilter from "../hooks/useListchatFilter";
 import { ConversationCache } from "../types";
+import dayjs from "dayjs";
 
 // moment.locale("en", {
 //   relativeTime: {
@@ -36,24 +36,24 @@ import { ConversationCache } from "../types";
 //   },
 // });
 
-moment.updateLocale("en", {
-  relativeTime: {
-    future: "in %s",
-    past: "%s",
-    s: "1m",
-    ss: "1m",
-    m: "1m",
-    mm: "%dm",
-    h: "1h",
-    hh: "%dh",
-    d: "1d",
-    dd: "%dd",
-    M: "1M",
-    MM: "%dM",
-    y: "1Y",
-    yy: "%dY",
-  },
-});
+// moment.updateLocale("en", {
+//   relativeTime: {
+//     future: "in %s",
+//     past: "%s",
+//     s: "1m",
+//     ss: "1m",
+//     m: "1m",
+//     mm: "%dm",
+//     h: "1h",
+//     hh: "%dh",
+//     d: "1d",
+//     dd: "%dd",
+//     M: "1M",
+//     MM: "%dM",
+//     y: "1Y",
+//     yy: "%dY",
+//   },
+// });
 
 const ListchatContent = () => {
   const queryClient = useQueryClient();
@@ -131,7 +131,7 @@ const ListchatContent = () => {
   return (
     <div
       ref={refChats}
-      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-[1rem] overflow-y-scroll scroll-smooth p-[1rem]"
+      className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-4 overflow-y-scroll scroll-smooth p-4"
     >
       {data.filterConversations
         .filter((conv) =>
@@ -150,12 +150,12 @@ const ListchatContent = () => {
                     ?.contact.id
                 : ""
             }
-            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-[1.5rem] overflow-hidden rounded-[1rem] py-[.8rem] 
-              pl-[.5rem] pr-[1rem] phone:h-[6.5rem] tablet:h-[5.5rem] laptop:h-[6.5rem]
+            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-6 overflow-hidden rounded-2xl py-2 
+              pl-2 pr-4 phone:h-26 tablet:h-22 laptop:h-26
         ${
           conversationId === item.id && !isPhoneScreen()
-            ? `item-active bg-[var(--main-color)]`
-            : "hover:bg-[var(--bg-color-extrathin)]"
+            ? `item-active bg-(--main-color)`
+            : "hover:bg-(--bg-color-extrathin)"
         } `}
             onClick={() => {
               clickConversation(item.id);
@@ -170,7 +170,7 @@ const ListchatContent = () => {
                     : item.members.find((item) => item.contact.id !== info.id)
                         ?.contact.avatar
                 }
-                className={`loaded pointer-events-none aspect-square phone:w-[5rem] tablet:w-[4rem] laptop:w-[5rem]`}
+                className={`loaded pointer-events-none aspect-square phone:w-20 tablet:w-16 laptop:w-20`}
                 circle
               />
               {!item.isGroup ? (
@@ -185,10 +185,10 @@ const ListchatContent = () => {
                 ""
               )}
             </div>
-            <div className={`flex h-full w-1/2 grow flex-col gap-[.5rem]`}>
+            <div className={`flex h-full w-1/2 grow flex-col gap-2`}>
               {/* MARK: CONVERSATION TITLE */}
               <CustomLabel
-                className={`${item.id === conversationId ? "text-[var(--text-sub-color)]" : "text-[var(--text-main-color)]"} 
+                className={`${item.id === conversationId ? "text-(--text-sub-color)" : "text-(--text-main-color)"} 
                 font-['Be_Vietnam_Pro'] font-semibold`}
                 title={
                   item.isGroup
@@ -202,10 +202,10 @@ const ListchatContent = () => {
                 className={`
               ${
                 item.id === conversationId
-                  ? "text-[var(--text-sub-color-thin)]"
+                  ? "text-(--text-sub-color-thin)"
                   : item.unSeen
-                    ? "text-[var(--danger-text-color)]"
-                    : "text-[var(--text-main-color-blur)]"
+                    ? "text-(--danger-text-color)"
+                    : "text-(--text-main-color-blur)"
               }`}
                 title={item.lastMessage}
               />
@@ -214,7 +214,7 @@ const ListchatContent = () => {
               <p>
                 {item.lastMessageTime === null
                   ? ""
-                  : moment(item.lastMessageTime).fromNow()}
+                  : dayjs(item.lastMessageTime).fromNow()}
               </p>
             </div>
           </div>

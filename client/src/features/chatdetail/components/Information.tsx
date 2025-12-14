@@ -85,10 +85,10 @@ const Information = () => {
       className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-white`}
     >
       {/* Container */}
-      <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)] [&>*]:p-[1rem]">
-        <div className="flex items-center justify-between px-[1rem] laptop:h-[6rem]">
+      <div className="flex grow flex-col [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-(--border-color) *:p-4">
+        <div className="flex items-center justify-between px-4 laptop:h-24">
           <p className="text-lg font-bold">Chat information</p>
-          <div className="flex gap-[1rem]">
+          <div className="flex gap-4">
             {/* <EditOutlined
               className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
               onClick={() => {
@@ -105,7 +105,7 @@ const Information = () => {
 
             <BackgroundPortal
               show={openUpdateTitle}
-              className="phone:w-[35rem] laptop:w-[45rem] desktop:w-[35%]"
+              className="phone:w-140 laptop:w-180 desktop:w-[35%]"
               title="Update group"
               onClose={() => setOpenUpdateTitle(false)}
             >
@@ -123,7 +123,7 @@ const Information = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col items-center gap-[1.5rem] !py-[2rem]">
+        <div className="flex flex-col items-center gap-6 py-8!">
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
@@ -142,11 +142,11 @@ const Information = () => {
                     )?.contact.avatar,
               },
             ]}
-            className="relative aspect-square w-[10rem] cursor-pointer"
+            className="relative aspect-square w-40 cursor-pointer"
             circle
           />
           {/* MARK: TITLE  */}
-          <div className="flex w-[70%] grow flex-col items-center justify-center gap-[.5rem] phone:text-lg laptop:text-md">
+          <div className="flex w-[70%] grow flex-col items-center justify-center gap-2 phone:text-lg laptop:text-md">
             <CustomLabel
               className="font-be-vn-bold text-center"
               title={
@@ -194,14 +194,14 @@ const Information = () => {
         </div>
         {/* MARK: MEMBERS  */}
         {conversation?.isGroup ? (
-          <div className="flex flex-col gap-[1rem]">
-            <div className="flex justify-between pr-[1rem]">
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between pr-4">
               <p className="font-be-vn-bold">
                 Members ({conversation.members.length})
               </p>
               <i
                 data-show={showMembers}
-                className="fa-arrow-down fa flex aspect-square h-full cursor-pointer items-center justify-center p-[.5rem] transition-all
+                className="fa-arrow-down fa flex aspect-square h-full cursor-pointer items-center justify-center p-2 transition-all
                 duration-500 data-[show=false]:rotate-90 phone:text-xl laptop:text-md"
                 onClick={toggleMembers}
               ></i>
@@ -210,15 +210,15 @@ const Information = () => {
             <div
               ref={refMembers}
               data-show={showMembers}
-              className="members-image-container hide-scrollbar flex flex-col gap-[1rem] overflow-y-auto scroll-smooth transition-all duration-500
-                data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-[20rem] laptop-lg:max-h-[25rem] desktop:max-h-[50rem]"
+              className="members-image-container hide-scrollbar flex flex-col gap-4 overflow-y-auto scroll-smooth transition-all duration-500
+                data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-80 laptop-lg:max-h-100 desktop:max-h-200"
             >
               {[...conversation?.members]
                 .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
                 .map((item) => (
                   <div
                     key={item.id}
-                    className={`information-members flex w-full cursor-pointer items-center gap-[1rem] rounded-[.5rem] p-2 hover:bg-[var(--bg-color-extrathin)]
+                    className={`information-members flex w-full cursor-pointer items-center gap-4 rounded-lg p-2 hover:bg-(--bg-color-extrathin)
                     ${item.contact.id === info.id ? "pointer-events-none" : ""}
                     `}
                     onClick={(e: MouseEvent<HTMLElement>) => {
@@ -247,7 +247,7 @@ const Information = () => {
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="aspect-square w-[3rem]"
+                        className="aspect-square w-12"
                         circle
                         slides={[
                           {
@@ -264,7 +264,7 @@ const Information = () => {
                     <CustomLabel title={item.contact.name} />
                     {item.isModerator ? (
                       <div
-                        className="font-be-vn-bold bg-light-blue-400 rounded-full px-[1rem] py-[.2rem] 
+                        className="font-be-vn-bold bg-light-blue-400 rounded-full px-4 py-1 
                         text-sm text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                       >
                         Admin
@@ -300,7 +300,7 @@ const Information = () => {
             </div>
           </div>
           {displayAttachments.length !== 0 ? (
-            <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-[1rem]">
+            <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-4">
               {displayAttachments.map((item, index) => (
                 <ImageWithLightBoxAndNoLazy
                   src={item.mediaUrl}
@@ -319,7 +319,7 @@ const Information = () => {
               ))}
             </div>
           ) : (
-            <div className="aspect-square w-[5rem] self-center bg-[url('/src/assets/emptybox.svg')] bg-[size:100%] bg-[position:center_center] bg-no-repeat"></div>
+            <div className="aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-size-[100%] bg-position-[center_center] bg-no-repeat"></div>
           )}
         </div>
       </div>

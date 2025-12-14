@@ -1,7 +1,7 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -94,7 +94,7 @@ const AddMembersModal = (props: OnCloseType) => {
               type: "system",
               content: `${info.name} added new members: ${membersToAdd.map((mem) => mem.name).join(", ")}`,
               contactId: "system",
-              createdTime: moment().format(),
+              createdTime: dayjs().format(),
             } as PendingMessageModel,
           ],
         } as MessageCache;

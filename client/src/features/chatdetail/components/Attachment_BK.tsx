@@ -1,5 +1,4 @@
 import { useParams } from "@tanstack/react-router";
-import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";

@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MessageReaction from "../../../components/MessageReaction";
@@ -167,11 +167,11 @@ const MessageContent = (props: MessageContentProps) => {
       ref={messageRef}
       id={message.id}
       key={message.id}
-      className={`flex shrink-0 gap-[1rem] ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
+      className={`flex shrink-0 gap-4 ${message.contactId === info.id ? "flex-row-reverse" : ""}`}
     >
       {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (
-        <div className="relative w-[4rem] self-start">
+        <div className="relative w-16 self-start">
           <ImageWithLightBoxAndNoLazy
             src={
               conversation.members.find(
@@ -194,13 +194,13 @@ const MessageContent = (props: MessageContentProps) => {
       )}
       <div
         className={`relative flex flex-col
-          phone:w-[30rem] laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+          phone:w-120 laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}
-          ${message.isPinned || message.isForwarded ? "gap-[.5rem]" : ""}
+          ${message.isPinned || message.isForwarded ? "gap-2" : ""}
           `}
       >
         <div
-          className={`text-(--text-main-color-thin) flex items-center gap-[1rem]`}
+          className={`text-(--text-main-color-thin) flex items-center gap-4`}
         >
           {/* MARK: SENDER NAME */}
           <p className="font-['Be_Vietnam_Pro'] font-semibold">
@@ -212,7 +212,7 @@ const MessageContent = (props: MessageContentProps) => {
           </p>
 
           {/* MARK: MESSAGE TIME */}
-          <p>{moment(message.createdTime).format("HH:mm")}</p>
+          <p>{dayjs(message.createdTime).format("HH:mm")}</p>
         </div>
         {/* MARK: ATTACHMENT */}
         {message.attachments && message.attachments.length !== 0 ? (
@@ -233,7 +233,7 @@ const MessageContent = (props: MessageContentProps) => {
                         key={index}
                         src={src.mediaUrl}
                         title={src.mediaName?.split(".")[0]}
-                        className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-[10rem]"}`}
+                        className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-40"}`}
                         slides={message.attachments.map((item) => ({
                           src: item.type === "image" ? item.mediaUrl : "",
                         }))}
@@ -272,8 +272,8 @@ const MessageContent = (props: MessageContentProps) => {
             <div className="relative flex flex-col">
               <div
                 ref={contentRef}
-                className={`cursor-pointer whitespace-pre-line break-all rounded-[1rem] ${message.pending ? "opacity-50" : ""} 
-                bg-(--bg-color) my-[.5rem] px-[1.6rem] leading-8
+                className={`cursor-pointer whitespace-pre-line break-all rounded-2xl ${message.pending ? "opacity-50" : ""} 
+                bg-(--bg-color) my-2 px-[1.6rem] leading-8
                   ${
                     message.isPinned || message.isForwarded
                       ? message.contactId === info.id
@@ -284,8 +284,8 @@ const MessageContent = (props: MessageContentProps) => {
                   flex! overflow-visible! relative w-fit flex-col
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] 
                   data-[expanded=true]:line-clamp-none
-                  data-[expanded=false]:max-h-[10rem] data-[expanded=true]:max-h-full
-                  ${message.isPinned || message.isForwarded || message.replyId ? " py-[.5rem]" : "py-[.8rem]"}
+                  data-[expanded=false]:max-h-40 data-[expanded=true]:max-h-full
+                  ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-[.8rem]"}
                 `}
               >
                 {message.isPinned ? (

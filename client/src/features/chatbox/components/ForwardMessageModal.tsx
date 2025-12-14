@@ -1,5 +1,4 @@
 import { useQueryClient } from "@tanstack/react-query";
-import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -16,6 +15,7 @@ import useConversation from "../../listchat/hooks/useConversation";
 import { ConversationCache, ConversationModel } from "../../listchat/types";
 import sendMessage from "../services/sendMessage";
 import { SendMessageRequest } from "../types";
+import dayjs from "dayjs";
 
 const ForwardMessageModal = (props: ForwardMessageModalProps) => {
   const { onClose, message } = props;
@@ -66,7 +66,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
     queryClient.setQueryData<ConversationCache>(["conversation"], (oldData) => {
       if (!oldData) return oldData;
 
-      const now = moment().format();
+      const now = dayjs().format();
       const convs = oldData.conversations ?? [];
 
       // Lấy conversation hiện tại từ cache (tránh dùng `conversation` "bên ngoài" nếu nó stale)

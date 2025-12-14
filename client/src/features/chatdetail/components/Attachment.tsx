@@ -1,11 +1,11 @@
 import { useParams } from "@tanstack/react-router";
-import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../../../button.css";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 import AttachmentIcon from "./AttachmentIcon";
+import dayjs from "dayjs";
 
 const Attachment = () => {
   const { toggle } = useChatDetailToggles();
@@ -55,7 +55,7 @@ const Attachment = () => {
       ref={refAttachment}
       className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
     >
-      <div className="flex items-center justify-evenly py-[1rem]">
+      <div className="flex items-center justify-evenly py-4">
         <div
           className={`${attachmentToggle === "image" ? "selected" : ""} custom-button`}
           onClick={() => {
@@ -78,15 +78,15 @@ const Attachment = () => {
 
       {displayAttachments.length > 0 ? (
         <div
-          className="attachment-container hide-scrollbar mt-[1rem] flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-[2rem] 
-        [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-[var(--border-color)]  [&>*]:px-[2rem] [&>*]:pb-[1rem]"
+          className="attachment-container hide-scrollbar mt-4 flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-8 
+        [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-(--border-color)  *:px-8 *:pb-4"
         >
           {displayAttachments.map((date) => (
-            <div className="flex flex-col gap-[2rem]">
-              <div className="text-[var(--text-main-color-normal)]">
-                {moment(date.date).format("DD/MM/YYYY")}
+            <div className="flex flex-col gap-8">
+              <div className="text-(--text-main-color-normal)">
+                {dayjs(date.date).format("DD/MM/YYYY")}
               </div>
-              <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-[1rem]">
+              <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-4">
                 {date.attachments.map((item, index) => (
                   <ImageWithLightBoxAndNoLazy
                     src={item.mediaUrl}
@@ -109,7 +109,7 @@ const Attachment = () => {
         </div>
       ) : (
         <div
-          className="flex gap-[1rem] animate-wave-ripple flex-col items-center justify-center m-auto"
+          className="flex gap-4 animate-wave-ripple flex-col items-center justify-center m-auto"
           style={{ animationDelay: "0.9s" }}
         >
           <AttachmentIcon className="pointer-events-none" width="3rem" height="3rem" />

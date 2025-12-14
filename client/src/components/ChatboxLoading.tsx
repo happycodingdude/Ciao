@@ -1,7 +1,6 @@
 import "../listchat.css";
 
-const ChatboxLoading = (props) => {
-  const { className } = props;
+const ChatboxLoading = () => {
   const numberOfLoadingDiv = 10;
   return (
     <div

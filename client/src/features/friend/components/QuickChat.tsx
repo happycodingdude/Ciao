@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
@@ -113,7 +113,7 @@ const QuickChat = (props: QuickChatProps) => {
       let updatedConversations = [];
       if (isDeletedConversation) {
         conversation.lastMessage = message;
-        conversation.lastMessageTime = moment().format();
+        conversation.lastMessageTime = dayjs().format();
         conversation.members = conversation.members.map((mem) => {
           if (mem.contact.id !== info.id) return mem;
           return { ...mem, isDeleted: false };
@@ -128,7 +128,7 @@ const QuickChat = (props: QuickChatProps) => {
         updatedConversations = oldData.conversations.map((conv) => {
           if (conv.id !== conversation.id) return conv;
           conv.lastMessage = message;
-          conv.lastMessageTime = moment().format();
+          conv.lastMessageTime = dayjs().format();
           conv.members = conv.members.map((mem) => {
             if (mem.contact.id !== info.id) return mem;
             return { ...mem, isDeleted: false };
@@ -152,7 +152,7 @@ const QuickChat = (props: QuickChatProps) => {
       content: message,
       currentReaction: null,
       pending: true,
-      createdTime: moment().format(),
+      createdTime: dayjs().format(),
     });
     queryClient.setQueryData(["message", conversation.id], messages);
     queryClient.setQueryData(["attachment", conversation.id], attachments);
@@ -329,7 +329,7 @@ const QuickChat = (props: QuickChatProps) => {
   return (
     <div
       ref={refQuickProfile}
-      className="quick-profile fixed right-[-40rem] aspect-[1/0.9] rounded-[.5rem] laptop:w-[25rem]"
+      className="quick-profile fixed -right-160 aspect-[1/0.9] rounded-lg laptop:w-100"
     >
       <div className="relative flex h-full w-full flex-col">
         <div className="absolute right-[5%] top-[5%]">
@@ -338,12 +338,12 @@ const QuickChat = (props: QuickChatProps) => {
             friendAction={handleFriendAction}
           />
         </div>
-        <div className="basis-[40%] rounded-t-[.5rem] bg-[var(--main-color-extrathin)]"></div>
-        <div className="relative flex grow flex-col justify-evenly rounded-b-[.5rem] bg-[var(--main-color-light)] px-4 pt-16">
-          <div className="absolute left-[1rem] top-[-4rem] rounded-[50%] bg-[var(--main-color-light)] p-[.5rem]">
+        <div className="basis-[40%] rounded-t-lg bg-(--main-color-extrathin)"></div>
+        <div className="relative flex grow flex-col justify-evenly rounded-b-lg bg-(--main-color-light) px-4 pt-16">
+          <div className="absolute left-4 -top-16 rounded-[50%] bg-(--main-color-light) p-2">
             <ImageWithLightBoxAndNoLazy
               src={innerFriend?.avatar}
-              className="loaded aspect-square cursor-pointer rounded-[50%] bg-[size:170%] laptop:w-[7rem]"
+              className="loaded aspect-square cursor-pointer rounded-[50%] bg-size-[170%] laptop:w-28"
               slides={[
                 {
                   src: innerFriend?.avatar,
@@ -352,10 +352,10 @@ const QuickChat = (props: QuickChatProps) => {
             />
           </div>
           <p className="text-md font-medium">{innerFriend?.name}</p>
-          <div className="rounded-[.5rem] bg-[var(--bg-color)] py-[.5rem]">
+          <div className="rounded-lg bg-(--bg-color) py-2">
             <CustomContentEditable
               ref={refInput}
-              className=" px-[.5rem]"
+              className=" px-2"
               onKeyDown={keydownBindingFn}
             />
           </div>

@@ -130,7 +130,7 @@ const Chatbox = () => {
   const grouped = groupMessagesByDate(messages?.messages ?? []);
 
   return (
-    <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-[1rem]">
+    <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-4">
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={scrollChatContentToBottom}
@@ -143,22 +143,22 @@ const Chatbox = () => {
       <div
         ref={refChatContent}
         // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
-        className="custom-scrollbar flex grow flex-col gap-[4rem] overflow-y-scroll scroll-smooth px-[1rem]"
+        className="custom-scrollbar flex grow flex-col gap-16 overflow-y-scroll scroll-smooth px-4"
       >
         {Object.entries(grouped).map(([date, messages], index) => (
           <div
             key={date}
             // className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
-            className={`flex flex-col gap-[4rem] ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-[2rem]" : ""}`}
+            className={`flex flex-col gap-16 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-[2rem]" : ""}`}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="pointer-events-none mx-auto w-fit rounded-[2rem] bg-white px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="pointer-events-none mx-auto w-fit rounded-4xl bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 
             {[...messages].map((message, index) =>
               message.type === "system" ? (
-                <div className="pointer-events-none mx-auto w-fit rounded-[2rem] bg-white px-[2rem] py-[.5rem] text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                <div className="pointer-events-none mx-auto w-fit rounded-4xl bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                   {message.content}
                 </div>
               ) : (
