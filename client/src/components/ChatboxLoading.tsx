@@ -1,7 +1,7 @@
 import "../listchat.css";
 
 const ChatboxLoading = () => {
-  const numberOfLoadingDiv = 10;
+  const numberOfLoadingDiv = 8;
   return (
     <div
       id="sidebar-loading-3"

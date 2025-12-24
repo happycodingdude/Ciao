@@ -1,8 +1,8 @@
 namespace Infrastructure.Databases;
 
-public class MongoDbContext(IConfiguration configuration)
+public class MongoDbContext(IOptions<MongoConfiguration> configuration)
 {
-    MongoClient client = new MongoClient(configuration["ConnectionStrings:mongo-db"]);
+    MongoClient client = new MongoClient(configuration.Value.ConnectionString);
     public MongoClient Client
     {
         get

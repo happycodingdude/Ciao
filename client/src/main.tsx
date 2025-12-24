@@ -8,9 +8,32 @@ import getFirebaseApp from "./utils/firebaseConfig";
 import queryClient from "./utils/queryClient";
 
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
+import updateLocale from "dayjs/plugin/updateLocale";
 
 dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+dayjs.extend(customParseFormat);
+
+dayjs.updateLocale("en", {
+  relativeTime: {
+    future: "in %s",
+    past: "%s",
+    s: "1m",
+    ss: "1m",
+    m: "1m",
+    mm: "%dm",
+    h: "1h",
+    hh: "%dh",
+    d: "1d",
+    dd: "%dd",
+    M: "1M",
+    MM: "%dM",
+    y: "1Y",
+    yy: "%dY",
+  },
+});
 
 // ✅ Initialize Firebase (singleton pattern)
 getFirebaseApp();

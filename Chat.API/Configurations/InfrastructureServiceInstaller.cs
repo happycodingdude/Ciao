@@ -1,12 +1,14 @@
-using Application.BackgroundJobs;
-using Infrastructure.BackgroundJobs;
-
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
+        // Configuration
+        services.Configure<KafkaConfiguration>(configuration.GetSection("Kafka"));
+        services.Configure<MongoConfiguration>(configuration.GetSection("Mongo"));
+        services.Configure<RedisConfiguration>(configuration.GetSection("Redis"));
+
         // Common
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
@@ -15,9 +17,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // Mapper
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-        // Configuration
-        services.Configure<KafkaConfiguration>(configuration.GetSection("Kafka"));
 
         // CORS
         services.AddCors(options =>
@@ -113,13 +112,14 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // Redis
         services.AddStackExchangeRedisCache(opt =>
         {
-            opt.Configuration = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
+            var redisConfig = configuration.GetSection("Redis").Get<RedisConfiguration>() ?? default!;
+            opt.Configuration = redisConfig.ConnectionString;
         });
-        services.AddMemoryCache();
         // Register IConnectionMultiplexer
         services.AddSingleton<IConnectionMultiplexer>(sp =>
          {
-             var config = $"{configuration["Redis:Server"]},password={configuration["Redis:Password"]}";
+             var redisConfig = configuration.GetSection("Redis").Get<RedisConfiguration>() ?? default!;
+             var config = redisConfig.ConnectionString;
              return ConnectionMultiplexer.Connect(config);
          });
         // Register ISubscriber
@@ -128,6 +128,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
             var connectionMultiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
             return connectionMultiplexer.GetSubscriber();
         });
+        services.AddMemoryCache();
         services.AddSingleton<IRedisCaching, RedisCaching>();
 
         // Core

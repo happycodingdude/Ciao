@@ -1,17 +1,17 @@
+import "../../../button.css";
 import useListchatFilter from "../hooks/useListchatFilter";
 import ListChatHeader from "./ListChatHeader";
-import '../../../button.css'
 
 const ListChatHeaderContainer = () => {
   const { filter, setFilter } = useListchatFilter();
   return (
-    <div className="flex flex-col gap-[1.5rem] px-[2rem] pt-[1rem]">
+    <div className="flex flex-col gap-6 px-8 pt-4">
       {/* MARK: List chat header */}
       <div className="relative">
         <ListChatHeader />
       </div>
       {/* MARK: List chat filter */}
-      <div className="flex gap-[1rem]">
+      <div className="flex gap-4">
         <div
           className={`${filter === "all" ? "selected" : ""} custom-button`}
           onClick={() => setFilter("all")}

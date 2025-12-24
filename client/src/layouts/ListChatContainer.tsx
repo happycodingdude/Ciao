@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import dayjs from "dayjs";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import ListchatLoading from "../components/ListchatLoading";
@@ -6,7 +7,6 @@ import useInfo from "../features/authentication/hooks/useInfo";
 import { useActiveConversation } from "../features/chatbox/hooks/useActiveConversation";
 import useConversation from "../features/listchat/hooks/useConversation";
 import "../listchat.css";
-import dayjs from "dayjs";
 
 // moment.updateLocale("en", {
 //   relativeTime: {
@@ -203,7 +203,7 @@ const ListChatContainer = () => {
               className={`chat-item cursor-pointer rounded-2xl p-4
                   ${isActive ? "active" : ""}`}
             >
-              <div className="flex items-center laptop:h-16 laptop-md:h-20">
+              <div className="flex items-start justify-between laptop:h-16 laptop-md:h-20">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -259,7 +259,7 @@ const ListChatContainer = () => {
                   ""
                 ) : (
                   <div
-                    className={`ml-auto flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-base text-gray-500 laptop:w-10`}
+                    className={`flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-10`}
                   >
                     <p>
                       {item.lastMessageTime === null

@@ -91,7 +91,7 @@ const MessageReaction = (props: MessageReactionProps) => {
               ),
               null: (
                 <LikeOutlined
-                  className={`bg-(--sub-color) flex aspect-square h-8 cursor-pointer items-center justify-center rounded-full 
+                  className={`bg-(--sub-color) flex! aspect-square h-8 cursor-pointer items-center justify-center rounded-full 
                   border-[.15rem] border-blue-300
                   ${pending ? "pointer-events-none opacity-50" : ""}`}
                   style={{ fontSize: "12px" }}
