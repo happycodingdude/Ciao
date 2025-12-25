@@ -1,5 +1,6 @@
 import { PushpinOutlined } from "@ant-design/icons";
 import { ReactNode, useEffect, useRef, useState } from "react";
+import { renderMessageWithMentions } from "../../../utils/renderMention";
 
 export type MessageType = "pinned" | "forwarded" | "reply" | undefined;
 
@@ -40,13 +41,13 @@ export function PinnedMessage(props: PinnedMessageProps) {
       case "pinned":
         return {
           header: (
-            <div className="inline-flex h-[2rem] items-center gap-[.5rem] text-sm italic text-light-blue-500">
+            <div className="inline-flex h-8 items-center gap-2 text-sm italic text-light-blue-500">
               Pinned by {props.contact}
             </div>
           ),
           icon: (
             <PushpinOutlined
-              className={`absolute ${props.mine ? "right-[-.4rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-[1rem] 
+              className={`absolute ${props.mine ? "right-[-.4rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-2xl 
               bg-light-blue-500 px-[.2rem] py-[.7rem] text-xs text-white`}
               style={{
                 strokeWidth: "80",
@@ -61,13 +62,13 @@ export function PinnedMessage(props: PinnedMessageProps) {
       case "forwarded":
         return {
           header: (
-            <div className="inline-flex h-[2rem] items-center gap-[.5rem] text-sm italic text-light-blue-500">
+            <div className="inline-flex h-8 items-center gap-2 text-sm italic text-light-blue-500">
               {props.contact} have forwarded this message
             </div>
           ),
           icon: (
             <i
-              className={`fa fa-share absolute ${props.mine ? "rotate-x-50 right-[-.8rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-[1rem] 
+              className={`fa fa-share absolute ${props.mine ? "rotate-x-50 right-[-.8rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-2xl 
               bg-light-blue-500 px-[.2rem] py-[.7rem] text-xs text-white`}
             />
           ),
@@ -101,7 +102,7 @@ export function PinnedMessage(props: PinnedMessageProps) {
         ref={contentRef}
         className={`overflow-hidden text-ellipsis ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
       >
-        {props.message}
+        {renderMessageWithMentions(props.message)}
       </p>
       {/* MARK: SHOW MORE MESSAGE */}
       {config.showExpandToggle && isOverflowing && (

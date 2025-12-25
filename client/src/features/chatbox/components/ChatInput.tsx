@@ -109,7 +109,7 @@ const ChatInput = (props: ChatInputProps) => {
   const chooseMention = (id: string) => {
     const user = mentions.find((item) => item.userId === id);
     inputRef.current.innerText =
-      inputRef.current.innerText.replace("@", "") + user.name;
+      inputRef.current.innerText.replace("@", "") + `@[${user.name}]`;
     setCaretToEnd(true);
     setShowMention(false);
   };
@@ -536,7 +536,7 @@ const ChatInput = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "w-0! laptop:max-w-7xl laptop-lg:max-w-400"
+              ? "w-0! laptop-lg:max-w-400 laptop:max-w-7xl"
               : "w-0! laptop:max-w-240 laptop-lg:max-w-7xl"
         }  
         `}
@@ -563,7 +563,7 @@ const ChatInput = (props: ChatInputProps) => {
           {conversation.isGroup ? (
             <div
               data-show={showMention}
-              className="hide-scrollbar absolute bottom-32 left-20 z-2 flex flex-col overflow-y-scroll
+              className="hide-scrollbar z-2 absolute bottom-32 left-20 flex flex-col overflow-y-scroll
           scroll-smooth rounded-[.7rem] bg-white p-2 text-sm shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
           phone:max-h-72 phone:w-[18rem] laptop:max-h-80 laptop:w-[20rem]"
@@ -672,7 +672,7 @@ const ChatInput = (props: ChatInputProps) => {
         </div>
         {/* MARK: EMOJI */}
         {showEmoji && (
-          <div className="absolute -top-176 left-0">
+          <div className="-top-176 absolute left-0">
             <Suspense
               fallback={
                 <div className="h-176 w-84 animate-pulse rounded-lg bg-gray-100" />

@@ -7,6 +7,7 @@ import useInfo from "../features/authentication/hooks/useInfo";
 import { useActiveConversation } from "../features/chatbox/hooks/useActiveConversation";
 import useConversation from "../features/listchat/hooks/useConversation";
 import "../listchat.css";
+import { renderMessageWithMentions } from "../utils/renderMention";
 
 // moment.updateLocale("en", {
 //   relativeTime: {
@@ -238,17 +239,17 @@ const ListChatContainer = () => {
                   {/* MARK: LAST MESSAGE */}
                   {item.lastMessage ? (
                     <div className="mt-1 truncate text-gray-600 laptop-md:text-base">
-                      <CustomLabel
-                        className={`
-                              ${
-                                isActive
-                                  ? "text-(--text-sub-color-thin)"
-                                  : item.unSeen
-                                    ? "text-(--danger-text-color)"
-                                    : "text-(--text-main-color-blur)"
-                              }`}
-                        title={item.lastMessage}
-                      />
+                      <p
+                        className={`${
+                          isActive
+                            ? "text-(--text-sub-color-thin)"
+                            : item.unSeen
+                              ? "text-(--danger-text-color)"
+                              : "text-(--text-main-color-blur)"
+                        } w-full overflow-hidden text-ellipsis whitespace-nowrap`}
+                      >
+                        {renderMessageWithMentions(item.lastMessage)}
+                      </p>
                     </div>
                   ) : (
                     ""
