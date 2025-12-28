@@ -171,14 +171,14 @@ const MessageContent = (props: MessageContentProps) => {
     >
       {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (
-        <div className="relative w-16 self-start">
+        <div className="relative w-12 self-start">
           <ImageWithLightBoxAndNoLazy
             src={
               conversation.members.find(
                 (q) => q.contact.id === message.contactId,
               )?.contact.avatar
             }
-            className="aspect-square w-full cursor-pointer"
+            className="aspect-square cursor-pointer"
             circle
             slides={[
               {
@@ -194,7 +194,7 @@ const MessageContent = (props: MessageContentProps) => {
       )}
       <div
         className={`relative flex flex-col
-          phone:w-120 laptop:w-[clamp(40rem,50%,60rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+          phone:w-120 laptop:w-[clamp(30rem,50%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}
           ${message.isPinned || message.isForwarded ? "gap-2" : ""}
           `}
@@ -284,8 +284,8 @@ const MessageContent = (props: MessageContentProps) => {
                   flex! overflow-visible! relative w-fit flex-col
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)] 
                   data-[expanded=true]:line-clamp-none
-                  data-[expanded=false]:max-h-40 data-[expanded=true]:max-h-full
-                  ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-[.8rem]"}
+                  data-[expanded=false]:max-h-30 data-[expanded=true]:max-h-full
+                  ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-1"}
                 `}
               >
                 {message.isPinned ? (
@@ -348,18 +348,6 @@ const MessageContent = (props: MessageContentProps) => {
                 }
               />
             </div>
-
-            {/* MARK: SHOW MORE MESSAGE */}
-            {/* {isOverflowing && (
-              <div
-                className={`absolute bottom-[-1.2rem] ${message.contactId === info.id ? "left-[3rem]" : "right-[3rem]"} cursor-pointer text-base text-green-500`}
-                onClick={() => {
-                  setIsExpanded((current) => !current);
-                }}
-              >
-                {isExpanded ? "View less" : "View more"}
-              </div>
-            )} */}
           </>
         ) : (
           ""

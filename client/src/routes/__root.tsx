@@ -69,7 +69,7 @@ function RootComponent() {
 
   return (
     <>
-      <div className="text-(--text-main-color-light) relative flex w-full phone:text-base desktop:text-md">
+      <div className="text-(--text-main-color-light) laptop:text-xs desktop:text-md relative flex w-full">
         <SideBar />
         <div className="relative grow">
           <LoadingProvider>

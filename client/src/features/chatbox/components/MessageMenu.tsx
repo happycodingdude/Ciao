@@ -119,8 +119,7 @@ const MessageMenu = (props: MessageMenuProps) => {
       <div
         ref={refMenu}
         data-show={show}
-        className={`message-menu-container ${mine ? "left-[-17rem]" : "right-[-17rem]"}
-        data-[show=false]:z-0 data-[show=true]:z-[2]`}
+        className={`message-menu-container ${mine ? "-left-60" : "-right-60"}`}
       >
         {/* MARK: COPY */}
         <div className="message-menu-item" onClick={copyMessage}>
@@ -150,11 +149,11 @@ const MessageMenu = (props: MessageMenuProps) => {
           <i className="fa fa-share" /> Forward message
           <BackgroundPortal
             show={openForward}
-            className="phone:w-[35rem] laptop:w-[50rem] desktop:w-[70rem]"
+            className="phone:w-140 laptop:w-200 desktop:w-280"
             title="Forward message"
             onClose={() => setOpenForward(false)}
           >
-            <div className="flex flex-col gap-[1rem] p-10 pt-12 text-[var(--text-main-color)] phone:h-[50rem] laptop:h-[45rem] laptop-lg:h-[55rem] desktop:h-[80rem]">
+            <div className="text-(--text-main-color) phone:h-200 laptop:h-180 laptop-lg:h-220 desktop:h-320 flex flex-col gap-4 p-10 pt-12">
               <Suspense fallback={<ModalLoading />}>
                 <ForwardMessageModal
                   onClose={() => setOpenForward(false)}
@@ -166,7 +165,7 @@ const MessageMenu = (props: MessageMenuProps) => {
         </div>
       </div>
       <EllipsisOutlined
-        className={`absolute ${mine ? "left-[-2rem]" : "right-[-2rem]"} top-[.5rem] text-lg`}
+        className={`absolute ${mine ? "-left-8" : "-right-8"} top-2 text-base`}
         onClick={(e) => toggleMenu(e)}
       />
     </>

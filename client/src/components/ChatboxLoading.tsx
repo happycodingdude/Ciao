@@ -1,18 +1,12 @@
 import "../listchat.css";
 
 const ChatboxLoading = () => {
-  const numberOfLoadingDiv = 8;
+  const numberOfLoadingDiv = 6;
   return (
-    <div
-      id="sidebar-loading-3"
-      className="flex h-full w-full grow flex-col border-r border-gray-200 bg-primary-light"
-    >
-      <div
-        id="chat-content-loading-3"
-        className="flex flex-1 flex-col bg-white"
-      >
+    <div className="flex h-full w-full grow flex-col border-r border-gray-200 bg-primary-light">
+      <div className="flex flex-1 flex-col bg-white">
         <div className="flex items-center border-b border-gray-200 p-4">
-          <div className="wave-line shimmer-effect aspect-square w-16 rounded-full bg-opacity-40"></div>
+          <div className="wave-line shimmer-effect aspect-square w-12 rounded-full bg-opacity-40"></div>
           <div className="ml-3">
             <div className="wave-line shimmer-effect mb-2 h-4 w-40 rounded-sm bg-opacity-40"></div>
             <div className="wave-line shimmer-effect h-3 w-32 rounded-sm bg-opacity-40"></div>
@@ -30,9 +24,9 @@ const ChatboxLoading = () => {
                 className="mb-4 flex animate-wave-ripple"
                 style={{ animationDelay: "0s" }}
               >
-                <div className="wave-line shimmer-effect h-16 w-16 rounded-full bg-opacity-40"></div>
+                <div className="wave-line shimmer-effect aspect-square h-12 rounded-full bg-opacity-40"></div>
                 <div className="ml-2 max-w-[70%]">
-                  <div className="wave-line shimmer-effect h-16 w-64 rounded-lg bg-opacity-40"></div>
+                  <div className="wave-line shimmer-effect h-12 w-48 rounded-lg bg-opacity-40"></div>
                   <div className="wave-line shimmer-effect ml-1 mt-1 h-3 w-16 rounded-sm bg-opacity-40"></div>
                 </div>
               </div>
@@ -50,7 +44,7 @@ const ChatboxLoading = () => {
           )}
 
           <div
-            className="flex h-32 animate-wave-ripple flex-col items-center justify-center"
+            className="flex h-24 animate-wave-ripple flex-col items-center justify-center"
             style={{ animationDelay: "0.9s" }}
           >
             <div className="text-primary-DEFAULT wave-line mb-3 text-5xl opacity-30">

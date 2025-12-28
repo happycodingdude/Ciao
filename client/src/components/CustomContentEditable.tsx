@@ -49,7 +49,7 @@ const CustomContentEditable = forwardRef(
         contentEditable={true}
         data-placeholder="Type your message here..."
         className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-8 w-full resize-none overflow-y-auto 
-        break-all phone:max-h-[10rem] laptop:max-h-[7rem] laptop-lg:max-h-[10rem]`}
+        break-all phone:max-h-40 laptop:max-h-28 laptop-lg:max-h-40`}
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}
         onInput={handleInput}

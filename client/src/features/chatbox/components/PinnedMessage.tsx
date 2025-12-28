@@ -107,7 +107,7 @@ export function PinnedMessage(props: PinnedMessageProps) {
       {/* MARK: SHOW MORE MESSAGE */}
       {config.showExpandToggle && isOverflowing && (
         <div
-          className={`${props.mine ? "self-end" : ""} w-fit cursor-pointer text-base text-green-500`}
+          className={`${props.mine ? "self-end" : ""} w-fit cursor-pointer text-green-500`}
           onClick={() => {
             setIsExpanded((current) => !current);
           }}

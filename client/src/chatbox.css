@@ -1,0 +1,78 @@
+@utility top-reaction {
+  background-size: 80%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  aspect-ratio: 1 / 1;
+  height: 1.5rem;
+}
+
+@utility list-reaction-container {
+  position: absolute;
+  bottom: 1.5rem;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+
+  height: 2.5rem;
+  width: 16rem;
+
+  border-radius: 2rem;
+  background-color: var(--sub-color);
+
+  border-width: 0.2rem;
+  border-style: solid;
+  border-color: rgb(147 197 253);
+
+  transform: scale(0);
+
+  transition-property: all;
+  transition-duration: 200ms;
+
+  &:hover {
+    transform: scale(1);
+  }
+
+  .peer:hover ~ & {
+    transform: scale(1);
+  }
+}
+
+@utility reaction-item {
+  background-size: 60%;
+  background-position: center center;
+  background-repeat: no-repeat;
+
+  aspect-ratio: 1 / 1;
+  height: 2rem;
+
+  cursor: pointer;
+
+  transition-property: all;
+  transition-duration: 200ms;
+
+  &:hover {
+    transform: scale(1.25);
+  }
+}
+
+@utility current-reaction-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  aspect-ratio: 1 / 1;
+  width: 1.5rem;
+}
+
+@utility current-reaction-item {
+  /* background-size: 70%; */
+  background-position: center center;
+  background-repeat: no-repeat;
+
+  aspect-ratio: 1 / 1;
+  height: 1.5rem;
+
+  cursor: pointer;
+}

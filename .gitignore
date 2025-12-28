@@ -426,3 +426,4 @@
 /mongo-db
 
 /docker
+.DS_Store

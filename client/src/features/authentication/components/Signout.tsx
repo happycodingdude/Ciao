@@ -1,4 +1,3 @@
-import { LogoutOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { stopSignalConnection } from "../../../utils/signalManager";
@@ -10,19 +9,25 @@ const Signout = ({ className }: { className: string }) => {
 
   // const { stopConnection } = useSignal();
   return (
-    // <div
-    //   onClick={() => signout(queryClient, navigate)}
-    //   className={`fas fa-sign-out base-icon-sm text-red-500`}
-    // ></div>
-    <LogoutOutlined
-      onClick={async () => {
-        // await stopConnection();
-        await stopSignalConnection();
-        signout(queryClient, router);
-      }}
-      style={{ fontSize: "2rem" }}
-      className={`${className} base-icon text-red-500`}
-    />
+    <div className="w-[60%] mt-autos">
+      <div
+        onClick={async () => {
+          // await stopConnection();
+          await stopSignalConnection();
+          signout(queryClient, router);
+        }}
+        className={`fa-solid fa-sign-out sidebar-item`}
+      ></div>
+    </div>
+    // <LogoutOutlined
+    //   onClick={async () => {
+    //     // await stopConnection();
+    //     await stopSignalConnection();
+    //     signout(queryClient, router);
+    //   }}
+    //   style={{ fontSize: "1.25rem"}}
+    //   className={`${className} text-red-500`}
+    // />
   );
 };
 

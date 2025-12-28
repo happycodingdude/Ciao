@@ -63,15 +63,16 @@ const SideBarMenu = () => {
       id="sidebar-3"
       // className="sidebar-3 relative flex h-full w-full flex-col items-center bg-gradient-to-br from-neo-purple/90
       // to-neo-pink/90 pb-[3rem] pt-[1.5rem]"
-      className="sidebar-3 bg-linear-to-br relative flex h-full w-full flex-col items-center from-light-blue-300 to-light-blue-500 pb-12 pt-6"
+      className="sidebar-3 bg-linear-to-br relative flex h-full w-full flex-col items-center 
+      from-light-blue-300 to-light-blue-500 py-6"
     >
-      <div className="z-10 mb-16 aspect-square w-[60%]">
+      <div className="z-10 aspect-square w-[60%] mb-12">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
           <i className="fa-solid fa-comments  text-light-blue-600"></i>
         </div>
       </div>
 
-      <div className="z-10 flex w-[60%] flex-1 flex-col gap-8">
+      <div className="z-10 flex w-[60%] flex-col gap-8">
         <Link to="/" className="sidebar-item">
           <i className="fa-solid fa-home "></i>
           <div className="tooltip">Home</div>
@@ -98,16 +99,16 @@ const SideBarMenu = () => {
         </Link>
       </div>
 
-      <ImageWithLightBoxAndNoLazy
+      {/* <ImageWithLightBoxAndNoLazy
         src={info.avatar}
-        className="h-16 w-16 cursor-pointer"
+        className="w-12 aspect-square cursor-pointer"
         slides={[
           {
             src: info.avatar,
           },
         ]}
         circle
-      />
+      /> */}
 
       <Signout className="mt-4 text-white" />
     </div>

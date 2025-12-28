@@ -204,7 +204,7 @@ const ListChatContainer = () => {
               className={`chat-item cursor-pointer rounded-2xl p-4
                   ${isActive ? "active" : ""}`}
             >
-              <div className="flex items-start justify-between laptop:h-16 laptop-md:h-20">
+              <div className="flex items-start justify-between h-12">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -215,15 +215,15 @@ const ListChatContainer = () => {
                             (item) => item.contact.id !== info.id,
                           )?.contact.avatar
                     }
-                    className={`loaded pointer-events-none aspect-square w-16 animate-morph`}
+                    className={`loaded pointer-events-none aspect-square w-12 animate-morph`}
                     circle
                   />
                   <div
                     className={`absolute -bottom-1 -right-1 aspect-square w-6 rounded-full border-2 border-white 
-                        ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-green-400" : "bg-gray-400"}`}
+                        ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
                   ></div>
                 </div>
-                <div className="my-auto ml-4 flex w-[60%] flex-col">
+                <div className="flex h-full w-[60%] flex-col justify-between">
                   {/* MARK: TITLE */}
                   <CustomLabel
                     className={`${isActive ? "text-(--text-sub-color)" : "text-(--text-main-color)"} 
@@ -238,7 +238,7 @@ const ListChatContainer = () => {
                   />
                   {/* MARK: LAST MESSAGE */}
                   {item.lastMessage ? (
-                    <div className="mt-1 truncate text-gray-600 laptop-md:text-base">
+                    <div className="truncate text-gray-600">
                       <p
                         className={`${
                           isActive
@@ -260,7 +260,7 @@ const ListChatContainer = () => {
                   ""
                 ) : (
                   <div
-                    className={`flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 laptop:w-10`}
+                    className={`text-3xs flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-gray-500 laptop:w-8`}
                   >
                     <p>
                       {item.lastMessageTime === null

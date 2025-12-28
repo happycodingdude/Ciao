@@ -32,7 +32,7 @@ body {
 @media (min-width: 1280px) {
   .sidebar-container {
     height: 100%;
-    width: 7rem;
+    width: 5rem;
     flex-direction: column;
     border: none;
   }
@@ -72,7 +72,7 @@ body {
   color: white;
   padding: 5px 10px;
   border-radius: 4px;
-  font-size: 12px;
+  /* font-size: 12px; */
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -103,7 +103,7 @@ body {
   border-radius: 0.75rem; /* rounded-xl */
   transition-property: all;
   transition-duration: 100ms;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
 }
 
 .sidebar-item:hover .tooltip {

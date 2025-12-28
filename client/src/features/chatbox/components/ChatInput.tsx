@@ -536,8 +536,8 @@ const ChatInput = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "w-0! laptop-lg:max-w-400 laptop:max-w-7xl"
-              : "w-0! laptop:max-w-240 laptop-lg:max-w-7xl"
+              ? "w-0! laptop:max-w-200"
+              : "w-0! laptop:max-w-120"
         }  
         `}
       >
@@ -545,7 +545,7 @@ const ChatInput = (props: ChatInputProps) => {
         {files?.length !== 0 ? (
           <div
             id="file-preview-4"
-            className="custom-scrollbar flex gap-[1rem] overflow-x-auto rounded-2xl p-[1.5rem]"
+            className="custom-scrollbar flex gap-4 overflow-x-auto rounded-2xl p-6"
           >
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />
@@ -596,11 +596,11 @@ const ChatInput = (props: ChatInputProps) => {
           <div className="flex flex-col gap-4 p-4">
             <div className="flex items-center gap-4">
               <label
-                className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 text-lg text-gray-500 hover:bg-gray-100 hover:text-neo-purple"
+                className="emoji-item toolbar-btn fa-regular fa-face-smile text-md flex aspect-square cursor-pointer items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500"
                 onClick={() => setShowEmoji(true)}
               ></label>
 
-              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
                 <input
                   multiple
                   type="file"
@@ -613,10 +613,10 @@ const ChatInput = (props: ChatInputProps) => {
                   htmlFor="choose-file"
                   className="flex w-full cursor-pointer items-center justify-center"
                 >
-                  <i className="fa-solid fa-paperclip text-lg"></i>
+                  <i className="fa-solid fa-paperclip text-md"></i>
                 </label>
               </div>
-              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
                 <input
                   multiple
                   type="file"
@@ -629,20 +629,20 @@ const ChatInput = (props: ChatInputProps) => {
                   htmlFor="choose-image"
                   className="flex w-full cursor-pointer items-center justify-center"
                 >
-                  <i className="fa-solid fa-image text-lg"></i>
+                  <i className="fa-solid fa-image text-md"></i>
                 </label>
               </div>
-              <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-microphone text-lg"></i>
+              <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+                <i className="fa-solid fa-microphone text-md"></i>
               </button>
               <div className="flex-1"></div>
-              <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
+              {/* <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-at text-lg"></i>
-              </button>
+              </button> */}
             </div>
 
             {/* MARK: TEXT INPUT */}
-            <div className="flex items-end gap-[1rem]">
+            <div className="flex items-end gap-4">
               <div className="flex-1 self-center">
                 {/* <textarea
                       placeholder="Type your message here..."
@@ -657,17 +657,17 @@ const ChatInput = (props: ChatInputProps) => {
                 />
               </div>
               <button
-                className="send-btn flex aspect-square w-12 items-center justify-center rounded-full 
+                className="send-btn flex aspect-square w-10 items-center justify-center rounded-full 
                 bg-light-blue-400 text-white"
               >
-                <i className="fa-solid fa-paper-plane text-base"></i>
+                <i className="fa-solid fa-paper-plane text-sm"></i>
               </button>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-gray-400">
+            {/* <div className="flex items-center justify-between text-xs text-gray-400">
               <span>Press Enter to send, Shift+Enter for new line</span>
               <span className="rounded-full bg-gray-100 px-2 py-1">0/2000</span>
-            </div>
+            </div> */}
           </div>
         </div>
         {/* MARK: EMOJI */}

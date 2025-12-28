@@ -59,7 +59,7 @@ const ChatboxHeaderMenu = () => {
       /> */}
       {/* MARK: INFO  */}
       <div
-        className={`flex justify-end gap-[1rem] rounded-full 
+        className={`flex justify-end gap-4 rounded-full 
             ${
               toggle === "information"
                 ? "text-light-blue-500"
@@ -72,7 +72,7 @@ const ChatboxHeaderMenu = () => {
               current === "information" ? null : "information",
             )
           }
-          className="base-icon-sm transition-all duration-200"
+          className="transition-all duration-200 base-icon-sm"
         />
       </div>
       {/* MARK: ATTACHMENT  */}
@@ -83,8 +83,8 @@ const ChatboxHeaderMenu = () => {
           )
         }
         toggle={toggle === "attachment"}
-        width="2rem"
-        height="2rem"
+        width="1.25rem"
+        height="1.25rem"
       />
     </>
   );

@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-body {
+/* body {
   font-family: "Inter", sans-serif;
-}
+} */
 
 .chat-item {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

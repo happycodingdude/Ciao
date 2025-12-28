@@ -1,16 +1,3 @@
-:root {
-  font-size: 62.5%;
-  --danger-text-color: #ef4444;
-  --danger-text-color-normal: #f87171;
-  --danger-text-color-light: #f99f9f;
-  --online-color: #00dd00;
-  --offline-color: #808080;
-  --pinned-message-container-bg-color: #fff6b0;
-  --pinned-message-container-icon-color: #ff8400;
-  --pinned-message-container-border-color: #ffcc00;
-  --pinned-message-text-color: #874c00;
-}
-
 [data-theme="light"] {
   --main-color-extrabold: #cca1ba;
   --main-color-bold: #e6acce;
@@ -72,20 +59,4 @@
   --portal-bg-color: #afafaf9f;
   --portal-container-bg-color: #e8e8e8;
   --search-bg-color: #f3f4f6;
-}
-
-html,
-body,
-#root {
-  font-family: "Mulish";
-  /* font-family: 'Roboto'; */
-  /* font-family: 'Montserrat'; */
-  /* font-family: SegoeuiPc,Segoe UI,San Francisco,Helvetica Neue,Helvetica,Lucida Grande,Roboto,Ubuntu,Tahoma,Microsoft Sans Serif,Arial,sans-serif; */
-  /* font-family: sans-serif; */
-  font-size: 1.6rem;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  scrollbar-width: none;
 }
