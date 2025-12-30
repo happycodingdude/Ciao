@@ -171,30 +171,27 @@ const MessageContent = (props: MessageContentProps) => {
     >
       {/* MARK: SENDER AVATAR */}
       {message.contactId !== info.id ? (
-        <div className="relative w-12 self-start">
-          <ImageWithLightBoxAndNoLazy
-            src={
-              conversation.members.find(
+        <ImageWithLightBoxAndNoLazy
+          src={
+            conversation.members.find((q) => q.contact.id === message.contactId)
+              ?.contact.avatar
+          }
+          className="h-10! aspect-square cursor-pointer"
+          circle
+          slides={[
+            {
+              src: conversation.members.find(
                 (q) => q.contact.id === message.contactId,
-              )?.contact.avatar
-            }
-            className="aspect-square cursor-pointer"
-            circle
-            slides={[
-              {
-                src: conversation.members.find(
-                  (q) => q.contact.id === message.contactId,
-                )?.contact.avatar,
-              },
-            ]}
-          />
-        </div>
+              )?.contact.avatar,
+            },
+          ]}
+        />
       ) : (
         ""
       )}
       <div
-        className={`relative flex flex-col
-          phone:w-120 laptop:w-[clamp(30rem,50%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+        className={`phone:w-120 relative flex
+          flex-col laptop:w-[clamp(30rem,50%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
           ${message.contactId === info.id ? "items-end" : "items-start"}
           ${message.isPinned || message.isForwarded ? "gap-2" : ""}
           `}
@@ -281,10 +278,10 @@ const MessageContent = (props: MessageContentProps) => {
                         : "border-l-[.4rem] border-light-blue-500"
                       : ""
                   }                                       
-                  flex! overflow-visible! relative w-fit flex-col
-                  shadow-[0_2px_10px_rgba(0,0,0,0.1)] 
-                  data-[expanded=true]:line-clamp-none
-                  data-[expanded=false]:max-h-30 data-[expanded=true]:max-h-full
+                  flex! overflow-visible! data-[expanded=false]:max-h-30 relative w-fit
+                  flex-col 
+                  shadow-[0_2px_10px_rgba(0,0,0,0.1)]
+                  data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
                   ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-1"}
                 `}
               >

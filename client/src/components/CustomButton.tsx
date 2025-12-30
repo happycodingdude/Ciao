@@ -18,7 +18,6 @@ const CustomButton = (props: CustomButtonProps) => {
   };
   return (
     <div
-      // className={`${className} relative z-0 mx-auto ${width ? `w-[${width}rem]` : "w-full"}`}
       className={`${className} relative z-0 mx-auto`}
       style={{ width: width ? `${width}rem` : "100%" }}
     >
@@ -31,7 +30,7 @@ const CustomButton = (props: CustomButtonProps) => {
             "--rounded": `${rounded}`,
           } as CSSProperties
         }
-        className={`gradient-item relative cursor-pointer rounded-4xl bg-(--bg-color) text-center font-medium 
+        className={`gradient-item rounded-4xl bg-(--bg-color) relative cursor-pointer text-center font-medium 
           transition-all data-[process=true]:pointer-events-none`}
         onClick={(e) => {
           e.stopPropagation(); // Prevent bubbling to parent
@@ -43,9 +42,7 @@ const CustomButton = (props: CustomButtonProps) => {
             className={`fa fa-spinner fa-spin leading-8 ${padding ?? "py-4"}`}
           ></div>
         ) : (
-          <span className={`leading-8 ${padding ?? "py-4"}`}>
-            {title}
-          </span>
+          <span className={`leading-8 ${padding ?? "py-2"}`}>{title}</span>
         )}
       </div>
     </div>

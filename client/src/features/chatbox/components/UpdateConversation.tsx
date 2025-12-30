@@ -88,15 +88,15 @@ const UpdateConversation = (props: UpdateConversationProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-[3rem] p-10 pt-12">
+    <div className="flex flex-col gap-12 p-5 pt-10">
       <div className="relative flex items-end justify-evenly">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
-          className="aspect-square w-[5rem] cursor-pointer rounded-[1rem]"
+          className="aspect-square w-20 cursor-pointer rounded-2xl"
           local
         />
         <MediaPicker
-          className="absolute left-[6rem] top-[-1.5rem]"
+          className="absolute -top-4 left-28"
           accept="image/png, image/jpeg, image/webp"
           id="new-conversation-avatar"
           onChange={chooseAvatar}
@@ -104,14 +104,14 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         <CustomInput
           type="text"
           inputRef={refInput}
-          className="phone:w-[20rem] laptop:w-[30rem]"
+          className="phone:w-[20rem] laptop:w-80"
           placeholder="Type group name"
         />
       </div>
       <CustomButton
-        className={`desktop:text-md !mr-0 phone:text-base`}
-        width={7}
-        padding="py-[.3rem]"
+        className="text-2xs mr-0"
+        width={4}
+        padding="py-0"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
         gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
         rounded="3rem"

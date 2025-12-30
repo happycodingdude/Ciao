@@ -23,24 +23,24 @@ const MemberToAdd_LargeScreen = ({
         } as CSSProperties
       }
       className={twMerge(
-        "gradient-item relative h-[95%] w-[40%] translate-x-0 self-center rounded-[.5rem] bg-[var(--bg-color)] opacity-100 transition-all duration-300",
+        "gradient-item bg-(--bg-color) relative h-[95%] w-[40%] translate-x-0 self-center rounded-lg opacity-100 transition-all duration-300",
         membersToAdd.length === 0 && "w-0 translate-x-full opacity-0",
       )}
     >
-      <div className="flex h-full w-full flex-col gap-[1rem] rounded-[.5rem] bg-[var(--bg-color)] p-2">
+      <div className="bg-(--bg-color) flex h-full w-full flex-col gap-4 rounded-lg p-2">
         <p>
           Selected{" "}
           <span className="text-pink-500">
             {membersToAdd.length ?? 0}/{total}
           </span>
         </p>
-        <div className="hide-scrollbar flex flex-col gap-[.5rem] overflow-y-scroll scroll-smooth text-xs">
+        <div className="hide-scrollbar text-2xs flex flex-col gap-2 overflow-y-scroll scroll-smooth">
           {membersToAdd?.map((item) => (
-            <div className="flex items-center justify-between rounded-[1rem] bg-[var(--bg-color-extrathin)] p-2 !pr-4">
-              <div className="pointer-events-none inline-flex items-center gap-[.5rem]">
+            <div className="bg-(--bg-color-extrathin) flex items-center justify-between rounded-2xl p-2">
+              <div className="pointer-events-none inline-flex w-[85%] items-center gap-2">
                 <ImageWithLightBoxAndNoLazy
                   src={item.avatar}
-                  className="loaded aspect-square cursor-pointer laptop:w-[3rem]"
+                  className="loaded aspect-square cursor-pointer laptop:w-8"
                   circle
                   slides={[
                     {
@@ -49,12 +49,11 @@ const MemberToAdd_LargeScreen = ({
                   ]}
                   onClick={() => {}}
                 />
-                <div>
-                  <CustomLabel title={item.name} />
-                </div>
+
+                <CustomLabel title={item.name} />
               </div>
               <div
-                className="fa fa-trash cursor-pointer text-base text-[var(--danger-text-color)]"
+                className="fa fa-trash text-(--danger-text-color) cursor-pointer text-base"
                 onClick={() => {
                   removeMemberToAdd(item.id);
                 }}

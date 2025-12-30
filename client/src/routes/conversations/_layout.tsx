@@ -37,12 +37,12 @@ export const Route = createFileRoute("/conversations/_layout")({
         <section className={`relative flex grow overflow-hidden`}>
           <ChatDetailTogglesProvider>
             <ListchatFilterProvider>
-              <div className="border-r-(--border-color) w-90 flex h-screen shrink-0 flex-col gap-8 border-r-[.1rem]">
+              <div className="border-r-(--border-color) flex h-screen w-80 shrink-0 flex-col gap-4 border-r-[.1rem]">
                 <ListChatHeaderContainer />
                 <Suspense fallback={<ListchatLoading />}>
                   <Await promise={conversationPromise}>
                     {(data) => (
-                      <div className="relative flex min-h-0 flex-1 flex-col gap-8 overflow-y-scroll scroll-smooth px-6 py-4">
+                      <div className="custom-scrollbar relative flex min-h-0 flex-1 flex-col gap-6 overflow-y-scroll scroll-smooth p-2">
                         <ListChatContainer />
                       </div>
                     )}

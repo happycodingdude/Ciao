@@ -86,8 +86,8 @@ const Information = () => {
     >
       {/* Container */}
       <div className="[&>*:not(:last-child)]:border-b-(--border-color) flex grow flex-col *:p-4 [&>*:not(:last-child)]:border-b-[.1rem]">
-        <div className="flex items-center justify-between px-4 laptop:h-24">
-          <p className="text-lg font-bold">Chat information</p>
+        <div className="flex items-center justify-between px-4 laptop:h-16">
+          <p className="text-base font-bold">Chat information</p>
           <div className="flex gap-4">
             {/* <EditOutlined
               className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
@@ -98,14 +98,14 @@ const Information = () => {
             {/* MARK: UPDATE TITLE  */}
             {conversation.isGroup ? (
               <div
-                className="fa fa-pen-to-square base-icon hover:text-light-blue-500"
+                className="fa fa-pen-to-square base-icon-sm hover:text-light-blue-500"
                 onClick={() => setOpenUpdateTitle(true)}
               ></div>
             ) : null}
 
             <BackgroundPortal
               show={openUpdateTitle}
-              className="phone:w-140 laptop:w-180 desktop:w-[35%]"
+              className="phone:w-140 laptop:w-140 desktop:w-[35%]"
               title="Update group"
               onClose={() => setOpenUpdateTitle(false)}
             >
@@ -123,7 +123,7 @@ const Information = () => {
             />
           </div>
         </div>
-        <div className="py-8! flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-4">
           {/* MARK: AVATAR  */}
           <ImageWithLightBoxAndNoLazy
             src={
@@ -142,11 +142,11 @@ const Information = () => {
                     )?.contact.avatar,
               },
             ]}
-            className="relative aspect-square w-40 cursor-pointer"
+            className="relative aspect-square w-20 cursor-pointer"
             circle
           />
           {/* MARK: TITLE  */}
-          <div className="laptop:text-md flex w-[70%] grow flex-col items-center justify-center gap-2 phone:text-lg">
+          <div className="flex w-[70%] grow flex-col items-center justify-center gap-2 laptop:text-base">
             <CustomLabel
               className="text-center font-['Be_Vietnam_Pro'] font-bold"
               title={
@@ -195,14 +195,14 @@ const Information = () => {
         {/* MARK: MEMBERS  */}
         {conversation?.isGroup ? (
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between pr-4">
-              <p className="font-be-vn-bold">
+            <div className="flex justify-between">
+              <p className="font-['Be_Vietnam_Pro'] font-bold">
                 Members ({conversation.members.length})
               </p>
               <i
                 data-show={showMembers}
-                className="fa-arrow-down fa laptop:text-md flex aspect-square h-full cursor-pointer items-center justify-center p-2
-                transition-all duration-500 data-[show=false]:rotate-90 phone:text-xl"
+                className="fa-arrow-down fa base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center 
+                transition-all duration-500 data-[show=false]:rotate-90"
                 onClick={toggleMembers}
               ></i>
             </div>
@@ -247,7 +247,7 @@ const Information = () => {
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="aspect-square w-12"
+                        className="aspect-square w-10"
                         circle
                         slides={[
                           {
@@ -264,8 +264,8 @@ const Information = () => {
                     <CustomLabel title={item.contact.name} />
                     {item.isModerator ? (
                       <div
-                        className="font-be-vn-bold rounded-full bg-light-blue-400 px-4 py-1 
-                        text-sm text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+                        className="text-3xs rounded-full bg-light-blue-400 px-4 py-1 font-['Be_Vietnam_Pro'] 
+                        font-bold text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                       >
                         Admin
                       </div>
@@ -289,9 +289,9 @@ const Information = () => {
         )}
         {/* MARK: ATTACHMENTS  */}
 
-        <div className="flex flex-col gap-[1rem]">
+        <div className="flex flex-col gap-4">
           <div className="flex justify-between">
-            <p className="font-be-vn-bold">Attachments</p>
+            <p className="font-['Be_Vietnam_Pro'] font-bold">Attachments</p>
             <div
               onClick={() => setToggle("attachment")}
               className="cursor-pointer text-light-blue-500 hover:text-light-blue-400"

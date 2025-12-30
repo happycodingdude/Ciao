@@ -1,4 +1,3 @@
-import React from "react";
 import { OnlineStatusDotProps } from "../types";
 
 const OnlineStatusDot = (props: OnlineStatusDotProps) => {
@@ -6,8 +5,8 @@ const OnlineStatusDot = (props: OnlineStatusDotProps) => {
 
   return (
     <div
-      className={`${className ?? ""} absolute aspect-square w-[1rem] rounded-[50%] 
-      ${online ? "bg-[var(--online-color)]" : "bg-[var(--offline-color)]"}`}
+      className={`${className ?? ""} absolute aspect-square w-3 rounded-[50%] 
+      ${online ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
     ></div>
   );
 };

@@ -195,10 +195,10 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
   return (
     <>
-      <div className="relative flex shrink-0 items-end gap-20 pb-2">
+      <div className="relative flex shrink-0 items-end gap-10">
         <ImageWithLightBoxAndNoLazy
-          src={avatar ?? ""}
-          className="aspect-square w-20 cursor-pointer"
+          // src={avatar ?? ""}
+          className="aspect-square h-20 cursor-pointer"
         />
         <MediaPicker
           className="absolute -top-4 left-20"
@@ -209,7 +209,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         <CustomInput
           type="text"
           inputRef={refInputTitle}
-          className="laptop:w-120 phone:w-[20rem]"
+          className="laptop:w-100"
           placeholder="Type group name"
         />
       </div>
@@ -248,7 +248,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                 {membersToSearch?.map((item) => (
                   <div
                     key={item.id}
-                    className={`information-members flex w-full cursor-pointer items-center gap-4 rounded-lg p-[.7rem] hover:bg-(--bg-color-extrathin)`}
+                    className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-2 rounded-lg p-[.7rem]`}
                     onClick={() => {
                       setMembersToAdd((members) => {
                         return members.map((mem) => mem.id).includes(item.id)
@@ -258,17 +258,17 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                     }}
                   >
                     <CheckCircleOutlined
-                      className={`base-icon-sm 
+                      className={`base-icon 
                         ${
                           membersToAdd.some((mem) => mem.id === item.id)
-                            ? "text-(--main-color-bold)"
+                            ? "text-light-blue-500!"
                             : ""
                         }
                         `}
                     />
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="aspect-square w-16 cursor-pointer"
+                      className="aspect-square w-10 cursor-pointer"
                       circle
                       slides={[
                         {
@@ -300,9 +300,9 @@ const CreateGroupChatModal = (props: OnCloseType) => {
       </div>
 
       <CustomButton
-        className={`desktop:text-md mr-0! phone:text-base`}
-        width={7}
-        padding="py-[.3rem]"
+        className="text-2xs mr-0"
+        width={4}
+        padding="py-0"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
         gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
         rounded="3rem"

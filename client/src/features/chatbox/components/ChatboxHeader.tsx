@@ -25,7 +25,7 @@ const ChatboxHeader = () => {
   return (
     <div
       className="border-b-(--border-color) text-(--text-main-color-normal) flex w-full shrink-0 items-center justify-between
-      border-b-[.1rem] bg-white px-4 py-2 phone:h-24 laptop:h-20"
+      border-b-[.1rem] bg-white px-4 py-2 phone:h-24 laptop:h-16"
     >
       <div className="relative flex items-center gap-4">
         {isPhoneScreen() ? (
@@ -78,7 +78,7 @@ const ChatboxHeader = () => {
           circle
         />
         {/* MARK: TITLE  */}
-        <div className="relative flex grow flex-col phone:max-w-48 laptop:max-w-120 desktop:max-w-200">
+        <div className="laptop:max-w-120 desktop:max-w-200 relative flex grow flex-col phone:max-w-48">
           {conversation.isGroup ? (
             <>
               <div className="flex w-full gap-2">

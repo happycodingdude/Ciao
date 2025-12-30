@@ -72,7 +72,7 @@ const ChatboxHeaderMenu = () => {
               current === "information" ? null : "information",
             )
           }
-          className="transition-all duration-200 base-icon-sm"
+          className="base-icon transition-all duration-200"
         />
       </div>
       {/* MARK: ATTACHMENT  */}

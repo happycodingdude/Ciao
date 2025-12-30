@@ -3,7 +3,11 @@ import userQueryOptions from "../../features/authentication/queries/userInfoQuer
 import { AuthenticationContainer } from "../../pages/Authentication";
 
 export const Route = createFileRoute("/auth/_layout/")({
-  component: AuthenticationContainer,
+  component: () => (
+    <div className="desktop:text-md flex h-full w-full laptop:text-xs">
+      <AuthenticationContainer />
+    </div>
+  ),
   loader: async ({ context: { queryClient } }) => {
     const cachedUser = queryClient.getQueryData(userQueryOptions.queryKey);
     if (cachedUser === null) return; // Đã logout và đã set null → không gọi lại API nữa

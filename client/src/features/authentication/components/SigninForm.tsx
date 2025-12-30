@@ -11,16 +11,10 @@ import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles"
 import signin from "../services/signin";
 
 const SigninForm = () => {
-  // const { show, showContainer, toggle } = props;
-
-  // const navigate = useNavigate();
   const router = useRouter();
 
   const { toggle, setToggle } = useAuthenticationFormToggles();
 
-  // const [accessToken, setAccessToken] = useLocalStorage("accessToken");
-  // const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken");
-  // const [userId, setUserId] = useLocalStorage("userId");
   const [accessToken, setAccessToken] = useLocalStorage("accessToken", "");
   const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken", "");
   const [userId, setUserId] = useLocalStorage("userId", "");
@@ -31,11 +25,6 @@ const SigninForm = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [processing, setProcessing] = useState(false);
-
-  // useEffect(() => {
-  //   // Khi toggle hiện login container ra thì clear các value đã nhập
-  //   if (!show || showContainer) reset();
-  // }, [show, showContainer]);
 
   const reset = () => {
     setError("");
@@ -103,21 +92,21 @@ const SigninForm = () => {
         />
         <div
           onClick={() => setShowPassword(!showPassword)}
-          className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-8 cursor-pointer items-center justify-center 
-              hover:text-(--main-color-light) ${showPassword ? "fa-eye text-(--main-color)" : "fa-eye-slash text-(--main-color)"}`}
+          className={`fa hover:text-(--main-color-light) absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-8 cursor-pointer items-center 
+              justify-center ${showPassword ? "fa-eye text-(--main-color)" : "fa-eye-slash text-(--main-color)"}`}
         ></div>
       </div>
 
       {isPhoneScreen() ? (
         <div className="flex w-full items-center justify-between text-base">
           <div
-            className="cursor-pointer font-bold text-(--text-main-color-light) hover:text-(--text-main-color)"
+            className="text-(--text-main-color-light) hover:text-(--text-main-color) cursor-pointer font-bold"
             onClick={() => setToggle("signup")}
           >
             Create account
           </div>
           <div
-            className="cursor-pointer font-bold text-(--text-main-color-light) hover:text-(--text-main-color)"
+            className="text-(--text-main-color-light) hover:text-(--text-main-color) cursor-pointer font-bold"
             onClick={() => setToggle("forgot")}
           >
             Forgot password?
@@ -125,7 +114,7 @@ const SigninForm = () => {
         </div>
       ) : (
         <div
-          className="cursor-pointer self-end font-bold text-(--text-main-color-light) hover:text-(--text-main-color)"
+          className="text-(--text-main-color-light) hover:text-(--text-main-color) cursor-pointer self-end font-bold"
           onClick={() => setToggle("forgot")}
         >
           Forgot password?

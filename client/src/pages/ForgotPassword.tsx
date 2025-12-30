@@ -9,7 +9,7 @@ const ForgotPassword = () => {
       className="bg-(--bg-color-bold) m-auto flex h-full flex-col justify-center gap-20 duration-500 
         data-[state=false]:translate-y-0 data-[state=true]:-translate-y-full"
     >
-      <p className="text-(--text-main-color) text-5xl">Reset</p>
+      <p className="text-(--text-main-color) text-3xl">Reset password</p>
 
       <ForgotPasswordForm />
     </div>

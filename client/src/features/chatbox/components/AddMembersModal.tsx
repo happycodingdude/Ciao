@@ -135,7 +135,7 @@ const AddMembersModal = (props: OnCloseType) => {
         }}
       />
       <div
-        className={`relative flex grow gap-8 border-b-[.1rem] border-(--border-color)
+        className={`border-(--border-color) relative flex grow gap-8 border-b-[.1rem]
       ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
       >
         {isLoading || isRefetching ? (
@@ -146,12 +146,14 @@ const AddMembersModal = (props: OnCloseType) => {
               {membersToSearch?.map((item) => (
                 <div
                   key={item.id}
-                  className={`information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]
-                ${
-                  conversation.members.some((mem) => mem.contact.id === item.id)
-                    ? "pointer-events-none"
-                    : "cursor-pointer hover:bg-(--bg-color-extrathin)"
-                } `}
+                  className={`information-members flex w-full items-center gap-2 rounded-lg p-[.7rem]
+                  ${
+                    conversation.members.some(
+                      (mem) => mem.contact.id === item.id,
+                    )
+                      ? "pointer-events-none"
+                      : "hover:bg-(--bg-color-extrathin) cursor-pointer"
+                  } `}
                   onClick={() => {
                     setMembersToAdd((members) => {
                       return members.map((mem) => mem.id).includes(item.id)
@@ -168,19 +170,19 @@ const AddMembersModal = (props: OnCloseType) => {
                   }}
                 >
                   <CheckCircleOutlined
-                    className={`base-icon-sm 
+                    className={`base-icon 
                       ${
                         conversation.members.some(
                           (mem) => mem.contact.id === item.id,
                         ) || membersToAdd.some((mem) => mem.id === item.id)
-                          ? "text-pink-500"
+                          ? "text-light-blue-500!"
                           : ""
                       }
                     `}
                   />
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="aspect-square cursor-pointer phone:w-12 laptop:w-16"
+                    className="aspect-square w-10 cursor-pointer"
                     circle
                     slides={[
                       {
@@ -195,9 +197,7 @@ const AddMembersModal = (props: OnCloseType) => {
                     {conversation.members.some(
                       (mem) => mem.contact.id === item.id,
                     ) ? (
-                      <p className="text-(--text-main-color-blur)">
-                        Joined
-                      </p>
+                      <p className="text-(--text-main-color-blur)">Joined</p>
                     ) : (
                       ""
                     )}
@@ -222,9 +222,9 @@ const AddMembersModal = (props: OnCloseType) => {
         )}
       </div>
       <CustomButton
-        className={`mr-0! phone:text-base desktop:text-md`}
-        width={7}
-        padding="py-[.3rem]"
+        className="text-2xs mr-0"
+        width={4}
+        padding="py-0"
         gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
         gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
         rounded="3rem"

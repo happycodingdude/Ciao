@@ -142,17 +142,15 @@ const Chatbox = () => {
       </RelightBackground>
       <div
         ref={refChatContent}
-        // className="hide-scrollbar flex grow flex-col gap-[3rem] overflow-y-scroll scroll-smooth bg-[var(--bg-color-extrathin)] px-[1rem] pb-[2rem]"
         className="custom-scrollbar flex grow flex-col gap-16 overflow-y-scroll scroll-smooth px-4"
       >
         {Object.entries(grouped).map(([date, messages], index) => (
           <div
             key={date}
-            // className={`flex flex-col gap-[3rem] ${index === 0 ? "mt-auto" : ""} ${Object.keys(grouped).length === 1 ? "mb-[2rem]" : ""}`}
-            className={`flex flex-col gap-16 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-8" : ""}`}
+            className={`flex flex-col gap-10 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-8" : ""}`}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="text-3xs rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 

@@ -260,9 +260,9 @@ const FriendCtaButton = (props: FriendItemProps) => {
     friend: (
       <CustomButton
         title="Chat"
-        className={`!mr-0 phone:text-xs desktop:text-md`}
-        width={7}
-        padding="py-[.3rem]"
+        className="text-2xs"
+        width={4}
+        padding="py-0"
         gradientWidth="110%"
         gradientHeight="120%"
         rounded="3rem"

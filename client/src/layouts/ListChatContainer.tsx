@@ -201,10 +201,10 @@ const ListChatContainer = () => {
         return (
           <Link key={item.id} to={`/conversations/${item.id}`}>
             <div
-              className={`chat-item cursor-pointer rounded-2xl p-4
+              className={`chat-item cursor-pointer rounded-2xl px-4 py-2
                   ${isActive ? "active" : ""}`}
             >
-              <div className="flex items-start justify-between h-12">
+              <div className="flex h-12 items-start justify-between">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -215,11 +215,11 @@ const ListChatContainer = () => {
                             (item) => item.contact.id !== info.id,
                           )?.contact.avatar
                     }
-                    className={`loaded pointer-events-none aspect-square w-12 animate-morph`}
+                    className={`loaded pointer-events-none aspect-square w-10 animate-morph`}
                     circle
                   />
                   <div
-                    className={`absolute -bottom-1 -right-1 aspect-square w-6 rounded-full border-2 border-white 
+                    className={`absolute -bottom-1 -right-1 aspect-square w-4 rounded-full border-2 border-white 
                         ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
                   ></div>
                 </div>

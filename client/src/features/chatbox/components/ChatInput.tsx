@@ -536,8 +536,8 @@ const ChatInput = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "w-0! laptop:max-w-200"
-              : "w-0! laptop:max-w-120"
+              ? "laptop:max-w-200"
+              : "laptop:max-w-160"
         }  
         `}
       >
@@ -593,14 +593,14 @@ const ChatInput = (props: ChatInputProps) => {
           )}
 
           {/* MARK: MENU */}
-          <div className="flex flex-col gap-4 p-4">
+          <div className="flex flex-col gap-4 px-4 pb-2 pt-4">
             <div className="flex items-center gap-4">
               <label
-                className="emoji-item toolbar-btn fa-regular fa-face-smile text-md flex aspect-square cursor-pointer items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500"
+                className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square cursor-pointer items-center justify-center rounded-full bg-gray-100 text-base text-gray-500 hover:bg-gray-100 hover:text-light-blue-500"
                 onClick={() => setShowEmoji(true)}
               ></label>
 
-              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+              <div className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
                 <input
                   multiple
                   type="file"
@@ -613,10 +613,10 @@ const ChatInput = (props: ChatInputProps) => {
                   htmlFor="choose-file"
                   className="flex w-full cursor-pointer items-center justify-center"
                 >
-                  <i className="fa-solid fa-paperclip text-md"></i>
+                  <i className="fa-solid fa-paperclip text-base"></i>
                 </label>
               </div>
-              <div className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+              <div className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
                 <input
                   multiple
                   type="file"
@@ -629,13 +629,13 @@ const ChatInput = (props: ChatInputProps) => {
                   htmlFor="choose-image"
                   className="flex w-full cursor-pointer items-center justify-center"
                 >
-                  <i className="fa-solid fa-image text-md"></i>
+                  <i className="fa-solid fa-image text-base"></i>
                 </label>
               </div>
-              <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
-                <i className="fa-solid fa-microphone text-md"></i>
+              <button className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+                <i className="fa-solid fa-microphone text-base"></i>
               </button>
-              <div className="flex-1"></div>
+              {/* <div className="flex-1"></div> */}
               {/* <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
                 <i className="fa-solid fa-at text-lg"></i>
               </button> */}
@@ -656,11 +656,8 @@ const ChatInput = (props: ChatInputProps) => {
                   isEmpty={isEmpty}
                 />
               </div>
-              <button
-                className="send-btn flex aspect-square w-10 items-center justify-center rounded-full 
-                bg-light-blue-400 text-white"
-              >
-                <i className="fa-solid fa-paper-plane text-sm"></i>
+              <button className="send-btn flex aspect-square items-center justify-center rounded-full bg-light-blue-400 text-white laptop:w-9">
+                <i className="fa-solid fa-paper-plane laptop:text-xs"></i>
               </button>
             </div>
 

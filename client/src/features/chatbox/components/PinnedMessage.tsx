@@ -41,14 +41,14 @@ export function PinnedMessage(props: PinnedMessageProps) {
       case "pinned":
         return {
           header: (
-            <div className="inline-flex h-8 items-center gap-2 text-sm italic text-light-blue-500">
+            <div className="inline-flex h-8 items-center gap-2 italic text-light-blue-500">
               Pinned by {props.contact}
             </div>
           ),
           icon: (
             <PushpinOutlined
-              className={`absolute ${props.mine ? "right-[-.4rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-2xl 
-              bg-light-blue-500 px-[.2rem] py-[.7rem] text-xs text-white`}
+              className={`absolute ${props.mine ? "-right-3" : "-left-3.5"} top-[-.8rem] rounded-2xl 
+              bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
               style={{
                 strokeWidth: "80",
                 stroke: "white",
@@ -62,14 +62,14 @@ export function PinnedMessage(props: PinnedMessageProps) {
       case "forwarded":
         return {
           header: (
-            <div className="inline-flex h-8 items-center gap-2 text-sm italic text-light-blue-500">
+            <div className="inline-flex h-8 items-center gap-2 italic text-light-blue-500">
               {props.contact} have forwarded this message
             </div>
           ),
           icon: (
             <i
-              className={`fa fa-share absolute ${props.mine ? "rotate-x-50 right-[-.8rem]" : "left-[-.9rem]"} top-[-.8rem] rounded-2xl 
-              bg-light-blue-500 px-[.2rem] py-[.7rem] text-xs text-white`}
+              className={`fa-solid fa-share absolute ${props.mine ? "fa-rotate-180 -right-3" : "-left-3.5"} -top-4 rounded-2xl 
+              bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
             />
           ),
           showExpandToggle: true,
@@ -78,8 +78,10 @@ export function PinnedMessage(props: PinnedMessageProps) {
       case "reply":
         return {
           header: (
-            <div className="my-2 border-l-[.3rem] border-l-light-blue-500/50 px-3 py-2 text-sm">
-              <p className="truncate">Reply to {props.contact}</p>
+            <div className="mb-2 border-l-[.3rem] border-l-light-blue-500/50 px-3">
+              <p className="truncate italic text-light-blue-500">
+                Reply to {props.contact}
+              </p>
               <p className="truncate">{props.replyContent}</p>
             </div>
           ),

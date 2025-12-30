@@ -9,17 +9,16 @@ const CreateGroupChat = () => {
   return (
     <>
       <UsergroupAddOutlined
-        className="base-icon-sm transition-all duration-200 hover:text-light-blue-500"
-        // style={{ fontSize: "16px", transition: "all 0.2s" }}
+        className="base-icon-sm"
         onClick={() => setOpen(true)}
       />
       <BackgroundPortal
         show={open}
-        className="phone:w-[35rem] laptop:w-[50rem] desktop:w-[70rem]"
+        className="laptop:w-150 phone:w-100 desktop:w-[35%]"
         title="Create group"
         onClose={() => setOpen(false)}
       >
-        <div className="flex flex-col gap-[1rem] p-10 pt-12 text-[var(--text-main-color)] phone:h-[50rem] laptop:h-[45rem] laptop-lg:h-[55rem] desktop:h-[80rem]">
+        <div className="text-(--text-main-color) phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col gap-4 p-7">
           <Suspense fallback={<ModalLoading />}>
             <CreateGroupChatModal onClose={() => setOpen(false)} />
           </Suspense>

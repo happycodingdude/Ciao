@@ -66,31 +66,10 @@ const ListFriend = (props: OnCloseType) => {
             friend={item}
             friendAction={handleFriendAction}
             onClose={onClose}
-            // setContacts={setContacts}
-            // onClose={onClose}
           />
         ))}
       </div>
     </>
-    // <div className="flex flex-col p-10 pt-12 laptop:h-[45rem] desktop:h-[80rem]">
-    //   <CustomInput
-    //     type="text"
-    //     placeholder="Search for name"
-    //     inputRef={refInput}
-    //     onChange={(e) => {
-    //       findContact(e.target.value);
-    //     }}
-    //   />
-    //   <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth text-[var(--text-main-color)]">
-    //     {contacts.map((item, i) => (
-    //       <FriendItem
-    //         friend={item}
-    //         setContacts={setContacts}
-    //         onClose={onClose}
-    //       />
-    //     ))}
-    //   </div>
-    // </div>
   );
 };
 

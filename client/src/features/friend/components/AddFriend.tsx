@@ -1,8 +1,7 @@
 // import { Tooltip } from "antd";
 import { UserAddOutlined } from "@ant-design/icons";
-import React, { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
-import LocalLoading from "../../../components/LocalLoading";
 import ModalLoading from "../../../components/ModalLoading";
 const ListFriend = lazy(() => import("./ListFriend"));
 
@@ -10,21 +9,16 @@ const AddFriend = () => {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <>
-      <UserAddOutlined
-        className="base-icon-sm transition-all duration-200 hover:text-light-blue-500"
-        // style={{ fontSize: "16px", transition: "all 0.2s" }}
-        onClick={() => setOpen(true)}
-      />
+      <UserAddOutlined className="base-icon-sm" onClick={() => setOpen(true)} />
       <BackgroundPortal
         show={open}
-        className="phone:w-[35rem] laptop:w-[40rem] desktop:w-[35%]"
+        className="laptop:w-100 phone:w-80 desktop:w-[35%]"
         title="Connect friend"
         onClose={() => setOpen(false)}
       >
-        <div className="flex flex-col p-10 pt-12 phone:h-[50rem] laptop:h-[45rem] laptop-lg:h-[55rem] desktop:h-[80rem]">
+        <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
           <Suspense fallback={<ModalLoading className="left-0 top-0" />}>
             <ListFriend onClose={() => setOpen(false)} />
-            {/* <ModalLoading /> */}
           </Suspense>
         </div>
       </BackgroundPortal>

@@ -9,8 +9,7 @@ const Signin = () => {
       className="m-auto flex h-full flex-col justify-center gap-20 duration-500 
       data-[state=false]:-translate-y-full data-[state=true]:translate-y-0"
     >
-      <p className="text-(--text-main-color) text-5xl">Sign in</p>
-
+      <p className="text-(--text-main-color) text-3xl">Sign in</p>
       <SigninForm />
     </div>
   );

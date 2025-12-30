@@ -32,7 +32,7 @@ body {
 @media (min-width: 1280px) {
   .sidebar-container {
     height: 100%;
-    width: 5rem;
+    width: 4.5rem;
     flex-direction: column;
     border: none;
   }
@@ -41,7 +41,7 @@ body {
 /* 🖥️ Desktop (≥ 1920px) */
 @media (min-width: 1920px) {
   .sidebar-container {
-    width: 10rem;
+    width: 7rem;
   }
 }
 

@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
 import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
-import useLocalStorage from "../hooks/useLocalStorage";
 import SigninContainer from "../layouts/SigninContainer";
 import { isPhoneScreen } from "../utils/getScreenSize";
 import Signup from "./Signup";
@@ -16,10 +15,6 @@ export const AuthenticationContainer = () => {
 };
 
 const Authentication = () => {
-  // const { data: info } = useInfo(true);
-  // const [accessToken] = useLocalStorage("accessToken");
-  const [accessToken] = useLocalStorage("accessToken", "");
-  // const navigate = useNavigate();
   const { setToggle } = useAuthenticationFormToggles();
 
   const refBgContainer = useRef<HTMLDivElement>();
@@ -27,13 +22,6 @@ const Authentication = () => {
   const refBgSignInLabelContainer = useRef<HTMLDivElement>();
   const refSigninContainer = useRef<HTMLDivElement>();
   const refLoginWrapper = useRef<HTMLDivElement>();
-
-  // const [showLogin, setShowLogin] = useState(true);
-  // const [showSignup, setShowSignup] = useState(false);
-
-  // if (info) redirect({ to: "/" });
-
-  // if (accessToken) return <LocalLoading />;
 
   const toggleBg = () => {
     // Animate background container
@@ -64,7 +52,7 @@ const Authentication = () => {
   };
 
   return (
-    <div className="bg-(--bg-color) flex w-full flex-col tablet:text-[clamp(1rem,1.2vw,2rem)]">
+    <div className="bg-(--bg-color) flex w-full flex-col">
       <section className="relative flex h-full w-full transition-all duration-500">
         {isPhoneScreen() ? (
           <>
@@ -91,11 +79,11 @@ const Authentication = () => {
               className="absolute left-[10%] top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center 
             text-white transition-all duration-500"
             >
-              <p className="text-7xl">Hello, friend</p>
+              <p className="text-3xl">Hello, friend</p>
               <div
                 onClick={toggleSignup}
-                className="cursor-pointer rounded-2xl border-[.2rem] border-white px-20 py-2 text-3xl 
-              transition-all duration-500 hover:shadow-[0_3px_10px_white]"
+                className="text-md cursor-pointer rounded-2xl border-[.2rem] border-white px-20 py-2
+                transition-all duration-500 hover:shadow-[0_3px_10px_white]"
               >
                 Sign up
               </div>
@@ -105,10 +93,10 @@ const Authentication = () => {
               className="absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center text-white opacity-0 
             transition-all duration-500 tablet:right-[-35%] laptop:right-[-20%]"
             >
-              <p className="text-7xl">Welcome back</p>
+              <p className="text-3xl">Welcome back</p>
               <div
                 onClick={toggleLogin}
-                className="cursor-pointer rounded-2xl border-[.2rem] border-white px-20 py-2 text-2xl 
+                className="text-md cursor-pointer rounded-2xl border-[.2rem] border-white px-20 py-2
               transition-all duration-500 hover:shadow-[0_3px_10px_white]"
               >
                 Sign in

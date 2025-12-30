@@ -1,11 +1,11 @@
 import { useParams } from "@tanstack/react-router";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../../../button.css";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 import AttachmentIcon from "./AttachmentIcon";
-import dayjs from "dayjs";
 
 const Attachment = () => {
   const { toggle } = useChatDetailToggles();
@@ -78,8 +78,8 @@ const Attachment = () => {
 
       {displayAttachments.length > 0 ? (
         <div
-          className="attachment-container hide-scrollbar mt-4 flex flex-col overflow-hidden overflow-y-auto scroll-smooth [&>*:not(:first-child)]:mt-8 
-        [&>*:not(:last-child)]:border-b-[.1rem] [&>*:not(:last-child)]:border-b-(--border-color)  *:px-8 *:pb-4"
+          className="attachment-container hide-scrollbar [&>*:not(:last-child)]:border-b-(--border-color) mt-4 flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
+        *:px-8 *:pb-4  [&>*:not(:first-child)]:mt-8 [&>*:not(:last-child)]:border-b-[.1rem]"
         >
           {displayAttachments.map((date) => (
             <div className="flex flex-col gap-8">
@@ -109,11 +109,17 @@ const Attachment = () => {
         </div>
       ) : (
         <div
-          className="flex gap-4 animate-wave-ripple flex-col items-center justify-center m-auto"
+          className="m-auto flex animate-wave-ripple flex-col items-center justify-center gap-4"
           style={{ animationDelay: "0.9s" }}
         >
-          <AttachmentIcon className="pointer-events-none" width="3rem" height="3rem" />
-          <p className="text-md text-gray-700">Attachments will appear here</p>
+          <AttachmentIcon
+            className="pointer-events-none"
+            width="2rem"
+            height="2rem"
+          />
+          <p className="text-base text-gray-700">
+            Attachments will appear here
+          </p>
         </div>
       )}
     </div>
