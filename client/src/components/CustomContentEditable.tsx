@@ -11,7 +11,7 @@ const CustomContentEditable = forwardRef(
     props: CustomContentEditableProps,
     ref: MutableRefObject<HTMLDivElement>,
   ) => {
-    const { onKeyDown, onKeyUp, className } = props;
+    const { onKeyDown, onKeyUp, className, quickChat } = props;
 
     const handleInput = useCallback(() => {
       const el = ref.current;
@@ -48,8 +48,12 @@ const CustomContentEditable = forwardRef(
         ref={ref}
         contentEditable={true}
         data-placeholder="Type your message here..."
-        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-8 w-full resize-none overflow-y-auto 
-        break-all phone:max-h-40 laptop:max-h-28 laptop-lg:max-h-40`}
+        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-5 w-full resize-none overflow-y-auto break-all
+        ${
+          quickChat
+            ? "phone:max-h-40 laptop:max-h-10 laptop-lg:max-h-40"
+            : "phone:max-h-40 laptop:max-h-28 laptop-lg:max-h-40"
+        }`}
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}
         onInput={handleInput}

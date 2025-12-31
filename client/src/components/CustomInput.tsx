@@ -45,11 +45,8 @@ const CustomInput = (props: CustomInputProps) => {
     <div className="relative">
       <input
         tabIndex={tabIndex}
-        className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--bg-color)] !border-b-[var(--border-color)] 
-        p-[1rem] pb-[.2rem] pl-0 text-[var(--text-main-color-light)] outline-none
-          transition-all duration-200`}
-        // className={`${className ?? ""} w-[99%] border-[.1rem] border-[var(--sub-color)] !border-b-[var(--border-color)] p-[1rem] pb-[.2rem] pl-0 outline-none
-        //   transition-all duration-200`}
+        className={`${className ?? ""} border-(--bg-color) border-b-(--border-color)! w-[99%] border-[.1rem] 
+        p-4 pb-[.2rem] pl-0 outline-none transition-all duration-200`}
         type={type}
         ref={inputRef}
         onFocus={(e) => handleFocus(e, true)}
@@ -61,16 +58,14 @@ const CustomInput = (props: CustomInputProps) => {
       <div
         ref={refBorder}
         data-focus="false"
-        className="absolute bottom-0 h-[.1rem] w-full origin-left bg-[var(--main-color)] transition-all duration-200
+        className="bg-(--light-blue-500) absolute bottom-0 h-0.5 w-full origin-left transition-all duration-200
           data-[focus=false]:scale-x-0 data-[focus=true]:scale-x-[0.99]"
       ></div>
       <p
         ref={refPlaceHolder}
         data-focus="false"
-        className="pointer-events-none absolute left-0 top-[50%] z-10 origin-left transition-all duration-200 
-          data-[focus=false]:translate-y-[-50%] data-[focus=true]:translate-y-[-150%]
-          data-[focus=true]:scale-[.9] data-[focus=false]:text-[var(--text-main-color-light)]
-          data-[focus=true]:text-[var(--main-color)]"
+        className=" pointer-events-none absolute left-0 top-[50%] z-10 origin-left transition-all duration-200 
+        data-[focus=false]:translate-y-[-50%] data-[focus=true]:translate-y-[-150%] data-[focus=true]:scale-[.9]"
       >
         {label}
       </p>

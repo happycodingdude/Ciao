@@ -83,7 +83,7 @@ const ChatboxHeader = () => {
             <>
               <div className="flex w-full gap-2">
                 <CustomLabel
-                  className="font-['Be_Vietnam_Pro'] font-bold"
+                  className="text-sm font-medium"
                   title={conversation.title}
                 />
               </div>
@@ -92,7 +92,7 @@ const ChatboxHeader = () => {
           ) : (
             <>
               <CustomLabel
-                className="font-['Be_Vietnam_Pro'] font-bold"
+                className="text-sm font-medium"
                 title={
                   conversation.members?.find(
                     (item) => item.contact.id !== info.id,

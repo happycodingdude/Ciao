@@ -109,7 +109,7 @@ const MessageMenu = (props: MessageMenuProps) => {
       // Gán class direction
       menu.classList.remove("above", "below");
       menu.classList.add(direction);
-      menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "75%" : "30%"} `;
+      menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"} `;
     },
     [getContainerRect],
   );
@@ -119,7 +119,7 @@ const MessageMenu = (props: MessageMenuProps) => {
       <div
         ref={refMenu}
         data-show={show}
-        className={`message-menu-container ${mine ? "-left-60" : "-right-60"}`}
+        className={`message-menu-container ${mine ? "-left-55" : "-right-55"}`}
       >
         {/* MARK: COPY */}
         <div className="message-menu-item" onClick={copyMessage}>
@@ -149,11 +149,11 @@ const MessageMenu = (props: MessageMenuProps) => {
           <i className="fa fa-share" /> Forward message
           <BackgroundPortal
             show={openForward}
-            className="phone:w-140 laptop:w-200 desktop:w-280"
+            className="laptop:w-100 phone:w-80 desktop:w-[35%]"
             title="Forward message"
             onClose={() => setOpenForward(false)}
           >
-            <div className="text-(--text-main-color) phone:h-200 laptop:h-180 laptop-lg:h-220 desktop:h-320 flex flex-col gap-4 p-10 pt-12">
+            <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
               <Suspense fallback={<ModalLoading />}>
                 <ForwardMessageModal
                   onClose={() => setOpenForward(false)}

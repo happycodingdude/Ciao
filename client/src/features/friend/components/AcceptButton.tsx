@@ -30,12 +30,12 @@ const AcceptButton = (props: FriendCtaButtonProps) => {
       title="Accept"
       className="text-2xs"
       width={4}
-      padding="py-0"
       gradientWidth="110%"
       gradientHeight="120%"
       rounded="3rem"
       onClick={acceptFriendRequest}
       processing={processing}
+      sm
     />
   );
 };

@@ -200,7 +200,7 @@ const MessageContent = (props: MessageContentProps) => {
           className={`text-(--text-main-color-thin) flex items-center gap-4`}
         >
           {/* MARK: SENDER NAME */}
-          <p className="font-['Be_Vietnam_Pro'] font-semibold">
+          <p className="font-medium">
             {message.contactId === info.id
               ? "You"
               : conversation.members.find(
@@ -259,18 +259,14 @@ const MessageContent = (props: MessageContentProps) => {
         ) : (
           ""
         )}
-        {/* $
-        {message.contactId === info.id
-          ? "bg-blue-500 text-white"
-          : "bg-[var(--bg-color)]"} */}
         {/* MARK: CONTENT */}
         {message.content ? (
           <>
             <div className="relative flex flex-col">
               <div
                 ref={contentRef}
-                className={`cursor-pointer whitespace-pre-line break-all rounded-2xl ${message.pending ? "opacity-50" : ""} 
-                bg-(--bg-color) my-2 px-[1.6rem] leading-8
+                className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
+                bg-(--bg-color) my-2 px-4 leading-8
                   ${
                     message.isPinned || message.isForwarded
                       ? message.contactId === info.id

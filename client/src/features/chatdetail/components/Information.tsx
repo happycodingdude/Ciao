@@ -87,7 +87,7 @@ const Information = () => {
       {/* Container */}
       <div className="[&>*:not(:last-child)]:border-b-(--border-color) flex grow flex-col *:p-4 [&>*:not(:last-child)]:border-b-[.1rem]">
         <div className="flex items-center justify-between px-4 laptop:h-16">
-          <p className="text-base font-bold">Chat information</p>
+          <p className="text-base font-medium">Chat information</p>
           <div className="flex gap-4">
             {/* <EditOutlined
               className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
@@ -148,7 +148,7 @@ const Information = () => {
           {/* MARK: TITLE  */}
           <div className="flex w-[70%] grow flex-col items-center justify-center gap-2 laptop:text-base">
             <CustomLabel
-              className="text-center font-['Be_Vietnam_Pro'] font-bold"
+              className="text-center font-medium"
               title={
                 conversation?.isGroup
                   ? conversation.title
@@ -196,7 +196,7 @@ const Information = () => {
         {conversation?.isGroup ? (
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">
-              <p className="font-['Be_Vietnam_Pro'] font-bold">
+              <p className="font-medium">
                 Members ({conversation.members.length})
               </p>
               <i
@@ -210,7 +210,7 @@ const Information = () => {
             <div
               ref={refMembers}
               data-show={showMembers}
-              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 flex flex-col gap-4 overflow-y-auto scroll-smooth
+              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 flex flex-col gap-2 overflow-y-auto scroll-smooth
                 transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-80"
             >
               {[...conversation?.members]
@@ -263,10 +263,7 @@ const Information = () => {
                     </div>
                     <CustomLabel title={item.contact.name} />
                     {item.isModerator ? (
-                      <div
-                        className="text-3xs rounded-full bg-light-blue-400 px-4 py-1 font-['Be_Vietnam_Pro'] 
-                        font-bold text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-                      >
+                      <div className="text-3xs bg-linear-to-br rounded-full from-light-blue-300 to-light-blue-500 px-4 py-1 font-medium text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                         Admin
                       </div>
                     ) : (
@@ -291,7 +288,7 @@ const Information = () => {
 
         <div className="flex flex-col gap-4">
           <div className="flex justify-between">
-            <p className="font-['Be_Vietnam_Pro'] font-bold">Attachments</p>
+            <p className="font-medium">Attachments</p>
             <div
               onClick={() => setToggle("attachment")}
               className="cursor-pointer text-light-blue-500 hover:text-light-blue-400"

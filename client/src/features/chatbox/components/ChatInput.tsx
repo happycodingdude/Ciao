@@ -528,7 +528,7 @@ const ChatInput = (props: ChatInputProps) => {
   // }, [mentions, selectedIndex, chooseMention]);
 
   return (
-    <div className={`mb-8 flex w-full items-center justify-center`}>
+    <div className={`flex w-full items-center justify-center laptop:mb-4`}>
       <div
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white
         transition-all duration-200
@@ -536,8 +536,8 @@ const ChatInput = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "laptop:max-w-200"
-              : "laptop:max-w-160"
+              ? "laptop:max-w-240"
+              : "laptop:max-w-180"
         }  
         `}
       >

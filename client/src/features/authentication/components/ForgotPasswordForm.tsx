@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
@@ -72,13 +72,13 @@ const ForgotPasswordForm = () => {
         />
         <div
           onClick={() => setShowPassword(!showPassword)}
-          className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-[2rem] cursor-pointer items-center justify-center 
-              hover:text-[var(--main-color-light)] ${showPassword ? "fa-eye text-[var(--main-color)]" : "fa-eye-slash text-[var(--main-color)]"}`}
+          className={`fa hover:text-(--main-color-light) absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-8 cursor-pointer items-center 
+              justify-center ${showPassword ? "fa-eye text-(--main-color)" : "fa-eye-slash text-(--main-color)"}`}
         ></div>
       </div>
 
       <div
-        className="cursor-pointer self-end font-bold text-[var(--text-main-color-light)] hover:text-[var(--text-main-color)]"
+        className="text-(--text-main-color-light) hover:text-(--text-main-color) cursor-pointer self-end font-medium"
         onClick={() => setToggle("signin")}
       >
         Back to login
@@ -92,6 +92,7 @@ const ForgotPasswordForm = () => {
         gradientWidth={`${isPhoneScreen() ? "104%" : "102%"}`}
         gradientHeight={`${isPhoneScreen() ? "120%" : "120%"}`}
         rounded="3rem"
+        top="-4px"
         onClick={forgotPasswordCTA}
       />
     </div>

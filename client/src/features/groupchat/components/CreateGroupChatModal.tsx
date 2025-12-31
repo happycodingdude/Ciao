@@ -302,13 +302,13 @@ const CreateGroupChatModal = (props: OnCloseType) => {
       <CustomButton
         className="text-2xs mr-0"
         width={4}
-        padding="py-0"
-        gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
-        gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
+        gradientWidth={`${isPhoneScreen() ? "115%" : "110%"}`}
+        gradientHeight={`${isPhoneScreen() ? "130%" : "120%"}`}
         rounded="3rem"
         title="Save"
         onClick={createGroupChatCTA}
         processing={processing}
+        sm
       />
     </>
   );

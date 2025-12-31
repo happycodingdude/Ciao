@@ -329,7 +329,7 @@ const QuickChat = (props: QuickChatProps) => {
   return (
     <div
       ref={refQuickProfile}
-      className="quick-profile fixed -right-160 aspect-[1/0.9] rounded-lg laptop:w-100"
+      className="quick-profile -right-160 laptop:w-70 fixed aspect-[1/0.9] rounded-lg"
     >
       <div className="relative flex h-full w-full flex-col">
         <div className="absolute right-[5%] top-[5%]">
@@ -338,12 +338,12 @@ const QuickChat = (props: QuickChatProps) => {
             friendAction={handleFriendAction}
           />
         </div>
-        <div className="basis-[40%] rounded-t-lg bg-(--main-color-extrathin)"></div>
-        <div className="relative flex grow flex-col justify-evenly rounded-b-lg bg-(--main-color-light) px-4 pt-16">
-          <div className="absolute left-4 -top-16 rounded-[50%] bg-(--main-color-light) p-2">
+        <div className="bg-(--light-blue-300) basis-[40%] rounded-t-lg"></div>
+        <div className="bg-(--light-blue-400) relative flex grow flex-col gap-4 rounded-b-lg px-4 pt-8">
+          <div className="bg-(--light-blue-400) absolute -top-10 left-6 rounded-[50%] p-2">
             <ImageWithLightBoxAndNoLazy
               src={innerFriend?.avatar}
-              className="loaded aspect-square cursor-pointer rounded-[50%] bg-size-[170%] laptop:w-28"
+              className="loaded bg-size-[170%] laptop:w-15 aspect-square cursor-pointer rounded-[50%]"
               slides={[
                 {
                   src: innerFriend?.avatar,
@@ -351,12 +351,13 @@ const QuickChat = (props: QuickChatProps) => {
               ]}
             />
           </div>
-          <p className="text-md font-medium">{innerFriend?.name}</p>
-          <div className="rounded-lg bg-(--bg-color) py-2">
+          <p className="text-sm font-medium">{innerFriend?.name}</p>
+          <div className="bg-(--bg-color) rounded-lg py-2">
             <CustomContentEditable
               ref={refInput}
               className=" px-2"
               onKeyDown={keydownBindingFn}
+              quickChat
             />
           </div>
         </div>

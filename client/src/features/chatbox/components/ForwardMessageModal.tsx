@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
@@ -15,7 +16,6 @@ import useConversation from "../../listchat/hooks/useConversation";
 import { ConversationCache, ConversationModel } from "../../listchat/types";
 import sendMessage from "../services/sendMessage";
 import { SendMessageRequest } from "../types";
-import dayjs from "dayjs";
 
 const ForwardMessageModal = (props: ForwardMessageModalProps) => {
   const { onClose, message } = props;
@@ -212,7 +212,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
           <ListFriendLoading />
         ) : (
           <>
-            <div className="list-friend-container hide-scrollbar flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
+            <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
               {membersToSearch?.map((item) => {
                 const isSent = sentIds.has(item.id);
                 return (
@@ -237,14 +237,14 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
                       className="pointer-events-none"
                     />
                     <CustomButton
-                      className={`phone:text-base desktop:text-md ${isSent ? "pointer-events-none opacity-50" : ""}`}
-                      width={7}
-                      padding="py-[.3rem]"
-                      gradientWidth={`${isPhoneScreen() ? "115%" : "112%"}`}
-                      gradientHeight={`${isPhoneScreen() ? "130%" : "122%"}`}
+                      className={`text-2xs ${isSent ? "pointer-events-none opacity-50" : ""}`}
+                      width={4}
+                      gradientWidth={`${isPhoneScreen() ? "115%" : "110%"}`}
+                      gradientHeight={`${isPhoneScreen() ? "130%" : "120%"}`}
                       rounded="3rem"
                       title="Send"
                       onClick={() => send(item)}
+                      sm
                     />
                   </div>
                 );

@@ -262,13 +262,13 @@ const FriendCtaButton = (props: FriendItemProps) => {
         title="Chat"
         className="text-2xs"
         width={4}
-        padding="py-0"
         gradientWidth="110%"
         gradientHeight="120%"
         rounded="3rem"
         onClick={() => {
           chat(friend);
         }}
+        sm
       />
     ),
   }[friend.friendStatus];

@@ -51,7 +51,7 @@ const MessageReaction = (props: MessageReactionProps) => {
           ""
         )}
         {/* MARK: CURRENT REACTION */}
-        <div className="peer current-reaction-container">
+        <div className="current-reaction-container peer">
           {
             {
               like: (
@@ -105,7 +105,7 @@ const MessageReaction = (props: MessageReactionProps) => {
         {/* MARK: LIST REACTIONS */}
         <div
           className={`list-reaction-container
-          ${message.mine ? "right-[.1rem] origin-bottom-right" : "left-0 origin-bottom-left"}`}
+          ${message.mine ? "right-6 origin-bottom-right" : "left-6 origin-bottom-left"}`}
         >
           <div
             className="reaction-item bg-[url('/src/assets/like.svg')] "

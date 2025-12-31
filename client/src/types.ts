@@ -66,6 +66,9 @@ export type CustomButtonProps = {
   onClick?: () => void;
   processing?: boolean;
   width?: string | number;
+  height?: string | number;
+  top?: string | number;
+  sm?: boolean;
 };
 
 export type OnCloseType = {
@@ -115,6 +118,7 @@ export type CustomContentEditableProps = {
   onKeyUp?: KeyboardEventHandler<HTMLElement>;
   className?: string;
   isEmpty?: boolean;
+  quickChat?: boolean;
 };
 
 export type OnlineStatusDotProps = {

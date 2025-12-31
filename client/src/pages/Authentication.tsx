@@ -91,7 +91,7 @@ const Authentication = () => {
             <div
               ref={refBgSignInLabelContainer}
               className="absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center text-white opacity-0 
-            transition-all duration-500 tablet:right-[-35%] laptop:right-[-20%]"
+            transition-all duration-500 tablet:right-[-35%] laptop:right-[-10%]"
             >
               <p className="text-3xl">Welcome back</p>
               <div

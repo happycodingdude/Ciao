@@ -1,10 +1,13 @@
 import dayjs from "dayjs";
 
-
 export const getToday = (format?: string): string => dayjs().format(format);
 
 export const formatDate = (datetime: string) =>
-  new Date(datetime).toLocaleDateString("vi-VN");
+  new Date(datetime).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
 export const formatTime = (datetime: string) =>
   new Date(datetime).toLocaleTimeString("vi-VN", {

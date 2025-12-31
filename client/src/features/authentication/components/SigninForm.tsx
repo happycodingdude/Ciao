@@ -114,7 +114,7 @@ const SigninForm = () => {
         </div>
       ) : (
         <div
-          className="text-(--text-main-color-light) hover:text-(--text-main-color) cursor-pointer self-end font-bold"
+          className="text-(--text-main-color-light) hover:text-(--text-main-color) cursor-pointer self-end font-medium"
           onClick={() => setToggle("forgot")}
         >
           Forgot password?
@@ -129,6 +129,7 @@ const SigninForm = () => {
         gradientWidth={`${isPhoneScreen() ? "104%" : "102%"}`}
         gradientHeight={`${isPhoneScreen() ? "120%" : "120%"}`}
         rounded="3rem"
+        top="-4px"
         onClick={() => {
           signinCTA();
         }}

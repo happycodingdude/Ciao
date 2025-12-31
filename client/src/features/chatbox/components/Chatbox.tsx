@@ -150,13 +150,13 @@ const Chatbox = () => {
             className={`flex flex-col gap-10 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-8" : ""}`}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="text-3xs rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="text-3xs rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 
             {[...messages].map((message, index) =>
               message.type === "system" ? (
-                <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-2 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                   {message.content}
                 </div>
               ) : (

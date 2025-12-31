@@ -12,13 +12,16 @@ const CustomButton = (props: CustomButtonProps) => {
     onClick,
     processing,
     width,
+    height,
+    top,
+    sm,
   } = props;
   const handleClick = () => {
     onClick();
   };
   return (
     <div
-      className={`${className} relative z-0 mx-auto`}
+      className={`${className} relative z-0 mx-auto ${width ? "shrink-0" : ""}`}
       style={{ width: width ? `${width}rem` : "100%" }}
     >
       <div
@@ -28,9 +31,10 @@ const CustomButton = (props: CustomButtonProps) => {
             "--width": `${gradientWidth}`,
             "--height": `${gradientHeight}`,
             "--rounded": `${rounded}`,
+            "--top": `${top ?? "-2.6px"}`,
           } as CSSProperties
         }
-        className={`gradient-item rounded-4xl bg-(--bg-color) relative cursor-pointer text-center font-medium 
+        className={`gradient-item rounded-4xl bg-(--bg-color) relative ${sm ? "h-7" : "h-10"} cursor-pointer text-center font-medium 
           transition-all data-[process=true]:pointer-events-none`}
         onClick={(e) => {
           e.stopPropagation(); // Prevent bubbling to parent
@@ -38,11 +42,9 @@ const CustomButton = (props: CustomButtonProps) => {
         }}
       >
         {processing ? (
-          <div
-            className={`fa fa-spinner fa-spin leading-8 ${padding ?? "py-4"}`}
-          ></div>
+          <div className={`fa fa-spinner fa-spin`}></div>
         ) : (
-          <span className={`leading-8 ${padding ?? "py-2"}`}>{title}</span>
+          <span>{title}</span>
         )}
       </div>
     </div>

@@ -30,12 +30,12 @@ const AddButton = (props: FriendCtaButtonProps) => {
       title="Add"
       className="text-2xs"
       width={4}
-      padding="py-0"
       gradientWidth="110%"
       gradientHeight="120%"
       rounded="3rem"
       onClick={addFriend}
       processing={processing}
+      sm
     />
   );
 };

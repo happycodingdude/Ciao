@@ -226,8 +226,7 @@ const ListChatContainer = () => {
                 <div className="flex h-full w-[60%] flex-col justify-between">
                   {/* MARK: TITLE */}
                   <CustomLabel
-                    className={`${isActive ? "text-(--text-sub-color)" : "text-(--text-main-color)"} 
-                          font-['Be_Vietnam_Pro'] font-semibold`}
+                    className="font-medium"
                     title={
                       item.isGroup
                         ? item.title
