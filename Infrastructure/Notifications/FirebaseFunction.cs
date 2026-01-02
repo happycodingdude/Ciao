@@ -1,18 +1,27 @@
-﻿namespace Infrastructure.Notifications;
+﻿using Google.Cloud.Storage.V1;
+
+namespace Infrastructure.Notifications;
 
 public class FirebaseFunction : IFirebaseFunction
 {
     readonly IServiceProvider _serviceProvider;
     readonly ILogger _logger;
+    readonly StorageClient _storageClient;
+    const string BucketName = "myconnect-f2af8.appspot.com";
 
     public FirebaseFunction(IServiceProvider serviceProvider, ILogger logger)
     {
+        var credential = GoogleCredential.FromFile(
+            $"{AppContext.BaseDirectory}/service-account-config.json"
+        );
         FirebaseApp.Create(new AppOptions()
         {
-            Credential = GoogleCredential.FromFile($"{AppContext.BaseDirectory}/service-account-config.json")
+            Credential = credential
         });
         _serviceProvider = serviceProvider;
         _logger = logger;
+
+        _storageClient = StorageClient.Create(credential);
     }
 
     public async Task Notify(string _event, string[] userIds, object data)
@@ -74,5 +83,15 @@ public class FirebaseFunction : IFirebaseFunction
     public Task Notify(string _event, string group, string uniqueId, string userId, object data)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<Google.Apis.Storage.v1.Data.Object> UploadAsync(UploadModel model)
+    {
+        return await _storageClient.UploadObjectAsync(
+            bucket: BucketName,
+            objectName: model.Folder,
+            contentType: model.ContentType,
+            source: model.FileStream
+        );
     }
 }

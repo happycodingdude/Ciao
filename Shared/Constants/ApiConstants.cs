@@ -11,4 +11,5 @@ public partial class AppConstants
     public const string ApiGroup_Message = $"/api/{ApiVersion}/messages";
     public const string ApiGroup_Notification = $"/api/{ApiVersion}/notifications";
     public const string ApiGroup_Member = $"/api/{ApiVersion}/members";
+    public const string ApiGroup_Attachment = $"/api/{ApiVersion}/attachments";
 }
