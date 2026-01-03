@@ -21,37 +21,49 @@ public static class UploadRequest
             if (request.files is null || request.files.Count == 0)
                 throw new BadRequestException("No files uploaded");
 
+            var contentTypeLookup = new Dictionary<string, (string folder, string attachmentType)>
+            {
+                ["document/doc"] = new("files", "file"),
+                ["document/docx"] = new("files", "file"),
+                ["application/pdf"] = new("files", "file"),
+                ["application/vnd.ms-excel"] = new("files", "file"),
+                ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"] = new("files", "file"),
+                ["video/mp4"] = new("videos", "video"),
+                ["video/mov"] = new("videos", "video"),
+                ["image/jpg"] = new("images", "image"),
+                ["image/jpeg"] = new("images", "image"),
+                ["image/png"] = new("images", "image"),
+                ["image/gif"] = new("images", "image"),
+            };
+
             var result = new List<UploadResponse>();
             foreach (var file in request.files)
             {
                 using var memoryStream = new MemoryStream();
                 await file.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
 
-                var objectName = file.ContentType switch
-                {
-                    "document/doc" => $"files/{file.FileName}",
-                    "document/docx" => $"files/{file.FileName}",
-                    "application/pdf" => $"files/{file.FileName}",
-                    "application/vnd.ms-excel" => $"files/{file.FileName}",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => $"files/{file.FileName}",
-                    "video/mp4" => $"videos/{file.FileName}",
-                    "video/mov" => $"videos/{file.FileName}",
-                    _ => $"images/{file.FileName}",
-                };
-                var uploadResult = await _firebaseFunction.UploadAsync(
+                var (folder, attachmentType) = contentTypeLookup.TryGetValue(file.ContentType, out var f)
+                    ? f
+                    : (null, null);
+                if (folder is null)
+                    throw new BadRequestException($"Unsupported file type: {file.ContentType}");
+
+                var uploadedUrl = await _firebaseFunction.UploadAsync(
                     new UploadModel
                     {
-                        Folder = objectName,
+                        Folder = folder,
+                        FileName = file.FileName,
                         FileStream = memoryStream,
                         ContentType = file.ContentType
                     });
                 result.Add(
                     new UploadResponse
                     {
-                        Type = file.ContentType,
+                        Type = attachmentType!,
                         MediaName = file.FileName,
                         MediaSize = file.Length,
-                        MediaUrl = uploadResult.MediaLink
+                        MediaUrl = uploadedUrl
                     });
             }
 

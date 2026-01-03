@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CloseOutlined } from "@ant-design/icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import React, {
@@ -28,7 +29,7 @@ import {
   MessageCache,
   PendingMessageModel,
 } from "../../listchat/types";
-import { uploadMultipleFile } from "../functions/uploadFile";
+import { uploadFile } from "../functions/uploadFile";
 import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import sendMessage from "../services/sendMessage";
 import {
@@ -236,16 +237,7 @@ const ChatInput = (props: ChatInputProps) => {
           },
         );
 
-        const uploaded: AttachmentModel[] = await uploadMultipleFile(
-          param.files,
-        ).then((uploads) => {
-          return uploads.map((item) => ({
-            type: item.type,
-            mediaUrl: item.url,
-            mediaName: item.name,
-            mediaSize: item.size,
-          }));
-        });
+        const uploaded: AttachmentModel[] = await uploadFile(param.files);
         bodyToCreate = {
           ...bodyToCreate,
           attachments: uploaded,
@@ -382,15 +374,15 @@ const ChatInput = (props: ChatInputProps) => {
         chooseMention(mentions[selectedIndex].userId);
       }
 
-      // Nếu nội dung đang rỗng và người dùng gõ phím không phải là Backspace
-      else if (isEmpty && key !== "Backspace") {
-        setIsEmpty(false);
-      }
-
       // Enter mà không giữ Shift -> gửi tin nhắn
       else if (key === "Enter" && !e.shiftKey) {
         e.preventDefault(); // Ngăn xuống dòng
         chat();
+      }
+
+      // Nếu nội dung đang rỗng và người dùng gõ phím không phải là Backspace
+      else if (isEmpty && key !== "Backspace") {
+        setIsEmpty(false);
       }
       // Nhấn @ để hiển thị Mention
       else if (key === "@") {
@@ -507,25 +499,11 @@ const ChatInput = (props: ChatInputProps) => {
     if (files?.length !== 0) setCaretToEnd(false);
   }, [files]);
 
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === "ArrowDown") {
-  //       e.preventDefault();
-  //       setSelectedIndex((prev) => (prev + 1) % mentions.length);
-  //     } else if (e.key === "ArrowUp") {
-  //       e.preventDefault();
-  //       setSelectedIndex(
-  //         (prev) => (prev - 1 + mentions.length) % mentions.length,
-  //       );
-  //     } else if (e.key === "Enter") {
-  //       e.preventDefault();
-  //       chooseMention(mentions[selectedIndex].userId);
-  //     }
-  //   };
-
-  //   window.addEventListener("keydown", handleKeyDown);
-  //   return () => window.removeEventListener("keydown", handleKeyDown);
-  // }, [mentions, selectedIndex, chooseMention]);
+  const { data: reply } = useQuery({
+    queryKey: ["reply"],
+    queryFn: () => undefined, // không fetch
+    enabled: false, // chỉ dùng cache
+  });
 
   return (
     <div className={`flex w-full items-center justify-center laptop:mb-4`}>
@@ -541,12 +519,27 @@ const ChatInput = (props: ChatInputProps) => {
         }  
         `}
       >
+        {/* MARK: FORWARD MESSAGE */}
+        {reply && (
+          <div className="flex">
+            <div className="mb-2 border-l-[.3rem] border-l-light-blue-500/50 px-3">
+              <p className="truncate italic text-light-blue-500">
+                Reply to {reply.contact}
+              </p>
+              <p className="truncate">{reply.replyContent}</p>
+            </div>
+            <CloseOutlined
+              className="flex cursor-pointer items-start"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent bubbling to parent
+                queryClient.removeQueries({ queryKey: ["reply"], exact: true });
+              }}
+            />
+          </div>
+        )}
         {/* MARK: FILES */}
         {files?.length !== 0 ? (
-          <div
-            id="file-preview-4"
-            className="custom-scrollbar flex gap-4 overflow-x-auto rounded-2xl p-6"
-          >
+          <div className="custom-scrollbar flex gap-4 overflow-x-auto rounded-2xl p-6">
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />
             ))}
@@ -555,10 +548,8 @@ const ChatInput = (props: ChatInputProps) => {
           ""
         )}
 
-        <div
-          // className={`mention-item relative w-full ${files?.length !== 0 ? "py-3" : "py-2"}`}
-          className={`mention-item relative w-full`}
-        >
+        {/* MARK: Chat Input */}
+        <div className={`mention-item relative w-full`}>
           {/* MARK: MENTION */}
           {conversation.isGroup ? (
             <div
@@ -635,20 +626,11 @@ const ChatInput = (props: ChatInputProps) => {
               <button className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
                 <i className="fa-solid fa-microphone text-base"></i>
               </button>
-              {/* <div className="flex-1"></div> */}
-              {/* <button className="toolbar-btn flex aspect-square w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-neo-purple">
-                <i className="fa-solid fa-at text-lg"></i>
-              </button> */}
             </div>
 
             {/* MARK: TEXT INPUT */}
             <div className="flex items-end gap-4">
               <div className="flex-1 self-center">
-                {/* <textarea
-                      placeholder="Type your message here..."
-                      className="w-full resize-none border-0 bg-transparent text-base leading-relaxed text-gray-800 placeholder-gray-400 focus:ring-0"
-                      rows={1}
-                    ></textarea> */}
                 <CustomContentEditable
                   ref={inputRef}
                   onKeyDown={keydownBindingFn}
@@ -656,15 +638,10 @@ const ChatInput = (props: ChatInputProps) => {
                   isEmpty={isEmpty}
                 />
               </div>
-              <button className="send-btn flex aspect-square items-center justify-center rounded-full bg-light-blue-400 text-white laptop:w-9">
+              <button className="send-btn flex aspect-square cursor-pointer items-center justify-center rounded-full bg-light-blue-400 text-white laptop:w-9">
                 <i className="fa-solid fa-paper-plane laptop:text-xs"></i>
               </button>
             </div>
-
-            {/* <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>Press Enter to send, Shift+Enter for new line</span>
-              <span className="rounded-full bg-gray-100 px-2 py-1">0/2000</span>
-            </div> */}
           </div>
         </div>
         {/* MARK: EMOJI */}

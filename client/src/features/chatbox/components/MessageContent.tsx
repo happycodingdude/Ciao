@@ -190,8 +190,7 @@ const MessageContent = (props: MessageContentProps) => {
         ""
       )}
       <div
-        className={`phone:w-120 relative flex
-          flex-col laptop:w-[clamp(30rem,50%,50rem)] desktop:w-[clamp(40rem,70%,80rem)] 
+        className={`laptop:max-w-120 desktop:max-w-220 relative flex w-fit flex-col
           ${message.contactId === info.id ? "items-end" : "items-start"}
           ${message.isPinned || message.isForwarded ? "gap-2" : ""}
           `}
@@ -213,8 +212,8 @@ const MessageContent = (props: MessageContentProps) => {
         </div>
         {/* MARK: ATTACHMENT */}
         {message.attachments && message.attachments.length !== 0 ? (
-          <div className="relative">
-            <div className="grid grid-cols-4 gap-2">
+          <div className="relative w-full">
+            <div className="grid grid-cols-[repeat(4,7rem)] gap-2">
               {message.attachments?.slice(0, 5).map((src, index) => {
                 const isFirst = index === 0;
                 const isLast =
@@ -223,14 +222,18 @@ const MessageContent = (props: MessageContentProps) => {
                 return (
                   <div
                     key={index}
-                    className={isFirst ? "col-span-2 row-span-2" : ""}
+                    className={
+                      isFirst
+                        ? "col-span-2 row-span-2"
+                        : "col-span-1 row-span-1"
+                    }
                   >
                     <div className="relative aspect-square w-full">
                       <ImageWithLightBoxAndNoLazy
                         key={index}
                         src={src.mediaUrl}
                         title={src.mediaName?.split(".")[0]}
-                        className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-40"}`}
+                        className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-full"}`}
                         slides={message.attachments.map((item) => ({
                           src: item.type === "image" ? item.mediaUrl : "",
                         }))}
@@ -240,11 +243,11 @@ const MessageContent = (props: MessageContentProps) => {
                       />
                       {isLast && (
                         <div className="mosaic-overlay pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-white">
+                          <div className="w-full text-center">
+                            <div className="text-sm text-white">
                               +{message.attachments?.length - 5}
                             </div>
-                            <div className="text-xs text-white opacity-80">
+                            <div className="text-white opacity-80">
                               more photos
                             </div>
                           </div>
@@ -327,24 +330,21 @@ const MessageContent = (props: MessageContentProps) => {
                   />
                 )}
               </div>
-
-              {/* MARK: MESSAGE MENU */}
-              <MessageMenu
-                conversationId={id}
-                id={message.id}
-                message={message.content}
-                mine={message.contactId === info.id}
-                pinned={message.isPinned}
-                getContainerRect={props.getContainerRect}
-                getContentRect={() =>
-                  contentRef.current?.getBoundingClientRect()
-                }
-              />
             </div>
           </>
         ) : (
           ""
         )}
+        {/* MARK: MESSAGE MENU */}
+        <MessageMenu
+          conversationId={id}
+          id={message.id}
+          message={message.content}
+          mine={message.contactId === info.id}
+          pinned={message.isPinned}
+          getContainerRect={props.getContainerRect}
+          getContentRect={() => contentRef.current?.getBoundingClientRect()}
+        />
         {/* MARK: REACTION */}
         <MessageReaction
           message={{

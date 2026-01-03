@@ -59,6 +59,8 @@ const HttpRequest = async <TReq = undefined, TRes = undefined>(
 
   const baseUrl = import.meta.env.VITE_ASPNETCORE_CHAT_URL;
   const fullUrl = baseUrl + withApiPrefix(req.url); // 👈 tự động chèn prefix
+  
+  const isFormData = req.data instanceof FormData;
 
   return await axios<TRes | undefined>({
     method: req.method,
@@ -66,14 +68,13 @@ const HttpRequest = async <TReq = undefined, TRes = undefined>(
     url: fullUrl,
     data: req.data,
     headers: {
-      ...{
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("accessToken"),
-        "ngrok-skip-browser-warning": "true",
-      },
+      ...(isFormData
+        ? {} // ✅ KHÔNG set Content-Type
+        : { "Content-Type": "application/json" }),
+      Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      "ngrok-skip-browser-warning": "true",
       ...req.headers,
     },
-    // signal: req.controller.signal,
   })
     .then((res) => {
       if (req.alert) toast.success("😎 Mission succeeded!");

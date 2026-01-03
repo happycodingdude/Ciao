@@ -2,10 +2,11 @@ import {
   getDownloadURL,
   getStorage,
   ref,
-  uploadBytes,
   uploadBytesResumable,
 } from "firebase/storage";
+import HttpRequest from "../../../lib/fetch";
 import getFirebaseApp from "../../../utils/firebaseConfig";
+import { AttachmentModel } from "../../listchat/types";
 
 const storage = getStorage(getFirebaseApp());
 
@@ -59,14 +60,18 @@ export async function uploadMultipleFile(files: File[]) {
   }
 }
 
-export async function uploadFile(file: File): Promise<string> {
-  // Create a root reference
-  const storage = getStorage(getFirebaseApp());
-  return await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
-    (snapshot) => {
-      return getDownloadURL(snapshot.ref).then((url) => {
-        return url;
-      });
-    },
-  );
+export async function uploadFile(files: File[]): Promise<AttachmentModel[]> {
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append("files", file); // 👈 MUST trùng key backend
+  });
+
+  return (
+    await HttpRequest<FormData, AttachmentModel[]>({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_ATTACHMENT_UPLOAD,
+      data: formData,
+    })
+  ).data;
 }

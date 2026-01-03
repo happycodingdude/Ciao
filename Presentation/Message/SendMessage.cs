@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace Presentation.Messages;
 
 public static class SendMessage

@@ -114,8 +114,20 @@ const MessageMenu = (props: MessageMenuProps) => {
     [getContainerRect],
   );
 
+  const replyMessage = () => {
+    queryClient.setQueryData(["reply"], {
+      replyId: id,
+      replyContact: mine ? info.id : message?.split("\n")[0] || "",
+      replyContent: message || "",
+    });
+  };
+
   return (
     <>
+      <EllipsisOutlined
+        className={`absolute ${mine ? "-left-8" : "-right-8"} top-5 text-base`}
+        onClick={(e) => toggleMenu(e)}
+      />
       <div
         ref={refMenu}
         data-show={show}
@@ -141,7 +153,7 @@ const MessageMenu = (props: MessageMenuProps) => {
           {pinned ? " Unpin" : " Pin"} message
         </div>
         {/* MARK: REPLY */}
-        <div className="message-menu-item">
+        <div className="message-menu-item" onClick={replyMessage}>
           <i className="fa fa-reply" /> Reply message
         </div>
         {/* MARK: FORWARD */}
@@ -164,10 +176,6 @@ const MessageMenu = (props: MessageMenuProps) => {
           </BackgroundPortal>
         </div>
       </div>
-      <EllipsisOutlined
-        className={`absolute ${mine ? "-left-8" : "-right-8"} top-2 text-base`}
-        onClick={(e) => toggleMenu(e)}
-      />
     </>
   );
 };

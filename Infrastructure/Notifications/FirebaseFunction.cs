@@ -1,4 +1,4 @@
-﻿using Google.Cloud.Storage.V1;
+﻿using Firebase.Storage;
 
 namespace Infrastructure.Notifications;
 
@@ -6,7 +6,7 @@ public class FirebaseFunction : IFirebaseFunction
 {
     readonly IServiceProvider _serviceProvider;
     readonly ILogger _logger;
-    readonly StorageClient _storageClient;
+    readonly FirebaseStorage _storage;
     const string BucketName = "myconnect-f2af8.appspot.com";
 
     public FirebaseFunction(IServiceProvider serviceProvider, ILogger logger)
@@ -21,7 +21,7 @@ public class FirebaseFunction : IFirebaseFunction
         _serviceProvider = serviceProvider;
         _logger = logger;
 
-        _storageClient = StorageClient.Create(credential);
+        _storage = new FirebaseStorage(BucketName);
     }
 
     public async Task Notify(string _event, string[] userIds, object data)
@@ -85,13 +85,29 @@ public class FirebaseFunction : IFirebaseFunction
         throw new NotImplementedException();
     }
 
-    public async Task<Google.Apis.Storage.v1.Data.Object> UploadAsync(UploadModel model)
+    public async Task<string> UploadAsync(UploadModel model)
     {
-        return await _storageClient.UploadObjectAsync(
-            bucket: BucketName,
-            objectName: model.Folder,
-            contentType: model.ContentType,
-            source: model.FileStream
-        );
+        var storageTask = _storage
+            .Child(model.Folder)
+            .Child(model.FileName)
+            .PutAsync(model.FileStream); // Upload the stream
+
+        // Optional: Monitor the upload progress
+        storageTask.Progress.ProgressChanged += (s, e) =>
+        {
+            Console.WriteLine($"Progress: {e.Percentage} %");
+        };
+
+        try
+        {
+            // Wait for the upload to complete and get the download URL
+            string downloadUrl = await storageTask;
+            return downloadUrl;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error uploading file: {ex.Message}");
+            throw;
+        }
     }
 }

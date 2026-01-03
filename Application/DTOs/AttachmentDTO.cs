@@ -17,6 +17,7 @@ public class AttachmentGroupByCreatedTime
 public class UploadModel
 {
     public string Folder { get; set; } = null!;
+    public string FileName { get; set; } = null!;
     public Stream FileStream { get; set; } = null!;
     public string ContentType { get; set; } = null!;
 }

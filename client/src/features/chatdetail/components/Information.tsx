@@ -201,7 +201,7 @@ const Information = () => {
               </p>
               <i
                 data-show={showMembers}
-                className="fa-arrow-down fa base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center 
+                className="fa-arrow-down fa-solid base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center 
                 transition-all duration-500 data-[show=false]:rotate-90"
                 onClick={toggleMembers}
               ></i>
