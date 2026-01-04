@@ -2,13 +2,14 @@ import { PushpinOutlined } from "@ant-design/icons";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { renderMessageWithMentions } from "../../../utils/renderMention";
 
-export type MessageType = "pinned" | "forwarded" | "reply" | undefined;
+export type MessageType = "forwarded" | "reply" | undefined;
 
 export type PinnedMessageProps = {
   type?: MessageType;
   message: string;
   contact?: string;
   mine?: boolean;
+  isPinned?: boolean;
   replyId?: string;
   replyContent?: string;
 };
@@ -20,6 +21,7 @@ type MessageConfig = {
 };
 
 export function PinnedMessage(props: PinnedMessageProps) {
+  const { type, message, contact, mine, isPinned, replyContent } = props;
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
@@ -34,41 +36,41 @@ export function PinnedMessage(props: PinnedMessageProps) {
     }
 
     setIsExpanded(false);
-  }, [props.message]);
+  }, [message]);
 
   const getMessageConfig = (): MessageConfig => {
-    switch (props.type) {
-      case "pinned":
-        return {
-          header: (
-            <div className="inline-flex h-8 items-center gap-2 italic text-light-blue-500">
-              Pinned by {props.contact}
-            </div>
-          ),
-          icon: (
-            <PushpinOutlined
-              className={`absolute ${props.mine ? "-right-3" : "-left-3.5"} top-[-.8rem] rounded-2xl 
-              bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
-              style={{
-                strokeWidth: "80",
-                stroke: "white",
-              }}
-              rotate={316}
-            />
-          ),
-          showExpandToggle: true,
-        };
+    switch (type) {
+      // case "pinned":
+      //   return {
+      //     header: (
+      //       <div className="inline-flex h-8 items-center gap-2 italic text-light-blue-500">
+      //         Pinned by {contact}
+      //       </div>
+      //     ),
+      //     icon: (
+      //       <PushpinOutlined
+      //         className={`absolute ${mine ? "-right-3" : "-left-3.5"} top-[-.8rem] rounded-2xl
+      //         bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
+      //         style={{
+      //           strokeWidth: "80",
+      //           stroke: "white",
+      //         }}
+      //         rotate={316}
+      //       />
+      //     ),
+      //     showExpandToggle: true,
+      //   };
 
       case "forwarded":
         return {
           header: (
             <div className="inline-flex h-8 items-center gap-2 italic text-light-blue-500">
-              {props.contact} have forwarded this message
+              {contact} have forwarded this message
             </div>
           ),
           icon: (
             <i
-              className={`fa-solid fa-share absolute ${props.mine ? "fa-rotate-180 -right-3" : "-left-3.5"} -top-4 rounded-2xl 
+              className={`fa-solid fa-share absolute ${mine ? "fa-rotate-180 -right-3" : "-left-3.5"} -top-4 rounded-2xl 
               bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
             />
           ),
@@ -80,9 +82,9 @@ export function PinnedMessage(props: PinnedMessageProps) {
           header: (
             <div className="mb-2 border-l-[.3rem] border-l-light-blue-500/50 px-3">
               <p className="truncate italic text-light-blue-500">
-                Reply to {props.contact}
+                Reply to {contact}
               </p>
-              <p className="truncate">{props.replyContent}</p>
+              <p className="truncate">{replyContent}</p>
             </div>
           ),
           showExpandToggle: true,
@@ -102,14 +104,14 @@ export function PinnedMessage(props: PinnedMessageProps) {
       {config.header}
       <p
         ref={contentRef}
-        className={`overflow-hidden text-ellipsis ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
+        className={`overflow-hidden text-ellipsis leading-8 ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
       >
-        {renderMessageWithMentions(props.message)}
+        {renderMessageWithMentions(message)}
       </p>
       {/* MARK: SHOW MORE MESSAGE */}
       {config.showExpandToggle && isOverflowing && (
         <div
-          className={`${props.mine ? "self-end" : ""} w-fit cursor-pointer text-green-500`}
+          className={`${mine ? "self-end" : ""} w-fit cursor-pointer text-green-500`}
           onClick={() => {
             setIsExpanded((current) => !current);
           }}
@@ -117,7 +119,18 @@ export function PinnedMessage(props: PinnedMessageProps) {
           {isExpanded ? "View less" : "View more"}
         </div>
       )}
-      {config.icon}
+      {/* {config.icon} */}
+      {isPinned && (
+        <PushpinOutlined
+          className={`absolute ${mine ? "-right-3" : "-left-3.5"} top-[-.8rem] rounded-2xl 
+              bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
+          style={{
+            strokeWidth: "80",
+            stroke: "white",
+          }}
+          rotate={316}
+        />
+      )}
     </>
   );
 }

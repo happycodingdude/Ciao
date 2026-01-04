@@ -189,12 +189,7 @@ const MessageContent = (props: MessageContentProps) => {
       ) : (
         ""
       )}
-      <div
-        className={`laptop:max-w-120 desktop:max-w-220 relative flex w-fit flex-col
-          ${message.contactId === info.id ? "items-end" : "items-start"}
-          ${message.isPinned || message.isForwarded ? "gap-2" : ""}
-          `}
-      >
+      <div className="flex flex-col">
         <div
           className={`text-(--text-main-color-thin) flex items-center gap-4`}
         >
@@ -210,68 +205,74 @@ const MessageContent = (props: MessageContentProps) => {
           {/* MARK: MESSAGE TIME */}
           <p>{dayjs(message.createdTime).format("HH:mm")}</p>
         </div>
-        {/* MARK: ATTACHMENT */}
-        {message.attachments && message.attachments.length !== 0 ? (
-          <div className="relative w-full">
-            <div className="grid grid-cols-[repeat(4,7rem)] gap-2">
-              {message.attachments?.slice(0, 5).map((src, index) => {
-                const isFirst = index === 0;
-                const isLast =
-                  index === 5 - 1 && message.attachments?.length > 5;
+        <div
+          className={`laptop:max-w-120 desktop:max-w-220 relative flex w-fit flex-col
+          ${message.contactId === info.id ? "items-end" : "items-start"}
+          ${message.isPinned  ? "gap-2" : ""}
+          `}
+        >
+          {/* MARK: ATTACHMENT */}
+          {message.attachments && message.attachments.length !== 0 ? (
+            <div className="relative w-full">
+              <div className="grid grid-cols-[repeat(4,7rem)] gap-2">
+                {message.attachments?.slice(0, 5).map((src, index) => {
+                  const isFirst = index === 0;
+                  const isLast =
+                    index === 5 - 1 && message.attachments?.length > 5;
 
-                return (
-                  <div
-                    key={index}
-                    className={
-                      isFirst
-                        ? "col-span-2 row-span-2"
-                        : "col-span-1 row-span-1"
-                    }
-                  >
-                    <div className="relative aspect-square w-full">
-                      <ImageWithLightBoxAndNoLazy
-                        key={index}
-                        src={src.mediaUrl}
-                        title={src.mediaName?.split(".")[0]}
-                        className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-full"}`}
-                        slides={message.attachments.map((item) => ({
-                          src: item.type === "image" ? item.mediaUrl : "",
-                        }))}
-                        index={index}
-                        pending={src.pending}
-                        local={src.local}
-                      />
-                      {isLast && (
-                        <div className="mosaic-overlay pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
-                          <div className="w-full text-center">
-                            <div className="text-sm text-white">
-                              +{message.attachments?.length - 5}
-                            </div>
-                            <div className="text-white opacity-80">
-                              more photos
+                  return (
+                    <div
+                      key={index}
+                      className={
+                        isFirst
+                          ? "col-span-2 row-span-2"
+                          : "col-span-1 row-span-1"
+                      }
+                    >
+                      <div className="relative aspect-square w-full">
+                        <ImageWithLightBoxAndNoLazy
+                          key={index}
+                          src={src.mediaUrl}
+                          title={src.mediaName?.split(".")[0]}
+                          className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-full"}`}
+                          slides={message.attachments.map((item) => ({
+                            src: item.type === "image" ? item.mediaUrl : "",
+                          }))}
+                          index={index}
+                          pending={src.pending}
+                          local={src.local}
+                        />
+                        {isLast && (
+                          <div className="mosaic-overlay pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
+                            <div className="w-full text-center">
+                              <div className="text-sm text-white">
+                                +{message.attachments?.length - 5}
+                              </div>
+                              <div className="text-white opacity-80">
+                                more photos
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ) : (
-          ""
-        )}
-        {/* MARK: CONTENT */}
-        {message.content ? (
-          <>
-            <div className="relative flex flex-col">
-              <div
-                ref={contentRef}
-                className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
-                bg-(--bg-color) my-2 px-4 leading-8
+          ) : (
+            ""
+          )}
+          {/* MARK: CONTENT */}
+          {message.content ? (
+            <>
+              <div className="relative flex flex-col">
+                <div
+                  ref={contentRef}
+                  className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
+                bg-(--bg-color) my-2 px-4
                   ${
-                    message.isPinned || message.isForwarded
+                    message.isPinned
                       ? message.contactId === info.id
                         ? "border-r-[.4rem] border-light-blue-500"
                         : "border-l-[.4rem] border-light-blue-500"
@@ -283,78 +284,76 @@ const MessageContent = (props: MessageContentProps) => {
                   data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
                   ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-1"}
                 `}
-              >
-                {message.isPinned ? (
-                  <PinnedMessage
-                    type="pinned"
-                    message={message.content}
-                    contact={
-                      conversation.members.find(
-                        (q) => q.contact.id === message.pinnedBy,
-                      )?.contact.name || ""
-                    }
-                    mine={message.contactId === info.id}
-                  />
-                ) : message.isForwarded ? (
-                  <ForwardedMessage
-                    message={message.content}
-                    contact={
-                      message.contactId === info.id
-                        ? "You"
-                        : conversation.members.find(
-                            (q) => q.contact.id === message.contactId,
-                          )?.contact.name
-                    }
-                    mine={message.contactId === info.id}
-                  />
-                ) : message.replyId && message.replyContent ? (
-                  <ReplyMessage
-                    message={message.content}
-                    replyId={message.replyId}
-                    replyContent={message.replyContent}
-                    contact={
-                      conversation.members.find(
-                        (q) => q.contact.id === message.replyContact,
-                      )?.contact.name || ""
-                    }
-                  />
-                ) : (
-                  <PinnedMessage
-                    message={message.content}
-                    contact={
-                      conversation.members.find(
-                        (q) => q.contact.id === message.pinnedBy,
-                      )?.contact.name || ""
-                    }
-                    mine={message.contactId === info.id}
-                  />
-                )}
+                >
+                  {message.isForwarded ? (
+                    <ForwardedMessage
+                      message={message.content}
+                      contact={
+                        message.contactId === info.id
+                          ? "You"
+                          : conversation.members.find(
+                              (q) => q.contact.id === message.contactId,
+                            )?.contact.name
+                      }
+                      mine={message.contactId === info.id}
+                      isPinned={message.isPinned}
+                    />
+                  ) : message.replyId && message.replyContent ? (
+                    <ReplyMessage
+                      message={message.content}
+                      replyId={message.replyId}
+                      replyContent={message.replyContent}
+                      contact={
+                        conversation.members.find(
+                          (q) => q.contact.id === message.replyContact,
+                        )?.contact.name || ""
+                      }
+                      mine={message.contactId === info.id}
+                      isPinned={message.isPinned}
+                    />
+                  ) : (
+                    <PinnedMessage
+                      message={message.content}
+                      contact={
+                        conversation.members.find(
+                          (q) => q.contact.id === message.pinnedBy,
+                        )?.contact.name || ""
+                      }
+                      mine={message.contactId === info.id}
+                      isPinned={message.isPinned}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          ""
-        )}
-        {/* MARK: MESSAGE MENU */}
-        <MessageMenu
-          conversationId={id}
-          id={message.id}
-          message={message.content}
-          mine={message.contactId === info.id}
-          pinned={message.isPinned}
-          getContainerRect={props.getContainerRect}
-          getContentRect={() => contentRef.current?.getBoundingClientRect()}
-        />
-        {/* MARK: REACTION */}
-        <MessageReaction
-          message={{
-            mine: message.contactId === info.id,
-            reaction: reaction,
-            topReactions: topReactions,
-          }}
-          react={react}
-          pending={message.pending}
-        />
+            </>
+          ) : (
+            ""
+          )}
+          {/* MARK: MESSAGE MENU */}
+          <MessageMenu
+            conversationId={id}
+            id={message.id}
+            message={message.content}
+            mine={message.contactId === info.id}
+            pinned={message.isPinned}
+            contact={
+              conversation.members.find(
+                (q) => q.contact.id === message.contactId,
+              )?.contact || {}
+            }
+            getContainerRect={props.getContainerRect}
+          />
+          {/* MARK: REACTION */}
+          <MessageReaction
+            message={{
+              mine: message.contactId === info.id,
+              reaction: reaction,
+              topReactions: topReactions,
+            }}
+            react={react}
+            pending={message.pending}
+          />
+        </div>
       </div>
     </div>
   );

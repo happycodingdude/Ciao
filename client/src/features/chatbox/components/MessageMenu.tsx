@@ -26,8 +26,8 @@ const MessageMenu = (props: MessageMenuProps) => {
     message,
     mine,
     pinned,
+    contact,
     getContainerRect,
-    getContentRect,
   } = props;
 
   const queryClient = useQueryClient();
@@ -117,7 +117,8 @@ const MessageMenu = (props: MessageMenuProps) => {
   const replyMessage = () => {
     queryClient.setQueryData(["reply"], {
       replyId: id,
-      replyContact: mine ? info.id : message?.split("\n")[0] || "",
+      replyContact: mine ? info.id : contact.id,
+      replyContactName: mine ? info.name : contact.name,
       replyContent: message || "",
     });
   };
@@ -125,7 +126,7 @@ const MessageMenu = (props: MessageMenuProps) => {
   return (
     <>
       <EllipsisOutlined
-        className={`absolute ${mine ? "-left-8" : "-right-8"} top-5 text-base`}
+        className={`absolute ${mine ? "-left-8" : "-right-8"} top-1 text-base`}
         onClick={(e) => toggleMenu(e)}
       />
       <div

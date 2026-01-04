@@ -3,6 +3,7 @@ import { OnCloseType } from "../../types";
 import {
   AttachmentModel,
   ConversationModel,
+  ConversationModel_Contact,
   PendingMessageModel,
 } from "../listchat/types";
 
@@ -61,9 +62,8 @@ export type MessageMenuProps = {
   message?: string;
   mine: boolean;
   pinned: boolean;
-  // dropUp?: boolean;
+  contact: ConversationModel_Contact;
   getContainerRect?: () => DOMRect;
-  getContentRect?: () => DOMRect;
 };
 
 export type PinMessageRequest = {

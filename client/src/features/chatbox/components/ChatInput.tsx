@@ -65,6 +65,11 @@ const ChatInput = (props: ChatInputProps) => {
     (c) => c.id === conversationId,
   );
 
+  const { data: reply } = useQuery({
+    queryKey: ["reply"],
+    queryFn: () => null,
+  });
+
   const [mentions, setMentions] = useState<MentionModel[]>([]);
   const [showMention, setShowMention] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
@@ -148,7 +153,12 @@ const ChatInput = (props: ChatInputProps) => {
         type: param.type,
         content: param.content,
       };
-      // let bodyLocal: SendMessageRequest = Object.assign({}, bodyToCreate);
+      if (reply)
+        bodyToCreate = {
+          ...bodyToCreate,
+          ...reply,
+        };
+
       if (hasMedia) {
         queryClient.setQueryData(
           ["message", conversationId],
@@ -175,6 +185,7 @@ const ChatInput = (props: ChatInputProps) => {
                   angryCount: 0,
                   currentReaction: null,
                   createdTime: dayjs().format(),
+                  ...reply,
                 } as PendingMessageModel,
               ],
             } as MessageCache;
@@ -266,6 +277,7 @@ const ChatInput = (props: ChatInputProps) => {
                   angryCount: 0,
                   currentReaction: null,
                   createdTime: dayjs().format(),
+                  ...reply,
                 } as PendingMessageModel,
               ],
             } as MessageCache;
@@ -278,6 +290,8 @@ const ChatInput = (props: ChatInputProps) => {
         bodyToCreate,
       );
       await delay(500);
+
+      queryClient.setQueryData(["reply"], null);
 
       queryClient.setQueryData(
         ["message", conversationId],
@@ -499,12 +513,6 @@ const ChatInput = (props: ChatInputProps) => {
     if (files?.length !== 0) setCaretToEnd(false);
   }, [files]);
 
-  const { data: reply } = useQuery({
-    queryKey: ["reply"],
-    queryFn: () => undefined, // không fetch
-    enabled: false, // chỉ dùng cache
-  });
-
   return (
     <div className={`flex w-full items-center justify-center laptop:mb-4`}>
       <div
@@ -521,20 +529,22 @@ const ChatInput = (props: ChatInputProps) => {
       >
         {/* MARK: FORWARD MESSAGE */}
         {reply && (
-          <div className="flex">
-            <div className="mb-2 border-l-[.3rem] border-l-light-blue-500/50 px-3">
-              <p className="truncate italic text-light-blue-500">
-                Reply to {reply.contact}
-              </p>
-              <p className="truncate">{reply.replyContent}</p>
+          <div className="flex w-full items-center justify-center py-4">
+            <div className="flex w-[95%] items-center justify-between rounded-xl border-l-[.3rem] border-l-light-blue-500/50 bg-light-blue-100 px-4 py-2">
+              <div>
+                <p className="truncate italic text-light-blue-500">
+                  Reply to {reply.replyContactName}
+                </p>
+                <p className="truncate">{reply.replyContent}</p>
+              </div>
+              <CloseOutlined
+                className="flex cursor-pointer items-start"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent bubbling to parent
+                  queryClient.setQueryData(["reply"], null);
+                }}
+              />
             </div>
-            <CloseOutlined
-              className="flex cursor-pointer items-start"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent bubbling to parent
-                queryClient.removeQueries({ queryKey: ["reply"], exact: true });
-              }}
-            />
           </div>
         )}
         {/* MARK: FILES */}
