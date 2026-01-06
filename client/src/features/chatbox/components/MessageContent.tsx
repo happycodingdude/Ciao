@@ -11,7 +11,8 @@ import useConversation from "../../listchat/hooks/useConversation";
 import { MessageCache } from "../../listchat/types";
 import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
-import MessageMenu from "./MessageMenu";
+import { MessageImageGrid } from "./MessageImageGrid";
+import MessageMenu_Slide from "./MessageMenu_Slide";
 import { ForwardedMessage, PinnedMessage, ReplyMessage } from "./PinnedMessage";
 
 const MessageContent = (props: MessageContentProps) => {
@@ -189,18 +190,27 @@ const MessageContent = (props: MessageContentProps) => {
       ) : (
         ""
       )}
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-2">
         <div
-          className={`text-(--text-main-color-thin) flex items-center gap-4`}
+          className={`text-(--text-main-color-thin) flex items-center gap-4 ${message.contactId === info.id ? "justify-end" : ""}`}
         >
           {/* MARK: SENDER NAME */}
-          <p className="font-medium">
+          {message.contactId !== info.id && (
+            <p className="font-medium">
+              {
+                conversation.members.find(
+                  (q) => q.contact.id === message.contactId,
+                )?.contact.name
+              }
+            </p>
+          )}
+          {/* <p className="font-medium">
             {message.contactId === info.id
               ? "You"
               : conversation.members.find(
                   (q) => q.contact.id === message.contactId,
                 )?.contact.name}
-          </p>
+          </p> */}
 
           {/* MARK: MESSAGE TIME */}
           <p>{dayjs(message.createdTime).format("HH:mm")}</p>
@@ -208,11 +218,15 @@ const MessageContent = (props: MessageContentProps) => {
         <div
           className={`laptop:max-w-120 desktop:max-w-220 relative flex w-fit flex-col
           ${message.contactId === info.id ? "items-end" : "items-start"}
-          ${message.isPinned  ? "gap-2" : ""}
+          ${message.attachments?.length > 0 ? "gap-2" : ""}
+          group
           `}
         >
           {/* MARK: ATTACHMENT */}
-          {message.attachments && message.attachments.length !== 0 ? (
+          {message.attachments?.length > 0 && (
+            <MessageImageGrid attachments={message.attachments} />
+          )}
+          {/* {message.attachments && message.attachments.length !== 0 ? (
             <div className="relative w-full">
               <div className="grid grid-cols-[repeat(4,7rem)] gap-2">
                 {message.attachments?.slice(0, 5).map((src, index) => {
@@ -262,7 +276,7 @@ const MessageContent = (props: MessageContentProps) => {
             </div>
           ) : (
             ""
-          )}
+          )} */}
           {/* MARK: CONTENT */}
           {message.content ? (
             <>
@@ -270,7 +284,7 @@ const MessageContent = (props: MessageContentProps) => {
                 <div
                   ref={contentRef}
                   className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
-                bg-(--bg-color) my-2 px-4
+                bg-(--bg-color) px-4
                   ${
                     message.isPinned
                       ? message.contactId === info.id
@@ -330,7 +344,7 @@ const MessageContent = (props: MessageContentProps) => {
             ""
           )}
           {/* MARK: MESSAGE MENU */}
-          <MessageMenu
+          <MessageMenu_Slide
             conversationId={id}
             id={message.id}
             message={message.content}

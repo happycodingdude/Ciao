@@ -549,7 +549,7 @@ const ChatInput = (props: ChatInputProps) => {
         )}
         {/* MARK: FILES */}
         {files?.length !== 0 ? (
-          <div className="custom-scrollbar flex gap-4 overflow-x-auto rounded-2xl p-6">
+          <div className="custom-scrollbar flex gap-4 overflow-x-auto rounded-2xl px-6 py-3">
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />
             ))}

@@ -64,6 +64,7 @@ body {
 }
 
 .sidebar-3 .tooltip {
+  font-size: var(--font-size-3xs);
   position: absolute;
   left: 100%;
   top: 50%;

@@ -122,9 +122,10 @@ export function PinnedMessage(props: PinnedMessageProps) {
       {/* {config.icon} */}
       {isPinned && (
         <PushpinOutlined
-          className={`absolute ${mine ? "-right-3" : "-left-3.5"} top-[-.8rem] rounded-2xl 
-              bg-light-blue-500 px-[.2rem] py-[.7rem] text-white`}
+          className={`absolute ${mine ? "-right-2.5" : "-left-[.7rem]"} -top-2 rounded-2xl 
+              bg-light-blue-500 px-0.5 py-2 text-white`}
           style={{
+            fontSize: ".7rem",
             strokeWidth: "80",
             stroke: "white",
           }}

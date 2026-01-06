@@ -1,17 +1,12 @@
 // import EmojiPicker from "emoji-picker-react";
-import {
-  CopyOutlined,
-  EllipsisOutlined,
-  PushpinOutlined,
-  SyncOutlined,
-} from "@ant-design/icons";
+import { CopyOutlined, PushpinOutlined, SyncOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { Suspense, useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import ModalLoading from "../../../components/ModalLoading";
 import useEventListener from "../../../hooks/useEventListener";
-import "../../../messagemenu.css";
+import "../../../messagemenu_slide.css";
 import useInfo from "../../authentication/hooks/useInfo";
 import { MessageCache } from "../../listchat/types";
 import pinMessage from "../services/pinMessage";
@@ -19,7 +14,7 @@ import { MessageMenuProps } from "../types";
 import ForwardMessageModal from "./ForwardMessageModal";
 import MessageMenuItem from "./MessageMenuItem";
 
-const MessageMenu = (props: MessageMenuProps) => {
+const MessageMenu_Slide = (props: MessageMenuProps) => {
   // console.log("ChatboxMenu calling");
   const {
     conversationId,
@@ -126,50 +121,45 @@ const MessageMenu = (props: MessageMenuProps) => {
 
   return (
     <>
-      <EllipsisOutlined
-        className={`absolute ${mine ? "-left-8" : "-right-8"} top-1 text-base`}
-        onClick={(e) => toggleMenu(e)}
-      />
       <div
         ref={refMenu}
         data-show={show}
-        className={`message-menu-container ${mine ? "-left-55" : "-right-55"}`}
+        className={`message-menu-container ${mine ? "-left-33" : "-right-33"}`}
       >
         {/* MARK: COPY */}
-        <MessageMenuItem onClick={copyMessage} closeOnClick={false}>
-          <CopyOutlined /> Copy message
+        <MessageMenuItem
+          onClick={copyMessage}
+          closeOnClick={false}
+          tooltip="Copy message"
+        >
+          <CopyOutlined />
         </MessageMenuItem>
         {/* MARK: PIN */}
         <MessageMenuItem
-          className={`${pinning ? "pointer-events-none" : ""}`}
+          className={`${pinning ? "pointer-events-none" : ""} ${pinned && !pinning ? "text-light-blue-500" : ""}`}
           onClick={pin}
           closeOnClick={false}
+          tooltip={pinned ? "Unpin message" : "Pin message"}
         >
-          {pinning ? (
-            <SyncOutlined spin />
-          ) : (
-            <PushpinOutlined
-              className={`${pinned ? "text-orange-500" : ""}`}
-              rotate={316}
-            />
-          )}
-          {pinned ? " Unpin" : " Pin"} message
+          {pinning ? <SyncOutlined spin /> : <PushpinOutlined rotate={316} />}
         </MessageMenuItem>
         {/* MARK: REPLY */}
         <MessageMenuItem
           onClick={replyMessage}
           closeOnClick={true}
           close={() => setShow(false)}
+          tooltip="Reply message"
         >
-          <i className="fa fa-reply" /> Reply message
+          <i className="fa fa-reply" />
         </MessageMenuItem>
         {/* MARK: FORWARD */}
         <MessageMenuItem
           onClick={() => setOpenForward(true)}
           closeOnClick={true}
           close={() => setShow(false)}
+          tooltip="Forward message"
         >
-          <i className="fa fa-share" /> Forward message
+          <i className="fa fa-share" />
           <BackgroundPortal
             show={openForward}
             className="laptop:w-100 phone:w-80 desktop:w-[35%]"
@@ -191,4 +181,4 @@ const MessageMenu = (props: MessageMenuProps) => {
   );
 };
 
-export default MessageMenu;
+export default MessageMenu_Slide;
