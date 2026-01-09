@@ -204,13 +204,6 @@ const MessageContent = (props: MessageContentProps) => {
               }
             </p>
           )}
-          {/* <p className="font-medium">
-            {message.contactId === info.id
-              ? "You"
-              : conversation.members.find(
-                  (q) => q.contact.id === message.contactId,
-                )?.contact.name}
-          </p> */}
 
           {/* MARK: MESSAGE TIME */}
           <p>{dayjs(message.createdTime).format("HH:mm")}</p>
@@ -226,57 +219,6 @@ const MessageContent = (props: MessageContentProps) => {
           {message.attachments?.length > 0 && (
             <MessageImageGrid attachments={message.attachments} />
           )}
-          {/* {message.attachments && message.attachments.length !== 0 ? (
-            <div className="relative w-full">
-              <div className="grid grid-cols-[repeat(4,7rem)] gap-2">
-                {message.attachments?.slice(0, 5).map((src, index) => {
-                  const isFirst = index === 0;
-                  const isLast =
-                    index === 5 - 1 && message.attachments?.length > 5;
-
-                  return (
-                    <div
-                      key={index}
-                      className={
-                        isFirst
-                          ? "col-span-2 row-span-2"
-                          : "col-span-1 row-span-1"
-                      }
-                    >
-                      <div className="relative aspect-square w-full">
-                        <ImageWithLightBoxAndNoLazy
-                          key={index}
-                          src={src.mediaUrl}
-                          title={src.mediaName?.split(".")[0]}
-                          className={`loaded aspect-square cursor-pointer ${isFirst ? "w-full" : "w-full"}`}
-                          slides={message.attachments.map((item) => ({
-                            src: item.type === "image" ? item.mediaUrl : "",
-                          }))}
-                          index={index}
-                          pending={src.pending}
-                          local={src.local}
-                        />
-                        {isLast && (
-                          <div className="mosaic-overlay pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
-                            <div className="w-full text-center">
-                              <div className="text-sm text-white">
-                                +{message.attachments?.length - 5}
-                              </div>
-                              <div className="text-white opacity-80">
-                                more photos
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            ""
-          )} */}
           {/* MARK: CONTENT */}
           {message.content ? (
             <>
@@ -284,19 +226,12 @@ const MessageContent = (props: MessageContentProps) => {
                 <div
                   ref={contentRef}
                   className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
-                bg-(--bg-color) px-4
-                  ${
-                    message.isPinned
-                      ? message.contactId === info.id
-                        ? "border-r-[.4rem] border-light-blue-500"
-                        : "border-l-[.4rem] border-light-blue-500"
-                      : ""
-                  }                                       
-                  flex! overflow-visible! data-[expanded=false]:max-h-30 relative w-fit
-                  flex-col 
+                  bg-(--bg-color) flex!                                                       
+                  overflow-visible! data-[expanded=false]:max-h-30 relative w-fit flex-col
+                  px-4 
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)]
                   data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
-                  ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-1"}
+                  ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-2"}
                 `}
                 >
                   {message.isForwarded ? (
@@ -342,6 +277,23 @@ const MessageContent = (props: MessageContentProps) => {
             </>
           ) : (
             ""
+          )}
+          {message.isPinned && (
+            // <PushpinOutlined
+            //   className={`absolute ${mine ? "-right-2.5" : "-left-[.7rem]"} -top-2 rounded-lg
+            //       bg-light-blue-500 px-2 py-2 text-white`}
+            //   style={{
+            //     fontSize: ".7rem",
+            //     strokeWidth: "120",
+            //     stroke: "white",
+            //   }}
+            //   rotate={316}
+            // />
+            <div
+              className={`absolute ${message.contactId === info.id ? "-right-2.5" : "-left-[.7rem]"} -top-2 flex h-6 w-6 items-center justify-center rounded-lg bg-light-blue-500 shadow-md`}
+            >
+              <i className="fa-solid fa-thumbtack text-3xs text-white"></i>
+            </div>
           )}
           {/* MARK: MESSAGE MENU */}
           <MessageMenu_Slide

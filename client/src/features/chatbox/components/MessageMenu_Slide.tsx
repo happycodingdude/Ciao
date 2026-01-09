@@ -124,7 +124,8 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
       <div
         ref={refMenu}
         data-show={show}
-        className={`message-menu-container ${mine ? "-left-33" : "-right-33"}`}
+        data-mine={mine}
+        className={`message-menu-container`}
       >
         {/* MARK: COPY */}
         <MessageMenuItem

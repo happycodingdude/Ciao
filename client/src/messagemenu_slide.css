@@ -10,26 +10,20 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 0.3rem;
 
-  /* &[data-show="true"] {
-    z-index: 2;
-  }
-  &[data-show="false"] {
-    z-index: 0;
-  } */
-
   .group:hover &,
   &:hover {
     transform: scale(1);
     z-index: 2;
   }
-}
 
-/* @utility message-menu-container {
-  &[data-show="true"] {
-    transform: scale(1);
-    pointer-events: auto;
+  &[data-mine="true"] {
+    left: -8.25rem;
   }
-} */
+  &[data-mine="false"] {
+    right: -8.25rem;
+    transform-origin: left center;
+  }
+}
 
 @utility message-menu-container {
   &.above {

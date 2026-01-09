@@ -23,20 +23,20 @@ public static class PinMessage
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
         readonly IValidator<Request> _validator;
+        readonly IFirebaseFunction _firebaseFunction;
         readonly IContactRepository _contactRepository;
-        readonly IKafkaProducer _kafkaProducer;
         readonly IConversationRepository _conversationRepository;
         readonly MessageCache _messageCache;
-        readonly INotificationProcessor _notificationProcessor;
+        readonly MemberCache _memberCache;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, IConversationRepository conversationRepository, MessageCache messageCache, INotificationProcessor notificationProcessor)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IConversationRepository conversationRepository, MessageCache messageCache, IFirebaseFunction firebaseFunction, MemberCache memberCache)
         {
             _validator = validator;
             _contactRepository = contactRepository;
-            _kafkaProducer = kafkaProducer;
             _conversationRepository = conversationRepository;
             _messageCache = messageCache;
-            _notificationProcessor = notificationProcessor;
+            _firebaseFunction = firebaseFunction;
+            _memberCache = memberCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -58,11 +58,11 @@ public static class PinMessage
             // Cập nhật cache
             await _messageCache.UpdatePin(request.conversationId, request.id, _contactRepository.GetUserId(), request.pinned);
 
-            // Gởi sự kiện lên giao diện
-            await _notificationProcessor.Notify(
+            // Gởi sự kiện lên UI
+            var members = await _memberCache.GetMembers(request.conversationId);
+            await _firebaseFunction.Notify(
                 ChatEventNames.NewMessagePinned,
-                request.conversationId,
-                _contactRepository.GetUserId(),
+                members.Where(q => q.Contact.Id != _contactRepository.GetUserId()).Select(q => q.Contact.Id).ToArray(),
                 new NotifyNewMessagePinnedModel
                 {
                     UserId = _contactRepository.GetUserId(),

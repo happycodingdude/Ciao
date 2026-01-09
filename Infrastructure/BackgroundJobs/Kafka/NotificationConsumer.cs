@@ -7,20 +7,16 @@ public class NotificationConsumer : IGenericConsumer
     readonly UserCache _userCache;
     readonly MemberCache _memberCache;
     readonly IContactRepository _contactRepository;
-    readonly INotificationProcessor _notificationProcessor;
     readonly IFirebaseFunction _firebaseFunction;
-    readonly IHubContext<SignalHub> _hubContext;
 
-    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, MemberCache memberCache, IContactRepository contactRepository, INotificationProcessor notificationProcessor, IFirebaseFunction firebaseFunction, IHubContext<SignalHub> hubContext)
+    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, MemberCache memberCache, IContactRepository contactRepository, IFirebaseFunction firebaseFunction)
     {
         _logger = logger;
         _mapper = mapper;
         _userCache = userCache;
         _memberCache = memberCache;
         _contactRepository = contactRepository;
-        _notificationProcessor = notificationProcessor;
         _firebaseFunction = firebaseFunction;
-        _hubContext = hubContext;
     }
 
     public async Task ProcessMesageAsync(ConsumerResultData param)
