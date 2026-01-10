@@ -179,7 +179,6 @@ const MessageMenu = (props: MessageMenuProps) => {
             <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
               <Suspense fallback={<ModalLoading />}>
                 <ForwardMessageModal
-                  onClose={() => setOpenForward(false)}
                   message={message}
                 />
               </Suspense>

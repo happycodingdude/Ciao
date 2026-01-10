@@ -5,7 +5,6 @@ const CustomButton = (props: CustomButtonProps) => {
   const {
     title,
     className,
-    padding,
     gradientWidth,
     gradientHeight,
     rounded,

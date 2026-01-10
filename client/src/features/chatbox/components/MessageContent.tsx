@@ -11,7 +11,6 @@ import useConversation from "../../listchat/hooks/useConversation";
 import { MessageCache } from "../../listchat/types";
 import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
-import { MessageImageGrid } from "./MessageImageGrid";
 import MessageMenu_Slide from "./MessageMenu_Slide";
 import { ForwardedMessage, PinnedMessage, ReplyMessage } from "./PinnedMessage";
 
@@ -216,79 +215,67 @@ const MessageContent = (props: MessageContentProps) => {
           `}
         >
           {/* MARK: ATTACHMENT */}
-          {message.attachments?.length > 0 && (
+          {/* {message.attachments?.length > 0 && (
             <MessageImageGrid attachments={message.attachments} />
-          )}
+          )} */}
           {/* MARK: CONTENT */}
-          {message.content ? (
-            <>
-              <div className="relative flex flex-col">
-                <div
-                  ref={contentRef}
-                  className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
-                  bg-(--bg-color) flex!                                                       
+
+          <div className="relative flex flex-col w-full">
+            <div
+              ref={contentRef}
+              className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
+                  bg-(--bg-color) flex! gap-2 max-w-full
                   overflow-visible! data-[expanded=false]:max-h-30 relative w-fit flex-col
-                  px-4 
+                  px-4 ${message.attachments?.length > 0 ? "py-4" : "py-2"}
                   shadow-[0_2px_10px_rgba(0,0,0,0.1)]
                   data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
-                  ${message.isPinned || message.isForwarded || message.replyId ? " py-2" : "py-2"}
                 `}
-                >
-                  {message.isForwarded ? (
-                    <ForwardedMessage
-                      message={message.content}
-                      contact={
-                        message.contactId === info.id
-                          ? "You"
-                          : conversation.members.find(
-                              (q) => q.contact.id === message.contactId,
-                            )?.contact.name
-                      }
-                      mine={message.contactId === info.id}
-                      isPinned={message.isPinned}
-                    />
-                  ) : message.replyId && message.replyContent ? (
-                    <ReplyMessage
-                      message={message.content}
-                      replyId={message.replyId}
-                      replyContent={message.replyContent}
-                      contact={
-                        conversation.members.find(
-                          (q) => q.contact.id === message.replyContact,
-                        )?.contact.name || ""
-                      }
-                      mine={message.contactId === info.id}
-                      isPinned={message.isPinned}
-                    />
-                  ) : (
-                    <PinnedMessage
-                      message={message.content}
-                      contact={
-                        conversation.members.find(
-                          (q) => q.contact.id === message.pinnedBy,
-                        )?.contact.name || ""
-                      }
-                      mine={message.contactId === info.id}
-                      isPinned={message.isPinned}
-                    />
-                  )}
-                </div>
-              </div>
-            </>
-          ) : (
-            ""
-          )}
+            >
+              {message.isForwarded ? (
+                <ForwardedMessage
+                  message={message.content}
+                  contact={
+                    message.contactId === info.id
+                      ? "You"
+                      : conversation.members.find(
+                          (q) => q.contact.id === message.contactId,
+                        )?.contact.name
+                  }
+                  mine={message.contactId === info.id}
+                  isPinned={message.isPinned}
+                  attachments={message.attachments}
+                />
+              ) : message.replyId && message.replyContent ? (
+                <ReplyMessage
+                  message={message.content}
+                  replyId={message.replyId}
+                  replyContent={message.replyContent}
+                  contact={
+                    conversation.members.find(
+                      (q) => q.contact.id === message.replyContact,
+                    )?.contact.name || ""
+                  }
+                  mine={message.contactId === info.id}
+                  isPinned={message.isPinned}
+                  attachments={message.attachments}
+                />
+              ) : (
+                <PinnedMessage
+                  message={message.content}
+                  contact={
+                    conversation.members.find(
+                      (q) => q.contact.id === message.pinnedBy,
+                    )?.contact.name || ""
+                  }
+                  mine={message.contactId === info.id}
+                  isPinned={message.isPinned}
+                  attachments={message.attachments}
+                />
+              )}
+            </div>
+          </div>
+
           {message.isPinned && (
-            // <PushpinOutlined
-            //   className={`absolute ${mine ? "-right-2.5" : "-left-[.7rem]"} -top-2 rounded-lg
-            //       bg-light-blue-500 px-2 py-2 text-white`}
-            //   style={{
-            //     fontSize: ".7rem",
-            //     strokeWidth: "120",
-            //     stroke: "white",
-            //   }}
-            //   rotate={316}
-            // />
             <div
               className={`absolute ${message.contactId === info.id ? "-right-2.5" : "-left-[.7rem]"} -top-2 flex h-6 w-6 items-center justify-center rounded-lg bg-light-blue-500 shadow-md`}
             >
@@ -298,10 +285,8 @@ const MessageContent = (props: MessageContentProps) => {
           {/* MARK: MESSAGE MENU */}
           <MessageMenu_Slide
             conversationId={id}
-            id={message.id}
-            message={message.content}
+            message={message}
             mine={message.contactId === info.id}
-            pinned={message.isPinned}
             contact={
               conversation.members.find(
                 (q) => q.contact.id === message.contactId,

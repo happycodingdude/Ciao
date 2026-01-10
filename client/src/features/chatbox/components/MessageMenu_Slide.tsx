@@ -16,15 +16,7 @@ import MessageMenuItem from "./MessageMenuItem";
 
 const MessageMenu_Slide = (props: MessageMenuProps) => {
   // console.log("ChatboxMenu calling");
-  const {
-    conversationId,
-    id,
-    message,
-    mine,
-    pinned,
-    contact,
-    getContainerRect,
-  } = props;
+  const { conversationId, message, mine, contact, getContainerRect } = props;
 
   const queryClient = useQueryClient();
 
@@ -50,7 +42,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
   const copyMessage = () => {
     if (!message) return;
     navigator.clipboard
-      .writeText(message)
+      .writeText(message.content)
       .then(() => {
         toast.success("Message copied to clipboard");
         // console.log("Message copied to clipboard");
@@ -64,8 +56,8 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
     setPinning(true);
     await pinMessage({
       conversationId: conversationId,
-      messageId: id,
-      pinned: !pinned,
+      messageId: message.id,
+      pinned: !message.isPinned,
     });
 
     queryClient.setQueryData(
@@ -74,10 +66,10 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         return {
           ...oldData,
           messages: oldData.messages.map((mess) => {
-            if (mess.id !== id) return mess;
+            if (mess.id !== message.id) return mess;
             return {
               ...mess,
-              isPinned: !pinned,
+              isPinned: !message.isPinned,
               pinnedBy: info.id,
             };
           }),
@@ -112,10 +104,10 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
 
   const replyMessage = () => {
     queryClient.setQueryData(["reply"], {
-      replyId: id,
+      replyId: message.id,
       replyContact: mine ? info.id : contact.id,
       replyContactName: mine ? info.name : contact.name,
-      replyContent: message || "",
+      replyContent: message.content || "",
     });
   };
 
@@ -137,10 +129,10 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         </MessageMenuItem>
         {/* MARK: PIN */}
         <MessageMenuItem
-          className={`${pinning ? "pointer-events-none" : ""} ${pinned && !pinning ? "text-light-blue-500" : ""}`}
+          className={`${pinning ? "pointer-events-none" : ""} ${message.isPinned && !pinning ? "text-light-blue-500" : ""}`}
           onClick={pin}
           closeOnClick={false}
-          tooltip={pinned ? "Unpin message" : "Pin message"}
+          tooltip={message.isPinned ? "Unpin message" : "Pin message"}
         >
           {pinning ? <SyncOutlined spin /> : <PushpinOutlined rotate={316} />}
         </MessageMenuItem>
@@ -169,10 +161,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           >
             <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
               <Suspense fallback={<ModalLoading />}>
-                <ForwardMessageModal
-                  onClose={() => setOpenForward(false)}
-                  message={message}
-                />
+                <ForwardMessageModal message={message} />
               </Suspense>
             </div>
           </BackgroundPortal>

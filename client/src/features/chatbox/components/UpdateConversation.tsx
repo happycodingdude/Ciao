@@ -1,13 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../../../components/MediaPicker";
-import getFirebaseApp from "../../../utils/firebaseConfig";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import { ConversationCache } from "../../listchat/types";
+import { AttachmentModel, ConversationCache } from "../../listchat/types";
+import { uploadFile } from "../functions/uploadFile";
 import updateConversation from "../services/updateConversation";
 import { UpdateConversationProps, UpdateConversationRequest } from "../types";
 
@@ -36,15 +35,8 @@ const UpdateConversation = (props: UpdateConversationProps) => {
     if (file === undefined) {
       url = avatar;
     } else {
-      // Create a root reference
-      const storage = getStorage(getFirebaseApp());
-      url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
-        (snapshot) => {
-          return getDownloadURL(snapshot.ref).then((url) => {
-            return url;
-          });
-        },
-      );
+      const uploaded: AttachmentModel[] = await uploadFile(new Array(file));
+      url = uploaded[0].mediaUrl;
     }
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
@@ -60,13 +52,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        // selected: {
-        //   ...oldData.selected,
-        //   title: refInput.current.value,
-        //   avatar: url,
-        // },
-        noLoading: true,
-      };
+      } as ConversationCache;
     });
     const request: UpdateConversationRequest = {
       id: selected.id,

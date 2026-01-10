@@ -58,10 +58,8 @@ export type MessageContentProps = {
 
 export type MessageMenuProps = {
   conversationId: string;
-  id: string;
-  message?: string;
+  message: PendingMessageModel;
   mine: boolean;
-  pinned: boolean;
   contact: ConversationModel_Contact;
   getContainerRect?: () => DOMRect;
 };

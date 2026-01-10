@@ -67,7 +67,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
     setProcessing(true);
 
-    const url = file !== undefined ? await uploadFile(file) : null;
+    const url = file !== undefined ? (await uploadFile(new Array(file)))[0].mediaUrl : null;
 
     const randomId = Math.random().toString(36).substring(2, 7);
     tempAddConversation(randomId);
@@ -103,7 +103,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               avatar: info.avatar,
               isOnline: true,
             },
-            // unSeenMessages: 0,
           },
           ...membersToAdd.map((mem) => {
             return {
@@ -167,10 +166,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        // selected: {
-        //   ...oldData.selected,
-        //   id: addedId,
-        // },
       } as ConversationCache;
     });
     // queryClient.setQueryData(["message"], (oldData: MessageCache) => {

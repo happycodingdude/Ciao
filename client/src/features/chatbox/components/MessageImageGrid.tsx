@@ -26,7 +26,7 @@ export const MessageImageGrid = ({
           };
 
   return (
-    <div className="grid gap-2" style={gridStyle}>
+    <div className="grid gap-2 w-fit self-center" style={gridStyle}>
       {imagesToRender.map((item, index) => {
         const isMainImage = index === 0 && total >= 3;
         const isLastVisibleImage = showMore && index === 2;

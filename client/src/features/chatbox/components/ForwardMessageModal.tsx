@@ -6,21 +6,22 @@ import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
-import { ForwardMessageModalProps } from "../../../types";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import useFriend from "../../friend/hooks/useFriend";
 import createDirectChatWithMessage from "../../friend/services/createDirectChatWithMessage";
 import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
-import { ConversationCache, ConversationModel } from "../../listchat/types";
+import {
+  ConversationCache,
+  ConversationModel,
+  PendingMessageModel,
+} from "../../listchat/types";
 import sendMessage from "../services/sendMessage";
 import { SendMessageRequest } from "../types";
 
-const ForwardMessageModal = (props: ForwardMessageModalProps) => {
-  const { onClose, message } = props;
-
-  console.log(message);
+const ForwardMessageModal = ({ message }: { message: PendingMessageModel }) => {
+  const { type, content, attachments } = message;
 
   const queryClient = useQueryClient();
 
@@ -53,16 +54,13 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
         conv.members.some((mem) => mem.contact.id === contact.id),
     );
     if (existedConversation) {
-      await handleExistedConversation(existedConversation, message);
+      await handleExistedConversation(existedConversation);
     } else {
-      await handleNewConversation(contact, message, randomId);
+      await handleNewConversation(contact, randomId);
     }
   };
 
-  const handleExistedConversation = async (
-    conversation: ConversationModel,
-    message: string,
-  ) => {
+  const handleExistedConversation = async (conversation: ConversationModel) => {
     queryClient.setQueryData<ConversationCache>(["conversation"], (oldData) => {
       if (!oldData) return oldData;
 
@@ -82,7 +80,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
       if (isDeletedConversation) {
         const updatedConv: ConversationModel = {
           ...cachedConv,
-          lastMessage: message,
+          lastMessage: content,
           // tạo members mới (immutable)
           members: cachedConv.members.map((mem) =>
             mem.contact.id === info.id ? { ...mem, isDeleted: false } : mem,
@@ -100,7 +98,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
             ? c
             : {
                 ...c,
-                lastMessage: message,
+                lastMessage: content,
                 lastMessageTime: now,
                 members: c.members.map((mem) =>
                   mem.contact.id === info.id
@@ -119,8 +117,9 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
     });
 
     const bodyToCreate: SendMessageRequest = {
-      type: "text",
-      content: message,
+      type: type,
+      content: content,
+      attachments: attachments,
       isForwarded: true,
     };
     await sendMessage(conversation.id, bodyToCreate);
@@ -128,13 +127,12 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
 
   const handleNewConversation = async (
     contact: ContactModel,
-    message: string,
     randomId: string,
   ) => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const newConversation: ConversationModel = {
         id: randomId,
-        lastMessage: message,
+        lastMessage: content,
         isGroup: false,
         isNotifying: true,
         members: [
@@ -165,7 +163,7 @@ const ForwardMessageModal = (props: ForwardMessageModalProps) => {
       } as ConversationCache;
     });
 
-    createDirectChatWithMessage(contact.id, message).then((res) => {
+    createDirectChatWithMessage(contact.id, content).then((res) => {
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {

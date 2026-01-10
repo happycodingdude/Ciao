@@ -1,5 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { renderMessageWithMentions } from "../../../utils/renderMention";
+import { AttachmentModel } from "../../listchat/types";
+import { MessageImageGrid } from "./MessageImageGrid";
 
 export type MessageType = "forwarded" | "reply" | undefined;
 
@@ -11,6 +13,7 @@ export type PinnedMessageProps = {
   isPinned?: boolean;
   replyId?: string;
   replyContent?: string;
+  attachments?: AttachmentModel[];
 };
 
 type MessageConfig = {
@@ -20,7 +23,7 @@ type MessageConfig = {
 };
 
 export function PinnedMessage(props: PinnedMessageProps) {
-  const { type, message, contact, mine, isPinned, replyContent } = props;
+  const { type, message, contact, mine, isPinned, replyContent, attachments } = props;
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
@@ -58,7 +61,7 @@ export function PinnedMessage(props: PinnedMessageProps) {
       case "reply":
         return {
           header: (
-            <div className="mb-2 border-l-[.3rem] border-l-light-blue-500/50 px-3">
+            <div className="border-l-[.3rem] border-l-light-blue-500/50 px-3 leading-6">
               <p className="truncate italic text-light-blue-500">
                 Reply to {contact}
               </p>
@@ -80,11 +83,14 @@ export function PinnedMessage(props: PinnedMessageProps) {
   return (
     <>
       {config.header}
+      {attachments?.length > 0 && (
+        <MessageImageGrid attachments={attachments} />
+      )}
       <p
         ref={contentRef}
-        className={`overflow-hidden text-ellipsis leading-8 ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
+        className={`overflow-hidden text-ellipsis leading-8 ${mine ? "self-end" : ""} ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
       >
-        {renderMessageWithMentions(message)}
+        {message && renderMessageWithMentions(message)}
       </p>
       {/* MARK: SHOW MORE MESSAGE */}
       {config.showExpandToggle && isOverflowing && (

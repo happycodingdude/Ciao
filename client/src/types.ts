@@ -59,7 +59,6 @@ export type MediaPickerProps = {
 export type CustomButtonProps = {
   title?: string;
   className?: string;
-  padding?: string;
   gradientWidth?: string | number;
   gradientHeight?: string | number;
   rounded?: string;
@@ -262,8 +261,4 @@ export type NotificationModel = BaseModel & {
   contactId: string;
   sourceId: string;
   sourceType: string;
-};
-
-export type ForwardMessageModalProps = OnCloseType & {
-  message: string;
 };

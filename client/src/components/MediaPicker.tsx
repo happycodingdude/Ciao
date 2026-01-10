@@ -15,7 +15,7 @@ const MediaPicker = (props: MediaPickerProps) => {
       ></input>
       <label
         htmlFor={id}
-        className={`${className ?? ""} fa fa-camera aspect-square cursor-pointer rounded-[50%] text-[var(--main-color)] hover:text-[var(--main-color-light)]`}
+        className={`${className ?? ""} fa fa-camera aspect-square cursor-pointer rounded-[50%] text-light-blue-500 hover:text-light-blue-400`}
       ></label>
     </>
   );
