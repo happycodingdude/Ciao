@@ -33,12 +33,7 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
         bg-(image:--image-url) bg-position-[center_center] cursor-pointer bg-no-repeat transition-opacity duration-300`}
         onClick={onClick ?? handleShowLightbox}
       ></div>
-      <img
-        hidden
-        src={src}
-        onLoad={() => console.log("Image loaded")}
-        onError={() => setIsValid(false)}
-      />
+      <img hidden src={src} onError={() => setIsValid(false)} />
       <CustomLightbox
         reference={{ showLightbox, slides, index, setShowLightbox }}
       />

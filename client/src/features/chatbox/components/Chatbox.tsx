@@ -11,8 +11,6 @@ import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
 import MessageContent from "./MessageContent";
 const Chatbox = () => {
-  console.log("Rendering Chatbox");
-
   const queryClient = useQueryClient();
 
   const { data: conversations } = useConversation();
@@ -26,41 +24,74 @@ const Chatbox = () => {
   );
 
   const refPage = useRef<number>(1);
-
   const { data: messages } = useMessage(conversationId, refPage.current);
 
   const refChatContent = useRef<HTMLDivElement>();
-  const [autoScrollBottom, setAutoScrollBottom] = useState(true);
+  const bottomRef = useRef<HTMLDivElement>();
+  const oldLastMsgRef = useRef(null);
+  const isInitialLoad = useRef(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  // useEffect(() => {
-  //   if (conversation?.id) {
-  //     refPage.current = 1; // reset lại trang đầu khi chọn hội thoại mới
-  //   }
-  // }, [conversation?.id]);
+  const scrollChatContentToBottom = (behavior: ScrollBehavior) => {
+    console.log("behavior: " + behavior);
 
-  const scrollChatContentToBottom = () => {
-    refChatContent.current.scrollTop = refChatContent.current.scrollHeight;
+    bottomRef.current?.scrollIntoView({
+      behavior: behavior as ScrollBehavior,
+      block: "end",
+    });
   };
 
-  useEffect(() => {
-    scrollChatContentToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    refChatContent.current.style.scrollBehavior = "auto";
-    if (autoScrollBottom) {
-      scrollChatContentToBottom();
-      setTimeout(() => {
-        refChatContent.current.style.scrollBehavior = "smooth";
-      }, 0);
-    }
-  }, [autoScrollBottom]);
-
+  // 1. Reset về trang 1 khi đổi hội thoại (Không cần scroll ở đây)
   useEffect(() => {
     refPage.current = 1;
-    setAutoScrollBottom(true);
+    isInitialLoad.current = true;
+    oldLastMsgRef.current = null;
+
+    // Tắt smooth ngay lập tức khi vừa đổi ID để chuẩn bị cho dữ liệu (dù là cache)
+    if (refChatContent.current) {
+      refChatContent.current.style.scrollBehavior = "auto";
+    }
   }, [conversationId]);
+
+  // 2. Theo dõi khi danh sách Tin nhắn thay đổi
+  useEffect(() => {
+    if (!messages || messages.messages.length === 0) return;
+
+    const container = refChatContent.current;
+    const currentLastMsg = messages.messages[messages.messages.length - 1];
+
+    // TRƯỜNG HỢP 1: Lần đầu tiên vào phòng chat (Initial Load)
+    if (isInitialLoad.current) {
+      // Trường hợp lần đầu nạp (kể cả từ cache):
+      // Ép cuộn tức thì bằng cách gán scrollTop
+      if (container) {
+        container.style.scrollBehavior = "auto"; // Đảm bảo chắc chắn là auto
+        container.scrollTop = container.scrollHeight;
+      }
+
+      isInitialLoad.current = false;
+
+      // Chỉ bật smooth lên SAU KHI đã nhảy xuống đáy xong
+      // Dùng requestAnimationFrame để đảm bảo trình duyệt đã vẽ xong vị trí đáy
+      requestAnimationFrame(() => {
+        if (container) {
+          container.style.scrollBehavior = "smooth";
+        }
+      });
+    }
+    // TRƯỜNG HỢP 2: Có tin nhắn mới xuất hiện ở cuối danh sách
+    else if (currentLastMsg?.id !== oldLastMsgRef.current?.id) {
+      // Có tin nhắn mới: Cuộn mượt
+      // Lúc này container đã có smooth từ bước trên
+      scrollChatContentToBottom("smooth");
+    }
+    // TRƯỜNG HỢP 3: Tải thêm tin nhắn cũ (Pagination)
+    // Nếu currentLastMsg.id giống với oldLastMsgRef.id,
+    // nghĩa là tin nhắn cũ được thêm vào đầu mảng -> Không làm gì cả để giữ vị trí cuộn.
+
+    // Cập nhật lại Ref để so sánh cho lần sau
+    oldLastMsgRef.current = currentLastMsg;
+  }, [messages]);
 
   const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {
     if (!hasMore) return;
@@ -104,7 +135,7 @@ const Chatbox = () => {
     );
 
     if (contentEl.scrollTop === 0) {
-      setAutoScrollBottom(false);
+      // setAutoScrollBottom(false);
       refPage.current += 1;
 
       debounceFetch(conversation?.id, messages?.hasMore);
@@ -128,12 +159,13 @@ const Chatbox = () => {
   };
 
   const grouped = groupMessagesByDate(messages?.messages ?? []);
+  const groupedEntries = Object.entries(grouped);
 
   return (
     <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-4">
       <RelightBackground
         data-show={showScrollToBottom}
-        onClick={scrollChatContentToBottom}
+        onClick={() => scrollChatContentToBottom("smooth")}
         className={`absolute bottom-[5%] right-[50%] z-20 transition-all duration-200
             data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
@@ -142,35 +174,44 @@ const Chatbox = () => {
       </RelightBackground>
       <div
         ref={refChatContent}
-        className="custom-scrollbar flex grow flex-col gap-16 overflow-y-scroll scroll-smooth px-4"
+        className="custom-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth p-4"
       >
-        {Object.entries(grouped).map(([date, messages], index) => (
+        {groupedEntries.map(([date, messages], groupIndex) => (
           <div
             key={date}
-            className={`flex flex-col gap-10 ${index === 0 ? "mt-auto" : ""} ${index === Object.keys(grouped).length - 1 ? "mb-8" : ""}`}
+            className={`flex flex-col 
+              ${groupIndex === 0 ? "mt-auto" : ""} 
+              ${groupIndex === groupedEntries.length - 1 ? "" : "mb-8"}`}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="text-3xs rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="text-3xs rounded-4xl pointer-events-none mx-auto mb-8 w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 
-            {[...messages].map((message, index) =>
-              message.type === "system" ? (
+            {[...messages].map((message, index) => {
+              const isLastGroup =
+                groupIndex === Object.entries(grouped).length - 1;
+              const isLastMessage = index === messages.length - 1;
+              const isLast = isLastGroup && isLastMessage;
+
+              return message.type === "system" ? (
                 <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                   {message.content}
                 </div>
               ) : (
                 <MessageContent
+                  // ref={isLast ? bottomRef : undefined}
                   message={message}
                   id={conversation.id}
                   getContainerRect={() =>
                     refChatContent.current?.getBoundingClientRect()
                   }
                 />
-              ),
-            )}
+              );
+            })}
           </div>
         ))}
+        <div ref={bottomRef} />
       </div>
     </div>
   );

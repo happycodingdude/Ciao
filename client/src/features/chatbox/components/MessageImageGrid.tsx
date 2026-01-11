@@ -21,8 +21,8 @@ export const MessageImageGrid = ({
       : total === 2
         ? { gridTemplateColumns: "repeat(2, 14rem)" }
         : {
-            gridTemplateColumns: "repeat(3, 10rem)",
-            gridTemplateRows: "repeat(2, 10rem)",
+            gridTemplateColumns: "repeat(3, 8rem)",
+            gridTemplateRows: "repeat(2, 8rem)",
           };
 
   return (

@@ -1,9 +1,10 @@
 import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { useParams } from "@tanstack/react-router";
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, Suspense, useEffect, useRef, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import ModalLoading from "../../../components/ModalLoading";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import { useSignal } from "../../../context/SignalContext";
 import useLocalStorage from "../../../hooks/useLocalStorage";
@@ -13,6 +14,7 @@ import useInfo from "../../authentication/hooks/useInfo";
 import AddMembers, {
   AddMembersProps,
 } from "../../chatbox/components/AddMembers";
+import ForwardMessageModal from "../../chatbox/components/ForwardMessageModal";
 import UpdateConversation from "../../chatbox/components/UpdateConversation";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import QuickChat from "../../friend/components/QuickChat";
@@ -50,6 +52,7 @@ const Information = () => {
   const [informationoffsetWidth, setInformationoffsetWidth] =
     useState<number>();
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
+  const [forwardingItem, setForwardingItem] = useState(null);
 
   useEffect(() => {
     setChosenProfile(undefined);
@@ -297,24 +300,53 @@ const Information = () => {
             </div>
           </div>
           {displayAttachments.length !== 0 ? (
-            <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-4">
-              {displayAttachments.map((item, index) => (
-                <ImageWithLightBoxAndNoLazy
-                  src={item.mediaUrl}
-                  title={item.mediaName?.split(".")[0]}
-                  className={`aspect-square w-full`}
-                  slides={displayAttachments.map((item) => ({
-                    src:
-                      item.type === "image"
-                        ? item.mediaUrl
-                        : "images/filenotfound.svg",
-                  }))}
-                  index={index}
-                  pending={item.pending}
-                  local={item.local}
-                />
-              ))}
-            </div>
+            <>
+              <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-4">
+                {displayAttachments.map((item, index) => (
+                  <div className="relative">
+                    <ImageWithLightBoxAndNoLazy
+                      src={item.mediaUrl}
+                      title={item.mediaName?.split(".")[0]}
+                      className={`peer aspect-square w-full`}
+                      slides={displayAttachments.map((item) => ({
+                        src:
+                          item.type === "image"
+                            ? item.mediaUrl
+                            : "images/filenotfound.svg",
+                      }))}
+                      index={index}
+                      pending={item.pending}
+                      local={item.local}
+                    />
+                    <div
+                      className="absolute right-1 top-1 z-10 aspect-square w-5 cursor-pointer 
+                    rounded-sm bg-white opacity-0 hover:opacity-100 peer-hover:opacity-100"
+                      onClick={() => setForwardingItem(item)}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+
+              {forwardingItem && (
+                <BackgroundPortal
+                  show={forwardingItem}
+                  className="laptop:w-100 phone:w-80 desktop:w-[35%]"
+                  title="Forward message"
+                  onClose={() => setForwardingItem(null)}
+                >
+                  <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
+                    <Suspense fallback={<ModalLoading />}>
+                      <ForwardMessageModal
+                        message={{
+                          type: "media",
+                          attachments: [forwardingItem],
+                        }}
+                      />
+                    </Suspense>
+                  </div>
+                </BackgroundPortal>
+              )}
+            </>
           ) : (
             <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-no-repeat"></div>
           )}
