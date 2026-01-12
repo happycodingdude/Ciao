@@ -34,7 +34,7 @@ const Authentication = () => {
     // Animate background text
     refBgSignUpLabelContainer.current?.classList.toggle("translate-x-[-200%]");
     refBgSignUpLabelContainer.current?.classList.toggle("opacity-0");
-    refBgSignInLabelContainer.current?.classList.toggle("translate-x-[-100%]");
+    refBgSignInLabelContainer.current?.classList.toggle("translate-x-[-200%]");
     refBgSignInLabelContainer.current?.classList.toggle("opacity-0");
     // Animate form
     refSigninContainer.current?.classList.toggle("opacity-0");
@@ -91,7 +91,7 @@ const Authentication = () => {
             <div
               ref={refBgSignInLabelContainer}
               className="absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center text-white opacity-0 
-            transition-all duration-500 tablet:right-[-35%] laptop:right-[-10%]"
+            transition-all duration-500 laptop:right-[-30%]"
             >
               <p className="text-3xl">Welcome back</p>
               <div

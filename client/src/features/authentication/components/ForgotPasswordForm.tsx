@@ -72,8 +72,8 @@ const ForgotPasswordForm = () => {
         />
         <div
           onClick={() => setShowPassword(!showPassword)}
-          className={`fa hover:text-(--main-color-light) absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-8 cursor-pointer items-center 
-              justify-center ${showPassword ? "fa-eye text-(--main-color)" : "fa-eye-slash text-(--main-color)"}`}
+          className={`fa absolute bottom-0 right-[5%] top-0 m-auto flex h-1/2 w-8 cursor-pointer items-center justify-center text-light-blue-500
+              hover:text-light-blue-400 ${showPassword ? "fa-eye" : "fa-eye-slash"}`}
         ></div>
       </div>
 

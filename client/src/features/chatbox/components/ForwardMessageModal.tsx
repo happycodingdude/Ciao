@@ -6,6 +6,8 @@ import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
+import { getToday } from "../../../utils/datetime";
+import delay from "../../../utils/delay";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
 import useInfo from "../../authentication/hooks/useInfo";
 import useFriend from "../../friend/hooks/useFriend";
@@ -13,14 +15,22 @@ import createDirectChatWithMessage from "../../friend/services/createDirectChatW
 import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
 import {
+  AttachmentCache,
   ConversationCache,
   ConversationModel,
+  MessageCache,
   PendingMessageModel,
 } from "../../listchat/types";
 import sendMessage from "../services/sendMessage";
-import { SendMessageRequest } from "../types";
+import { SendMessageRequest, SendMessageResponse } from "../types";
 
-const ForwardMessageModal = ({ message }: { message: PendingMessageModel }) => {
+const ForwardMessageModal = ({
+  message,
+  forward,
+}: {
+  message: PendingMessageModel;
+  forward: boolean;
+}) => {
   const { type, content, attachments } = message;
 
   const queryClient = useQueryClient();
@@ -80,7 +90,10 @@ const ForwardMessageModal = ({ message }: { message: PendingMessageModel }) => {
       if (isDeletedConversation) {
         const updatedConv: ConversationModel = {
           ...cachedConv,
-          lastMessage: content,
+          lastMessage:
+            attachments && attachments.length > 0 && !content
+              ? attachments.map((att) => att.mediaName).join(",")
+              : content,
           // tạo members mới (immutable)
           members: cachedConv.members.map((mem) =>
             mem.contact.id === info.id ? { ...mem, isDeleted: false } : mem,
@@ -98,7 +111,10 @@ const ForwardMessageModal = ({ message }: { message: PendingMessageModel }) => {
             ? c
             : {
                 ...c,
-                lastMessage: content,
+                lastMessage:
+                  attachments && attachments.length > 0 && !content
+                    ? attachments.map((att) => att.mediaName).join(",")
+                    : content,
                 lastMessageTime: now,
                 members: c.members.map((mem) =>
                   mem.contact.id === info.id
@@ -116,13 +132,114 @@ const ForwardMessageModal = ({ message }: { message: PendingMessageModel }) => {
       } as ConversationCache;
     });
 
+    const randomId: string = Math.random().toString(36).substring(2, 7);
+    const hasMedia: boolean = attachments && attachments.length > 0;
+    queryClient.setQueryData(
+      ["message", conversation.id],
+      (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          messages: [
+            ...(oldData.messages || []),
+            {
+              id: randomId,
+              type: type,
+              content: content,
+              contactId: info.id,
+              attachments: hasMedia ? attachments : [],
+              pending: true,
+              likeCount: 0,
+              loveCount: 0,
+              careCount: 0,
+              wowCount: 0,
+              sadCount: 0,
+              angryCount: 0,
+              currentReaction: null,
+              createdTime: dayjs().format(),
+              isForwarded: forward,
+            } as PendingMessageModel,
+          ],
+        } as MessageCache;
+      },
+    );
+    if (hasMedia) {
+      queryClient.setQueryData(
+        ["attachment", conversation.id],
+        (oldData: AttachmentCache) => {
+          const today = getToday("MM/DD/YYYY");
+          // Nếu chưa có attachment nào trong cache
+          if (!oldData?.attachments) {
+            return {
+              ...oldData,
+              attachments: [
+                {
+                  date: today,
+                  attachments: attachments,
+                },
+              ],
+            } as AttachmentCache;
+          }
+          // Kiểm tra xem đã có attachment cho ngày hôm nay chưa
+          const existingItem = oldData.attachments.find(
+            (item) => item.date === today,
+          );
+          // Nếu chưa có thì thêm mới
+          if (!existingItem) {
+            return {
+              ...oldData,
+              attachments: [
+                ...oldData.attachments,
+                {
+                  date: today,
+                  attachments: attachments,
+                },
+              ],
+            } as AttachmentCache;
+          }
+          // Nếu có rồi thì chỉ cần thêm vào danh sách attachments của ngày hôm nay
+          return {
+            ...oldData,
+            attachments: oldData.attachments.map((item) =>
+              item.date === today
+                ? {
+                    ...item,
+                    attachments: [...attachments, ...item.attachments],
+                  }
+                : item,
+            ),
+          } as AttachmentCache;
+        },
+      );
+    }
+
     const bodyToCreate: SendMessageRequest = {
       type: type,
       content: content,
       attachments: attachments,
-      isForwarded: true,
+      isForwarded: forward,
     };
-    await sendMessage(conversation.id, bodyToCreate);
+    const res: SendMessageResponse = await sendMessage(
+      conversation.id,
+      bodyToCreate,
+    );
+    await delay(500);
+
+    queryClient.setQueryData(
+      ["message", conversation.id],
+      (oldData: MessageCache) => {
+        return {
+          ...oldData,
+          messages: oldData.messages.map((message) => {
+            if (message.id !== randomId) return message;
+            return {
+              ...message,
+              id: res.messageId,
+              pending: false,
+            };
+          }),
+        } as MessageCache;
+      },
+    );
   };
 
   const handleNewConversation = async (
@@ -132,7 +249,10 @@ const ForwardMessageModal = ({ message }: { message: PendingMessageModel }) => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const newConversation: ConversationModel = {
         id: randomId,
-        lastMessage: content,
+        lastMessage:
+          attachments && attachments.length > 0 && !content
+            ? attachments.map((att) => att.mediaName).join(",")
+            : content,
         isGroup: false,
         isNotifying: true,
         members: [

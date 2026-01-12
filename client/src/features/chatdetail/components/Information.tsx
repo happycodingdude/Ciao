@@ -341,6 +341,7 @@ const Information = () => {
                           type: "media",
                           attachments: [forwardingItem],
                         }}
+                        forward={false}
                       />
                     </Suspense>
                   </div>
