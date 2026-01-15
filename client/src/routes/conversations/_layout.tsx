@@ -50,7 +50,7 @@ export const Route = createFileRoute("/conversations/_layout")({
                 </Suspense>
               </div>
             </ListchatFilterProvider>
-            <div className="relative h-screen w-full">
+            <div className="relative h-screen grow">
               <Outlet />
             </div>
           </ChatDetailTogglesProvider>

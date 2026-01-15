@@ -8,6 +8,7 @@ import ModalLoading from "../../../components/ModalLoading";
 import useEventListener from "../../../hooks/useEventListener";
 import "../../../messagemenu_slide.css";
 import useInfo from "../../authentication/hooks/useInfo";
+import useConversation from "../../listchat/hooks/useConversation";
 import { MessageCache } from "../../listchat/types";
 import pinMessage from "../services/pinMessage";
 import { MessageMenuProps } from "../types";
@@ -17,6 +18,11 @@ import MessageMenuItem from "./MessageMenuItem";
 const MessageMenu_Slide = (props: MessageMenuProps) => {
   // console.log("ChatboxMenu calling");
   const { conversationId, message, mine, contact, getContainerRect } = props;
+
+  const { data: conversations } = useConversation();
+  const conversation = conversations.conversations.find(
+    (c) => c.id === conversationId,
+  );
 
   const queryClient = useQueryClient();
 
@@ -161,7 +167,17 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           >
             <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
               <Suspense fallback={<ModalLoading />}>
-                <ForwardMessageModal message={message} forward={true} />
+                <ForwardMessageModal
+                  message={message}
+                  forward={true}
+                  directContact={
+                    !conversation.isGroup
+                      ? conversation.members?.find(
+                          (item) => item.contact.id !== info.id,
+                        )?.contact.id
+                      : undefined
+                  }
+                />
               </Suspense>
             </div>
           </BackgroundPortal>

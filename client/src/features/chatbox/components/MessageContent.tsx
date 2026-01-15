@@ -225,12 +225,10 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             <div className="relative flex w-full flex-col">
               <div
                 ref={contentRef}
-                className={`cursor-pointer whitespace-pre-line break-all rounded-xl ${message.pending ? "opacity-50" : ""} 
-                  bg-(--bg-color) flex! overflow-visible! data-[expanded=false]:max-h-30
-                  relative w-fit max-w-full flex-col gap-2
-                  px-4 ${message.attachments?.length > 0 ? "py-4" : "py-2"}
-                  shadow-[0_2px_10px_rgba(0,0,0,0.1)]
-                  data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
+                className={`flex! overflow-visible! data-[expanded=false]:max-h-30 relative w-fit max-w-full cursor-pointer flex-col gap-2 
+                  whitespace-pre-line break-all rounded-xl py-2 data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
+                  ${message.pending ? "opacity-50" : ""} 
+                  ${message.content || message.isForwarded || message.replyId ? "bg-white px-4 shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}                  
                 `}
               >
                 {message.isForwarded ? (

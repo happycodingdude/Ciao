@@ -2,7 +2,7 @@ namespace Presentation.Friends;
 
 public static class CreateDirectConversation
 {
-    public record Request(string contactId, string message) : IRequest<CreateDirectConversationRes>;
+    public record Request(string contactId, string message, bool isForward) : IRequest<CreateDirectConversationRes>;
 
     internal sealed class Handler : IRequestHandler<Request, CreateDirectConversationRes>
     {
@@ -44,6 +44,7 @@ public static class CreateDirectConversation
                     Type = "text",
                     Content = request.message,
                     ContactId = userId,
+                    IsForwarded = request.isForward
                 };
 
             await _kafkaProducer.ProduceAsync(Topic.NewDirectConversation, new NewDirectConversationModel
@@ -69,9 +70,9 @@ public class CreateDirectConversationEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Contact).MapPost("/{contactId}/conversations",
-        async (ISender sender, string contactId, string? message = null) =>
+        async (ISender sender, string contactId, CreateDirectConversationReq request) =>
         {
-            var query = new CreateDirectConversation.Request(contactId, message);
+            var query = new CreateDirectConversation.Request(contactId, request.Message, request.IsForwarded);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

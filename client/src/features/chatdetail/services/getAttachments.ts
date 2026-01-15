@@ -12,11 +12,9 @@ const getAttachments = async (conversationId: string) => {
         "{id}",
         conversationId,
       ),
+      timeout: 500,
     })
   ).data;
-  // const convertedMessages = data.messages.map((message) => {
-  //   return { ...message, content: message.content.replace(/\n/g, " <br> ") };
-  // });
   const result: AttachmentCache = {
     conversationId: conversationId,
     attachments: data,

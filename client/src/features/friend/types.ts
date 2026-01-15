@@ -33,6 +33,11 @@ export type QuickChatProps = OnCloseType & {
   profile?: ContactModel;
 };
 
+export type CreateDirectChatReq = {
+  message?: string;
+  isForwarded?: boolean;
+};
+
 export type CreateDirectChatRes = {
   conversationId?: string;
   messageId?: string;

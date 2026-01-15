@@ -27,9 +27,11 @@ import { SendMessageRequest, SendMessageResponse } from "../types";
 const ForwardMessageModal = ({
   message,
   forward,
+  directContact,
 }: {
   message: PendingMessageModel;
   forward: boolean;
+  directContact?: string;
 }) => {
   const { type, content, attachments } = message;
 
@@ -42,13 +44,19 @@ const ForwardMessageModal = ({
   const refInput = useRef<HTMLInputElement>();
 
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
-    data?.map((item) => item.contact),
+    data
+      ?.filter((item) => item.contact.id !== directContact)
+      .map((item) => item.contact),
   );
   const [sentIds, setSentIds] = useState<Set<string>>(new Set()); // ✅ lưu các contact đang gửi
 
   useEffect(() => {
     if (!data) return;
-    setMembersToSearch(data.map((item) => item.contact));
+    setMembersToSearch(
+      data
+        .filter((item) => item.contact.id !== directContact)
+        .map((item) => item.contact),
+    );
     refInput.current.focus();
     // blurImage(".list-friend-container");
   }, [data]);
@@ -61,7 +69,8 @@ const ForwardMessageModal = ({
     const existedConversation = conversations.conversations.find(
       (conv) =>
         conv.isGroup === false &&
-        conv.members.some((mem) => mem.contact.id === contact.id),
+        conv.members.some((mem) => mem.contact.id === contact.id) &&
+        conv.members.some((mem) => mem.contact.id === info.id),
     );
     if (existedConversation) {
       await handleExistedConversation(existedConversation);
@@ -137,6 +146,8 @@ const ForwardMessageModal = ({
     queryClient.setQueryData(
       ["message", conversation.id],
       (oldData: MessageCache) => {
+        if (!oldData) return oldData;
+
         return {
           ...oldData,
           messages: [
@@ -166,6 +177,8 @@ const ForwardMessageModal = ({
       queryClient.setQueryData(
         ["attachment", conversation.id],
         (oldData: AttachmentCache) => {
+          if (!oldData) return oldData;
+
           const today = getToday("MM/DD/YYYY");
           // Nếu chưa có attachment nào trong cache
           if (!oldData?.attachments) {
@@ -227,6 +240,8 @@ const ForwardMessageModal = ({
     queryClient.setQueryData(
       ["message", conversation.id],
       (oldData: MessageCache) => {
+        if (!oldData) return oldData;
+
         return {
           ...oldData,
           messages: oldData.messages.map((message) => {
@@ -283,7 +298,10 @@ const ForwardMessageModal = ({
       } as ConversationCache;
     });
 
-    createDirectChatWithMessage(contact.id, content).then((res) => {
+    createDirectChatWithMessage(contact.id, {
+      message: content,
+      isForwarded: forward,
+    }).then((res) => {
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
@@ -300,6 +318,49 @@ const ForwardMessageModal = ({
           } as ConversationCache;
         },
       );
+
+      const hasMedia: boolean = attachments && attachments.length > 0;
+      queryClient.setQueryData(
+        ["message", res.conversationId],
+        (oldData: MessageCache) => {
+          return {
+            messages: [
+              {
+                id: res.messageId,
+                type: type,
+                content: content,
+                contactId: info.id,
+                attachments: hasMedia ? attachments : [],
+                pending: false,
+                likeCount: 0,
+                loveCount: 0,
+                careCount: 0,
+                wowCount: 0,
+                sadCount: 0,
+                angryCount: 0,
+                currentReaction: null,
+                createdTime: dayjs().format(),
+                isForwarded: forward,
+              } as PendingMessageModel,
+            ],
+          } as MessageCache;
+        },
+      );
+      if (hasMedia) {
+        queryClient.setQueryData(
+          ["attachment", res.conversationId],
+          (oldData: AttachmentCache) => {
+            return {
+              attachments: [
+                {
+                  date: getToday("MM/DD/YYYY"),
+                  attachments: attachments,
+                },
+              ],
+            } as AttachmentCache;
+          },
+        );
+      }
     });
   };
 

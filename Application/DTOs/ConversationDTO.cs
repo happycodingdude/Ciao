@@ -7,6 +7,12 @@ public class CreateGroupConversationReq
     public string[] Members { get; set; } = null!;
 }
 
+public class CreateDirectConversationReq
+{
+    public string? Message { get; set; }
+    public bool IsForwarded { get; set; }
+}
+
 public class CreateDirectConversationRes
 {
     public string ConversationId { get; set; } = null!;

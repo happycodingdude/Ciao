@@ -6,6 +6,7 @@ import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAnd
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import useAttachment from "../hooks/useAttachment";
 import AttachmentIcon from "./AttachmentIcon";
+import ShareImage from "./ShareImage";
 
 const Attachment = () => {
   const { toggle } = useChatDetailToggles();
@@ -88,20 +89,23 @@ const Attachment = () => {
               </div>
               <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-4">
                 {date.attachments.map((item, index) => (
-                  <ImageWithLightBoxAndNoLazy
-                    src={item.mediaUrl}
-                    title={item.mediaName?.split(".")[0]}
-                    className="aspect-square w-full cursor-pointer rounded-2xl"
-                    slides={date.attachments.map((item) => ({
-                      src:
-                        item.type === "image"
-                          ? item.mediaUrl
-                          : "images/filenotfound.svg",
-                    }))}
-                    index={index}
-                    pending={item.pending}
-                    local={item.local}
-                  />
+                  <div className="relative">
+                    <ImageWithLightBoxAndNoLazy
+                      src={item.mediaUrl}
+                      title={item.mediaName?.split(".")[0]}
+                      className="peer aspect-square w-full cursor-pointer rounded-2xl"
+                      slides={date.attachments.map((item) => ({
+                        src:
+                          item.type === "image"
+                            ? item.mediaUrl
+                            : "images/filenotfound.svg",
+                      }))}
+                      index={index}
+                      pending={item.pending}
+                      local={item.local}
+                    />
+                    <ShareImage media={item} />
+                  </div>
                 ))}
               </div>
             </div>

@@ -1,10 +1,9 @@
 import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { useParams } from "@tanstack/react-router";
-import { MouseEvent, Suspense, useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import ModalLoading from "../../../components/ModalLoading";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import { useSignal } from "../../../context/SignalContext";
 import useLocalStorage from "../../../hooks/useLocalStorage";
@@ -14,7 +13,6 @@ import useInfo from "../../authentication/hooks/useInfo";
 import AddMembers, {
   AddMembersProps,
 } from "../../chatbox/components/AddMembers";
-import ForwardMessageModal from "../../chatbox/components/ForwardMessageModal";
 import UpdateConversation from "../../chatbox/components/UpdateConversation";
 import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import QuickChat from "../../friend/components/QuickChat";
@@ -22,6 +20,7 @@ import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
 import { AttachmentModel } from "../../listchat/types";
 import useAttachment from "../hooks/useAttachment";
+import ShareImage from "./ShareImage";
 
 const Information = () => {
   const { startLocalStream } = useSignal();
@@ -38,7 +37,8 @@ const Information = () => {
   const [showMembers, setShowMembers] = useLocalStorage("showMembers", true);
 
   const { data: info } = useInfo();
-  const { data: attachmentCache } = useAttachment(conversationId);
+  const { data: attachmentCache, isLoading: isAttachmentLoading } =
+    useAttachment(conversationId);
 
   const refInformation = useRef<HTMLDivElement>();
   const refMembers = useRef<HTMLDivElement>();
@@ -52,7 +52,6 @@ const Information = () => {
   const [informationoffsetWidth, setInformationoffsetWidth] =
     useState<number>();
   const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
-  const [forwardingItem, setForwardingItem] = useState(null);
 
   useEffect(() => {
     setChosenProfile(undefined);
@@ -88,7 +87,7 @@ const Information = () => {
       className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-white`}
     >
       {/* Container */}
-      <div className="[&>*:not(:last-child)]:border-b-(--border-color) flex grow flex-col *:p-4 [&>*:not(:last-child)]:border-b-[.1rem]">
+      <div className="*:border-b-(--border-color) flex grow flex-col *:border-b-[.1rem] *:px-4 *:py-2">
         <div className="flex items-center justify-between px-4 laptop:h-16">
           <p className="text-base font-medium">Chat information</p>
           <div className="flex gap-4">
@@ -288,8 +287,7 @@ const Information = () => {
           ""
         )}
         {/* MARK: ATTACHMENTS  */}
-
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <div className="flex justify-between">
             <p className="font-medium">Attachments</p>
             <div
@@ -299,8 +297,10 @@ const Information = () => {
               View all
             </div>
           </div>
-          {displayAttachments.length !== 0 ? (
-            <>
+          <div className="relative flex max-h-40 items-center justify-center overflow-hidden">
+            {isAttachmentLoading ? (
+              <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
+            ) : displayAttachments.length > 0 ? (
               <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-4">
                 {displayAttachments.map((item, index) => (
                   <div className="relative">
@@ -318,39 +318,14 @@ const Information = () => {
                       pending={item.pending}
                       local={item.local}
                     />
-                    <div
-                      className="absolute right-1 top-1 z-10 aspect-square w-5 cursor-pointer 
-                    rounded-sm bg-white opacity-0 hover:opacity-100 peer-hover:opacity-100"
-                      onClick={() => setForwardingItem(item)}
-                    ></div>
+                    <ShareImage media={item} />
                   </div>
                 ))}
               </div>
-
-              {forwardingItem && (
-                <BackgroundPortal
-                  show={forwardingItem}
-                  className="laptop:w-100 phone:w-80 desktop:w-[35%]"
-                  title="Forward message"
-                  onClose={() => setForwardingItem(null)}
-                >
-                  <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
-                    <Suspense fallback={<ModalLoading />}>
-                      <ForwardMessageModal
-                        message={{
-                          type: "media",
-                          attachments: [forwardingItem],
-                        }}
-                        forward={false}
-                      />
-                    </Suspense>
-                  </div>
-                </BackgroundPortal>
-              )}
-            </>
-          ) : (
-            <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-no-repeat"></div>
-          )}
+            ) : (
+              <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-no-repeat"></div>
+            )}
+          </div>
         </div>
       </div>
     </div>
