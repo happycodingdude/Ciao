@@ -9,25 +9,6 @@ import useConversation from "../features/listchat/hooks/useConversation";
 import "../listchat.css";
 import { renderMessageWithMentions } from "../utils/renderMention";
 
-// moment.updateLocale("en", {
-//   relativeTime: {
-//     future: "in %s",
-//     past: "%s",
-//     s: "1m",
-//     ss: "1m",
-//     m: "1m",
-//     mm: "%dm",
-//     h: "1h",
-//     hh: "%dh",
-//     d: "1d",
-//     dd: "%dd",
-//     M: "1M",
-//     MM: "%dM",
-//     y: "1Y",
-//     yy: "%dY",
-//   },
-// });
-
 const ListChatContainer = () => {
   console.log("Rendering ListChatContainer");
 
@@ -201,10 +182,9 @@ const ListChatContainer = () => {
         return (
           <Link key={item.id} to={`/conversations/${item.id}`}>
             <div
-              className={`chat-item cursor-pointer rounded-2xl px-4 py-2
-                  ${isActive ? "active" : ""}`}
+              className={`chat-item cursor-pointer rounded-2xl px-4 py-2 ${isActive ? "active" : ""}`}
             >
-              <div className="flex h-12 items-start justify-between">
+              <div className="flex items-start justify-between laptop-lg:h-12">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -215,7 +195,7 @@ const ListChatContainer = () => {
                             (item) => item.contact.id !== info.id,
                           )?.contact.avatar
                     }
-                    className={`loaded pointer-events-none aspect-square w-10 animate-morph`}
+                    className="pointer-events-none aspect-square w-10 animate-morph"
                     circle
                   />
                   <div

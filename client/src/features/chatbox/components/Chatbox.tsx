@@ -93,11 +93,15 @@ const Chatbox = () => {
     oldLastMsgRef.current = currentLastMsg;
   }, [messages]);
 
-  const fetchMoreMessage = async (conversationId: string, hasMore: boolean) => {
-    if (!hasMore) return;
+  const fetchMoreMessage = async (conversationId: string) => {
+    // Kiểm tra hasMore trực tiếp từ cache hiện tại của queryClient để tránh closure bug
+    const currentData: MessageCache = queryClient.getQueryData([
+      "message",
+      conversationId,
+    ]);
+    if (!currentData?.hasMore || !refChatContent.current) return;
 
     const currentScrollHeight = refChatContent.current.scrollHeight;
-    // setFetching(true);
 
     const newMessages = await getMessages(conversationId, refPage.current);
 
@@ -112,6 +116,8 @@ const Chatbox = () => {
       },
     );
 
+    isFetching.current = false; // Mở khóa sau khi fetch xong
+
     requestAnimationFrame(() => {
       refChatContent.current.style.scrollBehavior = "auto";
       refChatContent.current.scrollTop =
@@ -122,25 +128,50 @@ const Chatbox = () => {
 
   const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
 
+  const isFetching = useRef(false); // Quan trọng: Tránh gọi trùng lặp
   const handleScroll = useCallback(() => {
     const contentEl = refChatContent.current;
-    if (!contentEl) return;
+    if (!contentEl || isFetching.current || !messages || !conversation) return;
 
+    // 1. Logic hiện nút Scroll To Bottom (Giữ nguyên của bạn)
     const distanceFromBottom =
       contentEl.scrollHeight - (contentEl.scrollTop + contentEl.clientHeight);
-
     setShowScrollToBottom(
       contentEl.clientHeight !== 0 &&
         distanceFromBottom >= contentEl.clientHeight / 2,
     );
 
-    if (contentEl.scrollTop === 0) {
-      // setAutoScrollBottom(false);
+    // 2. Logic Load More (Scroll Up)
+    // Thay vì 1/4, dùng khoảng cách 300px từ đỉnh để ổn định hơn
+    const isNearTop = contentEl.scrollTop <= 300;
+
+    if (isNearTop && messages.hasMore) {
+      isFetching.current = true; // Khóa lại
       refPage.current += 1;
 
-      debounceFetch(conversation?.id, messages?.hasMore);
+      debounceFetch(conversation.id);
     }
-  }, [messages?.hasMore, debounceFetch, conversation?.id]);
+  }, [debounceFetch, conversation?.id]);
+  // const handleScroll = useCallback(() => {
+  //   const contentEl = refChatContent.current;
+  //   if (!contentEl) return;
+
+  //   const distanceFromBottom =
+  //     contentEl.scrollHeight - (contentEl.scrollTop + contentEl.clientHeight);
+
+  //   // Hiển thị nút scroll to bottom nếu khoảng cách từ đáy lớn hơn nửa chiều cao khung nhìn
+  //   setShowScrollToBottom(
+  //     contentEl.clientHeight !== 0 &&
+  //       distanceFromBottom >= contentEl.clientHeight / 2,
+  //   );
+
+  //   // Load thêm khi scroll được khoảng 1/4 chiều cao khung nhìn từ trên xuống
+  //   if (contentEl.scrollTop <= contentEl.clientHeight / 4) {
+  //     refPage.current += 1;
+
+  //     debounceFetch(conversation?.id, messages?.hasMore);
+  //   }
+  // }, [messages?.hasMore, debounceFetch, conversation?.id]);
 
   useEventListener("scroll", handleScroll, refChatContent.current);
 
@@ -174,33 +205,26 @@ const Chatbox = () => {
       </RelightBackground>
       <div
         ref={refChatContent}
-        className="custom-scrollbar flex grow flex-col overflow-y-scroll scroll-smooth p-4"
+        className="custom-scrollbar flex grow flex-col overflow-x-hidden overflow-y-scroll scroll-smooth p-4"
       >
         {groupedEntries.map(([date, messages], groupIndex) => (
           <div
             key={date}
             className={`flex flex-col 
-              ${groupIndex === 0 ? "mt-auto" : ""} 
-              ${groupIndex === groupedEntries.length - 1 ? "" : "mb-8"}`}
+              ${groupIndex === 0 ? "mt-auto" : ""} `}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="text-3xs rounded-4xl pointer-events-none mx-auto mb-8 w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="text-3xs rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)] laptop-lg:mb-8">
               {formatDisplayDate(date)}
             </div>
 
             {[...messages].map((message, index) => {
-              const isLastGroup =
-                groupIndex === Object.entries(grouped).length - 1;
-              const isLastMessage = index === messages.length - 1;
-              const isLast = isLastGroup && isLastMessage;
-
               return message.type === "system" ? (
                 <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                   {message.content}
                 </div>
               ) : (
                 <MessageContent
-                  // ref={isLast ? bottomRef : undefined}
                   message={message}
                   id={conversation.id}
                   getContainerRect={() =>

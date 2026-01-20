@@ -5,7 +5,7 @@ import { MessageImageGrid } from "./MessageImageGrid";
 
 export type MessageType = "forwarded" | "reply" | undefined;
 
-export type PinnedMessageProps = {
+export type MessageItemProps = {
   type?: MessageType;
   message: string;
   contact?: string;
@@ -22,8 +22,9 @@ type MessageConfig = {
   showExpandToggle: boolean;
 };
 
-export function PinnedMessage(props: PinnedMessageProps) {
-  const { type, message, contact, mine, isPinned, replyContent, attachments } = props;
+export function MessageItem(props: MessageItemProps) {
+  const { type, message, contact, mine, isPinned, replyContent, attachments } =
+    props;
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
@@ -88,7 +89,7 @@ export function PinnedMessage(props: PinnedMessageProps) {
       )}
       <p
         ref={contentRef}
-        className={`overflow-hidden text-ellipsis leading-8 ${mine ? "self-end" : ""} ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
+        className={`overflow-hidden text-ellipsis laptop:leading-6 laptop-lg:leading-8 ${mine ? "self-end" : ""} ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
       >
         {message && renderMessageWithMentions(message)}
       </p>
@@ -109,10 +110,10 @@ export function PinnedMessage(props: PinnedMessageProps) {
 }
 
 // Legacy exports for backward compatibility
-export function ForwardedMessage(props: Omit<PinnedMessageProps, "type">) {
-  return <PinnedMessage {...props} type="forwarded" />;
+export function ForwardedMessage(props: Omit<MessageItemProps, "type">) {
+  return <MessageItem {...props} type="forwarded" />;
 }
 
-export function ReplyMessage(props: Omit<PinnedMessageProps, "type">) {
-  return <PinnedMessage {...props} type="reply" />;
+export function ReplyMessage(props: Omit<MessageItemProps, "type">) {
+  return <MessageItem {...props} type="reply" />;
 }

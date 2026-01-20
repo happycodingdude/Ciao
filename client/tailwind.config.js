@@ -12,18 +12,26 @@ export default {
     //   "laptop-lg": "1400px",
     //   desktop: "1920px",
     // },
-    screens: {
-      phone: "375px", // Modern smartphones (e.g., iPhone 13, Samsung S22)
-      "phone-lg": "430px", // Large smartphones (e.g., iPhone 15 Pro Max)
-      tablet: "768px", // Standard tablets (e.g., iPad Mini, Samsung Tab)
-      "tablet-lg": "900px", // Large tablets (e.g., iPad Pro 11-inch)
-      laptop: "1280px", // Mid-size laptops and ultrabooks
-      "laptop-md": "1440px", // Medium high-res laptops (MacBook 14-inch)
-      "laptop-lg": "1600px", // Larger high-res laptops (MacBook Pro 16-inch)
-      desktop: "1920px", // Standard full HD monitors
-      "desktop-lg": "2560px", // 2K+ high-resolution monitors
-      "desktop-4k": "3840px", // 4K screens for ultra-high-res displays
-    },
+    // screens: {
+    //   phone: "375px", // Modern smartphones (e.g., iPhone 13, Samsung S22)
+    //   "phone-lg": "430px", // Large smartphones (e.g., iPhone 15 Pro Max)
+    //   tablet: "768px", // Standard tablets (e.g., iPad Mini, Samsung Tab)
+    //   "tablet-lg": "900px", // Large tablets (e.g., iPad Pro 11-inch)
+    //   laptop: "1280px", // Mid-size laptops and ultrabooks
+    //   "laptop-md": "1440px", // Medium high-res laptops (MacBook 14-inch)
+    //   "laptop-lg": "1600px", // Larger high-res laptops (MacBook Pro 16-inch)
+    //   desktop: "1920px", // Standard full HD monitors
+    //   "desktop-lg": "2560px", // 2K+ high-resolution monitors
+    //   "desktop-4k": "3840px", // 4K screens for ultra-high-res displays
+    // },
+    // screens: {
+    //   phone: "30rem", // 480px
+    //   tablet: "48rem", // 768px
+    //   "laptop-sm": "64rem", // 1024px
+    //   laptop: "80rem", // 1280px
+    //   "laptop-lg": "96rem", // 1536px
+    //   desktop: "160rem", // 2560px
+    // },
     extend: {
       colors: {
         primary: {

@@ -52,12 +52,6 @@ const ChatInput = (props: ChatInputProps) => {
   const { toggle } = useChatDetailToggles();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  // if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
-
-  // const [conversationId] = useLocalStorage<string>("conversationId");
-  // const conversation = conversations.filterConversations.find(
-  //   (c) => c.id === conversationId,
-  // );
   const { conversationId } = useParams({
     from: "/conversations/_layout/$conversationId",
   });
@@ -522,8 +516,8 @@ const ChatInput = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "laptop:max-w-240"
-              : "laptop:max-w-180"
+              ? "laptop-lg:max-w-240 laptop:max-w-200"
+              : "laptop-lg:max-w-180 laptop:max-w-150"
         }  
         `}
       >

@@ -15,14 +15,23 @@ export const MessageImageGrid = ({
   const showMore = total > 3;
   const imagesToRender = total <= 3 ? attachments : attachments.slice(0, 3);
 
+  // const gridStyle: React.CSSProperties =
+  //   total === 1
+  //     ? { gridTemplateColumns: "20rem" }
+  //     : total === 2
+  //       ? { gridTemplateColumns: "repeat(2, 14rem)" }
+  //       : {
+  //           gridTemplateColumns: "repeat(3, 8rem)",
+  //           gridTemplateRows: "repeat(2, 8rem)",
+  //         };
   const gridStyle: React.CSSProperties =
     total === 1
-      ? { gridTemplateColumns: "20rem" }
+      ? { gridTemplateColumns: "var(--grid-size-1)" }
       : total === 2
-        ? { gridTemplateColumns: "repeat(2, 14rem)" }
+        ? { gridTemplateColumns: "repeat(2, var(--grid-size-2))" }
         : {
-            gridTemplateColumns: "repeat(3, 8rem)",
-            gridTemplateRows: "repeat(2, 8rem)",
+            gridTemplateColumns: "repeat(3, var(--grid-size-3))",
+            gridTemplateRows: "repeat(2, var(--grid-size-3))",
           };
 
   return (
@@ -52,7 +61,7 @@ export const MessageImageGrid = ({
 
             {isLastVisibleImage && (
               <div className="mosaic-overlay pointer-events-none absolute inset-0 flex flex-col items-center justify-center rounded-2xl text-white">
-                <p className="text-sm font-semibold ">+{total - 3}</p>
+                <p className="text-sm font-semibold">+{total - 3}</p>
                 <p>more photos</p>
               </div>
             )}

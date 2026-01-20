@@ -56,7 +56,7 @@ const Attachment = () => {
       ref={refAttachment}
       className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
     >
-      <div className="flex items-center justify-evenly py-4">
+      <div className="border-b-(--border-color) flex items-center justify-evenly border-b-[.1rem] py-4">
         <div
           className={`${attachmentToggle === "image" ? "selected" : ""} custom-button`}
           onClick={() => {
@@ -79,11 +79,11 @@ const Attachment = () => {
 
       {displayAttachments.length > 0 ? (
         <div
-          className="attachment-container hide-scrollbar [&>*:not(:last-child)]:border-b-(--border-color) mt-4 flex flex-col overflow-hidden overflow-y-auto scroll-smooth 
-        *:px-8 *:pb-4  [&>*:not(:first-child)]:mt-8 [&>*:not(:last-child)]:border-b-[.1rem]"
+          className="attachment-container hide-scrollbar [&>*:not(:last-child)]:border-b-(--border-color) flex flex-col overflow-hidden overflow-y-auto 
+        scroll-smooth *:p-4 [&>*:not(:last-child)]:border-b-[.1rem]"
         >
           {displayAttachments.map((date) => (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
               <div className="text-(--text-main-color-normal)">
                 {dayjs(date.date).format("DD/MM/YYYY")}
               </div>

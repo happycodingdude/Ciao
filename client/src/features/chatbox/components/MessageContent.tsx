@@ -11,8 +11,8 @@ import useConversation from "../../listchat/hooks/useConversation";
 import { MessageCache } from "../../listchat/types";
 import reactMessage from "../services/reactMessage";
 import { MessageContentProps, ReactMessageRequest } from "../types";
+import { ForwardedMessage, MessageItem, ReplyMessage } from "./MessageItem";
 import MessageMenu_Slide from "./MessageMenu_Slide";
-import { ForwardedMessage, PinnedMessage, ReplyMessage } from "./PinnedMessage";
 
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
@@ -24,10 +24,6 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const { data: info } = useInfo();
     const { data: conversations } = useConversation();
 
-    // const [conversationId] = useLocalStorage<string>("conversationId");
-    // const conversation = conversations.filterConversations.find(
-    //   (c) => c.id === conversationId,
-    // );
     const { conversationId } = useParams({
       from: "/conversations/_layout/$conversationId",
     });
@@ -210,25 +206,20 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             <p>{dayjs(message.createdTime).format("HH:mm")}</p>
           </div>
           <div
-            className={`laptop:max-w-120 desktop:max-w-220 relative flex w-fit flex-col
-          ${message.contactId === info.id ? "items-end" : "items-start"}
-          ${message.attachments?.length > 0 ? "gap-2" : ""}
-          group
+            className={`laptop-lg:max-w-120 laptop:max-w-100 desktop:max-w-220 relative flex w-fit flex-col
+            ${message.contactId === info.id ? "items-end" : "items-start"}
+            ${message.attachments?.length > 0 ? "gap-2" : ""}
           `}
           >
-            {/* MARK: ATTACHMENT */}
-            {/* {message.attachments?.length > 0 && (
-            <MessageImageGrid attachments={message.attachments} />
-          )} */}
             {/* MARK: CONTENT */}
-
-            <div className="relative flex w-full flex-col">
+            <div className="flex w-full flex-col peer">
               <div
                 ref={contentRef}
                 className={`flex! overflow-visible! data-[expanded=false]:max-h-30 relative w-fit max-w-full cursor-pointer flex-col gap-2 
-                  whitespace-pre-line break-all rounded-xl py-2 data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
+                  whitespace-pre-line break-all rounded-xl data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
+                  laptop:py-1 laptop-lg:py-2
                   ${message.pending ? "opacity-50" : ""} 
-                  ${message.content || message.isForwarded || message.replyId ? "bg-white px-4 shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}                  
+                  ${message.content || message.isForwarded || message.replyId ? "bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)] laptop:px-3 laptop-lg:px-4" : ""}                  
                 `}
               >
                 {message.isForwarded ? (
@@ -260,7 +251,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                     attachments={message.attachments}
                   />
                 ) : (
-                  <PinnedMessage
+                  <MessageItem
                     message={message.content}
                     contact={
                       conversation.members.find(
@@ -274,12 +265,13 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 )}
               </div>
             </div>
-
+            {/* MARK: MESSAGE PIN */}
             {message.isPinned && (
               <div
-                className={`absolute ${message.contactId === info.id ? "-right-2.5" : "-left-[.7rem]"} -top-2 flex h-6 w-6 items-center justify-center rounded-lg bg-light-blue-500 shadow-md`}
+                className={`absolute -top-2 flex aspect-square items-center justify-center bg-light-blue-500 shadow-md laptop:h-5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg
+                  ${message.contactId === info.id ? "-right-2.5" : "-left-[.7rem]"}`}
               >
-                <i className="fa-solid fa-thumbtack text-3xs text-white"></i>
+                <i className="fa-solid fa-thumbtack laptop-lg:text-3xs laptop:text-4xs text-white"></i>
               </div>
             )}
             {/* MARK: MESSAGE MENU */}

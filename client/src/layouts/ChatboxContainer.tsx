@@ -7,13 +7,11 @@ import useChatDetailToggles from "../features/chatbox/hooks/useChatDetailToggles
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
 import { ConversationCache } from "../features/listchat/types";
-import useLoading from "../hooks/useLoading";
 import queryClient from "../utils/queryClient";
 
 const ChatboxContainer = () => {
   console.log("Rendering ChatboxContainer");
 
-  const { loading, setLoading } = useLoading();
   const { toggle, setToggle } = useChatDetailToggles();
 
   const refChatboxContainer = useRef<HTMLDivElement>();
@@ -111,7 +109,7 @@ const ChatboxContainer = () => {
       </div>
       <div
         className={`border-l-(--border-color) relative h-full shrink-0 origin-right border-l-[.1rem] transition-all duration-200
-                    ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-80"}`}
+          ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-75 laptop-lg:w-80"}`}
       >
         <Information />
         <Attachment />

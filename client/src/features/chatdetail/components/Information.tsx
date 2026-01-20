@@ -20,6 +20,7 @@ import { ContactModel } from "../../friend/types";
 import useConversation from "../../listchat/hooks/useConversation";
 import { AttachmentModel } from "../../listchat/types";
 import useAttachment from "../hooks/useAttachment";
+import { useAttachmentLimit } from "../hooks/useAttachmentLimit";
 import ShareImage from "./ShareImage";
 
 const Information = () => {
@@ -57,21 +58,23 @@ const Information = () => {
     setChosenProfile(undefined);
   }, [conversationId]);
 
+  const limit = useAttachmentLimit();
+
   useEffect(() => {
     if (!attachmentCache) return;
 
-    if (attachmentCache.attachments.length !== 0) {
-      const mergedArr: AttachmentModel[] = attachmentCache.attachments.reduce(
-        (result, item) => {
-          return result.concat(item.attachments);
-        },
-        [],
+    if (attachmentCache.attachments.length > 0) {
+      // Tối ưu: Dùng flatMap thay vì reduce concat để code sạch và nhanh hơn
+      const mergedArr: AttachmentModel[] = attachmentCache.attachments.flatMap(
+        (item) => item.attachments,
       );
-      setDisplayAttachments(mergedArr.slice(0, 8));
+
+      // Sử dụng biến limit thay đổi theo màn hình ở đây
+      setDisplayAttachments(mergedArr.slice(0, limit));
     } else {
       setDisplayAttachments([]);
     }
-  }, [attachmentCache]);
+  }, [attachmentCache, limit]); // Thêm limit vào dependency array
 
   const toggleMembers = () => {
     setShowMembers((current) => !current);
@@ -91,12 +94,6 @@ const Information = () => {
         <div className="flex items-center justify-between px-4 laptop:h-16">
           <p className="text-base font-medium">Chat information</p>
           <div className="flex gap-4">
-            {/* <EditOutlined
-              className="base-icon-sm transition-all duration-200 hover:text-[var(--main-color-bold)]"
-              onClick={() => {
-                if (conversation.isGroup) setOpenUpdateTitle(true);
-              }}
-            /> */}
             {/* MARK: UPDATE TITLE  */}
             {conversation.isGroup ? (
               <div
@@ -297,11 +294,11 @@ const Information = () => {
               View all
             </div>
           </div>
-          <div className="relative flex max-h-40 items-center justify-center overflow-hidden">
+          <div className="laptop:max-h-50 relative flex items-center justify-center overflow-hidden laptop-lg:max-h-40">
             {isAttachmentLoading ? (
               <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
             ) : displayAttachments.length > 0 ? (
-              <div className="display-attachment-container grid w-full grid-cols-[repeat(4,1fr)] gap-4">
+              <div className="display-attachment-container grid w-full gap-4 laptop:grid-cols-3 laptop-lg:grid-cols-4 desktop:grid-cols-5">
                 {displayAttachments.map((item, index) => (
                   <div className="relative">
                     <ImageWithLightBoxAndNoLazy

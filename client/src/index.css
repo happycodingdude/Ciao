@@ -68,16 +68,12 @@
 @theme {
   /* Custom Breakpoints */
   --breakpoint-*: initial;
-  --breakpoint-phone: 375px;
-  --breakpoint-phone-lg: 430px;
-  --breakpoint-tablet: 768px;
-  --breakpoint-tablet-lg: 900px;
-  --breakpoint-laptop: 1280px;
-  --breakpoint-laptop-md: 1440px;
-  --breakpoint-laptop-lg: 1600px;
-  --breakpoint-desktop: 1920px;
-  --breakpoint-desktop-lg: 2560px;
-  --breakpoint-desktop-4k: 3840px;
+  --breakpoint-phone: 30rem; /* 480px */
+  --breakpoint-tablet: 48rem; /* 768px */
+  --breakpoint-laptop-sm: 64rem; /* 1024px */
+  --breakpoint-laptop: 80rem; /* 1280px */
+  --breakpoint-laptop-lg: 95rem; /* 1520px */
+  --breakpoint-desktop: 160rem; /* 2560px */
 
   /* Custom Font Sizes */
   --font-size-4xs: 0.625rem; /* ~10px */
@@ -226,6 +222,26 @@
   --light-blue-700: var(--color-light-blue-700);
   --light-blue-800: var(--color-light-blue-800);
   --light-blue-900: var(--color-light-blue-900);
+
+  --grid-size-1: 15rem;
+  --grid-size-2: 10rem;
+  --grid-size-3: 6rem;
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --grid-size-1: 12rem;
+    --grid-size-2: 8rem;
+    --grid-size-3: 6rem;
+  }
+}
+
+@media (min-width: 95rem) {
+  :root {
+    --grid-size-1: 20rem;
+    --grid-size-2: 14rem;
+    --grid-size-3: 8rem;
+  }
 }
 
 /* Keyframes for Custom Animations */
