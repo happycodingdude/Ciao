@@ -225,14 +225,14 @@
 
   --grid-size-1: 15rem;
   --grid-size-2: 10rem;
-  --grid-size-3: 6rem;
+  --grid-size-3: 7rem;
 }
 
 @media (min-width: 80rem) {
   :root {
     --grid-size-1: 12rem;
     --grid-size-2: 8rem;
-    --grid-size-3: 6rem;
+    --grid-size-3: 7rem;
   }
 }
 

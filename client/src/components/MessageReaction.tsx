@@ -12,11 +12,7 @@ const MessageReaction = (props: MessageReactionProps) => {
       >
         {/* MARK: TOTAL AND TOP REACTIONS */}
         {message.reaction.total ? (
-          <div
-            className={`rounded-4xl border-(--main-color) bg-(--sub-color) flex cursor-pointer
-            items-center gap-2 border-[.2rem] px-2 py-[.1rem]
-            `}
-          >
+          <div className="rounded-4xl border-(--main-color) bg-(--sub-color) flex cursor-pointer items-center gap-2 border-[.2rem] px-2 py-[.1rem]">
             <div className="inline-flex">
               {message.topReactions.map((item) => {
                 if (item === "like")

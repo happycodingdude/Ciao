@@ -15,15 +15,6 @@ export const MessageImageGrid = ({
   const showMore = total > 3;
   const imagesToRender = total <= 3 ? attachments : attachments.slice(0, 3);
 
-  // const gridStyle: React.CSSProperties =
-  //   total === 1
-  //     ? { gridTemplateColumns: "20rem" }
-  //     : total === 2
-  //       ? { gridTemplateColumns: "repeat(2, 14rem)" }
-  //       : {
-  //           gridTemplateColumns: "repeat(3, 8rem)",
-  //           gridTemplateRows: "repeat(2, 8rem)",
-  //         };
   const gridStyle: React.CSSProperties =
     total === 1
       ? { gridTemplateColumns: "var(--grid-size-1)" }
