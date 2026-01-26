@@ -109,7 +109,7 @@ const ChatboxContainer = () => {
       </div>
       <div
         className={`border-l-(--border-color) relative h-full shrink-0 origin-right border-l-[.1rem] transition-all duration-200
-          ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-75 laptop-lg:w-80"}`}
+          ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[clamp(17rem,22%,20rem)] laptop-lg:w-[clamp(20rem,22%,30rem)]"}`}
       >
         <Information />
         <Attachment />

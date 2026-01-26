@@ -87,12 +87,14 @@ export function MessageItem(props: MessageItemProps) {
       {attachments?.length > 0 && (
         <MessageImageGrid attachments={attachments} />
       )}
-      <p
-        ref={contentRef}
-        className={`overflow-hidden text-ellipsis laptop:leading-6 laptop-lg:leading-8 ${mine ? "self-end" : ""} ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
-      >
-        {message && renderMessageWithMentions(message)}
-      </p>
+      {message && (
+        <p
+          ref={contentRef}
+          className={`laptop:leading-6 laptop-lg:leading-8 overflow-hidden text-ellipsis ${mine ? "self-end" : ""} ${isExpanded ? "line-clamp-none" : "line-clamp-3"}`}
+        >
+          {renderMessageWithMentions(message)}
+        </p>
+      )}
       {/* MARK: SHOW MORE MESSAGE */}
       {config.showExpandToggle && isOverflowing && (
         <div

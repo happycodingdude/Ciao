@@ -215,11 +215,11 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             <div className="peer flex w-full flex-col">
               <div
                 ref={contentRef}
-                className={`flex! overflow-visible! data-[expanded=false]:max-h-30 laptop:py-1 laptop-lg:py-2 relative w-fit max-w-full cursor-pointer 
+                className={`flex! overflow-visible! data-[expanded=false]:max-h-30  relative w-fit max-w-full cursor-pointer 
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
-                  ${message.pending ? "opacity-50" : ""} 
-                  ${message.content || message.isForwarded || message.replyId ? "laptop:px-3 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}                  
+                  ${message.pending ? "opacity-50" : ""}
+                  ${message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-1 laptop:px-3 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
                 `}
               >
                 {message.isForwarded ? (

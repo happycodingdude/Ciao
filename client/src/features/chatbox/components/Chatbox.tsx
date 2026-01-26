@@ -142,8 +142,8 @@ const Chatbox = () => {
     );
 
     // 2. Logic Load More (Scroll Up)
-    // Thay vì 1/4, dùng khoảng cách 300px từ đỉnh để ổn định hơn
-    const isNearTop = contentEl.scrollTop <= 300;
+    // khi đụng chính xác top thì load thêm
+    const isNearTop = contentEl.scrollTop === 0;
 
     if (isNearTop && messages.hasMore) {
       isFetching.current = true; // Khóa lại

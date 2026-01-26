@@ -508,7 +508,7 @@ const ChatInput = (props: ChatInputProps) => {
   }, [files]);
 
   return (
-    <div className={`flex w-full items-center justify-center laptop:mb-4`}>
+    <div className={`laptop:mb-4 flex w-full items-center justify-center`}>
       <div
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white
         transition-all duration-200
@@ -517,7 +517,7 @@ const ChatInput = (props: ChatInputProps) => {
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
               ? "laptop-lg:max-w-240 laptop:max-w-200"
-              : "laptop-lg:max-w-180 laptop:max-w-150"
+              : "laptop-lg:max-w-180 laptop:max-w-140"
         }  
         `}
       >
@@ -558,10 +558,10 @@ const ChatInput = (props: ChatInputProps) => {
           {conversation.isGroup ? (
             <div
               data-show={showMention}
-              className="hide-scrollbar z-2 absolute bottom-32 left-20 flex flex-col overflow-y-scroll
-          scroll-smooth rounded-[.7rem] bg-white p-2 text-sm shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200
-          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          phone:max-h-72 phone:w-[18rem] laptop:max-h-80 laptop:w-[20rem]"
+              className="hide-scrollbar z-2 phone:max-h-72 phone:w-[18rem] laptop:max-h-80 laptop:w-[20rem] absolute bottom-32
+          left-20 flex flex-col overflow-y-scroll scroll-smooth rounded-[.7rem] bg-white p-2
+          text-sm shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200 
+          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
               {mentions?.map((item, index) => (
                 <div
@@ -576,7 +576,7 @@ const ChatInput = (props: ChatInputProps) => {
                         src: item.avatar,
                       },
                     ]}
-                    className="aspect-square cursor-pointer phone:w-8 tablet:w-10 laptop:w-12"
+                    className="phone:w-8 tablet:w-10 laptop:w-12 aspect-square cursor-pointer"
                     circle
                   />
                   <p>{item.name}</p>
@@ -642,7 +642,7 @@ const ChatInput = (props: ChatInputProps) => {
                   isEmpty={isEmpty}
                 />
               </div>
-              <button className="send-btn flex aspect-square cursor-pointer items-center justify-center rounded-full bg-light-blue-400 text-white laptop:w-9">
+              <button className="send-btn laptop:w-9 flex aspect-square cursor-pointer items-center justify-center rounded-full bg-light-blue-400 text-white">
                 <i className="fa-solid fa-paper-plane laptop:text-xs"></i>
               </button>
             </div>
