@@ -2,10 +2,10 @@ import { useParams } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import ModalLoading from "../../../components/ModalLoading";
+import useConversation from "../../../hooks/useConversation";
+import useInfo from "../../../hooks/useInfo";
 import "../../../information.css";
-import useInfo from "../../authentication/hooks/useInfo";
 import ForwardMessageModal from "../../chatbox/components/ForwardMessageModal";
-import useConversation from "../../listchat/hooks/useConversation";
 import { AttachmentModel } from "../../listchat/types";
 
 const ShareImage = ({ media }: { media: AttachmentModel }) => {

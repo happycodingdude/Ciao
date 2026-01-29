@@ -1,4 +1,4 @@
-import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
+import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import ForgotPassword from "../pages/ForgotPassword";
 import Signin from "../pages/Signin";
 import { isPhoneScreen } from "../utils/getScreenSize";

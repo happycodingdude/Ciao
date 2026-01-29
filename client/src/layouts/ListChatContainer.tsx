@@ -3,9 +3,9 @@ import dayjs from "dayjs";
 import CustomLabel from "../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import ListchatLoading from "../components/ListchatLoading";
-import useInfo from "../features/authentication/hooks/useInfo";
-import { useActiveConversation } from "../features/chatbox/hooks/useActiveConversation";
-import useConversation from "../features/listchat/hooks/useConversation";
+import { useActiveConversation } from "../hooks/useActiveConversation";
+import useConversation from "../hooks/useConversation";
+import useInfo from "../hooks/useInfo";
 import "../listchat.css";
 import { renderMessageWithMentions } from "../utils/renderMention";
 
@@ -184,7 +184,7 @@ const ListChatContainer = () => {
             <div
               className={`chat-item cursor-pointer rounded-2xl px-4 py-2 ${isActive ? "active" : ""}`}
             >
-              <div className="flex items-start justify-between laptop-lg:h-12">
+              <div className="laptop-lg:h-12 flex items-start justify-between">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -239,7 +239,7 @@ const ListChatContainer = () => {
                   ""
                 ) : (
                   <div
-                    className={`text-3xs flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-gray-500 laptop:w-8`}
+                    className={`text-3xs laptop:w-8 flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-gray-500`}
                   >
                     <p>
                       {item.lastMessageTime === null

@@ -7,10 +7,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import useInfo from "../features/authentication/hooks/useInfo";
 import { requestPermission } from "../features/notification/services/firebaseService";
 import registerConnection from "../features/notification/services/registerConnection";
 import { classifyNotification } from "../features/notification/services/signalService";
+import useInfo from "../hooks/useInfo";
 import { UserProfile } from "../types";
 
 type SignalContextType = {

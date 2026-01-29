@@ -1,8 +1,8 @@
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import LocalLoading from "../components/LocalLoading";
 import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
 import ListchatFilterProvider from "../context/ListchatFilterContext";
-import useConversation from "../features/listchat/hooks/useConversation";
+import useConversation from "../hooks/useConversation";
 import useLoading from "../hooks/useLoading";
 import { isPhoneScreen } from "../utils/getScreenSize";
 const ListChatContainer = lazy(() => import("./ListChatContainer"));

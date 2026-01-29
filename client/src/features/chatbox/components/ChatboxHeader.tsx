@@ -2,9 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import useConversation from "../../../hooks/useConversation";
+import useInfo from "../../../hooks/useInfo";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
-import useConversation from "../../listchat/hooks/useConversation";
 import { ConversationCache } from "../../listchat/types";
 import ChatboxHeaderMenu from "./ChatboxHeaderMenu";
 import ChatboxHeaderMenu_Mobile from "./ChatboxHeaderMenu_Mobile";
@@ -24,8 +24,8 @@ const ChatboxHeader = () => {
 
   return (
     <div
-      className="border-b-(--border-color) text-(--text-main-color-normal) flex w-full shrink-0 items-center justify-between
-      border-b-[.1rem] bg-white px-4 py-2 phone:h-24 laptop:h-16"
+      className="border-b-(--border-color) text-(--text-main-color-normal) phone:h-24 laptop:h-16 flex w-full shrink-0
+      items-center justify-between border-b-[.1rem] bg-white px-4 py-2"
     >
       <div className="relative flex items-center gap-4">
         {isPhoneScreen() ? (
@@ -78,7 +78,7 @@ const ChatboxHeader = () => {
           circle
         />
         {/* MARK: TITLE  */}
-        <div className="laptop:max-w-120 desktop:max-w-200 relative flex grow flex-col phone:max-w-48">
+        <div className="laptop:max-w-120 desktop:max-w-200 phone:max-w-48 relative flex grow flex-col">
           {conversation.isGroup ? (
             <>
               <div className="flex w-full gap-2">

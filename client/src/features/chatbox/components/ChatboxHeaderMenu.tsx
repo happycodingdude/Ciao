@@ -1,8 +1,8 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "@tanstack/react-router";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
+import useConversation from "../../../hooks/useConversation";
 import AttachmentIcon from "../../chatdetail/components/AttachmentIcon";
-import useConversation from "../../listchat/hooks/useConversation";
-import useChatDetailToggles from "../hooks/useChatDetailToggles";
 
 const ChatboxHeaderMenu = () => {
   const { toggle, setToggle } = useChatDetailToggles();

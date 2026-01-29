@@ -3,10 +3,10 @@ import { useRef } from "react";
 import Chatbox from "../features/chatbox/components/Chatbox";
 import ChatboxHeader from "../features/chatbox/components/ChatboxHeader";
 import ChatInput from "../features/chatbox/components/ChatInput";
-import useChatDetailToggles from "../features/chatbox/hooks/useChatDetailToggles";
 import Attachment from "../features/chatdetail/components/Attachment";
 import Information from "../features/chatdetail/components/Information";
 import { ConversationCache } from "../features/listchat/types";
+import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import queryClient from "../utils/queryClient";
 
 const ChatboxContainer = () => {
@@ -96,7 +96,7 @@ const ChatboxContainer = () => {
     <div className="flex h-full">
       <div className="bg-linear-to-br flex w-full grow flex-col from-light-blue-50 to-light-blue-100">
         <ChatboxHeader />
-        <div className="flex w-full laptop:h-[89dvh] laptop-md:h-[92dvh]">
+        <div className="laptop:h-[89dvh] laptop-md:h-[92dvh] flex w-full">
           <div
             ref={refChatboxContainer}
             className={`relative flex w-full flex-col items-center gap-4 

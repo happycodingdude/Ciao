@@ -14,13 +14,14 @@ import React, {
 import "../../../chatinput.css";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
+import useConversation from "../../../hooks/useConversation";
 import useEventListener from "../../../hooks/useEventListener";
+import useInfo from "../../../hooks/useInfo";
 import { ChatInputProps } from "../../../types";
 import { getToday } from "../../../utils/datetime";
 import delay from "../../../utils/delay";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
-import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
   AttachmentModel,
@@ -30,7 +31,6 @@ import {
   PendingMessageModel,
 } from "../../listchat/types";
 import { uploadFile } from "../functions/uploadFile";
-import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import sendMessage from "../services/sendMessage";
 import {
   MentionModel,

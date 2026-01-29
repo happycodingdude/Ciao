@@ -11,8 +11,8 @@ import { toast } from "react-toastify";
 import BackgroundPortal from "../../../components/BackgroundPortal";
 import ModalLoading from "../../../components/ModalLoading";
 import useEventListener from "../../../hooks/useEventListener";
+import useInfo from "../../../hooks/useInfo";
 import "../../../messagemenu.css";
-import useInfo from "../../authentication/hooks/useInfo";
 import { MessageCache } from "../../listchat/types";
 import pinMessage from "../services/pinMessage";
 import { MessageMenuProps } from "../types";
@@ -178,9 +178,7 @@ const MessageMenu = (props: MessageMenuProps) => {
           >
             <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
               <Suspense fallback={<ModalLoading />}>
-                <ForwardMessageModal
-                  message={message}
-                />
+                <ForwardMessageModal message={message} />
               </Suspense>
             </div>
           </BackgroundPortal>

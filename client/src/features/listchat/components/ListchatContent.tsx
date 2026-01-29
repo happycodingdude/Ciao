@@ -1,21 +1,21 @@
 import { useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
+import useConversation from "../../../hooks/useConversation";
+import useInfo from "../../../hooks/useInfo";
+import useListchatFilter from "../../../hooks/useListchatFilter";
 import useLoading from "../../../hooks/useLoading";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
-import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import getMessages from "../../chatbox/services/getMessages";
 import getAttachments from "../../chatdetail/services/getAttachments";
-import useConversation from "../hooks/useConversation";
-import useListchatFilter from "../hooks/useListchatFilter";
 import { ConversationCache } from "../types";
-import dayjs from "dayjs";
 
 // moment.locale("en", {
 //   relativeTime: {
@@ -150,8 +150,8 @@ const ListchatContent = () => {
                     ?.contact.id
                 : ""
             }
-            className={`chat-item group flex shrink-0 cursor-pointer items-center gap-6 overflow-hidden rounded-2xl py-2 
-              pl-2 pr-4 phone:h-26 tablet:h-22 laptop:h-26
+            className={`chat-item phone:h-26 tablet:h-22 laptop:h-26 group flex shrink-0 cursor-pointer items-center gap-6 
+              overflow-hidden rounded-2xl py-2 pl-2 pr-4
         ${
           conversationId === item.id && !isPhoneScreen()
             ? `item-active bg-(--main-color)`
@@ -170,7 +170,7 @@ const ListchatContent = () => {
                     : item.members.find((item) => item.contact.id !== info.id)
                         ?.contact.avatar
                 }
-                className={`loaded pointer-events-none aspect-square phone:w-20 tablet:w-16 laptop:w-20`}
+                className={`loaded phone:w-20 tablet:w-16 laptop:w-20 pointer-events-none aspect-square`}
                 circle
               />
               {!item.isGroup ? (

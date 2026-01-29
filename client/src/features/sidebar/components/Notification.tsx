@@ -2,7 +2,7 @@ import { BellOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import useEventListener from "../../../hooks/useEventListener";
-import useNotification from "../../notification/hooks/useNotification";
+import useNotification from "../../../hooks/useNotification";
 import read from "../../notification/services/read";
 import readAll from "../../notification/services/readAll";
 
@@ -94,11 +94,11 @@ const Notification = () => {
       <div
         ref={refNotification}
         data-state="hide"
-        className="notification-body absolute z-[1000] flex origin-bottom-left cursor-auto flex-col 
-        rounded-r-2xl rounded-tl-2xl bg-[var(--bg-color-light)] transition-all duration-200 
-          data-[state=hide]:scale-0 data-[state=show]:scale-100 
-          phone:bottom-[2rem] phone:left-[2rem] phone:h-[25rem] phone:w-[25rem] phone:text-base 
-          laptop:bottom-[2rem] laptop:left-[2rem] laptop:h-[30rem] laptop:w-[25rem] laptop:text-md"
+        className="notification-body phone:bottom-[2rem] phone:left-[2rem] phone:h-[25rem] phone:w-[25rem] phone:text-base laptop:bottom-[2rem] 
+        laptop:left-[2rem] laptop:h-[30rem] laptop:w-[25rem] laptop:text-md absolute 
+          z-[1000] flex 
+          origin-bottom-left cursor-auto flex-col rounded-r-2xl rounded-tl-2xl 
+          bg-[var(--bg-color-light)] transition-all duration-200 data-[state=hide]:scale-0 data-[state=show]:scale-100"
       >
         <div className="notification-body flex justify-between border-b-[.1rem] border-b-[var(--border-color)] px-4 py-3">
           <p className="notification-body">Notifications</p>

@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
+import { isConversationActive } from "../../../hooks/useActiveConversation";
 import { UserProfile } from "../../../types";
-import { isConversationActive } from "../../chatbox/hooks/useActiveConversation";
 import {
   AttachmentCache,
   AttachmentModel,
@@ -16,7 +17,6 @@ import {
   NewMessagePinned,
   NewReaction,
 } from "../types";
-import dayjs from "dayjs";
 
 /* MARK: NOTIFICATION CLASSIFIER */
 export const classifyNotification = (

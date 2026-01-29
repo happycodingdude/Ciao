@@ -1,13 +1,12 @@
-import React from "react";
 import ImageWithLightBoxAndNoLazy from "../components/ImageWithLightBoxAndNoLazy";
 import ListchatFilterProvider from "../context/ListchatFilterContext";
-import useInfo from "../features/authentication/hooks/useInfo";
 import AddFriend from "../features/friend/components/AddFriend";
 import CreateGroupChat from "../features/groupchat/components/CreateGroupChat";
 import ListChat from "../features/listchat/components/ListChat";
 import ListChatHeader from "../features/listchat/components/ListChatHeader";
 import ListChatHeader_Mobile from "../features/listchat/components/ListChatHeader_Mobile";
-import useConversation from "../features/listchat/hooks/useConversation";
+import useConversation from "../hooks/useConversation";
+import useInfo from "../hooks/useInfo";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
 const ListChatContainer_V1 = () => {
@@ -45,10 +44,10 @@ const ListChatContainer_V1 = () => {
         </div>
       ) : (
         <div
-          className={`relative flex flex-col bg-[var(--bg-color)]
-            tablet:w-[21rem] 
-            laptop:w-[27rem] 
-            laptop-lg:w-[30rem]`}
+          className={`tablet:w-[21rem] laptop:w-[27rem] laptop-lg:w-[30rem] relative
+            flex 
+            flex-col 
+            bg-[var(--bg-color)]`}
         >
           <ListChatHeader />
           <ListChat />

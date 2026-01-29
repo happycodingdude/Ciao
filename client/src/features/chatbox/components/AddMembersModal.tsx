@@ -8,13 +8,13 @@ import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
+import useConversation from "../../../hooks/useConversation";
+import useFriend from "../../../hooks/useFriend";
+import useInfo from "../../../hooks/useInfo";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
-import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
-import useConversation from "../../listchat/hooks/useConversation";
 import {
   ConversationCache,
   MessageCache,

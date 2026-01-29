@@ -1,5 +1,5 @@
 import SignupForm from "../features/authentication/components/SignupForm";
-import useToggleAuthenticationForms from "../features/authentication/hooks/useAuthenticationFormToggles";
+import useToggleAuthenticationForms from "../hooks/useAuthenticationFormToggles";
 import { isPhoneScreen } from "../utils/getScreenSize";
 
 const Signup = () => {

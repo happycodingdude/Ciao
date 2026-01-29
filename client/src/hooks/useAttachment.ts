@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import attachmentQueryOption from "../../chatbox/queries/attachmentQuery";
-import { AttachmentCache } from "../../listchat/types";
+import attachmentQueryOption from "../features/chatbox/queries/attachmentQuery";
+import { AttachmentCache } from "../features/listchat/types";
 
 const useAttachment = (
   conversationId: string,

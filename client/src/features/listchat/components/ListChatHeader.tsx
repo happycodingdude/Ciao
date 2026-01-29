@@ -1,7 +1,7 @@
 import { CloseOutlined } from "@ant-design/icons";
+import useListchatFilter from "../../../hooks/useListchatFilter";
 import AddFriend from "../../friend/components/AddFriend";
 import CreateGroupChat from "../../groupchat/components/CreateGroupChat";
-import useListchatFilter from "../hooks/useListchatFilter";
 
 const ListChatHeader = () => {
   const { search, setSearch } = useListchatFilter();

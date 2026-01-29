@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { UserProfile } from "../../../types";
-import getInfo from "../services/getInfo";
+import getInfo from "../features/authentication/services/getInfo";
+import { UserProfile } from "../types";
 
 // const useInfo = (enabled: boolean = false): UseQueryResult<UserProfile> => {
 //   const hasToken = !!localStorage.getItem("accessToken")?.length;

@@ -1,7 +1,6 @@
-import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import LocalLoading from "../components/LocalLoading";
-import useInfo from "../features/authentication/hooks/useInfo";
+import useInfo from "../hooks/useInfo";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 const ProtectedRoute = () => {

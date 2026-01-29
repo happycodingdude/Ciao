@@ -1,5 +1,5 @@
 import SigninForm from "../features/authentication/components/SigninForm";
-import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
+import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 
 const Signin = () => {
   const { toggle } = useAuthenticationFormToggles();

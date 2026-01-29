@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import Signout from "../features/authentication/components/Signout";
-import useInfo from "../features/authentication/hooks/useInfo";
+import useInfo from "../hooks/useInfo";
 import blurImage from "../utils/blurImage";
 
 const SideBarMenu = () => {

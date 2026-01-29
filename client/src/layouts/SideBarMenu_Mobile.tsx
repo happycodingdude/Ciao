@@ -1,11 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Signout from "../features/authentication/components/Signout";
-import useInfo from "../features/authentication/hooks/useInfo";
 import { ConversationCache } from "../features/listchat/types";
 import ProfileIcon from "../features/profile-new/ProfileIcon";
 import ChatIcon from "../features/sidebar/components/ChatIcon";
 import Notification from "../features/sidebar/components/Notification";
+import useInfo from "../hooks/useInfo";
 import { SideBarProps } from "../types";
 import blurImage from "../utils/blurImage";
 import { isPhoneScreen } from "../utils/getScreenSize";

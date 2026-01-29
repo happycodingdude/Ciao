@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import ErrorComponent from "../../../components/ErrorComponent";
+import useAuthenticationFormToggles from "../../../hooks/useAuthenticationFormToggles";
 import { SignupRequest } from "../../../types";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import signup from "../services/signup";
 
 const SignupForm = () => {

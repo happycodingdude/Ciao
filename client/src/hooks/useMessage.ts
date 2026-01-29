@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { MessageCache } from "../../listchat/types";
-import messageQueryOption from "../queries/messageQuery";
+import messageQueryOption from "../features/chatbox/queries/messageQuery";
+import { MessageCache } from "../features/listchat/types";
 
 const useMessage = (
   conversationId: string,

@@ -3,11 +3,11 @@ import { useParams } from "@tanstack/react-router";
 import debounce from "lodash-es/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import RelightBackground from "../../../components/RelightBackground";
+import useConversation from "../../../hooks/useConversation";
 import useEventListener from "../../../hooks/useEventListener";
+import useMessage from "../../../hooks/useMessage";
 import { formatDate, formatDisplayDate } from "../../../utils/datetime";
-import useConversation from "../../listchat/hooks/useConversation";
 import { MessageCache, PendingMessageModel } from "../../listchat/types";
-import useMessage from "../hooks/useMessage";
 import getMessages from "../services/getMessages";
 import MessageContent from "./MessageContent";
 const Chatbox = () => {
@@ -214,7 +214,7 @@ const Chatbox = () => {
               ${groupIndex === 0 ? "mt-auto" : ""} `}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="text-3xs rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)] laptop-lg:mb-8">
+            <div className="text-3xs rounded-4xl laptop-lg:mb-8 pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 

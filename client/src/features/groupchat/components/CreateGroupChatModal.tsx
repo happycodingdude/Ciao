@@ -7,14 +7,14 @@ import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
 import MediaPicker from "../../../components/MediaPicker";
+import useFriend from "../../../hooks/useFriend";
+import useInfo from "../../../hooks/useInfo";
 import { OnCloseType } from "../../../types";
 import blurImage from "../../../utils/blurImage";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
 import { uploadFile } from "../../chatbox/functions/uploadFile";
 import MemberToAdd_LargeScreen from "../../chatbox/responsive/MemberToAdd_LargeScreen";
 import MemberToAdd_Phone from "../../chatbox/responsive/MemberToAdd_Phone";
-import useFriend from "../../friend/hooks/useFriend";
 import { ContactModel } from "../../friend/types";
 import {
   ConversationCache,
@@ -67,7 +67,10 @@ const CreateGroupChatModal = (props: OnCloseType) => {
 
     setProcessing(true);
 
-    const url = file !== undefined ? (await uploadFile(new Array(file)))[0].mediaUrl : null;
+    const url =
+      file !== undefined
+        ? (await uploadFile(new Array(file)))[0].mediaUrl
+        : null;
 
     const randomId = Math.random().toString(36).substring(2, 7);
     tempAddConversation(randomId);

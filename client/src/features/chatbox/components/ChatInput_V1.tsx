@@ -10,13 +10,14 @@ import {
 } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
+import useConversation from "../../../hooks/useConversation";
 import useEventListener from "../../../hooks/useEventListener";
+import useInfo from "../../../hooks/useInfo";
 import { ChatInputProps } from "../../../types";
 import { getToday } from "../../../utils/datetime";
 import delay from "../../../utils/delay";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
-import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
   AttachmentModel,
@@ -25,7 +26,6 @@ import {
   PendingMessageModel,
 } from "../../listchat/types";
 import uploadFile from "../functions/uploadFile";
-import useChatDetailToggles from "../hooks/useChatDetailToggles";
 import sendMessage from "../services/sendMessage";
 import {
   MentionModel,
@@ -434,8 +434,8 @@ const ChatInput_V1 = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-[35rem]"
             : !toggle || toggle === "" || toggle === "null"
-              ? "!w-0 laptop:max-w-[80rem] laptop-lg:max-w-[100rem]"
-              : "!w-0 laptop:max-w-[60rem] laptop-lg:max-w-[80rem]"
+              ? "laptop:max-w-[80rem] laptop-lg:max-w-[100rem] !w-0"
+              : "laptop:max-w-[60rem] laptop-lg:max-w-[80rem] !w-0"
         }  
         `}
       >
@@ -458,10 +458,10 @@ const ChatInput_V1 = (props: ChatInputProps) => {
           {conversations?.selected?.isGroup ? (
             <div
               data-show={showMention}
-              className="hide-scrollbar absolute bottom-[4rem] left-0 flex flex-col overflow-y-scroll
-          scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)] p-2 text-sm transition-all duration-200
-          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100 
-          phone:max-h-[18rem] phone:w-[18rem] laptop:max-h-[20rem] laptop:w-[20rem]"
+              className="hide-scrollbar phone:max-h-[18rem] phone:w-[18rem] laptop:max-h-[20rem] laptop:w-[20rem] absolute bottom-[4rem]
+          left-0 flex flex-col overflow-y-scroll scroll-smooth rounded-[.7rem] bg-[var(--bg-color-light)]
+          p-2 text-sm transition-all duration-200 
+          data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
               {mentions?.map((item) => (
                 <div
@@ -470,7 +470,7 @@ const ChatInput_V1 = (props: ChatInputProps) => {
                 >
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar}
-                    className="aspect-square cursor-pointer rounded-[50%] phone:w-[2rem] tablet:w-[2.5rem] laptop:w-[3rem]"
+                    className="phone:w-[2rem] tablet:w-[2.5rem] laptop:w-[3rem] aspect-square cursor-pointer rounded-[50%]"
                     slides={[
                       {
                         src: item.avatar,

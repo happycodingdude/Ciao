@@ -6,21 +6,21 @@ import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../../../components/OnlineStatusDot";
 import { useSignal } from "../../../context/SignalContext";
+import useAttachment from "../../../hooks/useAttachment";
+import { useAttachmentLimit } from "../../../hooks/useAttachmentLimit";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
+import useConversation from "../../../hooks/useConversation";
+import useInfo from "../../../hooks/useInfo";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import "../../../information.css";
 import { UserProfile } from "../../../types";
-import useInfo from "../../authentication/hooks/useInfo";
 import AddMembers, {
   AddMembersProps,
 } from "../../chatbox/components/AddMembers";
 import UpdateConversation from "../../chatbox/components/UpdateConversation";
-import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
 import QuickChat from "../../friend/components/QuickChat";
 import { ContactModel } from "../../friend/types";
-import useConversation from "../../listchat/hooks/useConversation";
 import { AttachmentModel } from "../../listchat/types";
-import useAttachment from "../hooks/useAttachment";
-import { useAttachmentLimit } from "../hooks/useAttachmentLimit";
 import ShareImage from "./ShareImage";
 
 const Information = () => {
@@ -91,7 +91,7 @@ const Information = () => {
     >
       {/* Container */}
       <div className="*:border-b-(--border-color) flex grow flex-col *:border-b-[.1rem] *:px-4 *:py-2">
-        <div className="flex items-center justify-between px-4 laptop:h-16">
+        <div className="laptop:h-16 flex items-center justify-between px-4">
           <p className="text-base font-medium">Chat information</p>
           <div className="flex gap-4">
             {/* MARK: UPDATE TITLE  */}
@@ -145,7 +145,7 @@ const Information = () => {
             circle
           />
           {/* MARK: TITLE  */}
-          <div className="flex w-[70%] grow flex-col items-center justify-center gap-2 laptop:text-base">
+          <div className="laptop:text-base flex w-[70%] grow flex-col items-center justify-center gap-2">
             <CustomLabel
               className="text-center font-medium"
               title={
@@ -209,8 +209,8 @@ const Information = () => {
             <div
               ref={refMembers}
               data-show={showMembers}
-              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 flex flex-col gap-2 overflow-y-auto scroll-smooth
-                transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100 phone:max-h-80"
+              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 phone:max-h-80 flex flex-col gap-2 overflow-y-auto
+                scroll-smooth transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
               {[...conversation?.members]
                 .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
@@ -294,11 +294,11 @@ const Information = () => {
               View all
             </div>
           </div>
-          <div className="laptop:max-h-50 relative flex items-center justify-center overflow-hidden laptop-lg:max-h-40">
+          <div className="laptop:max-h-50 laptop-lg:max-h-40 relative flex items-center justify-center overflow-hidden">
             {isAttachmentLoading ? (
               <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
             ) : displayAttachments.length > 0 ? (
-              <div className="display-attachment-container grid w-full gap-4 laptop:grid-cols-3 laptop-lg:grid-cols-4 desktop:grid-cols-5">
+              <div className="display-attachment-container laptop:grid-cols-3 laptop-lg:grid-cols-4 desktop:grid-cols-5 grid w-full gap-4">
                 {displayAttachments.map((item, index) => (
                   <div className="relative">
                     <ImageWithLightBoxAndNoLazy

@@ -6,14 +6,14 @@ import CustomInput from "../../../components/CustomInput";
 import CustomLabel from "../../../components/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../../../components/ListFriendLoading";
+import useConversation from "../../../hooks/useConversation";
+import useFriend from "../../../hooks/useFriend";
+import useInfo from "../../../hooks/useInfo";
 import { getToday } from "../../../utils/datetime";
 import delay from "../../../utils/delay";
 import { isPhoneScreen } from "../../../utils/getScreenSize";
-import useInfo from "../../authentication/hooks/useInfo";
-import useFriend from "../../friend/hooks/useFriend";
 import createDirectChatWithMessage from "../../friend/services/createDirectChatWithMessage";
 import { ContactModel } from "../../friend/types";
-import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
   ConversationCache,
@@ -401,7 +401,7 @@ const ForwardMessageModal = ({
                   >
                     <ImageWithLightBoxAndNoLazy
                       src={item.avatar}
-                      className="pointer-events-none aspect-square phone:w-12 laptop:w-16"
+                      className="phone:w-12 laptop:w-16 pointer-events-none aspect-square"
                       circle
                       slides={[
                         {

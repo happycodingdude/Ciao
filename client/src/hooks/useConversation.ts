@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import conversationQueryOption from "../queries/conversationQuery";
-import { ConversationCache } from "../types";
+import conversationQueryOption from "../features/listchat/queries/conversationQuery";
+import { ConversationCache } from "../features/listchat/types";
 
 const useConversation = (
   page?: number | undefined,

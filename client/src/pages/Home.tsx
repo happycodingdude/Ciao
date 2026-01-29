@@ -1,9 +1,9 @@
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
 import { useSignal } from "../context/SignalContext";
-import useInfo from "../features/authentication/hooks/useInfo";
 import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import "../home.css";
+import useInfo from "../hooks/useInfo";
 
 const Home = () => {
   console.log("Rendering HomeComponent");

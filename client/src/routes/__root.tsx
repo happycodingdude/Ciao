@@ -12,8 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "../App.css";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
-import useInfo from "../features/authentication/hooks/useInfo";
 import userQueryOptions from "../features/authentication/queries/userInfoQuery";
+import useInfo from "../hooks/useInfo";
 import SideBar from "../layouts/SideBar";
 
 type RouterContext = {
@@ -69,7 +69,7 @@ function RootComponent() {
 
   return (
     <>
-      <div className="text-(--text-main-color) desktop:text-md laptop:text-2xs relative flex w-full laptop-lg:text-xs">
+      <div className="text-(--text-main-color) desktop:text-md laptop:text-2xs laptop-lg:text-xs relative flex w-full">
         <SideBar />
         <div className="relative grow">
           <LoadingProvider>

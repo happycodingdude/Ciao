@@ -1,10 +1,10 @@
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { useSignal } from "../../../context/SignalContext";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
+import useConversation from "../../../hooks/useConversation";
+import useInfo from "../../../hooks/useInfo";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import { UserProfile } from "../../../types";
-import useInfo from "../../authentication/hooks/useInfo";
-import useConversation from "../../listchat/hooks/useConversation";
-import useChatDetailToggles from "../hooks/useChatDetailToggles";
 
 const ChatboxHeaderMenu_Mobile = () => {
   const { toggle, setToggle } = useChatDetailToggles();

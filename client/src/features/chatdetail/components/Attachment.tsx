@@ -3,8 +3,8 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../../../button.css";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
-import useChatDetailToggles from "../../chatbox/hooks/useChatDetailToggles";
-import useAttachment from "../hooks/useAttachment";
+import useAttachment from "../../../hooks/useAttachment";
+import useChatDetailToggles from "../../../hooks/useChatDetailToggles";
 import AttachmentIcon from "./AttachmentIcon";
 import ShareImage from "./ShareImage";
 

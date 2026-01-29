@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import CustomButton from "../../../components/CustomButton";
+import useConversation from "../../../hooks/useConversation";
+import useInfo from "../../../hooks/useInfo";
 import useLoading from "../../../hooks/useLoading";
 import { FriendItemProps } from "../../../types";
-import useInfo from "../../authentication/hooks/useInfo";
 import reopenMember from "../../chatbox/services/reopenMember";
-import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
   ConversationCache,

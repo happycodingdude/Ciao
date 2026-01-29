@@ -4,13 +4,13 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CustomContentEditable from "../../../components/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../../../components/ImageWithLightBoxAndNoLazy";
+import useConversation from "../../../hooks/useConversation";
 import useEventListener from "../../../hooks/useEventListener";
+import useInfo from "../../../hooks/useInfo";
 import useLoading from "../../../hooks/useLoading";
-import useInfo from "../../authentication/hooks/useInfo";
 import getMessages from "../../chatbox/services/getMessages";
 import sendMessage from "../../chatbox/services/sendMessage";
 import getAttachments from "../../chatdetail/services/getAttachments";
-import useConversation from "../../listchat/hooks/useConversation";
 import {
   AttachmentCache,
   ConversationCache,

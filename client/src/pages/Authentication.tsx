@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
-import useAuthenticationFormToggles from "../features/authentication/hooks/useAuthenticationFormToggles";
+import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 import SigninContainer from "../layouts/SigninContainer";
 import { isPhoneScreen } from "../utils/getScreenSize";
 import Signup from "./Signup";
@@ -90,8 +90,8 @@ const Authentication = () => {
             </div>
             <div
               ref={refBgSignInLabelContainer}
-              className="absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center text-white opacity-0 
-            transition-all duration-500 laptop:right-[-30%]"
+              className="laptop:right-[-30%] absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center gap-8 text-center text-white 
+            opacity-0 transition-all duration-500"
             >
               <p className="text-3xl">Welcome back</p>
               <div

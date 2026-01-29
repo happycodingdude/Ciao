@@ -1,5 +1,4 @@
-import React from "react";
-import useListchatFilter from "../hooks/useListchatFilter";
+import useListchatFilter from "../../../hooks/useListchatFilter";
 
 const ListChatFilter_V1 = () => {
   const { filter, setFilter } = useListchatFilter();
@@ -51,10 +50,10 @@ const ListChatFilter_V1 = () => {
         </div>
         <div
           data-tab={filter}
-          className="absolute bottom-0 h-[.2rem] w-[6rem] bg-[var(--main-color)] transition-all duration-200 
-          phone:data-[tab=all]:translate-x-[1.5rem] phone:data-[tab=direct]:translate-x-[10.5rem] phone:data-[tab=group]:translate-x-[19.5rem] 
-          tablet:data-[tab=all]:translate-x-[.5rem] tablet:data-[tab=direct]:translate-x-[7.5rem] tablet:data-[tab=group]:translate-x-[14.5rem]
-          laptop:data-[tab=all]:translate-x-[1.5rem] laptop:data-[tab=direct]:translate-x-[10.5rem] laptop:data-[tab=group]:translate-x-[19.5rem]"
+          className="phone:data-[tab=all]:translate-x-[1.5rem] phone:data-[tab=direct]:translate-x-[10.5rem] phone:data-[tab=group]:translate-x-[19.5rem] tablet:data-[tab=all]:translate-x-[.5rem] tablet:data-[tab=direct]:translate-x-[7.5rem] tablet:data-[tab=group]:translate-x-[14.5rem] laptop:data-[tab=all]:translate-x-[1.5rem] 
+          laptop:data-[tab=direct]:translate-x-[10.5rem] laptop:data-[tab=group]:translate-x-[19.5rem] absolute 
+          bottom-0 h-[.2rem] w-[6rem]
+          bg-[var(--main-color)] transition-all duration-200"
         ></div>
       </div>
     </div>

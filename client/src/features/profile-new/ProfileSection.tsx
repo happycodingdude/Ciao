@@ -5,11 +5,11 @@ import "react-toastify/dist/ReactToastify.css";
 import CustomButton from "../../components/CustomButton";
 import ImageWithLightBoxAndNoLazy from "../../components/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../../components/MediaPicker";
+import useInfo from "../../hooks/useInfo";
 import { UpdateProfileRequest } from "../../types";
 import blurImage from "../../utils/blurImage";
 import getFirebaseApp from "../../utils/firebaseConfig";
 import { isPhoneScreen } from "../../utils/getScreenSize";
-import useInfo from "../authentication/hooks/useInfo";
 import updateInfo from "../authentication/services/updateInfo";
 
 const ProfileSection = () => {
@@ -84,7 +84,7 @@ const ProfileSection = () => {
   return (
     <div className="flex flex-col gap-20 px-20 py-8">
       <p className="text-2xl font-semibold">Edit profile</p>
-      <div className="flex flex-col gap-4 phone:w-[20rem] tablet:w-[30rem]">
+      <div className="phone:w-[20rem] tablet:w-[30rem] flex flex-col gap-4">
         <div className="user-avatar relative flex w-full">
           <ImageWithLightBoxAndNoLazy
             src={avatar ?? ""}

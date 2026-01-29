@@ -1,10 +1,10 @@
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { lazy, useEffect, useState } from "react";
 import { useSignal } from "../context/SignalContext";
-import useInfo from "../features/authentication/hooks/useInfo";
-import useFriend from "../features/friend/hooks/useFriend";
 import VideoCall, { PositionProps } from "../features/videocall/VideoCall";
 import "../home.css";
+import useFriend from "../hooks/useFriend";
+import useInfo from "../hooks/useInfo";
 import SideBar from "../layouts/SideBar";
 
 const ChatSection = lazy(() => import("../layouts/ChatSection"));
@@ -44,7 +44,7 @@ const Home = () => {
   return (
     <div
       id="home"
-      className="relative w-full text-[var(--text-main-color-light)] phone:text-base tablet:text-base desktop:text-md"
+      className="phone:text-base tablet:text-base desktop:text-md relative w-full text-[var(--text-main-color-light)]"
     >
       <div className="home-container">
         <SideBar page={page} setPage={setPage} />
