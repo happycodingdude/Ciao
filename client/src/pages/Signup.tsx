@@ -1,4 +1,4 @@
-import SignupForm from "../features/authentication/components/SignupForm";
+import SignupForm from "../components/auth/SignupForm";
 import useToggleAuthenticationForms from "../hooks/useAuthenticationFormToggles";
 import { isPhoneScreen } from "../utils/getScreenSize";
 

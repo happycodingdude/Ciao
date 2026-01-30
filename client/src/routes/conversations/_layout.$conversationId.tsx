@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import ChatboxLoading from "../../components/ChatboxLoading";
-import { ConversationCache, MessageCache } from "../../features/listchat/types";
+import ChatboxLoading from "../../components/common/ChatboxLoading";
+import ChatboxContainer from "../../components/layouts/ChatboxContainer";
 import { setActiveConversation } from "../../hooks/useActiveConversation";
 import useConversation from "../../hooks/useConversation";
 import useMessage from "../../hooks/useMessage";
-import ChatboxContainer from "../../layouts/ChatboxContainer";
+import { ConversationCache } from "../../types/conv.types";
+import { MessageCache } from "../../types/message.types";
 
 // ✅ Lazy load heavy component to reduce initial bundle
 // const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));

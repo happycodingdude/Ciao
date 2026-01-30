@@ -7,11 +7,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { requestPermission } from "../features/notification/services/firebaseService";
-import registerConnection from "../features/notification/services/registerConnection";
-import { classifyNotification } from "../features/notification/services/signalService";
 import useInfo from "../hooks/useInfo";
-import { UserProfile } from "../types";
+import {
+  classifyNotification,
+  registerConnection,
+  requestPermission,
+} from "../services/notification.service";
+import { UserProfile } from "../types/base.types";
 
 type SignalContextType = {
   startCall: () => void;

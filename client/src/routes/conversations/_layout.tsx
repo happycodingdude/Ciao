@@ -1,12 +1,12 @@
 import { Await, createFileRoute, defer, Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
-import ListchatLoading from "../../components/ListchatLoading";
+import ListchatLoading from "../../components/common/ListchatLoading";
+import ListChatHeaderContainer from "../../components/conversation/ListChatHeaderContainer";
+import ListChatContainer from "../../components/layouts/ListChatContainer";
 import ChatDetailTogglesProvider from "../../context/ChatDetailTogglesContext";
 import ListchatFilterProvider from "../../context/ListchatFilterContext";
 import LoadingProvider from "../../context/LoadingContext";
-import ListChatHeaderContainer from "../../features/listchat/components/ListChatHeaderContainer";
-import conversationQueryOption from "../../features/listchat/queries/conversationQuery";
-import ListChatContainer from "../../layouts/ListChatContainer";
+import { conversationQueryOption } from "../../hooks/useConversation";
 
 export const Route = createFileRoute("/conversations/_layout")({
   loader: ({ context: { queryClient } }) => {

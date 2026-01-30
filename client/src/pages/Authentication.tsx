@@ -1,7 +1,7 @@
 import { useRef } from "react";
+import SigninContainer from "../components/layouts/SigninContainer";
 import AuthenticationFormTogglesProvider from "../context/AuthenticationFormTogglesContext";
 import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
-import SigninContainer from "../layouts/SigninContainer";
 import { isPhoneScreen } from "../utils/getScreenSize";
 import Signup from "./Signup";
 

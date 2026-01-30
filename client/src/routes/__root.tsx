@@ -9,12 +9,11 @@ import {
 } from "@tanstack/react-router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../App.css";
+import SideBar from "../components/layouts/SideBar";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
-import userQueryOptions from "../features/authentication/queries/userInfoQuery";
-import useInfo from "../hooks/useInfo";
-import SideBar from "../layouts/SideBar";
+import useInfo, { userQueryOptions } from "../hooks/useInfo";
+import "../styles/App.css";
 
 type RouterContext = {
   queryClient: QueryClient;

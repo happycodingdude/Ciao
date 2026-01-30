@@ -1,8 +1,8 @@
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
-import refreshToken from "../features/authentication/services/refreshToken";
-import { HttpRequest } from "../types";
+import { refreshToken } from "../services/auth.service";
+import { HttpRequest } from "../types/base.types";
 import delay from "../utils/delay";
 
 axiosRetry(axios, {
@@ -59,7 +59,7 @@ const HttpRequest = async <TReq = undefined, TRes = undefined>(
 
   const baseUrl = import.meta.env.VITE_ASPNETCORE_CHAT_URL;
   const fullUrl = baseUrl + withApiPrefix(req.url); // 👈 tự động chèn prefix
-  
+
   const isFormData = req.data instanceof FormData;
 
   return await axios<TRes | undefined>({

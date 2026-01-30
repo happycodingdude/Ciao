@@ -1,5 +1,8 @@
 import { createContext, ReactNode, useState } from "react";
-import { AuthenticationFormType, TogglesContextType } from "../types";
+import {
+  AuthenticationFormType,
+  TogglesContextType,
+} from "../types/base.types";
 
 // Create the context
 export const AuthenticationFormTogglesContext = createContext<

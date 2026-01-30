@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import LocalLoading from "../components/LocalLoading";
+import LocalLoading from "../components/common/LocalLoading";
 import useInfo from "../hooks/useInfo";
 import useLocalStorage from "../hooks/useLocalStorage";
 

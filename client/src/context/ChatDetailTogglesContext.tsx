@@ -1,5 +1,5 @@
-import React, { createContext, ReactNode, useEffect, useState } from "react";
-import { ChatDetailType, TogglesContextType } from "../types";
+import { createContext, ReactNode, useEffect, useState } from "react";
+import { ChatDetailType, TogglesContextType } from "../types/base.types";
 
 // Create the context
 export const ChatDetailTogglesContext = createContext<

@@ -1,14 +1,20 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import messageQueryOption from "../features/chatbox/queries/messageQuery";
-import { MessageCache } from "../features/listchat/types";
+import { getMessages } from "../services/message.service";
+import { MessageCache } from "../types/message.types";
 
 const useMessage = (
   conversationId: string,
   page: number,
 ): UseQueryResult<MessageCache> => {
   return useQuery({
-    ...messageQueryOption(conversationId, page),
-    // enabled: false, // chỉ đọc cache
+    queryKey: ["message", conversationId],
+    queryFn: () => getMessages(conversationId, page),
+    staleTime: 120_000, // 120s
+    gcTime: 5 * 60_000, // v5 rename cacheTime → gcTime
+
+    refetchOnMount: true, // chỉ fetch nếu stale
+    refetchOnReconnect: true, // reconnect → fetch nếu stale
+    refetchOnWindowFocus: false,
   });
 };
 

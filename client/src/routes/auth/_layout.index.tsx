@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import userQueryOptions from "../../features/authentication/queries/userInfoQuery";
+import { userQueryOptions } from "../../hooks/useInfo";
 import { AuthenticationContainer } from "../../pages/Authentication";
 
 export const Route = createFileRoute("/auth/_layout/")({
   component: () => (
-    <div className="desktop:text-md flex h-full w-full laptop:text-xs">
+    <div className="desktop:text-md laptop:text-xs flex h-full w-full">
       <AuthenticationContainer />
     </div>
   ),

@@ -1,8 +1,8 @@
 /* Tailwind CSS v4 - CSS-first configuration */
 @import "tailwindcss";
-@import "./chatbox.css";
-@import "./messagemenu_slide.css";
-/* @import "./messagemenu.css"; */
+@import "./styles/chatbox.css";
+@import "./styles/messagemenu_slide.css";
+/* @import "./styles/messagemenu.css"; */
 
 @layer base {
   * {

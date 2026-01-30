@@ -1,5 +1,5 @@
-import React, { createContext, ReactNode, useState } from "react";
-import { BooleanContextType } from "../types";
+import { createContext, ReactNode, useState } from "react";
+import { BooleanContextType } from "../types/base.types";
 
 // Create the context
 export const ListchatTogglesContext = createContext<

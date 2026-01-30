@@ -1,4 +1,4 @@
-import SigninForm from "../features/authentication/components/SigninForm";
+import SigninForm from "../components/auth/SigninForm";
 import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 
 const Signin = () => {

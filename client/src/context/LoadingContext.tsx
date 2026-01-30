@@ -1,5 +1,5 @@
-import React, { createContext, ReactNode, useState } from "react";
-import { LoadingContextType } from "../types";
+import { createContext, ReactNode, useState } from "react";
+import { LoadingContextType } from "../types/base.types";
 
 // Create the context
 export const LoadingContext = createContext<LoadingContextType | undefined>(

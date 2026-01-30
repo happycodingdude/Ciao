@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { EventListenerHook } from "../types";
+import { EventListenerHook } from "../types/base.types";
 
 const useEventListener: EventListenerHook<HTMLElement | Window> = (
   event,

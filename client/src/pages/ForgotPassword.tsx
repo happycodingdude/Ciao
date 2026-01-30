@@ -1,4 +1,4 @@
-import ForgotPasswordForm from "../features/authentication/components/ForgotPasswordForm";
+import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
 import useAuthenticationFormToggles from "../hooks/useAuthenticationFormToggles";
 
 const ForgotPassword = () => {

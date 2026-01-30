@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { ConversationCache } from "../features/listchat/types";
 import useInfo from "../hooks/useInfo";
-import { ListchatFilterType } from "../types";
+import { ListchatFilterType } from "../types/base.types";
+import { ConversationCache } from "../types/conv.types";
 
 // Create the context
 export const ListchatFilterContext = createContext<

@@ -1,0 +1,330 @@
+import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import { useParams } from "@tanstack/react-router";
+import { MouseEvent, useEffect, useRef, useState } from "react";
+import { useSignal } from "../../context/SignalContext";
+import useAttachment from "../../hooks/useAttachment";
+import { useAttachmentLimit } from "../../hooks/useAttachmentLimit";
+import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import useConversation from "../../hooks/useConversation";
+import useInfo from "../../hooks/useInfo";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import "../../styles/information.css";
+import { UserProfile } from "../../types/base.types";
+import { ContactModel } from "../../types/friend.types";
+import { AttachmentModel } from "../../types/message.types";
+import BackgroundPortal from "../common/BackgroundPortal";
+import CustomLabel from "../common/CustomLabel";
+import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import OnlineStatusDot from "../common/OnlineStatusDot";
+import QuickChat from "../friend/QuickChat";
+import AddMembers, { AddMembersProps } from "./AddMembers";
+import ShareImage from "./ShareImage";
+import UpdateConversation from "./UpdateConversation";
+
+const Information = () => {
+  const { startLocalStream } = useSignal();
+
+  const { data: conversations } = useConversation();
+  const { conversationId } = useParams({
+    from: "/conversations/_layout/$conversationId",
+  });
+  const conversation = conversations.conversations.find(
+    (c) => c.id === conversationId,
+  );
+
+  const { toggle, setToggle } = useChatDetailToggles();
+  const [showMembers, setShowMembers] = useLocalStorage("showMembers", true);
+
+  const { data: info } = useInfo();
+  const { data: attachmentCache, isLoading: isAttachmentLoading } =
+    useAttachment(conversationId);
+
+  const refInformation = useRef<HTMLDivElement>();
+  const refMembers = useRef<HTMLDivElement>();
+  const refAddMembers = useRef<AddMembersProps>();
+
+  const [displayAttachments, setDisplayAttachments] = useState<
+    AttachmentModel[]
+  >([]);
+  const [chosenProfile, setChosenProfile] = useState<ContactModel>();
+  const [quickChatRect, setQuickChatRect] = useState<DOMRect>();
+  const [informationoffsetWidth, setInformationoffsetWidth] =
+    useState<number>();
+  const [openUpdateTitle, setOpenUpdateTitle] = useState<boolean>(false);
+
+  useEffect(() => {
+    setChosenProfile(undefined);
+  }, [conversationId]);
+
+  const limit = useAttachmentLimit();
+
+  useEffect(() => {
+    if (!attachmentCache) return;
+
+    if (attachmentCache.attachments.length > 0) {
+      // Tối ưu: Dùng flatMap thay vì reduce concat để code sạch và nhanh hơn
+      const mergedArr: AttachmentModel[] = attachmentCache.attachments.flatMap(
+        (item) => item.attachments,
+      );
+
+      // Sử dụng biến limit thay đổi theo màn hình ở đây
+      setDisplayAttachments(mergedArr.slice(0, limit));
+    } else {
+      setDisplayAttachments([]);
+    }
+  }, [attachmentCache, limit]); // Thêm limit vào dependency array
+
+  const toggleMembers = () => {
+    setShowMembers((current) => !current);
+  };
+
+  const leaveGroup = () => {
+    // Logic to leave the group
+  };
+
+  return (
+    <div
+      ref={refInformation}
+      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-white`}
+    >
+      {/* Container */}
+      <div className="*:border-b-(--border-color) flex grow flex-col *:border-b-[.1rem] *:px-4 *:py-2">
+        <div className="laptop:h-16 flex items-center justify-between px-4">
+          <p className="text-base font-medium">Chat information</p>
+          <div className="flex gap-4">
+            {/* MARK: UPDATE TITLE  */}
+            {conversation.isGroup ? (
+              <div
+                className="fa fa-pen-to-square base-icon-sm hover:text-light-blue-500"
+                onClick={() => setOpenUpdateTitle(true)}
+              ></div>
+            ) : null}
+
+            <BackgroundPortal
+              show={openUpdateTitle}
+              className="phone:w-140 laptop:w-140 desktop:w-[35%]"
+              title="Update group"
+              onClose={() => setOpenUpdateTitle(false)}
+            >
+              <UpdateConversation
+                selected={conversation}
+                onClose={() => setOpenUpdateTitle(false)}
+              />
+            </BackgroundPortal>
+            <CloseOutlined
+              className="base-icon-sm cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent bubbling to parent
+                setToggle(null);
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-4">
+          {/* MARK: AVATAR  */}
+          <ImageWithLightBoxAndNoLazy
+            src={
+              conversation?.isGroup
+                ? conversation.avatar
+                : conversation.members?.find(
+                    (item) => item.contact.id !== info.id,
+                  )?.contact.avatar
+            }
+            slides={[
+              {
+                src: conversation?.isGroup
+                  ? conversation.avatar
+                  : conversation.members?.find(
+                      (item) => item.contact.id !== info.id,
+                    )?.contact.avatar,
+              },
+            ]}
+            className="relative aspect-square w-20 cursor-pointer"
+            circle
+          />
+          {/* MARK: TITLE  */}
+          <div className="laptop:text-base flex w-[70%] grow flex-col items-center justify-center gap-2">
+            <CustomLabel
+              className="text-center font-medium"
+              title={
+                conversation?.isGroup
+                  ? conversation.title
+                  : conversation.members?.find(
+                      (item) => item.contact.id !== info.id,
+                    )?.contact.name
+              }
+              tooltip
+            />
+          </div>
+          {/* MARK: CONVERSATION ACTION */}
+          <div className="conversation-action-container">
+            {conversation.isGroup ? (
+              <div
+                className="conversation-action"
+                onClick={() => refAddMembers.current?.open()}
+              >
+                <AddMembers ref={refAddMembers} />
+              </div>
+            ) : (
+              ""
+            )}
+            <div
+              className="conversation-action"
+              onClick={() =>
+                startLocalStream(
+                  conversation.members.find((mem) => mem.contact.id !== info.id)
+                    .contact as UserProfile,
+                )
+              }
+            >
+              <VideoCameraOutlined className="base-icon-sm transition-all duration-200" />
+            </div>
+            {conversation.isGroup ? (
+              <div
+                className="conversation-action fa fa-right-from-bracket"
+                onClick={leaveGroup}
+              ></div>
+            ) : (
+              ""
+            )}
+          </div>
+        </div>
+        {/* MARK: MEMBERS  */}
+        {conversation?.isGroup ? (
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between">
+              <p className="font-medium">
+                Members ({conversation.members.length})
+              </p>
+              <i
+                data-show={showMembers}
+                className="fa-arrow-down fa-solid base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center 
+                transition-all duration-500 data-[show=false]:rotate-90"
+                onClick={toggleMembers}
+              ></i>
+            </div>
+            {/* Still don't know why scrolling not working without adding h-0 */}
+            <div
+              ref={refMembers}
+              data-show={showMembers}
+              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 phone:max-h-80 flex flex-col gap-2 overflow-y-auto
+                scroll-smooth transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
+            >
+              {[...conversation?.members]
+                .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-4 rounded-lg p-2
+                    ${item.contact.id === info.id ? "pointer-events-none" : ""}
+                    `}
+                    onClick={(e: MouseEvent<HTMLElement>) => {
+                      // Get the bounding rectangle of the target element
+                      const target = e.target as HTMLElement;
+                      const rect = target.getBoundingClientRect();
+                      setQuickChatRect(rect);
+                      setInformationoffsetWidth(
+                        refInformation.current.offsetWidth,
+                      );
+
+                      setChosenProfile({
+                        id: item.contact.id,
+                        avatar: item.contact.avatar,
+                        isOnline: item.contact.isOnline,
+                        name: item.contact.name,
+                        friendId: item.friendId,
+                        friendStatus:
+                          item.friendStatus === "friend"
+                            ? null
+                            : item.friendStatus,
+                        directConversation: item.directConversation,
+                      });
+                    }}
+                  >
+                    <div className="relative">
+                      <ImageWithLightBoxAndNoLazy
+                        src={item.contact.avatar}
+                        className="aspect-square w-10"
+                        circle
+                        slides={[
+                          {
+                            src: item.contact.avatar,
+                          },
+                        ]}
+                        onClick={() => {}}
+                      />
+                      <OnlineStatusDot
+                        className="right-[-20%] top-[-10%]"
+                        online={item.contact.isOnline}
+                      />
+                    </div>
+                    <CustomLabel title={item.contact.name} />
+                    {item.isModerator ? (
+                      <div className="text-3xs bg-linear-to-br rounded-full from-light-blue-300 to-light-blue-500 px-4 py-1 font-medium text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                        Admin
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            {/* MARK: MEMBER QUICK CHAT  */}
+            <QuickChat
+              profile={chosenProfile}
+              rect={quickChatRect}
+              offset={informationoffsetWidth}
+              onClose={() => setChosenProfile(undefined)}
+            />
+          </div>
+        ) : (
+          ""
+        )}
+        {/* MARK: ATTACHMENTS  */}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between">
+            <p className="font-medium">Attachments</p>
+            <div
+              onClick={() => setToggle("attachment")}
+              className="cursor-pointer text-light-blue-500 hover:text-light-blue-400"
+            >
+              View all
+            </div>
+          </div>
+          <div className="laptop:max-h-50 laptop-lg:max-h-40 relative flex items-center justify-center overflow-hidden">
+            {isAttachmentLoading ? (
+              <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
+            ) : displayAttachments.length > 0 ? (
+              <div className="display-attachment-container laptop:grid-cols-3 laptop-lg:grid-cols-4 desktop:grid-cols-5 grid w-full gap-4">
+                {displayAttachments.map((item, index) => (
+                  <div className="relative">
+                    <ImageWithLightBoxAndNoLazy
+                      src={item.mediaUrl}
+                      title={item.mediaName?.split(".")[0]}
+                      className={`peer aspect-square w-full`}
+                      slides={displayAttachments.map((item) => ({
+                        src:
+                          item.type === "image"
+                            ? item.mediaUrl
+                            : "images/filenotfound.svg",
+                      }))}
+                      index={index}
+                      pending={item.pending}
+                      local={item.local}
+                    />
+                    <ShareImage media={item} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-no-repeat"></div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Information;
