@@ -8,7 +8,7 @@ const useAttachment = (
   return useQuery({
     queryKey: ["attachment", conversationId],
     queryFn: () => getAttachments(conversationId),
-    staleTime: 30_000, // 30s
+    staleTime: 120_000, // 120s
     gcTime: 5 * 60_000, // v5 rename cacheTime → gcTime
 
     refetchOnMount: true, // chỉ fetch nếu stale

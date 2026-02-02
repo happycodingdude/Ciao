@@ -26,7 +26,7 @@ const ImageWithLightBoxAndNoLazy = (props: ImageWithLightboxProps) => {
         title={title}
         style={
           {
-            "--image-url": `url(${src && src !== "" && isValid ? src : "/src/assets/imagenotfound.jpg"})`,
+            "--image-url": `url(${src && src !== "" && isValid ? src : "assets/imagenotfound.jpg"})`,
           } as CSSProperties
         }
         className={`${className ?? ""} ${imageClassName ?? "bg-cover"} ${circle ? "rounded-full" : "rounded-2xl"} ${pending ? "opacity-50" : ""}

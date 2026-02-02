@@ -503,7 +503,7 @@ const ChatInput = (props: ChatInputProps) => {
   }, [files]);
 
   return (
-    <div className={`laptop:mb-4 flex w-full items-center justify-center`}>
+    <div className={`mb-2 flex w-full items-center justify-center`}>
       <div
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white
         transition-all duration-200

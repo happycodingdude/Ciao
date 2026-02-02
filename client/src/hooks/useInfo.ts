@@ -6,6 +6,7 @@ import { UserProfile } from "../types/base.types";
 export const userQueryOptions = queryOptions({
   queryKey: ["info"],
   queryFn: getInfo,
+  staleTime: Infinity,
 });
 
 const useInfo = (): UseQueryResult<UserProfile> => {

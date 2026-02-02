@@ -80,7 +80,7 @@ export const signout = (queryClient: QueryClient, router: AppRouter) => {
 
     setTimeout(() => {
       router.navigate({ to: "/auth" });
-    }, 50);
+    }, 200);
   });
 };
 

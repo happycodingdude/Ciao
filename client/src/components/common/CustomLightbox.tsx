@@ -21,7 +21,7 @@ function CustomLightbox({ reference }) {
       open={reference.showLightbox}
       close={() => reference.setShowLightbox(false)}
       slides={reference.slides.map((img) => {
-        if (!img.src) img.src = "src/assets/imagenotfound.jpg";
+        if (!img.src) img.src = "assets/imagenotfound.jpg";
         return img;
       })}
       plugins={[Zoom, Fullscreen]}

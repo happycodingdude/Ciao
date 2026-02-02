@@ -6,7 +6,6 @@ import { setActiveConversation } from "../../hooks/useActiveConversation";
 import useConversation from "../../hooks/useConversation";
 import useMessage from "../../hooks/useMessage";
 import { ConversationCache } from "../../types/conv.types";
-import { MessageCache } from "../../types/message.types";
 
 // ✅ Lazy load heavy component to reduce initial bundle
 // const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));
@@ -35,35 +34,41 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
       } as ConversationCache;
     });
 
-    // Check if queries are already fetching or have pending messages
-    const messageQueryState = queryClient.getQueryState([
-      "message",
-      conversationId,
-    ]);
-    const messageCache = queryClient.getQueryData<MessageCache>([
-      "message",
-      conversationId,
-    ]);
-    const hasPendingMessages = messageCache?.messages?.some(
-      (msg) => msg.pending === true,
-    );
-    const isFetching = messageQueryState?.fetchStatus === "fetching";
+    // await queryClient.ensureQueryData(conversationQueryOption(1));
 
-    // ✅ Only log in development
-    if (import.meta.env.DEV) {
-      console.log("Loader check:", {
-        conversationId,
-        hasPendingMessages,
-        isFetching,
-        messageCount: messageCache?.messages?.length,
-      });
-    }
+    // await queryClient.ensureQueryData(messageQueryOption(conversationId, 1));
+
+    // // Check if queries are already fetching or have pending messages
+    // const messageQueryState = queryClient.getQueryState([
+    //   "message",
+    //   conversationId,
+    // ]);
+    // const messageCache = queryClient.getQueryData<MessageCache>([
+    //   "message",
+    //   conversationId,
+    // ]);
+    // const hasPendingMessages = messageCache?.messages?.some(
+    //   (msg) => msg.pending === true,
+    // );
+    // const isFetching = messageQueryState?.fetchStatus === "fetching";
+
+    // // ✅ Only log in development
+    // if (import.meta.env.DEV) {
+    //   console.log("Loader check:", {
+    //     conversationId,
+    //     hasPendingMessages,
+    //     isFetching,
+    //     messageCount: messageCache?.messages?.length,
+    //   });
+    // }
 
     return { conversationId };
   },
 
   component: () => {
-    const { conversationId } = Route.useLoaderData();
+    const { conversationId } = Route.useParams();
+    console.log("Rendering Conversation Layout for ID:", conversationId);
+
     // UseEffect chỉ để sync active conversation
     useEffect(() => {
       if (!conversationId) return;
@@ -80,8 +85,10 @@ export const Route = createFileRoute("/conversations/_layout/$conversationId")({
       isLoading: isLoadingConversation,
       isRefetching: isRefetchingConversation,
     } = useConversation();
+
     const { isLoading: isLoadingMessages, isRefetching: isRefetchingMessages } =
       useMessage(conversationId, 1);
+
     if (
       isLoadingConversation ||
       isRefetchingConversation ||
