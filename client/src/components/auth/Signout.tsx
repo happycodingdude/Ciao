@@ -12,7 +12,8 @@ const Signout = () => {
       <div
         onClick={async () => {
           await stopSignalConnection();
-          signout(queryClient, router);
+          await signout(queryClient);
+          router.navigate({ to: "/auth", replace: true });
         }}
         className={`fa-solid fa-sign-out sidebar-item`}
       ></div>

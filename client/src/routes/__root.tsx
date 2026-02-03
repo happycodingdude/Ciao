@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SideBar from "../components/layouts/SideBar";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
-import useInfo, { userQueryOptions } from "../hooks/useInfo";
+import { userQueryOptions } from "../hooks/useInfo";
 import "../styles/App.css";
 
 type RouterContext = {
@@ -49,11 +49,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
   console.log("Rendering RootComponent");
-  const { data: info, isLoading } = useInfo();
+  // const { data: info, isLoading } = useInfo();
+  const queryClient = useQueryClient();
+  const info = queryClient.getQueryData(userQueryOptions.queryKey);
   const location = useLocation();
 
   // Đợi user info nếu đang loading (tránh nháy giao diện)
-  if (isLoading) return null;
+  // if (isLoading) return null;
 
   // Nếu chưa login và đang ở /auth hoặc các route không cần layout
   const isAuthPage = location.pathname.startsWith("/auth");
@@ -63,6 +65,8 @@ function RootComponent() {
 
   // Nếu chưa login và không phải trang auth -> tránh render layout
   if (!info) {
+    console.log("Info not found");
+
     return null;
   }
 

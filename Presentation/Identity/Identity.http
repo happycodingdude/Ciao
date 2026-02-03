@@ -1,4 +1,4 @@
-@host = http://localhost:4000/api
+@host = http://localhost:4000/api/v1
 # @host = https://chat.happycoding.click/chat/api
 
 ###
@@ -21,6 +21,19 @@ Content-Type: application/json
 }
 
 ###
+POST  {{host}}/identity/refresh
+Content-Type: application/json
+
+{
+    "refreshToken": "eGLgo7hPMiPpxkKNawNWCVW24CSAgbXvgGK6em9j+F6fUe4gfUWeY/FPXZtr6QeF+6sE3oUkEANVrWGEgtBl6sND7bdIUYKH7c9TKBZ5BTHTAAwNrIS4GT6KYTfls9HRULYxQNOJ9noU3ZyK55JuJUb575z5/mC1Wk9/I3sYOB8=",
+  "userId": "66f270cf9423f7e5257a711e"  
+}
+
+###
+GET   {{host}}/identity/signout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NzAxMTQ1MDAsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.QcbvbEbbkBpuejpXOuB14VUzrbQfle7JMt6bkyCoEy4
+
+###
 GET {{host}}/contacts/info
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDk4MTI4ODIsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.dlJGvm7mt2J66pBj1MHpBAO_Ie_C-2tEaT-l5CEj6Qg
 
@@ -34,16 +47,3 @@ Content-Type: application/json
     "Bio":"Hello world!!@@",
     "Avatar":"123"
 }
-
-###
-POST  {{host}}/identity/refresh
-Content-Type: application/json
-
-{
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDk4MTA4OTIsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.k6Zkd5A4hutphqljEij4haLohpO3phMwLgQNGck51eA",
-  "userId": "66f270cf9423f7e5257a711e"   
-}
-
-###
-GET   {{host}}/identity/signout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzBjZjk0MjNmN2U1MjU3YTcxMWUiLCJleHAiOjE3NDk4MDM0MTUsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.wCJpFNzfmlu_GwP8p3LpaN7sFt4GNoFY0K0LUfZXjJs

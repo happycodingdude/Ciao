@@ -28,7 +28,7 @@ public static class GetConversations
         public async Task<List<GetConversationsResponse>> Handle(Request request, CancellationToken cancellationToken)
         {
             var userId = _contactRepository.GetUserId();
-            var conversations = await _conversationCache.GetConversations();
+            var conversations = await _conversationCache.GetConversations(request.page, request.limit);
             var result = _mapper.Map<List<GetConversationsResponse>>(conversations);
             await _memberCache.GetMembers(result);
             var friends = await _friendCache.GetFriends();
@@ -57,7 +57,7 @@ public static class GetConversations
                 }
 
                 // Cập nhật trạng thái online dựa theo cache ìnfo
-                var redisKeys = conversation.Members.Select(mem => (RedisKey)$"user-{mem.Contact.Id}-info").ToArray();
+                var redisKeys = conversation.Members.Select(mem => (RedisKey)AppConstants.RedisKey_UserInfo.Replace("{userId}", mem.Contact.Id)).ToArray();
                 var values = await _redisCaching.GetAsync(redisKeys);
                 for (int i = 0; i < conversation.Members.Count; i++)
                     conversation.Members[i].Contact.IsOnline = values[i].HasValue;

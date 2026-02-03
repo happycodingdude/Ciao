@@ -1,6 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
 import HttpRequest from "../lib/fetch";
-import { AppRouter } from "../main";
 import {
   RefreshRequest,
   SigninRequest,
@@ -47,8 +46,8 @@ export const signin = async (model: SigninRequest) => {
   ).data;
 };
 
-export const signout = (queryClient: QueryClient, router: AppRouter) => {
-  HttpRequest({
+export const signout = (queryClient: QueryClient) => {
+  return HttpRequest({
     method: "get",
     url: import.meta.env.VITE_ENDPOINT_SIGNOUT,
   }).then((res) => {
@@ -67,7 +66,8 @@ export const signout = (queryClient: QueryClient, router: AppRouter) => {
     });
 
     // Ghi đè user info thành null
-    queryClient.setQueryData(["info"], null);
+    // queryClient.setQueryData(["info"], null);
+    queryClient.invalidateQueries({ queryKey: ["info"] });
 
     // Xóa localStorage
     [
@@ -77,10 +77,6 @@ export const signout = (queryClient: QueryClient, router: AppRouter) => {
       "isRegistered",
       "toggleChatDetail",
     ].forEach((key) => localStorage.removeItem(key));
-
-    setTimeout(() => {
-      router.navigate({ to: "/auth" });
-    }, 200);
   });
 };
 

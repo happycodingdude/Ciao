@@ -25,10 +25,10 @@ public class MemberCache
     {
         var tasks = conversations.Select(async conversation =>
         {
-            var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversation.Id}-members") ?? default;
+            var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversation.Id)) ?? default;
             var selected = members.SingleOrDefault(q => q.Contact.Id == UserId);
             selected.IsSelected = false;
-            await _redisCaching.SetAsync($"conversation-{conversation.Id}-members", members);
+            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversation.Id), members);
 
             conversation.Members = _mapper.Map<List<MemberWithContactInfoAndFriendRequest>>(members);
         });
@@ -37,29 +37,29 @@ public class MemberCache
 
     public async Task<List<MemberWithContactInfo>> GetMembers(string conversationId)
     {
-        return await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+        return await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
     }
 
     public async Task AddMembers(string conversationId, List<MemberWithContactInfo> membersToAdd)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         memberCacheData.AddRange(membersToAdd);
-        await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
     }
 
     public async Task UpdateMembers(string conversationId, List<MemberWithContactInfo> newMembers)
     {
-        await _redisCaching.SetAsync($"conversation-{conversationId}-members", newMembers);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), newMembers);
     }
 
     public async Task ResetSelected(string[] conversationIds)
     {
         var tasks = conversationIds.Select(async conversationId =>
         {
-            var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+            var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
             var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == UserId);
             selected.IsSelected = false;
-            await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
+            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
         });
         await Task.WhenAll(tasks);
     }
@@ -67,11 +67,11 @@ public class MemberCache
     public async Task MemberSeenAll(string conversationId, DateTime time)
     {
         // Set last seen time and selected
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == UserId);
         selected.LastSeenTime = time;
         selected.IsSelected = true;
-        await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
 
         // Remove previous selected        
         var conversationCacheData = await _redisCaching.GetAsync<string[]>($"user-{UserId}-conversations") ?? default;
@@ -81,30 +81,30 @@ public class MemberCache
 
     public async Task MemberDelete(string conversationId, string userId)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == userId);
         selected.IsDeleted = true;
-        await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
     }
 
     public async Task MemberReopen(string conversationId, string userId, DateTime timestamp)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == userId);
         selected.IsDeleted = false;
-        await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
 
         // Update conversation info cache
-        var conversationInfoCacheData = await _redisCaching.GetAsync<ConversationCacheModel>($"conversation-{conversationId}-info") ?? default;
+        var conversationInfoCacheData = await _redisCaching.GetAsync<ConversationCacheModel>(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? default;
         conversationInfoCacheData.UpdatedTime = timestamp;
-        await _redisCaching.SetAsync($"conversation-{conversationId}-info", conversationInfoCacheData);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId), conversationInfoCacheData);
     }
 
     public async Task MemberUpdateNotify(string conversationId, string userId, bool notify)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? default;
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == userId);
         selected.IsNotifying = notify;
-        await _redisCaching.SetAsync($"conversation-{conversationId}-members", memberCacheData);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
     }
 }

@@ -11,15 +11,15 @@ public class MessageCache
 
     public async Task<List<MessageWithReactions>> GetMessages(string conversationId)
     {
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         return messageCache;
     }
 
     public async Task AddSystemMessage(string conversationId, MessageWithReactions message)
     {
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? new();
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
         messageCache.Add(message);
-        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
     }
 
     public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
@@ -29,21 +29,21 @@ public class MessageCache
         // 1. Add message to message cache
         var messageCacheTask = Task.Run(async () =>
         {
-            var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? new();
+            var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
             messageCache.Add(message);
-            await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
+            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
         });
         tasks.Add(messageCacheTask);
 
         // 2. Popup conversation of users to the top
         var conversationListTask = Task.Run(async () =>
         {
-            var conversationCacheData = await _redisCaching.GetAsync<List<string>>($"user-{userId}-conversations") ?? new();
+            var conversationCacheData = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId)) ?? new();
             if (conversationCacheData.IndexOf(conversationId) != 0)
             {
                 var reordered = conversationCacheData.Where(q => q != conversationId).ToList();
                 reordered.Insert(0, conversationId);
-                await _redisCaching.SetAsync($"user-{userId}-conversations", reordered);
+                await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), reordered);
             }
         });
         tasks.Add(conversationListTask);
@@ -51,7 +51,7 @@ public class MessageCache
         // 3. Update conversation info cache
         var conversationInfoTask = Task.Run(async () =>
         {
-            var conversationInfo = await _redisCaching.GetAsync<ConversationCacheModel>($"conversation-{conversationId}-info") ?? new();
+            var conversationInfo = await _redisCaching.GetAsync<ConversationCacheModel>(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? new();
             conversationInfo.LastMessageId = message.Id;
             conversationInfo.LastMessage = message.Type == "text"
                 ? message.Content
@@ -59,21 +59,21 @@ public class MessageCache
             conversationInfo.LastMessageTime = message.CreatedTime;
             conversationInfo.LastMessageContact = userId;
             conversationInfo.UpdatedTime = updatedTime;
-            await _redisCaching.SetAsync($"conversation-{conversationId}-info", conversationInfo);
+            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId), conversationInfo);
         });
         tasks.Add(conversationInfoTask);
 
         // 4. Reopen conversation for members that are deleted
         var memberCacheTask = Task.Run(async () =>
         {
-            var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>($"conversation-{conversationId}-members") ?? new();
+            var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
             var now = DateTime.Now;
             members.ForEach(m =>
             {
                 m.IsDeleted = false;
                 if (m.IsSelected) m.LastSeenTime = now;
             });
-            await _redisCaching.SetAsync($"conversation-{conversationId}-members", members);
+            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), members);
         });
         tasks.Add(memberCacheTask);
 
@@ -84,7 +84,7 @@ public class MessageCache
     public async Task<List<MessageReaction>> UpdateReactions(string conversationId, string messageId, string userId, string type)
     {
         // Update message cache
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var message = messageCache.SingleOrDefault(q => q.Id == messageId);
         if (message.Reactions.Any())
         {
@@ -114,7 +114,7 @@ public class MessageCache
             UpdateReactionCount(message, type);
         }
 
-        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
 
         return message.Reactions;
     }
@@ -173,11 +173,11 @@ public class MessageCache
     public async Task UpdatePin(string conversationId, string messageId, string userId, bool pinned)
     {
         // Update message cache
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>($"conversation-{conversationId}-messages") ?? default;
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var message = messageCache.SingleOrDefault(q => q.Id == messageId);
         message.IsPinned = pinned;
         message.PinnedBy = userId;
 
-        await _redisCaching.SetAsync($"conversation-{conversationId}-messages", messageCache);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
     }
 }

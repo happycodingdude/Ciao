@@ -15,28 +15,28 @@ public class FriendCache
 
     public async Task<List<FriendCacheModel>> GetFriends()
     {
-        var friendCacheData = await _redisCaching.GetAsync<List<FriendCacheModel>>($"user-{UserId}-friends") ?? default;
+        var friendCacheData = await _redisCaching.GetAsync<List<FriendCacheModel>>(AppConstants.RedisKey_UserFriends.Replace("{userId}", UserId)) ?? default;
         return friendCacheData;
     }
 
     public async Task<List<FriendCacheModel>> GetFriends(string userId)
     {
-        var friendCacheData = await _redisCaching.GetAsync<List<FriendCacheModel>>($"user-{userId}-friends") ?? default;
+        var friendCacheData = await _redisCaching.GetAsync<List<FriendCacheModel>>(AppConstants.RedisKey_UserFriends.Replace("{userId}", userId)) ?? default;
         return friendCacheData;
     }
 
     public async Task SetFriends(List<FriendCacheModel> fiends)
     {
-        await _redisCaching.SetAsync($"user-{UserId}-friends", fiends);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserFriends.Replace("{userId}", UserId), fiends);
     }
 
     public async Task SetFriends(string userId, List<FriendCacheModel> fiends)
     {
-        await _redisCaching.SetAsync($"user-{userId}-friends", fiends);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserFriends.Replace("{userId}", userId), fiends);
     }
 
     public void RemoveAll()
     {
-        _ = _redisCaching.DeleteAsync($"user-{UserId}-friends");
+        _ = _redisCaching.DeleteAsync(AppConstants.RedisKey_UserFriends.Replace("{userId}", UserId));
     }
 }
