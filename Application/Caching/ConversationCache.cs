@@ -19,6 +19,8 @@ public class ConversationCache
     {
         // Query list conversation cache
         var conversationCacheData = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", UserId)) ?? default;
+        if (conversationCacheData is null)
+            return default;
 
         // Paginate
         conversationCacheData = conversationCacheData
@@ -30,7 +32,8 @@ public class ConversationCache
         // Query info cache
         var tasks = conversationCacheData.Select(async conversationId =>
         {
-            var conversationInfo = await _redisCaching.GetAsync<ConversationWithTotalUnseenWithContactInfoAndNoMessage>(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? default;
+            var conversationInfo = await _redisCaching.GetAsync<ConversationWithTotalUnseenWithContactInfoAndNoMessage>(
+                AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? default;
             lock (result) // Ensure thread safety
             {
                 // var item = JsonConvert.DeserializeObject<ConversationWithTotalUnseenWithContactInfoAndNoMessage>(conversationInfo);

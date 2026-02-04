@@ -6,13 +6,13 @@ import { UserProfile } from "../types/base.types";
 export const userQueryOptions = queryOptions({
   queryKey: ["info"],
   queryFn: getInfo,
-  // staleTime: Infinity,
-  // gcTime: Infinity,
+  staleTime: Infinity,
+  gcTime: Infinity,
 
-  // refetchOnMount: false,
-  // refetchOnWindowFocus: false,
-  // refetchOnReconnect: false,
-  // retry: false,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  retry: false,
 });
 
 const useInfo = (): UseQueryResult<UserProfile> => {

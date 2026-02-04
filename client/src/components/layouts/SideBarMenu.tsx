@@ -1,15 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useEffect } from "react";
-import useInfo from "../../hooks/useInfo";
-import blurImage from "../../utils/blurImage";
 import Signout from "../auth/Signout";
 
 const SideBarMenu = () => {
-  const { data: info } = useInfo();
   const queryClient = useQueryClient();
-
-  if (!info) return;
 
   const handleChatClick = () => {
     console.log("Refreshing conversation list");
@@ -24,10 +18,6 @@ const SideBarMenu = () => {
     // Refresh conversation list
     queryClient.invalidateQueries({ queryKey: ["conversation"] });
   };
-
-  useEffect(() => {
-    blurImage(".sidebar-container");
-  }, [info.avatar]);
 
   document.querySelectorAll(".sidebar-item").forEach((item) => {
     item.addEventListener("click", function (e: MouseEvent) {

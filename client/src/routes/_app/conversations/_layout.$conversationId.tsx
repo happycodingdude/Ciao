@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import ChatboxLoading from "../../components/common/ChatboxLoading";
-import ChatboxContainer from "../../components/layouts/ChatboxContainer";
-import { setActiveConversation } from "../../hooks/useActiveConversation";
-import useConversation from "../../hooks/useConversation";
-import useMessage from "../../hooks/useMessage";
-import { ConversationCache } from "../../types/conv.types";
+import ChatboxLoading from "../../../components/common/ChatboxLoading";
+import ChatboxContainer from "../../../components/layouts/ChatboxContainer";
+import { setActiveConversation } from "../../../hooks/useActiveConversation";
+import useConversation from "../../../hooks/useConversation";
+import useMessage from "../../../hooks/useMessage";
+import { ConversationCache } from "../../../types/conv.types";
 
 // ✅ Lazy load heavy component to reduce initial bundle
 // const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));
 
-export const Route = createFileRoute("/conversations/_layout/$conversationId")({
+export const Route = createFileRoute(
+  "/_app/conversations/_layout/$conversationId",
+)({
   loader: async ({ params, context }) => {
     const { queryClient } = context;
     const conversationId = params.conversationId;

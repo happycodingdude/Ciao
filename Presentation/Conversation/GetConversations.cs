@@ -7,6 +7,7 @@ public static class GetConversations
     internal sealed class Handler : IRequestHandler<Request, List<GetConversationsResponse>>
     {
         readonly IContactRepository _contactRepository;
+        readonly IConversationRepository _conversationRepository;
         readonly IMapper _mapper;
         readonly ConversationCache _conversationCache;
         readonly MemberCache _memberCache;
@@ -14,9 +15,10 @@ public static class GetConversations
         readonly MessageCache _messageCache;
         readonly IRedisCaching _redisCaching;
 
-        public Handler(IContactRepository contactRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching)
+        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching)
         {
             _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
             _mapper = mapper;
             _conversationCache = conversationCache;
             _memberCache = memberCache;
@@ -29,6 +31,12 @@ public static class GetConversations
         {
             var userId = _contactRepository.GetUserId();
             var conversations = await _conversationCache.GetConversations(request.page, request.limit);
+            if (!conversations.Any())
+            {
+                // Truy vấn từ DB nếu cache trống
+                var dbConversations = await _conversationRepository.GetConversationsWithUnseenMesages(userId, new PagingParam(request.page, request.limit));
+                conversations = _mapper.Map<List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>>(dbConversations);
+            }
             var result = _mapper.Map<List<GetConversationsResponse>>(conversations);
             await _memberCache.GetMembers(result);
             var friends = await _friendCache.GetFriends();
