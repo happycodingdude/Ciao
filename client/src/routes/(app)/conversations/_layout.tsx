@@ -8,7 +8,7 @@ import ListchatFilterProvider from "../../../context/ListchatFilterContext";
 import LoadingProvider from "../../../context/LoadingContext";
 import { conversationQueryOption } from "../../../hooks/useConversation";
 
-export const Route = createFileRoute("/_app/conversations/_layout")({
+export const Route = createFileRoute("/(app)/conversations/_layout")({
   loader: ({ context: { queryClient } }) => {
     console.log("Fetching conversations");
     localStorage.removeItem("conversationId");

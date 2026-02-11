@@ -6,7 +6,7 @@ import LoadingProvider from "../../context/LoadingContext";
 import { SignalProvider } from "../../context/SignalContext";
 import { userQueryOptions } from "../../hooks/useInfo";
 
-export const Route = createFileRoute("/_app/_layout")({
+export const Route = createFileRoute("/(app)/_layout")({
   beforeLoad: async ({ context }) => {
     console.log("Checking authentication in AppLayout");
 

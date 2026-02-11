@@ -10,9 +10,7 @@ import { ConversationCache } from "../../../types/conv.types";
 // ✅ Lazy load heavy component to reduce initial bundle
 // const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));
 
-export const Route = createFileRoute(
-  "/_app/conversations/_layout/$conversationId",
-)({
+export const Route = createFileRoute("/(app)/conversations/$conversationId")({
   loader: async ({ params, context }) => {
     const { queryClient } = context;
     const conversationId = params.conversationId;
