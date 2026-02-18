@@ -1,8 +1,8 @@
-import { useParams } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useAttachment from "../../hooks/useAttachment";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/button.css";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import AttachmentIcon from "./AttachmentIcon";
@@ -11,9 +11,7 @@ import ShareImage from "./ShareImage";
 const Attachment = () => {
   const { toggle } = useChatDetailToggles();
 
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+  const { conversationId } = Route.useParams();
   const { data: attachmentCache } = useAttachment(conversationId);
 
   const refAttachment = useRef();

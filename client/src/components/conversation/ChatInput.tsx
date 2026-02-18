@@ -1,6 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import React, {
   ChangeEvent,
@@ -15,6 +14,7 @@ import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import useInfo from "../../hooks/useInfo";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { sendMessage } from "../../services/message.service";
 import "../../styles/chatinput.css";
 import { ChatInputProps } from "../../types/base.types";
@@ -47,9 +47,8 @@ const ChatInput = (props: ChatInputProps) => {
   const { toggle } = useChatDetailToggles();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );

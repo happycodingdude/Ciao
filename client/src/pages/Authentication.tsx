@@ -64,7 +64,7 @@ const Authentication = () => {
             <div
               ref={refBgContainer}
               className={`bg-position-[center_center] absolute left-0 z-10 h-full w-[60%] overflow-hidden rounded-br-[10rem] 
-            rounded-tr-[20rem] bg-[url('assets/hoian10.png')] bg-cover bg-no-repeat transition-all duration-500
+            rounded-tr-[20rem] bg-[url('/assets/hoian10.png')] bg-cover bg-no-repeat transition-all duration-500
             before:absolute before:bottom-0 before:left-0 before:right-0 before:top-0
             before:h-full before:w-full before:bg-[rgba(86,86,86,0.47)]`}
             ></div>

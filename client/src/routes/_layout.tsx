@@ -1,12 +1,12 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { ToastContainer } from "react-toastify";
-import SideBar from "../../components/layouts/SideBar";
-import LoadingProvider from "../../context/LoadingContext";
-import { SignalProvider } from "../../context/SignalContext";
-import { userQueryOptions } from "../../hooks/useInfo";
+import SideBar from "../components/layouts/SideBar";
+import LoadingProvider from "../context/LoadingContext";
+import { SignalProvider } from "../context/SignalContext";
+import { userQueryOptions } from "../hooks/useInfo";
 
-export const Route = createFileRoute("/(app)/_layout")({
+export const Route = createFileRoute("/_layout")({
   beforeLoad: async ({ context }) => {
     console.log("Checking authentication in AppLayout");
 

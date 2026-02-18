@@ -1,6 +1,6 @@
-import { useParams } from "@tanstack/react-router";
 import { useRef } from "react";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { ConversationCache } from "../../types/conv.types";
 import queryClient from "../../utils/queryClient";
 import Attachment from "../conversation/Attachment";
@@ -17,9 +17,8 @@ const ChatboxContainer = () => {
   const refChatboxContainer = useRef<HTMLDivElement>();
   const refInput = useRef<HTMLInputElement>();
 
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+  const { conversationId } = Route.useParams();
+
   // Get conversation list from cache
   const conversationCache = queryClient.getQueryData<ConversationCache>([
     "conversation",

@@ -98,7 +98,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
       ) : (
         <div
           style={{
-            backgroundImage: `url(${contact.avatar ?? "assets/imagenotfound.jpg"})`,
+            backgroundImage: `url(${contact.avatar ?? "/assets/imagenotfound.jpg"})`,
           }}
           {...listeners}
           {...attributes}

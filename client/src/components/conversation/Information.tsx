@@ -1,5 +1,4 @@
 import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import { useParams } from "@tanstack/react-router";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useSignal } from "../../context/SignalContext";
 import useAttachment from "../../hooks/useAttachment";
@@ -8,6 +7,7 @@ import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/information.css";
 import { UserProfile } from "../../types/base.types";
 import { ContactModel } from "../../types/friend.types";
@@ -25,9 +25,8 @@ const Information = () => {
   const { startLocalStream } = useSignal();
 
   const { data: conversations } = useConversation();
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );
@@ -318,7 +317,7 @@ const Information = () => {
                 ))}
               </div>
             ) : (
-              <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/src/assets/emptybox.svg')] bg-no-repeat"></div>
+              <div className="bg-size-[100%] bg-position-[center_center] aspect-square w-20 self-center bg-[url('/assets/emptybox.svg')] bg-no-repeat"></div>
             )}
           </div>
         </div>

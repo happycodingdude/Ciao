@@ -1,15 +1,15 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
-import { routeTree } from "./routeTree.gen";
-import getFirebaseApp from "./utils/firebaseConfig";
-import queryClient from "./utils/queryClient";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
 import "./index.css";
+import { routeTree } from "./routeTree.gen";
+import getFirebaseApp from "./utils/firebaseConfig";
+import queryClient from "./utils/queryClient";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -50,6 +50,7 @@ const router = createRouter({
     queryClient,
   },
   defaultPreload: false, // ✅ Không preload loader/component khi hover link
+  debug: true,
 });
 
 // Xuất kiểu để tái sử dụng

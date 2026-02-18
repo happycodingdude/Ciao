@@ -32,7 +32,7 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
     >
       <div
         style={{
-          backgroundImage: `url(${targetUser?.avatar ?? "assets/imagenotfound.jpg"})`,
+          backgroundImage: `url(${targetUser?.avatar ?? "/assets/imagenotfound.jpg"})`,
         }}
         {...listeners}
         {...attributes}

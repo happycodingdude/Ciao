@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { reactMessage } from "../../services/message.service";
 import "../../styles/messagecontent.css";
 import { MessageReactionProps_Message_Reaction } from "../../types/base.types";
@@ -27,9 +27,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const { data: info } = useInfo();
     const { data: conversations } = useConversation();
 
-    const { conversationId } = useParams({
-      from: "/conversations/_layout/$conversationId",
-    });
+  const { conversationId } = Route.useParams();
     const conversation = conversations.conversations.find(
       (c) => c.id === conversationId,
     );

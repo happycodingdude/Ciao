@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import debounce from "lodash-es/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import useMessage from "../../hooks/useMessage";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { getMessages } from "../../services/message.service";
 import { MessageCache, PendingMessageModel } from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
@@ -16,9 +16,7 @@ const Chatbox = () => {
   const { data: conversations } = useConversation();
   if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
 
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );
@@ -93,15 +91,37 @@ const Chatbox = () => {
     oldLastMsgRef.current = currentLastMsg;
   }, [messages]);
 
+  const lockScroll = (el: HTMLElement) => {
+    const lockedTop = el.scrollTop;
+
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+      el.scrollTop = lockedTop; // ép giữ nguyên vị trí
+    };
+
+    el.addEventListener("wheel", preventScroll, { passive: false });
+    el.addEventListener("touchmove", preventScroll, { passive: false });
+
+    return () => {
+      el.removeEventListener("wheel", preventScroll);
+      el.removeEventListener("touchmove", preventScroll);
+    };
+  };
+
   const fetchMoreMessage = async (conversationId: string) => {
+    const el = refChatContent.current;
+
     // Kiểm tra hasMore trực tiếp từ cache hiện tại của queryClient để tránh closure bug
     const currentData: MessageCache = queryClient.getQueryData([
       "message",
       conversationId,
     ]);
-    if (!currentData?.hasMore || !refChatContent.current) return;
+    if (!currentData?.hasMore || !el) return;
 
-    const currentScrollHeight = refChatContent.current.scrollHeight;
+    // ✅ lock scroll ngay khi bắt đầu fetch
+    const unlockScroll = lockScroll(el);
+
+    const prevScrollHeight = el.scrollHeight;
 
     const newMessages = await getMessages(conversationId, refPage.current);
 
@@ -118,17 +138,27 @@ const Chatbox = () => {
 
     isFetching.current = false; // Mở khóa sau khi fetch xong
 
+    // ✅ Restore đúng: preserve vị trí relative của user
     requestAnimationFrame(() => {
-      refChatContent.current.style.scrollBehavior = "auto";
-      refChatContent.current.scrollTop =
-        refChatContent.current.scrollHeight - currentScrollHeight;
-      refChatContent.current.style.scrollBehavior = "smooth";
+      const heightDiff = el.scrollHeight - prevScrollHeight;
+
+      el.style.scrollBehavior = "auto";
+      el.scrollTop += heightDiff;
+      el.style.scrollBehavior = "smooth";
+
+      // ✅ unlock sau khi restore scroll
+      unlockScroll();
     });
   };
 
-  const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+  // const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
+  const debounceFetch = useMemo(
+    () => debounce(fetchMoreMessage, 100),
+    [fetchMoreMessage],
+  );
 
   const isFetching = useRef(false); // Quan trọng: Tránh gọi trùng lặp
+
   const handleScroll = useCallback(() => {
     const contentEl = refChatContent.current;
     if (!contentEl || isFetching.current || !messages || !conversation) return;
@@ -152,26 +182,6 @@ const Chatbox = () => {
       debounceFetch(conversation.id);
     }
   }, [debounceFetch, conversation?.id]);
-  // const handleScroll = useCallback(() => {
-  //   const contentEl = refChatContent.current;
-  //   if (!contentEl) return;
-
-  //   const distanceFromBottom =
-  //     contentEl.scrollHeight - (contentEl.scrollTop + contentEl.clientHeight);
-
-  //   // Hiển thị nút scroll to bottom nếu khoảng cách từ đáy lớn hơn nửa chiều cao khung nhìn
-  //   setShowScrollToBottom(
-  //     contentEl.clientHeight !== 0 &&
-  //       distanceFromBottom >= contentEl.clientHeight / 2,
-  //   );
-
-  //   // Load thêm khi scroll được khoảng 1/4 chiều cao khung nhìn từ trên xuống
-  //   if (contentEl.scrollTop <= contentEl.clientHeight / 4) {
-  //     refPage.current += 1;
-
-  //     debounceFetch(conversation?.id, messages?.hasMore);
-  //   }
-  // }, [messages?.hasMore, debounceFetch, conversation?.id]);
 
   useEventListener("scroll", handleScroll, refChatContent.current);
 

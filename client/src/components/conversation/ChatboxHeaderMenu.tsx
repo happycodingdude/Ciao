@@ -1,16 +1,15 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { useParams } from "@tanstack/react-router";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversation from "../../hooks/useConversation";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import AttachmentIcon from "./AttachmentIcon";
 
 const ChatboxHeaderMenu = () => {
   const { toggle, setToggle } = useChatDetailToggles();
 
   const { data: conversations } = useConversation();
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );

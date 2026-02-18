@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { ConversationCache } from "../../types/conv.types";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import CustomLabel from "../common/CustomLabel";
@@ -15,9 +15,7 @@ const ChatboxHeader = () => {
   const { data: conversations } = useConversation();
   if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
 
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );

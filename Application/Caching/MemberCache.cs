@@ -74,7 +74,7 @@ public class MemberCache
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
 
         // Remove previous selected        
-        var conversationCacheData = await _redisCaching.GetAsync<string[]>($"user-{UserId}-conversations") ?? default;
+        var conversationCacheData = await _redisCaching.GetAsync<string[]>(AppConstants.RedisKey_UserConversations.Replace("{userId}", UserId)) ?? default;
         var otherConversationIds = conversationCacheData.Where(q => q != conversationId).ToArray();
         await ResetSelected(otherConversationIds);
     }

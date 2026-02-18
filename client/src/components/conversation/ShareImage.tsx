@@ -1,7 +1,7 @@
-import { useParams } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/information.css";
 import { AttachmentModel } from "../../types/message.types";
 import BackgroundPortal from "../common/BackgroundPortal";
@@ -11,9 +11,8 @@ import ForwardMessageModal from "../message/ForwardMessageModal";
 const ShareImage = ({ media }: { media: AttachmentModel }) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );

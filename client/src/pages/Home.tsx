@@ -29,10 +29,7 @@ const Home = () => {
   // if (!info) return;
 
   return (
-    <div
-      id="home"
-      className="text-(--text-main-color-light) relative h-full w-full"
-    >
+    <section className="h-full w-full">
       {/* {targetUser !== null ? (
         <DndContext onDragEnd={handleDragEnd}>
           <VideoCall contact={targetUser} position={position} />
@@ -44,7 +41,7 @@ const Home = () => {
         Welcome to home page
       </p>
       <div id="portal"></div>
-    </div>
+    </section>
   );
 };
 

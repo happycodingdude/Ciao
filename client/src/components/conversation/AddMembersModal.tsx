@@ -1,11 +1,11 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import useConversation from "../../hooks/useConversation";
 import useFriend from "../../hooks/useFriend";
 import useInfo from "../../hooks/useInfo";
+import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { addMembers } from "../../services/conv.service";
 import { OnCloseType } from "../../types/base.types";
 import { ConversationCache } from "../../types/conv.types";
@@ -30,9 +30,7 @@ const AddMembersModal = (props: OnCloseType) => {
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
 
-  const { conversationId } = useParams({
-    from: "/conversations/_layout/$conversationId",
-  });
+  const { conversationId } = Route.useParams();
   const conversation = conversations.conversations.find(
     (c) => c.id === conversationId,
   );

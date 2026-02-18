@@ -1,16 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  ErrorComponent,
+  ErrorComponentProps,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
-import ChatboxLoading from "../../../components/common/ChatboxLoading";
-import ChatboxContainer from "../../../components/layouts/ChatboxContainer";
-import { setActiveConversation } from "../../../hooks/useActiveConversation";
-import useConversation from "../../../hooks/useConversation";
-import useMessage from "../../../hooks/useMessage";
-import { ConversationCache } from "../../../types/conv.types";
+import ChatboxLoading from "../components/common/ChatboxLoading";
+import ChatboxContainer from "../components/layouts/ChatboxContainer";
+import { setActiveConversation } from "../hooks/useActiveConversation";
+import useConversation from "../hooks/useConversation";
+import useMessage from "../hooks/useMessage";
+import { ConversationCache } from "../types/conv.types";
 
 // ✅ Lazy load heavy component to reduce initial bundle
 // const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));
 
-export const Route = createFileRoute("/(app)/conversations/$conversationId")({
+export const Route = createFileRoute("/_layout/conversations/$conversationId")({
   loader: async ({ params, context }) => {
     const { queryClient } = context;
     const conversationId = params.conversationId;
@@ -34,35 +38,19 @@ export const Route = createFileRoute("/(app)/conversations/$conversationId")({
       } as ConversationCache;
     });
 
-    // await queryClient.ensureQueryData(conversationQueryOption(1));
-
-    // await queryClient.ensureQueryData(messageQueryOption(conversationId, 1));
-
-    // // Check if queries are already fetching or have pending messages
-    // const messageQueryState = queryClient.getQueryState([
-    //   "message",
-    //   conversationId,
-    // ]);
-    // const messageCache = queryClient.getQueryData<MessageCache>([
-    //   "message",
-    //   conversationId,
-    // ]);
-    // const hasPendingMessages = messageCache?.messages?.some(
-    //   (msg) => msg.pending === true,
-    // );
-    // const isFetching = messageQueryState?.fetchStatus === "fetching";
-
-    // // ✅ Only log in development
-    // if (import.meta.env.DEV) {
-    //   console.log("Loader check:", {
-    //     conversationId,
-    //     hasPendingMessages,
-    //     isFetching,
-    //     messageCount: messageCache?.messages?.length,
-    //   });
-    // }
-
     return { conversationId };
+  },
+
+  errorComponent: ({ error, reset }: ErrorComponentProps) => {
+    return (
+      <div>
+        <h1>Đã có lỗi xảy ra!</h1>
+        <p>{error.message}</p>
+        <button onClick={() => reset()}>Thử lại</button>
+        {/* Hoặc sử dụng ErrorComponent mặc định của thư viện để debug */}
+        <ErrorComponent error={error} />
+      </div>
+    );
   },
 
   component: () => {

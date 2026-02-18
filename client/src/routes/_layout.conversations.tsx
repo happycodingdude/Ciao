@@ -1,14 +1,14 @@
 import { Await, createFileRoute, defer, Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
-import ListchatLoading from "../../../components/common/ListchatLoading";
-import ListChatHeaderContainer from "../../../components/conversation/ListChatHeaderContainer";
-import ListChatContainer from "../../../components/layouts/ListChatContainer";
-import ChatDetailTogglesProvider from "../../../context/ChatDetailTogglesContext";
-import ListchatFilterProvider from "../../../context/ListchatFilterContext";
-import LoadingProvider from "../../../context/LoadingContext";
-import { conversationQueryOption } from "../../../hooks/useConversation";
+import ListchatLoading from "../components/common/ListchatLoading";
+import ListChatHeaderContainer from "../components/conversation/ListChatHeaderContainer";
+import ListChatContainer from "../components/layouts/ListChatContainer";
+import ChatDetailTogglesProvider from "../context/ChatDetailTogglesContext";
+import ListchatFilterProvider from "../context/ListchatFilterContext";
+import LoadingProvider from "../context/LoadingContext";
+import { conversationQueryOption } from "../hooks/useConversation";
 
-export const Route = createFileRoute("/(app)/conversations/_layout")({
+export const Route = createFileRoute("/_layout/conversations")({
   loader: ({ context: { queryClient } }) => {
     console.log("Fetching conversations");
     localStorage.removeItem("conversationId");
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/(app)/conversations/_layout")({
       ),
     };
   },
+  shouldReload: false,
   component: () => {
     const { conversations } = Route.useLoaderData();
     return (

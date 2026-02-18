@@ -13,6 +13,7 @@
 // import LoadingProvider from "../context/LoadingContext";
 // import { SignalProvider } from "../context/SignalContext";
 // import { userQueryOptions } from "../hooks/useInfo";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../styles/App.css";
 
 // type RouterContext = {
@@ -106,5 +107,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      {/* DevTools sẽ chỉ hiển thị trong môi trường development */}
+      <TanStackRouterDevtools />
+    </>
+  );
 }

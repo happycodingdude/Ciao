@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/(app)/conversations/")({
+export const Route = createFileRoute("/_layout/conversations/")({
   component: () => null,
 });

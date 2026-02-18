@@ -17,27 +17,27 @@ const MessageReaction = (props: MessageReactionProps) => {
               {message.topReactions.map((item) => {
                 if (item === "like")
                   return (
-                    <div className="top-reaction bg-[url('/src/assets/like.svg')]"></div>
+                    <div className="top-reaction bg-[url('/assets/like.svg')]"></div>
                   );
                 if (item === "love")
                   return (
-                    <div className="top-reaction bg-[url('/src/assets/love.svg')]"></div>
+                    <div className="top-reaction bg-[url('/assets/love.svg')]"></div>
                   );
                 if (item === "care")
                   return (
-                    <div className="top-reaction bg-[url('/src/assets/care.svg')]"></div>
+                    <div className="top-reaction bg-[url('/assets/care.svg')]"></div>
                   );
                 if (item === "wow")
                   return (
-                    <div className="top-reaction bg-[url('/src/assets/wow.svg')]"></div>
+                    <div className="top-reaction bg-[url('/assets/wow.svg')]"></div>
                   );
                 if (item === "sad")
                   return (
-                    <div className="top-reaction bg-[url('/src/assets/sad.svg')]"></div>
+                    <div className="top-reaction bg-[url('/assets/sad.svg')]"></div>
                   );
                 if (item === "angry")
                   return (
-                    <div className="top-reaction bg-[url('/src/assets/angry.svg')]"></div>
+                    <div className="top-reaction bg-[url('/assets/angry.svg')]"></div>
                   );
               })}
             </div>
@@ -52,37 +52,37 @@ const MessageReaction = (props: MessageReactionProps) => {
             {
               like: (
                 <div
-                  className="current-reaction-item bg-[url('/src/assets/like.svg')] "
+                  className="current-reaction-item bg-[url('/assets/like.svg')] "
                   onClick={() => react("like")}
                 ></div>
               ),
               love: (
                 <div
-                  className="current-reaction-item bg-[url('/src/assets/love.svg')] "
+                  className="current-reaction-item bg-[url('/assets/love.svg')] "
                   onClick={() => react("love")}
                 ></div>
               ),
               care: (
                 <div
-                  className="current-reaction-item bg-[url('/src/assets/care.svg')] "
+                  className="current-reaction-item bg-[url('/assets/care.svg')] "
                   onClick={() => react("care")}
                 ></div>
               ),
               wow: (
                 <div
-                  className="current-reaction-item bg-[url('/src/assets/wow.svg')] "
+                  className="current-reaction-item bg-[url('/assets/wow.svg')] "
                   onClick={() => react("wow")}
                 ></div>
               ),
               sad: (
                 <div
-                  className="current-reaction-item bg-[url('/src/assets/sad.svg')] "
+                  className="current-reaction-item bg-[url('/assets/sad.svg')] "
                   onClick={() => react("sad")}
                 ></div>
               ),
               angry: (
                 <div
-                  className="current-reaction-item bg-[url('/src/assets/angry.svg')] "
+                  className="current-reaction-item bg-[url('/assets/angry.svg')] "
                   onClick={() => react("angry")}
                 ></div>
               ),
@@ -104,27 +104,27 @@ const MessageReaction = (props: MessageReactionProps) => {
           ${message.mine ? "right-6 origin-bottom-right" : "left-6 origin-bottom-left"}`}
         >
           <div
-            className="reaction-item bg-[url('/src/assets/like.svg')] "
+            className="reaction-item bg-[url('/assets/like.svg')] "
             onClick={() => react("like")}
           ></div>
           <div
-            className="reaction-item bg-[url('/src/assets/love.svg')] "
+            className="reaction-item bg-[url('/assets/love.svg')] "
             onClick={() => react("love")}
           ></div>
           <div
-            className="reaction-item bg-[url('/src/assets/care.svg')] "
+            className="reaction-item bg-[url('/assets/care.svg')] "
             onClick={() => react("care")}
           ></div>
           <div
-            className="reaction-item bg-[url('/src/assets/wow.svg')] "
+            className="reaction-item bg-[url('/assets/wow.svg')] "
             onClick={() => react("wow")}
           ></div>
           <div
-            className="reaction-item bg-[url('/src/assets/sad.svg')] "
+            className="reaction-item bg-[url('/assets/sad.svg')] "
             onClick={() => react("sad")}
           ></div>
           <div
-            className="reaction-item bg-[url('/src/assets/angry.svg')] "
+            className="reaction-item bg-[url('/assets/angry.svg')] "
             onClick={() => react("angry")}
           ></div>
         </div>

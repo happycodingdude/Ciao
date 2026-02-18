@@ -11,15 +11,15 @@ public class MessageCache
 
     public async Task<List<MessageWithReactions>> GetMessages(string conversationId)
     {
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
         return messageCache;
     }
 
     public async Task AddSystemMessage(string conversationId, MessageWithReactions message)
     {
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? new();
         messageCache.Add(message);
-        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
     }
 
     public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
@@ -29,9 +29,9 @@ public class MessageCache
         // 1. Add message to message cache
         var messageCacheTask = Task.Run(async () =>
         {
-            var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
+            var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? new();
             messageCache.Add(message);
-            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
+            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
         });
         tasks.Add(messageCacheTask);
 
@@ -84,7 +84,7 @@ public class MessageCache
     public async Task<List<MessageReaction>> UpdateReactions(string conversationId, string messageId, string userId, string type)
     {
         // Update message cache
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
         var message = messageCache.SingleOrDefault(q => q.Id == messageId);
         if (message.Reactions.Any())
         {
@@ -114,7 +114,7 @@ public class MessageCache
             UpdateReactionCount(message, type);
         }
 
-        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
 
         return message.Reactions;
     }
@@ -173,11 +173,11 @@ public class MessageCache
     public async Task UpdatePin(string conversationId, string messageId, string userId, bool pinned)
     {
         // Update message cache
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
         var message = messageCache.SingleOrDefault(q => q.Id == messageId);
         message.IsPinned = pinned;
         message.PinnedBy = userId;
 
-        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), messageCache);
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
     }
 }
