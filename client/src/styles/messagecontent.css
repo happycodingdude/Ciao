@@ -14,3 +14,24 @@
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(2px);
 }
+
+.message-time {
+  position: absolute;
+  bottom: 5%;
+  opacity: 0;
+
+  font-size: var(--text-3xs);
+  font-weight: 300;
+
+  .peer:hover ~ &,
+  .message-menu-container:hover ~ & {
+    opacity: 1;
+  }
+
+  &[data-mine="true"] {
+    right: -2.2rem;
+  }
+  &[data-mine="false"] {
+    left: -2.5rem;
+  }
+}

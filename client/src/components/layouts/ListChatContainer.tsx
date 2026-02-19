@@ -184,7 +184,7 @@ const ListChatContainer = () => {
             <div
               className={`chat-item cursor-pointer rounded-2xl px-4 py-2 ${isActive ? "active" : ""}`}
             >
-              <div className="laptop-lg:h-12 flex items-start justify-between">
+              <div className="laptop-lg:h-12 laptop:h-12 flex items-center justify-between">
                 <div className="relative">
                   {/* MARK: AVATAR */}
                   <ImageWithLightBoxAndNoLazy
@@ -203,7 +203,7 @@ const ListChatContainer = () => {
                         ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
                   ></div>
                 </div>
-                <div className="flex h-full w-[60%] flex-col justify-between">
+                <div className="flex w-[60%] flex-col">
                   {/* MARK: TITLE */}
                   <CustomLabel
                     className="font-medium"
@@ -239,7 +239,7 @@ const ListChatContainer = () => {
                   ""
                 ) : (
                   <div
-                    className={`text-3xs laptop:w-8 flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-gray-500`}
+                    className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center rounded-full bg-gray-100 text-gray-500 self-start`}
                   >
                     <p>
                       {item.lastMessageTime === null

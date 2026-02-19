@@ -1,7 +1,7 @@
 // import EmojiPicker from "emoji-picker-react";
 import { CopyOutlined, PushpinOutlined, SyncOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { Suspense, useCallback, useRef, useState } from "react";
+import { Suspense, useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
@@ -84,28 +84,28 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
     setPinning(false);
   };
 
-  const toggleMenu = useCallback(
-    (e: React.MouseEvent) => {
-      const menu = refMenu.current;
-      if (!menu) return;
+  // const toggleMenu = useCallback(
+  //   (e: React.MouseEvent) => {
+  //     const menu = refMenu.current;
+  //     if (!menu) return;
 
-      const containerRect = getContainerRect();
-      const clickY = e.clientY;
+  //     const containerRect = getContainerRect();
+  //     const clickY = e.clientY;
 
-      const direction =
-        clickY > containerRect.top + containerRect.height / 2
-          ? "above"
-          : "below";
+  //     const direction =
+  //       clickY > containerRect.top + containerRect.height / 2
+  //         ? "above"
+  //         : "below";
 
-      setShow((prev) => !prev);
+  //     setShow((prev) => !prev);
 
-      // Gán class direction
-      menu.classList.remove("above", "below");
-      menu.classList.add(direction);
-      menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"} `;
-    },
-    [getContainerRect],
-  );
+  //     // Gán class direction
+  //     menu.classList.remove("above", "below");
+  //     menu.classList.add(direction);
+  //     menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"} `;
+  //   },
+  //   [getContainerRect],
+  // );
 
   const replyMessage = () => {
     queryClient.setQueryData(["reply"], {
@@ -122,7 +122,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         ref={refMenu}
         data-show={show}
         data-mine={mine}
-        className={`message-menu-container`}
+        className="message-menu-container shadow-md"
       >
         {/* MARK: COPY */}
         <MessageMenuItem

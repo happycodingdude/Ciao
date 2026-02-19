@@ -44,8 +44,8 @@ public static class GetConversations
             {
                 var messages = await _messageCache.GetMessages(conversation.Id);
                 var thisMember = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId);
-                var haventSeenAnyMessage = messages.Any() && thisMember.LastSeenTime is null;
-                var haventSeenLastMessage = messages.Any(q => q.ContactId != userId && q.CreatedTime >= thisMember.LastSeenTime);
+                var haventSeenAnyMessage = messages.Any() && thisMember!.LastSeenTime is null;
+                var haventSeenLastMessage = messages.Any(q => q.ContactId != userId && q.CreatedTime >= thisMember!.LastSeenTime);
                 conversation.UnSeen = haventSeenAnyMessage || haventSeenLastMessage;
                 foreach (var member in conversation.Members)
                 {

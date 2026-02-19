@@ -510,8 +510,8 @@ const ChatInput = (props: ChatInputProps) => {
           isPhoneScreen()
             ? "max-w-140"
             : !toggle || toggle === "" || toggle === "null"
-              ? "laptop-lg:max-w-240 laptop:max-w-200"
-              : "laptop-lg:max-w-180 laptop:max-w-140"
+              ? "laptop-lg:max-w-240 laptop:max-w-240"
+              : "laptop-lg:max-w-180 laptop:max-w-180"
         }  
         `}
       >

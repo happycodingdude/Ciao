@@ -206,7 +206,7 @@ const Information = () => {
             <div
               ref={refMembers}
               data-show={showMembers}
-              className="members-image-container hide-scrollbar laptop-lg:max-h-100 desktop:max-h-200 phone:max-h-80 flex flex-col gap-2 overflow-y-auto
+              className="members-image-container hide-scrollbar laptop:max-h-50 desktop:max-h-200 phone:max-h-80 flex flex-col gap-2 overflow-y-auto
                 scroll-smooth transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
               {[...conversation?.members]
@@ -243,7 +243,7 @@ const Information = () => {
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
                         src={item.contact.avatar}
-                        className="aspect-square w-10"
+                        className="aspect-square h-8"
                         circle
                         slides={[
                           {

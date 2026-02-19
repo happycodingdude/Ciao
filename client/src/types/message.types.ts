@@ -34,6 +34,8 @@ export type MessageContentProps = {
   // mt: boolean;
   refContainer?: MutableRefObject<HTMLDivElement>;
   getContainerRect?: () => DOMRect;
+  showName?: boolean;
+  showAvatar?: boolean;
 };
 
 export type MessageMenuProps = {
@@ -109,4 +111,9 @@ export type AttachmentCache = {
 export type AttachmentCache_Attachment = {
   date: string;
   attachments: AttachmentModel[];
+};
+
+export type GroupedMessage ={
+  contactId: string;
+  messages: PendingMessageModel[];
 };

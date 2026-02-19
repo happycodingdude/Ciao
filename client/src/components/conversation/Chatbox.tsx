@@ -6,7 +6,11 @@ import useEventListener from "../../hooks/useEventListener";
 import useMessage from "../../hooks/useMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { getMessages } from "../../services/message.service";
-import { MessageCache, PendingMessageModel } from "../../types/message.types";
+import {
+  GroupedMessage,
+  MessageCache,
+  PendingMessageModel,
+} from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
@@ -185,17 +189,47 @@ const Chatbox = () => {
 
   useEventListener("scroll", handleScroll, refChatContent.current);
 
+  // const groupMessagesByDate = (
+  //   messages: PendingMessageModel[],
+  // ): Record<string, PendingMessageModel[]> => {
+  //   return messages.reduce(
+  //     (groups, msg) => {
+  //       const date = formatDate(msg.createdTime);
+  //       if (!groups[date]) groups[date] = [];
+  //       groups[date].push(msg);
+  //       return groups;
+  //     },
+  //     {} as Record<string, PendingMessageModel[]>,
+  //   );
+  // };
+
   const groupMessagesByDate = (
     messages: PendingMessageModel[],
-  ): Record<string, PendingMessageModel[]> => {
+  ): Record<string, GroupedMessage[]> => {
     return messages.reduce(
       (groups, msg) => {
         const date = formatDate(msg.createdTime);
+
         if (!groups[date]) groups[date] = [];
-        groups[date].push(msg);
+
+        const dateGroups = groups[date];
+        const lastGroup = dateGroups[dateGroups.length - 1];
+
+        // Nếu group cuối cùng cùng user → push vào group đó
+        if (lastGroup && lastGroup.contactId === msg.contactId) {
+          lastGroup.messages.push(msg);
+        }
+        // Ngược lại → tạo group mới
+        else {
+          dateGroups.push({
+            contactId: msg.contactId,
+            messages: [msg],
+          });
+        }
+
         return groups;
       },
-      {} as Record<string, PendingMessageModel[]>,
+      {} as Record<string, GroupedMessage[]>,
     );
   };
 
@@ -217,30 +251,45 @@ const Chatbox = () => {
         ref={refChatContent}
         className="custom-scrollbar flex grow flex-col overflow-x-hidden overflow-y-scroll scroll-smooth p-4"
       >
-        {groupedEntries.map(([date, messages], groupIndex) => (
+        {groupedEntries.map(([date, blocks], groupIndex) => (
           <div
             key={date}
             className={`flex flex-col 
               ${groupIndex === 0 ? "mt-auto" : ""} `}
           >
             {/* Ngày hiển thị giữa */}
-            <div className="text-3xs rounded-4xl laptop-lg:mb-8 pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="text-3xs rounded-4xl laptop:mb-8 pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
 
-            {[...messages].map((message, index) => {
-              return message.type === "system" ? (
-                <div className="rounded-4xl pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
-                  {message.content}
+            {blocks.map((block, blockIndex) => {
+              const firstMessage = block.messages[0];
+              if (firstMessage.type === "system") {
+                return (
+                  <div
+                    key={blockIndex}
+                    className="rounded-4xl pointer-events-none mx-auto mb-8 w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+                  >
+                    {firstMessage.content}
+                  </div>
+                );
+              }
+              const lastMessage = block.messages[block.messages.length - 1];
+              return (
+                <div key={blockIndex} className="mb-6 flex flex-col">
+                  {block.messages.map((message) => (
+                    <MessageContent
+                      key={message.id}
+                      message={message}
+                      id={conversation.id}
+                      showName={message === firstMessage}
+                      showAvatar={message === firstMessage}
+                      getContainerRect={() =>
+                        refChatContent.current?.getBoundingClientRect()
+                      }
+                    />
+                  ))}
                 </div>
-              ) : (
-                <MessageContent
-                  message={message}
-                  id={conversation.id}
-                  getContainerRect={() =>
-                    refChatContent.current?.getBoundingClientRect()
-                  }
-                />
               );
             })}
           </div>

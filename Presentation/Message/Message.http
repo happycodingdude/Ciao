@@ -26,9 +26,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyN
 ### send message
 POST  {{host}}/conversations/690f7e469419e98d77505dc1/messages
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzE4MDk0MjNmN2U1MjU3YTcxMmYiLCJleHAiOjE3NjU2NTMzMDQsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.rfnrm-4mGkDPk86IMz-NGwNdXKyOgqaBvh-MaK21UWM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzE4MDk0MjNmN2U1MjU3YTcxMmYiLCJleHAiOjE3NzE1MDA5MzcsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.y8yLVEawO_3BKtPxygVjtFFKA_0QPoUBirW5iVFUso0
 
-{"type":"text","content":"iopiop"}
+{"type":"text","content":"iopiopiop"}
 
 
 ### pin message

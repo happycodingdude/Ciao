@@ -15,11 +15,10 @@ import {
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import { ForwardedMessage, MessageItem, ReplyMessage } from "./MessageItem";
 import MessageMenu_Slide from "./MessageMenu_Slide";
-import MessageReaction from "./MessageReaction";
 
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
-    const { message, id } = props;
+    const { message, id, showName, showAvatar } = props;
     if (!message) return null;
 
     const queryClient = useQueryClient();
@@ -27,7 +26,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const { data: info } = useInfo();
     const { data: conversations } = useConversation();
 
-  const { conversationId } = Route.useParams();
+    const { conversationId } = Route.useParams();
     const conversation = conversations.conversations.find(
       (c) => c.id === conversationId,
     );
@@ -160,51 +159,44 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
       );
     };
 
+    const isSelf = message.contactId === info.id;
+
+    const sender = !isSelf
+      ? conversation.members.find((q) => q.contact.id === message.contactId)
+      : null;
+
     return (
       <div
         ref={ref}
         id={message.id}
         key={message.id}
-        className={`flex shrink-0 gap-4 ${message.contactId === info.id ? "flex-row-reverse" : ""} mb-8`}
+        className={`flex shrink-0 gap-4 ${message.contactId === info.id ? "flex-row-reverse mr-6" : ""} `}
       >
         {/* MARK: SENDER AVATAR */}
-        {message.contactId !== info.id ? (
-          <ImageWithLightBoxAndNoLazy
-            src={
-              conversation.members.find(
-                (q) => q.contact.id === message.contactId,
-              )?.contact.avatar
-            }
-            className="h-10! aspect-square cursor-pointer"
-            circle
-            slides={[
-              {
-                src: conversation.members.find(
-                  (q) => q.contact.id === message.contactId,
-                )?.contact.avatar,
-              },
-            ]}
-          />
-        ) : (
-          ""
+        {!isSelf && (
+          <div className="aspect-square h-8 shrink-0">
+            {showAvatar && sender && (
+              <ImageWithLightBoxAndNoLazy
+                src={sender.contact.avatar}
+                className="h-full w-full cursor-pointer"
+                circle
+                slides={[{ src: sender.contact.avatar }]}
+              />
+            )}
+          </div>
         )}
+
         <div className="flex flex-col gap-2">
           <div
             className={`text-(--text-main-color-thin) flex items-center gap-4 ${message.contactId === info.id ? "justify-end" : ""}`}
           >
             {/* MARK: SENDER NAME */}
-            {message.contactId !== info.id && (
-              <p className="font-medium">
-                {
-                  conversation.members.find(
-                    (q) => q.contact.id === message.contactId,
-                  )?.contact.name
-                }
-              </p>
+            {!isSelf && showName && sender && (
+              <p className="font-medium">{sender.contact.name}</p>
             )}
 
             {/* MARK: MESSAGE TIME */}
-            <p>{dayjs(message.createdTime).format("HH:mm")}</p>
+            {/* <p>{dayjs(message.createdTime).format("HH:mm")}</p> */}
           </div>
           <div
             className={`laptop-lg:max-w-120 laptop:max-w-100 desktop:max-w-220 relative flex w-fit flex-col
@@ -269,10 +261,10 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             {/* MARK: MESSAGE PIN */}
             {message.isPinned && (
               <div
-                className={`laptop:h-5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-light-blue-500 shadow-md
-                  ${message.contactId === info.id ? "-right-2.5" : "-left-[.7rem]"}`}
+                className={`laptop:h-5.5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-light-blue-500 shadow-md
+                  ${message.contactId === info.id ? "-right-3" : "-left-[.8rem]"}`}
               >
-                <i className="fa-solid fa-thumbtack laptop-lg:text-3xs laptop:text-4xs text-white"></i>
+                <i className="fa-solid fa-thumbtack laptop-lg:text-2xs laptop:text-3xs text-white"></i>
               </div>
             )}
             {/* MARK: MESSAGE MENU */}
@@ -288,7 +280,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               getContainerRect={props.getContainerRect}
             />
             {/* MARK: REACTION */}
-            <MessageReaction
+            {/* <MessageReaction
               message={{
                 mine: message.contactId === info.id,
                 reaction: reaction,
@@ -296,7 +288,14 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               }}
               react={react}
               pending={message.pending}
-            />
+            /> */}
+            {/* MARK: MESSAGE TIME */}
+            <p
+              data-mine={message.contactId === info.id}
+              className="message-time"
+            >
+              {dayjs(message.createdTime).format("HH:mm")}
+            </p>
           </div>
         </div>
       </div>
