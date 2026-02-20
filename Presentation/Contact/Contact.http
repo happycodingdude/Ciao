@@ -1,14 +1,27 @@
-@host = http://localhost:4000/api
+@host = http://localhost:4000/api/v1
 
-###
+### login
 POST {{host}}/identity/signin
 Content-Type: application/json
 
 {
-    "Username":"trint",
+    "Username":"trint2",
     "Password":"Qwerty@123"
 }
 
+### refresh token
+POST {{host}}/identity/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "uITEMBF+fW2ayCZJ44Sl2tjm77TpPOqJvbVMQH82zNIwe+GOo6pKCPbDSbp2tCiqjxTH8BOfU7oEPEY5YaNJXi0Lry8AccSd44AroO+KRfjcd4AFL2SCTbvL6qErug8TLoIXwOUXdB+F57iInqdLFh92C+gIvYA0Cr7Aw/Kgjl0=",
+  "userId": "66f271809423f7e5257a712f"
+}
+
+
+### presence ping
+GET {{host}}/presence/ping
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NmYyNzE4MDk0MjNmN2U1MjU3YTcxMmYiLCJleHAiOjE3NzE2MDQzMzcsImlzcyI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayIsImF1ZCI6Imh0dHBzOi8vY2hhdC5oYXBweWNvZGluZy5jbGljayJ9.jQhqlju-6xRyekXXMSCGKdfArvJIVk8a8JyMP1zEXI4
 ###
 GET  {{host}}/contacts?name=tri
 Authorization: Bearer CfDJ8Ewr3uB8c9ZPsF82A6d6P7OCIOuKf1pbHeLXv3vCO52Rv4mYHQSeauMqCZXQyccoJfGmPatKo0GCQLlZvRuORV8AJliPJ1YeCS5hg7gAzShQTyKuZB-wkXdjpEiNSQ4YfdhjbX9zCbnmlOjBaqmysi3AZ1sanF9IQAaKHdtG6SzxinFG6vW7r9_lbTlbx4Wnl1Y-rWXxtKCEvdvMBF9snwrmJixM1kiU9UQi5GwJdR-h4r4m8nNXGU37uVgRWJVmLRjgGAzJWx3siR-nlhHNRbN3SwcEvsG441EIcaCuYtfzjYu6SOfNRMc_p78Hxw_m0fEj2596wZ1GER4CPjfJ79AVH6uVDMqLUuP-6Lh3q5k1tuBUds_lF7sFoluJ2luc_LYTz2HsbHmPZaYlRHrud1o7XnPLvTfioufhbZFT-0todT-eTH4lfsFv9lJKcAb-GE6RkZhZCl5mJi0YRjhWRwjsKVROvCd9HARTeiKQRoyywnbv95OsN30BZUgwZ2Np-Hw3wPQ_Ni6CgOQi5nZrBYI7PGgZk3ffV88s6f4CcWa_YoIBfn68zX23A43dx8_0ig

@@ -14,8 +14,9 @@ public static class GetConversations
         readonly FriendCache _friendCache;
         readonly MessageCache _messageCache;
         readonly IRedisCaching _redisCaching;
+        readonly IPresenceService _presenceService;
 
-        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching)
+        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching, IPresenceService presenceService)
         {
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
@@ -25,6 +26,7 @@ public static class GetConversations
             _friendCache = friendCache;
             _messageCache = messageCache;
             _redisCaching = redisCaching;
+            _presenceService = presenceService;
         }
 
         public async Task<List<GetConversationsResponse>> Handle(Request request, CancellationToken cancellationToken)
@@ -65,10 +67,15 @@ public static class GetConversations
                 }
 
                 // Cập nhật trạng thái online dựa theo cache ìnfo
-                var redisKeys = conversation.Members.Select(mem => (RedisKey)AppConstants.RedisKey_UserInfo.Replace("{userId}", mem.Contact.Id)).ToArray();
-                var values = await _redisCaching.GetAsync(redisKeys);
-                for (int i = 0; i < conversation.Members.Count; i++)
-                    conversation.Members[i].Contact.IsOnline = values[i].HasValue;
+                // var redisKeys = conversation.Members.Select(mem => (RedisKey)AppConstants.RedisKey_UserInfo.Replace("{userId}", mem.Contact.Id)).ToArray();
+                // var values = await _redisCaching.GetAsync(redisKeys);
+                // for (int i = 0; i < conversation.Members.Count; i++)
+                //     conversation.Members[i].Contact.IsOnline = values[i].HasValue;
+
+                foreach (var member in conversation.Members)
+                {
+                    member.Contact.IsOnline = await _presenceService.IsOnlineAsync(member.Contact.Id);
+                }
             }
             return result;
         }

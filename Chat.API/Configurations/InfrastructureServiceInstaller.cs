@@ -167,7 +167,11 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<NotificationConsumer>();
         // services.AddKafkaConsumers();
         services.AddHostedService<KafkaBackground>();
+        services.AddHostedService<PresenceCleanupService>();
         // services.AddHostedService<CacheConsumer>();
         // services.AddHostedService<NotificationConsumer>();
+
+        // Services
+        services.AddScoped<IPresenceService, RedisPresenceService>();
     }
 }

@@ -29,3 +29,5 @@ global using Infrastructure.Configurations;
 global using Serilog;
 global using Chat.API.Configuration;
 global using Infrastructure.BackgroundJobs;
+global using Application.Services;
+global using Infrastructure.Services;

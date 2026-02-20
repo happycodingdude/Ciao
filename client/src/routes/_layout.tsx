@@ -5,6 +5,7 @@ import SideBar from "../components/layouts/SideBar";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
 import { userQueryOptions } from "../hooks/useInfo";
+import { usePresencePing } from "../hooks/usePresencePing";
 
 export const Route = createFileRoute("/_layout")({
   beforeLoad: async ({ context }) => {
@@ -27,6 +28,8 @@ export const Route = createFileRoute("/_layout")({
 
 function AppLayout() {
   console.log("Rendering AppLayout");
+
+  usePresencePing();
 
   return (
     <>

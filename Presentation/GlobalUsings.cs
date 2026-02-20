@@ -27,6 +27,6 @@ global using Application.Caching;
 global using Application.Kafka.Model;
 global using Application.Kafka.Producer;
 global using AutoMapper;
-global using Microsoft.AspNetCore.SignalR;
 global using Application.WebSocketEvents;
 global using StackExchange.Redis;
+global using Application.Services;
