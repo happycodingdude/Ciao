@@ -48,7 +48,7 @@ const CustomContentEditable = forwardRef(
         ref={ref}
         contentEditable={true}
         data-placeholder="Type your message here..."
-        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-5 w-full resize-none overflow-y-auto break-all
+        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-5 w-full resize-none overflow-y-auto break-all laptop:text-xs
         ${
           quickChat
             ? "phone:max-h-40 laptop:max-h-10 laptop-lg:max-h-40"

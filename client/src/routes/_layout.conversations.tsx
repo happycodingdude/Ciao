@@ -30,11 +30,7 @@ export const Route = createFileRoute("/_layout/conversations")({
                 <ListChatHeaderContainer />
                 <Suspense fallback={<ListchatLoading />}>
                   <Await promise={conversations}>
-                    {(data) => (
-                      <div className="custom-scrollbar relative flex min-h-0 flex-1 flex-col gap-6 overflow-y-scroll scroll-smooth p-2">
-                        <ListChatContainer />
-                      </div>
-                    )}
+                    {(data) => <ListChatContainer />}
                   </Await>
                 </Suspense>
               </div>

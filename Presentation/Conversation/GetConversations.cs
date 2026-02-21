@@ -66,12 +66,7 @@ public static class GetConversations
                     }
                 }
 
-                // Cập nhật trạng thái online dựa theo cache ìnfo
-                // var redisKeys = conversation.Members.Select(mem => (RedisKey)AppConstants.RedisKey_UserInfo.Replace("{userId}", mem.Contact.Id)).ToArray();
-                // var values = await _redisCaching.GetAsync(redisKeys);
-                // for (int i = 0; i < conversation.Members.Count; i++)
-                //     conversation.Members[i].Contact.IsOnline = values[i].HasValue;
-
+                // Cập nhật trạng thái online cho các thành viên
                 foreach (var member in conversation.Members)
                 {
                     member.Contact.IsOnline = await _presenceService.IsOnlineAsync(member.Contact.Id);

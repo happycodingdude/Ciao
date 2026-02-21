@@ -189,20 +189,6 @@ const Chatbox = () => {
 
   useEventListener("scroll", handleScroll, refChatContent.current);
 
-  // const groupMessagesByDate = (
-  //   messages: PendingMessageModel[],
-  // ): Record<string, PendingMessageModel[]> => {
-  //   return messages.reduce(
-  //     (groups, msg) => {
-  //       const date = formatDate(msg.createdTime);
-  //       if (!groups[date]) groups[date] = [];
-  //       groups[date].push(msg);
-  //       return groups;
-  //     },
-  //     {} as Record<string, PendingMessageModel[]>,
-  //   );
-  // };
-
   const groupMessagesByDate = (
     messages: PendingMessageModel[],
   ): Record<string, GroupedMessage[]> => {
@@ -249,7 +235,7 @@ const Chatbox = () => {
       </RelightBackground>
       <div
         ref={refChatContent}
-        className="custom-scrollbar flex grow flex-col overflow-x-hidden overflow-y-scroll scroll-smooth p-4"
+        className="flex grow flex-col overflow-x-hidden overflow-y-scroll scroll-smooth p-4"
       >
         {groupedEntries.map(([date, blocks], groupIndex) => (
           <div

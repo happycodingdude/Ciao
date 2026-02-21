@@ -59,7 +59,7 @@ const ChatInput = (props: ChatInputProps) => {
   });
 
   const [mentions, setMentions] = useState<MentionModel[]>([]);
-  const [showMention, setShowMention] = useState<boolean>(false);
+  const [showMention, setShowMention] = useState<boolean>(true);
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -102,10 +102,12 @@ const ChatInput = (props: ChatInputProps) => {
 
   const chooseMention = (id: string) => {
     const user = mentions.find((item) => item.userId === id);
-    inputRef.current.innerText =
-      inputRef.current.innerText.replace("@", "") + `@[${user.name}]`;
+    // inputRef.current.innerText =
+    //   inputRef.current.innerText.replace("@", "") + `@[${user.name}]`;
+    inputRef.current.innerText = inputRef.current.innerText + `[${user.name}]`;
     setCaretToEnd(true);
     setShowMention(false);
+    setSelectedIndex(0);
   };
 
   const { mutate: sendMutation } = useMutation({
@@ -444,6 +446,42 @@ const ChatInput = (props: ChatInputProps) => {
     [isEmpty, setIsEmpty, setShowMention],
   );
 
+  const refMentionContainer = useRef<HTMLDivElement | null>(null);
+  const mentionRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  const ensureItemVisible = (id: number) => {
+    const container = refMentionContainer.current;
+    const item = mentionRefs.current[id];
+
+    if (!container || !item) return;
+
+    const itemTop = item.offsetTop;
+    const itemBottom = itemTop + item.clientHeight;
+
+    const viewTop = container.scrollTop;
+    const viewBottom = viewTop + container.clientHeight;
+
+    // Item nằm phía trên viewport
+    if (itemTop < viewTop) {
+      container.scrollTo({
+        top: itemTop,
+        behavior: "smooth",
+      });
+    }
+
+    // Item nằm phía dưới viewport
+    else if (itemBottom > viewBottom) {
+      container.scrollTo({
+        top: itemBottom - container.clientHeight,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  useEffect(() => {
+    ensureItemVisible(selectedIndex);
+  }, [selectedIndex]);
+
   // Event listener
   const closeMentionOnClick = useCallback((e) => {
     if (e.target.closest(".mention-item")) return;
@@ -537,7 +575,7 @@ const ChatInput = (props: ChatInputProps) => {
         )}
         {/* MARK: FILES */}
         {files?.length !== 0 ? (
-          <div className="custom-scrollbar flex gap-4 overflow-x-auto rounded-2xl px-6 py-3">
+          <div className="flex gap-4 overflow-x-auto rounded-2xl px-6 py-3">
             {files?.map((item) => (
               <ImageItem file={item} onClick={removeFile} key={item.name} />
             ))}
@@ -551,16 +589,18 @@ const ChatInput = (props: ChatInputProps) => {
           {/* MARK: MENTION */}
           {conversation.isGroup ? (
             <div
+              ref={refMentionContainer}
               data-show={showMention}
-              className="hide-scrollbar z-2 phone:max-h-72 phone:w-[18rem] laptop:max-h-80 laptop:w-[20rem] absolute bottom-32
-          left-20 flex flex-col overflow-y-scroll scroll-smooth rounded-[.7rem] bg-white p-2
-          text-sm shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200 
+              className="z-2 laptop:max-h-40 laptop:w-60 absolute bottom-24 left-0
+          flex flex-col gap-2 overflow-y-scroll scroll-smooth rounded-[.7rem] bg-white p-2
+          shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200 
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
               {mentions?.map((item, index) => (
                 <div
                   key={item.userId}
-                  className={`mention-user flex cursor-pointer gap-4 rounded-[.7rem] p-3 ${index === selectedIndex ? "active" : ""}`}
+                  ref={(el) => (mentionRefs.current[index] = el)}
+                  className={`mention-user flex cursor-pointer gap-4 rounded-[.7rem] px-3 py-1 ${index === selectedIndex ? "active" : ""}`}
                   onClick={() => chooseMention(item.userId)}
                 >
                   <ImageWithLightBoxAndNoLazy
@@ -570,7 +610,7 @@ const ChatInput = (props: ChatInputProps) => {
                         src: item.avatar,
                       },
                     ]}
-                    className="phone:w-8 tablet:w-10 laptop:w-12 aspect-square cursor-pointer"
+                    className="aspect-square h-8 cursor-pointer"
                     circle
                   />
                   <p>{item.name}</p>
