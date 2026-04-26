@@ -427,3 +427,5 @@
 
 /docker
 .DS_Store
+
+global.json
