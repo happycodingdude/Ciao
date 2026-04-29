@@ -1,18 +1,17 @@
 public class JwtService : IJwtService
 {
-    const string secretKey = "dPLc8k9r8RJAMDfw1YgMujHu6YcJtAc3gPeTGmER"; // Use a secure key from configuration
-    const string issuer = "https://chat.happycoding.click";
-    const string audience = "https://chat.happycoding.click";
+    readonly JwtSettings _settings;
     readonly ILogger _logger;
 
-    public JwtService(ILogger logger)
+    public JwtService(IOptions<JwtSettings> settings, ILogger logger)
     {
+        _settings = settings.Value;
         _logger = logger;
     }
 
     public string GenerateToken(string userId)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -21,10 +20,10 @@ public class JwtService : IJwtService
         };
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: _settings.Issuer,
+            audience: _settings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: DateTime.UtcNow.AddHours(_settings.AccessTokenExpirationHours),
             signingCredentials: credentials
         );
 
@@ -33,12 +32,12 @@ public class JwtService : IJwtService
 
     public (string, DateTime) GenerateRefreshToken()
     {
-        return (Convert.ToBase64String(RandomNumberGenerator.GetBytes(128)), DateTime.Now.AddDays(7));
+        return (Convert.ToBase64String(RandomNumberGenerator.GetBytes(128)), DateTime.UtcNow.AddDays(_settings.RefreshTokenExpirationDays));
     }
 
     public bool ValidateToken(string token, out ClaimsPrincipal? principal)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
@@ -47,8 +46,8 @@ public class JwtService : IJwtService
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
+            ValidIssuer = _settings.Issuer,
+            ValidAudience = _settings.Audience,
             IssuerSigningKey = key,
             ClockSkew = TimeSpan.Zero
         };
@@ -56,7 +55,6 @@ public class JwtService : IJwtService
         try
         {
             principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-            // _logger.Information($"Token validated");
             return true;
         }
         catch (SecurityTokenExpiredException ex)
@@ -69,7 +67,7 @@ public class JwtService : IJwtService
         }
         catch (Exception ex)
         {
-            _logger.Error($"Unexpected error: {ex.Message}");
+            _logger.Error($"Unexpected error during token validation: {ex.Message}");
         }
 
         principal = null;

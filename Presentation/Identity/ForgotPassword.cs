@@ -2,7 +2,7 @@ namespace Presentation.Identities;
 
 public static class ForgotPassword
 {
-    public record Request(IdentityRequest model) : IRequest<Unit>;
+    public record Request(ForgotPasswordRequest model) : IRequest<Unit>;
 
     internal sealed class Handler : IRequestHandler<Request, Unit>
     {
@@ -18,10 +18,6 @@ public static class ForgotPassword
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            // var user = await userManager.FindByNameAsync(request.model.Username);
-            // var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            // await userManager.ResetPasswordAsync(user, token, request.model.Password);
-
             var user = await _contactRepository.GetByUsername(request.model.Username);
             if (user is null)
                 throw new BadRequestException("Username not found");
@@ -45,7 +41,7 @@ public class ForgotPasswordEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Identity).MapPost("/forgot",
-        async (ISender sender, IdentityRequest model) =>
+        async (ISender sender, ForgotPasswordRequest model) =>
         {
             var request = new ForgotPassword.Request(model);
             await sender.Send(request);

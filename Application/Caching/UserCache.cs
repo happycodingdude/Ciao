@@ -87,12 +87,20 @@ public class UserCache
 
     public void SetInfo(Contact info) => _ = _redisCaching.SetAsync(AppConstants.RedisKey_UserInfo.Replace("{userId}", info.Id), info);
 
-    public void RemoveAll()
+    public async Task RemoveAllAsync()
     {
-        _ = _redisCaching.DeleteAsync(AppConstants.RedisKey_UserToken.Replace("{userId}", UserId));
-        _ = _redisCaching.DeleteAsync(AppConstants.RedisKey_UserInfo.Replace("{userId}", UserId));
-        var connection = GetUserConnection(UserId);
-        _ = _redisCaching.DeleteAsync($"connection-{connection}");
-        _ = _redisCaching.DeleteAsync(AppConstants.RedisKey_UserConnection.Replace("{userId}", UserId));
+        var connection = await GetUserConnection(UserId);
+
+        var tasks = new List<Task>
+        {
+            _redisCaching.DeleteAsync(AppConstants.RedisKey_UserToken.Replace("{userId}", UserId)),
+            _redisCaching.DeleteAsync(AppConstants.RedisKey_UserInfo.Replace("{userId}", UserId)),
+            _redisCaching.DeleteAsync(AppConstants.RedisKey_UserConnection.Replace("{userId}", UserId)),
+        };
+
+        if (!string.IsNullOrEmpty(connection))
+            tasks.Add(_redisCaching.DeleteAsync($"connection-{connection}"));
+
+        await Task.WhenAll(tasks);
     }
 }

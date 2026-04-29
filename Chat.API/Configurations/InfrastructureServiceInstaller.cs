@@ -8,6 +8,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.Configure<KafkaConfiguration>(configuration.GetSection("Kafka"));
         services.Configure<MongoConfiguration>(configuration.GetSection("Mongo"));
         services.Configure<RedisConfiguration>(configuration.GetSection("Redis"));
+        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
 
         // Common
         services.AddHttpContextAccessor();
@@ -168,6 +169,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // services.AddKafkaConsumers();
         services.AddHostedService<KafkaBackground>();
         services.AddHostedService<PresenceCleanupService>();
+        services.AddHostedService<ContactCleanupService>();
         // services.AddHostedService<CacheConsumer>();
         // services.AddHostedService<NotificationConsumer>();
 

@@ -36,6 +36,23 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
         return await GetItemAsync(filter);
     }
 
+    public async Task ResetStaleOnlineStatusAsync(DateTime threshold, CancellationToken cancellationToken = default)
+    {
+        var filter = Builders<Contact>.Filter.And(
+            Builders<Contact>.Filter.Eq(q => q.IsOnline, true),
+            Builders<Contact>.Filter.Or(
+                Builders<Contact>.Filter.Eq(q => q.LastLogin, null),
+                Builders<Contact>.Filter.Lt(q => q.LastLogin, threshold)
+            )
+        );
+
+        var update = Builders<Contact>.Update
+            .Set(q => q.IsOnline, false)
+            .Set(q => q.UpdatedTime, DateTime.Now);
+
+        await _collection.UpdateManyAsync(filter, update, cancellationToken: cancellationToken);
+    }
+
     public async Task<IEnumerable<ContactDto>> SearchContactsWithFriendStatus(string name)
     {
         if (string.IsNullOrEmpty(name)) return Enumerable.Empty<ContactDto>();

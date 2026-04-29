@@ -10,8 +10,6 @@ public static class SignOut
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
         readonly FriendCache _friendCache;
-        // readonly IHubContext<SignalHub> _hubContext;
-        // readonly ILogger _logger;
 
         public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, FriendCache friendCache)
         {
@@ -19,35 +17,21 @@ public static class SignOut
             _userCache = userCache;
             _conversationCache = conversationCache;
             _friendCache = friendCache;
-            // _hubContext = hubContext;
-            // _logger = logger;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
             var userId = _contactRepository.GetUserId();
 
-            // Update contact info
             var filter = Builders<Contact>.Filter.Where(q => q.Id == userId);
             var updates = Builders<Contact>.Update
                 .Set(q => q.IsOnline, false)
-                .Set(q => q.LastLogout, DateTime.Now)
+                .Set(q => q.LastLogout, DateTime.UtcNow)
                 .Set(q => q.RefreshToken, null)
                 .Set(q => q.ExpiryDate, null);
             _contactRepository.Update(filter, updates);
 
-            // Remove from group for broadcasting
-            // var connection = await _userCache.GetUserConnection(userId);
-            // var conversationIds = await _conversationCache.GetListConversationId(userId);
-            // foreach (var conversationId in conversationIds)
-            // {
-            //     _logger.Debug($"Remove user {userId} from group {conversationId}");
-            //     await _hubContext.Groups.RemoveFromGroupAsync(connection, conversationId);
-            // }
-
-            // Remove all cache
-            _userCache.RemoveAll();
-            // await _memberCache.MemberSignout();
+            await _userCache.RemoveAllAsync();
             _conversationCache.RemoveAll();
             _friendCache.RemoveAll();
 

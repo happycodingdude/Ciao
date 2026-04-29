@@ -47,6 +47,7 @@ public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOf
                     var invokeResult = JsonConvert.DeserializeObject<InvokeResult>(JsonConvert.SerializeObject(result));
                     if (invokeResult!.ModifiedCount == 0)
                     {
+                        // Thực hiện fallback (nếu có)
                         fallbacks.TryGetValue(operation.Key, out var fallback);
                         if (fallback is null) continue;
                         var fallbackResult = await fallback.Invoke(session);

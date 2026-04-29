@@ -2,9 +2,21 @@ namespace Application.DTOs;
 
 public class AuthenticationUser : IdentityUser { }
 
-public class IdentityRequest
+public class SignInRequest
+{
+    public string Username { get; set; } = null!;
+    public string Password { get; set; } = null!;
+}
+
+public class SignUpRequest
 {
     public string Name { get; set; } = null!;
+    public string Username { get; set; } = null!;
+    public string Password { get; set; } = null!;
+}
+
+public class ForgotPasswordRequest
+{
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
 }

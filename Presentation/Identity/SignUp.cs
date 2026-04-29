@@ -2,7 +2,7 @@ namespace Presentation.Identities;
 
 public static class SignUp
 {
-    public record Request(IdentityRequest model) : IRequest<Unit>;
+    public record Request(SignUpRequest model) : IRequest<Unit>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -35,7 +35,7 @@ public static class SignUp
         readonly PasswordHasher<string> _passwordHasher = new();
         readonly IValidator<Request> _validator;
         readonly IPasswordValidator _passwordValidator;
-        IContactRepository _contactRepository;
+        readonly IContactRepository _contactRepository;
 
         public Handler(IValidator<Request> validator, IPasswordValidator passwordValidator, IContactRepository contactRepository)
         {
@@ -46,7 +46,7 @@ public static class SignUp
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request);
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
@@ -73,7 +73,7 @@ public class SignUpEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Identity).MapPost("/signup",
-        async (ISender sender, IdentityRequest model) =>
+        async (ISender sender, SignUpRequest model) =>
         {
             var request = new SignUp.Request(model);
             await sender.Send(request);

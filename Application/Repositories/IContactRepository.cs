@@ -7,4 +7,5 @@ public interface IContactRepository : IMongoRepository<Contact>
     Task<Contact> GetInfoAsync(string userId);
     Task<Contact> GetInfoAsync();
     Task<IEnumerable<ContactDto>> SearchContactsWithFriendStatus(string name);
+    Task ResetStaleOnlineStatusAsync(DateTime threshold, CancellationToken cancellationToken = default);
 }
