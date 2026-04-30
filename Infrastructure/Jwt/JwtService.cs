@@ -1,3 +1,5 @@
+namespace Infrastructure.Jwt;
+
 public class JwtService : IJwtService
 {
     readonly JwtSettings _settings;

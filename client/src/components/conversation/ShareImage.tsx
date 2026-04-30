@@ -8,7 +8,13 @@ import BackgroundPortal from "../common/BackgroundPortal";
 import ModalLoading from "../common/ModalLoading";
 import ForwardMessageModal from "../message/ForwardMessageModal";
 
-const ShareImage = ({ media }: { media: AttachmentModel }) => {
+const ShareImage = ({
+  media,
+  showImage,
+}: {
+  media: AttachmentModel;
+  showImage: () => void;
+}) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
@@ -22,12 +28,18 @@ const ShareImage = ({ media }: { media: AttachmentModel }) => {
   if (!media) return null;
 
   return (
-    <div className="absolute left-0 top-0 z-10 h-full w-full cursor-pointer rounded-2xl bg-black/20 opacity-0 hover:opacity-100 peer-hover:opacity-100">
+    <div
+      className="absolute left-0 top-0 z-10 h-full w-full cursor-pointer rounded-2xl bg-black/20 opacity-0 hover:opacity-100 peer-hover:opacity-100"
+      onClick={showImage}
+    >
       <div
         className="absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm bg-white"
-        onClick={() => setShow(true)}
+        onClick={(e) => {
+          e.stopPropagation(); // ⛔ chặn bubble lên div cha
+          setShow(true);
+        }}
       >
-        <div className="fa fa-share"></div>
+        <i className="fa fa-share" />
       </div>
       <BackgroundPortal
         show={show}

@@ -31,6 +31,7 @@ public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
     public string LastMessage { get; set; } = null!;
     public DateTime? LastMessageTime { get; set; }
     public string LastMessageContact { get; set; } = null!;
+    public bool HasAttachment { get; set; }
     // public DateTime? LastSeenTime { get; set; }
     // public bool IsNotifying { get; set; }
     public List<MessageWithReactions> Messages { get; set; } = new List<MessageWithReactions>();
@@ -50,6 +51,7 @@ public class ConversationWithTotalUnseenWithContactInfoAndNoMessage : MongoBaseM
     public string LastMessageContact { get; set; } = null!;
     // public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
+    public bool HasAttachment { get; set; }
 }
 
 public class GetConversationsResponse : ConversationWithTotalUnseenWithContactInfoAndNoMessage

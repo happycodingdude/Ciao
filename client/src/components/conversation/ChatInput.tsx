@@ -59,7 +59,7 @@ const ChatInput = (props: ChatInputProps) => {
   });
 
   const [mentions, setMentions] = useState<MentionModel[]>([]);
-  const [showMention, setShowMention] = useState<boolean>(true);
+  const [showMention, setShowMention] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -70,15 +70,22 @@ const ChatInput = (props: ChatInputProps) => {
   useEffect(() => {
     setFiles([]);
     setMentions(() => {
-      return conversation.members
+      const list = conversation.members
         .filter((item) => item.contact.id !== info.id)
-        .map((item) => {
-          return {
-            name: item.contact.name,
-            avatar: item.contact.avatar,
-            userId: item.contact.id,
-          };
-        });
+        .map((item) => ({
+          name: item.contact.name!,
+          avatar: item.contact.avatar ?? null,
+          userId: item.contact.id!,
+        }));
+
+      return [
+        {
+          name: "All",
+          avatar: null,
+          userId: "all",
+        },
+        ...list,
+      ];
     });
 
     // inputRef.current.focus();
@@ -100,14 +107,101 @@ const ChatInput = (props: ChatInputProps) => {
     selection.addRange(range);
   };
 
+  // const chooseMention = (id: string) => {
+  //   const user = mentions.find((item) => item.userId === id);
+  //   inputRef.current.innerText = inputRef.current.innerText + `[${user.name}]`;
+  //   setCaretToEnd(true);
+  //   setShowMention(false);
+  //   setSelectedIndex(0);
+  // };
   const chooseMention = (id: string) => {
     const user = mentions.find((item) => item.userId === id);
-    // inputRef.current.innerText =
-    //   inputRef.current.innerText.replace("@", "") + `@[${user.name}]`;
-    inputRef.current.innerText = inputRef.current.innerText + `[${user.name}]`;
-    setCaretToEnd(true);
+    if (!user || !inputRef.current) return;
+
+    // 👉 QUAN TRỌNG: focus lại editor khi click (mất selection khi click ra ngoài)
+    // inputRef.current.focus();
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+
+    // lấy text trước cursor để tìm @ gần nhất
+    const container = range.startContainer;
+    const text = container.textContent ?? "";
+    const before = text.substring(0, range.startOffset);
+    const atIndex = before.lastIndexOf("@");
+
+    if (atIndex === -1) return;
+
+    // xoá đoạn "@abc" đang gõ
+    range.setStart(container, atIndex);
+    range.deleteContents();
+
+    // 👇 hiển thị chỉ name, nhưng lưu raw ở data attribute
+    const mentionNode = document.createElement("span");
+    mentionNode.textContent = user.name; // chỉ hiển thị name
+    mentionNode.setAttribute("data-mention", `@[${user.name}]`); // lưu format gửi đi
+    mentionNode.contentEditable = "false";
+    mentionNode.style.color = "#1d9bf0";
+    mentionNode.style.fontWeight = "500";
+
+    // insert vào vị trí cursor
+    range.insertNode(mentionNode);
+
+    // thêm space sau mention
+    const space = document.createTextNode(" ");
+    mentionNode.after(space);
+
+    // đưa cursor ra sau
+    range.setStartAfter(space);
+    range.setEndAfter(space);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
     setShowMention(false);
     setSelectedIndex(0);
+  };
+
+  // ✅ khi gửi message → convert lại đúng format @[name]
+  const getMessageValue = () => {
+    if (!inputRef.current) return "";
+
+    const parseNodes = (nodes: NodeListOf<ChildNode>): string => {
+      let result = "";
+
+      nodes.forEach((node: any) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          result += node.textContent;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const el = node as HTMLElement;
+
+          // 👇 handle mention
+          const mention = el.getAttribute?.("data-mention");
+          if (mention) {
+            result += mention;
+            return;
+          }
+
+          // 👇 handle xuống dòng (div, p, br)
+          if (el.tagName === "BR") {
+            result += "\n";
+            return;
+          }
+
+          if (el.tagName === "DIV" || el.tagName === "P") {
+            result += parseNodes(el.childNodes) + "\n";
+            return;
+          }
+
+          result += parseNodes(el.childNodes);
+        }
+      });
+
+      return result;
+    };
+
+    return parseNodes(inputRef.current.childNodes);
   };
 
   const { mutate: sendMutation } = useMutation({
@@ -128,6 +222,7 @@ const ChatInput = (props: ChatInputProps) => {
                     ? param.content
                     : param.files.map((item) => item.name).join(","),
                 lastMessageTime: dayjs().format(),
+                hasAttachment: hasMedia,
               } as ConversationModel;
             },
           );
@@ -338,7 +433,10 @@ const ChatInput = (props: ChatInputProps) => {
   });
 
   const chat = () => {
-    if (inputRef.current.innerText.trim() === "" && files.length === 0) return;
+    let content = getMessageValue();
+    if (content === "" && files.length === 0) return;
+
+    // console.log(content);
 
     const lazyImages = files.map((item) => {
       return {
@@ -349,8 +447,8 @@ const ChatInput = (props: ChatInputProps) => {
       } as AttachmentModel;
     });
     sendMutation({
-      type: inputRef.current.innerText.trim() === "" ? "media" : "text",
-      content: inputRef.current.innerText,
+      type: content === "" ? "media" : "text",
+      content: content,
       attachments: lazyImages,
       files: files,
     });
@@ -361,10 +459,28 @@ const ChatInput = (props: ChatInputProps) => {
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
+  const getCharBeforeCursor = () => {
+    const input = inputRef.current;
+    if (!input) return null;
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+
+    const range = selection.getRangeAt(0);
+    const clonedRange = range.cloneRange();
+    clonedRange.selectNodeContents(input);
+    clonedRange.setEnd(range.endContainer, range.endOffset);
+
+    const cursorPosition = clonedRange.toString().length;
+    const textBeforeCursor = input.innerText.substring(0, cursorPosition);
+    return textBeforeCursor[textBeforeCursor.length - 1] || null;
+  };
+
   const keydownBindingFn = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const key = e.key;
 
+      // Di chuyển lên xuống trong danh sách mention khi đang hiển thị
       if (key === "ArrowDown") {
         e.preventDefault();
         setSelectedIndex((prev) => (prev + 1) % mentions.length);
@@ -373,7 +489,9 @@ const ChatInput = (props: ChatInputProps) => {
         setSelectedIndex(
           (prev) => (prev - 1 + mentions.length) % mentions.length,
         );
-      } else if (key === "Enter" && showMention) {
+      }
+      // Nhấn Enter khi đang hiển thị mention -> chọn mention
+      if (key === "Enter" && showMention) {
         e.preventDefault();
         chooseMention(mentions[selectedIndex].userId);
       }
@@ -385,15 +503,36 @@ const ChatInput = (props: ChatInputProps) => {
       }
 
       // Nếu nội dung đang rỗng và người dùng gõ phím không phải là Backspace
-      else if (isEmpty && key !== "Backspace") {
+      if (isEmpty && key !== "Backspace") {
         setIsEmpty(false);
       }
+      // Nếu người dùng gõ Backspace và trước đó là ký tự @ thì ẩn mention đi
+      if (key === "Backspace") {
+        if (getCharBeforeCursor() === "@") {
+          setShowMention(false);
+        }
+      }
       // Nhấn @ để hiển thị Mention
-      else if (key === "@") {
+      // nếu ký tự trước là @ thì không hiện ký tự @ nữa mà hiện menu mention luôn
+      if (key === "@") {
+        const input = inputRef.current;
+        if (!input) return;
+
+        if (getCharBeforeCursor() === "@") {
+          e.preventDefault(); // Ngăn chặn ký tự "@" được thêm vào
+          setShowMention(true);
+          return; // ⛔ chặn không cho thêm "@"
+        }
+
         setShowMention(true);
       }
-      // Mọi phím khác -> ẩn Mention
-      else {
+      // Nhấn Ésc -> ẩn Mention
+      if (key === "Escape") {
+        setShowMention(false);
+      }
+      // Nhấn Space khi đang hiện mention -> ẩn mention
+      if (key === " " && showMention) {
+        // e.preventDefault();
         setShowMention(false);
       }
     },
@@ -434,16 +573,118 @@ const ChatInput = (props: ChatInputProps) => {
       const cursorPosition = clonedRange.toString().length;
 
       if (cursorPosition > 0) {
-        const textBeforeCursor = input.innerText.substring(0, cursorPosition);
-        const charBeforeCursor = textBeforeCursor[textBeforeCursor.length - 1];
+        // Nhấn Ctrl + Space, tìm ký tự @ gần nhất trước con trỏ, nếu từ đó đến vị trí con trỏ không có space nào khác thì hiện mention
+        if (e.ctrlKey && e.key === " ") {
+          e.preventDefault();
 
-        // Nếu trước đó là @ và vừa nhấn Ctrl + Space
-        if (charBeforeCursor === "@" && e.key === " " && e.ctrlKey) {
-          setShowMention(true);
+          const input = inputRef.current;
+          if (!input) return;
+
+          const selection = window.getSelection();
+          if (!selection || selection.rangeCount === 0) return;
+
+          const range = selection.getRangeAt(0);
+          const clonedRange = range.cloneRange();
+          clonedRange.selectNodeContents(input);
+          clonedRange.setEnd(range.endContainer, range.endOffset);
+
+          const cursorPosition = clonedRange.toString().length;
+          const textBeforeCursor = input.innerText.substring(0, cursorPosition);
+
+          const atIndex = textBeforeCursor.lastIndexOf("@");
+
+          if (atIndex !== -1) {
+            const textFromAtToCursor = textBeforeCursor.substring(atIndex + 1);
+
+            // 👉 nếu không có space giữa @ và cursor thì show mention
+            if (!/\s/.test(textFromAtToCursor)) {
+              setShowMention(true);
+            }
+          }
+        }
+        // Tìm kiếm mention theo tên khi showMention đang bật
+        else {
+          if (showMention) {
+            // Khi mention đang hiện thị và người dùng gõ thêm ký tự, ta sẽ tìm kiếm trong danh sách mention
+            // lưu ý loại bỏ ký tự @ ở đầu nếu có
+            // if (charBeforeCursor === "@") {
+            const input = inputRef.current;
+            if (!input) return;
+
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) return;
+
+            const range = selection.getRangeAt(0);
+            const clonedRange = range.cloneRange();
+            clonedRange.selectNodeContents(input);
+            clonedRange.setEnd(range.endContainer, range.endOffset);
+
+            const cursorPosition = clonedRange.toString().length;
+            const fullText = input.innerText;
+
+            // 👉 tìm @ gần nhất trước cursor
+            const beforeCursor = fullText.substring(0, cursorPosition);
+            const atIndex = beforeCursor.lastIndexOf("@");
+
+            if (atIndex !== -1) {
+              // 👉 lấy từ @ đến space đầu tiên SAU @ (không phụ thuộc cursor)
+              const afterAt = fullText.substring(atIndex + 1);
+              const spaceIndex = afterAt.search(/\s/);
+
+              const searchText =
+                spaceIndex === -1
+                  ? afterAt // không có space → lấy hết
+                  : afterAt.substring(0, spaceIndex);
+
+              console.log("text to search:", searchText);
+
+              if (searchText !== "") {
+                setMentions(() => {
+                  const list = conversation.members
+                    .filter((item) => item.contact.id !== info.id)
+                    .map((item) => ({
+                      name: item.contact.name!,
+                      avatar: item.contact.avatar ?? null,
+                      userId: item.contact.id!,
+                    }));
+                  const listToSearch = [
+                    {
+                      name: "All",
+                      avatar: null,
+                      userId: "all",
+                    },
+                    ...list,
+                  ];
+                  return listToSearch.filter((item) =>
+                    item.name.toLowerCase().includes(searchText.toLowerCase()),
+                  );
+                });
+              } else {
+                setMentions(() => {
+                  const list = conversation.members
+                    .filter((item) => item.contact.id !== info.id)
+                    .map((item) => ({
+                      name: item.contact.name!,
+                      avatar: item.contact.avatar ?? null,
+                      userId: item.contact.id!,
+                    }));
+
+                  return [
+                    {
+                      name: "All",
+                      avatar: null,
+                      userId: "all",
+                    },
+                    ...list,
+                  ];
+                });
+              }
+            }
+          }
         }
       }
     },
-    [isEmpty, setIsEmpty, setShowMention],
+    [isEmpty, setIsEmpty, showMention, setShowMention],
   );
 
   const refMentionContainer = useRef<HTMLDivElement | null>(null);
@@ -591,31 +832,41 @@ const ChatInput = (props: ChatInputProps) => {
             <div
               ref={refMentionContainer}
               data-show={showMention}
-              className="z-2 laptop:max-h-40 laptop:w-60 absolute bottom-24 left-0
+              className="z-2 laptop:max-h-60 laptop:w-60 absolute bottom-24 left-0
           flex flex-col gap-2 overflow-y-scroll scroll-smooth rounded-[.7rem] bg-white p-2
           shadow-[0_2px_10px_rgba(0,0,0,0.1)] transition-all duration-200 
           data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
-              {mentions?.map((item, index) => (
-                <div
-                  key={item.userId}
-                  ref={(el) => (mentionRefs.current[index] = el)}
-                  className={`mention-user flex cursor-pointer gap-4 rounded-[.7rem] px-3 py-1 ${index === selectedIndex ? "active" : ""}`}
-                  onClick={() => chooseMention(item.userId)}
-                >
-                  <ImageWithLightBoxAndNoLazy
-                    src={item.avatar}
-                    slides={[
-                      {
-                        src: item.avatar,
-                      },
-                    ]}
-                    className="aspect-square h-8 cursor-pointer"
-                    circle
-                  />
-                  <p>{item.name}</p>
-                </div>
-              ))}
+              {mentions.length === 0 ? (
+                <p className="text-center text-sm text-gray-500">
+                  No members found
+                </p>
+              ) : (
+                mentions?.map((item, index) => (
+                  <div
+                    key={item.userId}
+                    ref={(el) => (mentionRefs.current[index] = el)}
+                    className={`mention-user flex cursor-pointer gap-4 rounded-[.7rem] px-3 py-1 ${index === selectedIndex ? "active" : ""}`}
+                    // onClick={() => chooseMention(item.userId)}
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // giữ selection
+                      chooseMention(item.userId);
+                    }}
+                  >
+                    <ImageWithLightBoxAndNoLazy
+                      src={item.avatar}
+                      slides={[
+                        {
+                          src: item.avatar,
+                        },
+                      ]}
+                      className="aspect-square h-8 cursor-pointer"
+                      circle
+                    />
+                    <p>{item.name}</p>
+                  </div>
+                ))
+              )}
             </div>
           ) : (
             ""

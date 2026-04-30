@@ -41,6 +41,7 @@ const Information = () => {
   const refInformation = useRef<HTMLDivElement>();
   const refMembers = useRef<HTMLDivElement>();
   const refAddMembers = useRef<AddMembersProps>();
+  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [displayAttachments, setDisplayAttachments] = useState<
     AttachmentModel[]
@@ -299,6 +300,7 @@ const Information = () => {
                 {displayAttachments.map((item, index) => (
                   <div className="relative">
                     <ImageWithLightBoxAndNoLazy
+                      ref={(el) => (imageRefs.current[index] = el)}
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className={`peer aspect-square w-full`}
@@ -312,7 +314,12 @@ const Information = () => {
                       pending={item.pending}
                       local={item.local}
                     />
-                    <ShareImage media={item} />
+                    <ShareImage
+                      media={item}
+                      showImage={() => {
+                        imageRefs.current[index]?.click(); // 👉 trigger click vào image
+                      }}
+                    />
                   </div>
                 ))}
               </div>

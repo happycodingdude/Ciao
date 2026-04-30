@@ -182,7 +182,12 @@ const ListChatContainer = () => {
                     />
                     {/* MARK: LAST MESSAGE */}
                     {item.lastMessage ? (
-                      <div className="truncate text-gray-600">
+                      <div className="flex text-gray-600">
+                        {item.hasAttachment && (
+                          <span className="laptop:text-2xs mr-1 self-center text-gray-500 grayscale">
+                            🖼️
+                          </span>
+                        )}
                         <p
                           className={`${
                             isActive

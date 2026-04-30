@@ -15,7 +15,7 @@ const ImageItem = memo(
       <div className="file-card group relative w-20 shrink-0 rounded-xl border border-chat-gray bg-white p-3">
         <div
           data-key={file.name}
-          className="delete-btn absolute -right-2 -top-2 z-10 
+          className="delete-btn absolute -right-2 -top-2 
           flex aspect-square w-5 cursor-pointer items-center 
           justify-center rounded-full bg-red-400 text-xs text-white"
           onClick={() => onClick(file.name)}

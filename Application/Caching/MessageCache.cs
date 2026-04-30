@@ -59,6 +59,7 @@ public class MessageCache
             conversationInfo.LastMessageTime = message.CreatedTime;
             conversationInfo.LastMessageContact = userId;
             conversationInfo.UpdatedTime = updatedTime;
+            conversationInfo.HasAttachment = message.Attachments.Any();
             await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId), conversationInfo);
         });
         tasks.Add(conversationInfoTask);

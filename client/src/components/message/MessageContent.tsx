@@ -170,7 +170,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
         ref={ref}
         id={message.id}
         key={message.id}
-        className={`flex shrink-0 gap-4 ${message.contactId === info.id ? "flex-row-reverse mr-6" : ""} `}
+        className={`flex shrink-0 gap-4 ${message.contactId === info.id ? "mr-6 flex-row-reverse" : ""} `}
       >
         {/* MARK: SENDER AVATAR */}
         {!isSelf && (
@@ -187,17 +187,17 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
         )}
 
         <div className="flex flex-col gap-2">
-          <div
-            className={`text-(--text-main-color-thin) flex items-center gap-4 ${message.contactId === info.id ? "justify-end" : ""}`}
-          >
-            {/* MARK: SENDER NAME */}
-            {!isSelf && showName && sender && (
+          {/* MARK: SENDER NAME */}
+          {!isSelf && showName && sender && (
+            <div
+              className={`text-(--text-main-color-thin) flex items-center gap-4 ${message.contactId === info.id ? "justify-end" : ""}`}
+            >
               <p className="font-medium">{sender.contact.name}</p>
-            )}
+            </div>
+          )}
 
-            {/* MARK: MESSAGE TIME */}
-            {/* <p>{dayjs(message.createdTime).format("HH:mm")}</p> */}
-          </div>
+          {/* MARK: MESSAGE TIME */}
+          {/* <p>{dayjs(message.createdTime).format("HH:mm")}</p> */}
           <div
             className={`laptop-lg:max-w-120 laptop:max-w-100 desktop:max-w-220 relative flex w-fit flex-col
             ${message.contactId === info.id ? "items-end" : "items-start"}
@@ -212,7 +212,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
                   ${message.pending ? "opacity-50" : ""}
-                  ${message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-1 laptop:px-3 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
+                  ${message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
                 `}
               >
                 {message.isForwarded ? (
@@ -268,17 +268,19 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               </div>
             )}
             {/* MARK: MESSAGE MENU */}
-            <MessageMenu_Slide
-              conversationId={id}
-              message={message}
-              mine={message.contactId === info.id}
-              contact={
-                conversation.members.find(
-                  (q) => q.contact.id === message.contactId,
-                )?.contact || {}
-              }
-              getContainerRect={props.getContainerRect}
-            />
+            {!message.pending && (
+              <MessageMenu_Slide
+                conversationId={id}
+                message={message}
+                mine={message.contactId === info.id}
+                contact={
+                  conversation.members.find(
+                    (q) => q.contact.id === message.contactId,
+                  )?.contact || {}
+                }
+                getContainerRect={props.getContainerRect}
+              />
+            )}
             {/* MARK: REACTION */}
             {/* <MessageReaction
               message={{

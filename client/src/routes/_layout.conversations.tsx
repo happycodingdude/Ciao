@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_layout/conversations")({
                 <ListChatHeaderContainer />
                 <Suspense fallback={<ListchatLoading />}>
                   <Await promise={conversations}>
-                    {(data) => <ListChatContainer />}
+                    {() => <ListChatContainer />}
                   </Await>
                 </Suspense>
               </div>

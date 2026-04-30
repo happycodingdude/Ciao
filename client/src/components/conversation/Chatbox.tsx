@@ -260,9 +260,9 @@ const Chatbox = () => {
                   </div>
                 );
               }
-              const lastMessage = block.messages[block.messages.length - 1];
+              // const lastMessage = block.messages[block.messages.length - 1];
               return (
-                <div key={blockIndex} className="mb-6 flex flex-col">
+                <div key={blockIndex} className="mb-6 flex flex-col gap-3">
                   {block.messages.map((message) => (
                     <MessageContent
                       key={message.id}

@@ -22,8 +22,8 @@ const ForgotPasswordForm = () => {
   const reset = () => {
     setError("");
     setProcessing(false);
-    refUsername.current.reset();
-    refPassword.current.reset();
+    refUsername.current?.reset();
+    refPassword.current?.reset();
   };
 
   useEffect(() => {

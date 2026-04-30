@@ -170,6 +170,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 conversation.LastMessage = lastMessage.Type == "text" ? lastMessage.Content : string.Join(",", lastMessage.Attachments.Select(q => q.MediaName));
                 conversation.LastMessageTime = lastMessage.CreatedTime;
                 conversation.LastMessageContact = lastMessage.ContactId;
+                conversation.HasAttachment = lastMessage.Attachments.Any();
             }
         }
 

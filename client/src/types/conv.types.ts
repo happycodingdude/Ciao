@@ -34,6 +34,7 @@ export type ConversationModel = BaseModel & {
   lastSeenTime?: string | null;
   isNotifying?: boolean;
   unSeen?: boolean;
+  hasAttachment?: boolean;
 };
 
 export type ConversationCache = {

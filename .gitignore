@@ -5,6 +5,9 @@
 /Authentication.API/*.pyc
 /Authentication.API/nupkg/
 
+# Environment variables
+.env
+
 # Visual Studio Code
 #.vscode/
 

@@ -14,6 +14,7 @@ public class ConversationCacheModel : MongoBaseModel
     public string LastMessageContact { get; set; } = null!;
     // public DateTime? LastSeenTime { get; set; }
     public bool IsNotifying { get; set; }
+    public bool HasAttachment { get; set; }
 }
 
 // public class ListConversationCacheModel
