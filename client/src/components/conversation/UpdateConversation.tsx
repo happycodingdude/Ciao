@@ -17,19 +17,19 @@ import MediaPicker from "../common/MediaPicker";
 const UpdateConversation = (props: UpdateConversationProps) => {
   const { selected, onClose } = props;
 
-  if (!selected) return null;
-
   const queryClient = useQueryClient();
 
   const refInput = useRef<HTMLInputElement | undefined>(undefined);
 
-  const [avatar, setAvatar] = useState<string>(selected.avatar ?? "");
+  const [avatar, setAvatar] = useState<string>(selected?.avatar ?? "");
   const [file, setFile] = useState<File>();
 
   useEffect(() => {
     refInput.current?.focus();
-    if (refInput.current) refInput.current.value = selected.title ?? "";
-  }, []);
+    if (refInput.current) refInput.current.value = selected?.title ?? "";
+  }, [selected]);
+
+  if (!selected) return null;
 
   const updateConversationCTA = async () => {
     if (!refInput.current?.value) return;

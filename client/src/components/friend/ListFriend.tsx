@@ -61,8 +61,9 @@ const ListFriend = (props: OnCloseType) => {
         }}
       />
       <div className="list-friend-container hide-scrollbar text-(--text-main-color) mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
-        {contacts.map((item, i) => (
+        {contacts.map((item) => (
           <FriendItem
+            key={item.id}
             friend={item}
             friendAction={handleFriendAction}
             onClose={onClose}

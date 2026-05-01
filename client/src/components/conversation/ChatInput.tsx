@@ -1,5 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import React, {
   ChangeEvent,
@@ -14,6 +14,7 @@ import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import useInfo from "../../hooks/useInfo";
+import { useReply } from "../../hooks/useReply";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { sendMessage } from "../../services/message.service";
 import "../../styles/chatinput.css";
@@ -26,7 +27,6 @@ import {
   MessageCache,
   PendingMessageModel,
   SendMessageRequest,
-  SendMessageResponse,
 } from "../../types/message.types";
 import { getToday } from "../../utils/datetime";
 import delay from "../../utils/delay";
@@ -53,10 +53,7 @@ const ChatInput = (props: ChatInputProps) => {
     (c) => c.id === conversationId,
   );
 
-  const { data: reply } = useQuery<{ replyContactName?: string; replyContent?: string; replyId?: string } | null>({
-    queryKey: ["reply"],
-    queryFn: () => null,
-  });
+  const { reply, clearReply } = useReply();
 
   const [mentions, setMentions] = useState<MentionModel[]>([]);
   const [showMention, setShowMention] = useState<boolean>(false);
@@ -109,13 +106,6 @@ const ChatInput = (props: ChatInputProps) => {
     selection.addRange(range);
   };
 
-  // const chooseMention = (id: string) => {
-  //   const user = mentions.find((item) => item.userId === id);
-  //   inputRef.current.innerText = inputRef.current.innerText + `[${user.name}]`;
-  //   setCaretToEnd(true);
-  //   setShowMention(false);
-  //   setSelectedIndex(0);
-  // };
   const chooseMention = (id: string) => {
     const user = mentions.find((item) => item.userId === id);
     if (!user || !inputRef.current) return;
@@ -379,7 +369,7 @@ const ChatInput = (props: ChatInputProps) => {
       if (!res) return;
       await delay(500);
 
-      queryClient.setQueryData(["reply"], null);
+      clearReply();
 
       queryClient.setQueryData(
         ["message", conversationId],
@@ -438,8 +428,6 @@ const ChatInput = (props: ChatInputProps) => {
   const chat = () => {
     let content = getMessageValue();
     if (content === "" && files.length === 0) return;
-
-    // console.log(content);
 
     const lazyImages = files.map((item) => {
       return {
@@ -535,7 +523,6 @@ const ChatInput = (props: ChatInputProps) => {
       }
       // Nhấn Space khi đang hiện mention -> ẩn mention
       if (key === " " && showMention) {
-        // e.preventDefault();
         setShowMention(false);
       }
     },
@@ -610,7 +597,6 @@ const ChatInput = (props: ChatInputProps) => {
           if (showMention) {
             // Khi mention đang hiện thị và người dùng gõ thêm ký tự, ta sẽ tìm kiếm trong danh sách mention
             // lưu ý loại bỏ ký tự @ ở đầu nếu có
-            // if (charBeforeCursor === "@") {
             const input = inputRef.current;
             if (!input) return;
 
@@ -638,8 +624,6 @@ const ChatInput = (props: ChatInputProps) => {
                 spaceIndex === -1
                   ? afterAt // không có space → lấy hết
                   : afterAt.substring(0, spaceIndex);
-
-              console.log("text to search:", searchText);
 
               if (searchText !== "") {
                 setMentions(() => {
@@ -733,25 +717,6 @@ const ChatInput = (props: ChatInputProps) => {
   }, []);
   useEventListener("click", closeMentionOnClick);
 
-  const hideMentionOnKey = useCallback((e: Event) => {
-    if ((e as KeyboardEvent).keyCode === 27) {
-      setShowMention(false);
-    }
-  }, []);
-  // useEventListener("keydown", hideMentionOnKey);
-
-  // const closeEmojiOnClick = useCallback((e: MouseEvent) => {
-  //   const target = e.target as HTMLElement;
-  //   const classList = Array.from(target.classList);
-  //   if (
-  //     target.closest(".emoji-item") ||
-  //     classList.some((item) => item.includes("epr"))
-  //   )
-  //     return;
-  //   setShowEmoji(false);
-  // }, []);
-  // useEventListener("click", closeEmojiOnClick);
-
   const closeEmojiOnKey = useCallback((e: Event) => {
     if ((e as KeyboardEvent).key === "Escape") {
       setShowEmoji(false);
@@ -811,8 +776,8 @@ const ChatInput = (props: ChatInputProps) => {
               <CloseOutlined
                 className="flex cursor-pointer items-start"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent bubbling to parent
-                  queryClient.setQueryData(["reply"], null);
+                  e.stopPropagation();
+                  clearReply();
                 }}
               />
             </div>
@@ -851,7 +816,6 @@ const ChatInput = (props: ChatInputProps) => {
                     key={item.userId}
                     ref={(el) => (mentionRefs.current[index] = el)}
                     className={`mention-user flex cursor-pointer gap-4 rounded-[.7rem] px-3 py-1 ${index === selectedIndex ? "active" : ""}`}
-                    // onClick={() => chooseMention(item.userId)}
                     onMouseDown={(e) => {
                       e.preventDefault(); // giữ selection
                       chooseMention(item.userId);

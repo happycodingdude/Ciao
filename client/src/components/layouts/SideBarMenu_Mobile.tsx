@@ -16,11 +16,12 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
 
-  if (!info) return null;
-
   useEffect(() => {
+    if (!info) return;
     blurImage(".sidebar-container");
-  }, [info.avatar]);
+  }, [info?.avatar]);
+
+  if (!info) return null;
 
   return (
     <div className="inline-flex grow flex-row items-center justify-evenly">

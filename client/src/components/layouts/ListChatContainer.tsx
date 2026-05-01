@@ -23,7 +23,6 @@ const ListChatContainer = () => {
   const { data: info } = useInfo();
 
   const { data: conversations, isLoading, isRefetching } = useConversation(1);
-  if (isLoading || isRefetching) return <ListchatLoading />;
 
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const refListConversation = useRef<HTMLDivElement>(null);
@@ -53,29 +52,23 @@ const ListChatContainer = () => {
     if (!el) return;
 
     const unlockScroll = lockScroll(el);
-
     const newConversations = await getConversations(refPage.current);
 
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      return {
-        ...oldData,
-        conversations: [
-          ...(oldData.conversations ?? []),
-          ...(newConversations.conversations ?? []),
-        ],
-        filterConversations: [
-          ...(oldData.filterConversations ?? []),
-          ...(newConversations.filterConversations ?? []),
-        ],
-      };
-    });
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => ({
+      ...oldData,
+      conversations: [
+        ...(oldData.conversations ?? []),
+        ...(newConversations.conversations ?? []),
+      ],
+      filterConversations: [
+        ...(oldData.filterConversations ?? []),
+        ...(newConversations.filterConversations ?? []),
+      ],
+    }));
 
     refHasMore.current = (newConversations.conversations?.length ?? 0) > 0;
     isFetching.current = false;
-
-    requestAnimationFrame(() => {
-      unlockScroll();
-    });
+    requestAnimationFrame(() => unlockScroll());
   };
 
   const debounceFetch = useMemo(
@@ -98,6 +91,8 @@ const ListChatContainer = () => {
   }, [debounceFetch]);
 
   useEventListener("scroll", handleScroll, refListConversation.current);
+
+  if (isLoading || isRefetching) return <ListchatLoading />;
 
   const scrollToConversation = (id: string) => {
     const container = refListConversation.current;

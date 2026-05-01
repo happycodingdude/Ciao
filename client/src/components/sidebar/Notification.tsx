@@ -36,7 +36,7 @@ const Notification = () => {
   useEventListener("click", hideNotificationOnClick);
 
   const hideNotificationOnKey = useCallback((e: Event) => {
-    if ((e as KeyboardEvent).keyCode === 27) {
+    if ((e as KeyboardEvent).key === "Escape") {
       refNotification.current?.setAttribute("data-state", "hide");
       setLoaded(false);
     }

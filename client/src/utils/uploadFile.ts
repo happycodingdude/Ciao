@@ -17,7 +17,6 @@ interface UploadedFile {
   size: number;
 }
 
-// Function to upload a single file and return its download URL
 const upload = (file: File): Promise<UploadedFile> => {
   return new Promise((resolve, reject) => {
     const isFile = ["doc", "docx", "xls", "xlsx", "pdf"].includes(
@@ -31,10 +30,7 @@ const upload = (file: File): Promise<UploadedFile> => {
 
     uploadTask.on(
       "state_changed",
-      (snapshot) => {
-        // const progressPercent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        // setProgress((prev) => ({ ...prev, [file.name]: progressPercent }));
-      },
+      () => {},
       (error) => reject(error),
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -52,11 +48,9 @@ const upload = (file: File): Promise<UploadedFile> => {
 export async function uploadMultipleFile(files: File[]) {
   try {
     const uploadPromises = files.map((file) => upload(file));
-    const uploadedFiles = await Promise.all(uploadPromises);
-    console.log("Uploaded Files:", uploadedFiles);
-    return uploadedFiles;
-  } catch (error) {
-    console.error("Upload failed:", error);
+    return await Promise.all(uploadPromises);
+  } catch {
+    return undefined;
   }
 }
 
@@ -64,7 +58,7 @@ export async function uploadFile(files: File[]): Promise<AttachmentModel[]> {
   const formData = new FormData();
 
   files.forEach((file) => {
-    formData.append("files", file); // 👈 MUST trùng key backend
+    formData.append("files", file);
   });
 
   return (

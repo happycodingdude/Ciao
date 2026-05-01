@@ -11,9 +11,6 @@ import useConversation from "../hooks/useConversation";
 import useMessage from "../hooks/useMessage";
 import { ConversationCache } from "../types/conv.types";
 
-// ✅ Lazy load heavy component to reduce initial bundle
-// const ChatboxContainer = lazy(() => import("../../layouts/ChatboxContainer"));
-
 export const Route = createFileRoute("/_layout/conversations/$conversationId")({
   loader: async ({ params, context }) => {
     const { queryClient } = context;
@@ -55,9 +52,7 @@ export const Route = createFileRoute("/_layout/conversations/$conversationId")({
 
   component: () => {
     const { conversationId } = Route.useParams();
-    console.log("Rendering Conversation Layout for ID:", conversationId);
 
-    // UseEffect chỉ để sync active conversation
     useEffect(() => {
       if (!conversationId) return;
 
@@ -85,7 +80,6 @@ export const Route = createFileRoute("/_layout/conversations/$conversationId")({
     )
       return <ChatboxLoading />;
 
-    // ✅ Wrap lazy component with Suspense
     return <ChatboxContainer />;
   },
 });

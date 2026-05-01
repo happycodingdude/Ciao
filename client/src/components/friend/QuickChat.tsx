@@ -15,6 +15,14 @@ import {
 import { ConversationCache, ConversationModel } from "../../types/conv.types";
 import { ContactModel, QuickChatProps } from "../../types/friend.types";
 import { AttachmentCache, MessageCache } from "../../types/message.types";
+import {
+  buildOptimisticConversation,
+  optimisticId,
+  prependConversation,
+  replaceConversationId,
+  reopenMember,
+  syncConversations,
+} from "../../utils/conversationCache";
 import CustomContentEditable from "../common/CustomContentEditable";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import FriendCtaButton from "./FriendCtaButton";
@@ -22,11 +30,8 @@ import FriendCtaButton from "./FriendCtaButton";
 const QuickChat = (props: QuickChatProps) => {
   const { rect, offset, profile, onClose } = props;
 
-  if (!profile) return null;
-
   const queryClient = useQueryClient();
   const router = useRouter();
-
   const { setLoading } = useLoading();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
@@ -34,7 +39,7 @@ const QuickChat = (props: QuickChatProps) => {
   const refQuickProfile = useRef<HTMLDivElement>(null);
   const refInput = useRef<HTMLDivElement>(null);
 
-  const [innerFriend, setInnerFriend] = useState<ContactModel>(profile);
+  const [innerFriend, setInnerFriend] = useState<ContactModel | undefined>(profile);
 
   useEffect(() => {
     setInnerFriend(profile);
@@ -59,28 +64,33 @@ const QuickChat = (props: QuickChatProps) => {
 
     refQuickProfile.current.style.top =
       offsetTop < 0 ? "0px" : offsetTop + "px";
-
     refQuickProfile.current.style.right = `${window.scrollY + (offset ?? 0)}px`;
   }, [innerFriend, rect]);
 
-  const chat = async () => {
-    const message = refInput.current?.textContent ?? "";
-    const randomId = Math.random().toString(36).substring(2, 7);
-    const existedConversation = (conversations?.conversations ?? []).find(
-      (conv) => conv.id === innerFriend.directConversation,
-    );
-    if (existedConversation) {
-      handleExistedConversation(existedConversation, message, randomId);
-    } else {
-      handleNewConversation(message, randomId);
+  const closeQuickProfileOnKey = useCallback((e: Event) => {
+    if ((e as KeyboardEvent).key === "Escape") {
+      if (refQuickProfile.current) refQuickProfile.current.style.right = "-40rem";
     }
-    onClose?.();
-  };
+  }, []);
+  useEventListener("keydown", closeQuickProfileOnKey);
+
+  const closeQuickProfileOnClick = useCallback((e: Event) => {
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(".quick-profile") ||
+      target.closest(".information-members")
+    )
+      return;
+    if (refQuickProfile.current) refQuickProfile.current.style.right = "-40rem";
+  }, []);
+  useEventListener("click", closeQuickProfileOnClick);
+
+  if (!profile) return null;
 
   const handleExistedConversation = async (
     conversation: ConversationModel,
     message: string,
-    randomId: string,
+    tempId: string,
   ) => {
     let messages = queryClient.getQueryData<MessageCache>([
       "message",
@@ -99,46 +109,32 @@ const QuickChat = (props: QuickChatProps) => {
     }
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const isDeletedConversation = (conversation.members ?? []).find(
-        (mem) => mem.contact?.id === info?.id,
-      )?.isDeleted ?? false;
-      let updatedConversations: ConversationModel[] = [];
-      if (isDeletedConversation) {
-        conversation.lastMessage = message;
-        conversation.lastMessageTime = dayjs().format();
-        conversation.members = (conversation.members ?? []).map((mem) => {
-          if (mem.contact?.id !== info?.id) return mem;
-          return { ...mem, isDeleted: false };
-        });
-        updatedConversations = [
-          conversation,
-          ...(oldData.conversations ?? []).filter(
-            (conv) => conv.id !== conversation.id,
-          ),
-        ];
-      } else {
-        updatedConversations = (oldData.conversations ?? []).map((conv) => {
-          if (conv.id !== conversation.id) return conv;
-          conv.lastMessage = message;
-          conv.lastMessageTime = dayjs().format();
-          conv.members = (conv.members ?? []).map((mem) => {
-            if (mem.contact?.id !== info?.id) return mem;
-            return { ...mem, isDeleted: false };
-          });
-          return conv;
-        });
-      }
+      const isDeletedConversation =
+        (conversation.members ?? []).find(
+          (mem) => mem.contact?.id === info?.id,
+        )?.isDeleted ?? false;
 
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
-      } as ConversationCache;
+      const now = dayjs().format();
+      const updatedConv = {
+        ...conversation,
+        lastMessage: message,
+        lastMessageTime: now,
+        members: reopenMember(conversation.members ?? [], info?.id ?? ""),
+      };
+
+      return isDeletedConversation
+        ? prependConversation(oldData, updatedConv)
+        : syncConversations(
+            oldData,
+            (oldData.conversations ?? []).map((conv) =>
+              conv.id !== conversation.id ? conv : updatedConv,
+            ),
+          );
     });
 
     if (messages) {
       messages.messages.push({
-        id: randomId,
+        id: tempId,
         contactId: info?.id,
         type: "text",
         content: message,
@@ -154,163 +150,103 @@ const QuickChat = (props: QuickChatProps) => {
 
     router.navigate({ to: `/conversations/${conversation.id}` });
 
-    const bodyToCreate = {
-      type: "text",
-      content: message,
-    };
-    sendMessage(conversation.id ?? "", bodyToCreate, 1000).then((res) => {
-      if (!res) return;
-      queryClient.setQueryData(
-        ["message", conversation.id],
-        (oldData: MessageCache) => {
-          const updatedMessages = (oldData.messages ?? []).map((message) => {
-            if (message.id !== randomId) return message;
-            return { ...message, id: res.messageId, pending: false };
-          });
-          return {
+    sendMessage(conversation.id ?? "", { type: "text", content: message }, 1000).then(
+      (res) => {
+        if (!res) return;
+        queryClient.setQueryData(
+          ["message", conversation.id],
+          (oldData: MessageCache) => ({
             ...oldData,
-            messages: updatedMessages,
-          } as MessageCache;
-        },
-      );
-    });
+            messages: (oldData.messages ?? []).map((msg) =>
+              msg.id !== tempId ? msg : { ...msg, id: res.messageId, pending: false },
+            ),
+          }),
+        );
+      },
+    );
   };
 
-  const handleNewConversation = async (message: string, randomId: string) => {
+  const handleNewConversation = async (message: string, tempId: string) => {
     setLoading(true);
 
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const newConversation: ConversationModel = {
-        id: randomId,
-        lastMessage: message,
-        isGroup: false,
-        isNotifying: true,
-        members: [
-          {
-            isModerator: true,
-            contact: {
-              id: info?.id,
-              name: info?.name,
-              avatar: info?.avatar,
-              isOnline: true,
-            },
-          },
-          {
-            contact: {
-              id: innerFriend.id,
-              name: innerFriend.name,
-              avatar: innerFriend.avatar,
-              isOnline: innerFriend.isOnline,
-            },
-          },
-        ],
-      };
-      return {
-        ...oldData,
-        conversations: [newConversation, ...(oldData.conversations ?? [])],
-        filterConversations: [newConversation, ...(oldData.conversations ?? [])],
-      } as ConversationCache;
+    const newConversation = buildOptimisticConversation(tempId, info!, innerFriend!, {
+      lastMessage: message,
     });
 
-    createDirectChatWithMessage(innerFriend.id ?? "", { message }).then((res) => {
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
+      prependConversation(oldData, newConversation),
+    );
+
+    createDirectChatWithMessage(innerFriend!.id ?? "", { message }).then((res) => {
       if (!res) return;
-      queryClient.setQueryData(
-        ["conversation"],
-        (oldData: ConversationCache) => {
-          const updatedConversations = (oldData.conversations ?? []).map(
-            (conversation) => {
-              if (conversation.id !== randomId) return conversation;
-              return { ...conversation, id: res.conversationId };
-            },
-          );
-          return {
-            ...oldData,
-            conversations: updatedConversations,
-            filterConversations: updatedConversations,
-          } as ConversationCache;
-        },
+      queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
+        replaceConversationId(oldData, tempId, res.conversationId ?? ""),
       );
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        const updatedMessages = (oldData.messages ?? []).map((message) => {
-          if (message.id !== randomId) return message;
-          return { ...message, id: res.messageId, pending: false };
-        });
-        return {
-          ...oldData,
-          messages: updatedMessages,
-        } as MessageCache;
-      });
-      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-        return {
-          ...oldData,
-          conversationId: res.conversationId,
-        } as AttachmentCache;
-      });
+      queryClient.setQueryData(["message"], (oldData: MessageCache) => ({
+        ...oldData,
+        messages: (oldData.messages ?? []).map((msg) =>
+          msg.id !== tempId ? msg : { ...msg, id: res.messageId, pending: false },
+        ),
+      }));
+      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => ({
+        ...oldData,
+        conversationId: res.conversationId,
+      }));
     });
 
-    queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-      return {
-        ...oldData,
-        messages: [
-          {
-            id: randomId,
-            contactId: info?.id,
-            type: "text",
-            content: message,
-            currentReaction: null,
-            pending: true,
-          },
-        ],
-        hasMore: false,
-      } as MessageCache;
-    });
-    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-      return {
-        ...oldData,
-        conversationId: randomId,
-        attachments: [],
-      } as AttachmentCache;
-    });
+    queryClient.setQueryData(["message"], (oldData: MessageCache) => ({
+      ...oldData,
+      messages: [
+        {
+          id: tempId,
+          contactId: info?.id,
+          type: "text",
+          content: message,
+          currentReaction: null,
+          pending: true,
+        },
+      ],
+      hasMore: false,
+    }));
+    queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => ({
+      ...oldData,
+      conversationId: tempId,
+      attachments: [],
+    }));
 
     setLoading(false);
   };
 
+  const chat = async () => {
+    const message = refInput.current?.textContent ?? "";
+    const tempId = optimisticId();
+    const existedConversation = (conversations?.conversations ?? []).find(
+      (conv) => conv.id === innerFriend?.directConversation,
+    );
+    if (existedConversation) {
+      handleExistedConversation(existedConversation, message, tempId);
+    } else {
+      handleNewConversation(message, tempId);
+    }
+    onClose?.();
+  };
+
   const keydownBindingFn = (e: React.KeyboardEvent<HTMLElement>) => {
-    if (e.keyCode === 13 && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       chat();
     }
   };
 
-  const closeQuickProfileOnKey = useCallback((e: Event) => {
-    if ((e as KeyboardEvent).keyCode === 27) {
-      if (refQuickProfile.current) refQuickProfile.current.style.right = "-40rem";
-    }
-  }, []);
-  useEventListener("keydown", closeQuickProfileOnKey);
-
-  const closeQuickProfileOnClick = useCallback((e: Event) => {
-    const target = e.target as HTMLElement;
-    if (
-      target.closest(".quick-profile") ||
-      target.closest(".information-members")
-    )
-      return;
-    if (refQuickProfile.current) refQuickProfile.current.style.right = "-40rem";
-  }, []);
-  useEventListener("click", closeQuickProfileOnClick);
-
   const handleFriendAction = (
     id?: string | null,
     status?: "friend" | "request_sent" | "request_received" | "new" | null,
   ): void => {
-    setInnerFriend((current) => {
-      return {
-        ...current,
-        friendId: id ?? undefined,
-        friendStatus: status === null ? undefined : status,
-      };
-    });
+    setInnerFriend((current) => ({
+      ...current!,
+      friendId: id ?? undefined,
+      friendStatus: status === null ? undefined : status,
+    }));
   };
 
   return (
@@ -331,11 +267,7 @@ const QuickChat = (props: QuickChatProps) => {
             <ImageWithLightBoxAndNoLazy
               src={innerFriend?.avatar ?? undefined}
               className="loaded bg-size-[170%] laptop:w-15 aspect-square cursor-pointer rounded-[50%]"
-              slides={[
-                {
-                  src: innerFriend?.avatar ?? "",
-                },
-              ]}
+              slides={[{ src: innerFriend?.avatar ?? "" }]}
             />
           </div>
           <p className="text-sm font-medium">{innerFriend?.name}</p>

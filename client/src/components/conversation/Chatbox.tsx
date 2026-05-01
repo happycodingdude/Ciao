@@ -18,10 +18,8 @@ import MessageContent from "../message/MessageContent";
 const Chatbox = () => {
   const queryClient = useQueryClient();
 
-  const { data: conversations } = useConversation();
-  if (!conversations) return null;
-
   const { conversationId } = Route.useParams();
+  const { data: conversations } = useConversation();
   const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );

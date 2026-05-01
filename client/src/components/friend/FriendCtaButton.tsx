@@ -2,11 +2,20 @@ import { useQueryClient } from "@tanstack/react-query";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useLoading from "../../hooks/useLoading";
-import { reopenMember } from "../../services/conv.service";
+import { reopenMember as callReopenMember } from "../../services/conv.service";
 import { createDirectChat } from "../../services/friend.service";
 import { FriendItemProps } from "../../types/base.types";
-import { ConversationCache, ConversationModel } from "../../types/conv.types";
+import { ConversationCache } from "../../types/conv.types";
 import { AttachmentCache, MessageCache } from "../../types/message.types";
+import {
+  buildOptimisticConversation,
+  findDirectConversation,
+  optimisticId,
+  prependConversation,
+  reopenMember,
+  replaceConversationId,
+  syncConversations,
+} from "../../utils/conversationCache";
 import CustomButton from "../common/CustomButton";
 import AcceptButton from "./AcceptButton";
 import AddButton from "./AddButton";
@@ -15,58 +24,45 @@ import CancelButton from "./CancelButton";
 const FriendCtaButton = (props: FriendItemProps) => {
   const { friend, friendAction, onClose } = props;
 
-  if (!friend) return null;
-
   const queryClient = useQueryClient();
-
   const { setLoading } = useLoading();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
+  if (!friend) return null;
+
   const chat = async (contact: typeof friend) => {
-    const randomId = Math.random().toString(36).substring(2, 7);
-    const existedConversation = (conversations?.conversations ?? []).find(
-      (conv) =>
-        conv.isGroup === false &&
-        (conv.members ?? []).some((mem) => mem.contact?.id === contact.id),
+    const tempId = optimisticId();
+    const existedConversation = findDirectConversation(
+      conversations?.conversations ?? [],
+      contact.id ?? "",
     );
+
     if (existedConversation) {
-      const isDeletedConversation = (existedConversation.members ?? []).find(
-        (mem) => mem.contact?.id === info?.id,
-      )?.isDeleted ?? false;
+      const isDeletedConversation =
+        (existedConversation.members ?? []).find(
+          (mem) => mem.contact?.id === info?.id,
+        )?.isDeleted ?? false;
+
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          let updatedConversations: ConversationModel[] = [];
-          if (isDeletedConversation) {
-            existedConversation.members = (existedConversation.members ?? []).map(
-              (mem) => {
-                if (mem.contact?.id !== info?.id) return mem;
-                mem.isDeleted = false;
-                return mem;
-              },
-            );
-            updatedConversations = [
-              existedConversation,
-              ...(oldData.conversations ?? []).filter(
-                (conv) => conv.id !== existedConversation.id,
-              ),
-            ];
-          } else {
-            updatedConversations = (oldData.conversations ?? []).map((conv) => {
-              if (conv.id !== existedConversation.id) return conv;
-              conv.members = (conv.members ?? []).map((mem) => {
-                if (mem.contact?.id !== info?.id) return mem;
-                mem.isDeleted = false;
-                return mem;
-              });
-              return conv;
-            });
-          }
+          const updatedConv = {
+            ...existedConversation,
+            members: reopenMember(existedConversation.members ?? [], info?.id ?? ""),
+          };
+          const base = isDeletedConversation
+            ? prependConversation(oldData, updatedConv)
+            : syncConversations(
+                oldData,
+                (oldData.conversations ?? []).map((conv) =>
+                  conv.id !== existedConversation.id
+                    ? conv
+                    : { ...conv, members: reopenMember(conv.members ?? [], info?.id ?? "") },
+                ),
+              );
           return {
-            ...oldData,
-            conversations: updatedConversations,
-            filterConversations: updatedConversations,
+            ...base,
             selected: existedConversation,
             reload: true,
             quickChat: false,
@@ -74,100 +70,53 @@ const FriendCtaButton = (props: FriendItemProps) => {
           } as ConversationCache;
         },
       );
-      if (isDeletedConversation) reopenMember(existedConversation.id ?? "");
+
+      if (isDeletedConversation) callReopenMember(existedConversation.id ?? "");
     } else {
       setLoading(true);
 
+      const newConversation = buildOptimisticConversation(tempId, info!, contact);
+
       queryClient.setQueryData(
         ["conversation"],
-        (oldData: ConversationCache) => {
-          const newConversation: ConversationModel = {
-            id: randomId,
-            isGroup: false,
-            isNotifying: true,
-            members: [
-              {
-                isModerator: true,
-                contact: {
-                  id: info?.id,
-                  name: info?.name,
-                  avatar: info?.avatar,
-                  isOnline: true,
-                },
-              },
-              {
-                contact: {
-                  id: contact.id,
-                  name: contact.name,
-                  avatar: contact.avatar,
-                  isOnline: contact.isOnline,
-                },
-              },
-            ],
-          };
-
-          return {
-            ...oldData,
-            conversations: [newConversation, ...(oldData.conversations ?? [])],
-            filterConversations: [newConversation, ...(oldData.conversations ?? [])],
-            selected: newConversation,
-            reload: false,
-          } as ConversationCache;
-        },
+        (oldData: ConversationCache) => ({
+          ...prependConversation(oldData, newConversation),
+          selected: newConversation,
+          reload: false,
+        }),
       );
 
       createDirectChat(contact.id ?? "").then((res) => {
         if (!res) return;
         queryClient.setQueryData(
           ["conversation"],
-          (oldData: ConversationCache) => {
-            const updatedConversations = (oldData.conversations ?? []).map(
-              (conversation) => {
-                if (conversation.id !== randomId) return conversation;
-                conversation.id = res.conversationId;
-                return conversation;
-              },
-            );
-
-            return {
-              ...oldData,
-              conversations: updatedConversations,
-              filterConversations: updatedConversations,
-            } as ConversationCache;
-          },
+          (oldData: ConversationCache) =>
+            replaceConversationId(oldData, tempId, res.conversationId ?? ""),
         );
         queryClient.setQueryData(
           ["message", res.conversationId],
-          (oldData: MessageCache) => {
-            return {
-              ...oldData,
-              conversationId: res.conversationId,
-            } as MessageCache;
-          },
-        );
-        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-          return {
+          (oldData: MessageCache) => ({
             ...oldData,
             conversationId: res.conversationId,
-          } as AttachmentCache;
-        });
+          }),
+        );
+        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => ({
+          ...oldData,
+          conversationId: res.conversationId,
+        }));
       });
 
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          conversationId: randomId,
-          messages: [],
-          hasMore: false,
-        } as MessageCache;
-      });
-      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-        return {
-          ...oldData,
-          conversationId: randomId,
-          attachments: [],
-        } as AttachmentCache;
-      });
+      queryClient.setQueryData(["message"], (oldData: MessageCache) => ({
+        ...oldData,
+        conversationId: tempId,
+        messages: [],
+        hasMore: false,
+      }));
+      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => ({
+        ...oldData,
+        conversationId: tempId,
+        attachments: [],
+      }));
 
       setLoading(false);
     }
@@ -179,30 +128,24 @@ const FriendCtaButton = (props: FriendItemProps) => {
     id?: string | null,
     status?: "friend" | "request_sent" | "request_received" | "new" | null,
   ): void => {
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = (oldData.conversations ?? []).map((conversation) => {
-        const member = (conversation.members ?? []).some(
-          (mem) => mem.contact?.id === friend.id,
-        );
-        if (!member) return conversation;
-        return {
-          ...conversation,
-          members: (conversation.members ?? []).map((mem) => {
-            if (mem.contact?.id !== friend.id) return mem;
-            return {
-              ...mem,
-              friendId: id,
-              friendStatus: status,
-            };
-          }),
-        };
-      });
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
-      } as ConversationCache;
-    });
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
+      syncConversations(
+        oldData,
+        (oldData.conversations ?? []).map((conversation) => {
+          const isMember = (conversation.members ?? []).some(
+            (mem) => mem.contact?.id === friend.id,
+          );
+          if (!isMember) return conversation;
+          return {
+            ...conversation,
+            members: (conversation.members ?? []).map((mem) => {
+              if (mem.contact?.id !== friend.id) return mem;
+              return { ...mem, friendId: id ?? undefined, friendStatus: status ?? undefined };
+            }),
+          };
+        }),
+      ),
+    );
     friendAction?.(id, status, friend.id);
   };
 
@@ -233,9 +176,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
         gradientWidth="110%"
         gradientHeight="120%"
         rounded="3rem"
-        onClick={() => {
-          chat(friend);
-        }}
+        onClick={() => chat(friend)}
         sm
       />
     ),

@@ -4,45 +4,36 @@ import {
   PushpinOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import { useQueryClient } from "@tanstack/react-query";
 import React, { Suspense, useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useEventListener from "../../hooks/useEventListener";
 import useInfo from "../../hooks/useInfo";
-import { pinMessage } from "../../services/message.service";
+import { usePinMessage } from "../../hooks/usePinMessage";
+import { useReply } from "../../hooks/useReply";
 import "../../styles/messagemenu.css";
-import { MessageCache, MessageMenuProps } from "../../types/message.types";
+import { MessageMenuProps } from "../../types/message.types";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ModalLoading from "../common/ModalLoading";
 import ForwardMessageModal from "./ForwardMessageModal";
 import MessageMenuItem from "./MessageMenuItem";
 
 const MessageMenu = (props: MessageMenuProps) => {
-  const {
-    conversationId,
-    id,
-    message,
-    mine,
-    pinned,
-    contact,
-    getContainerRect,
-  } = props;
-
-  const queryClient = useQueryClient();
+  const { conversationId, id, message, mine, pinned, contact, getContainerRect } = props;
 
   const { data: info } = useInfo();
+  const { pin, pinning } = usePinMessage(conversationId);
+  const { setReply } = useReply();
 
-  const [show, setShow] = useState<boolean>(false);
-  const [pinning, setPinning] = useState<boolean>(false);
-  const [openForward, setOpenForward] = useState<boolean>(false);
+  const [show, setShow] = useState(false);
+  const [openForward, setOpenForward] = useState(false);
 
   const refMenu = useRef<HTMLDivElement>(null);
 
   const hideMenuOnClick = useCallback((e: Event) => {
     const target = e.target as HTMLElement;
     if (
-      Array.from(target.classList).includes("message-menu-container") ||
-      Array.from(target.classList).includes("message-menu-item")
+      target.classList.contains("message-menu-container") ||
+      target.classList.contains("message-menu-item")
     )
       return;
     setShow(false);
@@ -53,77 +44,41 @@ const MessageMenu = (props: MessageMenuProps) => {
     if (!message) return;
     navigator.clipboard
       .writeText(message as string)
-      .then(() => {
-        toast.success("Message copied to clipboard");
-      })
-      .catch((err) => {
-        console.error("Failed to copy message: ", err);
-      });
+      .then(() => toast.success("Message copied to clipboard"))
+      .catch((err) => console.error("Failed to copy message: ", err));
   };
 
-  const pin = async () => {
-    setPinning(true);
-    await pinMessage({
-      conversationId: conversationId ?? "",
-      messageId: id ?? "",
-      pinned: !pinned,
+  const replyMessage = () => {
+    setReply({
+      replyId: id,
+      replyContact: mine ? info?.id : (contact as any)?.id,
+      replyContactName: mine ? info?.name : (contact as any)?.name,
+      replyContent: (message as string) || "",
     });
-
-    queryClient.setQueryData(
-      ["message", conversationId],
-      (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: (oldData.messages ?? []).map((mess) => {
-            if (mess.id !== id) return mess;
-            return {
-              ...mess,
-              isPinned: !pinned,
-              pinnedBy: info?.id,
-            };
-          }),
-        } as MessageCache;
-      },
-    );
-    setPinning(false);
   };
 
   const toggleMenu = useCallback(
     (e: React.MouseEvent) => {
       const menu = refMenu.current;
       if (!menu) return;
-
       const containerRect = getContainerRect?.() ?? new DOMRect();
-      const clickY = e.clientY;
-
       const direction =
-        clickY > containerRect.top + containerRect.height / 2
+        e.clientY > containerRect.top + containerRect.height / 2
           ? "above"
           : "below";
-
       setShow((prev) => !prev);
-
       menu.classList.remove("above", "below");
       menu.classList.add(direction);
-      menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"} `;
+      menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"}`;
     },
-    [getContainerRect],
+    [getContainerRect, mine],
   );
-
-  const replyMessage = () => {
-    queryClient.setQueryData(["reply"], {
-      replyId: id,
-      replyContact: mine ? info?.id : (contact as any)?.id,
-      replyContactName: mine ? info?.name : (contact as any)?.name,
-      replyContent: message || "",
-    });
-  };
 
   return (
     <>
       <EllipsisOutlined
         className={`absolute ${mine ? "-left-8" : "-right-8"} top-1 text-base`}
-        onClick={(e) => toggleMenu(e)}
+        onClick={toggleMenu}
       />
       <div
         ref={refMenu}
@@ -134,15 +89,15 @@ const MessageMenu = (props: MessageMenuProps) => {
           <CopyOutlined /> Copy message
         </MessageMenuItem>
         <MessageMenuItem
-          className={`${pinning ? "pointer-events-none" : ""}`}
-          onClick={pin}
+          className={pinning ? "pointer-events-none" : ""}
+          onClick={() => pin(id ?? "", pinned ?? false)}
           closeOnClick={false}
         >
           {pinning ? (
             <SyncOutlined spin />
           ) : (
             <PushpinOutlined
-              className={`${pinned ? "text-orange-500" : ""}`}
+              className={pinned ? "text-orange-500" : ""}
               rotate={316}
             />
           )}

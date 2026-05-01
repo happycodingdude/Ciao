@@ -10,8 +10,6 @@ import ChatInput from "../conversation/ChatInput";
 import Information from "../conversation/Information";
 
 const ChatboxContainer = () => {
-  console.log("Rendering ChatboxContainer");
-
   const { toggle, setToggle } = useChatDetailToggles();
 
   const refChatboxContainer = useRef<HTMLDivElement>(null);

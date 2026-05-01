@@ -13,7 +13,7 @@ const ChatSection = () => {
   const { loading } = useLoading();
 
   return (
-    <section className={`relative flex grow overflow-hidden`}>
+    <section className="relative flex grow overflow-hidden">
       <ChatDetailTogglesProvider>
         <Suspense>
           <ListchatFilterProvider>
@@ -23,10 +23,8 @@ const ChatSection = () => {
         <div className="relative h-full w-full">
           {loading && !isPhoneScreen() ? (
             <LocalLoading className="!z-[12]" />
-          ) : (
-            ""
-          )}
-          {conversations?.selected ? <ChatboxContainer /> : ""}
+          ) : null}
+          {conversations?.selected ? <ChatboxContainer /> : null}
         </div>
       </ChatDetailTogglesProvider>
     </section>

@@ -19,7 +19,6 @@ import MessageMenu_Slide from "./MessageMenu_Slide";
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
     const { message, id, showName, showAvatar } = props;
-    if (!message) return null;
 
     const queryClient = useQueryClient();
 
@@ -32,48 +31,45 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     );
 
     const [reaction, setReaction] =
-      useState<MessageReactionProps_Message_Reaction>(() => {
-        return {
-          likeCount: message.likeCount ?? 0,
-          loveCount: message.loveCount ?? 0,
-          careCount: message.careCount ?? 0,
-          wowCount: message.wowCount ?? 0,
-          sadCount: message.sadCount ?? 0,
-          angryCount: message.angryCount ?? 0,
-          total:
-            (message.likeCount ?? 0) +
-            (message.loveCount ?? 0) +
-            (message.careCount ?? 0) +
-            (message.wowCount ?? 0) +
-            (message.sadCount ?? 0) +
-            (message.angryCount ?? 0),
-          currentReaction: message.currentReaction,
-        } as MessageReactionProps_Message_Reaction;
-      });
+      useState<MessageReactionProps_Message_Reaction>(() => ({
+        likeCount: message?.likeCount ?? 0,
+        loveCount: message?.loveCount ?? 0,
+        careCount: message?.careCount ?? 0,
+        wowCount: message?.wowCount ?? 0,
+        sadCount: message?.sadCount ?? 0,
+        angryCount: message?.angryCount ?? 0,
+        total:
+          (message?.likeCount ?? 0) +
+          (message?.loveCount ?? 0) +
+          (message?.careCount ?? 0) +
+          (message?.wowCount ?? 0) +
+          (message?.sadCount ?? 0) +
+          (message?.angryCount ?? 0),
+        currentReaction: message?.currentReaction ?? null,
+      } as MessageReactionProps_Message_Reaction));
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-      setReaction((current) => {
-        return {
-          ...current,
-          likeCount: message.likeCount ?? 0,
-          loveCount: message.loveCount ?? 0,
-          careCount: message.careCount ?? 0,
-          wowCount: message.wowCount ?? 0,
-          sadCount: message.sadCount ?? 0,
-          angryCount: message.angryCount ?? 0,
-          total:
-            (message.likeCount ?? 0) +
-            (message.loveCount ?? 0) +
-            (message.careCount ?? 0) +
-            (message.wowCount ?? 0) +
-            (message.sadCount ?? 0) +
-            (message.angryCount ?? 0),
-          currentReaction: message.currentReaction,
-        } as MessageReactionProps_Message_Reaction;
-      });
+      if (!message) return;
+      setReaction((current) => ({
+        ...current,
+        likeCount: message.likeCount ?? 0,
+        loveCount: message.loveCount ?? 0,
+        careCount: message.careCount ?? 0,
+        wowCount: message.wowCount ?? 0,
+        sadCount: message.sadCount ?? 0,
+        angryCount: message.angryCount ?? 0,
+        total:
+          (message.likeCount ?? 0) +
+          (message.loveCount ?? 0) +
+          (message.careCount ?? 0) +
+          (message.wowCount ?? 0) +
+          (message.sadCount ?? 0) +
+          (message.angryCount ?? 0),
+        currentReaction: message.currentReaction,
+      } as MessageReactionProps_Message_Reaction));
 
       if (contentRef.current) {
         const lineHeight = parseFloat(
@@ -110,6 +106,8 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     useEffect(() => {
       setTopReactions(generateMostReaction());
     }, [reaction]);
+
+    if (!message) return null;
 
     const react = (type: string) => {
       const isUnReact = reaction.currentReaction === type;

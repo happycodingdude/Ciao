@@ -1,55 +1,62 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import Signout from "../auth/Signout";
 
 const SideBarMenu = () => {
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    const items = document.querySelectorAll(".sidebar-item");
+
+    const handlers: Array<{ el: Element; fn: (e: Event) => void }> = [];
+
+    items.forEach((item) => {
+      const fn = (e: Event) => {
+        const mouseEvent = e as MouseEvent;
+        const htmlItem = item as HTMLElement;
+        const rect = htmlItem.getBoundingClientRect();
+        const x = mouseEvent.clientX - rect.left;
+        const y = mouseEvent.clientY - rect.top;
+
+        const ripple = document.createElement("span");
+        ripple.classList.add("ripple");
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        htmlItem.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+
+        const sidebar = htmlItem.closest('[id^="sidebar-"]');
+        sidebar?.querySelectorAll(".sidebar-item").forEach((el) => {
+          el.classList.remove("active");
+        });
+
+        htmlItem.classList.add("active");
+      };
+
+      item.addEventListener("click", fn);
+      handlers.push({ el: item, fn });
+    });
+
+    return () => {
+      handlers.forEach(({ el, fn }) => el.removeEventListener("click", fn));
+    };
+  }, []);
+
   const handleChatClick = () => {
-    console.log("Refreshing conversation list");
-    // Clear selected conversation
     localStorage.removeItem("conversationId");
-    // Dispatch event to notify ListChatContainer
     window.dispatchEvent(
       new CustomEvent("localstorage-changed", {
         detail: { key: "conversationId" },
       }),
     );
-    // Refresh conversation list
     queryClient.invalidateQueries({ queryKey: ["conversation"] });
   };
 
-  document.querySelectorAll(".sidebar-item").forEach((item) => {
-    item.addEventListener("click", (e: Event) => {
-      const mouseEvent = e as MouseEvent;
-      const htmlItem = item as HTMLElement;
-      const rect = htmlItem.getBoundingClientRect();
-      const x = mouseEvent.clientX - rect.left;
-      const y = mouseEvent.clientY - rect.top;
-
-      const ripple = document.createElement("span");
-      ripple.classList.add("ripple");
-      ripple.style.left = `${x}px`;
-      ripple.style.top = `${y}px`;
-
-      htmlItem.appendChild(ripple);
-
-      setTimeout(() => {
-        ripple.remove();
-      }, 600);
-
-      const sidebar = htmlItem.closest('[id^="sidebar-"]');
-      sidebar?.querySelectorAll(".sidebar-item").forEach((el) => {
-        el.classList.remove("active");
-      });
-
-      htmlItem.classList.add("active");
-    });
-  });
-
   return (
     <div
-      className="sidebar-3 bg-linear-to-br relative flex h-full w-full flex-col items-center 
+      className="sidebar-3 bg-linear-to-br relative flex h-full w-full flex-col items-center
       from-light-blue-300 to-light-blue-500 py-6"
     >
       <div className="z-10 mb-12 aspect-square w-[60%]">

@@ -31,19 +31,14 @@ type SignalContextType = {
 const SignalContext = createContext<SignalContextType | undefined>(undefined);
 
 export const useSignal = (): SignalContextType => {
-  console.log("Rendering useSignal");
-
   const ctx = useContext(SignalContext);
   if (!ctx) throw new Error("useSignal must be used inside SignalProvider");
   return ctx;
 };
 
 export const SignalProvider: React.FC<{
-  // userId: string;
   children: React.ReactNode;
 }> = ({ children }) => {
-  console.log("Rendering SignalProvider");
-
   const { data: info } = useInfo();
   const queryClient = useQueryClient();
 
@@ -58,7 +53,6 @@ export const SignalProvider: React.FC<{
 
   const connectionRef = useRef<HubConnection | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
-  // const isRegistered = useRef<boolean>(false);
 
   const iceServers = {
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -99,7 +93,6 @@ export const SignalProvider: React.FC<{
   const setupPeerConnection = async (remoteUserId: string) => {
     pcRef.current = new RTCPeerConnection(iceServers);
     pcRef.current.onicecandidate = (e) => {
-      console.log(e);
       if (e.candidate) {
         connectionRef.current?.send(
           "SendIceCandidate",
@@ -110,16 +103,9 @@ export const SignalProvider: React.FC<{
     };
 
     pcRef.current.ontrack = (e) => {
-      console.log("🔔 On track");
-
       remoteStreamRef.current = e.streams[0];
-
       setRemoteStream(e.streams[0]);
       setIsCaller(false);
-
-      // e.streams[0]
-      //   .getTracks()
-      //   .forEach((track) => remoteStreamRef.current.addTrack(track));
     };
 
     localStreamRef.current?.getTracks().forEach((track) => {
@@ -178,102 +164,6 @@ export const SignalProvider: React.FC<{
     }
   };
 
-  // 🔌 SignalR setup
-  // useEffect(() => {
-  //   if (!info?.id) return;
-  //   // if (connectionRef.current) return; // ✅ đã có connection → không tạo lại
-
-  //   getSignalConnection(info.id).then((connection) => {
-  //     /* MARK: RECEIVE OFFER */
-  //     connection.on(
-  //       "ReceiveOffer",
-  //       async (caller: UserProfile, offer: string) => {
-  //         console.log("🔔 Received offer");
-
-  //         // const stream = await navigator.mediaDevices.getUserMedia({
-  //         //   video: true,
-  //         //   audio: true,
-  //         // });
-  //         // localStreamRef.current = stream;
-  //         // setLocalStream(stream);
-
-  //         // setTargetUser(caller);
-  //         // setOffer(offer);
-  //         // setReceiveOffer(true);
-  //         // await setupPeerConnection(caller.id);
-
-  //         // 1. Get local stream
-  //         const stream = await navigator.mediaDevices.getUserMedia({
-  //           // video: { width: { ideal: 640 }, height: { ideal: 360 } },
-  //           video: true,
-  //           audio: true,
-  //         });
-  //         localStreamRef.current = stream;
-  //         setLocalStream(stream);
-
-  //         // 2. Set target
-  //         setTargetUser(caller);
-
-  //         // 3. Setup peer connection BEFORE setting offer
-  //         await setupPeerConnection(caller.id);
-
-  //         // 4. Set offer and show answer UI
-  //         setOffer(offer);
-  //         setReceiveOffer(true);
-  //       },
-  //     );
-
-  //     /* MARK: RECEIVE ANSWER */
-  //     connection.on("ReceiveAnswer", async (answer: string) => {
-  //       console.log("🔔 Received answer");
-  //       const rtcAnswer = new RTCSessionDescription(JSON.parse(answer));
-  //       await pcRef.current?.setRemoteDescription(rtcAnswer);
-  //     });
-
-  //     /* MARK: RECEIVE CANDIDATE */
-  //     connection.on("ReceiveIceCandidate", async (candidate: string) => {
-  //       console.log("🔔 Received candidate");
-  //       const rtcCandidate = new RTCIceCandidate(JSON.parse(candidate));
-  //       await pcRef.current?.addIceCandidate(rtcCandidate);
-  //     });
-
-  //     /* MARK: CALL ENDED */
-  //     connection.on("CallEnded", () => {
-  //       console.log("🔔 Call ended");
-  //       stopCamera();
-  //     });
-
-  //     setupListeners(connection, queryClient, info);
-  //     connectionRef.current = connection;
-  //   });
-
-  //   // const connect = async () => {
-  //   //   const connection = new HubConnectionBuilder()
-  //   //     .withUrl(
-  //   //       `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}/ciaohub?userId=${info?.id}`,
-  //   //     )
-  //   //     .withAutomaticReconnect()
-  //   //     .build();
-
-  //   //   setupListeners(connection, queryClient, info);
-
-  //   //   await connection.start();
-  //   //   connectionRef.current = connection;
-  //   //   console.log("✅ SignalR connected");
-  //   // };
-
-  //   // connect();
-
-  //   return () => {
-  //     console.log("Cleaning up SignalR connection");
-  //     // if (connectionRef.current?.state === "Connected") {
-  //     //   connectionRef.current.stop();
-  //     // }
-  //     // connectionRef.current = null;
-  //   };
-  // }, [info?.id]);
-
-  // Setup firebase
   useEffect(() => {
     if (!info?.id) return;
 
@@ -286,13 +176,11 @@ export const SignalProvider: React.FC<{
       },
       onNotification: (notificationData: any) => {
         if (!isMounted) return;
-        // Bridge: Firebase notification -> signalService classifier
         classifyNotification(notificationData, queryClient, info);
       },
     });
 
     return () => {
-      console.log("Cleaning up Firebase connection");
       isMounted = false;
     };
   }, [info?.id, queryClient]);

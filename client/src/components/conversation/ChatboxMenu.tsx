@@ -1,16 +1,13 @@
-// import EmojiPicker from "emoji-picker-react";
 import { MenuOutlined } from "@ant-design/icons";
 import { useCallback, useState } from "react";
 import useEventListener from "../../hooks/useEventListener";
 import { ChatboxMenuProps } from "../../types/conv.types";
 
 const ChatboxMenu = (props: ChatboxMenuProps) => {
-  // console.log("ChatboxMenu calling");
   const { chooseFile, className } = props;
 
   const [show, setShow] = useState(false);
 
-  // Event listener
   const hideMenuOnClick = useCallback((e: Event) => {
     const target = e.target as HTMLElement | null;
     if (!target) return;
@@ -24,11 +21,11 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
       <div className="relative flex h-full items-center">
         <div
           data-show={show}
-          className="chatbox-menu-item absolute left-0 top-[-10rem] z-[10] flex w-[20rem] origin-bottom-left flex-col gap-[.5rem]
-        rounded-[.7rem] bg-[var(--bg-color)] text-[var(--text-main-color)] transition-all duration-200
+          className="chatbox-menu-item absolute left-0 -top-40 z-10 flex w-[20rem] origin-bottom-left flex-col gap-2
+        rounded-[.7rem] bg-(--bg-color) text-(--text-main-color) transition-all duration-200
         data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100"
         >
-          <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] pl-[1rem] leading-[4rem] hover:bg-[var(--main-color-extrathin)]">
+          <div className="chatbox-menu-item flex cursor-pointer items-center gap-4 rounded-[.7rem] pl-4 leading-16 hover:bg-(--main-color-extrathin)">
             <input
               multiple
               type="file"
@@ -36,16 +33,16 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
               className="hidden"
               id="choose-image"
               onChange={chooseFile}
-            ></input>
+            />
             <label
               htmlFor="choose-image"
               className="chatbox-menu-item w-full cursor-pointer"
             >
-              <i className="fa fa-image text-md relative top-[.2rem] w-[3rem] font-light"></i>
+              <i className="fa fa-image text-md relative top-[.2rem] w-12 font-light"></i>
               Upload an image
             </label>
           </div>
-          <div className="chatbox-menu-item flex cursor-pointer items-center gap-[1rem] rounded-[.7rem] pl-[1rem] leading-[4rem] hover:bg-[var(--main-color-extrathin)]">
+          <div className="chatbox-menu-item flex cursor-pointer items-center gap-4 rounded-[.7rem] pl-4 leading-16 hover:bg-(--main-color-extrathin)">
             <input
               multiple
               type="file"
@@ -53,21 +50,17 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
               className="hidden"
               id="choose-file"
               onChange={chooseFile}
-            ></input>
+            />
             <label
               htmlFor="choose-file"
               className="chatbox-menu-item w-full cursor-pointer"
             >
-              <i className="fa fa-file text-md relative left-[.3rem] w-[3rem] font-light"></i>
+              <i className="fa fa-file text-md relative left-[.3rem] w-12 font-light"></i>
               Upload a file
             </label>
           </div>
         </div>
         <MenuOutlined onClick={() => setShow((show) => !show)} />
-        {/* <div
-          onClick={() => setShow((show) => !show)}
-          className="chatbox-menu-item fa fa-bars flex cursor-pointer items-center justify-center text-md font-normal"
-        ></div> */}
       </div>
     </div>
   );

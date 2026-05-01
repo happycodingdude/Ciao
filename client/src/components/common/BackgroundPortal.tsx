@@ -7,17 +7,19 @@ import PortalHeader from "./PortalHeader";
 const BackgroundPortal = (props: BackgroundPortalProps) => {
   const { children, show, title, onClose, className, noHeader } = props;
 
-  if (!show) return null;
-
   const hidePortalOnClick = useCallback((e: Event) => {
     if (Array.from((e.target as HTMLElement).classList).includes("portal-container")) onClose?.();
-  }, []);
+  }, [onClose]);
+
   const hidePortalOnKey = useCallback((e: Event) => {
-    if ((e as KeyboardEvent).keyCode === 27) {
+    if ((e as KeyboardEvent).key === "Escape") {
       onClose?.();
     }
-  }, []);
+  }, [onClose]);
+
   useEventListener("keydown", hidePortalOnKey);
+
+  if (!show) return null;
 
   return createPortal(
     <div
@@ -31,8 +33,7 @@ const BackgroundPortal = (props: BackgroundPortalProps) => {
         translate-y-[-50%] flex-col overflow-hidden rounded-2xl transition-all duration-500
         data-[show=false]:scale-0 data-[show=true]:scale-100`}
       >
-        {noHeader ? "" : <PortalHeader title={title} onClose={onClose} />}
-
+        {!noHeader && <PortalHeader title={title} onClose={onClose} />}
         {children}
       </div>
     </div>,

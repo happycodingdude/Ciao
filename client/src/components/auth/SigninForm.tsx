@@ -66,7 +66,7 @@ const SigninForm = () => {
   };
 
   const handlePressKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.keyCode == 13) {
+    if (e.key === "Enter") {
       signinCTA();
     }
   };

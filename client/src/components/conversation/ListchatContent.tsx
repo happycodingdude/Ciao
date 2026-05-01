@@ -122,9 +122,7 @@ const ListchatContent = () => {
                       ?.contact?.isOnline
                   }
                 />
-              ) : (
-                ""
-              )}
+              ) : null}
             </div>
             <div className={`flex h-full w-1/2 grow flex-col gap-2`}>
               {/* MARK: CONVERSATION TITLE */}

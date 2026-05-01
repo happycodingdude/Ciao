@@ -15,8 +15,6 @@ type VideoCallProps = {
 };
 
 const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
-  if (contact === null) return null;
-
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
 
@@ -31,16 +29,8 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   } = useSignal();
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: contact.id ?? "",
+    id: contact?.id ?? "",
   });
-  const style = {
-    position: "absolute",
-    left: `${position.x}px`,
-    top: `${position.y}px`,
-    transform: transform
-      ? `translate(${transform.x}px, ${transform.y}px)`
-      : undefined, // Keeps movement smooth
-  };
 
   useEffect(() => {
     if (localStream && localRef.current) localRef.current.srcObject = localStream;
@@ -50,30 +40,21 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
     if (remoteStream && remoteRef.current) remoteRef.current.srcObject = remoteStream;
   }, [remoteStream]);
 
-  // useEffect(() => {
-  //   // if (remoteStream) {
-  //   //   remoteStream.getVideoTracks().forEach((track) => {
-  //   //     console.log("Remote track state:", track.readyState);
-  //   //   });
+  if (contact === null) return null;
 
-  //   //   remoteRef.current.srcObject = remoteStream;
-  //   // }
-
-  //   if (remoteStream) {
-  //     setTimeout(() => {
-  //       remoteRef.current.srcObject = remoteStream;
-  //       remoteRef.current
-  //         .play()
-  //         .catch((e) => console.warn("Autoplay issue:", e.message));
-  //     }, 200); // wait for render cycle
-  //   }
-  // }, [remoteStream]);
+  const style = {
+    position: "absolute",
+    left: `${position.x}px`,
+    top: `${position.y}px`,
+    transform: transform
+      ? `translate(${transform.x}px, ${transform.y}px)`
+      : undefined,
+  };
 
   return createPortal(
     <div
       ref={setNodeRef}
       style={style as CSSProperties}
-      // className="video-call-container phone:h-[30rem] laptop:h-[30rem]"
       className="video-call-container"
     >
       <video
@@ -91,7 +72,6 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
           id="remoteVideo"
           ref={remoteRef}
           autoPlay
-          // muted
           playsInline
           className="absolute h-full w-full cursor-grab rounded-[1rem]"
         />

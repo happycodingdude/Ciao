@@ -14,6 +14,14 @@ import {
   PendingMessageModel,
   SendMessageRequest,
 } from "../../types/message.types";
+import {
+  buildOptimisticConversation,
+  optimisticId,
+  prependConversation,
+  replaceConversationId,
+  reopenMember,
+  syncConversations,
+} from "../../utils/conversationCache";
 import { getToday } from "../../utils/datetime";
 import delay from "../../utils/delay";
 import { isPhoneScreen } from "../../utils/getScreenSize";
@@ -62,7 +70,7 @@ const ForwardMessageModal = ({
   const send = async (contact: ContactModel) => {
     setSentIds((prev) => new Set(prev).add(contact.id ?? ""));
 
-    const randomId = Math.random().toString(36).substring(2, 7);
+    const tempId = optimisticId();
     const existedConversation = (conversations?.conversations ?? []).find(
       (conv) =>
         conv.isGroup === false &&
@@ -72,7 +80,7 @@ const ForwardMessageModal = ({
     if (existedConversation) {
       await handleExistedConversation(existedConversation);
     } else {
-      await handleNewConversation(contact, randomId);
+      await handleNewConversation(contact, tempId);
     }
   };
 
@@ -82,74 +90,47 @@ const ForwardMessageModal = ({
 
       const now = dayjs().format();
       const convs = oldData.conversations ?? [];
-
-      const cachedConv =
-        convs.find((c) => c.id === conversation.id) ?? conversation;
+      const cachedConv = convs.find((c) => c.id === conversation.id) ?? conversation;
 
       const isDeletedConversation =
         (cachedConv.members ?? []).find((mem) => mem.contact?.id === info?.id)
           ?.isDeleted ?? false;
 
-      let updatedConversations: ConversationModel[];
+      const lastMsg =
+        attachments && attachments.length > 0 && !content
+          ? attachments.map((att) => att.mediaName).join(",")
+          : content;
 
-      if (isDeletedConversation) {
-        const updatedConv: ConversationModel = {
-          ...cachedConv,
-          lastMessage:
-            attachments && attachments.length > 0 && !content
-              ? attachments.map((att) => att.mediaName).join(",")
-              : content,
-          members: (cachedConv.members ?? []).map((mem) =>
-            mem.contact?.id === info?.id ? { ...mem, isDeleted: false } : mem,
-          ),
-        };
+      const updatedConv = {
+        ...cachedConv,
+        lastMessage: lastMsg,
+        lastMessageTime: now,
+        members: reopenMember(cachedConv.members ?? [], info?.id ?? ""),
+      };
 
-        updatedConversations = [
-          updatedConv,
-          ...convs.filter((c) => c.id !== cachedConv.id),
-        ];
-      } else {
-        updatedConversations = convs.map((c) =>
-          c.id !== cachedConv.id
-            ? c
-            : {
-                ...c,
-                lastMessage:
-                  attachments && attachments.length > 0 && !content
-                    ? attachments.map((att) => att.mediaName).join(",")
-                    : content,
-                lastMessageTime: now,
-                members: (c.members ?? []).map((mem) =>
-                  mem.contact?.id === info?.id
-                    ? { ...mem, isDeleted: false }
-                    : mem,
-                ),
-              },
-        );
-      }
-
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
-      } as ConversationCache;
+      return isDeletedConversation
+        ? prependConversation(oldData, updatedConv)
+        : syncConversations(
+            oldData,
+            convs.map((c) => (c.id !== cachedConv.id ? c : updatedConv)),
+          );
     });
 
-    const randomId: string = Math.random().toString(36).substring(2, 7);
-    const hasMedia: boolean = !!(attachments && attachments.length > 0);
+    const randomId = optimisticId();
+    const hasMedia = !!(attachments && attachments.length > 0);
+
     queryClient.setQueryData(
       ["message", conversation.id],
       (oldData: MessageCache) => {
         if (!oldData) return oldData;
-
         return {
           ...oldData,
           messages: [
             ...(oldData.messages || []),
             {
               id: randomId,
-              type: type,
-              content: content,
+              type,
+              content,
               contactId: info?.id,
               attachments: hasMedia ? attachments : [],
               pending: true,
@@ -167,6 +148,7 @@ const ForwardMessageModal = ({
         } as MessageCache;
       },
     );
+
     if (hasMedia) {
       queryClient.setQueryData(
         ["attachment", conversation.id],
@@ -174,29 +156,19 @@ const ForwardMessageModal = ({
           if (!oldData) return oldData;
 
           const today = getToday("MM/DD/YYYY");
-          if (!oldData?.attachments) {
+          if (!oldData.attachments) {
             return {
               ...oldData,
-              attachments: [
-                {
-                  date: today,
-                  attachments: attachments ?? [],
-                },
-              ],
+              attachments: [{ date: today, attachments: attachments ?? [] }],
             } as AttachmentCache;
           }
-          const existingItem = oldData.attachments.find(
-            (item) => item.date === today,
-          );
+          const existingItem = oldData.attachments.find((item) => item.date === today);
           if (!existingItem) {
             return {
               ...oldData,
               attachments: [
                 ...oldData.attachments,
-                {
-                  date: today,
-                  attachments: attachments ?? [],
-                },
+                { date: today, attachments: attachments ?? [] },
               ],
             } as AttachmentCache;
           }
@@ -204,10 +176,7 @@ const ForwardMessageModal = ({
             ...oldData,
             attachments: oldData.attachments.map((item) =>
               item.date === today
-                ? {
-                    ...item,
-                    attachments: [...(attachments ?? []), ...item.attachments],
-                  }
+                ? { ...item, attachments: [...(attachments ?? []), ...item.attachments] }
                 : item,
             ),
           } as AttachmentCache;
@@ -218,7 +187,7 @@ const ForwardMessageModal = ({
     const bodyToCreate: SendMessageRequest = {
       type: type ?? "",
       content: content ?? "",
-      attachments: attachments,
+      attachments,
       isForwarded: forward ?? false,
     };
     const res = await sendMessage(conversation.id ?? "", bodyToCreate);
@@ -228,126 +197,70 @@ const ForwardMessageModal = ({
       ["message", conversation.id],
       (oldData: MessageCache) => {
         if (!oldData) return oldData;
-
         return {
           ...oldData,
-          messages: (oldData.messages ?? []).map((message) => {
-            if (message.id !== randomId) return message;
-            return {
-              ...message,
-              id: res?.messageId,
-              pending: false,
-            };
-          }),
+          messages: (oldData.messages ?? []).map((msg) =>
+            msg.id !== randomId ? msg : { ...msg, id: res?.messageId, pending: false },
+          ),
         } as MessageCache;
       },
     );
   };
 
-  const handleNewConversation = async (
-    contact: ContactModel,
-    randomId: string,
-  ) => {
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const newConversation: ConversationModel = {
-        id: randomId,
-        lastMessage:
-          attachments && attachments.length > 0 && !content
-            ? attachments.map((att) => att.mediaName).join(",")
-            : content,
-        isGroup: false,
-        isNotifying: true,
-        members: [
-          {
-            isModerator: true,
-            contact: {
-              id: info?.id,
-              name: info?.name,
-              avatar: info?.avatar,
-              isOnline: true,
-            },
-          },
-          {
-            contact: {
-              id: contact.id,
-              name: contact.name,
-              avatar: contact.avatar,
-              isOnline: contact.isOnline,
-            },
-          },
-        ],
-      };
-      return {
-        ...oldData,
-        conversations: [newConversation, ...(oldData.conversations ?? [])],
-        filterConversations: [newConversation, ...(oldData.conversations ?? [])],
-        reload: false,
-      } as ConversationCache;
+  const handleNewConversation = async (contact: ContactModel, tempId: string) => {
+    const lastMsg =
+      attachments && attachments.length > 0 && !content
+        ? attachments.map((att) => att.mediaName).join(",")
+        : content;
+
+    const newConversation = buildOptimisticConversation(tempId, info!, contact, {
+      lastMessage: lastMsg,
     });
+
+    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
+      prependConversation(oldData, newConversation),
+    );
 
     createDirectChatWithMessage(contact.id ?? "", {
       message: content ?? undefined,
       isForwarded: forward ?? false,
     }).then((res) => {
       if (!res) return;
-      queryClient.setQueryData(
-        ["conversation"],
-        (oldData: ConversationCache) => {
-          const updatedConversations = (oldData.conversations ?? []).map(
-            (conversation) => {
-              if (conversation.id !== randomId) return conversation;
-              return { ...conversation, id: res.conversationId };
-            },
-          );
-          return {
-            ...oldData,
-            conversations: updatedConversations,
-            filterConversations: updatedConversations,
-          } as ConversationCache;
-        },
+      queryClient.setQueryData(["conversation"], (oldData: ConversationCache) =>
+        replaceConversationId(oldData, tempId, res.conversationId ?? ""),
       );
 
-      const hasMedia: boolean = !!(attachments && attachments.length > 0);
+      const hasMedia = !!(attachments && attachments.length > 0);
       queryClient.setQueryData(
         ["message", res.conversationId],
-        (oldData: MessageCache) => {
-          return {
-            messages: [
-              {
-                id: res.messageId,
-                type: type,
-                content: content,
-                contactId: info?.id,
-                attachments: hasMedia ? attachments : [],
-                pending: false,
-                likeCount: 0,
-                loveCount: 0,
-                careCount: 0,
-                wowCount: 0,
-                sadCount: 0,
-                angryCount: 0,
-                currentReaction: null,
-                createdTime: dayjs().format(),
-                isForwarded: forward ?? false,
-              } as PendingMessageModel,
-            ],
-          } as MessageCache;
-        },
+        (_oldData: MessageCache) => ({
+          messages: [
+            {
+              id: res.messageId,
+              type,
+              content,
+              contactId: info?.id,
+              attachments: hasMedia ? attachments : [],
+              pending: false,
+              likeCount: 0,
+              loveCount: 0,
+              careCount: 0,
+              wowCount: 0,
+              sadCount: 0,
+              angryCount: 0,
+              currentReaction: null,
+              createdTime: dayjs().format(),
+              isForwarded: forward ?? false,
+            } as PendingMessageModel,
+          ],
+        } as MessageCache),
       );
       if (hasMedia) {
-        queryClient.setQueryData(
-          ["attachment", res.conversationId],
-          () => {
-            return {
-              attachments: [
-                {
-                  date: getToday("MM/DD/YYYY"),
-                  attachments: attachments ?? [],
-                },
-              ],
-            } as AttachmentCache;
-          },
-        );
+        queryClient.setQueryData(["attachment", res.conversationId], () => ({
+          attachments: [
+            { date: getToday("MM/DD/YYYY"), attachments: attachments ?? [] },
+          ],
+        } as AttachmentCache));
       }
     });
   };
@@ -362,62 +275,50 @@ const ForwardMessageModal = ({
           if (e.target.value === "")
             setMembersToSearch((data ?? []).map((item) => item.contact));
           else
-            setMembersToSearch((current) => {
-              const found = current.filter((item) =>
+            setMembersToSearch((current) =>
+              current.filter((item) =>
                 (item.name ?? "").toLowerCase().includes(e.target.value.toLowerCase()),
-              );
-
-              return found;
-            });
+              ),
+            );
         }}
       />
       <div
-        className={`relative flex grow gap-8
-      ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
+        className={`relative flex grow gap-8 ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
       >
         {isLoading || isRefetching ? (
           <ListFriendLoading />
         ) : (
-          <>
-            <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
-              {membersToSearch?.map((item) => {
-                const isSent = sentIds.has(item.id ?? "");
-                return (
-                  <div
-                    key={item.id}
-                    className={`information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]`}
-                  >
-                    <ImageWithLightBoxAndNoLazy
-                      src={item.avatar ?? undefined}
-                      className="phone:w-12 laptop:w-16 pointer-events-none aspect-square"
-                      circle
-                      slides={[
-                        {
-                          src: item.avatar ?? "",
-                        },
-                      ]}
-                      onClick={() => {}}
-                      local
-                    />
-                    <CustomLabel
-                      title={item.name}
-                      className="pointer-events-none"
-                    />
-                    <CustomButton
-                      className={`text-2xs ${isSent ? "pointer-events-none opacity-50" : ""}`}
-                      width={4}
-                      gradientWidth={`${isPhoneScreen() ? "115%" : "110%"}`}
-                      gradientHeight={`${isPhoneScreen() ? "130%" : "120%"}`}
-                      rounded="3rem"
-                      title="Send"
-                      onClick={() => send(item)}
-                      sm
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </>
+          <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
+            {membersToSearch?.map((item) => {
+              const isSent = sentIds.has(item.id ?? "");
+              return (
+                <div
+                  key={item.id}
+                  className="information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]"
+                >
+                  <ImageWithLightBoxAndNoLazy
+                    src={item.avatar ?? undefined}
+                    className="phone:w-12 laptop:w-16 pointer-events-none aspect-square"
+                    circle
+                    slides={[{ src: item.avatar ?? "" }]}
+                    onClick={() => {}}
+                    local
+                  />
+                  <CustomLabel title={item.name} className="pointer-events-none" />
+                  <CustomButton
+                    className={`text-2xs ${isSent ? "pointer-events-none opacity-50" : ""}`}
+                    width={4}
+                    gradientWidth={isPhoneScreen() ? "115%" : "110%"}
+                    gradientHeight={isPhoneScreen() ? "130%" : "120%"}
+                    rounded="3rem"
+                    title="Send"
+                    onClick={() => send(item)}
+                    sm
+                  />
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </>

@@ -13,9 +13,9 @@ const ChatboxHeader = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  if (!conversations) return null;
-
   const { conversationId } = Route.useParams();
+
+  if (!conversations) return null;
   const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );

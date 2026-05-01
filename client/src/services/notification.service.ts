@@ -90,11 +90,7 @@ export const requestPermission = ({
         .then((token) => {
           // console.log(token);
           if (token) {
-            // Receive message
             onMessage(messaging, (payload) => {
-              // console.log("Message received. ", payload.data);
-
-              // Call the notification handler if provided
               if (onNotification && payload.data) {
                 const notification = {
                   event: payload.data.event,
@@ -105,11 +101,9 @@ export const requestPermission = ({
             });
 
             registerConnection(token);
-          } else console.log("Token failed");
+          }
         })
-        .catch((err) => {
-          console.log("Error: ", err);
-        });
+        .catch(() => {});
     }
   });
 };
@@ -136,8 +130,6 @@ export const classifyNotification = (
   // Skip if notification is from current user
   // if (userId === userInfo.id) return;
 
-  console.log(`Processing notification: ${event}`, data);
-
   switch (event) {
     case "NewMessage":
       onNewMessage(queryClient, data);
@@ -149,16 +141,10 @@ export const classifyNotification = (
       onNewConversation(queryClient, userInfo, data);
       break;
     case "NewFriendRequest":
-      console.log("NewFriendRequest:", data);
-      // TODO: Implement friend request handling
       break;
     case "FriendRequestAccepted":
-      console.log("FriendRequestAccepted:", data);
-      // TODO: Implement friend request accepted handling
       break;
     case "FriendRequestCanceled":
-      console.log("FriendRequestCanceled:", data);
-      // TODO: Implement friend request canceled handling
       break;
     case "NewReaction":
       onNewReaction(queryClient, data);
@@ -166,65 +152,8 @@ export const classifyNotification = (
     case "NewMessagePinned":
       onNewMessagePinned(queryClient, data);
       break;
-    default:
-      console.warn(`Unknown notification event: ${event}`);
   }
 };
-
-/* MARK: SET UP */
-// export const setupListeners = (
-//   connection: HubConnection,
-//   queryClient: QueryClient,
-//   userInfo: UserProfile,
-// ) => {
-//   if (!connection) return;
-
-//   connection.on("NewMessage", (user: string, data: string) => {
-//     console.log(data);
-//     console.log("user: " + user);
-//     if (user == userInfo.id) return;
-//     onNewMessage(queryClient, userInfo, JSON.parse(data));
-//   });
-
-//   connection.on("NewMembers", (user: string, data: string) => {
-//     console.log(data);
-//     if (user == userInfo.id) return;
-//     onNewMembers(queryClient, userInfo, JSON.parse(data));
-//   });
-
-//   connection.on("NewConversation", (user: string, data: string) => {
-//     console.log(data);
-//     if (user == userInfo.id) return;
-//     onNewConversation(queryClient, userInfo, JSON.parse(data));
-//   });
-
-//   connection.on("NewFriendRequest", (user: string, data: string) => {
-//     console.log(user);
-//     console.log(data);
-//   });
-
-//   connection.on("FriendRequestAccepted", (user: string, data: string) => {
-//     console.log(user);
-//     console.log(data);
-//   });
-
-//   connection.on("FriendRequestCanceled", (user: string, data: string) => {
-//     console.log(user);
-//     console.log(data);
-//   });
-
-//   connection.on("NewReaction", (user: string, data: string) => {
-//     console.log(data);
-//     if (user == userInfo.id) return;
-//     onNewReaction(queryClient, JSON.parse(data));
-//   });
-
-//   connection.on("NewMessagePinned", (user: string, data: string) => {
-//     console.log(data);
-//     if (user == userInfo.id) return;
-//     onNewMessagePinned(queryClient, JSON.parse(data));
-//   });
-// };
 
 /* MARK: ON NEW MESSAGE */
 const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
@@ -304,7 +233,7 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
 /* MARK: ON NEW MEMBERS */
 const onNewMembers = (
   queryClient: QueryClient,
-  userInfo: UserProfile,
+  _userInfo: UserProfile,
   conversation: NewConversation,
 ) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
@@ -326,8 +255,6 @@ const onNewMembers = (
     return createNewConversation(
       oldData,
       conversation.conversation as ConversationModel,
-      userInfo,
-      conversation.members,
     );
   });
 };
@@ -335,7 +262,7 @@ const onNewMembers = (
 /* MARK: ON NEW CONVERSATION */
 const onNewConversation = (
   queryClient: QueryClient,
-  userInfo: UserProfile,
+  _userInfo: UserProfile,
   conversation: NewConversation,
 ) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
@@ -352,10 +279,6 @@ const onNewConversation = (
       lastMessageTime: conversation.conversation.lastMessageTime,
       unSeen: true,
       members: conversation.members,
-
-      // members: conversation.members.map((mem) =>
-      //   mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
-      // ),
     };
 
     return {
@@ -423,8 +346,6 @@ const onNewMessagePinned = (
 const createNewConversation = (
   oldData: ConversationCache,
   conversation: ConversationModel,
-  userInfo: UserProfile,
-  members: ConversationModel_Member[],
   lastMessage?: string,
   lastMessageContact?: string,
   lastMessageTime?: string,
@@ -440,9 +361,6 @@ const createNewConversation = (
     lastMessage: lastMessage ?? conversation.lastMessage,
     lastMessageContact: lastMessageContact ?? conversation.lastMessageContact,
     lastMessageTime: lastMessageTime ?? conversation.lastMessageTime,
-    // members: members.map((mem) =>
-    //   mem.contact.id !== userInfo.id ? mem : { ...mem, unSeenMessages: 0 },
-    // ),
   };
 
   return {

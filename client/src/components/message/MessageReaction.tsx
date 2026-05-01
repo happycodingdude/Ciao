@@ -14,38 +14,16 @@ const MessageReaction = (props: MessageReactionProps) => {
         {message.reaction.total ? (
           <div className="rounded-4xl border-(--main-color) bg-(--sub-color) flex cursor-pointer items-center gap-2 border-[.2rem] px-2 py-[.1rem]">
             <div className="inline-flex">
-              {message.topReactions.map((item) => {
-                if (item === "like")
-                  return (
-                    <div className="top-reaction bg-[url('/assets/like.svg')]"></div>
-                  );
-                if (item === "love")
-                  return (
-                    <div className="top-reaction bg-[url('/assets/love.svg')]"></div>
-                  );
-                if (item === "care")
-                  return (
-                    <div className="top-reaction bg-[url('/assets/care.svg')]"></div>
-                  );
-                if (item === "wow")
-                  return (
-                    <div className="top-reaction bg-[url('/assets/wow.svg')]"></div>
-                  );
-                if (item === "sad")
-                  return (
-                    <div className="top-reaction bg-[url('/assets/sad.svg')]"></div>
-                  );
-                if (item === "angry")
-                  return (
-                    <div className="top-reaction bg-[url('/assets/angry.svg')]"></div>
-                  );
-              })}
+              {message.topReactions.map((item) => (
+                <div
+                  key={item}
+                  className={`top-reaction bg-[url('/assets/${item}.svg')]`}
+                />
+              ))}
             </div>
             <p className="leading-6">{message.reaction.total}</p>
           </div>
-        ) : (
-          ""
-        )}
+        ) : null}
         {/* MARK: CURRENT REACTION */}
         <div className="current-reaction-container peer">
           {
