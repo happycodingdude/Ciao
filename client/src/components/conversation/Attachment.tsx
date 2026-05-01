@@ -4,6 +4,7 @@ import useAttachment from "../../hooks/useAttachment";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/button.css";
+import { AttachmentCache_Attachment } from "../../types/message.types";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import AttachmentIcon from "./AttachmentIcon";
 import ShareImage from "./ShareImage";
@@ -14,15 +15,14 @@ const Attachment = () => {
   const { conversationId } = Route.useParams();
   const { data: attachmentCache } = useAttachment(conversationId);
 
-  const refAttachment = useRef();
-  // const refScrollAttachment = useRef();
+  const refAttachment = useRef<HTMLDivElement>(null);
 
   const [attachmentToggle, setAttachmentToggle] = useState("image");
-  const [displayAttachments, setDisplayAttachments] = useState([]);
+  const [displayAttachments, setDisplayAttachments] = useState<AttachmentCache_Attachment[]>([]);
 
   const toggleAttachmentActive = useCallback(
-    (type) => {
-      const cloned = attachmentCache.attachments.map((item) => {
+    (type: string) => {
+      const cloned = (attachmentCache?.attachments ?? []).map((item) => {
         return Object.assign({}, item);
       });
       const newAttachments = cloned.map((date) => {
@@ -32,7 +32,7 @@ const Attachment = () => {
         if (date.attachments.length !== 0) return date;
       });
       setDisplayAttachments(
-        newAttachments.filter((item) => item !== undefined),
+        newAttachments.filter((item): item is AttachmentCache_Attachment => item !== undefined),
       );
     },
     [attachmentCache?.attachments],
@@ -77,32 +77,35 @@ const Attachment = () => {
 
       {displayAttachments.length > 0 ? (
         <div
-          className="attachment-container hide-scrollbar [&>*:not(:last-child)]:border-b-(--border-color) flex flex-col overflow-hidden overflow-y-auto 
+          className="attachment-container hide-scrollbar [&>*:not(:last-child)]:border-b-(--border-color) flex flex-col overflow-hidden overflow-y-auto
         scroll-smooth *:p-4 [&>*:not(:last-child)]:border-b-[.1rem]"
         >
-          {displayAttachments.map((date) => (
-            <div className="flex flex-col gap-4">
+          {displayAttachments.map((date, dateIndex) => (
+            <div key={dateIndex} className="flex flex-col gap-4">
               <div className="text-(--text-main-color-normal)">
                 {dayjs(date.date).format("DD/MM/YYYY")}
               </div>
               <div className="grid w-full grid-cols-[repeat(3,1fr)] gap-4">
                 {date.attachments.map((item, index) => (
-                  <div className="relative">
+                  <div key={index} className="relative">
                     <ImageWithLightBoxAndNoLazy
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className="peer aspect-square w-full cursor-pointer rounded-2xl"
-                      slides={date.attachments.map((item) => ({
+                      slides={date.attachments.map((att) => ({
                         src:
-                          item.type === "image"
-                            ? item.mediaUrl
+                          att.type === "image"
+                            ? att.mediaUrl ?? ""
                             : "images/filenotfound.svg",
                       }))}
                       index={index}
                       pending={item.pending}
                       local={item.local}
                     />
-                    <ShareImage media={item} />
+                    <ShareImage
+                      media={item}
+                      showImage={() => {}}
+                    />
                   </div>
                 ))}
               </div>

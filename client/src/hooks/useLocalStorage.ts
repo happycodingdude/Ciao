@@ -18,7 +18,7 @@ const useLocalStorage = <T>(
   const [value, setValue] = useState<T>(() => {
     const storedValue = localStorage.getItem(key);
 
-    if (storedValue === null) return initialValue; // No stored value, use initial
+    if (storedValue === null) return initialValue as T; // No stored value, use initial
 
     return isJSON(storedValue)
       ? (JSON.parse(storedValue) as T)

@@ -1,6 +1,6 @@
 import "../../styles/listchat.css";
 
-const ListFriendLoading = (props) => {
+const ListFriendLoading = (props: { className?: string }) => {
   const { className } = props;
   const numberOfLoadingDiv = 4;
   return (

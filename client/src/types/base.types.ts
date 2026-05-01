@@ -7,13 +7,13 @@ import {
   ReactNode,
   SetStateAction,
 } from "react";
-import { ContactModel } from "../features/friend/types";
+import { ContactModel } from "./friend.types";
 // import { NotifyMessageModel } from "./features/notification/services/notifyMessage";
 
 export type CustomInputProps = {
   type?: string;
   label?: string;
-  inputRef?: MutableRefObject<HTMLInputElement & { reset?: () => void }>;
+  inputRef?: MutableRefObject<(HTMLInputElement & { reset?: () => void }) | undefined>;
   className?: string;
   placeholder?: string;
   tabIndex?: number;
@@ -22,8 +22,8 @@ export type CustomInputProps = {
 };
 
 export type SideBarProps = {
-  // page: string;
-  // setPage: Dispatch<SetStateAction<string>>;
+  page?: string;
+  setPage?: Dispatch<SetStateAction<string>>;
 };
 
 export type RelightBackgroundProps = {
@@ -164,7 +164,7 @@ export type AuthenticationFormType = "signin" | "signup" | "forgot";
 export type ChatDetailType = "information" | "attachment" | null;
 
 export type TogglesContextType<T> = {
-  toggle: string;
+  toggle: T;
   setToggle: Dispatch<SetStateAction<T>>;
 };
 

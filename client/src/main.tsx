@@ -50,7 +50,6 @@ const router = createRouter({
     queryClient,
   },
   defaultPreload: false, // ✅ Không preload loader/component khi hover link
-  debug: true,
 });
 
 // Xuất kiểu để tái sử dụng

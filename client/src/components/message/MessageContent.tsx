@@ -27,51 +27,50 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const { data: conversations } = useConversation();
 
     const { conversationId } = Route.useParams();
-    const conversation = conversations.conversations.find(
+    const conversation = conversations?.conversations?.find(
       (c) => c.id === conversationId,
     );
 
     const [reaction, setReaction] =
       useState<MessageReactionProps_Message_Reaction>(() => {
         return {
-          likeCount: message.likeCount,
-          loveCount: message.loveCount,
-          careCount: message.careCount,
-          wowCount: message.wowCount,
-          sadCount: message.sadCount,
-          angryCount: message.angryCount,
+          likeCount: message.likeCount ?? 0,
+          loveCount: message.loveCount ?? 0,
+          careCount: message.careCount ?? 0,
+          wowCount: message.wowCount ?? 0,
+          sadCount: message.sadCount ?? 0,
+          angryCount: message.angryCount ?? 0,
           total:
-            message.likeCount +
-            message.loveCount +
-            message.careCount +
-            message.wowCount +
-            message.sadCount +
-            message.angryCount,
+            (message.likeCount ?? 0) +
+            (message.loveCount ?? 0) +
+            (message.careCount ?? 0) +
+            (message.wowCount ?? 0) +
+            (message.sadCount ?? 0) +
+            (message.angryCount ?? 0),
           currentReaction: message.currentReaction,
         } as MessageReactionProps_Message_Reaction;
       });
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
     const contentRef = useRef<HTMLDivElement>(null);
-    // const messageRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
       setReaction((current) => {
         return {
           ...current,
-          likeCount: message.likeCount,
-          loveCount: message.loveCount,
-          careCount: message.careCount,
-          wowCount: message.wowCount,
-          sadCount: message.sadCount,
-          angryCount: message.angryCount,
+          likeCount: message.likeCount ?? 0,
+          loveCount: message.loveCount ?? 0,
+          careCount: message.careCount ?? 0,
+          wowCount: message.wowCount ?? 0,
+          sadCount: message.sadCount ?? 0,
+          angryCount: message.angryCount ?? 0,
           total:
-            message.likeCount +
-            message.loveCount +
-            message.careCount +
-            message.wowCount +
-            message.sadCount +
-            message.angryCount,
+            (message.likeCount ?? 0) +
+            (message.loveCount ?? 0) +
+            (message.careCount ?? 0) +
+            (message.wowCount ?? 0) +
+            (message.sadCount ?? 0) +
+            (message.angryCount ?? 0),
           currentReaction: message.currentReaction,
         } as MessageReactionProps_Message_Reaction;
       });
@@ -80,7 +79,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
         const lineHeight = parseFloat(
           getComputedStyle(contentRef.current).lineHeight,
         );
-        const maxHeight = lineHeight * 3; // 4 lines height
+        const maxHeight = lineHeight * 3;
         setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
       }
 
@@ -88,7 +87,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     }, [message]);
 
     const generateMostReaction = useCallback(() => {
-      const reactions = {
+      const reactions: Record<string, number> = {
         like: reaction.likeCount,
         love: reaction.loveCount,
         care: reaction.careCount,
@@ -98,10 +97,10 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
       };
 
       return Object.entries(reactions)
-        .filter(([_, count]) => count > 0) // Exclude zero counts
-        .sort((a, b) => b[1] - a[1]) // Sort by count
-        .slice(0, 3) // Get the top 3
-        .map(([key]) => key); // Extract reaction names
+        .filter(([_, count]) => count > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([key]) => key);
     }, [reaction]);
 
     const [topReactions, setTopReactions] = useState(() =>
@@ -113,11 +112,10 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     }, [reaction]);
 
     const react = (type: string) => {
-      // console.log(`reaction type => ${type}...`);
       const isUnReact = reaction.currentReaction === type;
       const request: ReactMessageRequest = {
         conversationId: id,
-        messageId: message.id,
+        messageId: message.id ?? "",
         type: type,
         isUnReact: isUnReact,
       };
@@ -125,7 +123,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
       queryClient.setQueryData(
         ["message", conversationId],
         (oldData: MessageCache) => {
-          const reactionKeys = {
+          const reactionKeys: Record<string, string> = {
             like: "likeCount",
             love: "loveCount",
             care: "careCount",
@@ -135,22 +133,22 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
           };
 
           const previousReaction = reaction.currentReaction;
-          const previousKey = reactionKeys[previousReaction];
+          const previousKey = previousReaction ? reactionKeys[previousReaction] : undefined;
           const newKey = reactionKeys[type];
 
           return {
             ...oldData,
-            messages: oldData.messages.map((mess) => {
+            messages: (oldData.messages ?? []).map((mess) => {
               if (mess.id !== message.id) return mess;
               return {
                 ...mess,
                 currentReaction: isUnReact ? null : type,
                 ...(previousKey && {
-                  [previousKey]: mess[previousKey] - 1,
+                  [previousKey]: (mess as any)[previousKey] - 1,
                 }),
                 ...(newKey &&
                   !isUnReact && {
-                    [newKey]: (mess[newKey] || 0) + 1,
+                    [newKey]: ((mess as any)[newKey] || 0) + 1,
                   }),
               };
             }),
@@ -159,10 +157,10 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
       );
     };
 
-    const isSelf = message.contactId === info.id;
+    const isSelf = message.contactId === info?.id;
 
     const sender = !isSelf
-      ? conversation.members.find((q) => q.contact.id === message.contactId)
+      ? (conversation?.members ?? []).find((q) => q.contact?.id === message.contactId)
       : null;
 
     return (
@@ -170,45 +168,40 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
         ref={ref}
         id={message.id}
         key={message.id}
-        className={`flex shrink-0 gap-4 ${message.contactId === info.id ? "mr-6 flex-row-reverse" : ""} `}
+        className={`flex shrink-0 gap-4 ${message.contactId === info?.id ? "mr-6 flex-row-reverse" : ""} `}
       >
-        {/* MARK: SENDER AVATAR */}
         {!isSelf && (
           <div className="aspect-square h-8 shrink-0">
             {showAvatar && sender && (
               <ImageWithLightBoxAndNoLazy
-                src={sender.contact.avatar}
+                src={sender.contact?.avatar ?? undefined}
                 className="h-full w-full cursor-pointer"
                 circle
-                slides={[{ src: sender.contact.avatar }]}
+                slides={[{ src: sender.contact?.avatar ?? "" }]}
               />
             )}
           </div>
         )}
 
         <div className="flex flex-col gap-2">
-          {/* MARK: SENDER NAME */}
           {!isSelf && showName && sender && (
             <div
-              className={`text-(--text-main-color-thin) flex items-center gap-4 ${message.contactId === info.id ? "justify-end" : ""}`}
+              className={`text-(--text-main-color-thin) flex items-center gap-4 ${message.contactId === info?.id ? "justify-end" : ""}`}
             >
-              <p className="font-medium">{sender.contact.name}</p>
+              <p className="font-medium">{sender.contact?.name}</p>
             </div>
           )}
 
-          {/* MARK: MESSAGE TIME */}
-          {/* <p>{dayjs(message.createdTime).format("HH:mm")}</p> */}
           <div
             className={`laptop-lg:max-w-120 laptop:max-w-100 desktop:max-w-220 relative flex w-fit flex-col
-            ${message.contactId === info.id ? "items-end" : "items-start"}
-            ${message.attachments?.length > 0 ? "gap-2" : ""}
+            ${message.contactId === info?.id ? "items-end" : "items-start"}
+            ${(message.attachments?.length ?? 0) > 0 ? "gap-2" : ""}
           `}
           >
-            {/* MARK: CONTENT */}
             <div className="peer flex w-full flex-col">
               <div
                 ref={contentRef}
-                className={`flex! overflow-visible! data-[expanded=false]:max-h-30  relative w-fit max-w-full cursor-pointer 
+                className={`flex! overflow-visible! data-[expanded=false]:max-h-30  relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   data-[expanded=true]:line-clamp-none data-[expanded=true]:max-h-full
                   ${message.pending ? "opacity-50" : ""}
@@ -217,83 +210,70 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               >
                 {message.isForwarded ? (
                   <ForwardedMessage
-                    message={message.content}
+                    message={message.content ?? ""}
                     contact={
-                      message.contactId === info.id
+                      message.contactId === info?.id
                         ? "You"
-                        : conversation.members.find(
-                            (q) => q.contact.id === message.contactId,
-                          )?.contact.name
+                        : (conversation?.members ?? []).find(
+                            (q) => q.contact?.id === message.contactId,
+                          )?.contact?.name ?? ""
                     }
-                    mine={message.contactId === info.id}
+                    mine={message.contactId === info?.id}
                     isPinned={message.isPinned}
                     attachments={message.attachments}
                   />
                 ) : message.replyId && message.replyContent ? (
                   <ReplyMessage
-                    message={message.content}
+                    message={message.content ?? ""}
                     replyId={message.replyId}
                     replyContent={message.replyContent}
                     contact={
-                      conversation.members.find(
-                        (q) => q.contact.id === message.replyContact,
-                      )?.contact.name || ""
+                      (conversation?.members ?? []).find(
+                        (q) => q.contact?.id === message.replyContact,
+                      )?.contact?.name ?? ""
                     }
-                    mine={message.contactId === info.id}
+                    mine={message.contactId === info?.id}
                     isPinned={message.isPinned}
                     attachments={message.attachments}
                   />
                 ) : (
                   <MessageItem
-                    message={message.content}
+                    message={message.content ?? ""}
                     contact={
-                      conversation.members.find(
-                        (q) => q.contact.id === message.pinnedBy,
-                      )?.contact.name || ""
+                      (conversation?.members ?? []).find(
+                        (q) => q.contact?.id === message.pinnedBy,
+                      )?.contact?.name ?? ""
                     }
-                    mine={message.contactId === info.id}
+                    mine={message.contactId === info?.id}
                     isPinned={message.isPinned}
                     attachments={message.attachments}
                   />
                 )}
               </div>
             </div>
-            {/* MARK: MESSAGE PIN */}
             {message.isPinned && (
               <div
                 className={`laptop:h-5.5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-light-blue-500 shadow-md
-                  ${message.contactId === info.id ? "-right-3" : "-left-[.8rem]"}`}
+                  ${message.contactId === info?.id ? "-right-3" : "-left-[.8rem]"}`}
               >
                 <i className="fa-solid fa-thumbtack laptop-lg:text-2xs laptop:text-3xs text-white"></i>
               </div>
             )}
-            {/* MARK: MESSAGE MENU */}
             {!message.pending && (
               <MessageMenu_Slide
                 conversationId={id}
                 message={message}
-                mine={message.contactId === info.id}
+                mine={message.contactId === info?.id}
                 contact={
-                  conversation.members.find(
-                    (q) => q.contact.id === message.contactId,
-                  )?.contact || {}
+                  (conversation?.members ?? []).find(
+                    (q) => q.contact?.id === message.contactId,
+                  )?.contact ?? {}
                 }
                 getContainerRect={props.getContainerRect}
               />
             )}
-            {/* MARK: REACTION */}
-            {/* <MessageReaction
-              message={{
-                mine: message.contactId === info.id,
-                reaction: reaction,
-                topReactions: topReactions,
-              }}
-              react={react}
-              pending={message.pending}
-            /> */}
-            {/* MARK: MESSAGE TIME */}
             <p
-              data-mine={message.contactId === info.id}
+              data-mine={message.contactId === info?.id}
               className="message-time"
             >
               {dayjs(message.createdTime).format("HH:mm")}

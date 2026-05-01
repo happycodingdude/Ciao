@@ -25,7 +25,7 @@ const MessageMenuItem = ({
       onClick={(e) => {
         e.stopPropagation();
         onClick?.();
-        if (closeOnClick) close();
+        if (closeOnClick) close?.();
       }}
     >
       {children}

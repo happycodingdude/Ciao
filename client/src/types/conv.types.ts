@@ -40,8 +40,8 @@ export type ConversationModel = BaseModel & {
 export type ConversationCache = {
   conversations?: ConversationModel[];
   filterConversations?: ConversationModel[];
-  // selected?: ConversationModel;
-  // reload?: boolean;
+  selected?: ConversationModel | null;
+  reload?: boolean;
   createGroupChat?: boolean;
   quickChat?: boolean;
   message?: ConversationCache_Message;

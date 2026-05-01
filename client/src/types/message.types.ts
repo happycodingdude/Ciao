@@ -4,7 +4,7 @@ import { ConversationModel_Contact } from "./conv.types";
 
 export type MentionModel = {
   name: string;
-  avatar: string;
+  avatar: string | null;
   userId: string;
 };
 
@@ -40,8 +40,10 @@ export type MessageContentProps = {
 
 export type MessageMenuProps = {
   conversationId: string;
+  id?: string;
   message: PendingMessageModel;
   mine: boolean;
+  pinned?: boolean;
   contact: ConversationModel_Contact;
   getContainerRect?: () => DOMRect;
 };

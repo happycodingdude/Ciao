@@ -84,7 +84,7 @@ export function MessageItem(props: MessageItemProps) {
   return (
     <>
       {config.header}
-      {attachments?.length > 0 && (
+      {(attachments?.length ?? 0) > 0 && (
         <MessageImageGrid attachments={attachments} />
       )}
       {message && (

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import debounce from "lodash-es/debounce";
+import { debounce } from "lodash-es";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
@@ -14,84 +14,67 @@ import {
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
+
 const Chatbox = () => {
   const queryClient = useQueryClient();
 
   const { data: conversations } = useConversation();
-  if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
+  if (!conversations) return null;
 
   const { conversationId } = Route.useParams();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
 
   const refPage = useRef<number>(1);
   const { data: messages } = useMessage(conversationId, refPage.current);
 
-  const refChatContent = useRef<HTMLDivElement>();
-  const bottomRef = useRef<HTMLDivElement>();
-  const oldLastMsgRef = useRef(null);
+  const refChatContent = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const oldLastMsgRef = useRef<PendingMessageModel | null>(null);
   const isInitialLoad = useRef(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   const scrollChatContentToBottom = (behavior: ScrollBehavior) => {
-    console.log("behavior: " + behavior);
-
     bottomRef.current?.scrollIntoView({
       behavior: behavior as ScrollBehavior,
       block: "end",
     });
   };
 
-  // 1. Reset về trang 1 khi đổi hội thoại (Không cần scroll ở đây)
   useEffect(() => {
     refPage.current = 1;
     isInitialLoad.current = true;
     oldLastMsgRef.current = null;
 
-    // Tắt smooth ngay lập tức khi vừa đổi ID để chuẩn bị cho dữ liệu (dù là cache)
     if (refChatContent.current) {
       refChatContent.current.style.scrollBehavior = "auto";
     }
   }, [conversationId]);
 
-  // 2. Theo dõi khi danh sách Tin nhắn thay đổi
   useEffect(() => {
     if (!messages || messages.messages.length === 0) return;
 
     const container = refChatContent.current;
     const currentLastMsg = messages.messages[messages.messages.length - 1];
 
-    // TRƯỜNG HỢP 1: Lần đầu tiên vào phòng chat (Initial Load)
     if (isInitialLoad.current) {
-      // Trường hợp lần đầu nạp (kể cả từ cache):
-      // Ép cuộn tức thì bằng cách gán scrollTop
       if (container) {
-        container.style.scrollBehavior = "auto"; // Đảm bảo chắc chắn là auto
+        container.style.scrollBehavior = "auto";
         container.scrollTop = container.scrollHeight;
       }
 
       isInitialLoad.current = false;
 
-      // Chỉ bật smooth lên SAU KHI đã nhảy xuống đáy xong
-      // Dùng requestAnimationFrame để đảm bảo trình duyệt đã vẽ xong vị trí đáy
       requestAnimationFrame(() => {
         if (container) {
           container.style.scrollBehavior = "smooth";
         }
       });
-    }
-    // TRƯỜNG HỢP 2: Có tin nhắn mới xuất hiện ở cuối danh sách
-    else if (currentLastMsg?.id !== oldLastMsgRef.current?.id) {
-      // Có tin nhắn mới: Cuộn mượt
-      // Lúc này container đã có smooth từ bước trên
+    } else if (currentLastMsg?.id !== oldLastMsgRef.current?.id) {
       scrollChatContentToBottom("smooth");
     }
-    // TRƯỜNG HỢP 3: Tải thêm tin nhắn cũ (Pagination)
-    // Nếu currentLastMsg.id giống với oldLastMsgRef.id,
-    // nghĩa là tin nhắn cũ được thêm vào đầu mảng -> Không làm gì cả để giữ vị trí cuộn.
 
-    // Cập nhật lại Ref để so sánh cho lần sau
     oldLastMsgRef.current = currentLastMsg;
   }, [messages]);
 
@@ -100,7 +83,7 @@ const Chatbox = () => {
 
     const preventScroll = (e: Event) => {
       e.preventDefault();
-      el.scrollTop = lockedTop; // ép giữ nguyên vị trí
+      el.scrollTop = lockedTop;
     };
 
     el.addEventListener("wheel", preventScroll, { passive: false });
@@ -115,14 +98,12 @@ const Chatbox = () => {
   const fetchMoreMessage = async (conversationId: string) => {
     const el = refChatContent.current;
 
-    // Kiểm tra hasMore trực tiếp từ cache hiện tại của queryClient để tránh closure bug
-    const currentData: MessageCache = queryClient.getQueryData([
+    const currentData: MessageCache | undefined = queryClient.getQueryData([
       "message",
       conversationId,
     ]);
     if (!currentData?.hasMore || !el) return;
 
-    // ✅ lock scroll ngay khi bắt đầu fetch
     const unlockScroll = lockScroll(el);
 
     const prevScrollHeight = el.scrollHeight;
@@ -134,15 +115,14 @@ const Chatbox = () => {
       (oldData: MessageCache) => {
         return {
           ...oldData,
-          messages: [...newMessages.messages, ...oldData.messages],
+          messages: [...newMessages.messages, ...(oldData.messages ?? [])],
           hasMore: newMessages.hasMore,
         };
       },
     );
 
-    isFetching.current = false; // Mở khóa sau khi fetch xong
+    isFetching.current = false;
 
-    // ✅ Restore đúng: preserve vị trí relative của user
     requestAnimationFrame(() => {
       const heightDiff = el.scrollHeight - prevScrollHeight;
 
@@ -150,24 +130,21 @@ const Chatbox = () => {
       el.scrollTop += heightDiff;
       el.style.scrollBehavior = "smooth";
 
-      // ✅ unlock sau khi restore scroll
       unlockScroll();
     });
   };
 
-  // const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
   const debounceFetch = useMemo(
     () => debounce(fetchMoreMessage, 100),
     [fetchMoreMessage],
   );
 
-  const isFetching = useRef(false); // Quan trọng: Tránh gọi trùng lặp
+  const isFetching = useRef(false);
 
   const handleScroll = useCallback(() => {
     const contentEl = refChatContent.current;
     if (!contentEl || isFetching.current || !messages || !conversation) return;
 
-    // 1. Logic hiện nút Scroll To Bottom (Giữ nguyên của bạn)
     const distanceFromBottom =
       contentEl.scrollHeight - (contentEl.scrollTop + contentEl.clientHeight);
     setShowScrollToBottom(
@@ -175,15 +152,13 @@ const Chatbox = () => {
         distanceFromBottom >= contentEl.clientHeight / 2,
     );
 
-    // 2. Logic Load More (Scroll Up)
-    // khi đụng chính xác top thì load thêm
     const isNearTop = contentEl.scrollTop === 0;
 
     if (isNearTop && messages.hasMore) {
-      isFetching.current = true; // Khóa lại
+      isFetching.current = true;
       refPage.current += 1;
 
-      debounceFetch(conversation.id);
+      debounceFetch(conversation.id ?? "");
     }
   }, [debounceFetch, conversation?.id]);
 
@@ -194,21 +169,18 @@ const Chatbox = () => {
   ): Record<string, GroupedMessage[]> => {
     return messages.reduce(
       (groups, msg) => {
-        const date = formatDate(msg.createdTime);
+        const date = formatDate(msg.createdTime ?? "");
 
         if (!groups[date]) groups[date] = [];
 
         const dateGroups = groups[date];
         const lastGroup = dateGroups[dateGroups.length - 1];
 
-        // Nếu group cuối cùng cùng user → push vào group đó
         if (lastGroup && lastGroup.contactId === msg.contactId) {
           lastGroup.messages.push(msg);
-        }
-        // Ngược lại → tạo group mới
-        else {
+        } else {
           dateGroups.push({
-            contactId: msg.contactId,
+            contactId: msg.contactId ?? "",
             messages: [msg],
           });
         }
@@ -228,7 +200,7 @@ const Chatbox = () => {
         data-show={showScrollToBottom}
         onClick={() => scrollChatContentToBottom("smooth")}
         className={`absolute bottom-[5%] right-[50%] z-20 transition-all duration-200
-            data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto 
+            data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto
             data-[show=false]:opacity-0 data-[show=true]:opacity-100`}
       >
         <div className="fa fa-arrow-down"></div>
@@ -240,10 +212,9 @@ const Chatbox = () => {
         {groupedEntries.map(([date, blocks], groupIndex) => (
           <div
             key={date}
-            className={`flex flex-col 
+            className={`flex flex-col
               ${groupIndex === 0 ? "mt-auto" : ""} `}
           >
-            {/* Ngày hiển thị giữa */}
             <div className="text-3xs rounded-4xl laptop:mb-8 pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
@@ -260,18 +231,17 @@ const Chatbox = () => {
                   </div>
                 );
               }
-              // const lastMessage = block.messages[block.messages.length - 1];
               return (
                 <div key={blockIndex} className="mb-6 flex flex-col gap-3">
                   {block.messages.map((message) => (
                     <MessageContent
                       key={message.id}
                       message={message}
-                      id={conversation.id}
+                      id={conversation?.id ?? ""}
                       showName={message === firstMessage}
                       showAvatar={message === firstMessage}
                       getContainerRect={() =>
-                        refChatContent.current?.getBoundingClientRect()
+                        refChatContent.current?.getBoundingClientRect() ?? new DOMRect()
                       }
                     />
                   ))}

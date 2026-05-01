@@ -1,4 +1,3 @@
-// import EmojiPicker from "emoji-picker-react";
 import {
   CopyOutlined,
   EllipsisOutlined,
@@ -19,7 +18,6 @@ import ForwardMessageModal from "./ForwardMessageModal";
 import MessageMenuItem from "./MessageMenuItem";
 
 const MessageMenu = (props: MessageMenuProps) => {
-  // console.log("ChatboxMenu calling");
   const {
     conversationId,
     id,
@@ -40,11 +38,11 @@ const MessageMenu = (props: MessageMenuProps) => {
 
   const refMenu = useRef<HTMLDivElement>(null);
 
-  // Event listener
-  const hideMenuOnClick = useCallback((e) => {
+  const hideMenuOnClick = useCallback((e: Event) => {
+    const target = e.target as HTMLElement;
     if (
-      Array.from(e.target.classList).includes("message-menu-container") ||
-      Array.from(e.target.classList).includes("message-menu-item")
+      Array.from(target.classList).includes("message-menu-container") ||
+      Array.from(target.classList).includes("message-menu-item")
     )
       return;
     setShow(false);
@@ -54,10 +52,9 @@ const MessageMenu = (props: MessageMenuProps) => {
   const copyMessage = () => {
     if (!message) return;
     navigator.clipboard
-      .writeText(message)
+      .writeText(message as string)
       .then(() => {
         toast.success("Message copied to clipboard");
-        // console.log("Message copied to clipboard");
       })
       .catch((err) => {
         console.error("Failed to copy message: ", err);
@@ -67,8 +64,8 @@ const MessageMenu = (props: MessageMenuProps) => {
   const pin = async () => {
     setPinning(true);
     await pinMessage({
-      conversationId: conversationId,
-      messageId: id,
+      conversationId: conversationId ?? "",
+      messageId: id ?? "",
       pinned: !pinned,
     });
 
@@ -77,12 +74,12 @@ const MessageMenu = (props: MessageMenuProps) => {
       (oldData: MessageCache) => {
         return {
           ...oldData,
-          messages: oldData.messages.map((mess) => {
+          messages: (oldData.messages ?? []).map((mess) => {
             if (mess.id !== id) return mess;
             return {
               ...mess,
               isPinned: !pinned,
-              pinnedBy: info.id,
+              pinnedBy: info?.id,
             };
           }),
         } as MessageCache;
@@ -96,7 +93,7 @@ const MessageMenu = (props: MessageMenuProps) => {
       const menu = refMenu.current;
       if (!menu) return;
 
-      const containerRect = getContainerRect();
+      const containerRect = getContainerRect?.() ?? new DOMRect();
       const clickY = e.clientY;
 
       const direction =
@@ -106,7 +103,6 @@ const MessageMenu = (props: MessageMenuProps) => {
 
       setShow((prev) => !prev);
 
-      // Gán class direction
       menu.classList.remove("above", "below");
       menu.classList.add(direction);
       menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"} `;
@@ -117,8 +113,8 @@ const MessageMenu = (props: MessageMenuProps) => {
   const replyMessage = () => {
     queryClient.setQueryData(["reply"], {
       replyId: id,
-      replyContact: mine ? info.id : contact.id,
-      replyContactName: mine ? info.name : contact.name,
+      replyContact: mine ? info?.id : (contact as any)?.id,
+      replyContactName: mine ? info?.name : (contact as any)?.name,
       replyContent: message || "",
     });
   };
@@ -134,11 +130,9 @@ const MessageMenu = (props: MessageMenuProps) => {
         data-show={show}
         className={`message-menu-container ${mine ? "-left-55" : "-right-55"}`}
       >
-        {/* MARK: COPY */}
         <MessageMenuItem onClick={copyMessage} closeOnClick={false}>
           <CopyOutlined /> Copy message
         </MessageMenuItem>
-        {/* MARK: PIN */}
         <MessageMenuItem
           className={`${pinning ? "pointer-events-none" : ""}`}
           onClick={pin}
@@ -154,7 +148,6 @@ const MessageMenu = (props: MessageMenuProps) => {
           )}
           {pinned ? " Unpin" : " Pin"} message
         </MessageMenuItem>
-        {/* MARK: REPLY */}
         <MessageMenuItem
           onClick={replyMessage}
           closeOnClick={true}
@@ -162,7 +155,6 @@ const MessageMenu = (props: MessageMenuProps) => {
         >
           <i className="fa fa-reply" /> Reply message
         </MessageMenuItem>
-        {/* MARK: FORWARD */}
         <MessageMenuItem
           onClick={() => setOpenForward(true)}
           closeOnClick={true}
@@ -177,7 +169,7 @@ const MessageMenu = (props: MessageMenuProps) => {
           >
             <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
               <Suspense fallback={<ModalLoading />}>
-                <ForwardMessageModal message={message} />
+                <ForwardMessageModal message={message as any} />
               </Suspense>
             </div>
           </BackgroundPortal>

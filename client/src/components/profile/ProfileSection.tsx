@@ -13,31 +13,30 @@ import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
 
 const ProfileSection = () => {
-  // console.log("ProfileSection calling");
-
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
 
-  const refName = useRef<HTMLInputElement>();
-  const refBio = useRef<HTMLTextAreaElement>();
+  const refName = useRef<HTMLInputElement>(null);
+  const refBio = useRef<HTMLTextAreaElement>(null);
 
-  const [file, setFile] = useState<File>();
-  const [avatar, setAvatar] = useState<string>(info.avatar);
+  const [file, setFile] = useState<File | undefined>(undefined);
+  const [avatar, setAvatar] = useState<string>(info?.avatar ?? "");
   const [processing, setProcessing] = useState<boolean>(false);
 
   useEffect(() => {
-    refName.current.value = info.name;
-    refBio.current.value = info.bio;
+    if (!info) return;
+    if (refName.current) refName.current.value = info.name ?? "";
+    if (refBio.current) refBio.current.value = info.bio ?? "";
     blurImage(".user-avatar");
-  }, [info.id]);
+  }, [info?.id]);
 
-  const chooseAvatar = (e) => {
-    const chosenFiles = Array.from(e.target.files);
+  const chooseAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const chosenFiles = Array.from(e.target.files ?? []);
     if (chosenFiles.length === 0) return;
 
-    setAvatar(URL.createObjectURL(e.target.files?.[0]));
-    setFile(e.target.files?.[0]);
-    e.target.value = null;
+    setAvatar(URL.createObjectURL(e.target.files![0]));
+    setFile(e.target.files![0]);
+    e.target.value = "";
 
     blurImage(".user-avatar");
   };
@@ -64,7 +63,6 @@ const ProfileSection = () => {
     if (file === undefined) {
       url = avatar;
     } else {
-      // Create a root reference
       const storage = getStorage(getFirebaseApp());
       url = await uploadBytes(ref(storage, `avatar/${file?.name}`), file).then(
         (snapshot) => {
@@ -75,11 +73,13 @@ const ProfileSection = () => {
       );
     }
     updateInfoMutation({
-      name: refName.current.value,
-      bio: refBio.current.value,
+      name: refName.current?.value ?? "",
+      bio: refBio.current?.value ?? "",
       avatar: url,
     });
   };
+
+  if (!info) return null;
 
   return (
     <div className="flex flex-col gap-20 px-20 py-8">

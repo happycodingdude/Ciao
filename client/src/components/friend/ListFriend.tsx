@@ -1,4 +1,4 @@
-import debounce from "lodash-es/debounce";
+import { debounce } from "lodash-es";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getContacts } from "../../services/friend.service";
 import { OnCloseType } from "../../types/base.types";
@@ -10,12 +10,12 @@ import FriendItem from "./FriendItem";
 const ListFriend = (props: OnCloseType) => {
   const { onClose } = props;
 
-  const refInput = useRef<HTMLInputElement & { reset: () => void }>();
+  const refInput = useRef<(HTMLInputElement & { reset?: () => void }) | undefined>(undefined);
 
   const [contacts, setContacts] = useState<ContactModel[]>([]);
 
   useEffect(() => {
-    refInput.current.focus();
+    refInput.current?.focus();
   }, []);
 
   useEffect(() => {
@@ -24,12 +24,12 @@ const ListFriend = (props: OnCloseType) => {
 
   const fetchContacts = async (name: string) => {
     const contacts = await getContacts(name);
-    setContacts(contacts);
+    setContacts(contacts ?? []);
   };
 
   const debounceDropDown = useCallback(debounce(fetchContacts, 100), []);
 
-  const findContact = (name) => {
+  const findContact = (name: string) => {
     debounceDropDown(name);
   };
 

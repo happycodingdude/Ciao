@@ -10,7 +10,7 @@ const PortalHeader = (props: PortalHeaderProps) => {
         className="flex cursor-pointer items-start"
         onClick={(e) => {
           e.stopPropagation(); // Prevent bubbling to parent
-          onClose();
+          onClose?.();
         }}
       />
     </div>

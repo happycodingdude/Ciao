@@ -13,7 +13,6 @@ import {
   MessageCache,
   PendingMessageModel,
   SendMessageRequest,
-  SendMessageResponse,
 } from "../../types/message.types";
 import { getToday } from "../../utils/datetime";
 import delay from "../../utils/delay";
@@ -30,7 +29,7 @@ const ForwardMessageModal = ({
   directContact,
 }: {
   message: PendingMessageModel;
-  forward: boolean;
+  forward?: boolean;
   directContact?: string;
 }) => {
   const { type, content, attachments } = message;
@@ -41,14 +40,14 @@ const ForwardMessageModal = ({
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
 
-  const refInput = useRef<HTMLInputElement>();
+  const refInput = useRef<HTMLInputElement | undefined>(undefined);
 
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
     data
       ?.filter((item) => item.contact.id !== directContact)
-      .map((item) => item.contact),
+      .map((item) => item.contact) ?? [],
   );
-  const [sentIds, setSentIds] = useState<Set<string>>(new Set()); // ✅ lưu các contact đang gửi
+  const [sentIds, setSentIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!data) return;
@@ -57,20 +56,18 @@ const ForwardMessageModal = ({
         .filter((item) => item.contact.id !== directContact)
         .map((item) => item.contact),
     );
-    refInput.current.focus();
-    // blurImage(".list-friend-container");
+    refInput.current?.focus();
   }, [data]);
 
   const send = async (contact: ContactModel) => {
-    setSentIds((prev) => new Set(prev).add(contact.id)); // thêm id vào state
+    setSentIds((prev) => new Set(prev).add(contact.id ?? ""));
 
-    // onClose();
     const randomId = Math.random().toString(36).substring(2, 7);
-    const existedConversation = conversations.conversations.find(
+    const existedConversation = (conversations?.conversations ?? []).find(
       (conv) =>
         conv.isGroup === false &&
-        conv.members.some((mem) => mem.contact.id === contact.id) &&
-        conv.members.some((mem) => mem.contact.id === info.id),
+        (conv.members ?? []).some((mem) => mem.contact?.id === contact.id) &&
+        (conv.members ?? []).some((mem) => mem.contact?.id === info?.id),
     );
     if (existedConversation) {
       await handleExistedConversation(existedConversation);
@@ -86,12 +83,11 @@ const ForwardMessageModal = ({
       const now = dayjs().format();
       const convs = oldData.conversations ?? [];
 
-      // Lấy conversation hiện tại từ cache (tránh dùng `conversation` "bên ngoài" nếu nó stale)
       const cachedConv =
         convs.find((c) => c.id === conversation.id) ?? conversation;
 
       const isDeletedConversation =
-        cachedConv.members.find((mem) => mem.contact.id === info.id)
+        (cachedConv.members ?? []).find((mem) => mem.contact?.id === info?.id)
           ?.isDeleted ?? false;
 
       let updatedConversations: ConversationModel[];
@@ -103,13 +99,11 @@ const ForwardMessageModal = ({
             attachments && attachments.length > 0 && !content
               ? attachments.map((att) => att.mediaName).join(",")
               : content,
-          // tạo members mới (immutable)
-          members: cachedConv.members.map((mem) =>
-            mem.contact.id === info.id ? { ...mem, isDeleted: false } : mem,
+          members: (cachedConv.members ?? []).map((mem) =>
+            mem.contact?.id === info?.id ? { ...mem, isDeleted: false } : mem,
           ),
         };
 
-        // đặt conversation cập nhật lên đầu (tạo array mới)
         updatedConversations = [
           updatedConv,
           ...convs.filter((c) => c.id !== cachedConv.id),
@@ -125,8 +119,8 @@ const ForwardMessageModal = ({
                     ? attachments.map((att) => att.mediaName).join(",")
                     : content,
                 lastMessageTime: now,
-                members: c.members.map((mem) =>
-                  mem.contact.id === info.id
+                members: (c.members ?? []).map((mem) =>
+                  mem.contact?.id === info?.id
                     ? { ...mem, isDeleted: false }
                     : mem,
                 ),
@@ -142,7 +136,7 @@ const ForwardMessageModal = ({
     });
 
     const randomId: string = Math.random().toString(36).substring(2, 7);
-    const hasMedia: boolean = attachments && attachments.length > 0;
+    const hasMedia: boolean = !!(attachments && attachments.length > 0);
     queryClient.setQueryData(
       ["message", conversation.id],
       (oldData: MessageCache) => {
@@ -156,7 +150,7 @@ const ForwardMessageModal = ({
               id: randomId,
               type: type,
               content: content,
-              contactId: info.id,
+              contactId: info?.id,
               attachments: hasMedia ? attachments : [],
               pending: true,
               likeCount: 0,
@@ -167,7 +161,7 @@ const ForwardMessageModal = ({
               angryCount: 0,
               currentReaction: null,
               createdTime: dayjs().format(),
-              isForwarded: forward,
+              isForwarded: forward ?? false,
             } as PendingMessageModel,
           ],
         } as MessageCache;
@@ -180,23 +174,20 @@ const ForwardMessageModal = ({
           if (!oldData) return oldData;
 
           const today = getToday("MM/DD/YYYY");
-          // Nếu chưa có attachment nào trong cache
           if (!oldData?.attachments) {
             return {
               ...oldData,
               attachments: [
                 {
                   date: today,
-                  attachments: attachments,
+                  attachments: attachments ?? [],
                 },
               ],
             } as AttachmentCache;
           }
-          // Kiểm tra xem đã có attachment cho ngày hôm nay chưa
           const existingItem = oldData.attachments.find(
             (item) => item.date === today,
           );
-          // Nếu chưa có thì thêm mới
           if (!existingItem) {
             return {
               ...oldData,
@@ -204,19 +195,18 @@ const ForwardMessageModal = ({
                 ...oldData.attachments,
                 {
                   date: today,
-                  attachments: attachments,
+                  attachments: attachments ?? [],
                 },
               ],
             } as AttachmentCache;
           }
-          // Nếu có rồi thì chỉ cần thêm vào danh sách attachments của ngày hôm nay
           return {
             ...oldData,
             attachments: oldData.attachments.map((item) =>
               item.date === today
                 ? {
                     ...item,
-                    attachments: [...attachments, ...item.attachments],
+                    attachments: [...(attachments ?? []), ...item.attachments],
                   }
                 : item,
             ),
@@ -226,15 +216,12 @@ const ForwardMessageModal = ({
     }
 
     const bodyToCreate: SendMessageRequest = {
-      type: type,
-      content: content,
+      type: type ?? "",
+      content: content ?? "",
       attachments: attachments,
-      isForwarded: forward,
+      isForwarded: forward ?? false,
     };
-    const res: SendMessageResponse = await sendMessage(
-      conversation.id,
-      bodyToCreate,
-    );
+    const res = await sendMessage(conversation.id ?? "", bodyToCreate);
     await delay(500);
 
     queryClient.setQueryData(
@@ -244,11 +231,11 @@ const ForwardMessageModal = ({
 
         return {
           ...oldData,
-          messages: oldData.messages.map((message) => {
+          messages: (oldData.messages ?? []).map((message) => {
             if (message.id !== randomId) return message;
             return {
               ...message,
-              id: res.messageId,
+              id: res?.messageId,
               pending: false,
             };
           }),
@@ -274,9 +261,9 @@ const ForwardMessageModal = ({
           {
             isModerator: true,
             contact: {
-              id: info.id,
-              name: info.name,
-              avatar: info.avatar,
+              id: info?.id,
+              name: info?.name,
+              avatar: info?.avatar,
               isOnline: true,
             },
           },
@@ -292,20 +279,21 @@ const ForwardMessageModal = ({
       };
       return {
         ...oldData,
-        conversations: [newConversation, ...oldData.conversations],
-        filterConversations: [newConversation, ...oldData.conversations],
+        conversations: [newConversation, ...(oldData.conversations ?? [])],
+        filterConversations: [newConversation, ...(oldData.conversations ?? [])],
         reload: false,
       } as ConversationCache;
     });
 
-    createDirectChatWithMessage(contact.id, {
-      message: content,
-      isForwarded: forward,
+    createDirectChatWithMessage(contact.id ?? "", {
+      message: content ?? undefined,
+      isForwarded: forward ?? false,
     }).then((res) => {
+      if (!res) return;
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          const updatedConversations = oldData.conversations.map(
+          const updatedConversations = (oldData.conversations ?? []).map(
             (conversation) => {
               if (conversation.id !== randomId) return conversation;
               return { ...conversation, id: res.conversationId };
@@ -319,7 +307,7 @@ const ForwardMessageModal = ({
         },
       );
 
-      const hasMedia: boolean = attachments && attachments.length > 0;
+      const hasMedia: boolean = !!(attachments && attachments.length > 0);
       queryClient.setQueryData(
         ["message", res.conversationId],
         (oldData: MessageCache) => {
@@ -329,7 +317,7 @@ const ForwardMessageModal = ({
                 id: res.messageId,
                 type: type,
                 content: content,
-                contactId: info.id,
+                contactId: info?.id,
                 attachments: hasMedia ? attachments : [],
                 pending: false,
                 likeCount: 0,
@@ -340,7 +328,7 @@ const ForwardMessageModal = ({
                 angryCount: 0,
                 currentReaction: null,
                 createdTime: dayjs().format(),
-                isForwarded: forward,
+                isForwarded: forward ?? false,
               } as PendingMessageModel,
             ],
           } as MessageCache;
@@ -349,12 +337,12 @@ const ForwardMessageModal = ({
       if (hasMedia) {
         queryClient.setQueryData(
           ["attachment", res.conversationId],
-          (oldData: AttachmentCache) => {
+          () => {
             return {
               attachments: [
                 {
                   date: getToday("MM/DD/YYYY"),
-                  attachments: attachments,
+                  attachments: attachments ?? [],
                 },
               ],
             } as AttachmentCache;
@@ -372,11 +360,11 @@ const ForwardMessageModal = ({
         inputRef={refInput}
         onChange={(e) => {
           if (e.target.value === "")
-            setMembersToSearch(data.map((item) => item.contact));
+            setMembersToSearch((data ?? []).map((item) => item.contact));
           else
             setMembersToSearch((current) => {
               const found = current.filter((item) =>
-                item.name.toLowerCase().includes(e.target.value.toLowerCase()),
+                (item.name ?? "").toLowerCase().includes(e.target.value.toLowerCase()),
               );
 
               return found;
@@ -393,19 +381,19 @@ const ForwardMessageModal = ({
           <>
             <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
               {membersToSearch?.map((item) => {
-                const isSent = sentIds.has(item.id);
+                const isSent = sentIds.has(item.id ?? "");
                 return (
                   <div
                     key={item.id}
                     className={`information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]`}
                   >
                     <ImageWithLightBoxAndNoLazy
-                      src={item.avatar}
+                      src={item.avatar ?? undefined}
                       className="phone:w-12 laptop:w-16 pointer-events-none aspect-square"
                       circle
                       slides={[
                         {
-                          src: item.avatar,
+                          src: item.avatar ?? "",
                         },
                       ]}
                       onClick={() => {}}

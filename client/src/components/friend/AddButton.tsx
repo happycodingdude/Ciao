@@ -18,7 +18,7 @@ const AddButton = (props: FriendCtaButtonProps) => {
       ),
     })
       .then((res) => {
-        onClose(res.data);
+        onClose?.(res.data);
       })
       .finally(() => {
         setProcessing(false);

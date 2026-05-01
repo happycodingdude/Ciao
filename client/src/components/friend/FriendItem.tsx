@@ -6,6 +6,8 @@ import FriendCtaButton from "./FriendCtaButton";
 const FriendItem = (props: FriendItemProps) => {
   const { friend } = props;
 
+  if (!friend) return null;
+
   return (
     <div
       key={friend.id}
@@ -13,11 +15,11 @@ const FriendItem = (props: FriendItemProps) => {
       className="hover:bg-(--bg-color-extrathin) flex items-center gap-4 rounded-2xl px-2 py-3"
     >
       <ImageWithLightBoxAndNoLazy
-        src={friend.avatar}
+        src={friend.avatar ?? undefined}
         className="aspect-square w-12"
         slides={[
           {
-            src: friend.avatar,
+            src: friend.avatar ?? "",
           },
         ]}
       />

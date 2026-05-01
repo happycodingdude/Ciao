@@ -46,11 +46,13 @@ export const getContacts = async (name: string) => {
   ).data;
 };
 
-export const getFriends = async () => {
+export const getFriends = async (): Promise<FriendCache[]> => {
   return (
-    await HttpRequest<undefined, FriendCache[]>({
-      method: "get",
-      url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GET,
-    })
-  ).data;
+    (
+      await HttpRequest<undefined, FriendCache[]>({
+        method: "get",
+        url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GET,
+      })
+    ).data ?? []
+  );
 };

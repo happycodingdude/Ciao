@@ -14,8 +14,7 @@ const ChatboxContainer = () => {
 
   const { toggle, setToggle } = useChatDetailToggles();
 
-  const refChatboxContainer = useRef<HTMLDivElement>();
-  const refInput = useRef<HTMLInputElement>();
+  const refChatboxContainer = useRef<HTMLDivElement>(null);
 
   const { conversationId } = Route.useParams();
 
@@ -23,7 +22,7 @@ const ChatboxContainer = () => {
   const conversationCache = queryClient.getQueryData<ConversationCache>([
     "conversation",
   ]);
-  const conversation = conversationCache?.filterConversations.find(
+  const conversation = conversationCache?.filterConversations?.find(
     (c) => c.id === conversationId,
   );
 
@@ -99,16 +98,16 @@ const ChatboxContainer = () => {
           <div
             ref={refChatboxContainer}
             className={`relative flex w-full flex-col items-center gap-4 
-                    ${toggle && toggle !== "" && toggle !== "null" ? "" : "shrink-0"}`}
+                    ${toggle ? "" : "shrink-0"}`}
           >
             <Chatbox />
-            <ChatInput className="chatbox" inputRef={refInput} />
+            <ChatInput className="chatbox" />
           </div>
         </div>
       </div>
       <div
         className={`border-l-(--border-color) relative h-full shrink-0 origin-right border-l-[.1rem] transition-all duration-200
-          ${!toggle || toggle === "" || toggle === "null" ? "w-0" : "laptop:w-[clamp(17rem,22%,20rem)] laptop-lg:w-[clamp(20rem,22%,30rem)]"}`}
+          ${!toggle ? "w-0" : "laptop:w-[clamp(17rem,22%,20rem)] laptop-lg:w-[clamp(20rem,22%,30rem)]"}`}
       >
         <Information />
         <Attachment />

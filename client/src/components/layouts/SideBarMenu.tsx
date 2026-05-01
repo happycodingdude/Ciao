@@ -20,30 +20,30 @@ const SideBarMenu = () => {
   };
 
   document.querySelectorAll(".sidebar-item").forEach((item) => {
-    item.addEventListener("click", function (e: MouseEvent) {
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    item.addEventListener("click", (e: Event) => {
+      const mouseEvent = e as MouseEvent;
+      const htmlItem = item as HTMLElement;
+      const rect = htmlItem.getBoundingClientRect();
+      const x = mouseEvent.clientX - rect.left;
+      const y = mouseEvent.clientY - rect.top;
 
       const ripple = document.createElement("span");
       ripple.classList.add("ripple");
       ripple.style.left = `${x}px`;
       ripple.style.top = `${y}px`;
 
-      this.appendChild(ripple);
+      htmlItem.appendChild(ripple);
 
       setTimeout(() => {
         ripple.remove();
       }, 600);
 
-      // Remove active class from all items in the same sidebar
-      const sidebar = this.closest('[id^="sidebar-"]');
-      sidebar.querySelectorAll(".sidebar-item").forEach((el) => {
+      const sidebar = htmlItem.closest('[id^="sidebar-"]');
+      sidebar?.querySelectorAll(".sidebar-item").forEach((el) => {
         el.classList.remove("active");
       });
 
-      // Add active class to clicked item
-      this.classList.add("active");
+      htmlItem.classList.add("active");
     });
   });
 

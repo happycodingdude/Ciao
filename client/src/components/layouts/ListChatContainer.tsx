@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import debounce from "lodash-es/debounce";
+import { debounce } from "lodash-es";
 import { useCallback, useMemo, useRef } from "react";
 import { useActiveConversation } from "../../hooks/useActiveConversation";
 import useConversation from "../../hooks/useConversation";
@@ -16,7 +16,6 @@ import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ListchatLoading from "../common/ListchatLoading";
 
 const ListChatContainer = () => {
-  console.log("Rendering ListChatContainer");
   const queryClient = useQueryClient();
 
   const activeConversationId = useActiveConversation();
@@ -27,9 +26,9 @@ const ListChatContainer = () => {
   if (isLoading || isRefetching) return <ListchatLoading />;
 
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const refListConversation = useRef<HTMLDivElement>();
+  const refListConversation = useRef<HTMLDivElement>(null);
   const refPage = useRef<number>(1);
-  const isFetching = useRef(false); // Quan trọng: Tránh gọi trùng lặp khi scroll nhanh
+  const isFetching = useRef(false);
   const refHasMore = useRef<boolean>(true);
 
   const lockScroll = (el: HTMLElement) => {
@@ -37,7 +36,7 @@ const ListChatContainer = () => {
 
     const preventScroll = (e: Event) => {
       e.preventDefault();
-      el.scrollTop = lockedTop; // ép giữ nguyên vị trí
+      el.scrollTop = lockedTop;
     };
 
     el.addEventListener("wheel", preventScroll, { passive: false });
@@ -51,8 +50,8 @@ const ListChatContainer = () => {
 
   const fetchMoreConversations = async () => {
     const el = refListConversation.current;
+    if (!el) return;
 
-    // ✅ lock scroll ngay khi bắt đầu fetch
     const unlockScroll = lockScroll(el);
 
     const newConversations = await getConversations(refPage.current);
@@ -61,27 +60,24 @@ const ListChatContainer = () => {
       return {
         ...oldData,
         conversations: [
-          ...oldData.conversations,
-          ...newConversations.conversations,
+          ...(oldData.conversations ?? []),
+          ...(newConversations.conversations ?? []),
         ],
         filterConversations: [
-          ...oldData.filterConversations,
-          ...newConversations.filterConversations,
+          ...(oldData.filterConversations ?? []),
+          ...(newConversations.filterConversations ?? []),
         ],
       };
     });
 
-    refHasMore.current = newConversations.conversations.length > 0; // Cập nhật hasMore dựa trên kết quả trả về
-    isFetching.current = false; // Mở khóa sau khi fetch xong
+    refHasMore.current = (newConversations.conversations?.length ?? 0) > 0;
+    isFetching.current = false;
 
-    // ✅ Restore đúng: preserve vị trí relative của user
     requestAnimationFrame(() => {
-      // ✅ unlock sau khi restore scroll
       unlockScroll();
     });
   };
 
-  // const debounceFetch = useCallback(debounce(fetchMoreMessage, 100), []);
   const debounceFetch = useMemo(
     () => debounce(fetchMoreConversations, 100),
     [fetchMoreConversations],
@@ -118,69 +114,56 @@ const ListChatContainer = () => {
     });
   };
 
-  // const { conversationId } = Route.useParams();
-  // useLayoutEffect(() => {
-  //   if (!conversationId || !conversations?.filterConversations.length) return;
-
-  //   // đợi DOM render xong rồi dùng lại hàm cũ
-  //   requestAnimationFrame(() => {
-  //     scrollToConversation(conversationId);
-  //   });
-  // }, [conversations, conversationId, scrollToConversation]);
-
   return (
     <div
       ref={refListConversation}
       className="relative flex min-h-0 flex-1 flex-col gap-6 overflow-y-scroll scroll-smooth p-2"
     >
-      {conversations?.filterConversations
+      {(conversations?.filterConversations ?? [])
         .filter((conv) =>
-          conv.members.some(
-            (mem) => mem.contact.id === info.id && !mem.isDeleted,
+          (conv.members ?? []).some(
+            (mem) => mem.contact?.id === info?.id && !mem.isDeleted,
           ),
         )
         .map((item) => {
           const isActive = item.id === activeConversationId;
 
           return (
-            <Link key={item.id} to={`/conversations/${item.id}`}>
+            <Link key={item.id} to="/conversations/$conversationId" params={{ conversationId: item.id ?? "" }}>
               <div
-                ref={(el) => (itemRefs.current[item.id] = el)}
-                onClick={() => scrollToConversation(item.id)}
+                ref={(el) => { if (item.id) itemRefs.current[item.id] = el; }}
+                onClick={() => { if (item.id) scrollToConversation(item.id); }}
                 className={`chat-item cursor-pointer rounded-2xl px-4 py-2 ${isActive ? "active" : ""}`}
               >
                 <div className="laptop-lg:h-12 laptop:h-12 flex items-center justify-between">
                   <div className="relative">
-                    {/* MARK: AVATAR */}
                     <ImageWithLightBoxAndNoLazy
                       src={
                         item.isGroup
                           ? item.avatar
-                          : item.members.find(
-                              (item) => item.contact.id !== info.id,
-                            )?.contact.avatar
+                          : (item.members ?? []).find(
+                              (m) => m.contact?.id !== info?.id,
+                            )?.contact?.avatar
                       }
                       className="pointer-events-none aspect-square w-10 animate-morph"
                       circle
                     />
                     <div
-                      className={`absolute -bottom-1 -right-1 aspect-square w-4 rounded-full border-2 border-white 
-                        ${item.members.some((mem) => mem.contact.isOnline && mem.contact.id !== info.id) ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
+                      className={`absolute -bottom-1 -right-1 aspect-square w-4 rounded-full border-2 border-white
+                        ${(item.members ?? []).some((mem) => mem.contact?.isOnline && mem.contact?.id !== info?.id) ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
                     ></div>
                   </div>
                   <div className="flex w-[60%] flex-col">
-                    {/* MARK: TITLE */}
                     <CustomLabel
                       className="font-medium"
                       title={
                         item.isGroup
                           ? item.title
-                          : item.members.find(
-                              (item) => item.contact.id !== info.id,
-                            )?.contact.name
+                          : (item.members ?? []).find(
+                              (m) => m.contact?.id !== info?.id,
+                            )?.contact?.name
                       }
                     />
-                    {/* MARK: LAST MESSAGE */}
                     {item.lastMessage ? (
                       <div className="flex text-gray-600">
                         {item.hasAttachment && (
@@ -204,9 +187,8 @@ const ListChatContainer = () => {
                       ""
                     )}
                   </div>
-                  {/* MARK: LAST MESSAGE TIME */}
                   <div
-                    className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center self-start rounded-full 
+                    className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center self-start rounded-full
                         ${item.lastMessageTime === null ? "" : "bg-gray-100"} text-gray-500`}
                   >
                     <p>

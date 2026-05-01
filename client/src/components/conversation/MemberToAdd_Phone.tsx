@@ -38,12 +38,12 @@ const MemberToAdd_Phone = ({
           {membersToAdd?.map((item) => (
             <div className="flex rounded-[1rem] p-2 pr-4">
               <ImageWithLightBoxAndNoLazy
-                src={item.avatar}
+                src={item.avatar ?? undefined}
                 className="loaded aspect-square w-[4rem] cursor-pointer"
                 circle
                 slides={[
                   {
-                    src: item.avatar,
+                    src: item.avatar ?? "",
                   },
                 ]}
                 onClick={() => {}}
@@ -51,7 +51,7 @@ const MemberToAdd_Phone = ({
               <div
                 className="fa fa-trash text-md cursor-pointer text-[var(--danger-text-color)]"
                 onClick={() => {
-                  removeMemberToAdd(item.id);
+                  removeMemberToAdd(item.id ?? "");
                 }}
               ></div>
             </div>

@@ -18,7 +18,7 @@ const CancelButton = (props: FriendCtaButtonProps) => {
       ),
     })
       .then((res) => {
-        onClose();
+        onClose?.();
       })
       .finally(() => {
         setProcessing(false);

@@ -95,7 +95,7 @@ const MessageReaction = (props: MessageReactionProps) => {
                   onClick={() => react("like")}
                 />
               ),
-            }[message.reaction.currentReaction]
+            }[message.reaction.currentReaction ?? "null"]
           }
         </div>
         {/* MARK: LIST REACTIONS */}

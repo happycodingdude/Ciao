@@ -49,11 +49,11 @@ const ChatInput = (props: ChatInputProps) => {
   const { data: conversations } = useConversation();
 
   const { conversationId } = Route.useParams();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
 
-  const { data: reply } = useQuery({
+  const { data: reply } = useQuery<{ replyContactName?: string; replyContent?: string; replyId?: string } | null>({
     queryKey: ["reply"],
     queryFn: () => null,
   });
@@ -68,14 +68,15 @@ const ChatInput = (props: ChatInputProps) => {
   const inputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!conversation) return;
     setFiles([]);
     setMentions(() => {
-      const list = conversation.members
-        .filter((item) => item.contact.id !== info.id)
+      const list = (conversation.members ?? [])
+        .filter((item) => item.contact?.id !== info?.id)
         .map((item) => ({
-          name: item.contact.name!,
-          avatar: item.contact.avatar ?? null,
-          userId: item.contact.id!,
+          name: item.contact?.name ?? "",
+          avatar: item.contact?.avatar ?? null,
+          userId: item.contact?.id ?? "",
         }));
 
       return [
@@ -88,11 +89,11 @@ const ChatInput = (props: ChatInputProps) => {
       ];
     });
 
-    // inputRef.current.focus();
-    inputRef.current.innerText = "";
+    if (inputRef.current) inputRef.current.innerText = "";
   }, [conversation]);
 
   const setCaretToEnd = (addSpace: boolean) => {
+    if (!inputRef.current) return;
     if (addSpace) inputRef.current.innerHTML += "&nbsp;"; // Adds a non-breaking space
     inputRef.current.focus();
 
@@ -103,6 +104,7 @@ const ChatInput = (props: ChatInputProps) => {
 
     // Create a selection and add the range to it
     const selection = window.getSelection();
+    if (!selection) return;
     selection.removeAllRanges();
     selection.addRange(range);
   };
@@ -207,12 +209,12 @@ const ChatInput = (props: ChatInputProps) => {
   const { mutate: sendMutation } = useMutation({
     mutationFn: async (param: SendMessageRequest) => {
       const randomId: string = Math.random().toString(36).substring(2, 7);
-      const hasMedia: boolean = param.files.length !== 0;
+      const hasMedia: boolean = (param.files ?? []).length !== 0;
 
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          const updatedConversations = oldData.conversations.map(
+          const updatedConversations = (oldData.conversations ?? []).map(
             (conversation) => {
               if (conversation.id !== conversationId) return conversation;
               return {
@@ -220,7 +222,7 @@ const ChatInput = (props: ChatInputProps) => {
                 lastMessage:
                   param.type === "text"
                     ? param.content
-                    : param.files.map((item) => item.name).join(","),
+                    : (param.files ?? []).map((item) => item.name).join(","),
                 lastMessageTime: dayjs().format(),
                 hasAttachment: hasMedia,
               } as ConversationModel;
@@ -241,7 +243,7 @@ const ChatInput = (props: ChatInputProps) => {
       if (reply)
         bodyToCreate = {
           ...bodyToCreate,
-          ...reply,
+          ...(reply as object),
         };
 
       if (hasMedia) {
@@ -256,8 +258,8 @@ const ChatInput = (props: ChatInputProps) => {
                   id: randomId,
                   type: param.type,
                   content: param.content,
-                  contactId: info.id,
-                  attachments: param.attachments.map((item) => {
+                  contactId: info?.id,
+                  attachments: (param.attachments ?? []).map((item) => {
                     return { ...item, id: randomId };
                   }),
                   noLazy: true,
@@ -270,7 +272,7 @@ const ChatInput = (props: ChatInputProps) => {
                   angryCount: 0,
                   currentReaction: null,
                   createdTime: dayjs().format(),
-                  ...reply,
+                  ...(reply as object ?? {}),
                 } as PendingMessageModel,
               ],
             } as MessageCache;
@@ -287,7 +289,7 @@ const ChatInput = (props: ChatInputProps) => {
                 attachments: [
                   {
                     date: today,
-                    attachments: param.attachments.map((item) => {
+                    attachments: (param.attachments ?? []).map((item) => {
                       return { ...item, id: randomId };
                     }),
                   },
@@ -306,7 +308,7 @@ const ChatInput = (props: ChatInputProps) => {
                   ...oldData.attachments,
                   {
                     date: today,
-                    attachments: param.attachments.map((item) => {
+                    attachments: (param.attachments ?? []).map((item) => {
                       return { ...item, id: randomId };
                     }),
                   },
@@ -321,7 +323,7 @@ const ChatInput = (props: ChatInputProps) => {
                   ? {
                       ...item,
                       attachments: [
-                        ...param.attachments.map((item) => {
+                        ...(param.attachments ?? []).map((item) => {
                           return { ...item, id: randomId };
                         }),
                         ...item.attachments,
@@ -333,7 +335,7 @@ const ChatInput = (props: ChatInputProps) => {
           },
         );
 
-        const uploaded: AttachmentModel[] = await uploadFile(param.files);
+        const uploaded: AttachmentModel[] = await uploadFile(param.files ?? []);
         bodyToCreate = {
           ...bodyToCreate,
           attachments: uploaded,
@@ -350,7 +352,7 @@ const ChatInput = (props: ChatInputProps) => {
                   id: randomId,
                   type: param.type,
                   content: param.content,
-                  contactId: info.id,
+                  contactId: info?.id,
                   attachments: [],
                   noLazy: true,
                   pending: true,
@@ -362,7 +364,7 @@ const ChatInput = (props: ChatInputProps) => {
                   angryCount: 0,
                   currentReaction: null,
                   createdTime: dayjs().format(),
-                  ...reply,
+                  ...(reply as object ?? {}),
                 } as PendingMessageModel,
               ],
             } as MessageCache;
@@ -370,10 +372,11 @@ const ChatInput = (props: ChatInputProps) => {
         );
       }
 
-      const res: SendMessageResponse = await sendMessage(
-        conversation.id,
+      const res = await sendMessage(
+        conversation?.id ?? "",
         bodyToCreate,
       );
+      if (!res) return;
       await delay(500);
 
       queryClient.setQueryData(["reply"], null);
@@ -390,11 +393,11 @@ const ChatInput = (props: ChatInputProps) => {
                 id: res.messageId,
                 loaded: true,
                 pending: false,
-                attachments: message.attachments.map((atta, index) => {
+                attachments: (message.attachments ?? []).map((atta, index) => {
                   if (atta.id !== randomId) return atta;
                   return {
                     ...atta,
-                    id: res.attachments[index],
+                    id: (res.attachments ?? [])[index],
                     pending: false,
                   };
                 }),
@@ -418,7 +421,7 @@ const ChatInput = (props: ChatInputProps) => {
                         if (atta.id !== randomId) return atta;
                         return {
                           ...atta,
-                          id: res.attachments[index],
+                          id: (res.attachments ?? [])[index],
                           pending: false,
                         };
                       }),
@@ -453,7 +456,7 @@ const ChatInput = (props: ChatInputProps) => {
       files: files,
     });
 
-    inputRef.current.innerText = "";
+    if (inputRef.current) inputRef.current.innerText = "";
     setFiles([]);
   };
 
@@ -640,12 +643,12 @@ const ChatInput = (props: ChatInputProps) => {
 
               if (searchText !== "") {
                 setMentions(() => {
-                  const list = conversation.members
-                    .filter((item) => item.contact.id !== info.id)
+                  const list = (conversation?.members ?? [])
+                    .filter((item) => item.contact?.id !== info?.id)
                     .map((item) => ({
-                      name: item.contact.name!,
-                      avatar: item.contact.avatar ?? null,
-                      userId: item.contact.id!,
+                      name: item.contact?.name ?? "",
+                      avatar: item.contact?.avatar ?? null,
+                      userId: item.contact?.id ?? "",
                     }));
                   const listToSearch = [
                     {
@@ -661,12 +664,12 @@ const ChatInput = (props: ChatInputProps) => {
                 });
               } else {
                 setMentions(() => {
-                  const list = conversation.members
-                    .filter((item) => item.contact.id !== info.id)
+                  const list = (conversation?.members ?? [])
+                    .filter((item) => item.contact?.id !== info?.id)
                     .map((item) => ({
-                      name: item.contact.name!,
-                      avatar: item.contact.avatar ?? null,
-                      userId: item.contact.id!,
+                      name: item.contact?.name ?? "",
+                      avatar: item.contact?.avatar ?? null,
+                      userId: item.contact?.id ?? "",
                     }));
 
                   return [
@@ -724,14 +727,14 @@ const ChatInput = (props: ChatInputProps) => {
   }, [selectedIndex]);
 
   // Event listener
-  const closeMentionOnClick = useCallback((e) => {
-    if (e.target.closest(".mention-item")) return;
+  const closeMentionOnClick = useCallback((e: Event) => {
+    if ((e.target as HTMLElement).closest?.(".mention-item")) return;
     setShowMention(false);
   }, []);
   useEventListener("click", closeMentionOnClick);
 
-  const hideMentionOnKey = useCallback((e) => {
-    if (e.keyCode === 27) {
+  const hideMentionOnKey = useCallback((e: Event) => {
+    if ((e as KeyboardEvent).keyCode === 27) {
       setShowMention(false);
     }
   }, []);
@@ -749,14 +752,15 @@ const ChatInput = (props: ChatInputProps) => {
   // }, []);
   // useEventListener("click", closeEmojiOnClick);
 
-  const closeEmojiOnKey = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") {
+  const closeEmojiOnKey = useCallback((e: Event) => {
+    if ((e as KeyboardEvent).key === "Escape") {
       setShowEmoji(false);
     }
   }, []);
   useEventListener("keydown", closeEmojiOnKey);
 
   const chooseFile = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
     const chosenFiles = Array.from(e.target.files);
     if (chosenFiles.length === 0) return;
 
@@ -766,7 +770,7 @@ const ChatInput = (props: ChatInputProps) => {
     });
     setFiles(!files ? [...mergedFiles] : [...files, ...mergedFiles]);
 
-    e.target.value = null;
+    e.target.value = "";
   };
 
   const removeFile = useCallback(
@@ -788,7 +792,7 @@ const ChatInput = (props: ChatInputProps) => {
         ${
           isPhoneScreen()
             ? "max-w-140"
-            : !toggle || toggle === "" || toggle === "null"
+            : !toggle
               ? "laptop-lg:max-w-240 laptop:max-w-240"
               : "laptop-lg:max-w-180 laptop:max-w-180"
         }  
@@ -828,7 +832,7 @@ const ChatInput = (props: ChatInputProps) => {
         {/* MARK: Chat Input */}
         <div className={`mention-item relative w-full`}>
           {/* MARK: MENTION */}
-          {conversation.isGroup ? (
+          {conversation?.isGroup ? (
             <div
               ref={refMentionContainer}
               data-show={showMention}
@@ -854,10 +858,10 @@ const ChatInput = (props: ChatInputProps) => {
                     }}
                   >
                     <ImageWithLightBoxAndNoLazy
-                      src={item.avatar}
+                      src={item.avatar ?? undefined}
                       slides={[
                         {
-                          src: item.avatar,
+                          src: item.avatar ?? "",
                         },
                       ]}
                       className="aspect-square h-8 cursor-pointer"
@@ -942,7 +946,7 @@ const ChatInput = (props: ChatInputProps) => {
               }
             >
               <LazyEmojiPicker
-                onEmojiSelect={(e) => (inputRef.current.innerText += e.native)}
+                onEmojiSelect={(e) => { if (inputRef.current) inputRef.current.innerText += e.native; }}
                 onClickOutside={(e) => {
                   if (e.target.classList.contains("emoji-item"))
                     setShowEmoji(true);

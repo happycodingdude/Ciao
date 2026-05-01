@@ -12,8 +12,8 @@ import ErrorComponent from "../common/ErrorComponent";
 const ForgotPasswordForm = () => {
   const { toggle, setToggle } = useAuthenticationFormToggles();
 
-  const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
-  const refPassword = useRef<HTMLInputElement & { reset: () => void }>();
+  const refUsername = useRef<HTMLInputElement & { reset?: () => void }>();
+  const refPassword = useRef<HTMLInputElement & { reset?: () => void }>();
 
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +22,8 @@ const ForgotPasswordForm = () => {
   const reset = () => {
     setError("");
     setProcessing(false);
-    refUsername.current?.reset();
-    refPassword.current?.reset();
+    refUsername.current?.reset?.();
+    refPassword.current?.reset?.();
   };
 
   useEffect(() => {
@@ -38,13 +38,12 @@ const ForgotPasswordForm = () => {
     },
     onError: (error: AxiosError) => {
       setProcessing(false);
-      setError(error.response.data as string);
+      setError(error.response?.data as string ?? "");
     },
   });
 
   const forgotPasswordCTA = () => {
-    if (refUsername.current.value === "" || refPassword.current.value === "")
-      return;
+    if (!refUsername.current?.value || !refPassword.current?.value) return;
 
     setProcessing(true);
     forgotPasswordMutation({

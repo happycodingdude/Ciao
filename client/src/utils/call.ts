@@ -4,10 +4,10 @@ const hangupBtn = document.getElementById("hangupBtn") as HTMLButtonElement;
 const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
 
-let localStream;
-let remoteStream;
-let pc1;
-let pc2;
+let localStream: MediaStream | null = null;
+let remoteStream: MediaStream | null = null;
+let pc1: RTCPeerConnection | null = null;
+let pc2: RTCPeerConnection | null = null;
 
 export function setupCallUI() {
   const servers = {
@@ -31,8 +31,8 @@ export function setupCallUI() {
     pc2 = new RTCPeerConnection(servers);
 
     // Exchange ICE candidates
-    pc1.onicecandidate = (e) => pc2.addIceCandidate(e.candidate);
-    pc2.onicecandidate = (e) => pc1.addIceCandidate(e.candidate);
+    pc1.onicecandidate = (e) => pc2?.addIceCandidate(e.candidate ?? undefined);
+    pc2.onicecandidate = (e) => pc1?.addIceCandidate(e.candidate ?? undefined);
 
     // Display remote stream
     pc2.ontrack = (e) => {
@@ -44,22 +44,24 @@ export function setupCallUI() {
     };
 
     // Add local stream tracks
-    localStream
-      .getTracks()
-      .forEach((track) => pc1.addTrack(track, localStream));
+    if (localStream && pc1) {
+      localStream
+        .getTracks()
+        .forEach((track: MediaStreamTrack) => pc1!.addTrack(track, localStream!));
+    }
 
     const offer = await pc1.createOffer();
     await pc1.setLocalDescription(offer);
-    await pc2.setRemoteDescription(pc1.localDescription);
+    if (pc1.localDescription) await pc2.setRemoteDescription(pc1.localDescription);
 
     const answer = await pc2.createAnswer();
     await pc2.setLocalDescription(answer);
-    await pc1.setRemoteDescription(pc2.localDescription);
+    if (pc2.localDescription) await pc1.setRemoteDescription(pc2.localDescription);
   };
 
   hangupBtn.onclick = () => {
-    pc1.close();
-    pc2.close();
+    pc1?.close();
+    pc2?.close();
     pc1 = null;
     pc2 = null;
     hangupBtn.disabled = true;

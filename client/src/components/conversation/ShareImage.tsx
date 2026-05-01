@@ -19,7 +19,7 @@ const ShareImage = ({
   const { data: conversations } = useConversation();
 
   const { conversationId } = Route.useParams();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
 
@@ -35,7 +35,7 @@ const ShareImage = ({
       <div
         className="absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm bg-white"
         onClick={(e) => {
-          e.stopPropagation(); // ⛔ chặn bubble lên div cha
+          e.stopPropagation();
           setShow(true);
         }}
       >
@@ -56,10 +56,10 @@ const ShareImage = ({
               }}
               forward={false}
               directContact={
-                !conversation.isGroup
-                  ? conversation.members?.find(
-                      (item) => item.contact.id !== info.id,
-                    )?.contact.id
+                !conversation?.isGroup
+                  ? (conversation?.members ?? []).find(
+                      (item) => item.contact?.id !== info?.id,
+                    )?.contact?.id
                   : undefined
               }
             />

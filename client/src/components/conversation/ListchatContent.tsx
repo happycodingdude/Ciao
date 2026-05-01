@@ -16,44 +16,6 @@ import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import OnlineStatusDot from "../common/OnlineStatusDot";
 
-// moment.locale("en", {
-//   relativeTime: {
-//     future: "in %s",
-//     past: "%s",
-//     s: "1m",
-//     ss: "1m",
-//     m: "%dm",
-//     mm: "%dm",
-//     h: "%dh",
-//     hh: "%dh",
-//     d: "a day",
-//     dd: "%dd",
-//     M: "a month",
-//     MM: "%dM",
-//     y: "a year",
-//     yy: "%dY",
-//   },
-// });
-
-// moment.updateLocale("en", {
-//   relativeTime: {
-//     future: "in %s",
-//     past: "%s",
-//     s: "1m",
-//     ss: "1m",
-//     m: "1m",
-//     mm: "%dm",
-//     h: "1h",
-//     hh: "%dh",
-//     d: "1d",
-//     dd: "%dd",
-//     M: "1M",
-//     MM: "%dM",
-//     y: "1Y",
-//     yy: "%dY",
-//   },
-// });
-
 const ListchatContent = () => {
   const queryClient = useQueryClient();
   const { setToggle } = useChatDetailToggles();
@@ -61,17 +23,13 @@ const ListchatContent = () => {
   const [conversationId] = useLocalStorage<string>("conversationId");
 
   const refPage = useRef<number>(1);
-  // const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { data: info } = useInfo();
   const { setLoading } = useLoading();
   const { data } = useConversation(refPage.current);
 
-  // const { refetch: refetchMessage } = useMessage(data?.selected?.id, 1);
-  // const { refetch: refetchAttachments } = useAttachment(data?.selected?.id);
-
   const refChatItems = useRef<{ [key: string]: HTMLDivElement }>({});
-  const refChats = useRef<HTMLDivElement>();
+  const refChats = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -90,12 +48,12 @@ const ListchatContent = () => {
       setFilter("all");
     }
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const data: ConversationCache = {
+      const updated: ConversationCache = {
         ...oldData,
         quickChat: false,
-        message: null,
+        message: undefined,
       };
-      return data;
+      return updated;
     });
 
     const [messages, attachments] = await Promise.all([
@@ -109,47 +67,31 @@ const ListchatContent = () => {
     setLoading(false);
   };
 
-  // const scrollToCenterOfSelected = useCallback(() => {
-  //   if (!data || !data.selected) return;
-
-  //   const chatElement = refChatItems.current[data?.selected.id];
-  //   if (!chatElement) return;
-
-  //   const chatList = refChats.current;
-
-  //   // Calculate the offset to center the chat
-  //   const chatTop = chatElement.offsetTop;
-  //   const chatHeight = chatElement.offsetHeight;
-  //   const listHeight = chatList.offsetHeight;
-  //   const scrollTop = chatTop - listHeight / 2 + chatHeight / 2;
-  //   chatList.scrollTop = scrollTop;
-  // }, [conversationId]);
-
-  if (!data) return;
+  if (!data) return null;
 
   return (
     <div
       ref={refChats}
       className="list-chat hide-scrollbar relative flex h-[85vh] flex-col gap-4 overflow-y-scroll scroll-smooth p-4"
     >
-      {data.filterConversations
+      {(data.filterConversations ?? [])
         .filter((conv) =>
-          conv.members.some(
-            (mem) => mem.contact.id === info.id && !mem.isDeleted,
+          (conv.members ?? []).some(
+            (mem) => mem.contact?.id === info?.id && !mem.isDeleted,
           ),
         )
         .map((item) => (
           <div
             key={item.id}
             data-key={item.id}
-            ref={(el) => (refChatItems.current[item.id] = el)}
+            ref={(el) => { if (el && item.id) refChatItems.current[item.id] = el; }}
             data-user={
               !item.isGroup
-                ? item.members.find((item) => item.contact.id !== info.id)
-                    ?.contact.id
+                ? (item.members ?? []).find((m) => m.contact?.id !== info?.id)
+                    ?.contact?.id
                 : ""
             }
-            className={`chat-item phone:h-26 tablet:h-22 laptop:h-26 group flex shrink-0 cursor-pointer items-center gap-6 
+            className={`chat-item phone:h-26 tablet:h-22 laptop:h-26 group flex shrink-0 cursor-pointer items-center gap-6
               overflow-hidden rounded-2xl py-2 pl-2 pr-4
         ${
           conversationId === item.id && !isPhoneScreen()
@@ -157,7 +99,7 @@ const ListchatContent = () => {
             : "hover:bg-(--bg-color-extrathin)"
         } `}
             onClick={() => {
-              clickConversation(item.id);
+              if (item.id) clickConversation(item.id);
             }}
           >
             <div className="relative">
@@ -166,8 +108,8 @@ const ListchatContent = () => {
                 src={
                   item.isGroup
                     ? item.avatar
-                    : item.members.find((item) => item.contact.id !== info.id)
-                        ?.contact.avatar
+                    : (item.members ?? []).find((m) => m.contact?.id !== info?.id)
+                        ?.contact?.avatar
                 }
                 className={`loaded phone:w-20 tablet:w-16 laptop:w-20 pointer-events-none aspect-square`}
                 circle
@@ -176,8 +118,8 @@ const ListchatContent = () => {
                 <OnlineStatusDot
                   className="right-0 top-[-5%]"
                   online={
-                    item.members.find((item) => item.contact.id !== info.id)
-                      ?.contact.isOnline
+                    (item.members ?? []).find((m) => m.contact?.id !== info?.id)
+                      ?.contact?.isOnline
                   }
                 />
               ) : (
@@ -187,13 +129,13 @@ const ListchatContent = () => {
             <div className={`flex h-full w-1/2 grow flex-col gap-2`}>
               {/* MARK: CONVERSATION TITLE */}
               <CustomLabel
-                className={`${item.id === conversationId ? "text-(--text-sub-color)" : "text-(--text-main-color)"} 
+                className={`${item.id === conversationId ? "text-(--text-sub-color)" : "text-(--text-main-color)"}
                 font-['Be_Vietnam_Pro'] font-semibold`}
                 title={
                   item.isGroup
                     ? item.title
-                    : item.members.find((item) => item.contact.id !== info.id)
-                        ?.contact.name
+                    : (item.members ?? []).find((m) => m.contact?.id !== info?.id)
+                        ?.contact?.name
                 }
               />
               {/* MARK: LAST MESSAGE */}
@@ -206,7 +148,7 @@ const ListchatContent = () => {
                     ? "text-(--danger-text-color)"
                     : "text-(--text-main-color-blur)"
               }`}
-                title={item.lastMessage}
+                title={item.lastMessage ?? undefined}
               />
             </div>
             <div className={`flex h-full flex-col items-end`}>

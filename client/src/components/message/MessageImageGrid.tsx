@@ -43,7 +43,7 @@ export const MessageImageGrid = ({
               title={item.mediaName?.split(".")[0]}
               className="aspect-square w-full cursor-pointer"
               slides={attachments.map((img) => ({
-                src: img.type === "image" ? img.mediaUrl : "",
+                src: img.type === "image" ? img.mediaUrl ?? "" : "",
               }))}
               index={index}
               pending={item.pending}

@@ -11,8 +11,10 @@ const ChatboxMenu = (props: ChatboxMenuProps) => {
   const [show, setShow] = useState(false);
 
   // Event listener
-  const hideMenuOnClick = useCallback((e) => {
-    if (Array.from(e.target.classList).includes("chatbox-menu-item")) return;
+  const hideMenuOnClick = useCallback((e: Event) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+    if (Array.from(target.classList).includes("chatbox-menu-item")) return;
     setShow(false);
   }, []);
   useEventListener("click", hideMenuOnClick);

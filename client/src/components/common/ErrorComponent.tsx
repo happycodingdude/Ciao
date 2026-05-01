@@ -1,7 +1,7 @@
 // import { Tooltip } from "antd";
 import { Tooltip } from "react-tooltip";
 
-const ErrorComponent = (props) => {
+const ErrorComponent = (props: { error: string }) => {
   const { error } = props;
   return (
     <div

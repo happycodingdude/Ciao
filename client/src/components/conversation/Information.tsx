@@ -27,7 +27,7 @@ const Information = () => {
   const { data: conversations } = useConversation();
 
   const { conversationId } = Route.useParams();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
 
@@ -38,9 +38,9 @@ const Information = () => {
   const { data: attachmentCache, isLoading: isAttachmentLoading } =
     useAttachment(conversationId);
 
-  const refInformation = useRef<HTMLDivElement>();
-  const refMembers = useRef<HTMLDivElement>();
-  const refAddMembers = useRef<AddMembersProps>();
+  const refInformation = useRef<HTMLDivElement>(null);
+  const refMembers = useRef<HTMLDivElement>(null);
+  const refAddMembers = useRef<AddMembersProps>(null);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [displayAttachments, setDisplayAttachments] = useState<
@@ -62,17 +62,14 @@ const Information = () => {
     if (!attachmentCache) return;
 
     if (attachmentCache.attachments.length > 0) {
-      // Tối ưu: Dùng flatMap thay vì reduce concat để code sạch và nhanh hơn
       const mergedArr: AttachmentModel[] = attachmentCache.attachments.flatMap(
         (item) => item.attachments,
       );
-
-      // Sử dụng biến limit thay đổi theo màn hình ở đây
       setDisplayAttachments(mergedArr.slice(0, limit));
     } else {
       setDisplayAttachments([]);
     }
-  }, [attachmentCache, limit]); // Thêm limit vào dependency array
+  }, [attachmentCache, limit]);
 
   const toggleMembers = () => {
     setShowMembers((current) => !current);
@@ -81,6 +78,10 @@ const Information = () => {
   const leaveGroup = () => {
     // Logic to leave the group
   };
+
+  const otherMember = (conversation?.members ?? []).find(
+    (item) => item.contact?.id !== info?.id,
+  );
 
   return (
     <div
@@ -93,7 +94,7 @@ const Information = () => {
           <p className="text-base font-medium">Chat information</p>
           <div className="flex gap-4">
             {/* MARK: UPDATE TITLE  */}
-            {conversation.isGroup ? (
+            {conversation?.isGroup ? (
               <div
                 className="fa fa-pen-to-square base-icon-sm hover:text-light-blue-500"
                 onClick={() => setOpenUpdateTitle(true)}
@@ -106,15 +107,17 @@ const Information = () => {
               title="Update group"
               onClose={() => setOpenUpdateTitle(false)}
             >
-              <UpdateConversation
-                selected={conversation}
-                onClose={() => setOpenUpdateTitle(false)}
-              />
+              {conversation && (
+                <UpdateConversation
+                  selected={conversation}
+                  onClose={() => setOpenUpdateTitle(false)}
+                />
+              )}
             </BackgroundPortal>
             <CloseOutlined
               className="base-icon-sm cursor-pointer"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent bubbling to parent
+                e.stopPropagation();
                 setToggle(null);
               }}
             />
@@ -126,17 +129,13 @@ const Information = () => {
             src={
               conversation?.isGroup
                 ? conversation.avatar
-                : conversation.members?.find(
-                    (item) => item.contact.id !== info.id,
-                  )?.contact.avatar
+                : otherMember?.contact?.avatar
             }
             slides={[
               {
                 src: conversation?.isGroup
-                  ? conversation.avatar
-                  : conversation.members?.find(
-                      (item) => item.contact.id !== info.id,
-                    )?.contact.avatar,
+                  ? conversation.avatar ?? ""
+                  : otherMember?.contact?.avatar ?? "",
               },
             ]}
             className="relative aspect-square w-20 cursor-pointer"
@@ -149,16 +148,14 @@ const Information = () => {
               title={
                 conversation?.isGroup
                   ? conversation.title
-                  : conversation.members?.find(
-                      (item) => item.contact.id !== info.id,
-                    )?.contact.name
+                  : otherMember?.contact?.name
               }
               tooltip
             />
           </div>
           {/* MARK: CONVERSATION ACTION */}
           <div className="conversation-action-container">
-            {conversation.isGroup ? (
+            {conversation?.isGroup ? (
               <div
                 className="conversation-action"
                 onClick={() => refAddMembers.current?.open()}
@@ -170,16 +167,15 @@ const Information = () => {
             )}
             <div
               className="conversation-action"
-              onClick={() =>
-                startLocalStream(
-                  conversation.members.find((mem) => mem.contact.id !== info.id)
-                    .contact as UserProfile,
-                )
-              }
+              onClick={() => {
+                if (otherMember?.contact) {
+                  startLocalStream(otherMember.contact as UserProfile);
+                }
+              }}
             >
               <VideoCameraOutlined className="base-icon-sm transition-all duration-200" />
             </div>
-            {conversation.isGroup ? (
+            {conversation?.isGroup ? (
               <div
                 className="conversation-action fa fa-right-from-bracket"
                 onClick={leaveGroup}
@@ -194,11 +190,11 @@ const Information = () => {
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">
               <p className="font-medium">
-                Members ({conversation.members.length})
+                Members ({(conversation.members ?? []).length})
               </p>
               <i
                 data-show={showMembers}
-                className="fa-arrow-down fa-solid base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center 
+                className="fa-arrow-down fa-solid base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center
                 transition-all duration-500 data-[show=false]:rotate-90"
                 onClick={toggleMembers}
               ></i>
@@ -210,55 +206,54 @@ const Information = () => {
               className="members-image-container hide-scrollbar laptop:max-h-50 desktop:max-h-200 phone:max-h-80 flex flex-col gap-2 overflow-y-auto
                 scroll-smooth transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
             >
-              {[...conversation?.members]
+              {[...(conversation?.members ?? [])]
                 .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
                 .map((item) => (
                   <div
                     key={item.id}
                     className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-4 rounded-lg p-2
-                    ${item.contact.id === info.id ? "pointer-events-none" : ""}
+                    ${item.contact?.id === info?.id ? "pointer-events-none" : ""}
                     `}
                     onClick={(e: MouseEvent<HTMLElement>) => {
-                      // Get the bounding rectangle of the target element
                       const target = e.target as HTMLElement;
                       const rect = target.getBoundingClientRect();
                       setQuickChatRect(rect);
                       setInformationoffsetWidth(
-                        refInformation.current.offsetWidth,
+                        refInformation.current?.offsetWidth,
                       );
 
                       setChosenProfile({
-                        id: item.contact.id,
-                        avatar: item.contact.avatar,
-                        isOnline: item.contact.isOnline,
-                        name: item.contact.name,
+                        id: item.contact?.id,
+                        avatar: item.contact?.avatar,
+                        isOnline: item.contact?.isOnline,
+                        name: item.contact?.name,
                         friendId: item.friendId,
                         friendStatus:
                           item.friendStatus === "friend"
-                            ? null
-                            : item.friendStatus,
+                            ? undefined
+                            : item.friendStatus ?? undefined,
                         directConversation: item.directConversation,
                       });
                     }}
                   >
                     <div className="relative">
                       <ImageWithLightBoxAndNoLazy
-                        src={item.contact.avatar}
+                        src={item.contact?.avatar}
                         className="aspect-square h-8"
                         circle
                         slides={[
                           {
-                            src: item.contact.avatar,
+                            src: item.contact?.avatar ?? "",
                           },
                         ]}
                         onClick={() => {}}
                       />
                       <OnlineStatusDot
                         className="right-[-20%] top-[-10%]"
-                        online={item.contact.isOnline}
+                        online={item.contact?.isOnline}
                       />
                     </div>
-                    <CustomLabel title={item.contact.name} />
+                    <CustomLabel title={item.contact?.name} />
                     {item.isModerator ? (
                       <div className="text-3xs bg-linear-to-br rounded-full from-light-blue-300 to-light-blue-500 px-4 py-1 font-medium text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                         Admin
@@ -298,16 +293,16 @@ const Information = () => {
             ) : displayAttachments.length > 0 ? (
               <div className="display-attachment-container laptop:grid-cols-3 laptop-lg:grid-cols-4 desktop:grid-cols-5 grid w-full gap-4">
                 {displayAttachments.map((item, index) => (
-                  <div className="relative">
+                  <div className="relative" key={index}>
                     <ImageWithLightBoxAndNoLazy
                       ref={(el) => (imageRefs.current[index] = el)}
                       src={item.mediaUrl}
                       title={item.mediaName?.split(".")[0]}
                       className={`peer aspect-square w-full`}
-                      slides={displayAttachments.map((item) => ({
+                      slides={displayAttachments.map((att) => ({
                         src:
-                          item.type === "image"
-                            ? item.mediaUrl
+                          att.type === "image"
+                            ? att.mediaUrl ?? ""
                             : "images/filenotfound.svg",
                       }))}
                       index={index}
@@ -317,7 +312,7 @@ const Information = () => {
                     <ShareImage
                       media={item}
                       showImage={() => {
-                        imageRefs.current[index]?.click(); // 👉 trigger click vào image
+                        imageRefs.current[index]?.click();
                       }}
                     />
                   </div>

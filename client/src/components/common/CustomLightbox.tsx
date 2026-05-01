@@ -5,7 +5,7 @@ import "yet-another-react-lightbox/plugins/thumbnails.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 
-function CustomLightbox({ reference }) {
+function CustomLightbox({ reference }: { reference: any }) {
   //   const [animationDuration, setAnimationDuration] = useState(500);
   //   const [maxZoomPixelRatio, setMaxZoomPixelRatio] = useState(5);
   //   const [zoomInMultiplier, setZoomInMultiplier] = useState(2);
@@ -20,7 +20,7 @@ function CustomLightbox({ reference }) {
     <Lightbox
       open={reference.showLightbox}
       close={() => reference.setShowLightbox(false)}
-      slides={reference.slides.map((img) => {
+      slides={reference.slides.map((img: any) => {
         if (!img.src) img.src = "/assets/imagenotfound.jpg";
         return img;
       })}

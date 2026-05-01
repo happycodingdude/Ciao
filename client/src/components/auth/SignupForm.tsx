@@ -14,18 +14,18 @@ const SignupForm = () => {
 
   const [processing, setProcessing] = useState(false);
 
-  const refName = useRef<HTMLInputElement & { reset: () => void }>();
-  const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
-  const refPassword = useRef<HTMLInputElement & { reset: () => void }>();
+  const refName = useRef<HTMLInputElement & { reset?: () => void }>();
+  const refUsername = useRef<HTMLInputElement & { reset?: () => void }>();
+  const refPassword = useRef<HTMLInputElement & { reset?: () => void }>();
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const reset = () => {
     setError("");
-    refName.current.reset();
-    refUsername.current.reset();
-    refPassword.current.reset();
+    refName.current?.reset?.();
+    refUsername.current?.reset?.();
+    refPassword.current?.reset?.();
   };
 
   useEffect(() => {
@@ -40,17 +40,16 @@ const SignupForm = () => {
     },
     onError: (error: AxiosError) => {
       setProcessing(false);
-      setError(error.response.data as string);
+      setError(error.response?.data as string ?? "");
     },
   });
 
   const signupCTA = () => {
-    if (refUsername.current.value === "" || refPassword.current.value === "")
-      return;
+    if (!refUsername.current?.value || !refPassword.current?.value) return;
 
     setProcessing(true);
     signupMutation({
-      name: refName.current.value,
+      name: refName.current?.value ?? "",
       username: refUsername.current.value,
       password: refPassword.current.value,
     });

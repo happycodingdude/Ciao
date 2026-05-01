@@ -1,6 +1,6 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useFriend from "../../hooks/useFriend";
 import useInfo from "../../hooks/useInfo";
 import { createGroupChat } from "../../services/conv.service";
@@ -32,10 +32,10 @@ const CreateGroupChatModal = (props: OnCloseType) => {
   const { data, isLoading, isRefetching } = useFriend();
   const { data: info } = useInfo();
 
-  const refInputSearch = useRef<HTMLInputElement>();
-  const refInputTitle = useRef<HTMLInputElement>();
+  const refInputSearch = useRef<HTMLInputElement | undefined>(undefined);
+  const refInputTitle = useRef<HTMLInputElement | undefined>(undefined);
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
-    data?.filter((fr) => fr.status === "friend").map((item) => item.contact),
+    data?.filter((fr) => fr.status === "friend").map((item) => item.contact) ?? [],
   );
   const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
   const [avatar, setAvatar] = useState<string>();
@@ -48,17 +48,17 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     setMembersToSearch(
       data.filter((fr) => fr.status === "friend").map((item) => item.contact),
     );
-    refInputTitle.current.focus();
+    refInputTitle.current?.focus();
     blurImage(".list-friend-container");
   }, [data]);
 
-  const chooseAvatar = (e) => {
-    const chosenFiles = Array.from(e.target.files);
+  const chooseAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const chosenFiles = Array.from(e.target.files ?? []);
     if (chosenFiles.length === 0) return;
 
-    setAvatar(URL.createObjectURL(e.target.files?.[0]));
-    setFile(e.target.files?.[0]);
-    e.target.value = null;
+    setAvatar(URL.createObjectURL(e.target.files![0]));
+    setFile(e.target.files![0]);
+    e.target.value = "";
   };
 
   const createGroupChatCTA = async () => {
@@ -74,24 +74,23 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     const randomId = Math.random().toString(36).substring(2, 7);
     tempAddConversation(randomId);
 
-    // const title = refInputTitle.current.value;
     const request: CreateGroupChatRequest = {
-      title: refInputTitle.current.value,
-      avatar: url,
-      members: membersToAdd.map((members) => members.id),
+      title: refInputTitle.current?.value ?? "",
+      avatar: url ?? undefined,
+      members: membersToAdd.map((m) => m.id ?? ""),
     };
     createGroupChat(request).then((res) => {
-      updateAddedConversation(randomId, res.data);
+      updateAddedConversation(randomId, res?.data ?? "");
     });
 
-    onClose();
+    onClose?.();
   };
 
   const tempAddConversation = (tempId: string) => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const newConversation: ConversationModel = {
         id: tempId,
-        title: refInputTitle.current.value,
+        title: refInputTitle.current?.value ?? "",
         avatar: avatar,
         isGroup: true,
         isNotifying: true,
@@ -100,9 +99,9 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           {
             isModerator: true,
             contact: {
-              id: info.id,
-              name: info.name,
-              avatar: info.avatar,
+              id: info?.id,
+              name: info?.name,
+              avatar: info?.avatar,
               isOnline: true,
             },
           },
@@ -125,41 +124,26 @@ const CreateGroupChatModal = (props: OnCloseType) => {
             ...newConversation,
             noLazy: true,
           },
-          ...oldData.conversations,
+          ...(oldData.conversations ?? []),
         ],
         filterConversations: [
           {
             ...newConversation,
             noLazy: true,
           },
-          ...oldData.conversations,
+          ...(oldData.conversations ?? []),
         ],
         selected: newConversation,
         noLoading: true,
         reload: false,
       } as ConversationCache;
     });
-    // queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-    //   return {
-    //     ...oldData,
-    //     conversationId: tempId,
-    //     messages: [],
-    //     hasMore: false,
-    //   } as MessageCache;
-    // });
-    // queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-    //   return {
-    //     ...oldData,
-    //     conversationId: tempId,
-    //     attachments: [],
-    //   } as AttachmentCache;
-    // });
   };
 
   const updateAddedConversation = (tempId: string, addedId: string) => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       const updatedConversations: ConversationModel[] =
-        oldData.conversations.map((conversation) => {
+        (oldData.conversations ?? []).map((conversation) => {
           if (conversation.id !== tempId) return conversation;
           conversation.id = addedId;
           return conversation;
@@ -170,18 +154,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
         filterConversations: updatedConversations,
       } as ConversationCache;
     });
-    // queryClient.setQueryData(["message"], (oldData: MessageCache) => {
-    //   return {
-    //     ...oldData,
-    //     conversationId: addedId,
-    //   } as MessageCache;
-    // });
-    // queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => {
-    //   return {
-    //     ...oldData,
-    //     conversationId: addedId,
-    //   } as AttachmentCache;
-    // });
   };
 
   const removeMemberToAdd = (id: string) => {
@@ -194,7 +166,6 @@ const CreateGroupChatModal = (props: OnCloseType) => {
     <>
       <div className="relative flex shrink-0 items-end gap-10">
         <ImageWithLightBoxAndNoLazy
-          // src={avatar ?? ""}
           className="aspect-square h-20 cursor-pointer"
         />
         <MediaPicker
@@ -218,14 +189,14 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           onChange={(e) => {
             if (e.target.value === "")
               setMembersToSearch(
-                data
+                (data ?? [])
                   .filter((fr) => fr.status === "friend")
                   .map((item) => item.contact),
               );
             else
               setMembersToSearch((current) => {
                 const found = current.filter((item) =>
-                  item.name
+                  (item.name ?? "")
                     .toLowerCase()
                     .includes(e.target.value.toLowerCase()),
                 );
@@ -255,7 +226,7 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                     }}
                   >
                     <CheckCircleOutlined
-                      className={`base-icon 
+                      className={`base-icon
                         ${
                           membersToAdd.some((mem) => mem.id === item.id)
                             ? "text-light-blue-500!"
@@ -264,12 +235,12 @@ const CreateGroupChatModal = (props: OnCloseType) => {
                         `}
                     />
                     <ImageWithLightBoxAndNoLazy
-                      src={item.avatar}
+                      src={item.avatar ?? undefined}
                       className="aspect-square w-10 cursor-pointer"
                       circle
                       slides={[
                         {
-                          src: item.avatar,
+                          src: item.avatar ?? "",
                         },
                       ]}
                       onClick={() => {}}
@@ -281,13 +252,13 @@ const CreateGroupChatModal = (props: OnCloseType) => {
               {isPhoneScreen() ? (
                 <MemberToAdd_Phone
                   membersToAdd={membersToAdd}
-                  total={data?.length}
+                  total={data?.length ?? 0}
                   removeMemberToAdd={removeMemberToAdd}
                 />
               ) : (
                 <MemberToAdd_LargeScreen
                   membersToAdd={membersToAdd}
-                  total={data?.length}
+                  total={data?.length ?? 0}
                   removeMemberToAdd={removeMemberToAdd}
                 />
               )}

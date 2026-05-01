@@ -1,7 +1,7 @@
 import {
   ClipboardEvent,
+  ForwardedRef,
   forwardRef,
-  MutableRefObject,
   useCallback,
 } from "react";
 import { CustomContentEditableProps } from "../../types/base.types";
@@ -9,12 +9,12 @@ import { CustomContentEditableProps } from "../../types/base.types";
 const CustomContentEditable = forwardRef(
   (
     props: CustomContentEditableProps,
-    ref: MutableRefObject<HTMLDivElement>,
+    ref: ForwardedRef<HTMLDivElement>,
   ) => {
     const { onKeyDown, onKeyUp, className, quickChat } = props;
 
     const handleInput = useCallback(() => {
-      const el = ref.current;
+      const el = typeof ref === "function" || !ref ? null : ref.current;
       if (!el) return;
 
       const isEmpty =

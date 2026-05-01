@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 import { refreshToken } from "../services/auth.service";
-import { HttpRequest } from "../types/base.types";
+import type { HttpRequest } from "../types/base.types";
 import delay from "../utils/delay";
 
 axiosRetry(axios, {
@@ -12,17 +12,20 @@ axiosRetry(axios, {
     const fullRefreshUrl =
       baseUrl + withApiPrefix(import.meta.env.VITE_ENDPOINT_REFRESH); // 👈 tự động chèn prefix
     if (
-      error.config.url !== fullRefreshUrl &&
+      error.config?.url !== fullRefreshUrl &&
       error.response?.status === 401 &&
       localStorage.getItem("refreshToken")
     ) {
       return refreshToken({
-        userId: localStorage.getItem("userId"),
-        refreshToken: localStorage.getItem("refreshToken"),
+        userId: localStorage.getItem("userId") ?? "",
+        refreshToken: localStorage.getItem("refreshToken") ?? "",
       })
         .then((res) => {
+          if (!res) return false;
           // Update the failed request's config with the new token
-          error.config.headers["Authorization"] = "Bearer " + res.accessToken;
+          if (error.config?.headers) {
+            error.config.headers["Authorization"] = "Bearer " + res.accessToken;
+          }
 
           localStorage.setItem("accessToken", res.accessToken);
           localStorage.setItem("refreshToken", res.refreshToken);
@@ -55,7 +58,7 @@ const withApiPrefix = (endpoint: string): string => {
 const HttpRequest = async <TReq = undefined, TRes = undefined>(
   req: HttpRequest<TReq, TRes>,
 ) => {
-  if (req.timeout !== 0) await delay(req.timeout);
+  if (req.timeout !== 0) await delay(req.timeout ?? 0);
 
   const baseUrl = import.meta.env.VITE_ASPNETCORE_CHAT_URL;
   const fullUrl = baseUrl + withApiPrefix(req.url); // 👈 tự động chèn prefix

@@ -17,13 +17,13 @@ export const forgotPassword = async (model: SigninRequest) => {
   });
 };
 
-export const getInfo = async () => {
+export const getInfo = async (): Promise<UserProfile> => {
   return (
     await HttpRequest<undefined, UserProfile>({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_INFO,
     })
-  ).data;
+  ).data as UserProfile;
 };
 
 export const refreshToken = async (model: RefreshRequest) => {
@@ -36,14 +36,14 @@ export const refreshToken = async (model: RefreshRequest) => {
   ).data;
 };
 
-export const signin = async (model: SigninRequest) => {
+export const signin = async (model: SigninRequest): Promise<TokenModel> => {
   return (
     await HttpRequest<SigninRequest, TokenModel>({
       method: "post",
       url: import.meta.env.VITE_ENDPOINT_SIGNIN,
       data: model,
     })
-  ).data;
+  ).data as TokenModel;
 };
 
 export const signout = (queryClient: QueryClient) => {

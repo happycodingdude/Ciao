@@ -17,11 +17,11 @@ export const AuthenticationContainer = () => {
 const Authentication = () => {
   const { setToggle } = useAuthenticationFormToggles();
 
-  const refBgContainer = useRef<HTMLDivElement>();
-  const refBgSignUpLabelContainer = useRef<HTMLDivElement>();
-  const refBgSignInLabelContainer = useRef<HTMLDivElement>();
-  const refSigninContainer = useRef<HTMLDivElement>();
-  const refLoginWrapper = useRef<HTMLDivElement>();
+  const refBgContainer = useRef<HTMLDivElement>(null);
+  const refBgSignUpLabelContainer = useRef<HTMLDivElement>(null);
+  const refBgSignInLabelContainer = useRef<HTMLDivElement>(null);
+  const refSigninContainer = useRef<HTMLDivElement>(null);
+  const refLoginWrapper = useRef<HTMLDivElement>(null);
 
   const toggleBg = () => {
     // Animate background container

@@ -21,7 +21,7 @@ const ListchatFilterProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       if (!oldData) return oldData;
-      const filteredConversations = oldData.conversations.filter((conv) =>
+      const filteredConversations = (oldData.conversations ?? []).filter((conv) =>
         filter === "all"
           ? true
           : filter === "direct"
@@ -33,10 +33,10 @@ const ListchatFilterProvider = ({ children }: { children: ReactNode }) => {
           ? filteredConversations
           : filteredConversations.filter((conv) =>
               conv.isGroup
-                ? conv.title.toLowerCase().includes(search.toLowerCase())
-                : conv.members
-                    .find((item) => item.contact.id !== info.id)
-                    ?.contact.name.toLowerCase()
+                ? (conv.title ?? "").toLowerCase().includes(search.toLowerCase())
+                : (conv.members ?? [])
+                    .find((item) => item.contact?.id !== info?.id)
+                    ?.contact?.name?.toLowerCase()
                     .includes(search.toLowerCase()),
             );
       return {

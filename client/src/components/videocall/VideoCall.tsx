@@ -31,7 +31,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   } = useSignal();
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: contact.id,
+    id: contact.id ?? "",
   });
   const style = {
     position: "absolute",
@@ -43,11 +43,11 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
   };
 
   useEffect(() => {
-    if (localStream) localRef.current.srcObject = localStream;
+    if (localStream && localRef.current) localRef.current.srcObject = localStream;
   }, [localStream]);
 
   useEffect(() => {
-    if (remoteStream) remoteRef.current.srcObject = remoteStream;
+    if (remoteStream && remoteRef.current) remoteRef.current.srcObject = remoteStream;
   }, [remoteStream]);
 
   // useEffect(() => {
@@ -132,7 +132,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ contact, position }) => {
         </button>
       </div>
     </div>,
-    document.getElementById("portal"),
+    document.getElementById("portal") as Element,
   );
 };
 

@@ -13,8 +13,8 @@ const CustomInput = (props: CustomInputProps) => {
     onChange,
   } = props;
 
-  const refPlaceHolder = useRef<HTMLParagraphElement>();
-  const refBorder = useRef<HTMLDivElement>();
+  const refPlaceHolder = useRef<HTMLParagraphElement | undefined>(undefined);
+  const refBorder = useRef<HTMLDivElement | undefined>(undefined);
 
   const handleFocus = (
     e: React.FocusEvent<HTMLInputElement, Element>,
@@ -22,22 +22,22 @@ const CustomInput = (props: CustomInputProps) => {
   ) => {
     if (e.target.value !== "") return;
     if (focus === true) {
-      refPlaceHolder.current.setAttribute("data-focus", "true");
-      refBorder.current.setAttribute("data-focus", "true");
+      refPlaceHolder.current?.setAttribute("data-focus", "true");
+      refBorder.current?.setAttribute("data-focus", "true");
     } else {
-      refPlaceHolder.current.setAttribute("data-focus", "false");
-      refBorder.current.setAttribute("data-focus", "false");
+      refPlaceHolder.current?.setAttribute("data-focus", "false");
+      refBorder.current?.setAttribute("data-focus", "false");
     }
   };
 
   const resetInputEffectAndValue = () => {
-    inputRef.current.value = "";
-    refPlaceHolder.current.setAttribute("data-focus", "false");
-    refBorder.current.setAttribute("data-focus", "false");
+    if (inputRef?.current) inputRef.current.value = "";
+    refPlaceHolder.current?.setAttribute("data-focus", "false");
+    refBorder.current?.setAttribute("data-focus", "false");
   };
 
   useEffect(() => {
-    if (!inputRef) return;
+    if (!inputRef?.current) return;
     inputRef.current.reset = resetInputEffectAndValue;
   }, [resetInputEffectAndValue]);
 
@@ -45,10 +45,10 @@ const CustomInput = (props: CustomInputProps) => {
     <div className="relative">
       <input
         tabIndex={tabIndex}
-        className={`${className ?? ""} border-(--bg-color) border-b-(--border-color)! w-[99%] border-[.1rem] 
+        className={`${className ?? ""} border-(--bg-color) border-b-(--border-color)! w-[99%] border-[.1rem]
         p-4 pb-[.2rem] pl-0 outline-none transition-all duration-200`}
         type={type}
-        ref={inputRef}
+        ref={inputRef as React.RefObject<HTMLInputElement>}
         onFocus={(e) => handleFocus(e, true)}
         onBlur={(e) => handleFocus(e)}
         onKeyDown={onKeyDown}
@@ -56,15 +56,15 @@ const CustomInput = (props: CustomInputProps) => {
         placeholder={placeholder}
       />
       <div
-        ref={refBorder}
+        ref={refBorder as React.RefObject<HTMLDivElement>}
         data-focus="false"
         className="bg-(--light-blue-500) absolute bottom-0 h-0.5 w-full origin-left transition-all duration-200
           data-[focus=false]:scale-x-0 data-[focus=true]:scale-x-[0.99]"
       ></div>
       <p
-        ref={refPlaceHolder}
+        ref={refPlaceHolder as React.RefObject<HTMLParagraphElement>}
         data-focus="false"
-        className=" pointer-events-none absolute left-0 top-[50%] z-10 origin-left transition-all duration-200 
+        className=" pointer-events-none absolute left-0 top-[50%] z-10 origin-left transition-all duration-200
         data-[focus=false]:translate-y-[-50%] data-[focus=true]:translate-y-[-150%] data-[focus=true]:scale-[.9]"
       >
         {label}

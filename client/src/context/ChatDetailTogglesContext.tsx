@@ -13,7 +13,7 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
-    localStorage.setItem("toggleChatDetail", toggle);
+    localStorage.setItem("toggleChatDetail", toggle ?? "");
   }, [toggle]);
 
   return (

@@ -4,7 +4,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { AttachmentModel } from "../../listchat/types";
+import { AttachmentModel } from "../types/message.types";
 import HttpRequest from "../lib/fetch";
 import getFirebaseApp from "./firebaseConfig";
 
@@ -68,10 +68,12 @@ export async function uploadFile(files: File[]): Promise<AttachmentModel[]> {
   });
 
   return (
-    await HttpRequest<FormData, AttachmentModel[]>({
-      method: "post",
-      url: import.meta.env.VITE_ENDPOINT_ATTACHMENT_UPLOAD,
-      data: formData,
-    })
-  ).data;
+    (
+      await HttpRequest<FormData, AttachmentModel[]>({
+        method: "post",
+        url: import.meta.env.VITE_ENDPOINT_ATTACHMENT_UPLOAD,
+        data: formData,
+      })
+    ).data ?? []
+  );
 }

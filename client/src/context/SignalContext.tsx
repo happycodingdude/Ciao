@@ -82,12 +82,13 @@ export const SignalProvider: React.FC<{
 
   /* MARK: ANSWER CALL */
   const answerCall = async () => {
+    if (!offer || !targetUser) return;
     setReceiveOffer(false);
     const rtcOffer = new RTCSessionDescription(JSON.parse(offer));
     await pcRef.current?.setRemoteDescription(rtcOffer);
     const answer = await pcRef.current?.createAnswer();
     await pcRef.current?.setLocalDescription(answer!);
-    connectionRef.current.send(
+    connectionRef.current?.send(
       "SendAnswer",
       targetUser.id,
       JSON.stringify(answer),
@@ -128,6 +129,7 @@ export const SignalProvider: React.FC<{
 
   /* MARK: START CALL */
   const startCall = async () => {
+    if (!targetUser?.id) return;
     await setupPeerConnection(targetUser.id);
 
     const offer = await pcRef.current?.createOffer();
@@ -164,7 +166,9 @@ export const SignalProvider: React.FC<{
   /* MARK: STOP CALL */
   const stopCall = () => {
     stopCamera();
-    connectionRef.current.send("EndCall", targetUser.id);
+    if (connectionRef.current && targetUser?.id) {
+      connectionRef.current.send("EndCall", targetUser.id);
+    }
   };
 
   /* MARK: STOP CONNECTION */

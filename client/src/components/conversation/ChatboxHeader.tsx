@@ -13,11 +13,15 @@ const ChatboxHeader = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
-  if (!conversations) return null; // Tránh render khi chưa có dữ liệu cần thiết
+  if (!conversations) return null;
 
   const { conversationId } = Route.useParams();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
+  );
+
+  const otherMember = (conversation?.members ?? []).find(
+    (item) => item.contact?.id !== info?.id,
   );
 
   return (
@@ -42,13 +46,9 @@ const ChatboxHeader = () => {
               );
               queryClient.setQueryData(
                 ["message", conversationId],
-                (oldData) => {
-                  return null;
-                },
+                () => null,
               );
-              queryClient.setQueryData(["attachment"], (oldData) => {
-                return null;
-              });
+              queryClient.setQueryData(["attachment"], () => null);
             }}
           ></i>
         ) : (
@@ -57,19 +57,15 @@ const ChatboxHeader = () => {
         {/* MARK: AVATAR  */}
         <ImageWithLightBoxAndNoLazy
           src={
-            conversation.isGroup
+            conversation?.isGroup
               ? conversation.avatar
-              : conversation.members?.find(
-                  (item) => item.contact.id !== info.id,
-                )?.contact.avatar
+              : otherMember?.contact?.avatar
           }
           slides={[
             {
-              src: conversation.isGroup
-                ? conversation.avatar
-                : conversation.members?.find(
-                    (item) => item.contact.id !== info.id,
-                  )?.contact.avatar,
+              src: conversation?.isGroup
+                ? conversation.avatar ?? ""
+                : otherMember?.contact?.avatar ?? "",
             },
           ]}
           className="loaded relative aspect-square w-12 cursor-pointer"
@@ -77,7 +73,7 @@ const ChatboxHeader = () => {
         />
         {/* MARK: TITLE  */}
         <div className="laptop:max-w-120 desktop:max-w-200 phone:max-w-48 relative flex grow flex-col">
-          {conversation.isGroup ? (
+          {conversation?.isGroup ? (
             <>
               <div className="flex w-full gap-2">
                 <CustomLabel
@@ -85,17 +81,13 @@ const ChatboxHeader = () => {
                   title={conversation.title}
                 />
               </div>
-              <p className="text-2xs">{conversation.members.length} members</p>
+              <p className="text-2xs">{(conversation.members ?? []).length} members</p>
             </>
           ) : (
             <>
               <CustomLabel
                 className="text-sm font-medium"
-                title={
-                  conversation.members?.find(
-                    (item) => item.contact.id !== info.id,
-                  )?.contact.name
-                }
+                title={otherMember?.contact?.name}
               />
             </>
           )}

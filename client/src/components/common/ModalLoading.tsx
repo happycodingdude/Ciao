@@ -1,6 +1,6 @@
 import "../../styles/listchat.css";
 
-const ModalLoading = (props) => {
+const ModalLoading = (props: { className?: string }) => {
   const { className } = props;
   const numberOfLoadingDiv = 5;
   return (

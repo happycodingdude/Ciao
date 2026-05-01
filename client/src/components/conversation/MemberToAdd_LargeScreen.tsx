@@ -39,12 +39,12 @@ const MemberToAdd_LargeScreen = ({
             <div className="bg-(--bg-color-extrathin) flex items-center justify-between rounded-2xl p-2">
               <div className="pointer-events-none inline-flex w-[85%] items-center gap-2">
                 <ImageWithLightBoxAndNoLazy
-                  src={item.avatar}
+                  src={item.avatar ?? undefined}
                   className="loaded laptop:w-8 aspect-square cursor-pointer"
                   circle
                   slides={[
                     {
-                      src: item.avatar,
+                      src: item.avatar ?? "",
                     },
                   ]}
                   onClick={() => {}}
@@ -55,7 +55,7 @@ const MemberToAdd_LargeScreen = ({
               <div
                 className="fa fa-trash text-(--danger-text-color) cursor-pointer text-base"
                 onClick={() => {
-                  removeMemberToAdd(item.id);
+                  removeMemberToAdd(item.id ?? "");
                 }}
               ></div>
             </div>

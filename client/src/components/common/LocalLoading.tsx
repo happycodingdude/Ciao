@@ -1,4 +1,4 @@
-const LocalLoading = (props) => {
+const LocalLoading = (props: { className?: string }) => {
   const { className } = props;
   return (
     <div

@@ -13,7 +13,7 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
   const { targetUser, stopCall, answerCall } = useSignal();
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: targetUser.id,
+    id: targetUser?.id ?? "",
   });
   const style = {
     position: "absolute",
@@ -60,7 +60,7 @@ const ReceiveOffer: React.FC<ReceiveOfferProps> = ({ position }) => {
         </button>
       </div>
     </div>,
-    document.getElementById("portal"),
+    document.getElementById("portal") as Element,
   );
 };
 

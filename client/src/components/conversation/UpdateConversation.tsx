@@ -1,5 +1,5 @@
+import React, { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
 import { updateConversation } from "../../services/conv.service";
 import {
   ConversationCache,
@@ -17,38 +17,37 @@ import MediaPicker from "../common/MediaPicker";
 const UpdateConversation = (props: UpdateConversationProps) => {
   const { selected, onClose } = props;
 
-  if (!selected) return;
+  if (!selected) return null;
 
   const queryClient = useQueryClient();
 
-  const refInput = useRef<HTMLInputElement>();
+  const refInput = useRef<HTMLInputElement | undefined>(undefined);
 
-  const [avatar, setAvatar] = useState<string>(selected.avatar);
+  const [avatar, setAvatar] = useState<string>(selected.avatar ?? "");
   const [file, setFile] = useState<File>();
 
   useEffect(() => {
-    refInput.current.focus();
-    refInput.current.value = selected.title;
+    refInput.current?.focus();
+    if (refInput.current) refInput.current.value = selected.title ?? "";
   }, []);
 
   const updateConversationCTA = async () => {
-    if (refInput.current.value === null || refInput.current.value === "")
-      return;
+    if (!refInput.current?.value) return;
 
     let url = "";
     if (file === undefined) {
       url = avatar;
     } else {
       const uploaded: AttachmentModel[] = await uploadFile(new Array(file));
-      url = uploaded[0].mediaUrl;
+      url = uploaded[0].mediaUrl ?? "";
     }
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
+      const updatedConversations = (oldData.conversations ?? []).map((conversation) => {
         if (conversation.id !== selected.id) return conversation;
         return {
           ...conversation,
-          title: refInput.current.value,
+          title: refInput.current?.value ?? "",
           avatar: url,
         };
       });
@@ -59,22 +58,22 @@ const UpdateConversation = (props: UpdateConversationProps) => {
       } as ConversationCache;
     });
     const request: UpdateConversationRequest = {
-      id: selected.id,
-      title: refInput.current.value,
+      id: selected.id ?? "",
+      title: refInput.current?.value ?? "",
       avatar: url,
     };
     updateConversation(request);
 
-    onClose();
+    onClose?.();
   };
 
-  const chooseAvatar = (e) => {
-    const chosenFiles = Array.from(e.target.files);
+  const chooseAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const chosenFiles = Array.from(e.target.files ?? []);
     if (chosenFiles.length === 0) return;
 
-    setAvatar(URL.createObjectURL(e.target.files?.[0]));
-    setFile(e.target.files?.[0]);
-    e.target.value = null;
+    setAvatar(URL.createObjectURL(e.target.files![0]));
+    setFile(e.target.files![0]);
+    e.target.value = "";
   };
 
   return (

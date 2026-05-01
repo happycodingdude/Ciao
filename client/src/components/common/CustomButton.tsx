@@ -16,7 +16,7 @@ const CustomButton = (props: CustomButtonProps) => {
     sm,
   } = props;
   const handleClick = () => {
-    onClick();
+    onClick?.();
   };
   return (
     <div

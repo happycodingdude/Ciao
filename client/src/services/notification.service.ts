@@ -5,6 +5,7 @@ import { isConversationActive } from "../hooks/useActiveConversation";
 import HttpRequest from "../lib/fetch";
 import {
   NotificationData,
+  NotificationModel,
   RequestPermission,
   UserProfile,
 } from "../types/base.types";
@@ -19,22 +20,24 @@ import {
   MessageCache,
   PendingMessageModel,
 } from "../types/message.types";
-import { NewConversation, NewMessage } from "../types/notification.types";
+import { NewConversation, NewMessage, NewMessagePinned, NewReaction } from "../types/notification.types";
 import getFirebaseApp from "../utils/firebaseConfig";
 
 const page = 1;
 const limit = 10;
 
-export const getNotifications = async () => {
+export const getNotifications = async (): Promise<NotificationModel[]> => {
   return (
-    await HttpRequest({
-      method: "get",
-      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GET.replace(
-        "{page}",
-        page,
-      ).replace("{limit}", limit),
-    })
-  ).data;
+    (
+      await HttpRequest<undefined, NotificationModel[]>({
+        method: "get",
+        url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GET.replace(
+          "{page}",
+          page,
+        ).replace("{limit}", limit),
+      })
+    ).data ?? []
+  );
 };
 
 export const read = async (id: string) => {
@@ -234,11 +237,11 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
     if (!oldData) return oldData;
 
-    const existingConversation = oldData.conversations.some(
+    const existingConversation = (oldData.conversations ?? []).some(
       (conv) => conv.id === message.conversation.id,
     );
     if (existingConversation) {
-      return updateConversationCache(oldData, message.conversation, {
+      return updateConversationCache(oldData, message.conversation as ConversationModel, {
         lastMessageId: message.id,
         lastMessage: message.content,
         lastMessageContact: message.contact.id,
@@ -246,10 +249,10 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
         unSeen: !isActive,
       });
     } else {
-      const newConversation = {
+      const newConversation: ConversationModel = {
         id: message.conversation.id,
         title: message.conversation.title,
-        avatar: message.conversation.avatar,
+        avatar: message.conversation.avatar ?? undefined,
         isGroup: message.conversation.isGroup,
         isNotifying: true,
         lastMessage: message.content,
@@ -259,8 +262,8 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
 
       return {
         ...oldData,
-        conversations: [newConversation, ...oldData.conversations],
-        filterConversations: [newConversation, ...oldData.conversations],
+        conversations: [newConversation, ...(oldData.conversations ?? [])],
+        filterConversations: [newConversation, ...(oldData.conversations ?? [])],
       };
     }
   });
@@ -307,12 +310,12 @@ const onNewMembers = (
   queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
     if (!oldData) return oldData;
 
-    const existingConversation = oldData.conversations.find(
+    const existingConversation = (oldData.conversations ?? []).find(
       (conv) => conv.id === conversation.conversation.id,
     );
 
     if (existingConversation) {
-      return updateConversationCache(oldData, conversation.conversation, {
+      return updateConversationCache(oldData, conversation.conversation as ConversationModel, {
         membersUpdater: (members) => [
           ...members,
           ...conversation.members.filter((mem) => mem.isNew),
@@ -322,7 +325,7 @@ const onNewMembers = (
 
     return createNewConversation(
       oldData,
-      conversation.conversation,
+      conversation.conversation as ConversationModel,
       userInfo,
       conversation.members,
     );
@@ -341,7 +344,7 @@ const onNewConversation = (
     const newConversation: ConversationModel = {
       id: conversation.conversation.id,
       title: conversation.conversation.title,
-      avatar: conversation.conversation.avatar,
+      avatar: conversation.conversation.avatar ?? undefined,
       isGroup: conversation.conversation.isGroup,
       isNotifying: true,
       lastMessage: conversation.conversation.lastMessage,
@@ -357,8 +360,8 @@ const onNewConversation = (
 
     return {
       ...oldData,
-      conversations: [newConversation, ...oldData.conversations],
-      filterConversations: [newConversation, ...oldData.conversations],
+      conversations: [newConversation, ...(oldData.conversations ?? [])],
+      filterConversations: [newConversation, ...(oldData.conversations ?? [])],
     };
   });
 };
@@ -444,8 +447,8 @@ const createNewConversation = (
 
   return {
     ...oldData,
-    conversations: [newConversation, ...oldData.conversations],
-    filterConversations: [newConversation, ...oldData.conversations],
+    conversations: [newConversation, ...(oldData.conversations ?? [])],
+    filterConversations: [newConversation, ...(oldData.conversations ?? [])],
   };
 };
 
@@ -472,7 +475,7 @@ const updateConversationCache = (
 ) => {
   if (!oldData) return oldData;
 
-  const updatedConversations = oldData.conversations.map((conv) =>
+  const updatedConversations = (oldData.conversations ?? []).map((conv) =>
     conv.id === conversation.id
       ? {
           ...conv,
@@ -481,7 +484,7 @@ const updateConversationCache = (
           ...(lastMessageContact && { lastMessageContact }),
           ...(lastMessageTime && { lastMessageTime }),
           ...(unSeen && { unSeen }),
-          ...(membersUpdater && { members: membersUpdater(conv.members) }),
+          ...(membersUpdater && { members: membersUpdater(conv.members ?? []) }),
         }
       : conv,
   );

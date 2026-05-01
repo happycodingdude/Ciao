@@ -31,44 +31,42 @@ const AddMembersModal = (props: OnCloseType) => {
   const { data, isLoading, isRefetching } = useFriend();
 
   const { conversationId } = Route.useParams();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
 
-  const refInput = useRef<HTMLInputElement>();
+  const refInput = useRef<HTMLInputElement & { reset?: () => void }>();
 
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
-    data?.map((item) => item.contact),
+    data?.map((item) => item.contact) ?? [],
   );
   const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
 
   useEffect(() => {
     if (!data) return;
     setMembersToSearch(data.map((item) => item.contact));
-    refInput.current.focus();
+    refInput.current?.focus();
     blurImage(".list-friend-container");
   }, [data]);
 
   const addMembersCTA = () => {
     if (membersToAdd.length === 0) return;
-    onClose();
+    if (onClose) onClose();
 
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        if (conversation.id !== conversation.id) return conversation;
+      const updatedConversations = (oldData.conversations ?? []).map((conv) => {
+        if (conv.id !== conversationId) return conv;
         return {
-          ...conversation,
+          ...conv,
           members: [
-            ...conversation.members,
-            ...membersToAdd.map((mem) => {
-              return {
-                contact: {
-                  id: mem.id,
-                  name: mem.name,
-                  avatar: mem.avatar,
-                },
-              };
-            }),
+            ...(conv.members ?? []),
+            ...membersToAdd.map((mem) => ({
+              contact: {
+                id: mem.id,
+                name: mem.name,
+                avatar: mem.avatar,
+              },
+            })),
           ],
         };
       });
@@ -87,7 +85,7 @@ const AddMembersModal = (props: OnCloseType) => {
             ...(oldData.messages || []),
             {
               type: "system",
-              content: `${info.name} added new members: ${membersToAdd.map((mem) => mem.name).join(", ")}`,
+              content: `${info?.name} added new members: ${membersToAdd.map((mem) => mem.name).join(", ")}`,
               contactId: "system",
               createdTime: dayjs().format(),
             } as PendingMessageModel,
@@ -97,18 +95,16 @@ const AddMembersModal = (props: OnCloseType) => {
     );
 
     addMembers(
-      conversation.id,
-      membersToAdd.map((mem) => {
-        return mem.id;
-      }),
+      conversation?.id ?? "",
+      membersToAdd.map((mem) => mem.id ?? ""),
     );
   };
 
   const removeMemberToAdd = (id: string) => {
-    setMembersToAdd((members) => {
-      return members.filter((mem) => mem.id !== id);
-    });
+    setMembersToAdd((members) => members.filter((mem) => mem.id !== id));
   };
+
+  const conversationMembers = conversation?.members ?? [];
 
   return (
     <>
@@ -118,14 +114,12 @@ const AddMembersModal = (props: OnCloseType) => {
         inputRef={refInput}
         onChange={(e) => {
           if (e.target.value === "")
-            setMembersToSearch(data.map((item) => item.contact));
+            setMembersToSearch(data?.map((item) => item.contact) ?? []);
           else
             setMembersToSearch((current) => {
-              const found = current.filter((item) =>
-                item.name.toLowerCase().includes(e.target.value.toLowerCase()),
+              return current.filter((item) =>
+                (item.name ?? "").toLowerCase().includes(e.target.value.toLowerCase()),
               );
-
-              return found;
             });
         }}
       />
@@ -143,8 +137,8 @@ const AddMembersModal = (props: OnCloseType) => {
                   key={item.id}
                   className={`information-members flex w-full items-center gap-2 rounded-lg p-[.7rem]
                   ${
-                    conversation.members.some(
-                      (mem) => mem.contact.id === item.id,
+                    conversationMembers.some(
+                      (mem) => mem.contact?.id === item.id,
                     )
                       ? "pointer-events-none"
                       : "hover:bg-(--bg-color-extrathin) cursor-pointer"
@@ -165,10 +159,10 @@ const AddMembersModal = (props: OnCloseType) => {
                   }}
                 >
                   <CheckCircleOutlined
-                    className={`base-icon 
+                    className={`base-icon
                       ${
-                        conversation.members.some(
-                          (mem) => mem.contact.id === item.id,
+                        conversationMembers.some(
+                          (mem) => mem.contact?.id === item.id,
                         ) || membersToAdd.some((mem) => mem.id === item.id)
                           ? "text-light-blue-500!"
                           : ""
@@ -179,18 +173,14 @@ const AddMembersModal = (props: OnCloseType) => {
                     src={item.avatar}
                     className="aspect-square w-10 cursor-pointer"
                     circle
-                    slides={[
-                      {
-                        src: item.avatar,
-                      },
-                    ]}
+                    slides={[{ src: item.avatar ?? "" }]}
                     onClick={() => {}}
                     local
                   />
                   <div>
                     <CustomLabel title={item.name} />
-                    {conversation.members.some(
-                      (mem) => mem.contact.id === item.id,
+                    {conversationMembers.some(
+                      (mem) => mem.contact?.id === item.id,
                     ) ? (
                       <p className="text-(--text-main-color-blur)">Joined</p>
                     ) : (
@@ -203,13 +193,13 @@ const AddMembersModal = (props: OnCloseType) => {
             {isPhoneScreen() ? (
               <MemberToAdd_Phone
                 membersToAdd={membersToAdd}
-                total={data?.length}
+                total={data?.length ?? 0}
                 removeMemberToAdd={removeMemberToAdd}
               />
             ) : (
               <MemberToAdd_LargeScreen
                 membersToAdd={membersToAdd}
-                total={data?.length}
+                total={data?.length ?? 0}
                 removeMemberToAdd={removeMemberToAdd}
               />
             )}

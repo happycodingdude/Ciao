@@ -16,7 +16,7 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
 
-  if (!info) return;
+  if (!info) return null;
 
   useEffect(() => {
     blurImage(".sidebar-container");
@@ -27,7 +27,7 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
       <div className="sidebar-menu-item">
         <ChatIcon
           onClick={() => {
-            setPage("chat");
+            setPage?.("chat");
             if (isPhoneScreen())
               queryClient.setQueryData(
                 ["conversation"],
@@ -51,7 +51,7 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
       <div className="sidebar-menu-item">
         <ProfileIcon
           onClick={() => {
-            setPage("profile");
+            setPage?.("profile");
           }}
         />
         <div className="sidebar-menu-item-text">Profile</div>

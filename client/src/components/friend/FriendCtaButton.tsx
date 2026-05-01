@@ -15,7 +15,7 @@ import CancelButton from "./CancelButton";
 const FriendCtaButton = (props: FriendItemProps) => {
   const { friend, friendAction, onClose } = props;
 
-  if (!friend) return;
+  if (!friend) return null;
 
   const queryClient = useQueryClient();
 
@@ -23,43 +23,40 @@ const FriendCtaButton = (props: FriendItemProps) => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
 
-  const chat = async (contact) => {
+  const chat = async (contact: typeof friend) => {
     const randomId = Math.random().toString(36).substring(2, 7);
-    const existedConversation = conversations.conversations.find(
+    const existedConversation = (conversations?.conversations ?? []).find(
       (conv) =>
         conv.isGroup === false &&
-        conv.members.some((mem) => mem.contact.id === contact.id),
+        (conv.members ?? []).some((mem) => mem.contact?.id === contact.id),
     );
     if (existedConversation) {
-      let isDeletedConversation = existedConversation.members.find(
-        (mem) => mem.contact.id === info.id,
-      ).isDeleted;
+      const isDeletedConversation = (existedConversation.members ?? []).find(
+        (mem) => mem.contact?.id === info?.id,
+      )?.isDeleted ?? false;
       queryClient.setQueryData(
         ["conversation"],
         (oldData: ConversationCache) => {
-          // Move existed conversation to the top if the conversation was deleted
-          // else keep the current position of the conversation
-
           let updatedConversations: ConversationModel[] = [];
           if (isDeletedConversation) {
-            existedConversation.members = existedConversation.members.map(
+            existedConversation.members = (existedConversation.members ?? []).map(
               (mem) => {
-                if (mem.contact.id !== info.id) return mem;
+                if (mem.contact?.id !== info?.id) return mem;
                 mem.isDeleted = false;
                 return mem;
               },
             );
             updatedConversations = [
               existedConversation,
-              ...oldData.conversations.filter(
+              ...(oldData.conversations ?? []).filter(
                 (conv) => conv.id !== existedConversation.id,
               ),
             ];
           } else {
-            updatedConversations = oldData.conversations.map((conv) => {
+            updatedConversations = (oldData.conversations ?? []).map((conv) => {
               if (conv.id !== existedConversation.id) return conv;
-              conv.members = conv.members.map((mem) => {
-                if (mem.contact.id !== info.id) return mem;
+              conv.members = (conv.members ?? []).map((mem) => {
+                if (mem.contact?.id !== info?.id) return mem;
                 mem.isDeleted = false;
                 return mem;
               });
@@ -73,11 +70,11 @@ const FriendCtaButton = (props: FriendItemProps) => {
             selected: existedConversation,
             reload: true,
             quickChat: false,
-            message: null,
+            message: undefined,
           } as ConversationCache;
         },
       );
-      if (isDeletedConversation) reopenMember(existedConversation.id);
+      if (isDeletedConversation) reopenMember(existedConversation.id ?? "");
     } else {
       setLoading(true);
 
@@ -92,9 +89,9 @@ const FriendCtaButton = (props: FriendItemProps) => {
               {
                 isModerator: true,
                 contact: {
-                  id: info.id,
-                  name: info.name,
-                  avatar: info.avatar,
+                  id: info?.id,
+                  name: info?.name,
+                  avatar: info?.avatar,
                   isOnline: true,
                 },
               },
@@ -111,19 +108,20 @@ const FriendCtaButton = (props: FriendItemProps) => {
 
           return {
             ...oldData,
-            conversations: [newConversation, ...oldData.conversations],
-            filterConversations: [newConversation, ...oldData.conversations],
+            conversations: [newConversation, ...(oldData.conversations ?? [])],
+            filterConversations: [newConversation, ...(oldData.conversations ?? [])],
             selected: newConversation,
             reload: false,
           } as ConversationCache;
         },
       );
 
-      createDirectChat(contact.id).then((res) => {
+      createDirectChat(contact.id ?? "").then((res) => {
+        if (!res) return;
         queryClient.setQueryData(
           ["conversation"],
           (oldData: ConversationCache) => {
-            const updatedConversations = oldData.conversations.map(
+            const updatedConversations = (oldData.conversations ?? []).map(
               (conversation) => {
                 if (conversation.id !== randomId) return conversation;
                 conversation.id = res.conversationId;
@@ -135,10 +133,6 @@ const FriendCtaButton = (props: FriendItemProps) => {
               ...oldData,
               conversations: updatedConversations,
               filterConversations: updatedConversations,
-              // selected: {
-              //   ...oldData.selected,
-              //   id: res.conversationId,
-              // },
             } as ConversationCache;
           },
         );
@@ -159,8 +153,6 @@ const FriendCtaButton = (props: FriendItemProps) => {
         });
       });
 
-      // Delay for smooth processing animation
-      // await delay(500);
       queryClient.setQueryData(["message"], (oldData: MessageCache) => {
         return {
           ...oldData,
@@ -180,7 +172,7 @@ const FriendCtaButton = (props: FriendItemProps) => {
       setLoading(false);
     }
 
-    onClose();
+    onClose?.();
   };
 
   const handleFriendAction = (
@@ -188,15 +180,15 @@ const FriendCtaButton = (props: FriendItemProps) => {
     status?: "friend" | "request_sent" | "request_received" | "new" | null,
   ): void => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = oldData.conversations.map((conversation) => {
-        let member = conversation.members.some(
-          (mem) => mem.contact.id === friend.id,
+      const updatedConversations = (oldData.conversations ?? []).map((conversation) => {
+        const member = (conversation.members ?? []).some(
+          (mem) => mem.contact?.id === friend.id,
         );
         if (!member) return conversation;
         return {
           ...conversation,
-          members: conversation.members.map((mem) => {
-            if (mem.contact.id !== friend.id) return mem;
+          members: (conversation.members ?? []).map((mem) => {
+            if (mem.contact?.id !== friend.id) return mem;
             return {
               ...mem,
               friendId: id,
@@ -205,51 +197,31 @@ const FriendCtaButton = (props: FriendItemProps) => {
           }),
         };
       });
-      // if (!oldData.selected)
-      //   return {
-      //     ...oldData,
-      //     conversations: updatedConversations,
-      //     filterConversations: updatedConversations,
-      //   };
       return {
         ...oldData,
         conversations: updatedConversations,
         filterConversations: updatedConversations,
-        // selected: {
-        //   ...oldData.selected,
-        //   members: oldData.selected?.members.map((mem) => {
-        //     if (mem.contact.id !== friend.id) return mem;
-        //     return {
-        //       ...mem,
-        //       friendId: id,
-        //       friendStatus: status,
-        //     };
-        //   }),
-        // },
       } as ConversationCache;
     });
-    friendAction(id, status, friend.id);
+    friendAction?.(id, status, friend.id);
   };
 
-  return {
+  const statusMap: Partial<Record<string, JSX.Element>> = {
     new: (
       <AddButton
         id={friend.id}
-        // onClose={(id: string) => friendAction(id, "request_sent")}
-        onClose={(id: string) => handleFriendAction(id, "request_sent")}
+        onClose={(id?: string) => handleFriendAction(id, "request_sent")}
       />
     ),
     request_received: (
       <AcceptButton
-        id={friend.friendId}
-        // onClose={() => friendAction(friend.friendId, "friend")}
+        id={friend.friendId ?? undefined}
         onClose={() => handleFriendAction(friend.friendId, "friend")}
       />
     ),
     request_sent: (
       <CancelButton
-        id={friend.friendId}
-        // onClose={() => friendAction(null, "new")}
+        id={friend.friendId ?? undefined}
         onClose={() => handleFriendAction(null, "new")}
       />
     ),
@@ -267,7 +239,9 @@ const FriendCtaButton = (props: FriendItemProps) => {
         sm
       />
     ),
-  }[friend.friendStatus];
+  };
+
+  return statusMap[friend.friendStatus ?? ""] ?? null;
 };
 
 export default FriendCtaButton;

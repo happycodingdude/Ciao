@@ -1,4 +1,3 @@
-// import EmojiPicker from "emoji-picker-react";
 import { CopyOutlined, PushpinOutlined, SyncOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { Suspense, useCallback, useRef, useState } from "react";
@@ -15,11 +14,10 @@ import ForwardMessageModal from "./ForwardMessageModal";
 import MessageMenuItem from "./MessageMenuItem";
 
 const MessageMenu_Slide = (props: MessageMenuProps) => {
-  // console.log("ChatboxMenu calling");
   const { conversationId, message, mine, contact, getContainerRect } = props;
 
   const { data: conversations } = useConversation();
-  const conversation = conversations.conversations.find(
+  const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
 
@@ -33,11 +31,11 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
 
   const refMenu = useRef<HTMLDivElement>(null);
 
-  // Event listener
-  const hideMenuOnClick = useCallback((e) => {
+  const hideMenuOnClick = useCallback((e: Event) => {
+    const target = e.target as HTMLElement;
     if (
-      Array.from(e.target.classList).includes("message-menu-container") ||
-      Array.from(e.target.classList).includes("message-menu-item")
+      Array.from(target.classList).includes("message-menu-container") ||
+      Array.from(target.classList).includes("message-menu-item")
     )
       return;
     setShow(false);
@@ -47,10 +45,9 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
   const copyMessage = () => {
     if (!message) return;
     navigator.clipboard
-      .writeText(message.content)
+      .writeText(message.content ?? "")
       .then(() => {
         toast.success("Message copied to clipboard");
-        // console.log("Message copied to clipboard");
       })
       .catch((err) => {
         console.error("Failed to copy message: ", err);
@@ -61,7 +58,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
     setPinning(true);
     await pinMessage({
       conversationId: conversationId,
-      messageId: message.id,
+      messageId: message.id ?? "",
       pinned: !message.isPinned,
     });
 
@@ -70,12 +67,12 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
       (oldData: MessageCache) => {
         return {
           ...oldData,
-          messages: oldData.messages.map((mess) => {
+          messages: (oldData.messages ?? []).map((mess) => {
             if (mess.id !== message.id) return mess;
             return {
               ...mess,
               isPinned: !message.isPinned,
-              pinnedBy: info.id,
+              pinnedBy: info?.id,
             };
           }),
         } as MessageCache;
@@ -84,34 +81,11 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
     setPinning(false);
   };
 
-  // const toggleMenu = useCallback(
-  //   (e: React.MouseEvent) => {
-  //     const menu = refMenu.current;
-  //     if (!menu) return;
-
-  //     const containerRect = getContainerRect();
-  //     const clickY = e.clientY;
-
-  //     const direction =
-  //       clickY > containerRect.top + containerRect.height / 2
-  //         ? "above"
-  //         : "below";
-
-  //     setShow((prev) => !prev);
-
-  //     // Gán class direction
-  //     menu.classList.remove("above", "below");
-  //     menu.classList.add(direction);
-  //     menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"} `;
-  //   },
-  //   [getContainerRect],
-  // );
-
   const replyMessage = () => {
     queryClient.setQueryData(["reply"], {
       replyId: message.id,
-      replyContact: mine ? info.id : contact.id,
-      replyContactName: mine ? info.name : contact.name,
+      replyContact: mine ? info?.id : (contact as any).id,
+      replyContactName: mine ? info?.name : (contact as any).name,
       replyContent: message.content || "",
     });
   };
@@ -124,7 +98,6 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         data-mine={mine}
         className="message-menu-container shadow-md"
       >
-        {/* MARK: COPY */}
         <MessageMenuItem
           onClick={copyMessage}
           closeOnClick={false}
@@ -132,7 +105,6 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         >
           <CopyOutlined />
         </MessageMenuItem>
-        {/* MARK: PIN */}
         <MessageMenuItem
           className={`${pinning ? "pointer-events-none" : ""} ${message.isPinned && !pinning ? "text-light-blue-500" : ""}`}
           onClick={pin}
@@ -141,7 +113,6 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         >
           {pinning ? <SyncOutlined spin /> : <PushpinOutlined rotate={316} />}
         </MessageMenuItem>
-        {/* MARK: REPLY */}
         <MessageMenuItem
           onClick={replyMessage}
           closeOnClick={true}
@@ -150,7 +121,6 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         >
           <i className="fa fa-reply" />
         </MessageMenuItem>
-        {/* MARK: FORWARD */}
         <MessageMenuItem
           onClick={() => setOpenForward(true)}
           closeOnClick={true}
@@ -170,10 +140,10 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
                   message={message}
                   forward={true}
                   directContact={
-                    !conversation.isGroup
-                      ? conversation.members?.find(
-                          (item) => item.contact.id !== info.id,
-                        )?.contact.id
+                    !conversation?.isGroup
+                      ? (conversation?.members ?? []).find(
+                          (item) => item.contact?.id !== info?.id,
+                        )?.contact?.id
                       : undefined
                   }
                 />

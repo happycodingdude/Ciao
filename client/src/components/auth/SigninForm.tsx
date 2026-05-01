@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAuthenticationFormToggles from "../../hooks/useAuthenticationFormToggles";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { signin } from "../../services/auth.service";
@@ -19,8 +19,8 @@ const SigninForm = () => {
   const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken", "");
   const [userId, setUserId] = useLocalStorage("userId", "");
 
-  const refUsername = useRef<HTMLInputElement & { reset: () => void }>();
-  const refPassword = useRef<HTMLInputElement & { reset: () => void }>();
+  const refUsername = useRef<HTMLInputElement & { reset?: () => void }>();
+  const refPassword = useRef<HTMLInputElement & { reset?: () => void }>();
 
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,8 +29,8 @@ const SigninForm = () => {
   const reset = () => {
     setError("");
     setProcessing(false);
-    refUsername.current.reset();
-    refPassword.current.reset();
+    refUsername.current?.reset?.();
+    refPassword.current?.reset?.();
   };
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const SigninForm = () => {
 
   const { mutate: signinMutation } = useMutation({
     mutationFn: (req: SigninRequest) => signin(req),
-    onSuccess: (res) => {
+    onSuccess: (res: { accessToken: string; refreshToken: string; userId: string }) => {
       setAccessToken(res.accessToken);
       setRefreshToken(res.refreshToken);
       setUserId(res.userId);
@@ -56,8 +56,7 @@ const SigninForm = () => {
   });
 
   const signinCTA = () => {
-    if (refUsername.current.value === "" || refPassword.current.value === "")
-      return;
+    if (!refUsername.current?.value || !refPassword.current?.value) return;
 
     setProcessing(true);
     signinMutation({
@@ -66,7 +65,7 @@ const SigninForm = () => {
     });
   };
 
-  const handlePressKey = (e) => {
+  const handlePressKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.keyCode == 13) {
       signinCTA();
     }

@@ -1,31 +1,25 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
-const ErrorBoundary = ({ children }) => {
+const ErrorBoundary = ({ children }: { children: ReactNode }) => {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    const errorHandler = (error, errorInfo) => {
-      // Update state to indicate error
+    const errorHandler = (error: ErrorEvent) => {
       setHasError(true);
-      // Log error to an error reporting service
-      console.error("Error caught by ErrorBoundary:", error, errorInfo);
+      console.error("Error caught by ErrorBoundary:", error);
     };
 
-    // Assign error handler to global error event
     window.addEventListener("error", errorHandler);
 
     return () => {
-      // Cleanup by removing the error handler
       window.removeEventListener("error", errorHandler);
     };
   }, []);
 
-  // If an error occurred, render an error message
   if (hasError) {
     return <div>Oops! Something went wrong.</div>;
   }
 
-  // Otherwise, render children as usual
   return children;
 };
 

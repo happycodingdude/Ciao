@@ -24,7 +24,7 @@ export const getMessages = async (conversationId: string, page: number) => {
               conversationId,
             ).replace("{page}", page),
     })
-  ).data;
+  ).data as MessageCache;
   const result: MessageCache = {
     conversationId: conversationId,
     hasMore: data.hasMore,
@@ -97,7 +97,7 @@ export const getAttachments = async (conversationId: string) => {
   ).data;
   const result: AttachmentCache = {
     conversationId: conversationId,
-    attachments: data,
+    attachments: (data ?? []) as AttachmentCache_Attachment[],
   };
   return result;
 };
