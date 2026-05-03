@@ -1,16 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-
-body {
-  font-family: "Inter", sans-serif;
-}
-
-/* .sidebar-container {
-  @apply flex shrink-0 items-center border-r-[.1rem] border-r-[var(--border-color)]
-    phone:h-[9rem] phone:w-full phone:flex-row phone:border-t-[.2rem] phone:border-t-[var(--border-color)]
-    laptop:h-full laptop:w-[7rem] laptop:flex-col laptop:border-none
-    desktop:w-[10rem];
-} */
-
 .sidebar-container {
   display: flex;
   flex-shrink: 0;
@@ -18,7 +5,6 @@ body {
   border-right: 0.1rem solid var(--border-color);
 }
 
-/* 📱 Phone (≤ 375px) */
 @media (max-width: 375px) {
   .sidebar-container {
     height: 9rem;
@@ -28,7 +14,6 @@ body {
   }
 }
 
-/* 💻 Laptop (≥ 1280px) */
 @media (min-width: 1280px) {
   .sidebar-container {
     height: 100%;
@@ -38,7 +23,6 @@ body {
   }
 }
 
-/* 🖥️ Desktop (≥ 1920px) */
 @media (min-width: 1920px) {
   .sidebar-container {
     width: 7rem;
@@ -57,7 +41,6 @@ body {
   color: white;
   .active {
     background: white;
-    /* color: #8b5cf6; */
     color: #0284c7;
     border-radius: 12px;
   }
@@ -73,13 +56,11 @@ body {
   color: white;
   padding: 5px 10px;
   border-radius: 4px;
-  /* font-size: 12px; */
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
   transition: all 0.3s ease;
   margin-left: 10px;
-  /* z-index: 1000; */
 }
 
 .sidebar-3 .tooltip::before {
@@ -101,7 +82,7 @@ body {
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem; /* rounded-xl */
+  border-radius: 0.75rem;
   transition-property: all;
   transition-duration: 100ms;
   font-size: var(--font-size-base);

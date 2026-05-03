@@ -3,7 +3,6 @@
 @import "./styles/chatbox.css";
 @import "./styles/messagemenu_slide.css";
 @import "react-toastify/dist/ReactToastify.css";
-/* @import "./styles/messagemenu.css"; */
 
 @layer base {
   * {
@@ -23,8 +22,6 @@
   html,
   body,
   #root {
-    /* font-size: 62.5%; */
-    /* font-family: "Mulish"; */
     font-family:
       SegoeuiPc,
       Segoe UI,
@@ -38,34 +35,14 @@
       Microsoft Sans Serif,
       Arial,
       sans-serif;
-    /* font-family: 'Roboto'; */
-    /* font-family: 'Montserrat'; */
-    /* font-family: SegoeuiPc,Segoe UI,San Francisco,Helvetica Neue,Helvetica,Lucida Grande,Roboto,Ubuntu,Tahoma,Microsoft Sans Serif,Arial,sans-serif; */
-    /* font-family: sans-serif; */
-    /* font-size: 1.6rem; */
     width: 100vw;
     height: 100vh;
     overflow: hidden;
     display: flex;
     scrollbar-width: none;
   }
-
-  /* *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  *::-webkit-scrollbar-track {
-    background-color: var(--bg-color-extrathin);
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background-color: var(--bg-color-medium);
-    border-radius: 999px;
-  } */
 }
 
-/* Theme Configuration using @theme directive */
 @theme {
   /* Custom Breakpoints */
   --breakpoint-*: initial;
@@ -245,7 +222,6 @@
   }
 }
 
-/* Keyframes for Custom Animations */
 @keyframes float {
   0%,
   100% {
@@ -499,17 +475,6 @@
   }
 }
 
-@keyframes waving-text {
-  0%,
-  40%,
-  100% {
-    transform: translateY(0);
-  }
-  20% {
-    transform: translateY(-7rem);
-  }
-}
-
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -558,7 +523,6 @@
   }
 }
 
-/* Custom Utilities for Animation Delay */
 @utility animation-delay-75 {
   animation-delay: 75ms;
 }
@@ -591,7 +555,6 @@
   animation-delay: 1000ms;
 }
 
-/* Custom Background Gradients */
 @utility bg-gradient-radial-to-tr {
   background-image: radial-gradient(
     115% 90% at 0% 100%,
@@ -634,7 +597,6 @@
   );
 }
 
-/* Custom utility classes using @utility directive for Tailwind v4 */
 @utility hide-scrollbar {
   &::-webkit-scrollbar {
     display: none;
@@ -642,67 +604,8 @@
   scrollbar-width: none;
 }
 
-/* @utility custom-scrollbar {
-  &::-webkit-scrollbar {
-    height: 10px;
-  }
-  &::-webkit-scrollbar-track {
-    background: var(--bg-color-thin);
-    border-radius: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: var(--bg-color-medium);
-    border-radius: 10px;
-  }
-} */
 
-/* @utility custom-scrollbar {
-  .custom-scrollbar::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-  }
 
-  ..custom-scrollbar::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-} */
-
-@utility grid-transition {
-  transition: all 2s;
-}
-
-@utility mention-input {
-  border-radius: 0;
-  border: none !important;
-  box-shadow: none !important;
-  &:hover {
-    outline: unset !important;
-  }
-  textarea {
-    border: 0.2rem #ffb7df solid;
-    border-radius: 1rem;
-    padding: 0.7rem 4rem 0.7rem 2rem;
-    overflow-y: scroll;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-    scrollbar-width: none;
-  }
-}
-
-@utility close-button {
-  background-image: var(--bs-btn-close-bg);
-}
-
-@utility error-show {
-  scale: 1 !important;
-}
-
-.waving-text {
-  animation: waving-text 1.3s both infinite;
-  animation-delay: calc(0.1s * var(--i));
-}
 
 @utility waving-text {
   animation: waving-text 1.3s both infinite;
@@ -738,19 +641,6 @@
   }
 }
 
-@utility blurred-div {
-  position: relative;
-}
-
-.blurred-div img {
-  border-radius: 1rem;
-  opacity: 0.3;
-  transition: opacity 500ms ease-in-out;
-}
-
-.blurred-div.loaded img {
-  opacity: 1;
-}
 
 @keyframes pulse {
   0% {
@@ -770,40 +660,7 @@
   }
 }
 
-@utility relight-background {
-  width: 0;
-  height: 0;
-  &.lighten {
-    box-shadow: 0 0 20px 10px var(--main-color);
-  }
-  &:hover {
-    box-shadow: 0 0 20px 10px var(--main-color);
-  }
-}
 
-@utility lazy-background {
-  background-image: url("images/svg-spinners--bars-rotate-fade.svg");
-}
-
-@utility lazy-background-sm {
-  background-image: url("images/svg-spinners--bars-rotate-fade.svg");
-  background-size: 10% !important;
-}
-
-@utility base-icon-lg {
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  font-weight: 300;
-  /* font-size: var(--font-size-base);
-  @media (min-width: 1280px) {
-    font-size: var(--font-size-base);
-  }
-  @media (min-width: 1920px) {
-    font-size: var(--font-size-lg);
-  } */
-}
 
 @utility base-icon {
   display: flex;
@@ -827,7 +684,7 @@
   justify-content: center;
   font-weight: 300;
   font-size: var(--font-size-xl);
-  $.hover {
+  &:hover {
     color: var(--light-blue-500);
   }
   @media (min-width: 1280px) {
@@ -842,38 +699,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.gradient-item::after {
-  content: "";
-  position: absolute;
-  top: var(--top);
-  z-index: -1;
-  border-radius: var(--rounded);
-  background-image: linear-gradient(
-    to top right,
-    var(--from-color, var(--light-blue-400)),
-    var(--to-color, var(--light-blue-500))
-  );
-  height: var(--height);
-  width: var(--width);
-}
-
-@utility nolazy-image {
-  opacity: 0.5;
-  &.loaded {
-    opacity: 1;
+  &::after {
+    content: "";
+    position: absolute;
+    top: var(--top);
+    z-index: -1;
+    border-radius: var(--rounded);
+    background-image: linear-gradient(
+      to top right,
+      var(--from-color, var(--light-blue-400)),
+      var(--to-color, var(--light-blue-500))
+    );
+    height: var(--height);
+    width: var(--width);
   }
 }
 
-svg {
-  cursor: pointer;
-  /* transition: all 0.1s; */
-}
 
-/* svg.hovered {
-    fill: var(--main-color-bold);
-  } */
 svg {
   cursor: pointer;
 }
@@ -882,37 +724,10 @@ svg .active {
   fill: #0ea5e9;
 }
 
-@utility message-item {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f9f9f9;
-}
-
-@utility chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-@utility messages-container {
-  flex-grow: 1;
-  overflow: hidden;
-}
 
 textarea {
   flex-grow: 1;
   resize: none;
-}
-
-/* .sidebar-menu-item .sidebar-menu-item-text {
-  font-size: var(--font-size-base);
-} */
-
-@utility centering {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 #portal {
@@ -920,7 +735,6 @@ textarea {
   height: 100%;
 }
 
-/* MARK: VIDEO CALL  */
 @utility video-call-container {
   position: relative;
   z-index: 50;
@@ -935,33 +749,13 @@ textarea {
   @media (min-width: 1280px) {
     width: 30%;
   }
+  button {
+    aspect-ratio: 1 / 1;
+    width: 4rem;
+    border-radius: 9999px;
+  }
 }
 
-.video-call-container button {
-  aspect-ratio: 1 / 1;
-  width: 4rem;
-  border-radius: 9999px;
-}
-
-/* MARK: MESSAGE MENU  */
-/* .message-menu-container {
-    @apply absolute top-[-5rem] z-[10] flex
-        w-[15rem] flex-col rounded-[.7rem] bg-[var(--bg-color-thin)]
-        py-[1rem] text-[var(--text-main-color)] transition-all duration-200
-        data-[show=false]:pointer-events-none data-[show=true]:pointer-events-auto data-[show=false]:scale-0 data-[show=true]:scale-100;
-  }
-
-  .message-menu-container .above {
-    @apply top-[-8rem];
-  }
-
-  .message-menu-container .under {
-    @apply top-[-3rem];
-  }
-
-  .message-menu-item {
-    @apply flex cursor-pointer gap-[.5rem] p-[1rem] hover:bg-[var(--bg-color-medium)];
-  } */
 
 @utility listchat-filter-container {
   display: flex;
@@ -1017,46 +811,3 @@ textarea {
   transition-duration: 200ms;
 }
 
-@utility attachment-filter-container {
-  display: flex;
-  height: 5rem;
-  align-items: center;
-  justify-content: space-evenly;
-}
-
-@utility attachment-filter-item {
-  position: relative;
-  display: flex;
-  height: 4rem;
-  width: 6rem;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1rem;
-  text-align: center;
-  color: var(--text-main-color);
-  transition-property: color;
-  transition-duration: 200ms;
-}
-
-@utility attachment-filter-input {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  cursor: pointer;
-  opacity: 0;
-}
-
-@utility attachment-filter-text {
-  position: relative;
-  z-index: 10;
-  transition-property: color;
-  transition-duration: 200ms;
-}
-
-@utility font-be-vn-bold {
-  font-family: "Be_Vietnam_Pro";
-  font-weight: 600;
-}

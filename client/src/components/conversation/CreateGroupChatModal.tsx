@@ -1,4 +1,3 @@
-import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import useFriend from "../../hooks/useFriend";
@@ -17,62 +16,80 @@ import { isPhoneScreen } from "../../utils/getScreenSize";
 import { uploadFile } from "../../utils/uploadFile";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
-import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import ListFriendLoading from "../common/ListFriendLoading";
 import MediaPicker from "../common/MediaPicker";
-import MemberToAdd_LargeScreen from "./MemberToAdd_LargeScreen";
-import MemberToAdd_Phone from "./MemberToAdd_Phone";
+import FriendPickerList from "./FriendPickerList";
 
-const CreateGroupChatModal = (props: OnCloseType) => {
-  const { onClose } = props;
-
+const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
   const queryClient = useQueryClient();
-
   const { data, isLoading, isRefetching } = useFriend();
   const { data: info } = useInfo();
 
-  const refInputSearch = useRef<HTMLInputElement | undefined>(undefined);
-  const refInputTitle = useRef<HTMLInputElement | undefined>(undefined);
-  const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
-    data?.filter((fr) => fr.status === "friend").map((item) => item.contact) ?? [],
-  );
+  const refInputSearch = useRef<HTMLInputElement & { reset?: () => void }>(undefined);
+  const refInputTitle = useRef<HTMLInputElement & { reset?: () => void }>(undefined);
+  const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>([]);
   const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
   const [avatar, setAvatar] = useState<string>();
   const [file, setFile] = useState<File>();
-
-  const [processing, setProcessing] = useState<boolean>(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (!data) return;
-    setMembersToSearch(
-      data.filter((fr) => fr.status === "friend").map((item) => item.contact),
-    );
+    setMembersToSearch(data.filter((fr) => fr.status === "friend").map((item) => item.contact));
     refInputTitle.current?.focus();
     blurImage(".list-friend-container");
   }, [data]);
 
   const chooseAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const chosenFiles = Array.from(e.target.files ?? []);
-    if (chosenFiles.length === 0) return;
-
-    setAvatar(URL.createObjectURL(e.target.files![0]));
-    setFile(e.target.files![0]);
+    // Không có file nào được chọn → bỏ qua
+    if (!e.target.files?.length) return;
+    setAvatar(URL.createObjectURL(e.target.files[0]));
+    setFile(e.target.files[0]);
+    // Reset input để có thể chọn lại cùng file
     e.target.value = "";
   };
 
-  const createGroupChatCTA = async () => {
-    if (membersToAdd.length === 0) return;
+  const toggleMember = (item: ContactModel) => {
+    setMembersToAdd((prev) =>
+      // Đã có trong danh sách → bỏ chọn; chưa có → thêm vào
+      prev.some((m) => m.id === item.id) ? prev.filter((m) => m.id !== item.id) : [...prev, item],
+    );
+  };
 
+  const removeMemberToAdd = (id: string) =>
+    setMembersToAdd((prev) => prev.filter((m) => m.id !== id));
+
+  const createGroupChatCTA = async () => {
+    // Chưa chọn ai → không tạo group
+    if (membersToAdd.length === 0) return;
     setProcessing(true);
 
-    const url =
-      file !== undefined
-        ? (await uploadFile(new Array(file)))[0].mediaUrl
-        : null;
+    // Có chọn ảnh → upload lên server; không có → null (group không có avatar)
+    const url = file ? (await uploadFile([file]))[0].mediaUrl : null;
+    const tempId = Math.random().toString(36).substring(2, 7);
 
-    const randomId = Math.random().toString(36).substring(2, 7);
-    tempAddConversation(randomId);
+    queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
+      const newConv: ConversationModel = {
+        id: tempId,
+        title: refInputTitle.current?.value ?? "",
+        avatar,
+        isGroup: true,
+        isNotifying: true,
+        lastMessageTime: null,
+        members: [
+          { isModerator: true, contact: { id: info?.id, name: info?.name, avatar: info?.avatar, isOnline: true } },
+          ...membersToAdd.map((m) => ({ contact: { id: m.id, name: m.name, avatar: m.avatar, isOnline: m.isOnline } } as ConversationModel_Member)),
+        ],
+      };
+      return {
+        ...old,
+        conversations: [{ ...newConv, noLazy: true }, ...(old.conversations ?? [])],
+        filterConversations: [{ ...newConv, noLazy: true }, ...(old.conversations ?? [])],
+        selected: newConv,
+        noLoading: true,
+        reload: false,
+      } as ConversationCache;
+    });
 
     const request: CreateGroupChatRequest = {
       title: refInputTitle.current?.value ?? "",
@@ -80,94 +97,22 @@ const CreateGroupChatModal = (props: OnCloseType) => {
       members: membersToAdd.map((m) => m.id ?? ""),
     };
     createGroupChat(request).then((res) => {
-      updateAddedConversation(randomId, res?.data ?? "");
+      queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
+        const updated = (old.conversations ?? []).map((c) =>
+          // Giữ nguyên các conv khác; thay tempId bằng real id từ server
+          c.id !== tempId ? c : { ...c, id: res?.data ?? "" },
+        );
+        return { ...old, conversations: updated, filterConversations: updated } as ConversationCache;
+      });
     });
 
     onClose?.();
   };
 
-  const tempAddConversation = (tempId: string) => {
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const newConversation: ConversationModel = {
-        id: tempId,
-        title: refInputTitle.current?.value ?? "",
-        avatar: avatar,
-        isGroup: true,
-        isNotifying: true,
-        lastMessageTime: null,
-        members: [
-          {
-            isModerator: true,
-            contact: {
-              id: info?.id,
-              name: info?.name,
-              avatar: info?.avatar,
-              isOnline: true,
-            },
-          },
-          ...membersToAdd.map((mem) => {
-            return {
-              contact: {
-                id: mem.id,
-                name: mem.name,
-                avatar: mem.avatar,
-                isOnline: mem.isOnline,
-              },
-            } as ConversationModel_Member;
-          }),
-        ],
-      };
-      return {
-        ...oldData,
-        conversations: [
-          {
-            ...newConversation,
-            noLazy: true,
-          },
-          ...(oldData.conversations ?? []),
-        ],
-        filterConversations: [
-          {
-            ...newConversation,
-            noLazy: true,
-          },
-          ...(oldData.conversations ?? []),
-        ],
-        selected: newConversation,
-        noLoading: true,
-        reload: false,
-      } as ConversationCache;
-    });
-  };
-
-  const updateAddedConversation = (tempId: string, addedId: string) => {
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations: ConversationModel[] =
-        (oldData.conversations ?? []).map((conversation) => {
-          if (conversation.id !== tempId) return conversation;
-          conversation.id = addedId;
-          return conversation;
-        });
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-        filterConversations: updatedConversations,
-      } as ConversationCache;
-    });
-  };
-
-  const removeMemberToAdd = (id: string) => {
-    setMembersToAdd((members) => {
-      return members.filter((mem) => mem.id !== id);
-    });
-  };
-
   return (
     <>
       <div className="relative flex shrink-0 items-end gap-10">
-        <ImageWithLightBoxAndNoLazy
-          className="aspect-square h-20 cursor-pointer"
-        />
+        <ImageWithLightBoxAndNoLazy className="aspect-square h-20 cursor-pointer" />
         <MediaPicker
           className="absolute -top-4 left-20"
           accept="image/png, image/jpeg"
@@ -187,91 +132,35 @@ const CreateGroupChatModal = (props: OnCloseType) => {
           placeholder="Search for name"
           inputRef={refInputSearch}
           onChange={(e) => {
-            if (e.target.value === "")
-              setMembersToSearch(
-                (data ?? [])
-                  .filter((fr) => fr.status === "friend")
-                  .map((item) => item.contact),
-              );
-            else
-              setMembersToSearch((current) => {
-                const found = current.filter((item) =>
-                  (item.name ?? "")
-                    .toLowerCase()
-                    .includes(e.target.value.toLowerCase()),
-                );
-                return found;
-              });
+            const q = e.target.value.toLowerCase();
+            setMembersToSearch(
+              // Xóa hết search → reset về toàn bộ bạn bè (chỉ status "friend")
+              q === ""
+                ? (data ?? []).filter((fr) => fr.status === "friend").map((item) => item.contact)
+                : membersToSearch.filter((item) => (item.name ?? "").toLowerCase().includes(q)),
+            );
           }}
         />
+        {/* Phone → stack dọc (list trên, selected bên dưới); màn lớn → side-by-side */}
         <div
           className={`border-(--border-color) relative flex grow gap-8 border-b-[.1rem]
-              ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
+            ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
         >
-          {isLoading || isRefetching ? (
-            <ListFriendLoading />
-          ) : (
-            <>
-              <div className="list-friend-container hide-scrollbar flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
-                {membersToSearch?.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-2 rounded-lg p-[.7rem]`}
-                    onClick={() => {
-                      setMembersToAdd((members) => {
-                        return members.map((mem) => mem.id).includes(item.id)
-                          ? members.filter((mem) => mem.id !== item.id)
-                          : [...members, item];
-                      });
-                    }}
-                  >
-                    <CheckCircleOutlined
-                      className={`base-icon
-                        ${
-                          membersToAdd.some((mem) => mem.id === item.id)
-                            ? "text-light-blue-500!"
-                            : ""
-                        }
-                        `}
-                    />
-                    <ImageWithLightBoxAndNoLazy
-                      src={item.avatar ?? undefined}
-                      className="aspect-square w-10 cursor-pointer"
-                      circle
-                      slides={[
-                        {
-                          src: item.avatar ?? "",
-                        },
-                      ]}
-                      onClick={() => {}}
-                    />
-                    <CustomLabel title={item.name} className="contents" />
-                  </div>
-                ))}
-              </div>
-              {isPhoneScreen() ? (
-                <MemberToAdd_Phone
-                  membersToAdd={membersToAdd}
-                  total={data?.length ?? 0}
-                  removeMemberToAdd={removeMemberToAdd}
-                />
-              ) : (
-                <MemberToAdd_LargeScreen
-                  membersToAdd={membersToAdd}
-                  total={data?.length ?? 0}
-                  removeMemberToAdd={removeMemberToAdd}
-                />
-              )}
-            </>
-          )}
+          <FriendPickerList
+            isLoading={isLoading || isRefetching}
+            membersToSearch={membersToSearch}
+            membersToAdd={membersToAdd}
+            total={data?.length ?? 0}
+            onToggleMember={toggleMember}
+            removeMemberToAdd={removeMemberToAdd}
+          />
         </div>
       </div>
-
       <CustomButton
         className="text-2xs mr-0"
         width={4}
-        gradientWidth={`${isPhoneScreen() ? "115%" : "110%"}`}
-        gradientHeight={`${isPhoneScreen() ? "130%" : "120%"}`}
+        gradientWidth={isPhoneScreen() ? "115%" : "110%"}
+        gradientHeight={isPhoneScreen() ? "130%" : "120%"}
         rounded="3rem"
         title="Save"
         onClick={createGroupChatCTA}

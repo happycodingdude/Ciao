@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-// Helper function to detect if a value is JSON
+// Kiểm tra chuỗi có phải JSON hợp lệ không (để xử lý cả string thuần và object serialized)
 const isJSON = (value: string | null) => {
   if (!value) return false;
   try {
@@ -18,8 +18,10 @@ const useLocalStorage = <T>(
   const [value, setValue] = useState<T>(() => {
     const storedValue = localStorage.getItem(key);
 
-    if (storedValue === null) return initialValue as T; // No stored value, use initial
+    // Chưa có giá trị trong storage → dùng initialValue
+    if (storedValue === null) return initialValue as T;
 
+    // JSON (object/array/boolean/number) → parse; string thuần → dùng thẳng
     return isJSON(storedValue)
       ? (JSON.parse(storedValue) as T)
       : (storedValue as T);
@@ -27,8 +29,10 @@ const useLocalStorage = <T>(
 
   useEffect(() => {
     if (value === undefined || value === null) {
+      // Xóa key khi value bị set về null/undefined (tương đương reset)
       localStorage.removeItem(key);
     } else {
+      // String thuần không cần stringify để tránh thêm dấu nháy kép thừa
       const valueToStore =
         typeof value === "string" ? value : JSON.stringify(value);
       localStorage.setItem(key, valueToStore);
@@ -37,73 +41,5 @@ const useLocalStorage = <T>(
 
   return [value, setValue];
 };
-
-// const useLocalStorage = <T>(
-//   key: string,
-//   initialValue?: T,
-// ): [T, (value: T) => void] => {
-//   const getStoredValue = (): T => {
-//     if (typeof window === "undefined") return initialValue as T;
-
-//     const storedValue = localStorage.getItem(key);
-//     if (storedValue === null) return initialValue as T;
-
-//     try {
-//       return JSON.parse(storedValue) as T;
-//     } catch {
-//       return storedValue as unknown as T;
-//     }
-//   };
-
-//   const [value, setValue] = useState<T>(getStoredValue);
-
-//   const setStoredValue = (val: T) => {
-//     try {
-//       setValue(val);
-
-//       if (val === undefined || val === null) {
-//         localStorage.removeItem(key);
-//       } else {
-//         localStorage.setItem(key, JSON.stringify(val));
-//       }
-
-//       // Notify others in this tab
-//       window.dispatchEvent(
-//         new CustomEvent("localstorage-changed", { detail: { key } }),
-//       );
-//     } catch (error) {
-//       console.warn(`Error setting localStorage key “${key}”:`, error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     const handleStorage = (event: StorageEvent | CustomEvent) => {
-//       const changedKey =
-//         event instanceof StorageEvent
-//           ? event.key
-//           : (event as CustomEvent).detail.key;
-
-//       if (changedKey === key) {
-//         setValue(getStoredValue());
-//       }
-//     };
-
-//     window.addEventListener("storage", handleStorage);
-//     window.addEventListener(
-//       "localstorage-changed",
-//       handleStorage as EventListener,
-//     );
-
-//     return () => {
-//       window.removeEventListener("storage", handleStorage);
-//       window.removeEventListener(
-//         "localstorage-changed",
-//         handleStorage as EventListener,
-//       );
-//     };
-//   }, [key]);
-
-//   return [value, setStoredValue];
-// };
 
 export default useLocalStorage;

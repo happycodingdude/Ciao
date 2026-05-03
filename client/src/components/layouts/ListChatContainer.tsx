@@ -1,6 +1,4 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import dayjs from "dayjs";
 import { debounce } from "lodash-es";
 import { useCallback, useMemo, useRef } from "react";
 import { useActiveConversation } from "../../hooks/useActiveConversation";
@@ -10,18 +8,13 @@ import useInfo from "../../hooks/useInfo";
 import { getConversations } from "../../services/conv.service";
 import "../../styles/listchat.css";
 import { ConversationCache } from "../../types/conv.types";
-import { renderMessageWithMentions } from "../../utils/renderMention";
-import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import ConversationItem from "../conversation/ConversationItem";
 import ListchatLoading from "../common/ListchatLoading";
 
 const ListChatContainer = () => {
   const queryClient = useQueryClient();
-
   const activeConversationId = useActiveConversation();
-
   const { data: info } = useInfo();
-
   const { data: conversations, isLoading, isRefetching } = useConversation(1);
 
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -30,46 +23,37 @@ const ListChatContainer = () => {
   const isFetching = useRef(false);
   const refHasMore = useRef<boolean>(true);
 
+  // Khóa scroll khi đang append conversations để tránh nhảy vị trí
   const lockScroll = (el: HTMLElement) => {
     const lockedTop = el.scrollTop;
-
-    const preventScroll = (e: Event) => {
-      e.preventDefault();
-      el.scrollTop = lockedTop;
-    };
-
-    el.addEventListener("wheel", preventScroll, { passive: false });
-    el.addEventListener("touchmove", preventScroll, { passive: false });
-
+    const prevent = (e: Event) => { e.preventDefault(); el.scrollTop = lockedTop; };
+    el.addEventListener("wheel", prevent, { passive: false });
+    el.addEventListener("touchmove", prevent, { passive: false });
     return () => {
-      el.removeEventListener("wheel", preventScroll);
-      el.removeEventListener("touchmove", preventScroll);
+      el.removeEventListener("wheel", prevent);
+      el.removeEventListener("touchmove", prevent);
     };
   };
 
-  const fetchMoreConversations = async () => {
+  const fetchMoreConversations = useCallback(async () => {
     const el = refListConversation.current;
     if (!el) return;
-
-    const unlockScroll = lockScroll(el);
+    const unlock = lockScroll(el);
     const newConversations = await getConversations(refPage.current);
-
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => ({
-      ...oldData,
-      conversations: [
-        ...(oldData.conversations ?? []),
-        ...(newConversations.conversations ?? []),
-      ],
+    queryClient.setQueryData(["conversation"], (old: ConversationCache) => ({
+      ...old,
+      // Append xuống cuối list (conversations cũ hơn)
+      conversations: [...(old.conversations ?? []), ...(newConversations.conversations ?? [])],
       filterConversations: [
-        ...(oldData.filterConversations ?? []),
+        ...(old.filterConversations ?? []),
         ...(newConversations.filterConversations ?? []),
       ],
     }));
-
+    // Nếu server trả về 0 conversations → đã hết, không fetch thêm
     refHasMore.current = (newConversations.conversations?.length ?? 0) > 0;
     isFetching.current = false;
-    requestAnimationFrame(() => unlockScroll());
-  };
+    requestAnimationFrame(() => unlock());
+  }, [queryClient]);
 
   const debounceFetch = useMemo(
     () => debounce(fetchMoreConversations, 100),
@@ -80,9 +64,8 @@ const ListChatContainer = () => {
     const el = refListConversation.current;
     if (!el || isFetching.current || !conversations) return;
 
-    const distanceFromBottom =
-      el.scrollHeight - (el.scrollTop + el.clientHeight);
-
+    const distanceFromBottom = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    // Khi cách đáy ≤ 50px và còn data → load trang tiếp
     if (distanceFromBottom <= 50 && refHasMore.current) {
       isFetching.current = true;
       refPage.current += 1;
@@ -92,19 +75,16 @@ const ListChatContainer = () => {
 
   useEventListener("scroll", handleScroll, refListConversation.current);
 
+  // Hiển thị skeleton trong khi load lần đầu hoặc refetch
   if (isLoading || isRefetching) return <ListchatLoading />;
 
   const scrollToConversation = (id: string) => {
     const container = refListConversation.current;
     const item = itemRefs.current[id];
-
     if (!container || !item) return;
-
-    const target =
-      item.offsetTop - container.clientHeight / 2 + item.clientHeight / 2;
-
+    // Căn giữa item được chọn trong viewport của list
     container.scrollTo({
-      top: target,
+      top: item.offsetTop - container.clientHeight / 2 + item.clientHeight / 2,
       behavior: "smooth",
     });
   };
@@ -115,88 +95,20 @@ const ListChatContainer = () => {
       className="relative flex min-h-0 flex-1 flex-col gap-6 overflow-y-scroll scroll-smooth p-2"
     >
       {(conversations?.filterConversations ?? [])
+        // Chỉ hiển thị conversation mà user chưa rời/xóa (isDeleted = false)
         .filter((conv) =>
-          (conv.members ?? []).some(
-            (mem) => mem.contact?.id === info?.id && !mem.isDeleted,
-          ),
+          (conv.members ?? []).some((m) => m.contact?.id === info?.id && !m.isDeleted),
         )
-        .map((item) => {
-          const isActive = item.id === activeConversationId;
-
-          return (
-            <Link key={item.id} to="/conversations/$conversationId" params={{ conversationId: item.id ?? "" }}>
-              <div
-                ref={(el) => { if (item.id) itemRefs.current[item.id] = el; }}
-                onClick={() => { if (item.id) scrollToConversation(item.id); }}
-                className={`chat-item cursor-pointer rounded-2xl px-4 py-2 ${isActive ? "active" : ""}`}
-              >
-                <div className="laptop-lg:h-12 laptop:h-12 flex items-center justify-between">
-                  <div className="relative">
-                    <ImageWithLightBoxAndNoLazy
-                      src={
-                        item.isGroup
-                          ? item.avatar
-                          : (item.members ?? []).find(
-                              (m) => m.contact?.id !== info?.id,
-                            )?.contact?.avatar
-                      }
-                      className="pointer-events-none aspect-square w-10 animate-morph"
-                      circle
-                    />
-                    <div
-                      className={`absolute -bottom-1 -right-1 aspect-square w-4 rounded-full border-2 border-white
-                        ${(item.members ?? []).some((mem) => mem.contact?.isOnline && mem.contact?.id !== info?.id) ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
-                    ></div>
-                  </div>
-                  <div className="flex w-[60%] flex-col">
-                    <CustomLabel
-                      className="font-medium"
-                      title={
-                        item.isGroup
-                          ? item.title
-                          : (item.members ?? []).find(
-                              (m) => m.contact?.id !== info?.id,
-                            )?.contact?.name
-                      }
-                    />
-                    {item.lastMessage ? (
-                      <div className="flex text-gray-600">
-                        {item.hasAttachment && (
-                          <span className="laptop:text-2xs mr-1 self-center text-gray-500 grayscale">
-                            🖼️
-                          </span>
-                        )}
-                        <p
-                          className={`${
-                            isActive
-                              ? "text-(--text-sub-color-thin)"
-                              : item.unSeen
-                                ? "text-(--danger-text-color)"
-                                : "text-(--text-main-color-blur)"
-                          } w-full overflow-hidden text-ellipsis whitespace-nowrap`}
-                        >
-                          {renderMessageWithMentions(item.lastMessage)}
-                        </p>
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                  <div
-                    className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center self-start rounded-full
-                        ${item.lastMessageTime === null ? "" : "bg-gray-100"} text-gray-500`}
-                  >
-                    <p>
-                      {item.lastMessageTime === null
-                        ? ""
-                        : dayjs(item.lastMessageTime).fromNow()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+        .map((item) => (
+          <ConversationItem
+            key={item.id}
+            item={item}
+            selfId={info?.id}
+            isActive={item.id === activeConversationId}
+            itemRef={(el) => { if (item.id) itemRefs.current[item.id] = el; }}
+            onClick={() => { if (item.id) scrollToConversation(item.id); }}
+          />
+        ))}
     </div>
   );
 };

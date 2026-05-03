@@ -1,7 +1,6 @@
 .conversation-action-container {
   display: flex;
   gap: 0.5rem;
-  /* background-color: red; */
   width: 100%;
   justify-content: space-evenly;
 }
@@ -9,13 +8,13 @@
 .conversation-action {
   width: 3rem;
   aspect-ratio: 1 / 1;
-  background-color: #f3f4f6;
+  background-color: var(--bg-color-thin);
   border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   &:hover {
-    background-color: #e5e7eb;
+    background-color: var(--bg-color-light);
   }
 }

@@ -1,4 +1,3 @@
-import { CheckCircleOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
@@ -15,31 +14,18 @@ import blurImage from "../../utils/blurImage";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
-import CustomLabel from "../common/CustomLabel";
-import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
-import ListFriendLoading from "../common/ListFriendLoading";
-import MemberToAdd_LargeScreen from "./MemberToAdd_LargeScreen";
-import MemberToAdd_Phone from "./MemberToAdd_Phone";
+import FriendPickerList from "./FriendPickerList";
 
-const AddMembersModal = (props: OnCloseType) => {
-  const { onClose } = props;
-
+const AddMembersModal = ({ onClose }: OnCloseType) => {
   const queryClient = useQueryClient();
-
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
-
   const { conversationId } = Route.useParams();
-  const conversation = conversations?.conversations?.find(
-    (c) => c.id === conversationId,
-  );
+  const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
 
-  const refInput = useRef<HTMLInputElement & { reset?: () => void }>();
-
-  const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>(
-    data?.map((item) => item.contact) ?? [],
-  );
+  const refInput = useRef<HTMLInputElement & { reset?: () => void }>(undefined);
+  const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>([]);
   const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
 
   useEffect(() => {
@@ -49,62 +35,54 @@ const AddMembersModal = (props: OnCloseType) => {
     blurImage(".list-friend-container");
   }, [data]);
 
-  const addMembersCTA = () => {
-    if (membersToAdd.length === 0) return;
-    if (onClose) onClose();
+  const existingMemberIds = (conversation?.members ?? []).map((m) => m.contact?.id ?? "");
 
-    queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
-      const updatedConversations = (oldData.conversations ?? []).map((conv) => {
+  const toggleMember = (item: ContactModel) => {
+    setMembersToAdd((prev) =>
+      // Đã có trong danh sách → bỏ chọn; chưa có → thêm vào
+      prev.some((m) => m.id === item.id)
+        ? prev.filter((m) => m.id !== item.id)
+        : [...prev, { id: item.id, name: item.name, avatar: item.avatar }],
+    );
+  };
+
+  const removeMemberToAdd = (id: string) =>
+    setMembersToAdd((prev) => prev.filter((m) => m.id !== id));
+
+  const addMembersCTA = () => {
+    // Không làm gì nếu chưa chọn ai
+    if (membersToAdd.length === 0) return;
+    onClose?.();
+
+    queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
+      const updated = (old.conversations ?? []).map((conv) => {
         if (conv.id !== conversationId) return conv;
         return {
           ...conv,
           members: [
             ...(conv.members ?? []),
-            ...membersToAdd.map((mem) => ({
-              contact: {
-                id: mem.id,
-                name: mem.name,
-                avatar: mem.avatar,
-              },
-            })),
+            ...membersToAdd.map((m) => ({ contact: { id: m.id, name: m.name, avatar: m.avatar } })),
           ],
         };
       });
-      return {
-        ...oldData,
-        conversations: updatedConversations,
-      } as ConversationCache;
+      return { ...old, conversations: updated } as ConversationCache;
     });
 
-    queryClient.setQueryData(
-      ["message", conversationId],
-      (oldData: MessageCache) => {
-        return {
-          ...oldData,
-          messages: [
-            ...(oldData.messages || []),
-            {
-              type: "system",
-              content: `${info?.name} added new members: ${membersToAdd.map((mem) => mem.name).join(", ")}`,
-              contactId: "system",
-              createdTime: dayjs().format(),
-            } as PendingMessageModel,
-          ],
-        } as MessageCache;
-      },
-    );
+    queryClient.setQueryData(["message", conversationId], (old: MessageCache) => ({
+      ...old,
+      messages: [
+        ...(old.messages ?? []),
+        {
+          type: "system",
+          content: `${info?.name} added new members: ${membersToAdd.map((m) => m.name).join(", ")}`,
+          contactId: "system",
+          createdTime: dayjs().format(),
+        } as PendingMessageModel,
+      ],
+    }));
 
-    addMembers(
-      conversation?.id ?? "",
-      membersToAdd.map((mem) => mem.id ?? ""),
-    );
+    addMembers(conversation?.id ?? "", membersToAdd.map((m) => m.id ?? ""));
   };
-
-  const removeMemberToAdd = (id: string) => {
-    setMembersToAdd((members) => members.filter((mem) => mem.id !== id));
-  };
-
-  const conversationMembers = conversation?.members ?? [];
 
   return (
     <>
@@ -113,104 +91,34 @@ const AddMembersModal = (props: OnCloseType) => {
         placeholder="Search for name"
         inputRef={refInput}
         onChange={(e) => {
-          if (e.target.value === "")
-            setMembersToSearch(data?.map((item) => item.contact) ?? []);
-          else
-            setMembersToSearch((current) => {
-              return current.filter((item) =>
-                (item.name ?? "").toLowerCase().includes(e.target.value.toLowerCase()),
-              );
-            });
+          const q = e.target.value.toLowerCase();
+          setMembersToSearch(
+            // Xóa hết search → reset về toàn bộ danh sách bạn bè
+            q === ""
+              ? data?.map((item) => item.contact) ?? []
+              : membersToSearch.filter((item) => (item.name ?? "").toLowerCase().includes(q)),
+          );
         }}
       />
       <div
         className={`border-(--border-color) relative flex grow gap-8 border-b-[.1rem]
-      ${isPhoneScreen() ? "flex-col" : "flex-row"} `}
+          ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
       >
-        {isLoading || isRefetching ? (
-          <ListFriendLoading />
-        ) : (
-          <>
-            <div className="list-friend-container hide-scrollbar flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
-              {membersToSearch?.map((item) => (
-                <div
-                  key={item.id}
-                  className={`information-members flex w-full items-center gap-2 rounded-lg p-[.7rem]
-                  ${
-                    conversationMembers.some(
-                      (mem) => mem.contact?.id === item.id,
-                    )
-                      ? "pointer-events-none"
-                      : "hover:bg-(--bg-color-extrathin) cursor-pointer"
-                  } `}
-                  onClick={() => {
-                    setMembersToAdd((members) => {
-                      return members.map((mem) => mem.id).includes(item.id)
-                        ? members.filter((mem) => mem.id !== item.id)
-                        : [
-                            ...members,
-                            {
-                              id: item.id,
-                              name: item.name,
-                              avatar: item.avatar,
-                            },
-                          ];
-                    });
-                  }}
-                >
-                  <CheckCircleOutlined
-                    className={`base-icon
-                      ${
-                        conversationMembers.some(
-                          (mem) => mem.contact?.id === item.id,
-                        ) || membersToAdd.some((mem) => mem.id === item.id)
-                          ? "text-light-blue-500!"
-                          : ""
-                      }
-                    `}
-                  />
-                  <ImageWithLightBoxAndNoLazy
-                    src={item.avatar}
-                    className="aspect-square w-10 cursor-pointer"
-                    circle
-                    slides={[{ src: item.avatar ?? "" }]}
-                    onClick={() => {}}
-                    local
-                  />
-                  <div>
-                    <CustomLabel title={item.name} />
-                    {conversationMembers.some(
-                      (mem) => mem.contact?.id === item.id,
-                    ) ? (
-                      <p className="text-(--text-main-color-blur)">Joined</p>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {isPhoneScreen() ? (
-              <MemberToAdd_Phone
-                membersToAdd={membersToAdd}
-                total={data?.length ?? 0}
-                removeMemberToAdd={removeMemberToAdd}
-              />
-            ) : (
-              <MemberToAdd_LargeScreen
-                membersToAdd={membersToAdd}
-                total={data?.length ?? 0}
-                removeMemberToAdd={removeMemberToAdd}
-              />
-            )}
-          </>
-        )}
+        <FriendPickerList
+          isLoading={isLoading || isRefetching}
+          membersToSearch={membersToSearch}
+          membersToAdd={membersToAdd}
+          existingMemberIds={existingMemberIds}
+          total={data?.length ?? 0}
+          onToggleMember={toggleMember}
+          removeMemberToAdd={removeMemberToAdd}
+        />
       </div>
       <CustomButton
         className="text-2xs mr-0"
         width={4}
-        gradientWidth={`${isPhoneScreen() ? "115%" : "110%"}`}
-        gradientHeight={`${isPhoneScreen() ? "130%" : "120%"}`}
+        gradientWidth={isPhoneScreen() ? "115%" : "110%"}
+        gradientHeight={isPhoneScreen() ? "130%" : "120%"}
         rounded="3rem"
         title="Save"
         onClick={addMembersCTA}

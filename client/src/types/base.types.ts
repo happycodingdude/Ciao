@@ -1,163 +1,30 @@
-import {
-  ChangeEventHandler,
-  Dispatch,
-  HTMLAttributes,
-  KeyboardEventHandler,
-  MutableRefObject,
-  ReactNode,
-  SetStateAction,
-} from "react";
-import { ContactModel } from "./friend.types";
-// import { NotifyMessageModel } from "./features/notification/services/notifyMessage";
+import { Dispatch, SetStateAction } from "react";
 
-export type CustomInputProps = {
-  type?: string;
-  label?: string;
-  inputRef?: MutableRefObject<(HTMLInputElement & { reset?: () => void }) | undefined>;
-  className?: string;
-  placeholder?: string;
-  tabIndex?: number;
-  onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-};
+// Re-export component prop types so existing imports continue to work
+export type {
+  ChatInputProps,
+  CustomButtonProps,
+  CustomContentEditableProps,
+  CustomInputProps,
+  CustomLabelProps,
+  FriendCtaButtonProps,
+  FriendItemProps,
+  ImageWithLightboxProps,
+  ListFriendProps,
+  MediaPickerProps,
+  MessageReactionProps,
+  MessageReactionProps_Message,
+  MessageReactionProps_Message_Reaction,
+  OnCloseType,
+  OnlineStatusDotProps,
+  BackgroundPortalProps,
+  PortalHeaderProps,
+  ReactionModel,
+  RelightBackgroundProps,
+  SideBarProps,
+} from "./component.types";
 
-export type SideBarProps = {
-  page?: string;
-  setPage?: Dispatch<SetStateAction<string>>;
-};
-
-export type RelightBackgroundProps = {
-  children?: ReactNode;
-  lighten?: boolean;
-  className?: string;
-  onClick?: () => void;
-  paddingClassName?: string;
-} & HTMLAttributes<HTMLDivElement>;
-
-export type ImageWithLightboxProps = {
-  src?: string;
-  title?: string;
-  className?: string;
-  imageClassName?: string;
-  roundedClassName?: string;
-  slides?: { src: string }[]; // Assuming slides contain image URLs
-  index?: number;
-  circle?: boolean;
-  pending?: boolean;
-  onClick?: () => void;
-  local?: boolean;
-};
-
-export type MediaPickerProps = {
-  className?: string;
-  multiple?: boolean;
-  accept?: string;
-  id?: string;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-};
-
-export type CustomButtonProps = {
-  title?: string;
-  className?: string;
-  gradientWidth?: string | number;
-  gradientHeight?: string | number;
-  rounded?: string;
-  onClick?: () => void;
-  processing?: boolean;
-  width?: string | number;
-  height?: string | number;
-  top?: string | number;
-  sm?: boolean;
-};
-
-export type OnCloseType = {
-  onClose?: (id?: string) => void;
-};
-
-export type BackgroundPortalProps = OnCloseType & {
-  children?: ReactNode;
-  show?: boolean;
-  title?: string;
-  className?: string;
-  noHeader?: boolean;
-};
-
-export type PortalHeaderProps = OnCloseType & {
-  title?: string;
-};
-
-export type ListFriendProps = OnCloseType & {};
-
-export type FriendItemProps = OnCloseType & {
-  friend?: ContactModel; // Define this type based on your data
-  // addFriend?: (id: string) => void;
-  // acceptFriend?: () => void;
-  // cancelFriend?: () => void;
-  friendAction?: (
-    id?: string | null,
-    status?: "friend" | "request_sent" | "request_received" | "new" | null,
-    userId?: string | null,
-  ) => void;
-};
-
-export type FriendCtaButtonProps = OnCloseType & {
-  id?: string;
-};
-
-export type ChatInputProps = {
-  className?: string;
-  quickChat?: boolean;
-  noMenu?: boolean;
-  noEmoji?: boolean;
-  inputRef?: MutableRefObject<HTMLInputElement>;
-};
-
-export type CustomContentEditableProps = {
-  onKeyDown?: KeyboardEventHandler<HTMLElement>;
-  onKeyUp?: KeyboardEventHandler<HTMLElement>;
-  className?: string;
-  isEmpty?: boolean;
-  quickChat?: boolean;
-};
-
-export type OnlineStatusDotProps = {
-  online?: boolean;
-  className?: string;
-};
-
-export type CustomLabelProps = {
-  title?: string;
-  className?: string;
-  tooltip?: boolean;
-};
-
-export type ReactionModel = {
-  contactId: string;
-  type: string;
-};
-
-export type MessageReactionProps_Message_Reaction = {
-  likeCount: number;
-  loveCount: number;
-  careCount: number;
-  wowCount: number;
-  sadCount: number;
-  angryCount: number;
-  total: number;
-  currentReaction: string | null;
-};
-
-export type MessageReactionProps_Message = {
-  mine: boolean;
-  reaction: MessageReactionProps_Message_Reaction;
-  topReactions: string[];
-};
-
-export type MessageReactionProps = {
-  message: MessageReactionProps_Message;
-  react: (type: string) => void;
-  pending: boolean;
-};
+// ─── Context & UI state types ─────────────────────────────────────────────────
 
 export type AuthenticationFormType = "signin" | "signup" | "forgot";
 
@@ -191,14 +58,15 @@ export type EventListenerHook<T extends HTMLElement | Window> = (
   element?: T | null,
 ) => void;
 
+// ─── HTTP & Auth types ────────────────────────────────────────────────────────
+
 export type HttpRequest<TReq = undefined, TRes = undefined> = {
-  method?: "get" | "post" | "put" | "delete" | "patch"; // Restrict to valid HTTP methods
-  url: string; // URL should be required
-  headers?: Record<string, string>; // Fix typo (should be 'headers', not 'header')
-  data?: TReq | undefined; // Optional request body of type TReq
-  alert?: boolean; // Optional flag
-  // controller?: AbortController; // Optional for request cancellation
-  response?: TRes; // Expected response type
+  method?: "get" | "post" | "put" | "delete" | "patch";
+  url: string;
+  headers?: Record<string, string>;
+  data?: TReq | undefined;
+  alert?: boolean;
+  response?: TRes;
   timeout?: number;
 };
 
@@ -225,9 +93,6 @@ export type RefreshRequest = {
 export type RequestPermission = {
   registerConnection: (token: string) => void;
   onNotification?: (notificationData: NotificationData) => void;
-  // notifyMessage: (model: NotifyMessageModel) => void;
-  // queryClient: QueryClient;
-  // info: UserProfile;
 };
 
 export type NotificationData = {
@@ -235,10 +100,12 @@ export type NotificationData = {
   data: Record<string, any>;
 };
 
+// ─── Domain types ─────────────────────────────────────────────────────────────
+
 export type BaseModel = {
   id?: string;
-  createdTime?: string; // ISO 8601 date string
-  updatedTime?: string; // ISO 8601 date string
+  createdTime?: string;
+  updatedTime?: string;
 };
 
 export type UserProfile = BaseModel & {
@@ -246,7 +113,7 @@ export type UserProfile = BaseModel & {
   avatar: string;
   bio: string;
   isOnline: boolean;
-  lastLogout: string; // ISO 8601 date string
+  lastLogout: string;
 };
 
 export type UpdateProfileRequest = {

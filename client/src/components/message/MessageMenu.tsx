@@ -29,6 +29,7 @@ const MessageMenu = (props: MessageMenuProps) => {
 
   const refMenu = useRef<HTMLDivElement>(null);
 
+  // Đóng menu khi click ra ngoài, nhưng giữ nguyên nếu click vào menu item (để cho item xử lý trước)
   const hideMenuOnClick = useCallback((e: Event) => {
     const target = e.target as HTMLElement;
     if (
@@ -41,6 +42,7 @@ const MessageMenu = (props: MessageMenuProps) => {
   useEventListener("click", hideMenuOnClick);
 
   const copyMessage = () => {
+    // Không làm gì nếu message rỗng
     if (!message) return;
     navigator.clipboard
       .writeText(message as string)
@@ -51,6 +53,7 @@ const MessageMenu = (props: MessageMenuProps) => {
   const replyMessage = () => {
     setReply({
       replyId: id,
+      // Tin của mình → dùng id/tên của mình; tin người khác → dùng id/tên của contact
       replyContact: mine ? info?.id : (contact as any)?.id,
       replyContactName: mine ? info?.name : (contact as any)?.name,
       replyContent: (message as string) || "",
@@ -61,14 +64,18 @@ const MessageMenu = (props: MessageMenuProps) => {
     (e: React.MouseEvent) => {
       const menu = refMenu.current;
       if (!menu) return;
+
       const containerRect = getContainerRect?.() ?? new DOMRect();
+      // Nếu click ở nửa dưới container → mở menu lên trên (tránh bị khuất); ngược lại mở xuống dưới
       const direction =
         e.clientY > containerRect.top + containerRect.height / 2
           ? "above"
           : "below";
+
       setShow((prev) => !prev);
       menu.classList.remove("above", "below");
       menu.classList.add(direction);
+      // Transform origin điều chỉnh theo hướng mở và căn lề (tin mình = phải, người khác = trái)
       menu.style.transformOrigin = `${mine ? "100%" : "0%"} ${direction === "above" ? "60%" : "40%"}`;
     },
     [getContainerRect, mine],
@@ -76,6 +83,7 @@ const MessageMenu = (props: MessageMenuProps) => {
 
   return (
     <>
+      {/* Nút "..." nằm bên trái tin của mình, bên phải tin người khác */}
       <EllipsisOutlined
         className={`absolute ${mine ? "-left-8" : "-right-8"} top-1 text-base`}
         onClick={toggleMenu}
@@ -89,6 +97,7 @@ const MessageMenu = (props: MessageMenuProps) => {
           <CopyOutlined /> Copy message
         </MessageMenuItem>
         <MessageMenuItem
+          // Vô hiệu hoá trong khi đang xử lý pin/unpin để tránh double-click
           className={pinning ? "pointer-events-none" : ""}
           onClick={() => pin(id ?? "", pinned ?? false)}
           closeOnClick={false}
@@ -97,10 +106,12 @@ const MessageMenu = (props: MessageMenuProps) => {
             <SyncOutlined spin />
           ) : (
             <PushpinOutlined
+              // Icon màu cam khi đang pinned để user nhận ra trạng thái hiện tại
               className={pinned ? "text-orange-500" : ""}
               rotate={316}
             />
           )}
+          {/* Label thay đổi theo trạng thái pin hiện tại */}
           {pinned ? " Unpin" : " Pin"} message
         </MessageMenuItem>
         <MessageMenuItem
