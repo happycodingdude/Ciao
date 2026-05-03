@@ -49,7 +49,7 @@ public static class CreateDirectConversation
 
             await _kafkaProducer.ProduceAsync(Topic.NewDirectConversation, new NewDirectConversationModel
             {
-                UserId = _contactRepository.GetUserId(),
+                UserId = userId,
                 ContactId = request.contactId,
                 IsNewConversation = isNewConversation,
                 Conversation = _mapper.Map<NewGroupConversationModel_Conversation>(conversation),

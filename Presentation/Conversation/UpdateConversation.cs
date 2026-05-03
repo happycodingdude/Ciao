@@ -9,13 +9,10 @@ public static class UpdateConversation
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, IConversationRepository conversationRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
-            }
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
             RuleFor(c => c.id).ContactRelatedToConversation(_contactRepository, _conversationRepository).DependentRules(() =>
             {
                 RuleFor(c => c.model.Title).NotEmpty().When(q => q.model.IsGroup).WithMessage("Title should not be empty");

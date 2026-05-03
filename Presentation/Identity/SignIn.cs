@@ -42,7 +42,7 @@ public static class SignIn
                 var filter = MongoQuery<Contact>.IdFilter(user.Id);
                 var updates = Builders<Contact>.Update
                     .Set(q => q.IsOnline, true)
-                    .Set(q => q.LastLogin, DateTime.Now)
+                    .Set(q => q.LastLogin, DateTime.UtcNow)
                     .Set(q => q.RefreshToken, refreshToken)
                     .Set(q => q.ExpiryDate, expiryDate);
                 _contactRepository.Update(filter, updates);

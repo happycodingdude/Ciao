@@ -10,13 +10,10 @@ public class Contact : MongoBaseModel
     public string Avatar { get; set; } = null!;
     public string Bio { get; set; } = null!;
     public bool IsOnline { get; set; }
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
     public DateTime? LastLogin { get; set; }
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
     public DateTime? LastLogout { get; set; }
     [JsonIgnore]
     public string RefreshToken { get; set; } = null!;
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
     [JsonIgnore]
     public DateTime? ExpiryDate { get; set; }
 }

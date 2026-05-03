@@ -25,7 +25,6 @@ public class MemberWithContactInfo : MongoBaseModel
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
     public ContactInfoMoreDetails Contact { get; set; } = null!;
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
     public DateTime? LastSeenTime { get; set; }
     public bool IsSelected { get; set; }
 }

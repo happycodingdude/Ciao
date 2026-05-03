@@ -2,5 +2,5 @@ namespace Application.BackgroundJobs;
 
 public interface IGenericConsumer
 {
-    Task ProcessMesageAsync(ConsumerResultData param);
+    Task ProcessMessageAsync(ConsumerResultData param, CancellationToken cancellationToken = default);
 }

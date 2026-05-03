@@ -13,12 +13,6 @@ public class BaseIdModel
 
 public class MongoBaseModel : BaseIdModel
 {
-    // [BsonElement("CreatedTime")]
-    // [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    [BsonSerializer(typeof(LocalDateTimeSerializer))]
-    public DateTime CreatedTime { get; set; } = DateTime.Now;
-    // [BsonElement("UpdatedTime")]
-    // [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
+    public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedTime { get; set; }
 }

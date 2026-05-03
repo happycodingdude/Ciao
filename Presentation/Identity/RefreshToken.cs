@@ -36,7 +36,7 @@ public static class RefreshToken
                 .Set(q => q.ExpiryDate, expiryDate);
             _contactRepository.Update(filter, updates);
 
-            _userCache.SetToken(user.Id, token);
+            await _userCache.SetTokenAsync(user.Id, token);
 
             return new TokenModel(token, refreshToken, user.Id);
         }

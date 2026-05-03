@@ -9,13 +9,10 @@ public static class GetById
         readonly IContactRepository _contactRepository;
         readonly IFriendRepository _friendRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, IFriendRepository friendRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
-            }
+            _contactRepository = contactRepository;
+            _friendRepository = friendRepository;
             RuleFor(c => c.id).ContactRelatedToFriendRequest(_contactRepository, _friendRepository);
         }
     }

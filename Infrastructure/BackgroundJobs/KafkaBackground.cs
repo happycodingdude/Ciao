@@ -1,8 +1,5 @@
-﻿namespace Infrastructure.BackgroundJobs;
+namespace Infrastructure.BackgroundJobs;
 
-/// <summary>
-/// Description: Lớp này chạy background job lắng nghe message từ Kafka
-/// </summary>
 public class KafkaBackground : BackgroundService
 {
     readonly IOptions<KafkaConfiguration> _kafkaConfig;
@@ -61,14 +58,13 @@ public class KafkaBackground : BackgroundService
         return Task.CompletedTask;
     }
 
-
     async Task ConsumeAsync<T>(KafkaConsumer kafkaConsumer, CancellationToken cancellationToken) where T : IGenericConsumer
     {
         try
         {
             if (!kafkaConsumer._topics.Any())
             {
-                _logger.Information("No topics to listen...");
+                _logger.Information("No topics to listen for {Consumer}", typeof(T).Name);
                 return;
             }
 
@@ -80,88 +76,61 @@ public class KafkaBackground : BackgroundService
                 EnableAutoCommit = false
             };
 
-            // Init topic before subscribe if topic not exist
             try
             {
                 await InitTopicIfNotExist(kafkaConsumer._topics, consumerConfig);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "");
+                _logger.Error(ex, "Failed to init Kafka topics for {Consumer}", typeof(T).Name);
             }
 
-            using (var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build())
+            using var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
+            consumer.Subscribe(kafkaConsumer._topics);
+            _logger.Information("{Consumer} is listening on topics: {Topics}", typeof(T).Name, string.Join(", ", kafkaConsumer._topics));
+
+            try
             {
-                // Combine both subscribe and assign to ensure partition assigned
-                // EnsurePartitionAssigned();
-                consumer.Subscribe(kafkaConsumer._topics);
-
-                try
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    using var scope = _serviceProvider.CreateScope();
-                    var consumerHandler = scope.ServiceProvider.GetRequiredService<T>();
-
-                    // _logger.Information($"{typeof(T).Name} is listening kafka topics...");
-                    _logger.Information($"{typeof(T).Name} is listening kafka topics...");
-
-                    while (!cancellationToken.IsCancellationRequested)
+                    try
                     {
-                        // Check if partition unassigned then re-assign
-                        // if (!_consumer.Assignment.Any())
-                        //     ReAssignPartition();
+                        var cr = consumer.Consume(_kafkaConfig.Value.ConsumeTimeOut);
+                        if (cr is null) continue;
 
-                        try
-                        {
-                            var cr = consumer.Consume(_kafkaConfig.Value.ConsumeTimeOut);
-                            if (cr is not null)
-                                await consumerHandler.ProcessMesageAsync(new ConsumerResultData(cr, consumer));
-                        }
-                        catch (ConsumeException ex)
-                        {
-                            _logger.Information($"Kafka consume error: {ex}");
-                        }
+                        // Create a new scope per message so Scoped services (UnitOfWork, Repositories)
+                        // are isolated and don't accumulate state across messages.
+                        using var scope = _serviceProvider.CreateScope();
+                        var handler = scope.ServiceProvider.GetRequiredService<T>();
+                        await handler.ProcessMessageAsync(new ConsumerResultData(cr, consumer), cancellationToken);
+                    }
+                    catch (ConsumeException ex)
+                    {
+                        _logger.Error(ex, "Kafka consume error in {Consumer}", typeof(T).Name);
                     }
                 }
-                catch (OperationCanceledException ex)
-                {
-                    // Ensure the consumer leaves the group cleanly and final offsets are committed.
-                    consumer.Close();
-                    _logger.Error(ex, "");
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                consumer.Close();
             }
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "");
+            _logger.Error(ex, "Fatal error in {Consumer}", typeof(T).Name);
         }
     }
 
     async Task InitTopicIfNotExist(List<string> topics, ConsumerConfig config)
     {
-        using (var adminClient = new AdminClientBuilder(config).Build())
-        {
-            var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(30));
-            var topicsApp = metadata.Topics.Select(a => a.Topic).ToList();
-            var topicsNotExist = topics.Where(topic => !topicsApp.Any(item => item == topic))
-                .Select(item => new TopicSpecification { Name = item })
-                .ToList();
-            if (topicsNotExist is not null && topicsNotExist.Count > 0) await adminClient.CreateTopicsAsync(topicsNotExist);
-        }
+        using var adminClient = new AdminClientBuilder(config).Build();
+        var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(30));
+        var existingTopics = metadata.Topics.Select(a => a.Topic).ToHashSet();
+        var newTopics = topics
+            .Where(t => !existingTopics.Contains(t))
+            .Select(t => new TopicSpecification { Name = t })
+            .ToList();
+        if (newTopics.Count > 0)
+            await adminClient.CreateTopicsAsync(newTopics);
     }
-
-    // void EnsurePartitionAssigned()
-    // {
-    //     _consumer.Subscribe(_topics);
-    //     foreach (var topic in _topics)
-    //         _partitions.Add(new TopicPartitionOffset(topic, _partition, Offset.End));
-    //     _consumer.Assign(_partitions);
-    // }
-
-    // void ReAssignPartition()
-    // {
-    //     _consumer.Unsubscribe();
-    //     _consumer.Unassign();
-    //     _consumer.Subscribe(_topics);
-    //     _consumer.Assign(_partitions);
-    // }
 }

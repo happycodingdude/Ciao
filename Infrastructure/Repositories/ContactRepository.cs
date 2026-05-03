@@ -48,7 +48,7 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
 
         var update = Builders<Contact>.Update
             .Set(q => q.IsOnline, false)
-            .Set(q => q.UpdatedTime, DateTime.Now);
+            .Set(q => q.UpdatedTime, DateTime.UtcNow);
 
         await _collection.UpdateManyAsync(filter, update, cancellationToken: cancellationToken);
     }

@@ -9,13 +9,10 @@ public static class AcceptFriend
         readonly IContactRepository _contactRepository;
         readonly IFriendRepository _friendRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, IFriendRepository friendRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _friendRepository = scope.ServiceProvider.GetRequiredService<IFriendRepository>();
-            }
+            _contactRepository = contactRepository;
+            _friendRepository = friendRepository;
             RuleFor(c => c.id).ContactRelatedToFriendRequest(_contactRepository, _friendRepository).DependentRules(() =>
             {
                 RuleFor(c => c).MustAsync((item, cancellation) => MustBeReceiver(item)).WithMessage("Only accept received request").DependentRules(() =>
@@ -61,7 +58,7 @@ public static class AcceptFriend
             var filter = MongoQuery<Friend>.IdFilter(request.id);
             // var entity = await _friendRepository.GetItemAsync(filter);
 
-            var updates = Builders<Friend>.Update.Set(q => q.AcceptTime, DateTime.Now);
+            var updates = Builders<Friend>.Update.Set(q => q.AcceptTime, DateTime.UtcNow);
             _friendRepository.Update(filter, updates);
 
             // Update cache

@@ -78,7 +78,7 @@ export const useChatInputKeyboard = ({
 
   const keydownBindingFn = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-      console.log("keydownBindingFn called with key:", e.key);
+      if (e.nativeEvent.isComposing) return;
 
       const key = e.key;
 

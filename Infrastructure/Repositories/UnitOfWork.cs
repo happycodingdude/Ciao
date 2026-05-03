@@ -1,79 +1,89 @@
 namespace Infrastructure.Repositories;
 
-public class InvokeResult
-{
-    public bool IsAcknowledged { get; set; }
-    public bool IsModifiedCountAvailable { get; set; }
-    public int MatchedCount { get; set; }
-    public int ModifiedCount { get; set; }
-    public object UpsertedId { get; set; }
-}
-
 public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOfWork, IDisposable
 {
-    IClientSessionHandle session;
-    Dictionary<Guid, Func<IClientSessionHandle, Task<object>>> operations = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
-    Dictionary<Guid, Func<IClientSessionHandle, Task<object>>> fallbacks = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
+    IClientSessionHandle? _session;
+    Dictionary<Guid, Func<IClientSessionHandle, Task<long>>> _operations = new();
+    Dictionary<Guid, Func<IClientSessionHandle, Task<long>>> _fallbacks = new();
 
     public void AddOperation<TResult>(Func<IClientSessionHandle, Task<TResult>> operation) where TResult : class
     {
-        operations.Add(Guid.NewGuid(), async (session) => await operation(session));
+        _operations.Add(Guid.NewGuid(), async (session) =>
+        {
+            var result = await operation(session);
+            return ExtractModifiedCount(result);
+        });
     }
 
     public void AddOperation<TResult>(Guid key, Func<IClientSessionHandle, Task<TResult>> operation) where TResult : class
     {
-        operations.Add(key, async (session) => await operation(session));
+        _operations.Add(key, async (session) =>
+        {
+            var result = await operation(session);
+            return ExtractModifiedCount(result);
+        });
     }
 
     public void AddFallback<TResult>(Guid key, Func<IClientSessionHandle, Task<TResult>> fallback) where TResult : class
     {
-        fallbacks.Add(key, async (session) => await fallback(session));
+        _fallbacks.Add(key, async (session) =>
+        {
+            var result = await fallback(session);
+            return ExtractModifiedCount(result);
+        });
     }
 
     public async Task SaveAsync()
     {
-        // For HTTP GET that's not perform any write command
-        if (!operations.Any()) return;
+        if (!_operations.Any()) return;
 
-        using (session = await mongoDbContext.Client.StartSessionAsync())
+        using (_session = await mongoDbContext.Client.StartSessionAsync())
         {
-            session.StartTransaction();
+            _session.StartTransaction();
             try
             {
-                foreach (var operation in operations)
+                foreach (var operation in _operations)
                 {
-                    var result = await operation.Value.Invoke(session);
-                    logger.Information($"operation result => {JsonConvert.SerializeObject(result)}");
-                    var invokeResult = JsonConvert.DeserializeObject<InvokeResult>(JsonConvert.SerializeObject(result));
-                    if (invokeResult!.ModifiedCount == 0)
+                    var modifiedCount = await operation.Value.Invoke(_session);
+                    logger.Information("operation result => modifiedCount={ModifiedCount}", modifiedCount);
+
+                    if (modifiedCount == 0 && _fallbacks.TryGetValue(operation.Key, out var fallback))
                     {
-                        // Thực hiện fallback (nếu có)
-                        fallbacks.TryGetValue(operation.Key, out var fallback);
-                        if (fallback is null) continue;
-                        var fallbackResult = await fallback.Invoke(session);
-                        logger.Information($"fallback result => {JsonConvert.SerializeObject(fallbackResult)}");
+                        var fallbackModified = await fallback.Invoke(_session);
+                        logger.Information("fallback result => modifiedCount={ModifiedCount}", fallbackModified);
                     }
                 }
-                await session.CommitTransactionAsync();
+                await _session.CommitTransactionAsync();
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "");
-                await session.AbortTransactionAsync();
+                logger.Error(ex, "UnitOfWork transaction failed, aborting");
+                await _session.AbortTransactionAsync();
             }
         }
 
-        ClearOperation();
+        ClearOperations();
     }
 
-    void ClearOperation()
+    static long ExtractModifiedCount<TResult>(TResult result)
     {
-        operations = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
-        fallbacks = new Dictionary<Guid, Func<IClientSessionHandle, Task<object>>>();
+        return result switch
+        {
+            UpdateResult ur => ur.IsModifiedCountAvailable ? ur.ModifiedCount : 0,
+            ReplaceOneResult ror => ror.IsModifiedCountAvailable ? ror.ModifiedCount : 0,
+            DeleteResult dr => dr.DeletedCount,
+            _ => 0
+        };
+    }
+
+    void ClearOperations()
+    {
+        _operations.Clear();
+        _fallbacks.Clear();
     }
 
     public void Dispose()
     {
-        session?.Dispose();
+        _session?.Dispose();
     }
 }

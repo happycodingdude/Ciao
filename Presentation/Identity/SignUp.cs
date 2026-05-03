@@ -8,12 +8,9 @@ public static class SignUp
     {
         readonly IContactRepository _contactRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-            }
+            _contactRepository = contactRepository;
             RuleFor(c => c.model.Username).NotEmpty().WithMessage("Username must not be empty").
             DependentRules(() =>
             {

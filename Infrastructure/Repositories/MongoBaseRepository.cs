@@ -19,14 +19,14 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public void Add(T entity) => _uow.AddOperation(async (session) =>
     {
-        entity.UpdatedTime = DateTime.Now;
+        entity.UpdatedTime = DateTime.UtcNow;
         await _collection.InsertOneAsync(session, entity);
         return Task.CompletedTask;
     });
 
     public void Replace(FilterDefinition<T> filter, T entity)
     {
-        entity.UpdatedTime = DateTime.Now;
+        entity.UpdatedTime = DateTime.UtcNow;
         _uow.AddOperation((session) => _collection.ReplaceOneAsync(session, filter, entity));
     }
 
@@ -37,13 +37,13 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
 
     public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
-        update = update.Set(q => q.UpdatedTime, DateTime.Now);
+        update = update.Set(q => q.UpdatedTime, DateTime.UtcNow);
         _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update));
     }
 
     public void Update(FilterDefinition<T> filter, UpdateDefinition<T> update, ArrayFilterDefinition<T> arrayFilter)
     {
-        update = update.Set(q => q.UpdatedTime, DateTime.Now);
+        update = update.Set(q => q.UpdatedTime, DateTime.UtcNow);
         _uow.AddOperation((session) => _collection.UpdateManyAsync(session, filter, update, new UpdateOptions { ArrayFilters = new[] { arrayFilter } }));
     }
 

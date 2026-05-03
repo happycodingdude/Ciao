@@ -6,38 +6,42 @@ public static class SendMessage
 
     public class Validator : AbstractValidator<Request>
     {
-        readonly IContactRepository _contactRepository;
-        readonly IConversationRepository _conversationRepository;
-
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, IConversationRepository conversationRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
-            }
-            RuleFor(c => c.conversationId).ContactRelatedToConversation(_contactRepository, _conversationRepository).DependentRules(() =>
-            {
-                // RuleFor(c => c.conversationId).NotEmpty().WithMessage("Conversation should not be empty");
-                RuleFor(c => c.model.Type).Must(q => q == "text" || q == "media").WithMessage("Message type should be text or media");
+            RuleFor(c => c.conversationId)
+                .ContactRelatedToConversation(contactRepository, conversationRepository)
+                .DependentRules(() =>
+                {
+                    RuleFor(c => c.model.Type)
+                        .Must(q => q == "text" || q == "media")
+                        .WithMessage("Message type should be text or media");
 
-                When(c => c.model.Type == "text", () =>
-                {
-                    RuleFor(c => c.model.Content).NotEmpty().WithMessage("Text message should have content");
-                    //RuleFor(c => c.model.Attachments).Empty().WithMessage("Text message should not have attachments");
+                    When(c => c.model.Type == "text", () =>
+                    {
+                        RuleFor(c => c.model.Content).NotEmpty().WithMessage("Text message should have content");
+                    });
+
+                    When(c => c.model.Type == "media", () =>
+                    {
+                        RuleFor(c => c.model.Attachments)
+                            .NotEmpty().WithMessage("Media message should have attachments")
+                            .DependentRules(() =>
+                            {
+                                RuleFor(c => c.model.Attachments.Select(q => q.Type))
+                                    .Must(q => q.All(w => w == "image" || w == "file"))
+                                    .WithMessage("Attachment type should be image or file");
+                                RuleFor(c => c.model.Attachments.Select(q => q.MediaUrl))
+                                    .Must(q => q.All(w => !string.IsNullOrEmpty(w)))
+                                    .WithMessage("Attachment url should not be empty");
+                                RuleFor(c => c.model.Attachments.Select(q => q.MediaName))
+                                    .Must(q => q.All(w => !string.IsNullOrEmpty(w)))
+                                    .WithMessage("Attachment name should not be empty");
+                                RuleFor(c => c.model.Attachments.Select(q => q.MediaSize))
+                                    .Must(q => q.All(w => w > 0))
+                                    .WithMessage("Attachment size should not be 0");
+                            });
+                    });
                 });
-                When(c => c.model.Type == "media", () =>
-                {
-                    RuleFor(c => c.model.Attachments).NotEmpty().WithMessage("Media message should have attachments")
-                        .DependentRules(() =>
-                        {
-                            RuleFor(c => c.model.Attachments.Select(q => q.Type)).Must(q => q.All(w => w == "image" || w == "file")).WithMessage("Attachment type should be image or file");
-                            RuleFor(c => c.model.Attachments.Select(q => q.MediaUrl)).Must(q => q.All(w => !string.IsNullOrEmpty(w))).WithMessage("Attachment url should not be empty");
-                            RuleFor(c => c.model.Attachments.Select(q => q.MediaName)).Must(q => q.All(w => !string.IsNullOrEmpty(w))).WithMessage("Attachment name should not be empty");
-                            RuleFor(c => c.model.Attachments.Select(q => q.MediaSize)).Must(q => q.All(w => w > 0)).WithMessage("Attachment size should not be 0");
-                        });
-                });
-            });
         }
     }
 
@@ -58,12 +62,11 @@ public static class SendMessage
 
         public async Task<SendMessageRes> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request);
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
             var message = _mapper.Map<NewMessageModel_Message>(request.model);
-            // _logger.Information(JsonConvert.SerializeObject(message));
             await _kafkaProducer.ProduceAsync(Topic.NewMessage, new NewMessageModel
             {
                 UserId = _contactRepository.GetUserId(),
@@ -87,8 +90,7 @@ public class SendMessageEndpoint : ICarterModule
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapPost("/{conversationId}/messages",
         async (ISender sender, string conversationId, SendMessageReq model) =>
         {
-            var query = new SendMessage.Request(conversationId, model);
-            var result = await sender.Send(query);
+            var result = await sender.Send(new SendMessage.Request(conversationId, model));
             return Results.Ok(result);
         }).RequireAuthorization();
     }

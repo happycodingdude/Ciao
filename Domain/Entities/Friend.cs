@@ -4,7 +4,6 @@ public class Friend : MongoBaseModel
 {
     public FriendDto_Contact FromContact { get; set; } = null!;
     public FriendDto_Contact ToContact { get; set; } = null!;
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
     public DateTime? AcceptTime { get; set; }
 }
 

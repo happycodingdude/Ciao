@@ -9,13 +9,10 @@ public static class PinMessage
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, IConversationRepository conversationRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
-            }
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
             RuleFor(c => c.conversationId).ContactRelatedToConversation(_contactRepository, _conversationRepository);
         }
     }
@@ -45,33 +42,30 @@ public static class PinMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Cập nhật trạng thái pin của tin nhắn
+            var userId = _contactRepository.GetUserId();
+
             var filter = Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId);
             var updates = Builders<Conversation>.Update
                 .Set("Messages.$[elem].IsPinned", request.pinned)
-                .Set("Messages.$[elem].PinnedBy", _contactRepository.GetUserId());
+                .Set("Messages.$[elem].PinnedBy", userId);
             var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem._id", request.id)
-                );
+                new BsonDocument("elem._id", request.id));
             _conversationRepository.UpdateNoTrackingTime(filter, updates, arrayFilter);
 
-            // Cập nhật cache
-            await _messageCache.UpdatePin(request.conversationId, request.id, _contactRepository.GetUserId(), request.pinned);
+            await _messageCache.UpdatePin(request.conversationId, request.id, userId, request.pinned);
 
-            // Gởi sự kiện lên UI
             var members = await _memberCache.GetMembers(request.conversationId);
             await _firebaseFunction.Notify(
                 ChatEventNames.NewMessagePinned,
-                members.Where(q => q.Contact.Id != _contactRepository.GetUserId()).Select(q => q.Contact.Id).ToArray(),
+                members.Where(q => q.Contact.Id != userId).Select(q => q.Contact.Id).ToArray(),
                 new NotifyNewMessagePinnedModel
                 {
-                    UserId = _contactRepository.GetUserId(),
+                    UserId = userId,
                     ConversationId = request.conversationId,
                     MessageId = request.id,
                     IsPinned = request.pinned,
-                    PinnedBy = _contactRepository.GetUserId()
-                }
-            );
+                    PinnedBy = userId
+                });
 
             return Unit.Value;
         }

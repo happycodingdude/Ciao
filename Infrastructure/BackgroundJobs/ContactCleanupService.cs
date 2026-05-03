@@ -30,7 +30,7 @@ public class ContactCleanupService : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             var contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
 
-            var threshold = DateTime.Now.Subtract(_staleThreshold);
+            var threshold = DateTime.UtcNow.Subtract(_staleThreshold);
             await contactRepository.ResetStaleOnlineStatusAsync(threshold, cancellationToken);
         }
         catch (OperationCanceledException)

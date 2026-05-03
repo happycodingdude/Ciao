@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.BackgroundJobs;
+namespace Infrastructure.BackgroundJobs;
 
 public class CacheConsumer : IGenericConsumer
 {
@@ -29,186 +29,152 @@ public class CacheConsumer : IGenericConsumer
         _kafkaProducer = kafkaProducer;
     }
 
-    public async Task ProcessMesageAsync(ConsumerResultData param)
+    public async Task ProcessMessageAsync(ConsumerResultData param, CancellationToken cancellationToken = default)
     {
         try
         {
-            _logger.Information($"[CacheConsumer] [{param.cr.Topic}] {param.cr.Message.Value}");
+            _logger.Information("[{Consumer}] [{Topic}] {Message}", nameof(CacheConsumer), param.cr.Topic, param.cr.Message.Value);
 
             switch (param.cr.Topic)
             {
                 case Topic.UserLogin:
-                    var userLoginModel = JsonConvert.DeserializeObject<UserLoginModel>(param.cr.Message.Value);
-                    await HandleUserLogin(userLoginModel!);
+                    await HandleUserLogin(JsonConvert.DeserializeObject<UserLoginModel>(param.cr.Message.Value)!);
                     break;
                 case Topic.StoredMessage:
-                    var newStoredMessageModel = JsonConvert.DeserializeObject<NewStoredMessageModel>(param.cr.Message.Value);
-                    await HandleNewMessage(newStoredMessageModel!);
+                    await HandleNewMessage(JsonConvert.DeserializeObject<NewStoredMessageModel>(param.cr.Message.Value)!);
                     break;
                 case Topic.StoredGroupConversation:
-                    var newStoredGroupConversationModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
-                    await HandleNewGroupConversation(newStoredGroupConversationModel!);
+                    await HandleNewGroupConversation(JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value)!);
                     break;
                 case Topic.StoredDirectConversation:
-                    var newStoredDirectConversationModel = JsonConvert.DeserializeObject<NewStoredDirectConversationModel>(param.cr.Message.Value);
-                    await HandleNewDirectConversation(newStoredDirectConversationModel!);
+                    await HandleNewDirectConversation(JsonConvert.DeserializeObject<NewStoredDirectConversationModel>(param.cr.Message.Value)!);
                     break;
                 case Topic.StoredMember:
-                    var newStoredMemberModel = JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value);
-                    await HandleNewStoredMember(newStoredMemberModel!);
+                    await HandleNewStoredMember(JsonConvert.DeserializeObject<NewStoredGroupConversationModel>(param.cr.Message.Value)!);
                     break;
                 case Topic.StoredReaction:
-                    var newReactionModel = JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value);
-                    await HandleNewReaction(newReactionModel!);
-                    break;
-                default:
+                    await HandleNewReaction(JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value)!);
                     break;
             }
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "");
+            _logger.Error(ex, "[{Consumer}] Error processing topic {Topic}", nameof(CacheConsumer), param.cr.Topic);
         }
         finally
         {
-            // Commit message
             param.consumer.Commit(param.cr);
         }
     }
 
-    /* MARK: USER LOGIN */
     async Task HandleUserLogin(UserLoginModel param)
     {
-        // Cập nhật user cache
-        var userTask = _contactRepository.GetInfoAsync(param.UserId)
-            .ContinueWith(task =>
-            {
-                var user = task.Result;
-                _userCache.SetToken(param.UserId, param.Token);
-                _userCache.SetInfo(user);
-            });
+        var userTask = async () =>
+        {
+            var user = await _contactRepository.GetInfoAsync(param.UserId);
+            await _userCache.SetTokenAsync(param.UserId, param.Token);
+            await _userCache.SetInfoAsync(user);
+        };
 
-        // Cập nhật conversation cache
-        var conversationTask = _conversationRepository
-            .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))
-            .ContinueWith(async task =>
+        var conversationTask = async () =>
+        {
+            var conversations = (await _conversationRepository
+                .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))).ToList();
+
+            foreach (var conversation in conversations)
             {
-                var conversations = task.Result;
-                conversations.ToList().ForEach(q =>
+                var member = conversation.Members.SingleOrDefault(m => m.Contact.Id == param.UserId);
+                if (member != null) member.Contact.IsOnline = true;
+
+                foreach (var message in conversation.Messages)
                 {
-                    var member = q.Members.SingleOrDefault(m => m.Contact.Id == param.UserId);
-                    if (member != null)
-                        member.Contact.IsOnline = true;
-                });
-                foreach (var conversation in conversations)
-                {
-                    foreach (var message in conversation.Messages)
-                    {
-                        var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(message.Reactions);
-                        message.LikeCount = likes;
-                        message.LoveCount = loves;
-                        message.CareCount = cares;
-                        message.WowCount = wows;
-                        message.SadCount = sads;
-                        message.AngryCount = angries;
-                    }
+                    var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(message.Reactions);
+                    message.LikeCount = likes;
+                    message.LoveCount = loves;
+                    message.CareCount = cares;
+                    message.WowCount = wows;
+                    message.SadCount = sads;
+                    message.AngryCount = angries;
                 }
-                await _conversationCache.SetConversations(param.UserId, conversations.ToList());
-            }).Unwrap();
+            }
+            await _conversationCache.SetConversations(param.UserId, conversations);
+        };
 
-        // Cập nhật friend cache
-        var friendsTask = _friendRepository.GetFriendItems(param.UserId)
-            .ContinueWith(async task =>
-            {
-                await _friendCache.SetFriends(param.UserId, task.Result);
-            }).Unwrap();
+        var friendsTask = async () =>
+        {
+            var friends = await _friendRepository.GetFriendItems(param.UserId);
+            await _friendCache.SetFriends(param.UserId, friends);
+        };
 
-        await Task.WhenAll(userTask, conversationTask, friendsTask);
+        await Task.WhenAll(userTask(), conversationTask(), friendsTask());
     }
 
-    /* MARK: NEW MESSAGE */
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
         var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
         var message = _mapper.Map<MessageWithReactions>(param.Message);
-
         await _messageCache.AddMessages(param.UserId, conversationToCache.Id, conversationToCache.UpdatedTime!.Value, message);
     }
 
-    /* MARK: NEW GROUP CONVERSATION */
     async Task HandleNewGroupConversation(NewStoredGroupConversationModel param)
     {
-        // Get member details
-        var contactFilter = MongoQuery<Contact>.ContactIdFilter(param.Members.Select(w => w.ContactId).ToArray());
-        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+        var memberIds = param.Members.Select(m => m.ContactId).ToArray();
+        var contacts = await _contactRepository.GetAllAsync(
+            MongoQuery<Contact>.ContactIdFilter(memberIds));
+        var contactMap = contacts.ToDictionary(c => c.Id);
 
         var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
         foreach (var member in memberToCache)
         {
-            member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.Name!;
-            member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.Avatar!;
-            member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.Bio!;
-            member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.IsOnline! ?? false;
+            if (contactMap.TryGetValue(member.Contact.Id, out var contact))
+            {
+                member.Contact.Name = contact.Name;
+                member.Contact.Avatar = contact.Avatar;
+                member.Contact.Bio = contact.Bio;
+                member.Contact.IsOnline = contact.IsOnline;
+            }
             member.IsNotifying = true;
         }
-        // var user = await _contactRepository.GetInfoAsync(param.UserId);
-        var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == param.UserId);
-        // thisUser.Contact.Name = user.Name;
-        // thisUser.Contact.Avatar = user.Avatar;
-        // thisUser.Contact.Bio = user.Bio;
-        // thisUser.Contact.IsOnline = true;
-        // thisUser.IsNotifying = true;
-        thisUser!.IsModerator = true;
 
-        // Add conversation to cache
+        var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == param.UserId);
+        if (thisUser is not null) thisUser.IsModerator = true;
+
         var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
         await _conversationCache.AddConversation(param.UserId, conversationToCache, memberToCache.ToArray());
-
-        // Add system message to cache
         await _messageCache.AddSystemMessage(param.Conversation.Id, _mapper.Map<MessageWithReactions>(param.Message));
 
-        // Check if any receiver is online then update receiver cache
-        var otherMembers = param.Members.Where(q => q.ContactId != param.UserId).Select(q => q.ContactId).ToArray();
-        var receivers = await _userCache.GetInfo(otherMembers);
-        if (receivers.Any())
-            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
+        var otherMemberIds = param.Members.Where(q => q.ContactId != param.UserId).Select(q => q.ContactId).ToArray();
+        var onlineReceivers = await _userCache.GetInfo(otherMemberIds);
+        if (onlineReceivers.Any())
+            await _conversationCache.AddConversation(onlineReceivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
     }
 
-    /* MARK: NEW DIRECT CONVERSATION */
     async Task HandleNewDirectConversation(NewStoredDirectConversationModel param)
     {
         if (param.IsNewConversation)
         {
             var memberToCache = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
 
-            // Get member details
-            var contactFilter = MongoQuery<Contact>.IdFilter(param.ContactId);
-            var contact = await _contactRepository.GetItemAsync(contactFilter);
-
-            var targetUser = memberToCache.SingleOrDefault(q => q.Contact.Id == param.ContactId);
-            targetUser!.Contact.Name = contact.Name;
+            var contact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(param.ContactId));
+            var targetUser = memberToCache.Single(q => q.Contact.Id == param.ContactId);
+            targetUser.Contact.Name = contact.Name;
             targetUser.Contact.Avatar = contact.Avatar;
             targetUser.Contact.Bio = contact.Bio;
             targetUser.Contact.IsOnline = contact.IsOnline;
 
             var user = await _userCache.GetInfo(param.UserId);
-            var thisUser = memberToCache.SingleOrDefault(q => q.Contact.Id == param.UserId);
-            thisUser!.Contact.Name = user.Name;
+            var thisUser = memberToCache.Single(q => q.Contact.Id == param.UserId);
+            thisUser.Contact.Name = user.Name;
             thisUser.Contact.Avatar = user.Avatar;
             thisUser.Contact.Bio = user.Bio;
             thisUser.Contact.IsOnline = true;
 
             var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
             if (param.Message is not null)
-            {
                 await _conversationCache.AddConversation(param.UserId, conversationToCache, memberToCache.ToArray(), _mapper.Map<MessageWithReactions>(param.Message));
-            }
             else
-            {
                 await _conversationCache.AddConversation(param.UserId, conversationToCache, memberToCache.ToArray());
-            }
 
-            // Check if receiver is online then update receiver cache
             var receiver = await _userCache.GetInfo(param.ContactId);
             if (receiver is not null)
                 await _conversationCache.AddConversation(receiver.Id, param.Conversation.Id);
@@ -219,47 +185,41 @@ public class CacheConsumer : IGenericConsumer
         }
     }
 
-    /* MARK: NEW MEMBER */
     async Task HandleNewStoredMember(NewStoredGroupConversationModel param)
     {
-        // var newMembers = _mapper.Map<List<MemberWithContactInfo>>(param.Members.Where(q => q.IsNew));
         var newMembers = _mapper.Map<List<MemberWithContactInfo>>(param.Members);
 
-        // Get contact info for new members
-        var contactFilter = MongoQuery<Contact>.ContactIdFilter(newMembers.Select(w => w.Contact.Id).ToArray());
-        var contacts = await _contactRepository.GetAllAsync(contactFilter);
+        var memberIds = newMembers.Select(m => m.Contact.Id).ToArray();
+        var contacts = await _contactRepository.GetAllAsync(
+            MongoQuery<Contact>.ContactIdFilter(memberIds));
+        var contactMap = contacts.ToDictionary(c => c.Id);
+
         foreach (var member in newMembers)
         {
-            member.Contact.Name = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.Name!;
-            member.Contact.Avatar = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.Avatar!;
-            member.Contact.Bio = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.Bio!;
-            member.Contact.IsOnline = contacts.SingleOrDefault(q => q.Id == member.Contact.Id)?.IsOnline! ?? false;
+            if (contactMap.TryGetValue(member.Contact.Id, out var contact))
+            {
+                member.Contact.Name = contact.Name;
+                member.Contact.Avatar = contact.Avatar;
+                member.Contact.Bio = contact.Bio;
+                member.Contact.IsOnline = contact.IsOnline;
+            }
             member.IsNotifying = true;
         }
 
-        // Add members to cache
         await _memberCache.AddMembers(param.Conversation.Id, newMembers);
-
-        // Add system message to cache
         await _messageCache.AddSystemMessage(param.Conversation.Id, _mapper.Map<MessageWithReactions>(param.Message));
 
-        // Check if any receiver is online then update receiver cache
         var membersToNotify = newMembers.Select(q => q.Contact.Id).ToArray();
-        var receivers = await _userCache.GetInfo(membersToNotify);
-        if (receivers.Any())
-            await _conversationCache.AddConversation(receivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
+        var onlineReceivers = await _userCache.GetInfo(membersToNotify);
+        if (onlineReceivers.Any())
+            await _conversationCache.AddConversation(onlineReceivers.Select(q => q.Id).ToArray(), param.Conversation.Id);
     }
 
-    /* MARK: NEW REACTION */
     async Task HandleNewReaction(NewReactionModel param)
     {
-        // Update reaction in cache
         var reactions = await _messageCache.UpdateReactions(param.ConversationId, param.MessageId, param.UserId, param.Type);
-
-        // Calculate reaction count
         var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(reactions);
 
-        // Send to kafka to push notification
         await _kafkaProducer.ProduceAsync(Topic.NotifyNewReaction, new NotifyNewReactionModel
         {
             UserId = param.UserId,
@@ -274,14 +234,13 @@ public class CacheConsumer : IGenericConsumer
         });
     }
 
-    /* MARK: HELPER FUNCTIONS */
-    (int, int, int, int, int, int) CalculateReactionCount(List<MessageReaction> reactions)
+    static (int, int, int, int, int, int) CalculateReactionCount(List<MessageReaction> reactions)
     {
         return (reactions.Count(q => q.Type == AppConstants.MessageReactionType_Like),
-        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Love),
-        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Care),
-        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Wow),
-        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Sad),
-        reactions.Count(q => q.Type == AppConstants.MessageReactionType_Angry));
+            reactions.Count(q => q.Type == AppConstants.MessageReactionType_Love),
+            reactions.Count(q => q.Type == AppConstants.MessageReactionType_Care),
+            reactions.Count(q => q.Type == AppConstants.MessageReactionType_Wow),
+            reactions.Count(q => q.Type == AppConstants.MessageReactionType_Sad),
+            reactions.Count(q => q.Type == AppConstants.MessageReactionType_Angry));
     }
 }

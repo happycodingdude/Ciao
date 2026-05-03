@@ -24,9 +24,9 @@ public class KafkaProducer : IKafkaProducer
                 Value = JsonConvert.SerializeObject(data)
             });
         }
-        catch (ProduceException<Null, string> ex)
+        catch (ProduceException<string, string> ex)
         {
-            _logger.Error($"Error producing message: {ex.Error.Reason}");
+            _logger.Error("Error producing message to {Topic}: {Reason}", topic, ex.Error.Reason);
         }
     }
 }

@@ -82,7 +82,7 @@ public class ConversationCache
     public async Task SetConversations(string userId, List<ConversationWithTotalUnseenWithContactInfo> conversations)
     {
         // Update list conversations cache
-        _ = _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversations.Select(q => q.Id));
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversations.Select(q => q.Id));
 
         var taskToComplete = new List<Task>(conversations.Count * 3);
 
@@ -116,7 +116,7 @@ public class ConversationCache
         await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversationIds);
 
         // Update conversation info cache
-        conversation.UpdatedTime = DateTime.Now;
+        conversation.UpdatedTime = DateTime.UtcNow;
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversation.Id), conversation);
         // Update member cache
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversation.Id), members);
@@ -139,7 +139,7 @@ public class ConversationCache
             : string.Join(",", message.Attachments.Select(q => q.MediaName));
         conversation.LastMessageTime = message.CreatedTime;
         conversation.LastMessageContact = userId;
-        conversation.UpdatedTime = DateTime.Now;
+        conversation.UpdatedTime = DateTime.UtcNow;
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversation.Id), conversation);
 
         // Update member cache

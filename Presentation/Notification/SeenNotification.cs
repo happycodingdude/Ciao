@@ -9,13 +9,10 @@ public static class SeenNotification
         readonly IContactRepository _contactRepository;
         readonly INotificationRepository _notificationRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, INotificationRepository notificationRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
-            }
+            _contactRepository = contactRepository;
+            _notificationRepository = notificationRepository;
             RuleFor(c => c.id).ContactRelatedToNotification(_contactRepository, _notificationRepository);
         }
     }

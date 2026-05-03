@@ -6,7 +6,5 @@ public class Member : MongoBaseModel
     public bool IsModerator { get; set; }
     public bool IsNotifying { get; set; }
     public string ContactId { get; set; } = null!;
-    // [BsonElement("LastSeenTime")]
-    [BsonSerializer(typeof(NullableLocalDateTimeSerializer))]
     public DateTime? LastSeenTime { get; set; }
 }

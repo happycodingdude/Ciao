@@ -8,6 +8,6 @@ public class BaseModel
 
     public void BeforeUpdate()
     {
-        UpdatedTime = DateTime.Now;
+        UpdatedTime = DateTime.UtcNow;
     }
 }

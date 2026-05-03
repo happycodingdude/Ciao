@@ -68,7 +68,7 @@ public class MessageCache
         var memberCacheTask = Task.Run(async () =>
         {
             var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             members.ForEach(m =>
             {
                 m.IsDeleted = false;

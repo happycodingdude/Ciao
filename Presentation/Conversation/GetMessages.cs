@@ -9,13 +9,10 @@ public static class GetMessages
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
 
-        public Validator(IServiceProvider serviceProvider)
+        public Validator(IContactRepository contactRepository, IConversationRepository conversationRepository)
         {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                _contactRepository = scope.ServiceProvider.GetRequiredService<IContactRepository>();
-                _conversationRepository = scope.ServiceProvider.GetRequiredService<IConversationRepository>();
-            }
+            _contactRepository = contactRepository;
+            _conversationRepository = conversationRepository;
             RuleFor(c => c.id).ContactRelatedToConversation(_contactRepository, _conversationRepository);
         }
     }
@@ -50,9 +47,9 @@ public static class GetMessages
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            // Update total unseen messages in cache
-            var lastSeenTime = DateTime.Now;
-            SeenAll(request.id, lastSeenTime);
+            var userId = _contactRepository.GetUserId();
+            var lastSeenTime = DateTime.UtcNow;
+            SeenAll(request.id, lastSeenTime, userId);
             await _memberCache.MemberSeenAll(request.id, lastSeenTime);
 
             var message = await _messageCache.GetMessages(request.id);
@@ -61,7 +58,7 @@ public static class GetMessages
             var nextPagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.NextSkip).Take(paging.Limit).ToList();
             var result = _mapper.Map<List<MessageReactionSummary>>(pagedMessages);
             for (int i = 0; i < result.Count; i++)
-                result[i].CurrentReaction = pagedMessages[i].Reactions.SingleOrDefault(q => q.ContactId == _contactRepository.GetUserId())?.Type;
+                result[i].CurrentReaction = pagedMessages[i].Reactions.SingleOrDefault(q => q.ContactId == userId)?.Type;
 
             return new MessagesWithHasMore
             {
@@ -70,9 +67,8 @@ public static class GetMessages
             };
         }
 
-        void SeenAll(string conversationId, DateTime time)
+        void SeenAll(string conversationId, DateTime time, string userId)
         {
-            var userId = _contactRepository.GetUserId();
             var conversationFilter = Builders<Conversation>.Filter.And(
                 Builders<Conversation>.Filter.Eq("_id", conversationId),
                 Builders<Conversation>.Filter.Eq("Members.ContactId", userId)

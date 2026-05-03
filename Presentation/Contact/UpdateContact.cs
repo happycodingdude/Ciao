@@ -61,7 +61,7 @@ public static class UpdateContact
             userToUpdate.Name = request.model.Name;
             userToUpdate.Bio = request.model.Bio;
             userToUpdate.Avatar = request.model.Avatar;
-            _userCache.SetInfo(userToUpdate);
+            await _userCache.SetInfoAsync(userToUpdate);
 
             return Unit.Value;
         }

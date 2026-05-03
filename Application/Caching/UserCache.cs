@@ -11,64 +11,65 @@ public class UserCache
         _httpContextAccessor = httpContextAccessor;
     }
 
-    private string UserId => _httpContextAccessor.HttpContext.Items["UserId"].ToString();
+    private string UserId => _httpContextAccessor.HttpContext!.Items["UserId"]!.ToString()!;
 
-    public async Task<string> GetToken(string userId) => await _redisCaching.GetAsync<string>(AppConstants.RedisKey_UserToken.Replace("{userId}", userId)) ?? string.Empty;
+    public async Task<string> GetToken(string userId) =>
+        await _redisCaching.GetAsync<string>(AppConstants.RedisKey_UserToken.Replace("{userId}", userId)) ?? string.Empty;
 
-    public void SetToken(string userId, string token) => _ = _redisCaching.SetAsync(AppConstants.RedisKey_UserToken.Replace("{userId}", userId), token);
+    public async Task SetTokenAsync(string userId, string token) =>
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserToken.Replace("{userId}", userId), token);
 
-    public async Task<string> GetUserConnection(string userId) => await _redisCaching.GetAsync<string>(AppConstants.RedisKey_UserConnection.Replace("{userId}", userId)) ?? string.Empty;
+    public async Task<string> GetUserConnection(string userId) =>
+        await _redisCaching.GetAsync<string>(AppConstants.RedisKey_UserConnection.Replace("{userId}", userId)) ?? string.Empty;
 
     public async Task<List<string>> GetUserConnection(string[] userIds)
     {
         var result = new List<string>();
-        // Query info cache
         var tasks = userIds.Select(async userId =>
         {
             var connection = await _redisCaching.GetAsync<string>(AppConstants.RedisKey_UserConnection.Replace("{userId}", userId));
             if (connection is null) return;
-            lock (result) // Ensure thread safety
-            {
+            lock (result)
                 result.Add(connection);
-            }
         });
         await Task.WhenAll(tasks);
         return result;
     }
 
-    public async Task<string> GetConnectionUser(string connection) => await _redisCaching.GetAsync<string>($"connection-{connection}");
+    public async Task<string> GetConnectionUser(string connection) =>
+        await _redisCaching.GetAsync<string>($"connection-{connection}") ?? string.Empty;
 
-    // public string GetByConnection(string connection) => _distributedCache.GetString($"user-{userId}-connection");
+    public async Task SetUserConnection(string userId, string connection) =>
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserConnection.Replace("{userId}", userId), connection);
 
-    // public void SetConnection(string connection) => _distributedCache.SetString($"user-{UserId}-connection", connection);
+    public async Task SetUserConnection(string connection) =>
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserConnection.Replace("{userId}", UserId), connection);
 
-    public async Task SetUserConnection(string userId, string connection) => await _redisCaching.SetAsync(AppConstants.RedisKey_UserConnection.Replace("{userId}", userId), connection);
-    public async Task SetUserConnection(string connection) => await _redisCaching.SetAsync(AppConstants.RedisKey_UserConnection.Replace("{userId}", UserId), connection);
-
-    public async Task SetConnectionUser(string userId, string connection) => await _redisCaching.SetAsync($"connection-{connection}", userId);
+    public async Task SetConnectionUser(string userId, string connection) =>
+        await _redisCaching.SetAsync($"connection-{connection}", userId);
 
     public async Task RemoveConnection(string userId, string connection)
     {
-        await _redisCaching.DeleteAsync($"user-{userId}-connection");
-        await _redisCaching.DeleteAsync($"connection-{connection}");
+        await Task.WhenAll(
+            _redisCaching.DeleteAsync($"user-{userId}-connection"),
+            _redisCaching.DeleteAsync($"connection-{connection}"));
     }
 
-    public async Task<Contact> GetInfo() => await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", UserId)) ?? default!;
+    public async Task<Contact> GetInfo() =>
+        await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", UserId)) ?? default!;
 
-    public async Task<Contact> GetInfo(string userId) => await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", userId)) ?? default!;
+    public async Task<Contact> GetInfo(string userId) =>
+        await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", userId)) ?? default!;
 
     public async Task<List<Contact>> GetInfo(string[] userIds)
     {
         var result = new List<Contact>();
-        // Query info cache
         var tasks = userIds.Select(async userId =>
         {
             var userInfo = await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", userId));
             if (userInfo is null) return;
-            lock (result) // Ensure thread safety
-            {
+            lock (result)
                 result.Add(userInfo);
-            }
         });
         await Task.WhenAll(tasks);
         return result;
@@ -76,7 +77,6 @@ public class UserCache
 
     public async Task SyncUserInfo(List<GetListFriendItem> friends)
     {
-        // Query info cache
         var tasks = friends.Select(async friend =>
         {
             var userInfo = await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", friend.Contact.Id));
@@ -85,7 +85,8 @@ public class UserCache
         await Task.WhenAll(tasks);
     }
 
-    public void SetInfo(Contact info) => _ = _redisCaching.SetAsync(AppConstants.RedisKey_UserInfo.Replace("{userId}", info.Id), info);
+    public async Task SetInfoAsync(Contact info) =>
+        await _redisCaching.SetAsync(AppConstants.RedisKey_UserInfo.Replace("{userId}", info.Id), info);
 
     public async Task RemoveAllAsync()
     {

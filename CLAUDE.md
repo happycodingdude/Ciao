@@ -231,18 +231,14 @@ Luôn tự hỏi:
 
 ## Bước 4. Viết code
 
-- Code production-ready
-
+- Code production-ready, chạy được ngay, không pseudo-code
 - Đảm bảo compile hợp lệ
-
 - Xử lý:
   - error handling
   - null safety
   - concurrency (lock, async, race condition nếu có)
-
-- Không pseudo-code
-
 - Không bỏ qua edge case quan trọng
+- Ưu tiên rõ ràng, dễ đọc hơn clever code
 
 → In: ✅ BƯỚC 4 XONG
 
@@ -250,6 +246,7 @@ Luôn tự hỏi:
 
 - In đầy đủ lệnh cần chạy
 - Không hỏi lại
+- Không xin confirm
 - Không giả lập execution
 
 → In: ✅ BƯỚC 5 XONG
@@ -309,9 +306,16 @@ Luôn tự hỏi:
 
 → In: ✅ BƯỚC 2 XONG
 
-## Bước 3. Chọn giải pháp
+## Bước 3. Phân tích và chọn giải pháp
 
-### Nếu là refactor frontend → BẮT BUỘC chạy theo pipeline:
+### Nếu là refactor frontend:
+
+- Nếu phạm vi ảnh hưởng > 3 components hoặc liên quan shared logic → coi là refactor lớn
+- Ngược lại → coi là refactor nhỏ
+
+#### Trường hợp 1: Refactor toàn bộ codebase / module lớn
+
+→ BẮT BUỘC chạy theo pipeline:
 
 1. Loại bỏ code thừa
    - dead code
@@ -361,13 +365,35 @@ Trước khi hoàn thành bước 1–4:
 
 → Sau khi hoàn thành toàn bộ pipeline mới được chọn giải pháp cuối cùng
 
+#### Trường hợp 2: Refactor theo feature / phạm vi nhỏ
+
+→ KHÔNG chạy full pipeline
+
+Thay vào đó:
+
+1. Phân tích phạm vi ảnh hưởng
+   - component / hook / state liên quan
+   - ảnh hưởng tới UI / behavior
+
+2. Đưa ra các phương án refactor
+   - ít nhất 2 hướng
+   - mỗi hướng phải có:
+     - ưu điểm
+     - nhược điểm
+     - impact (readability, performance, maintainability)
+
+3. Chọn 1 giải pháp tối ưu
+   - giải thích rõ vì sao chọn
+   - vì sao không chọn phương án còn lại
+
+⚠️ Không áp dụng over-engineering cho phạm vi nhỏ
+
 → In: ✅ BƯỚC 3 XONG
 
 ## Bước 4. Viết code
 
-- Code phải chạy được ngay
-- Không pseudo-code
-- Không comment giải thích dài dòng
+- Code production-ready, chạy được ngay, không pseudo-code
+- Không bỏ qua edge case quan trọng
 - Ưu tiên rõ ràng, dễ đọc hơn clever code
 
 → In: ✅ BƯỚC 4 XONG
@@ -427,7 +453,9 @@ Trước khi hoàn thành bước 1–4:
 - chuẩn hóa format (date, number, unit)
 
 ### 2. Data validation
+
 conte
+
 - kiểm tra data bất thường (outlier, sai format)
 - kiểm tra consistency giữa các field
 
