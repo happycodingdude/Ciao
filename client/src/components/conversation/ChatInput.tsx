@@ -126,7 +126,9 @@ const ChatInput = ({ className }: ChatInputProps) => {
       {/* Phone → fixed max-width; desktop: panel mở → thu hẹp max-width; panel đóng → rộng hơn */}
       <div
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white transition-all duration-200
-          ${isPhoneScreen() ? "max-w-140" : !toggle ? "laptop-lg:max-w-240 laptop:max-w-240" : "laptop-lg:max-w-180 laptop:max-w-180"}`}
+          ${isPhoneScreen()
+            ? "max-w-140"
+            : !toggle ? "laptop-lg:max-w-240 laptop:max-w-200" : "laptop-lg:max-w-180 laptop:max-w-150"}`}
       >
         {reply && (
           <ReplyPreview contactName={reply.replyContactName} content={reply.replyContent} onClose={clearReply} />

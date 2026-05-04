@@ -46,7 +46,7 @@ const InformationAttachments = ({ conversationId }: Props) => {
         {isLoading ? (
           <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
         ) : displayAttachments.length > 0 ? (
-          <div className="display-attachment-container laptop:grid-cols-3 laptop-lg:grid-cols-4 desktop:grid-cols-5 grid w-full gap-4">
+          <div className="display-attachment-container laptop:grid-cols-4 desktop:grid-cols-5 grid w-full gap-4">
             {displayAttachments.map((item, index) => (
               <div className="relative" key={index}>
                 <ImageWithLightBoxAndNoLazy

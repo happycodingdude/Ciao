@@ -6,7 +6,6 @@
 }
 
 .conversation-action {
-  width: 3rem;
   aspect-ratio: 1 / 1;
   background-color: var(--bg-color-thin);
   border-radius: 100%;
@@ -14,6 +13,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
   &:hover {
     background-color: var(--bg-color-light);
   }

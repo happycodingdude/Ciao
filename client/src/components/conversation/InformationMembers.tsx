@@ -34,7 +34,7 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
       <div
         ref={refMembers}
         data-show={showMembers}
-        className="members-image-container hide-scrollbar laptop:max-h-50 desktop:max-h-200 phone:max-h-80 flex flex-col gap-2 overflow-y-auto
+        className="members-image-container hide-scrollbar laptop:max-h-50 desktop:max-h-200 phone:max-h-80 flex flex-col overflow-y-auto
           scroll-smooth transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
       >
         {[...(conversation.members ?? [])]
@@ -70,7 +70,7 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
                   className="aspect-square h-8"
                   circle
                   slides={[{ src: item.contact?.avatar ?? "" }]}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 />
                 <OnlineStatusDot
                   className="right-[-20%] top-[-10%]"

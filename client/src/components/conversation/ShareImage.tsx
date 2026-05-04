@@ -43,11 +43,11 @@ const ShareImage = ({
       </div>
       <BackgroundPortal
         show={show}
-        className="laptop:w-100 phone:w-80 desktop:w-[35%]"
+        className="modal-size-sm"
         title="Forward message"
         onClose={() => setShow(false)}
       >
-        <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
+        <div className="modal-content-h flex flex-col p-5">
           <Suspense fallback={<ModalLoading />}>
             <ForwardMessageModal
               message={{
@@ -58,8 +58,8 @@ const ShareImage = ({
               directContact={
                 !conversation?.isGroup
                   ? (conversation?.members ?? []).find(
-                      (item) => item.contact?.id !== info?.id,
-                    )?.contact?.id
+                    (item) => item.contact?.id !== info?.id,
+                  )?.contact?.id
                   : undefined
               }
             />

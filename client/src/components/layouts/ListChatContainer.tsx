@@ -8,8 +8,8 @@ import useInfo from "../../hooks/useInfo";
 import { getConversations } from "../../services/conv.service";
 import "../../styles/listchat.css";
 import { ConversationCache } from "../../types/conv.types";
-import ConversationItem from "../conversation/ConversationItem";
 import ListchatLoading from "../common/ListchatLoading";
+import ConversationItem from "../conversation/ConversationItem";
 
 const ListChatContainer = () => {
   const queryClient = useQueryClient();
@@ -92,7 +92,7 @@ const ListChatContainer = () => {
   return (
     <div
       ref={refListConversation}
-      className="relative flex min-h-0 flex-1 flex-col gap-6 overflow-y-scroll scroll-smooth p-2"
+      className="relative flex min-h-0 flex-1 flex-col gap-2 overflow-y-scroll scroll-smooth p-2"
     >
       {(conversations?.filterConversations ?? [])
         // Chỉ hiển thị conversation mà user chưa rời/xóa (isDeleted = false)

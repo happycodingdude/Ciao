@@ -33,37 +33,37 @@ const Information = () => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} hide-scrollbar flex h-full w-full flex-col overflow-y-auto bg-white`}
+      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
     >
-      <div className="*:border-b-(--border-color) flex grow flex-col *:border-b-[.1rem] *:px-4 *:py-2">
-        <div className="laptop:h-16 flex items-center justify-between px-4">
-          <p className="text-base font-medium">Chat information</p>
-          <div className="flex gap-4">
-            {conversation?.isGroup && (
-              <div
-                className="fa fa-pen-to-square base-icon-sm hover:text-light-blue-500"
-                onClick={() => setOpenUpdateTitle(true)}
+      <div className="border-b-(--border-color) border-b-[.1rem] laptop:h-16 flex items-center justify-between px-4">
+        <p className="text-base font-medium">Chat information</p>
+        <div className="flex gap-4">
+          {conversation?.isGroup && (
+            <div
+              className="fa fa-pen-to-square base-icon-sm hover:text-light-blue-500"
+              onClick={() => setOpenUpdateTitle(true)}
+            />
+          )}
+          <BackgroundPortal
+            show={openUpdateTitle}
+            className="phone:w-140 laptop:w-140 desktop:w-[35%]"
+            title="Update group"
+            onClose={() => setOpenUpdateTitle(false)}
+          >
+            {conversation && (
+              <UpdateConversation
+                selected={conversation}
+                onClose={() => setOpenUpdateTitle(false)}
               />
             )}
-            <BackgroundPortal
-              show={openUpdateTitle}
-              className="phone:w-140 laptop:w-140 desktop:w-[35%]"
-              title="Update group"
-              onClose={() => setOpenUpdateTitle(false)}
-            >
-              {conversation && (
-                <UpdateConversation
-                  selected={conversation}
-                  onClose={() => setOpenUpdateTitle(false)}
-                />
-              )}
-            </BackgroundPortal>
-            <CloseOutlined
-              className="base-icon-sm cursor-pointer"
-              onClick={(e) => { e.stopPropagation(); setToggle(null); }}
-            />
-          </div>
+          </BackgroundPortal>
+          <CloseOutlined
+            className="base-icon-sm cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setToggle(null); }}
+          />
         </div>
+      </div>
+      <div className="*:border-b-(--border-color) flex grow flex-col *:border-b-[.1rem] *:px-4 *:py-2 hide-scrollbar overflow-y-auto">
 
         <div className="flex flex-col items-center gap-4">
           <ImageWithLightBoxAndNoLazy
@@ -85,7 +85,7 @@ const Information = () => {
           </div>
           <div className="conversation-action-container">
             {conversation?.isGroup && (
-              <div className="conversation-action" onClick={() => refAddMembers.current?.open()}>
+              <div className="conversation-action laptop:w-10 laptop-lg:w-12" onClick={() => refAddMembers.current?.open()}>
                 <AddMembers ref={refAddMembers} />
               </div>
             )}

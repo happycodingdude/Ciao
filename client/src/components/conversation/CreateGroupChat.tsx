@@ -14,11 +14,11 @@ const CreateGroupChat = () => {
       />
       <BackgroundPortal
         show={open}
-        className="laptop:w-150 phone:w-100 desktop:w-[35%]"
+        className="modal-size-lg"
         title="Create group"
         onClose={() => setOpen(false)}
       >
-        <div className="text-(--text-main-color) phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col gap-4 p-7">
+        <div className="text-(--text-main-color) modal-content-h flex flex-col gap-4 p-7">
           <Suspense fallback={<ModalLoading />}>
             <CreateGroupChatModal onClose={() => setOpen(false)} />
           </Suspense>

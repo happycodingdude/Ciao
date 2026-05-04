@@ -604,6 +604,18 @@
   scrollbar-width: none;
 }
 
+@utility modal-size-sm {
+  @apply phone:w-80 laptop:w-100 desktop:w-[35%];
+}
+
+@utility modal-size-lg {
+  @apply phone:w-100 laptop:w-150 desktop:w-[35%];
+}
+
+@utility modal-content-h {
+  @apply phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200;
+}
+
 
 
 

@@ -12,11 +12,11 @@ const AddFriend = () => {
       <UserAddOutlined className="base-icon-sm" onClick={() => setOpen(true)} />
       <BackgroundPortal
         show={open}
-        className="laptop:w-100 phone:w-80 desktop:w-[35%]"
+        className="modal-size-sm"
         title="Connect friend"
         onClose={() => setOpen(false)}
       >
-        <div className="phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200 flex flex-col p-5">
+        <div className="modal-content-h flex flex-col p-5">
           <Suspense fallback={<ModalLoading className="left-0 top-0" />}>
             <ListFriend onClose={() => setOpen(false)} />
           </Suspense>
