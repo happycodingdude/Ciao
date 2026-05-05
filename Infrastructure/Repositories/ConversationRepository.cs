@@ -18,10 +18,20 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
     public async Task<IEnumerable<ConversationWithTotalUnseenWithContactInfo>> GetConversationsWithUnseenMesages(string userId, PagingParam pagingParam)
     {
-        // var userId = _contactRepository.GetUserId();
+        // Pipeline aggregate Mongo phức tạp 7 stage. Lưu ý hiệu năng:
+        //  - $match đầu phải hit index { "Members.ContactId": 1 } để tránh COLLSCAN.
+        //  - $unwind nhân số document theo số member → kích thước trung gian = N_conversations * avg_members.
+        //    Đảm bảo $match đặt TRƯỚC $unwind (đã đúng), tuyệt đối không đảo thứ tự.
+        //  - 2 lookup chạy lần lượt cho từng member đã unwind: cần index trên Friend.FromContact.ContactId,
+        //    Friend.ToContact.ContactId và Contact._id để tránh nested loop O(N*M).
+        //  - $group gom lại theo conversation _id, dùng $first cho field non-array và $push cho Members.
+        //  - $sort + $skip + $limit ở cuối: $sort trên UpdatedTime nên cần index { UpdatedTime: -1 }
+        //    (hoặc sort sau $project để Mongo dùng được index).
+        //  - Khi dataset lớn, cân nhắc thêm allowDiskUse hoặc tách 2 query (conversations + members) ở app.
 
         var pipeline = new BsonDocument[]
         {
+            // Stage 1: lọc chỉ những conversation có member là userId hiện tại.
             new BsonDocument("$match", new BsonDocument("Members", new BsonDocument("$elemMatch",
                 new BsonDocument
                 {
@@ -151,6 +161,8 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             new BsonDocument("$limit", pagingParam.Limit)
         };
 
+        // Deserialize thủ công qua BsonSerializer vì pipeline có shape động (Members.Contact lấy từ $first lookup),
+        // không map 1-1 với entity gốc nên không dùng được Aggregate<TOut> trực tiếp.
         var conversations = (await _collection
             .Aggregate<BsonDocument>(pipeline)
             .ToListAsync())
@@ -158,11 +170,11 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             .ToList();
         if (!conversations.Any()) return Enumerable.Empty<ConversationWithTotalUnseenWithContactInfo>();
 
+        // Tính LastMessage* ở phía app thay vì trong pipeline để code đỡ nặng và dễ bảo trì.
+        // Trade-off: nếu Messages của 1 conversation rất dài (history lớn) thì OrderByDescending O(N) ở client
+        // có thể tốn CPU — cân nhắc giới hạn Messages ở pipeline ($slice) khi dữ liệu phình to.
         foreach (var conversation in conversations)
         {
-            // conversation.IsNotifying = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId).IsNotifying;
-            // conversation.UnSeenMessages = conversation.Messages.Where(q => q.ContactId != userId && q.Status == "received").Count();
-
             var lastMessage = conversation.Messages.OrderByDescending(q => q.CreatedTime).FirstOrDefault();
             if (lastMessage is not null)
             {
@@ -175,5 +187,53 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         }
 
         return conversations;
+    }
+
+    public async Task<List<MessageSearchResult>> SearchMessages(string conversationId, string keyword, PagingParam pagingParam)
+    {
+        // Pipeline search message theo keyword trong 1 conversation cụ thể.
+        // Chiến thuật: $unwind Messages rồi $match content regex để Mongo lọc tại DB,
+        // tránh load toàn bộ document Messages về app rồi mới filter.
+        //
+        // Hiệu năng:
+        //  - $match đầu hit _id index → O(1) tìm conversation
+        //  - $unwind nhân số = số messages của conversation
+        //  - $match regex /keyword/i KHÔNG hit index (regex case-insensitive là COLLSCAN trên array sau unwind)
+        //    → tạm chấp nhận; tương lai có thể thêm text index riêng nếu lượng message lớn.
+        //  - Escape keyword qua Regex.Escape để chống regex injection (user nhập ".*" v.v).
+        //
+        // Chỉ lấy message type="text" — image/system không có content meaningful để match keyword.
+        var escaped = System.Text.RegularExpressions.Regex.Escape(keyword);
+        var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", conversationId)),
+            new BsonDocument("$unwind", "$Messages"),
+            new BsonDocument("$match", new BsonDocument
+            {
+                { "Messages.Type", "text" },
+                { "Messages.Content", new BsonRegularExpression(escaped, "i") }
+            }),
+            new BsonDocument("$sort", new BsonDocument("Messages.CreatedTime", -1)),
+            new BsonDocument("$skip", pagingParam.Skip),
+            new BsonDocument("$limit", pagingParam.Limit),
+            // Ép Messages thành root document để deserialize trực tiếp về MessageSearchResult.
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$Messages")),
+            new BsonDocument("$project", new BsonDocument
+            {
+                { "_id", 1 },
+                { "Type", 1 },
+                { "Content", 1 },
+                { "ContactId", 1 },
+                { "CreatedTime", 1 }
+            })
+        };
+
+        var results = (await _collection
+            .Aggregate<BsonDocument>(pipeline)
+            .ToListAsync())
+            .Select(bson => BsonSerializer.Deserialize<MessageSearchResult>(bson))
+            .ToList();
+
+        return results;
     }
 }

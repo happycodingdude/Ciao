@@ -15,6 +15,10 @@ public class KafkaBackground : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        // Mỗi consumer chạy trên 1 long-running Task riêng (fire-and-forget _ = Task.Run).
+        // Lý do: ExecuteAsync phải return ngay để host không block startup; nếu await trực tiếp
+        // 1 consumer thì 2 consumer còn lại sẽ không bao giờ start.
+        // ConsumeAsync tự bắt mọi exception bên trong → không cần TaskScheduler.UnobservedTaskException.
         _ = Task.Run(() => ConsumeAsync<DataStoreConsumer>(
             new KafkaConsumer()
                 .UseGroup("datastore-consumer")
@@ -91,27 +95,31 @@ public class KafkaBackground : BackgroundService
 
             try
             {
+                // Vòng lặp consume blocking — chạy trên Task.Run từ ExecuteAsync, không chiếm thread pool
+                // mãi mãi vì consumer.Consume(timeout) là blocking-bounded, không phải spin-loop.
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
                         var cr = consumer.Consume(_kafkaConfig.Value.ConsumeTimeOut);
-                        if (cr is null) continue;
+                        if (cr is null) continue; // timeout → poll lại
 
-                        // Create a new scope per message so Scoped services (UnitOfWork, Repositories)
-                        // are isolated and don't accumulate state across messages.
+                        // Tạo scope riêng cho từng message: UnitOfWork & repositories scoped sẽ được isolate,
+                        // tránh leak state (vd. _operations dồn lại) giữa các message.
                         using var scope = _serviceProvider.CreateScope();
                         var handler = scope.ServiceProvider.GetRequiredService<T>();
                         await handler.ProcessMessageAsync(new ConsumerResultData(cr, consumer), cancellationToken);
                     }
                     catch (ConsumeException ex)
                     {
+                        // Lỗi tầng Kafka (deserialize, network) — log nhưng KHÔNG break loop, tiếp tục consume.
                         _logger.Error(ex, "Kafka consume error in {Consumer}", typeof(T).Name);
                     }
                 }
             }
             catch (OperationCanceledException)
             {
+                // Graceful shutdown: đóng consumer để commit offset và rời group.
                 consumer.Close();
             }
         }

@@ -3,6 +3,7 @@ import {
   AttachmentCache,
   AttachmentCache_Attachment,
   MessageCache,
+  MessageSearchResult,
   PinMessageRequest,
   ReactMessageRequest,
   SendMessageRequest,
@@ -82,6 +83,21 @@ export const pinMessage = async (model: PinMessageRequest) => {
         .replace("{pinned}", model.pinned),
     })
   ).data;
+};
+
+export const searchMessages = async (
+  conversationId: string,
+  keyword: string,
+) => {
+  return (
+    await HttpRequest<undefined, MessageSearchResult[]>({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEARCH.replace(
+        "{id}",
+        conversationId,
+      ).replace("{keyword}", encodeURIComponent(keyword)),
+    })
+  ).data ?? [];
 };
 
 export const getAttachments = async (conversationId: string) => {

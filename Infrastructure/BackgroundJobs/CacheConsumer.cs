@@ -69,6 +69,9 @@ public class CacheConsumer : IGenericConsumer
 
     async Task HandleUserLogin(UserLoginModel param)
     {
+        // 3 nhánh warmup cache độc lập (user info, conversations, friends) — chạy song song
+        // để giảm latency login. Mỗi task self-contained, không chia sẻ state mutable nên an toàn.
+        // Lưu ý: nếu 1 task fail, Task.WhenAll vẫn await cả 3 nhưng exception đầu tiên sẽ được throw.
         var userTask = async () =>
         {
             var user = await _contactRepository.GetInfoAsync(param.UserId);
@@ -78,6 +81,8 @@ public class CacheConsumer : IGenericConsumer
 
         var conversationTask = async () =>
         {
+            // Hardcoded paging (1, 100): chỉ cache 100 conversation gần nhất khi login.
+            // Nếu user có > 100 conversation, các conversation cũ sẽ phải fetch lazy.
             var conversations = (await _conversationRepository
                 .GetConversationsWithUnseenMesages(param.UserId, new PagingParam(1, 100))).ToList();
 
@@ -86,6 +91,7 @@ public class CacheConsumer : IGenericConsumer
                 var member = conversation.Members.SingleOrDefault(m => m.Contact.Id == param.UserId);
                 if (member != null) member.Contact.IsOnline = true;
 
+                // Pre-compute count theo từng loại reaction để client đỡ tính lại ở runtime.
                 foreach (var message in conversation.Messages)
                 {
                     var (likes, loves, cares, wows, sads, angries) = CalculateReactionCount(message.Reactions);

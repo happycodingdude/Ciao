@@ -24,6 +24,12 @@ public class MessageCache
 
     public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
     {
+        // ⚠️ RACE CONDITION KNOWN-ISSUE:
+        // Cả 4 task dưới đều theo pattern Get → mutate → Set trên Redis (read-modify-write KHÔNG nguyên tử).
+        // Nếu 2 message cùng conversation đến đồng thời (cùng host hay khác host), 1 message có thể bị mất
+        // do task đến sau ghi đè state cũ của task đến trước.
+        // → Hướng cải thiện sau này: dùng Redis list (LPUSH/RPUSH) hoặc transactional script (MULTI/Lua).
+        // Tạm thời chấp nhận vì tần suất gửi cùng conversation từ cùng user thấp + có Mongo làm source of truth.
         var tasks = new List<Task>(4);
 
         // 1. Add message to message cache
@@ -35,7 +41,8 @@ public class MessageCache
         });
         tasks.Add(messageCacheTask);
 
-        // 2. Popup conversation of users to the top
+        // 2. Popup conversation of users to the top.
+        //    Chỉ ghi lại khi conversation chưa ở vị trí đầu để tiết kiệm 1 round-trip Redis Set.
         var conversationListTask = Task.Run(async () =>
         {
             var conversationCacheData = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId)) ?? new();
@@ -64,7 +71,10 @@ public class MessageCache
         });
         tasks.Add(conversationInfoTask);
 
-        // 4. Reopen conversation for members that are deleted
+        // 4. Reopen conversation for members that are deleted.
+        //    Khi có message mới, member nào đã "ẩn" conversation (IsDeleted=true) sẽ được mở lại.
+        //    Đồng thời, member đang IsSelected (đang mở conversation) được cập nhật LastSeenTime
+        //    → tránh bị tính là "unread" cho message vừa nhận.
         var memberCacheTask = Task.Run(async () =>
         {
             var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
@@ -84,9 +94,12 @@ public class MessageCache
 
     public async Task<List<MessageReaction>> UpdateReactions(string conversationId, string messageId, string userId, string type)
     {
-        // Update message cache
+        // ⚠️ RACE CONDITION: read-modify-write trên Redis không nguyên tử — nếu 2 user react cùng lúc,
+        // 1 reaction có thể bị mất. Đồng bộ Mongo (HandleNewReaction) là source of truth, cache có thể
+        // tự healed khi user re-login (HandleUserLogin nạp lại từ DB).
         var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
         var message = messageCache.SingleOrDefault(q => q.Id == messageId);
+        // Nhánh 1: message đã có reaction → cần phân biệt user mới react vs đổi loại react.
         if (message.Reactions.Any())
         {
             var userReaction = message.Reactions.SingleOrDefault(q => q.ContactId == userId);

@@ -604,6 +604,23 @@
   scrollbar-width: none;
 }
 
+/*
+ * Width chuẩn cho 2 sidebar (ListChat trái và Information/Attachment phải).
+ * Gom vào 1 utility để đảm bảo 2 panel luôn cùng độ rộng — sửa 1 chỗ duy nhất.
+ */
+@utility sidebar-w {
+  @apply laptop:w-[clamp(17rem,22%,20rem)] laptop-lg:w-[clamp(20rem,22%,30rem)];
+}
+
+/*
+ * Height chuẩn cho header của các panel chính (ChatboxHeader, Information header, Attachment header).
+ * Bắt buộc dùng utility này để border-bottom của 3 header luôn cùng 1 đường ngang.
+ * shrink-0 tránh bị flex container ép co lại khi nội dung body dài.
+ */
+@utility panel-header-h {
+  @apply phone:h-24 laptop:h-16 shrink-0;
+}
+
 @utility modal-size-sm {
   @apply phone:w-80 laptop:w-100 desktop:w-[35%];
 }

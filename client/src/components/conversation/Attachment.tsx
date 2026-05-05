@@ -54,7 +54,7 @@ const Attachment = () => {
       ref={refAttachment}
       className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
     >
-      <div className="border-b-(--border-color) flex items-center justify-evenly border-b-[.1rem] py-4">
+      <div className="border-b-(--border-color) panel-header-h flex items-center justify-evenly border-b-[.1rem] bg-white">
         <div
           className={`${attachmentToggle === "image" ? "selected" : ""} custom-button`}
           onClick={() => {

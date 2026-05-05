@@ -50,6 +50,9 @@ public class DataStoreConsumer : IGenericConsumer
         }
         finally
         {
+            // Commit offset bất kể xử lý thành công hay lỗi để tránh kẹt partition.
+            // Lưu ý: nếu handler ném exception, message coi như đã "tiêu thụ" và sẽ KHÔNG được retry.
+            // → Mọi retry/idempotency phải xử lý ở tầng handler, không dựa vào Kafka redelivery.
             param.consumer.Commit(param.cr);
         }
     }
@@ -114,6 +117,10 @@ public class DataStoreConsumer : IGenericConsumer
 
     async Task HandleNewDirectConversation(NewDirectConversationModel param)
     {
+        // Direct conversation có 2 nhánh hoàn toàn khác nhau:
+        //  - IsNewConversation = true  → tạo conversation + 2 member ngay
+        //  - IsNewConversation = false → conversation đã tồn tại (vd. user từng xóa rồi nhắn lại),
+        //    chỉ cần "reopen" member đang IsDeleted và append message.
         var conversation = _mapper.Map<Conversation>(param.Conversation);
         var message = _mapper.Map<Message>(param.Message);
         if (param.IsNewConversation)
@@ -144,6 +151,8 @@ public class DataStoreConsumer : IGenericConsumer
 
         void HandleOldConversation(Conversation conversation, string userId, Message message)
         {
+            // Chỉ phát sinh Replace khi thực sự có thay đổi (reopen member hoặc thêm message),
+            // tránh ghi đè document không cần thiết → giảm tải Mongo và tránh đụng UpdatedTime vô nghĩa.
             var updateIsDeleted = false;
             var updateMessages = false;
 
@@ -220,7 +229,18 @@ public class DataStoreConsumer : IGenericConsumer
 
     async Task HandleNewReaction(NewReactionModel param)
     {
-        // Initialize Reactions array if null/empty
+        // Mongo không có upsert nguyên tử cho element trong nested array dựa vào điều kiện
+        // "tồn tại reaction của userId hay chưa". Chiến thuật chia làm 3 op trong cùng 1 transaction:
+        //
+        //   1) Init mảng Reactions nếu null/empty (idempotent — chỉ chạy lần đầu).
+        //   2) Update reaction sẵn có theo arrayFilter elem.ContactId == userId.
+        //   3) Fallback push reaction mới nếu user CHƯA từng react (filter dùng $not + $elemMatch).
+        //
+        // UnitOfWork dùng cùng `key` để liên kết (2) ↔ (3): nếu (2) ModifiedCount==0 thì (3) được chạy.
+        // → Không thể "vừa update vừa push" cùng lúc nên dùng pattern try-then-fallback này.
+
+        // (1) Bảo đảm Messages.$.Reactions tồn tại (mảng rỗng) trước khi update theo arrayFilter,
+        //     vì $[elem] sẽ no-op nếu mảng null.
         var initFilter = Builders<Conversation>.Filter.And(
             Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(q => q.Messages,
@@ -231,7 +251,7 @@ public class DataStoreConsumer : IGenericConsumer
 
         var key = Guid.NewGuid();
 
-        // Try to update existing reaction
+        // (2) Cố update Type cho reaction hiện hữu của user (đổi loại react).
         var conversationFilter = Builders<Conversation>.Filter.And(
             Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(q => q.Messages, w => w.Id == param.MessageId)
@@ -242,7 +262,8 @@ public class DataStoreConsumer : IGenericConsumer
             Builders<Conversation>.Update.Set("Messages.$.Reactions.$[elem].Type", param.Type),
             arrayFilter);
 
-        // Fallback: add new reaction if user hasn't reacted yet
+        // (3) Fallback: nếu (2) không match (user chưa từng react), push reaction mới.
+        // Filter $not + $elemMatch đảm bảo không double-push khi 2 consumer cùng xử lý đồng thời.
         var fallbackFilter = Builders<Conversation>.Filter.And(
             Builders<Conversation>.Filter.Eq(c => c.Id, param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(c => c.Messages,

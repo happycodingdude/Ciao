@@ -239,6 +239,7 @@ Luôn tự hỏi:
   - concurrency (lock, async, race condition nếu có)
 - Không bỏ qua edge case quan trọng
 - Ưu tiên rõ ràng, dễ đọc hơn clever code
+- Phải có comment ở các block code phức tạp để lưu ý cho người đọc
 
 → In: ✅ BƯỚC 4 XONG
 
@@ -395,6 +396,7 @@ Thay vào đó:
 - Code production-ready, chạy được ngay, không pseudo-code
 - Không bỏ qua edge case quan trọng
 - Ưu tiên rõ ràng, dễ đọc hơn clever code
+- Phải có comment ở các block code phức tạp để lưu ý cho người đọc
 
 → In: ✅ BƯỚC 4 XONG
 

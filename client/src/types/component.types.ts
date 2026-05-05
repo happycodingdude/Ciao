@@ -114,6 +114,9 @@ export type CustomContentEditableProps = {
   className?: string;
   isEmpty?: boolean;
   quickChat?: boolean;
+  // Callback khi user paste image vào editor. Optional vì không phải nơi nào dùng
+  // CustomContentEditable cũng cần upload (vd. QuickChat chỉ gửi text).
+  onPasteFiles?: (files: File[]) => void;
 };
 
 export type OnlineStatusDotProps = {

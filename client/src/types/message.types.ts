@@ -119,3 +119,9 @@ export type GroupedMessage ={
   contactId: string;
   messages: PendingMessageModel[];
 };
+
+export type MessageSearchResult = BaseModel & {
+  type: string;
+  content: string;
+  contactId: string;
+};

@@ -65,9 +65,12 @@ public class WebSocketProcessor : INotificationProcessor
     {
         try
         {
+            // Idempotency guard cho notify: nếu cùng (group, uniqueId) đã được gửi trong 2 phút thì skip.
+            // Lý do: 1 sự kiện có thể được phát lại từ nhiều consumer (Kafka redelivery, retry tầng app),
+            // nếu broadcast trùng → user nhận thông báo nhân đôi.
+            // Dùng Redis SET NX (atomic) làm distributed lock nhẹ — không cần lock app-level.
             var key = $"notify:{group}:{uniqueId}";
 
-            // Thử set key, chỉ tiếp tục nếu chưa tồn tại (atomic)
             var set = await _redisCaching.SetAsync(key, "1", TimeSpan.FromMinutes(2), When.NotExists);
             if (!set)
             {

@@ -59,6 +59,13 @@ public class MessagesWithHasMore
     public List<MessageReactionSummary> Messages { get; set; } = new();
 }
 
+public class MessageSearchResult : MongoBaseModel
+{
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+}
+
 public class SystemMessage
 {
     public string Type { get; set; } = null!;

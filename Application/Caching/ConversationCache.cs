@@ -29,15 +29,16 @@ public class ConversationCache
             .ToList();
 
         var result = new List<ConversationWithTotalUnseenWithContactInfoAndNoMessage>(conversationCacheData.Count);
-        // Query info cache
+        // Fan-out fetch info song song qua Redis (mỗi conversation 1 GET).
+        // List<T>.Add KHÔNG thread-safe → cần lock để tránh corrupt internal array khi nhiều task hoàn tất cùng lúc.
+        // Vì các task chỉ block ngắn ở Add (không chờ I/O bên trong lock), contention ở mức thấp.
+        // Sau đó OrderByDescending khôi phục thứ tự theo UpdatedTime — KHÔNG dựa vào thứ tự fetch về.
         var tasks = conversationCacheData.Select(async conversationId =>
         {
             var conversationInfo = await _redisCaching.GetAsync<ConversationWithTotalUnseenWithContactInfoAndNoMessage>(
                 AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? default;
             lock (result) // Ensure thread safety
             {
-                // var item = JsonConvert.DeserializeObject<ConversationWithTotalUnseenWithContactInfoAndNoMessage>(conversationInfo);
-                // item.UnSeenMessages = conversation.UnSeenMessages;
                 result.Add(conversationInfo);
             }
         });

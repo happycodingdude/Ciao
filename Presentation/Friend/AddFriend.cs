@@ -128,7 +128,9 @@ public static class AddFriend
             };
             _notificationRepository.Add(notification);
 
-            // Push friend request
+            // Push friend request — fire-and-forget (_ = ...) để không block return của API.
+            // Trade-off: nếu Notify fail, user sẽ không thấy realtime nhưng record đã lưu trong DB,
+            // lần fetch sau client sẽ bù trừ. Chấp nhận eventual consistency cho notification.
             var notiFriendRequest = new EventNewFriendRequest
             {
                 FriendId = friend.Id,

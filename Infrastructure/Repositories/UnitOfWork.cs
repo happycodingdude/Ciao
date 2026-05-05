@@ -37,6 +37,10 @@ public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOf
     {
         if (!_operations.Any()) return;
 
+        // Toàn bộ operations chạy trong cùng 1 Mongo transaction (yêu cầu replica set).
+        // Pattern operation+fallback theo `key`: nếu primary op không match (ModifiedCount==0)
+        // thì chạy fallback (vd. update-then-insert / update-then-push) — vẫn nằm trong transaction
+        // nên đảm bảo atomic giữa op và fallback.
         using (_session = await mongoDbContext.Client.StartSessionAsync())
         {
             _session.StartTransaction();
@@ -47,6 +51,7 @@ public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOf
                     var modifiedCount = await operation.Value.Invoke(_session);
                     logger.Information("operation result => modifiedCount={ModifiedCount}", modifiedCount);
 
+                    // Chỉ chạy fallback khi op tương ứng (cùng key) không tác động document nào.
                     if (modifiedCount == 0 && _fallbacks.TryGetValue(operation.Key, out var fallback))
                     {
                         var fallbackModified = await fallback.Invoke(_session);
@@ -57,6 +62,9 @@ public class UnitOfWork(MongoDbContext mongoDbContext, ILogger logger) : IUnitOf
             }
             catch (Exception ex)
             {
+                // Abort để rollback toàn bộ. CHÚ Ý: hiện exception đang bị "nuốt" (chỉ log),
+                // caller không biết transaction đã fail → cần xử lý theo nghiệp vụ ở tầng trên
+                // nếu muốn cảnh báo user. Đây là điểm cần cải thiện trong tương lai.
                 logger.Error(ex, "UnitOfWork transaction failed, aborting");
                 await _session.AbortTransactionAsync();
             }

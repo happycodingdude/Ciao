@@ -59,9 +59,17 @@ public class ContactRepository : MongoBaseRepository<Contact>, IContactRepositor
 
         var user = await GetInfoAsync();
 
+        // Pipeline tìm kiếm contact theo tên + xác định FriendStatus với user hiện tại.
+        // YÊU CẦU: collection Contact phải có text index trên field Name (và optionally Username/Bio)
+        // để $text $search hoạt động — nếu chưa có sẽ throw runtime error "text index required".
+        // FriendStatus được phân loại 4 nhóm bằng nested $cond:
+        //   - "new"              : chưa có document Friend nào giữa 2 contact
+        //   - "friend"           : có Friend.AcceptTime != null
+        //   - "request_sent"     : có Friend, chưa accept, user là FromContact
+        //   - "request_received" : có Friend, chưa accept, user là ToContact
         var pipeline = new BsonDocument[]
         {
-            // Search stage
+            // Search stage: text search trên Name (loại trừ chính user hiện tại).
             new BsonDocument("$match", new BsonDocument("$text", new BsonDocument("$search", name))),
             new BsonDocument("$match", new BsonDocument("_id", new BsonDocument("$ne", user.Id))),
             

@@ -66,14 +66,16 @@ public class MemberCache
 
     public async Task MemberSeenAll(string conversationId, DateTime time)
     {
-        // Set last seen time and selected
+        // Invariant: tại 1 thời điểm, mỗi user CHỈ có IsSelected=true ở 1 conversation duy nhất
+        // (conversation đang được mở trên UI). Khi chọn conversation mới, phải reset IsSelected=false
+        // ở TẤT CẢ conversation khác để giữ invariant này.
+        // Pattern: set IsSelected=true cho conversation hiện tại → fan-out reset cho các conversation còn lại.
         var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
         var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == UserId);
         selected.LastSeenTime = time;
         selected.IsSelected = true;
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
 
-        // Remove previous selected        
         var conversationCacheData = await _redisCaching.GetAsync<string[]>(AppConstants.RedisKey_UserConversations.Replace("{userId}", UserId)) ?? default;
         var otherConversationIds = conversationCacheData.Where(q => q != conversationId).ToArray();
         await ResetSelected(otherConversationIds);

@@ -26,9 +26,13 @@ public class FirebaseFunction : IFirebaseFunction
 
     public async Task Notify(string _event, string[] userIds, object data)
     {
+        // FirebaseFunction là singleton, nhưng UserCache là scoped → phải tự tạo scope để resolve.
+        // Không dùng class-level _userCache vì sẽ bị captive dependency (singleton giữ scoped instance vĩnh viễn).
         using var scope = _serviceProvider.CreateScope();
         var userCache = scope.ServiceProvider.GetRequiredService<UserCache>();
 
+        // Lookup connection token tuần tự (N round-trip Redis). Với N nhỏ (vài chục member) thì ổn,
+        // nhưng group lớn nên xem xét batch GET (Redis MGET) để giảm latency.
         var connections = new List<string>();
         foreach (var id in userIds)
         {

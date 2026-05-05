@@ -43,7 +43,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
     conversation?.members ?? [],
     info?.id ?? "",
   );
-  const { files, chooseFile, removeFile, clearFiles } = useFileAttachment();
+  const { files, chooseFile, addFiles, removeFile, clearFiles } = useFileAttachment();
 
   const [showMention, setShowMention] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
@@ -157,7 +157,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
             />
             <div className="flex items-end gap-4">
               <div className="flex-1 self-center">
-                <CustomContentEditable ref={inputRef} onKeyDown={keydownBindingFn} onKeyUp={keyupBindingFn} isEmpty={isEmpty} />
+                <CustomContentEditable ref={inputRef} onKeyDown={keydownBindingFn} onKeyUp={keyupBindingFn} isEmpty={isEmpty} onPasteFiles={addFiles} />
               </div>
               <button className="send-btn laptop:w-9 flex aspect-square cursor-pointer items-center justify-center rounded-full bg-light-blue-400 text-white">
                 <i className="fa-solid fa-paper-plane laptop:text-xs" />

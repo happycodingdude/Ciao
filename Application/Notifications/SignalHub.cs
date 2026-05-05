@@ -17,20 +17,25 @@ public class SignalHub : Hub
     {
         try
         {
+            // ⚠️ Lưu ý: chỉ SET cache khi connection chưa tồn tại trong Redis.
+            // Hàm ý: 1 user CHỈ giữ 1 connection chính tại 1 thời điểm. Nếu user mở tab thứ 2,
+            // tab đầu tiên vẫn giữ connection và tab mới sẽ KHÔNG được lưu vào cache (mặc dù vẫn join group).
+            // → Khi user gửi notification target trực tiếp qua connectionId, chỉ tab "đầu" nhận được.
+            // Đây là design có chủ đích, không phải bug — nhưng cần check lại nếu yêu cầu multi-device.
             var userId = Context.GetHttpContext()?.Request.Query["userId"];
             if (userId is not null)
             {
                 _logger.Information($"User {userId} connected with ConnectionId {Context.ConnectionId}");
                 var connection = await _userCache.GetUserConnection(userId.ToString());
-                // Set cache if not exist
                 if (connection is null)
                 {
                     _logger.Information($"Update cache User {userId} with ConnectionId {Context.ConnectionId}");
                     await _userCache.SetUserConnection(userId, Context.ConnectionId);
                     await _userCache.SetConnectionUser(userId, Context.ConnectionId);
                 }
+                // Add user vào tất cả SignalR group tương ứng các conversation user đang tham gia,
+                // để broadcast theo group thay vì gửi N message theo connectionId.
                 var conversationIds = await _conversationCache.GetListConversationId(userId);
-                // Add to group for broadcasting
                 foreach (var conversationId in conversationIds)
                 {
                     _logger.Information($"Add user {userId} to group {conversationId}");
@@ -41,6 +46,7 @@ public class SignalHub : Hub
         }
         catch (Exception ex)
         {
+            // Nuốt exception để không kill connection — SignalR sẽ disconnect nếu OnConnectedAsync throw.
             _logger.Information(JsonConvert.SerializeObject(ex));
         }
     }

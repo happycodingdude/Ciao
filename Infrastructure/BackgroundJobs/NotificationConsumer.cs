@@ -56,8 +56,12 @@ public class NotificationConsumer : IGenericConsumer
 
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
+        // Lọc bỏ chính sender khỏi danh sách Members nhận notify — sender không cần nhận push notification
+        // cho message do mình gửi (UI đã có sẵn message ở local).
         var notify = _mapper.Map<EventNewMessage>(param.Message);
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(await _userCache.GetInfo(param.UserId));
+        // Chỉ giữ Content khi type=text. Với media/file, Content được set null để giảm payload và
+        // tránh leak metadata không cần thiết qua FCM.
         notify.Content = notify.Type == "text" ? notify.Content : null;
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<EventNewConversation_Member[]>(

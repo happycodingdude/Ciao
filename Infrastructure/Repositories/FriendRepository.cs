@@ -24,16 +24,25 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
 
     public async Task<List<FriendCacheModel>> GetFriendItems(string userId)
     {
+        // Pipeline build danh sách "bạn bè" của userId, mỗi item gồm:
+        //   - FriendId, FriendStatus (friend / request_sent / request_received)
+        //   - Contact info của người còn lại (không phải userId)
+        //   - DirectConversation: id của direct conversation 1-1 nếu đã có (null nếu chưa)
+        //
+        // Phức tạp ở stage 2 (lookup contact "người kia"): dùng $cond để chọn ToContact/FromContact
+        // tùy hướng quan hệ. Cần index trên Friend.FromContact.ContactId & Friend.ToContact.ContactId.
         var pipeline = new BsonDocument[]
         {
-            // 1. Match all relations of user
+            // 1. Match all relations of user (cả 2 chiều: user là sender hoặc receiver).
             new BsonDocument("$match", new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("FromContact.ContactId", userId),
                 new BsonDocument("ToContact.ContactId", userId)
             })),
 
-            // 2. Lookup contact of the other person
+            // 2. Lookup contact of the other person.
+            //    Dùng $cond: nếu FromContact == userId thì lấy ToContact.ContactId, ngược lại lấy FromContact.ContactId.
+            //    Mục tiêu: luôn trả về contact của "người kia" trong quan hệ bạn bè.
             new BsonDocument("$lookup", new BsonDocument
             {
                 { "from", "Contact" },
@@ -116,7 +125,9 @@ public class FriendRepository : MongoBaseRepository<Friend>, IFriendRepository
                         { "in", new BsonDocument("$toString", "$$c._id") }
                     })
                 },
-                // DirectConversation = string or null
+                // DirectConversation = string or null.
+                // Filter Conversations để lấy direct (IsGroup=false). Nếu có ít nhất 1 → trả về _id đầu tiên,
+                // ngược lại trả null. Dùng $let để tránh lặp filter ở $cond.
                 {
                     "DirectConversation",
                     new BsonDocument("$let", new BsonDocument

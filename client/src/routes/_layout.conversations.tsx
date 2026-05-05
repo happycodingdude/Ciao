@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_layout/conversations")({
         <section className={`relative flex grow overflow-hidden`}>
           <ChatDetailTogglesProvider>
             <ListchatFilterProvider>
-              <div className="border-r-(--border-color) laptop:w-[clamp(17rem,22%,20rem)] laptop-lg:w-[clamp(20rem,22%,30rem)] flex h-screen shrink-0 flex-col gap-4 border-r-[.1rem]">
+              <div className="border-r-(--border-color) sidebar-w flex h-screen shrink-0 flex-col gap-4 border-r-[.1rem]">
                 <ListChatHeaderContainer />
                 <Suspense fallback={<ListchatLoading />}>
                   <Await promise={conversations}>
