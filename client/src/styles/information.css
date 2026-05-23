@@ -6,6 +6,10 @@
 }
 
 .conversation-action {
+  /* Width cố định + aspect-ratio để mọi button đồng đều, không phụ thuộc kích thước icon bên trong.
+     Trước đây không set width → button co theo icon → trông quá nhỏ và lệch nhau,
+     đặc biệt rõ ở direct chat (chỉ 2 button). */
+  width: 2.5rem; /* 40px — mobile/tablet */
   aspect-ratio: 1 / 1;
   background-color: var(--bg-color-thin);
   border-radius: 100%;
@@ -16,5 +20,9 @@
 
   &:hover {
     background-color: var(--bg-color-light);
+  }
+
+  @media (min-width: 95rem) {
+    width: 3rem; /* 48px — laptop-lg trở lên */
   }
 }

@@ -28,8 +28,6 @@ export type {
 
 export type AuthenticationFormType = "signin" | "signup" | "forgot";
 
-export type ChatDetailType = "information" | "attachment" | null;
-
 export type TogglesContextType<T> = {
   toggle: T;
   setToggle: Dispatch<SetStateAction<T>>;

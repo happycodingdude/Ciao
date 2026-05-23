@@ -22,6 +22,7 @@
 
   font-size: var(--text-3xs);
   font-weight: 300;
+  pointer-events: none;
 
   .peer:hover ~ &,
   .message-menu-container:hover ~ & {

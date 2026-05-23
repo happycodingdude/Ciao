@@ -11,7 +11,7 @@ type Props = {
 };
 
 const InformationAttachments = ({ conversationId }: Props) => {
-  const { setToggle } = useChatDetailToggles();
+  const { setActiveDetail } = useChatDetailToggles();
   const { data: attachmentCache, isLoading } = useAttachment(conversationId);
   const limit = useAttachmentLimit();
   const [displayAttachments, setDisplayAttachments] = useState<AttachmentModel[]>([]);
@@ -35,7 +35,10 @@ const InformationAttachments = ({ conversationId }: Props) => {
       <div className="flex justify-between">
         <p className="font-medium">Attachments</p>
         <div
-          onClick={() => setToggle("attachment")}
+          onClick={() => {
+            // Switch panel: state mutually exclusive nên 1 lần set là Info đóng + Attachment mở.
+            setActiveDetail("attachment");
+          }}
           className="cursor-pointer text-light-blue-500 hover:text-light-blue-400"
         >
           View all

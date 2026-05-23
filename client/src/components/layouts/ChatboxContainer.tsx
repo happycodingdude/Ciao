@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { ConversationCache } from "../../types/conv.types";
@@ -8,13 +8,49 @@ import Chatbox from "../conversation/Chatbox";
 import ChatboxHeader from "../conversation/ChatboxHeader";
 import ChatInput from "../conversation/ChatInput";
 import Information from "../conversation/Information";
+import InformationSearch from "../conversation/InformationSearch";
+
+// Tracker phải SURVIVE qua remount của ChatboxContainer. Khi chuyển conversation có data
+// fetch, route có thể unmount-remount component (Suspense/loader) → useRef sẽ reset null
+// mỗi lần mount → first-mount check skip reset → toggle không default Information như mong
+// muốn. Đặt module-scope `let` để giữ giá trị nguyên qua các lần remount trong cùng tab.
+// Reset thực sự chỉ xảy ra khi user reload trang (script re-evaluate).
+let prevConvId: string | null = null;
 
 const ChatboxContainer = () => {
-  const { toggle, setToggle } = useChatDetailToggles();
+  const { activeDetail, setActiveDetail } = useChatDetailToggles();
+
+  // anyPanelOpen = sidebar phải đang hiển thị panel nào đó.
+  const anyPanelOpen = activeDetail !== null;
 
   const refChatboxContainer = useRef<HTMLDivElement>(null);
 
   const { conversationId } = Route.useParams();
+
+  // Khi user chuyển conversation: default về panel Information bất kể đang ở panel nào.
+  // KHÔNG chạy ở mount đầu của tab (prevConvId === null) — giữ nguyên activeDetail vừa
+  // restore từ localStorage để refresh page không bị mất state user đang dùng.
+  useEffect(() => {
+    if (prevConvId !== null && prevConvId !== conversationId) {
+      setActiveDetail("information");
+    }
+    prevConvId = conversationId;
+  }, [conversationId, setActiveDetail]);
+
+  // Phím tắt mở nhanh UI Search messages: Ctrl+F (Win/Linux) hoặc Cmd+F (Mac).
+  // Ghi đè default find của browser.
+  useEffect(() => {
+    const handleShortcut = (e: KeyboardEvent) => {
+      const isModPressed = e.metaKey || e.ctrlKey;
+      // Loại trừ Shift/Alt để tránh đè lên shortcut khác (vd Ctrl+Shift+F).
+      if (!isModPressed || e.shiftKey || e.altKey) return;
+      if (e.key.toLowerCase() !== "f") return;
+      e.preventDefault();
+      setActiveDetail("search");
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, [setActiveDetail]);
 
   // Get conversation list from cache
   const conversationCache = queryClient.getQueryData<ConversationCache>([
@@ -96,7 +132,7 @@ const ChatboxContainer = () => {
           <div
             ref={refChatboxContainer}
             className={`relative flex w-full flex-col items-center
-                    ${toggle ? "" : "shrink-0"}`}
+                    ${anyPanelOpen ? "" : "shrink-0"}`}
           >
             <Chatbox />
             <ChatInput className="chatbox" />
@@ -105,10 +141,11 @@ const ChatboxContainer = () => {
       </div>
       <div
         className={`border-l-(--border-color) relative h-full shrink-0 origin-right border-l-[.1rem] transition-all duration-200
-          ${!toggle ? "w-0" : "sidebar-w"}`}
+          ${anyPanelOpen ? "sidebar-w" : "w-0"}`}
       >
         <Information />
         <Attachment />
+        <InformationSearch />
       </div>
     </div>
   );

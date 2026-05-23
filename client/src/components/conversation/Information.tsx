@@ -1,4 +1,4 @@
-import { CloseOutlined, SearchOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { useRef, useState } from "react";
 import { useSignal } from "../../context/SignalContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
@@ -13,7 +13,6 @@ import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import AddMembers, { AddMembersProps } from "./AddMembers";
 import InformationAttachments from "./InformationAttachments";
 import InformationMembers from "./InformationMembers";
-import InformationSearch from "./InformationSearch";
 import UpdateConversation from "./UpdateConversation";
 
 const Information = () => {
@@ -22,20 +21,22 @@ const Information = () => {
   const { conversationId } = Route.useParams();
   const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
 
-  const { toggle, setToggle } = useChatDetailToggles();
+  // Information thuần lo UI info — toàn bộ lifecycle của Search (reset khi đổi conversation,
+  // phím tắt Ctrl/Cmd+F, render overlay) đã được tách sang ChatboxContainer + InformationSearch.
+  // Nút X = đóng panel đang active (state mutually exclusive nên 1 set null là đủ).
+  const { showInformation, setActiveDetail } = useChatDetailToggles();
   const { data: info } = useInfo();
 
   const refInformation = useRef<HTMLDivElement>(null);
   const refAddMembers = useRef<AddMembersProps>(null);
   const [openUpdateTitle, setOpenUpdateTitle] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
 
   const otherMember = (conversation?.members ?? []).find((m) => m.contact?.id !== info?.id);
 
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 pb-4 ${toggle === "information" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
+      className={`absolute top-0 pb-4 ${showInformation ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
     >
       <div className="border-b-(--border-color) panel-header-h flex items-center justify-between border-b-[.1rem] bg-white px-4">
         <p className="text-base font-medium">Chat information</p>
@@ -61,7 +62,11 @@ const Information = () => {
           </BackgroundPortal>
           <CloseOutlined
             className="base-icon-sm cursor-pointer"
-            onClick={(e) => { e.stopPropagation(); setToggle(null); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              // State mutually exclusive — 1 lần set null là đóng panel duy nhất đang mở.
+              setActiveDetail(null);
+            }}
           />
         </div>
       </div>
@@ -87,16 +92,10 @@ const Information = () => {
           </div>
           <div className="conversation-action-container">
             {conversation?.isGroup && (
-              <div className="conversation-action laptop:w-10 laptop-lg:w-12" onClick={() => refAddMembers.current?.open()}>
+              <div className="conversation-action" onClick={() => refAddMembers.current?.open()}>
                 <AddMembers ref={refAddMembers} />
               </div>
             )}
-            <div
-              className="conversation-action"
-              onClick={() => setShowSearch(true)}
-            >
-              <SearchOutlined className="base-icon-sm transition-all duration-200" />
-            </div>
             <div
               className="conversation-action"
               onClick={() => {
@@ -123,15 +122,6 @@ const Information = () => {
 
         <InformationAttachments conversationId={conversationId} />
       </div>
-
-      {/* Search panel chiếm toàn bộ Information khi active. Render conditional để
-          giữ state input/result chỉ khi user thực sự dùng search. */}
-      {showSearch && (
-        <InformationSearch
-          conversationId={conversationId}
-          onBack={() => setShowSearch(false)}
-        />
-      )}
     </div>
   );
 };

@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
-import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useListchatFilter from "../../hooks/useListchatFilter";
@@ -18,7 +17,6 @@ import OnlineStatusDot from "../common/OnlineStatusDot";
 
 const ListchatContent = () => {
   const queryClient = useQueryClient();
-  const { setToggle } = useChatDetailToggles();
   const { setFilter } = useListchatFilter();
   const [conversationId] = useLocalStorage<string>("conversationId");
 
@@ -44,7 +42,8 @@ const ListchatContent = () => {
       setLoading(true);
     });
     if (isPhoneScreen()) {
-      setToggle(null);
+      // Default panel detail do ChatboxContainer effect handle khi conversationId đổi
+      // (set "information"). Ở đây chỉ reset list filter cho conv mới.
       setFilter("all");
     }
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {

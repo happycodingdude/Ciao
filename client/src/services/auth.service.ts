@@ -69,7 +69,9 @@ export const signout = (queryClient: QueryClient) => {
     // queryClient.setQueryData(["info"], null);
     queryClient.invalidateQueries({ queryKey: ["info"] });
 
-    // Xóa localStorage
+    // Xóa localStorage:
+    // - token/userId/isRegistered: dọn auth state
+    // - "toggleChatDetail": string panel đang active ở sidebar phải (search/information/attachment) → logout = reset UI
     [
       "accessToken",
       "refreshToken",

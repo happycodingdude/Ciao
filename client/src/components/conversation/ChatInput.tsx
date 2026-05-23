@@ -31,7 +31,9 @@ import MentionDropdown from "./MentionDropdown";
 const LazyEmojiPicker = lazy(() => import("../common/LazyEmojiPicker"));
 
 const ChatInput = ({ className }: ChatInputProps) => {
-  const { toggle } = useChatDetailToggles();
+  const { activeDetail } = useChatDetailToggles();
+  // anyPanelOpen = có panel nào đang mở ở sidebar phải → chat input thu hẹp lại nhường chỗ.
+  const anyPanelOpen = activeDetail !== null;
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   const { conversationId } = Route.useParams();
@@ -128,7 +130,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white transition-all duration-200
           ${isPhoneScreen()
             ? "max-w-140"
-            : !toggle ? "laptop-lg:max-w-240 laptop:max-w-200" : "laptop-lg:max-w-180 laptop:max-w-150"}`}
+            : !anyPanelOpen ? "laptop-lg:max-w-240 laptop:max-w-200" : "laptop-lg:max-w-180 laptop:max-w-150"}`}
       >
         {reply && (
           <ReplyPreview contactName={reply.replyContactName} content={reply.replyContent} onClose={clearReply} />

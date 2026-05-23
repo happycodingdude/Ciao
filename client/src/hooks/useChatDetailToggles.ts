@@ -1,9 +1,11 @@
 import { useContext } from "react";
-import { ChatDetailTogglesContext } from "../context/ChatDetailTogglesContext";
-import { ChatDetailType, TogglesContextType } from "../types/base.types";
+import {
+  ChatDetailTogglesContext,
+  ChatDetailTogglesContextValue,
+} from "../context/ChatDetailTogglesContext";
 
-const useChatDetailToggles = (): TogglesContextType<ChatDetailType> => {
-  const ctx = useContext<TogglesContextType<ChatDetailType> | undefined>(ChatDetailTogglesContext);
+const useChatDetailToggles = (): ChatDetailTogglesContextValue => {
+  const ctx = useContext(ChatDetailTogglesContext);
   if (!ctx) throw new Error("useChatDetailToggles must be used inside ChatDetailTogglesProvider");
   return ctx;
 };

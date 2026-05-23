@@ -10,7 +10,7 @@ import AttachmentIcon from "./AttachmentIcon";
 import ShareImage from "./ShareImage";
 
 const Attachment = () => {
-  const { toggle } = useChatDetailToggles();
+  const { showAttachment } = useChatDetailToggles();
 
   const { conversationId } = Route.useParams();
   const { data: attachmentCache } = useAttachment(conversationId);
@@ -44,15 +44,16 @@ const Attachment = () => {
     setAttachmentToggle("image");
   }, [attachmentCache]);
 
+  // Khi panel Attachment đóng → reset filter về "image" để lần mở sau ở trạng thái mặc định.
   useEffect(() => {
-    if (toggle === "attachment") return;
+    if (showAttachment) return;
     setAttachmentToggle("image");
-  }, [toggle]);
+  }, [showAttachment]);
 
   return (
     <div
       ref={refAttachment}
-      className={`absolute top-0 pb-4 ${toggle === "attachment" ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
+      className={`absolute top-0 pb-4 ${showAttachment ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
     >
       <div className="border-b-(--border-color) panel-header-h flex items-center justify-evenly border-b-[.1rem] bg-white">
         <div

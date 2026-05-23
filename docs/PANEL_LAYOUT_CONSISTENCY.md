@@ -10,7 +10,8 @@ Hai utility class được khai báo tập trung trong [client/src/index.css](..
 
 ### `sidebar-w`
 - Áp dụng cho 2 panel sidebar (cùng độ rộng).
-- Width: `clamp(17rem, 22%, 20rem)` ở breakpoint `laptop`, `clamp(20rem, 22%, 30rem)` ở `laptop-lg`.
+- Width: `clamp(17rem, 22vw, 20rem)` ở breakpoint `laptop`, `clamp(20rem, 22vw, 30rem)` ở `laptop-lg`.
+- **Dùng `vw` thay vì `%`**: 2 panel có parent khác nhau (sidebar trái nằm trực tiếp dưới `<section>`, Information panel nằm trong `grow` div đã trừ width sidebar trái). Nếu dùng `%`, mỗi panel tính trên reference khác nhau → lệch nhau vài px (ví dụ ~9px ở `laptop`, ~14px ở `laptop-lg`). `vw` luôn reference cùng viewport → bằng nhau tuyệt đối.
 
 ### `panel-header-h`
 - Áp dụng cho header của các panel có border-bottom dùng làm divider.
@@ -43,5 +44,6 @@ Khi tạo sidebar mới cần cùng độ rộng với ListChat / Information:
 
 ## Lưu ý
 
-- KHÔNG hardcode lại `clamp(17rem,22%,20rem)` hoặc `phone:h-24 laptop:h-16` ở các component mới — luôn dùng utility.
+- KHÔNG hardcode lại `clamp(17rem,22vw,20rem)` hoặc `phone:h-24 laptop:h-16` ở các component mới — luôn dùng utility.
 - Nếu cần đổi kích thước sidebar/header, **chỉ sửa trong `index.css`** — toàn bộ panel sẽ đồng bộ tự động.
+- KHÔNG dùng `%` cho width của sidebar khi 2 panel ở 2 parent khác nhau — luôn dùng `vw` để có cùng reference, tránh lệch vài pixel.

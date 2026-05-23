@@ -607,9 +607,14 @@
 /*
  * Width chuẩn cho 2 sidebar (ListChat trái và Information/Attachment phải).
  * Gom vào 1 utility để đảm bảo 2 panel luôn cùng độ rộng — sửa 1 chỗ duy nhất.
+ *
+ * Dùng `vw` thay vì `%` vì 2 panel nằm ở 2 parent khác nhau (sidebar trái là
+ * direct child của <section>, Information panel ở trong div `grow` đã trừ sidebar trái).
+ * `%` sẽ tính trên 2 reference khác nhau → 2 panel lệch nhau vài px. `vw` reference
+ * cùng viewport → bằng nhau tuyệt đối.
  */
 @utility sidebar-w {
-  @apply laptop:w-[clamp(17rem,22%,20rem)] laptop-lg:w-[clamp(20rem,22%,30rem)];
+  @apply laptop:w-[clamp(17rem,22vw,20rem)] laptop-lg:w-[clamp(20rem,22vw,30rem)];
 }
 
 /*
