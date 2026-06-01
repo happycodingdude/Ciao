@@ -117,3 +117,29 @@ export const getAttachments = async (conversationId: string) => {
   };
   return result;
 };
+
+export const markDelivered = async (conversationId: string, messageId: string, deliveredTime?: string) => {
+  return (
+    await HttpRequest({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
+        "{conversationId}",
+        conversationId,
+      ) + "/delivered",
+      data: { messageId, deliveredTime: deliveredTime || new Date().toISOString() },
+    })
+  ).data;
+};
+
+export const markRead = async (conversationId: string, messageId: string, readTime?: string) => {
+  return (
+    await HttpRequest({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEND.replace(
+        "{conversationId}",
+        conversationId,
+      ) + "/read",
+      data: { messageId, readTime: readTime || new Date().toISOString() },
+    })
+  ).data;
+};

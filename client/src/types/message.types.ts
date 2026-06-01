@@ -36,6 +36,7 @@ export type MessageContentProps = {
   getContainerRect?: () => DOMRect;
   showName?: boolean;
   showAvatar?: boolean;
+  isLastFromMe?: boolean;
 };
 
 export type MessageMenuProps = {

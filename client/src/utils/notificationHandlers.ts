@@ -15,6 +15,7 @@ import {
   updateConversationCache,
   updateMessagesCache,
 } from "./notificationCacheHelpers";
+import { markDelivered } from "../services/message.service";
 
 // Phân luồng sự kiện realtime từ SignalR/push notification theo tên event
 export const classifyNotification = (
@@ -24,7 +25,7 @@ export const classifyNotification = (
 ) => {
   const { event, data } = notificationData;
   switch (event) {
-    case "NewMessage":       return onNewMessage(queryClient, data);
+    case "NewMessage":       return onNewMessage(queryClient, data, userInfo);
     case "NewMembers":       return onNewMembers(queryClient, userInfo, data);
     case "NewConversation":  return onNewConversation(queryClient, userInfo, data);
     case "NewReaction":      return onNewReaction(queryClient, data);
@@ -32,7 +33,7 @@ export const classifyNotification = (
   }
 };
 
-const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
+const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: UserProfile) => {
   const conversationId = message.conversation.id;
   // Kiểm tra user đang mở đúng conversation nhận tin hay không
   const isActive = isConversationActive(conversationId);
@@ -78,6 +79,10 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage) => {
     queryClient.setQueryData(["attachment", conversationId], (old: AttachmentCache) =>
       old ? updateAttachmentsCache(old, message.attachments) : old,
     );
+  }
+
+  if (message.contact.id !== userInfo.id) {
+    markDelivered(conversationId, message.id).catch(console.error);
   }
 };
 

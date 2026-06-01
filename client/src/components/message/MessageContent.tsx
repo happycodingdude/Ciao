@@ -29,12 +29,72 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
 
     const isSelf = message.contactId === info?.id;
 
-    // Chỉ tìm sender cho tin người khác gửi; tin của mình không cần hiển thị avatar/tên
     const sender = !isSelf
       ? (conversation?.members ?? []).find(
           (q) => q.contact?.id === message.contactId,
         )
       : null;
+
+    const getReceiptStatus = () => {
+      if (!isSelf || !props.isLastFromMe || !conversation) return null;
+      if (message.pending) return null;
+      
+      const msgTime = dayjs(message.createdTime).valueOf();
+      
+      if (conversation.isGroup) {
+        const seenBy = (conversation.members ?? []).filter(
+          (m) =>
+            m.contact?.id !== info?.id &&
+            m.lastSeenTime &&
+            dayjs(m.lastSeenTime).valueOf() >= msgTime
+        );
+        if (seenBy.length === 0) return <span>Sent</span>;
+        
+        return (
+          <div className="flex items-center gap-1 mt-1 justify-end">
+            {seenBy.slice(0, 3).map((m) => (
+              <img
+                key={m.contact?.id}
+                src={m.contact?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(m.contact?.name || "U")}
+                alt={m.contact?.name}
+                title={m.contact?.name}
+                className="w-3.5 h-3.5 rounded-full object-cover"
+              />
+            ))}
+            {seenBy.length > 3 && (
+              <span className="text-3xs text-gray-500">
+                +{seenBy.length - 3}
+              </span>
+            )}
+          </div>
+        );
+      } else {
+        const otherMember = conversation.members?.find(
+          (m) => m.contact?.id !== info?.id
+        );
+        if (!otherMember) return <span>Sent</span>;
+        if (
+          otherMember.lastSeenTime &&
+          dayjs(otherMember.lastSeenTime).valueOf() >= msgTime
+        ) {
+          return (
+            <img
+              src={otherMember.contact?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(otherMember.contact?.name || "U")}
+              alt={otherMember.contact?.name}
+              title={otherMember.contact?.name}
+              className="w-3.5 h-3.5 rounded-full object-cover mt-1"
+            />
+          );
+        }
+        if (
+          otherMember.lastDeliveredTime &&
+          dayjs(otherMember.lastDeliveredTime).valueOf() >= msgTime
+        ) {
+          return <span>Delivered</span>;
+        }
+        return <span>Sent</span>;
+      }
+    };
 
     return (
       <div
@@ -156,12 +216,19 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 getContainerRect={props.getContainerRect}
               />
             )}
-            <p
-              data-mine={isSelf}
-              className="message-time"
-            >
-              {dayjs(message.createdTime).format("HH:mm")}
-            </p>
+            <div className="flex flex-col items-end gap-1">
+              <p
+                data-mine={isSelf}
+                className="message-time"
+              >
+                {dayjs(message.createdTime).format("HH:mm")}
+              </p>
+              {isSelf && props.isLastFromMe && !message.pending && (
+                <div className="text-3xs text-gray-500 italic flex justify-end">
+                  {getReceiptStatus()}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

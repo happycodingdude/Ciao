@@ -1,4 +1,4 @@
-﻿namespace Application.Kafka.Model;
+namespace Application.Kafka.Model;
 
 public static class Topic
 {
@@ -15,4 +15,8 @@ public static class Topic
     public const string NewReaction = "reaction.new";
     public const string StoredReaction = "reaction.stored";
     public const string NotifyNewReaction = "reaction.notify";
+    public const string MessageDelivered = "message.delivered";
+    public const string MessageRead = "message.read";
+    public const string NotifyMessageDelivered = "message.delivered.notify";
+    public const string NotifyMessageRead = "message.read.notify";
 }

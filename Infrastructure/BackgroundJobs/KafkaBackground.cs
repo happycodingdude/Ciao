@@ -27,7 +27,9 @@ public class KafkaBackground : BackgroundService
                     Topic.NewGroupConversation,
                     Topic.NewDirectConversation,
                     Topic.NewMember,
-                    Topic.NewReaction
+                    Topic.NewReaction,
+                    Topic.MessageDelivered,
+                    Topic.MessageRead
                     ])
                 .Build(),
             cancellationToken));
@@ -54,7 +56,9 @@ public class KafkaBackground : BackgroundService
                     Topic.StoredGroupConversation,
                     Topic.StoredDirectConversation,
                     Topic.StoredMember,
-                    Topic.NotifyNewReaction
+                    Topic.NotifyNewReaction,
+                    Topic.NotifyMessageDelivered,
+                    Topic.NotifyMessageRead
                     ])
                 .Build(),
             cancellationToken));

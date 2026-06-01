@@ -48,9 +48,6 @@ public static class GetMessages
                 throw new BadRequestException(validationResult.ToString());
 
             var userId = _contactRepository.GetUserId();
-            var lastSeenTime = DateTime.UtcNow;
-            SeenAll(request.id, lastSeenTime, userId);
-            await _memberCache.MemberSeenAll(request.id, lastSeenTime);
 
             var message = await _messageCache.GetMessages(request.id);
             var paging = new PagingParam(request.page, request.limit);
@@ -65,20 +62,6 @@ public static class GetMessages
                 Messages = result.OrderBy(q => q.CreatedTime).ToList(),
                 HasMore = nextPagedMessages.Any()
             };
-        }
-
-        void SeenAll(string conversationId, DateTime time, string userId)
-        {
-            var conversationFilter = Builders<Conversation>.Filter.And(
-                Builders<Conversation>.Filter.Eq("_id", conversationId),
-                Builders<Conversation>.Filter.Eq("Members.ContactId", userId)
-            );
-            var conversationUpdates = Builders<Conversation>.Update
-                .Set("Members.$[elem].LastSeenTime", time);
-            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem.ContactId", userId)
-                );
-            _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
         }
     }
 }

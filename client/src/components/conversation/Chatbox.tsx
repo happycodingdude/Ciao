@@ -1,12 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useChatboxScroll } from "../../hooks/useChatboxScroll";
 import useConversation from "../../hooks/useConversation";
+import useInfo from "../../hooks/useInfo";
 import useMessage from "../../hooks/useMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { GroupedMessage, PendingMessageModel } from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
+import { markRead } from "../../services/message.service";
 
 // Gom tin nhắn thành nhóm theo ngày, rồi trong mỗi ngày gom tiếp theo người gửi liên tiếp
 const groupMessagesByDate = (
@@ -80,8 +82,28 @@ const Chatbox = () => {
     oldLastMsgRef.current = currentLastMsg;
   }, [messages]);
 
+  // Gửi read receipt khi người dùng đọc tin nhắn (ở đáy màn hình)
+  useEffect(() => {
+    if (!messages || messages.messages.length === 0 || !conversationId) return;
+    
+    // Nếu không hiện nút cuộn xuống nghĩa là đã ở cuối cùng
+    if (!showScrollToBottom) {
+      const currentLastMsg = messages.messages[messages.messages.length - 1];
+      const timer = setTimeout(() => {
+        if (currentLastMsg && currentLastMsg.id) {
+          markRead(conversationId, currentLastMsg.id).catch(console.error);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [showScrollToBottom, messages, conversationId]);
+
   const grouped = groupMessagesByDate(messages?.messages ?? []);
   const groupedEntries = Object.entries(grouped);
+
+  const { data: info } = useInfo();
+  const myMessages = messages?.messages.filter((m) => m.contactId === info?.id) ?? [];
+  const lastMyMessageId = myMessages.length > 0 ? myMessages[myMessages.length - 1].id : null;
 
   return (
     <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-4">
@@ -130,6 +152,7 @@ const Chatbox = () => {
                       // Avatar và tên chỉ hiển thị ở tin đầu của block
                       showName={message === firstMessage}
                       showAvatar={message === firstMessage}
+                      isLastFromMe={message.id === lastMyMessageId}
                       getContainerRect={() =>
                         refChatContent.current?.getBoundingClientRect() ?? new DOMRect()
                       }

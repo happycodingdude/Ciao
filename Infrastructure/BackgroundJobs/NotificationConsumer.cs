@@ -42,6 +42,12 @@ public class NotificationConsumer : IGenericConsumer
                 case Topic.NotifyNewReaction:
                     await HandleNewReaction(JsonConvert.DeserializeObject<NotifyNewReactionModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.NotifyMessageDelivered:
+                    await HandleNotifyMessageDelivered(JsonConvert.DeserializeObject<NotifyMessageDeliveredModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.NotifyMessageRead:
+                    await HandleNotifyMessageRead(JsonConvert.DeserializeObject<NotifyMessageReadModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -51,6 +57,30 @@ public class NotificationConsumer : IGenericConsumer
         finally
         {
             param.consumer.Commit(param.cr);
+        }
+    }
+
+    async Task HandleNotifyMessageDelivered(NotifyMessageDeliveredModel param)
+    {
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members != null)
+        {
+            await _firebaseFunction.Notify(
+                "MessageDelivered",
+                members.Select(q => q.Contact.Id).ToArray(),
+                param);
+        }
+    }
+
+    async Task HandleNotifyMessageRead(NotifyMessageReadModel param)
+    {
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members != null)
+        {
+            await _firebaseFunction.Notify(
+                "MessageRead",
+                members.Select(q => q.Contact.Id).ToArray(),
+                param);
         }
     }
 
@@ -69,7 +99,7 @@ public class NotificationConsumer : IGenericConsumer
 
         var memberIds = notify.Members.Select(m => m.Contact.Id).ToArray();
         var contacts = await _contactRepository.GetAllAsync(
-            Builders<Contact>.Filter.Where(q => memberIds.Contains(q.Id)));
+            MongoQuery<Contact>.ContactIdFilter(memberIds));
         var contactMap = contacts.ToDictionary(c => c.Id);
 
         foreach (var member in notify.Members)

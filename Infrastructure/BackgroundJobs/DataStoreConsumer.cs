@@ -42,6 +42,12 @@ public class DataStoreConsumer : IGenericConsumer
                 case Topic.NewReaction:
                     await HandleNewReaction(JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.MessageDelivered:
+                    await HandleMessageDelivered(JsonConvert.DeserializeObject<MessageDeliveredModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.MessageRead:
+                    await HandleMessageRead(JsonConvert.DeserializeObject<MessageReadModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -55,6 +61,51 @@ public class DataStoreConsumer : IGenericConsumer
             // → Mọi retry/idempotency phải xử lý ở tầng handler, không dựa vào Kafka redelivery.
             param.consumer.Commit(param.cr);
         }
+    }
+
+    async Task HandleMessageDelivered(MessageDeliveredModel param)
+    {
+        var conversationFilter = Builders<Conversation>.Filter.And(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(c => c.Members, m => m.ContactId == param.UserId)
+        );
+        var conversationUpdates = Builders<Conversation>.Update
+            .Set("Members.$.LastDeliveredMessageId", param.MessageId)
+            .Set("Members.$.LastDeliveredTime", param.DeliveredTime);
+
+        _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates);
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.NotifyMessageDelivered, new NotifyMessageDeliveredModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            ContactId = param.UserId,
+            MessageId = param.MessageId,
+            DeliveredTime = param.DeliveredTime
+        });
+    }
+
+    async Task HandleMessageRead(MessageReadModel param)
+    {
+        var conversationFilter = Builders<Conversation>.Filter.And(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(c => c.Members, m => m.ContactId == param.UserId)
+        );
+        var conversationUpdates = Builders<Conversation>.Update
+            .Set("Members.$.LastSeenTime", param.ReadTime);
+
+        _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates);
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.NotifyMessageRead, new NotifyMessageReadModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            ContactId = param.UserId,
+            MessageId = param.MessageId,
+            ReadTime = param.ReadTime
+        });
     }
 
     async Task HandleNewMessage(NewMessageModel param)

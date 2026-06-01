@@ -1,4 +1,4 @@
-﻿namespace Application.Kafka.Model;
+namespace Application.Kafka.Model;
 
 public class KafkaBaseModel
 {
@@ -145,4 +145,34 @@ public class NotifyNewMessagePinnedModel : KafkaBaseModel
     public string MessageId { get; set; } = null!;
     public bool IsPinned { get; set; }
     public string PinnedBy { get; set; } = null!;
+}
+
+public class MessageDeliveredModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public DateTime DeliveredTime { get; set; }
+}
+
+public class MessageReadModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public DateTime ReadTime { get; set; }
+}
+
+public class NotifyMessageDeliveredModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public DateTime DeliveredTime { get; set; }
+}
+
+public class NotifyMessageReadModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public DateTime ReadTime { get; set; }
 }
