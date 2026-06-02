@@ -68,3 +68,23 @@ export type NewMessagePinned = {
   isPinned: boolean;
   pinnedBy: string;
 };
+
+// Payload từ BE (NotifyMessageDeliveredModel / NotifyMessageReadModel).
+// contactId = người vừa thực hiện delivered/read (không phải sender của tin nhắn gốc).
+// FE dùng để cập nhật horizon của member tương ứng trong conversation cache,
+// từ đó MessageContent re-render trạng thái Sent → Delivered → Seen.
+export type MessageDeliveredEvent = {
+  conversationId: string;
+  contactId: string;
+  messageId: string;
+  deliveredTime: string;
+  userId?: string;
+};
+
+export type MessageReadEvent = {
+  conversationId: string;
+  contactId: string;
+  messageId: string;
+  readTime: string;
+  userId?: string;
+};

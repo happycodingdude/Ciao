@@ -26,6 +26,8 @@ public class MemberWithContactInfo : MongoBaseModel
     public bool IsNotifying { get; set; }
     public ContactInfoMoreDetails Contact { get; set; } = null!;
     public DateTime? LastSeenTime { get; set; }
+    public string? LastDeliveredMessageId { get; set; }
+    public DateTime? LastDeliveredTime { get; set; }
     public bool IsSelected { get; set; }
 }
 

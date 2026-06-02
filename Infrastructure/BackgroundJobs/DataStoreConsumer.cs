@@ -65,9 +65,16 @@ public class DataStoreConsumer : IGenericConsumer
 
     async Task HandleMessageDelivered(MessageDeliveredModel param)
     {
+        // Idempotency: chỉ update khi DeliveredTime mới hơn LastDeliveredTime hiện có.
+        // ElemMatch với điều kiện LastDeliveredTime null hoặc < DeliveredTime đảm bảo:
+        //  - Duplicate event (Kafka redelivery, multi-tab spam) → no-op tự nhiên ở Mongo (không match → không update).
+        //  - Event out-of-order (tab A gửi delivered cũ sau tab B gửi mới) → giữ nguyên trạng thái mới hơn.
+        // KHÔNG load document trước → 1 round-trip, tránh race condition read-modify-write.
         var conversationFilter = Builders<Conversation>.Filter.And(
             MongoQuery<Conversation>.IdFilter(param.ConversationId),
-            Builders<Conversation>.Filter.ElemMatch(c => c.Members, m => m.ContactId == param.UserId)
+            Builders<Conversation>.Filter.ElemMatch(c => c.Members,
+                m => m.ContactId == param.UserId
+                    && (m.LastDeliveredTime == null || m.LastDeliveredTime < param.DeliveredTime))
         );
         var conversationUpdates = Builders<Conversation>.Update
             .Set("Members.$.LastDeliveredMessageId", param.MessageId)
@@ -88,14 +95,32 @@ public class DataStoreConsumer : IGenericConsumer
 
     async Task HandleMessageRead(MessageReadModel param)
     {
-        var conversationFilter = Builders<Conversation>.Filter.And(
+        // Tách thành 2 update độc lập vì 2 điều kiện idempotency khác nhau:
+        //  - Op1: chỉ update LastSeenTime khi mới hơn (idempotent ở Mongo qua ElemMatch điều kiện thời gian).
+        //  - Op2: read implies delivered — nếu LastDeliveredTime null hoặc cũ hơn ReadTime,
+        //         cập nhật cả delivered horizon (đã đọc thì chắc chắn đã nhận).
+        // Cả 2 ops cùng UnitOfWork.SaveAsync → chạy trong 1 transaction Mongo.
+        var readFilter = Builders<Conversation>.Filter.And(
             MongoQuery<Conversation>.IdFilter(param.ConversationId),
-            Builders<Conversation>.Filter.ElemMatch(c => c.Members, m => m.ContactId == param.UserId)
+            Builders<Conversation>.Filter.ElemMatch(c => c.Members,
+                m => m.ContactId == param.UserId
+                    && (m.LastSeenTime == null || m.LastSeenTime < param.ReadTime))
         );
-        var conversationUpdates = Builders<Conversation>.Update
+        var readUpdate = Builders<Conversation>.Update
             .Set("Members.$.LastSeenTime", param.ReadTime);
+        _conversationRepository.UpdateNoTrackingTime(readFilter, readUpdate);
 
-        _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates);
+        var deliveredFilter = Builders<Conversation>.Filter.And(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(c => c.Members,
+                m => m.ContactId == param.UserId
+                    && (m.LastDeliveredTime == null || m.LastDeliveredTime < param.ReadTime))
+        );
+        var deliveredUpdate = Builders<Conversation>.Update
+            .Set("Members.$.LastDeliveredMessageId", param.MessageId)
+            .Set("Members.$.LastDeliveredTime", param.ReadTime);
+        _conversationRepository.UpdateNoTrackingTime(deliveredFilter, deliveredUpdate);
+
         await _uow.SaveAsync();
 
         await _kafkaProducer.ProduceAsync(Topic.NotifyMessageRead, new NotifyMessageReadModel

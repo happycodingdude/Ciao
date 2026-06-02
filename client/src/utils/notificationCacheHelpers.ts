@@ -96,6 +96,86 @@ export const updateMessagesCache = (
   };
 };
 
+// Nâng forward delivered horizon cho một member cụ thể trong conversation cache.
+// Idempotent: nếu deliveredTime cũ hơn lastDeliveredTime hiện có → no-op, giữ nguyên reference
+// để React tránh re-render không cần thiết. Đồng bộ với MemberCache.MemberDelivered ở backend.
+export const updateMemberDeliveredHorizon = (
+  oldData: ConversationCache,
+  conversationId: string,
+  contactId: string,
+  messageId: string,
+  deliveredTime: string,
+): ConversationCache => {
+  const deliveredMs = dayjs(deliveredTime).valueOf();
+  let mutated = false;
+
+  const updated = (oldData.conversations ?? []).map((conv) => {
+    if (conv.id !== conversationId) return conv;
+
+    let convChanged = false;
+    const members = (conv.members ?? []).map((m) => {
+      if (m.contact?.id !== contactId) return m;
+      // Idempotent guard: chỉ nâng forward (out-of-order event / duplicate FCM → no-op)
+      if (m.lastDeliveredTime && dayjs(m.lastDeliveredTime).valueOf() >= deliveredMs) {
+        return m;
+      }
+      convChanged = true;
+      return { ...m, lastDeliveredTime: deliveredTime, lastDeliveredMessageId: messageId };
+    });
+
+    if (!convChanged) return conv;
+    mutated = true;
+    return { ...conv, members };
+  });
+
+  // No-op: không tạo reference mới cho ConversationCache nếu không có conversation nào đổi
+  if (!mutated) return oldData;
+  return { ...oldData, conversations: updated, filterConversations: updated };
+};
+
+// Nâng forward read horizon cho một member; đồng thời nâng delivered horizon
+// (read implies delivered — đồng bộ với MemberCache.MemberSeenAll ở backend).
+export const updateMemberReadHorizon = (
+  oldData: ConversationCache,
+  conversationId: string,
+  contactId: string,
+  messageId: string,
+  readTime: string,
+): ConversationCache => {
+  const readMs = dayjs(readTime).valueOf();
+  let mutated = false;
+
+  const updated = (oldData.conversations ?? []).map((conv) => {
+    if (conv.id !== conversationId) return conv;
+
+    let convChanged = false;
+    const members = (conv.members ?? []).map((m) => {
+      if (m.contact?.id !== contactId) return m;
+      const seenChanged = !m.lastSeenTime || dayjs(m.lastSeenTime).valueOf() < readMs;
+      const delivChanged = !m.lastDeliveredTime || dayjs(m.lastDeliveredTime).valueOf() < readMs;
+      // Idempotent guard: cả 2 horizon đã >= readTime → no-op
+      if (!seenChanged && !delivChanged) return m;
+      convChanged = true;
+      return {
+        ...m,
+        ...(seenChanged && { lastSeenTime: readTime }),
+        // Read implies delivered: nâng cả delivered horizon nếu còn cũ hơn readTime
+        ...(delivChanged && {
+          lastDeliveredTime: readTime,
+          lastDeliveredMessageId: messageId,
+        }),
+      };
+    });
+
+    if (!convChanged) return conv;
+    mutated = true;
+    return { ...conv, members };
+  });
+
+  if (!mutated) return oldData;
+  return { ...oldData, conversations: updated, filterConversations: updated };
+};
+
 export const updateAttachmentsCache = (
   oldData: AttachmentCache,
   attachments: AttachmentModel[],

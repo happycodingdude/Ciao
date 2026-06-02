@@ -73,17 +73,15 @@ public class MessageCache
 
         // 4. Reopen conversation for members that are deleted.
         //    Khi có message mới, member nào đã "ẩn" conversation (IsDeleted=true) sẽ được mở lại.
-        //    Đồng thời, member đang IsSelected (đang mở conversation) được cập nhật LastSeenTime
-        //    → tránh bị tính là "unread" cho message vừa nhận.
+        //    KHÔNG cập nhật LastSeenTime ở đây nữa — read horizon chỉ được nâng qua explicit
+        //    event read từ FE (ReadMessage endpoint → MemberCache.MemberSeenAll). Việc tự
+        //    đánh dấu seen khi nhận message mới (dựa vào IsSelected) là implicit side-effect
+        //    không đáng tin: IsSelected có thể stale, và FE Chatbox đã có debounced markRead
+        //    đảm bảo seen khi user thực sự ở cuối conversation.
         var memberCacheTask = Task.Run(async () =>
         {
             var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
-            var now = DateTime.UtcNow;
-            members.ForEach(m =>
-            {
-                m.IsDeleted = false;
-                if (m.IsSelected) m.LastSeenTime = now;
-            });
+            members.ForEach(m => m.IsDeleted = false);
             await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), members);
         });
         tasks.Add(memberCacheTask);

@@ -18,12 +18,14 @@ public static class DeliveredMessage
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IKafkaProducer _kafkaProducer;
+        readonly MemberCache _memberCache;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IKafkaProducer kafkaProducer, MemberCache memberCache)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _kafkaProducer = kafkaProducer;
+            _memberCache = memberCache;
         }
 
         public async Task<bool> Handle(Request request, CancellationToken cancellationToken)
@@ -39,6 +41,10 @@ public static class DeliveredMessage
                 MessageId = request.model.MessageId,
                 DeliveredTime = request.model.DeliveredTime
             });
+
+            // Cập nhật cache ngay tại API call để UI đa thiết bị của chính user phản ánh nhanh.
+            // Consistency-check: cache có thể tạm sai do race; Mongo qua DataStoreConsumer là source-of-truth.
+            await _memberCache.MemberDelivered(request.conversationId, request.model.MessageId, request.model.DeliveredTime);
 
             return true;
         }

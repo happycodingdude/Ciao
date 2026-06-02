@@ -4,6 +4,8 @@ import { UserProfile } from "../types/base.types";
 import { ConversationCache, ConversationModel } from "../types/conv.types";
 import { AttachmentCache, MessageCache } from "../types/message.types";
 import {
+  MessageDeliveredEvent,
+  MessageReadEvent,
   NewConversation,
   NewMessage,
   NewMessagePinned,
@@ -13,6 +15,8 @@ import {
   createNewConversation,
   updateAttachmentsCache,
   updateConversationCache,
+  updateMemberDeliveredHorizon,
+  updateMemberReadHorizon,
   updateMessagesCache,
 } from "./notificationCacheHelpers";
 import { markDelivered } from "../services/message.service";
@@ -25,11 +29,13 @@ export const classifyNotification = (
 ) => {
   const { event, data } = notificationData;
   switch (event) {
-    case "NewMessage":       return onNewMessage(queryClient, data, userInfo);
-    case "NewMembers":       return onNewMembers(queryClient, userInfo, data);
-    case "NewConversation":  return onNewConversation(queryClient, userInfo, data);
-    case "NewReaction":      return onNewReaction(queryClient, data);
-    case "NewMessagePinned": return onNewMessagePinned(queryClient, data);
+    case "NewMessage":        return onNewMessage(queryClient, data, userInfo);
+    case "NewMembers":        return onNewMembers(queryClient, userInfo, data);
+    case "NewConversation":   return onNewConversation(queryClient, userInfo, data);
+    case "NewReaction":       return onNewReaction(queryClient, data);
+    case "NewMessagePinned":  return onNewMessagePinned(queryClient, data);
+    case "MessageDelivered":  return onMessageDelivered(queryClient, data, userInfo);
+    case "MessageRead":       return onMessageRead(queryClient, data, userInfo);
   }
 };
 
@@ -192,4 +198,49 @@ const onNewMessagePinned = (
       ),
     } as MessageCache;
   });
+};
+
+// Receipt events từ FCM — cập nhật horizon của member tương ứng trong conversation cache.
+// BE đã loại sender khỏi recipient list (NotificationConsumer.HandleNotifyMessage*), nên
+// về lý thuyết user nhận event đều là người khác. Tuy nhiên multi-tab cùng userId vẫn có
+// thể nhận event của chính mình → cache helper tự idempotent (no-op nếu time cũ hơn).
+const onMessageDelivered = (
+  queryClient: QueryClient,
+  ev: MessageDeliveredEvent,
+  userInfo: UserProfile,
+) => {
+  // Bỏ qua event do chính mình gây ra (defense in depth — BE đã filter)
+  if (ev.contactId === userInfo.id) return;
+
+  queryClient.setQueryData(["conversation"], (old: ConversationCache) =>
+    old
+      ? updateMemberDeliveredHorizon(
+          old,
+          ev.conversationId,
+          ev.contactId,
+          ev.messageId,
+          ev.deliveredTime,
+        )
+      : old,
+  );
+};
+
+const onMessageRead = (
+  queryClient: QueryClient,
+  ev: MessageReadEvent,
+  userInfo: UserProfile,
+) => {
+  if (ev.contactId === userInfo.id) return;
+
+  queryClient.setQueryData(["conversation"], (old: ConversationCache) =>
+    old
+      ? updateMemberReadHorizon(
+          old,
+          ev.conversationId,
+          ev.contactId,
+          ev.messageId,
+          ev.readTime,
+        )
+      : old,
+  );
 };

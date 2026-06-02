@@ -13,6 +13,35 @@ Review codebase ứng dụng chat và đề xuất 2 tính năng chưa có nhưn
 
 ## Tính năng 1: Chuẩn hóa delivery/read receipts dựa trên `Member.LastSeenTime`
 
+> **Trạng thái triển khai (cập nhật 2026-06-02): ✅ HOÀN THÀNH (backend + frontend)**
+>
+> Các thay đổi đã merge:
+>
+> - `Domain/Entities/Member.cs`: thêm `LastDeliveredMessageId`, `LastDeliveredTime`.
+> - `Application/DTOs/MemberDto.cs` (`MemberWithContactInfo`): thêm 2 field tương ứng để cache reflect đầy đủ.
+> - `Application/Kafka/Model/Topic.cs`: thêm 4 topic — `MessageDelivered`, `MessageRead`, `NotifyMessageDelivered`, `NotifyMessageRead`.
+> - `Application/Kafka/Model/KafkaMessage.cs`: thêm 4 model — `MessageDeliveredModel`, `MessageReadModel`, `NotifyMessageDeliveredModel`, `NotifyMessageReadModel`.
+> - `Application/WebSocketEvents/ChatEventNames.cs`: thêm 2 event name `MessageDelivered`, `MessageRead`.
+> - `Presentation/Message/DeliveredMessage.cs`: endpoint `POST /api/v1/conversations/{conversationId}/messages/delivered` — produce Kafka + cập nhật cache `MemberCache.MemberDelivered` để UI đa thiết bị reflect ngay.
+> - `Presentation/Message/ReadMessage.cs`: endpoint `POST /api/v1/conversations/{conversationId}/messages/read` — produce Kafka + cập nhật cache `MemberCache.MemberSeenAll` (đã hỗ trợ `messageId`).
+> - `Presentation/Conversation/GetMessages.cs`: bỏ side-effect đánh dấu seen khi fetch message — fetch không còn ngầm "đã đọc".
+> - `Infrastructure/Repositories/ConversationRepository.cs`: bỏ projection `SeenTime` không còn dùng.
+> - `Infrastructure/BackgroundJobs/DataStoreConsumer.cs`:
+>   - `HandleMessageDelivered`: filter Mongo `ElemMatch` thêm điều kiện `LastDeliveredTime == null OR < DeliveredTime` → **idempotent ở Mongo layer**, no-op tự nhiên khi event duplicate hoặc out-of-order.
+>   - `HandleMessageRead`: tách thành 2 update — (1) `LastSeenTime` chỉ tăng monotonic, (2) **read implies delivered**: nâng cả `LastDeliveredTime/LastDeliveredMessageId` nếu null hoặc cũ hơn `ReadTime`. Cả 2 ops cùng `UnitOfWork.SaveAsync` → 1 transaction Mongo.
+> - `Application/Caching/MemberCache.cs`:
+>   - `MemberSeenAll(conversationId, time, messageId?)`: idempotent ở app layer — chỉ update khi `time` mới hơn `LastSeenTime`; đồng thời sync `LastDeliveredTime/LastDeliveredMessageId` (read implies delivered ở cache).
+>   - Mới: `MemberDelivered(conversationId, messageId, deliveredTime)` — cập nhật cache delivered horizon, idempotent.
+> - `Application/Caching/MessageCache.cs` (cập nhật 2026-06-02): **bỏ hoàn toàn** fallback `if (m.IsSelected) m.LastSeenTime = now;` khi nhận message mới. Read horizon giờ chỉ được nâng qua explicit event từ FE (`markRead` debounced ở `Chatbox.tsx`). Lý do: IsSelected có thể stale, và việc tự đánh dấu seen từ implicit signal làm sai semantic "đã đọc".
+> - `Infrastructure/BackgroundJobs/NotificationConsumer.cs`:
+>   - `HandleNotifyMessageDelivered/Read`: lọc bỏ `param.ContactId` (chính người vừa thực hiện) khỏi recipient FCM → tiết kiệm cost, tránh echo loop multi-tab. Dùng `ChatEventNames.MessageDelivered/Read` thay vì hardcode string.
+> - Frontend (`client/src/services/message.service.ts`): `markDelivered`, `markRead` đã có; được gọi từ `Chatbox.tsx` (read khi user xem message cuối) và `notificationHandlers.ts` (delivered khi nhận `NewMessage` qua FCM).
+> - Frontend (`client/src/utils/notificationHandlers.ts`) (cập nhật 2026-06-02): subscribe 2 event FCM `MessageDelivered` / `MessageRead` → cập nhật `members[].lastDeliveredTime/lastSeenTime` trong cache `["conversation"]`. Sender re-render trạng thái Sent → Delivered → Seen tự động (UI ở `MessageContent.getReceiptStatus()` đã có sẵn render: avatar người đã seen cho direct chat, "Seen by + N" cho group).
+> - Frontend (`client/src/utils/notificationCacheHelpers.ts`) (cập nhật 2026-06-02): thêm 2 helper `updateMemberDeliveredHorizon` / `updateMemberReadHorizon` — idempotent ở cache layer (chỉ nâng forward, no-op khi duplicate/out-of-order; preserve reference khi không đổi → tránh re-render thừa). Read implies delivered: helper read tự nâng cả delivered horizon nếu cũ hơn.
+> - Frontend (`client/src/types/notification.types.ts`) (cập nhật 2026-06-02): thêm types `MessageDeliveredEvent`, `MessageReadEvent` match với BE payload.
+>
+> **Không còn item open cho tính năng 1.** Các nâng cấp tiếp theo (metrics, observability, group "Seen by" panel chi tiết khi click) thuộc backlog tăng cường, không block tính năng.
+
 ### Mục đích
 
 Cho người gửi biết tin đã gửi, đã đến thiết bị người nhận và đã được đọc, nhưng không thay thế hoàn toàn cơ chế hiện có. Tính năng này nên nâng cấp `Member.LastSeenTime` hiện tại thành một read horizon đúng nghĩa, đồng thời bổ sung delivered horizon.

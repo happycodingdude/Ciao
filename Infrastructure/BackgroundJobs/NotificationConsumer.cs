@@ -62,26 +62,40 @@ public class NotificationConsumer : IGenericConsumer
 
     async Task HandleNotifyMessageDelivered(NotifyMessageDeliveredModel param)
     {
+        // Loại chính người vừa thực hiện delivered khỏi recipient list:
+        //  - Tránh gửi FCM về cho user đã gây ra event (UI họ tự biết LastDeliveredTime của chính mình).
+        //  - Giảm cost FCM, tránh echo loop trong UI khi multi-tab cùng user.
+        // Pattern này đồng nhất với HandleNewMessage (Where ContactId != UserId).
         var members = await _memberCache.GetMembers(param.ConversationId);
-        if (members != null)
-        {
-            await _firebaseFunction.Notify(
-                "MessageDelivered",
-                members.Select(q => q.Contact.Id).ToArray(),
-                param);
-        }
+        if (members is null) return;
+
+        var recipients = members
+            .Where(q => q.Contact.Id != param.ContactId)
+            .Select(q => q.Contact.Id)
+            .ToArray();
+        if (recipients.Length == 0) return;
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.MessageDelivered,
+            recipients,
+            param);
     }
 
     async Task HandleNotifyMessageRead(NotifyMessageReadModel param)
     {
         var members = await _memberCache.GetMembers(param.ConversationId);
-        if (members != null)
-        {
-            await _firebaseFunction.Notify(
-                "MessageRead",
-                members.Select(q => q.Contact.Id).ToArray(),
-                param);
-        }
+        if (members is null) return;
+
+        var recipients = members
+            .Where(q => q.Contact.Id != param.ContactId)
+            .Select(q => q.Contact.Id)
+            .ToArray();
+        if (recipients.Length == 0) return;
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.MessageRead,
+            recipients,
+            param);
     }
 
     async Task HandleNewMessage(NewStoredMessageModel param)

@@ -10,4 +10,6 @@ public static class ChatEventNames
     public const string FriendRequestCanceled = "FriendRequestCanceled";
     public const string NewReaction = "NewReaction";
     public const string NewMessagePinned = "NewMessagePinned";
+    public const string MessageDelivered = "MessageDelivered";
+    public const string MessageRead = "MessageRead";
 }

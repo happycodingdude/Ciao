@@ -44,7 +44,7 @@ public static class ReadMessage
                 ReadTime = request.model.ReadTime
             });
 
-            await _memberCache.MemberSeenAll(request.conversationId, request.model.ReadTime);
+            await _memberCache.MemberSeenAll(request.conversationId, request.model.ReadTime, request.model.MessageId);
 
             return true;
         }
