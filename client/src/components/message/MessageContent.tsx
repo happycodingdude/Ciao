@@ -12,7 +12,7 @@ import MessageMenu_Slide from "./MessageMenu_Slide";
 
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
-    const { message, id, showName, showAvatar } = props;
+    const { message, id, showName, showAvatar, seenContacts } = props;
 
     const queryClient = useQueryClient();
 
@@ -35,66 +35,139 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
         )
       : null;
 
-    const getReceiptStatus = () => {
+    const SentIcon = () => (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="#a0aec0"
+          strokeWidth="2"
+          fill="none"
+        />
+        <path
+          d="M8 12.5l2.5 2.5 5.5-5.5"
+          stroke="#a0aec0"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+
+    const DeliveredIcon = () => (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          fill="#a0aec0"
+          stroke="#a0aec0"
+          strokeWidth="2"
+        />
+        <path
+          d="M8 12.5l2.5 2.5 5.5-5.5"
+          stroke="white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+
+    /**
+     * Render avatar những người đã xem tin cuối của conversation.
+     * Rule sản phẩm: CHỈ render khi tin nhắn CUỐI CÙNG của conversation là
+     * của mình (isSelf + isLastFromMe). Tin của người khác hoặc tin của mình
+     * KHÔNG phải tin cuối → không hiển thị bất kỳ icon/avatar nào.
+     * Chatbox đã filter source theo rule này (map seenContactsByMessageId chỉ
+     * chứa entry cho tin cuối nếu là của mình); guard dưới đây chỉ để
+     * defensive nếu props bị truyền sai trong tương lai.
+     */
+    const renderSeenAvatars = () => {
+      if (!seenContacts || seenContacts.length === 0) return null;
+
+      // Direct chat (1 người): render 1 avatar nhỏ gọn
+      if (seenContacts.length === 1) {
+        const c = seenContacts[0];
+        return (
+          <img
+            key={c.id}
+            src={
+              c.avatar ||
+              "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(c.name || "U")
+            }
+            alt={c.name}
+            title={c.name}
+            className="h-3.5 w-3.5 rounded-full object-cover"
+          />
+        );
+      }
+
+      // Group chat: tối đa 3 avatar, dư thì +N
+      return (
+        <div className="flex items-center justify-end gap-1">
+          {seenContacts.slice(0, 3).map((c) => (
+            <img
+              key={c.id}
+              src={
+                c.avatar ||
+                "https://ui-avatars.com/api/?name=" +
+                  encodeURIComponent(c.name || "U")
+              }
+              alt={c.name}
+              title={c.name}
+              className="h-3.5 w-3.5 rounded-full object-cover"
+            />
+          ))}
+          {seenContacts.length > 3 && (
+            <span className="text-3xs text-gray-500">
+              +{seenContacts.length - 3}
+            </span>
+          )}
+        </div>
+      );
+    };
+
+    /**
+     * Render icon Sent/Delivered cho tin cuối của conversation KHI CHƯA ĐƯỢC
+     * AI ĐỌC.
+     * - Chỉ áp dụng khi tin nhắn CUỐI CÙNG của conversation là của mình
+     *   (isSelf + isLastFromMe). Nếu sau đó người khác gửi tin → status biến mất.
+     * - Bị che nếu đã có avatar người xem (avatar ưu tiên hơn icon).
+     * - Direct chat: phân biệt Sent vs Delivered theo lastDeliveredTime.
+     * - Group chat: chỉ Sent (chưa hỗ trợ Delivered theo từng member).
+     */
+    const renderOwnSendStatus = () => {
       if (!isSelf || !props.isLastFromMe || !conversation) return null;
       if (message.pending) return null;
-      
+      // Đã có người đọc → ưu tiên avatar, không render icon
+      if (seenContacts && seenContacts.length > 0) return null;
+
+      if (conversation.isGroup) return <SentIcon />;
+
       const msgTime = dayjs(message.createdTime).valueOf();
-      
-      if (conversation.isGroup) {
-        const seenBy = (conversation.members ?? []).filter(
-          (m) =>
-            m.contact?.id !== info?.id &&
-            m.lastSeenTime &&
-            dayjs(m.lastSeenTime).valueOf() >= msgTime
-        );
-        if (seenBy.length === 0) return <span>Sent</span>;
-        
-        return (
-          <div className="flex items-center gap-1 mt-1 justify-end">
-            {seenBy.slice(0, 3).map((m) => (
-              <img
-                key={m.contact?.id}
-                src={m.contact?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(m.contact?.name || "U")}
-                alt={m.contact?.name}
-                title={m.contact?.name}
-                className="w-3.5 h-3.5 rounded-full object-cover"
-              />
-            ))}
-            {seenBy.length > 3 && (
-              <span className="text-3xs text-gray-500">
-                +{seenBy.length - 3}
-              </span>
-            )}
-          </div>
-        );
-      } else {
-        const otherMember = conversation.members?.find(
-          (m) => m.contact?.id !== info?.id
-        );
-        if (!otherMember) return <span>Sent</span>;
-        if (
-          otherMember.lastSeenTime &&
-          dayjs(otherMember.lastSeenTime).valueOf() >= msgTime
-        ) {
-          return (
-            <img
-              src={otherMember.contact?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(otherMember.contact?.name || "U")}
-              alt={otherMember.contact?.name}
-              title={otherMember.contact?.name}
-              className="w-3.5 h-3.5 rounded-full object-cover mt-1"
-            />
-          );
-        }
-        if (
-          otherMember.lastDeliveredTime &&
-          dayjs(otherMember.lastDeliveredTime).valueOf() >= msgTime
-        ) {
-          return <span>Delivered</span>;
-        }
-        return <span>Sent</span>;
+      const otherMember = conversation.members?.find(
+        (m) => m.contact?.id !== info?.id,
+      );
+      if (!otherMember) return <SentIcon />;
+      if (
+        otherMember.lastDeliveredTime &&
+        dayjs(otherMember.lastDeliveredTime).valueOf() >= msgTime
+      ) {
+        return <DeliveredIcon />;
       }
+      return <SentIcon />;
     };
+
+    // Guard: chỉ hiển thị receipt (avatar / icon) khi tin nhắn CUỐI CÙNG của
+    // conversation là của mình. `isLastFromMe` từ Chatbox đã được tính theo
+    // rule này (chỉ true cho tin cuối conversation nếu là của mình & confirmed).
+    const hasSeenAvatars =
+      isSelf && !!props.isLastFromMe && (seenContacts?.length ?? 0) > 0;
+    const showOwnStatus =
+      isSelf && props.isLastFromMe && !message.pending && !hasSeenAvatars;
 
     return (
       <div
@@ -119,7 +192,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           {/* Tên người gửi: chỉ hiển thị cho tin người khác, và chỉ ở đầu block */}
           {!isSelf && showName && sender && (
             <div
@@ -151,9 +224,9 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                       // "You" cho tin của mình; tên người gửi gốc cho tin forward từ người khác
                       isSelf
                         ? "You"
-                        : (conversation?.members ?? []).find(
+                        : ((conversation?.members ?? []).find(
                             (q) => q.contact?.id === message.contactId,
-                          )?.contact?.name ?? ""
+                          )?.contact?.name ?? "")
                     }
                     mine={isSelf}
                     isPinned={message.isPinned}
@@ -216,20 +289,36 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 getContainerRect={props.getContainerRect}
               />
             )}
-            <div className="flex flex-col items-end gap-1">
-              <p
-                data-mine={isSelf}
-                className="message-time"
-              >
-                {dayjs(message.createdTime).format("HH:mm")}
-              </p>
-              {isSelf && props.isLastFromMe && !message.pending && (
-                <div className="text-3xs text-gray-500 italic flex justify-end">
-                  {getReceiptStatus()}
-                </div>
-              )}
-            </div>
+            {/*
+              QUAN TRỌNG: <p.message-time> PHẢI là sibling trực tiếp của .peer
+              (và .message-menu-container) để selector CSS
+              `.peer:hover ~ .message-time` hoạt động.
+              Không được bọc trong wrapper div, nếu không hover sẽ mất tác dụng.
+            */}
+            <p data-mine={isSelf} className="message-time">
+              {dayjs(message.createdTime).format("HH:mm")}
+            </p>
           </div>
+
+          {/*
+            Receipt area: CHỈ render khi tin CUỐI CÙNG của conversation là của
+            mình (isSelf && isLastFromMe).
+            - Đối phương đã đọc tin cuối này → render avatar (ưu tiên).
+            - Chưa ai đọc → fallback Sent/Delivered icon.
+            Mọi trường hợp khác (tin người khác, tin của mình không phải tin cuối,
+            hoặc tin cuối là của người khác): không render gì.
+          */}
+          {hasSeenAvatars && (
+            <div className="text-3xs flex justify-end italic text-gray-500">
+              {renderSeenAvatars()}
+            </div>
+          )}
+
+          {showOwnStatus && (
+            <div className="text-3xs flex justify-end italic text-gray-500">
+              {renderOwnSendStatus()}
+            </div>
+          )}
         </div>
       </div>
     );

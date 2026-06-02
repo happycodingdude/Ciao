@@ -1,10 +1,15 @@
-import { useEffect, useRef } from "react";
+import dayjs from "dayjs";
+import { useEffect, useMemo, useRef } from "react";
 import { useChatboxScroll } from "../../hooks/useChatboxScroll";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useMessage from "../../hooks/useMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
-import { GroupedMessage, PendingMessageModel } from "../../types/message.types";
+import {
+  GroupedMessage,
+  PendingMessageModel,
+  SeenContact,
+} from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
@@ -102,8 +107,74 @@ const Chatbox = () => {
   const groupedEntries = Object.entries(grouped);
 
   const { data: info } = useInfo();
-  const myMessages = messages?.messages.filter((m) => m.contactId === info?.id) ?? [];
-  const lastMyMessageId = myMessages.length > 0 ? myMessages[myMessages.length - 1].id : null;
+
+  /**
+   * Rule sản phẩm: CHỈ hiển thị trạng thái tin nhắn (avatar người xem hoặc
+   * icon Sent/Delivered) khi tin nhắn CUỐI CÙNG của conversation là của mình.
+   * Nếu tin cuối là của người khác → KHÔNG hiển thị bất kỳ status nào.
+   *
+   * Pending message của mình cũng không thoả (chưa confirmed → chưa có id thật).
+   */
+  const allMessages = messages?.messages ?? [];
+  const lastMessage =
+    allMessages.length > 0 ? allMessages[allMessages.length - 1] : null;
+  const lastMessageIsMineConfirmed =
+    !!lastMessage &&
+    !!lastMessage.id &&
+    lastMessage.contactId === info?.id &&
+    !lastMessage.pending;
+  const lastMyMessageId = lastMessageIsMineConfirmed
+    ? (lastMessage?.id ?? null)
+    : null;
+
+  /**
+   * Map: messageId -> danh sách contact đã xem tin cuối (chỉ khi tin cuối là của mình).
+   *
+   * Vì rule chỉ cho hiện status ở tin cuối của conversation (và phải là của mình),
+   * nên map này tối đa chỉ có 1 entry duy nhất là `lastMessage.id`.
+   *
+   * - Nếu tin cuối không phải của mình / pending / không tồn tại → map rỗng.
+   * - Nếu tin cuối là của mình: avatar hiển thị cho các member khác có
+   *   `lastSeenTime >= lastMessage.createdTime` (đã đọc tới tin cuối).
+   *
+   * Complexity: O(m) với m = số member khác trong conversation.
+   */
+  const seenContactsByMessageId = useMemo<Record<string, SeenContact[]>>(() => {
+    const result: Record<string, SeenContact[]> = {};
+    if (
+      !lastMessageIsMineConfirmed ||
+      !lastMessage?.id ||
+      !lastMessage?.createdTime ||
+      !info?.id
+    ) {
+      return result;
+    }
+
+    const otherMembers = (conversation?.members ?? []).filter(
+      (m) => m.contact?.id && m.contact.id !== info.id && m.lastSeenTime,
+    );
+    if (otherMembers.length === 0) return result;
+
+    const lastTime = dayjs(lastMessage.createdTime).valueOf();
+    const lastId = lastMessage.id;
+
+    for (const member of otherMembers) {
+      const seenTime = dayjs(member.lastSeenTime!).valueOf();
+      // Chỉ tính là "đã xem tin cuối" khi lastSeenTime >= createdTime của tin cuối
+      if (seenTime >= lastTime) {
+        if (!result[lastId]) result[lastId] = [];
+        result[lastId].push(member.contact!);
+      }
+    }
+
+    return result;
+  }, [
+    lastMessageIsMineConfirmed,
+    lastMessage?.id,
+    lastMessage?.createdTime,
+    conversation?.members,
+    info?.id,
+  ]);
 
   return (
     <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-4">
@@ -152,7 +223,13 @@ const Chatbox = () => {
                       // Avatar và tên chỉ hiển thị ở tin đầu của block
                       showName={message === firstMessage}
                       showAvatar={message === firstMessage}
-                      isLastFromMe={message.id === lastMyMessageId}
+                      isLastFromMe={
+                        lastMyMessageId !== null && message.id === lastMyMessageId
+                      }
+                      // Pre-computed: tin này là điểm dừng đọc cuối của các member nào
+                      seenContacts={
+                        message.id ? seenContactsByMessageId[message.id] : undefined
+                      }
                       getContainerRect={() =>
                         refChatContent.current?.getBoundingClientRect() ?? new DOMRect()
                       }

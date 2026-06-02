@@ -2,6 +2,8 @@ import { MutableRefObject } from "react";
 import { BaseModel } from "./base.types";
 import { ConversationModel_Contact } from "./conv.types";
 
+export type SeenContact = ConversationModel_Contact;
+
 export type MentionModel = {
   name: string;
   avatar: string | null;
@@ -36,7 +38,15 @@ export type MessageContentProps = {
   getContainerRect?: () => DOMRect;
   showName?: boolean;
   showAvatar?: boolean;
+  // True CHỈ khi message này là tin nhắn CUỐI CÙNG của conversation VÀ là của
+  // mình (đã confirmed, không pending). Dùng để gate hiển thị message status:
+  // theo rule sản phẩm, status (Sent/Delivered/Seen) chỉ được hiện ở tin
+  // cuối conversation khi đó là tin của mình.
   isLastFromMe?: boolean;
+  // Danh sách contact đã xem tin nhắn này. Theo rule sản phẩm, chỉ được set
+  // khi tin này là tin cuối của conversation và là của mình. Pre-compute ở
+  // Chatbox (`seenContactsByMessageId`) để tránh scan messages mỗi lần render.
+  seenContacts?: SeenContact[];
 };
 
 export type MessageMenuProps = {
