@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --port 5000 --host 0.0.0.0",
     "build": "vite build",
+    "build:prompt": "node ../prompts/build-prompt.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview --port 5000 --host 0.0.0.0",
     "router:gen": "tsr generate",
