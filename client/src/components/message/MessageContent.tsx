@@ -1,11 +1,17 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { forwardRef } from "react";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
+import { useMessageEdit } from "../../hooks/useMessageActions";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/messagecontent.css";
+import "../../styles/messagemenu_slide.css";
 import { MessageContentProps } from "../../types/message.types";
+import {
+  canEditMessage,
+  isMessageDeliveredToMember,
+} from "../../utils/messageActionHelpers";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import { ForwardedMessage, MessageItem, ReplyMessage } from "./MessageItem";
 import MessageMenu_Slide from "./MessageMenu_Slide";
@@ -14,9 +20,8 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
     const { message, id, showName, showAvatar, seenContacts } = props;
 
-    const queryClient = useQueryClient();
-
     const { data: info } = useInfo();
+    const { setEdit } = useMessageEdit();
     const { data: conversations } = useConversation();
 
     const { conversationId } = Route.useParams();
@@ -28,6 +33,9 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     if (!message) return null;
 
     const isSelf = message.contactId === info?.id;
+    const isRecalled = !!message.recalledTime;
+    const isEdited = !!message.editedTime && !isRecalled;
+    const showEdit = canEditMessage(message, isSelf);
 
     const sender = !isSelf
       ? (conversation?.members ?? []).find(
@@ -136,7 +144,8 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
      * - Chỉ áp dụng khi tin nhắn CUỐI CÙNG của conversation là của mình
      *   (isSelf + isLastFromMe). Nếu sau đó người khác gửi tin → status biến mất.
      * - Bị che nếu đã có avatar người xem (avatar ưu tiên hơn icon).
-     * - Direct chat: phân biệt Sent vs Delivered theo lastDeliveredTime.
+     * - Direct chat: phân biệt Sent vs Delivered theo lastDeliveredMessageId
+     *   (ưu tiên) hoặc lastDeliveredTime horizon của đối phương.
      * - Group chat: chỉ Sent (chưa hỗ trợ Delivered theo từng member).
      */
     const renderOwnSendStatus = () => {
@@ -147,15 +156,11 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
 
       if (conversation.isGroup) return <SentIcon />;
 
-      const msgTime = dayjs(message.createdTime).valueOf();
       const otherMember = conversation.members?.find(
         (m) => m.contact?.id !== info?.id,
       );
       if (!otherMember) return <SentIcon />;
-      if (
-        otherMember.lastDeliveredTime &&
-        dayjs(otherMember.lastDeliveredTime).valueOf() >= msgTime
-      ) {
+      if (isMessageDeliveredToMember(message, otherMember)) {
         return <DeliveredIcon />;
       }
       return <SentIcon />;
@@ -213,11 +218,15 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   ${message.pending ? "opacity-50" : ""}
-                  ${message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
+                  ${isRecalled || message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
                 `}
               >
-                {/* Ưu tiên render theo loại tin: forwarded > reply > tin thường */}
-                {message.isForwarded ? (
+                {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}
+                {isRecalled ? (
+                  <p className="italic text-gray-400">
+                    Tin nhắn đã được thu hồi
+                  </p>
+                ) : message.isForwarded ? (
                   <ForwardedMessage
                     message={message.content ?? ""}
                     contact={
@@ -266,7 +275,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             </div>
 
             {/* Badge ghim: vị trí lệch theo bên trái/phải tùy là tin của mình hay người khác */}
-            {message.isPinned && (
+            {message.isPinned && !isRecalled && (
               <div
                 className={`laptop:h-5.5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-light-blue-500 shadow-md
                   ${isSelf ? "-right-3" : "-left-[.8rem]"}`}
@@ -275,8 +284,24 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               </div>
             )}
 
-            {/* Context menu chỉ hiện khi tin đã confirmed (không pending) */}
-            {!message.pending && (
+            {/* Tin đã recall: chỉ hiện thời gian khi hover, không có menu/edit */}
+            {!message.pending && !isRecalled && showEdit && (
+              <button
+                type="button"
+                className="message-edit-btn"
+                title="Edit message"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEdit({
+                    messageId: message.id ?? "",
+                    content: message.content ?? "",
+                  });
+                }}
+              >
+                <EditOutlined />
+              </button>
+            )}
+            {!message.pending && !isRecalled && (
               <MessageMenu_Slide
                 conversationId={id}
                 message={message}
@@ -295,7 +320,12 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               `.peer:hover ~ .message-time` hoạt động.
               Không được bọc trong wrapper div, nếu không hover sẽ mất tác dụng.
             */}
-            <p data-mine={isSelf} className="message-time">
+            <p
+              data-mine={isSelf}
+              data-recalled={isRecalled}
+              className="message-time"
+            >
+              {isEdited && <span className="mr-1 italic">(edited)</span>}
               {dayjs(message.createdTime).format("HH:mm")}
             </p>
           </div>

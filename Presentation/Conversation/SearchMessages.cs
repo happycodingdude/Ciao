@@ -24,11 +24,13 @@ public static class SearchMessages
     {
         readonly IValidator<Request> _validator;
         readonly IConversationRepository _conversationRepository;
+        readonly IContactRepository _contactRepository;
 
-        public Handler(IValidator<Request> validator, IConversationRepository conversationRepository)
+        public Handler(IValidator<Request> validator, IConversationRepository conversationRepository, IContactRepository contactRepository)
         {
             _validator = validator;
             _conversationRepository = conversationRepository;
+            _contactRepository = contactRepository;
         }
 
         public async Task<List<MessageSearchResult>> Handle(Request request, CancellationToken cancellationToken)
@@ -37,8 +39,9 @@ public static class SearchMessages
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
+            var userId = _contactRepository.GetUserId();
             var paging = new PagingParam(request.page, request.limit);
-            return await _conversationRepository.SearchMessages(request.id, request.keyword.Trim(), paging);
+            return await _conversationRepository.SearchMessages(request.id, request.keyword.Trim(), userId, paging);
         }
     }
 }

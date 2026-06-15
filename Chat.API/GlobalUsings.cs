@@ -1,4 +1,5 @@
 global using Application.Caching;
+global using Application.Configurations;
 global using Application.Repositories;
 global using Carter;
 global using FluentValidation;

@@ -29,7 +29,9 @@ public class KafkaBackground : BackgroundService
                     Topic.NewMember,
                     Topic.NewReaction,
                     Topic.MessageDelivered,
-                    Topic.MessageRead
+                    Topic.MessageRead,
+                    Topic.MessageEdited,
+                    Topic.MessageRecalled
                     ])
                 .Build(),
             cancellationToken));
@@ -58,7 +60,9 @@ public class KafkaBackground : BackgroundService
                     Topic.StoredMember,
                     Topic.NotifyNewReaction,
                     Topic.NotifyMessageDelivered,
-                    Topic.NotifyMessageRead
+                    Topic.NotifyMessageRead,
+                    Topic.NotifyMessageEdited,
+                    Topic.NotifyMessageRecalled
                     ])
                 .Build(),
             cancellationToken));

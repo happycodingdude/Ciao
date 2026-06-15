@@ -115,10 +115,27 @@ export const updateMemberDeliveredHorizon = (
     let convChanged = false;
     const members = (conv.members ?? []).map((m) => {
       if (m.contact?.id !== contactId) return m;
-      // Idempotent guard: chỉ nâng forward (out-of-order event / duplicate FCM → no-op)
-      if (m.lastDeliveredTime && dayjs(m.lastDeliveredTime).valueOf() >= deliveredMs) {
+
+      const horizonMessageId = m.lastDeliveredMessageId;
+      // Idempotent theo messageId: horizon đã tới message này hoặc xa hơn → no-op
+      if (horizonMessageId) {
+        if (horizonMessageId === messageId) return m;
+        if (
+          horizonMessageId.length === messageId.length &&
+          horizonMessageId > messageId
+        ) {
+          return m;
+        }
+      }
+      // Fallback time-only khi chưa có horizon messageId (legacy / partial data)
+      if (
+        !horizonMessageId &&
+        m.lastDeliveredTime &&
+        dayjs(m.lastDeliveredTime).valueOf() >= deliveredMs
+      ) {
         return m;
       }
+
       convChanged = true;
       return { ...m, lastDeliveredTime: deliveredTime, lastDeliveredMessageId: messageId };
     });
@@ -174,6 +191,57 @@ export const updateMemberReadHorizon = (
 
   if (!mutated) return oldData;
   return { ...oldData, conversations: updated, filterConversations: updated };
+};
+
+// Tính năng 2: cập nhật message khi nhận event MessageEdited (idempotent — chỉ apply forward).
+// Preserve reference khi không đổi để tránh re-render thừa.
+export const updateMessageEdited = (
+  oldData: MessageCache,
+  messageId: string,
+  content: string,
+  editedTime: string,
+): MessageCache => {
+  const editedMs = dayjs(editedTime).valueOf();
+  let mutated = false;
+
+  const messages = oldData.messages.map((m) => {
+    if (m.id !== messageId) return m;
+    // Idempotent guard: bỏ qua nếu đã edit mới hơn hoặc bằng.
+    if (m.editedTime && dayjs(m.editedTime).valueOf() >= editedMs) return m;
+    mutated = true;
+    return { ...m, content, editedTime };
+  });
+
+  if (!mutated) return oldData;
+  return { ...oldData, messages };
+};
+
+// Cập nhật message khi nhận event MessageRecalled — clear nội dung/attachment, set recalled.
+// No-op nếu đã recalled (idempotent với duplicate event).
+export const updateMessageRecalled = (
+  oldData: MessageCache,
+  messageId: string,
+  recalledTime: string,
+  recalledByContactId: string,
+): MessageCache => {
+  let mutated = false;
+
+  const messages = oldData.messages.map((m) => {
+    if (m.id !== messageId) return m;
+    if (m.recalledTime) return m; // đã recalled → no-op
+    mutated = true;
+    return {
+      ...m,
+      recalledTime,
+      recalledByContactId,
+      content: "",
+      attachments: [],
+      isPinned: false,
+    };
+  });
+
+  if (!mutated) return oldData;
+  return { ...oldData, messages };
 };
 
 export const updateAttachmentsCache = (

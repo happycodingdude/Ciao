@@ -176,3 +176,37 @@ public class NotifyMessageReadModel : KafkaBaseModel
     public string MessageId { get; set; } = null!;
     public DateTime ReadTime { get; set; }
 }
+
+// ===== Tính năng 2: edit / recall / delete-for-me =====
+
+public class MessageEditedModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public DateTime EditedTime { get; set; }
+}
+
+public class MessageRecalledModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public DateTime RecalledTime { get; set; }
+    public string RecalledByContactId { get; set; } = null!;
+}
+
+public class NotifyMessageEditedModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public DateTime EditedTime { get; set; }
+}
+
+public class NotifyMessageRecalledModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public DateTime RecalledTime { get; set; }
+    public string RecalledByContactId { get; set; } = null!;
+}

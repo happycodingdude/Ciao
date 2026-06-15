@@ -192,4 +192,56 @@ public class MessageCache
 
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
     }
+
+    // ===== Tính năng 2: edit / recall / delete-for-me =====
+    // Tất cả đều idempotent ở app layer (chỉ apply forward / no-op khi duplicate/out-of-order).
+    // Kế thừa known-issue read-modify-write không nguyên tử của cache này; Mongo (DataStoreConsumer)
+    // là source-of-truth, cache self-heal khi user re-login.
+
+    public async Task UpdateEdited(string conversationId, string messageId, string content, DateTime editedTime)
+    {
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
+        var message = messageCache?.SingleOrDefault(q => q.Id == messageId);
+        if (message is null) return;
+        // Idempotent: chỉ apply nếu editedTime mới hơn (chống out-of-order khi multi-device cùng edit).
+        if (message.EditedTime is not null && message.EditedTime >= editedTime) return;
+
+        message.Content = content;
+        message.EditedTime = editedTime;
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
+
+        // Nếu là tin cuối của conversation → đồng bộ preview trong conversation info cache.
+        await UpdateLastMessagePreviewIfMatch(conversationId, messageId, content, hasAttachment: message.Attachments.Any());
+    }
+
+    public async Task UpdateRecalled(string conversationId, string messageId, DateTime recalledTime, string recalledByContactId)
+    {
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
+        var message = messageCache?.SingleOrDefault(q => q.Id == messageId);
+        if (message is null) return;
+        // No-op nếu đã recalled (idempotent với duplicate event / multi-device).
+        if (message.RecalledTime is not null) return;
+
+        message.RecalledTime = recalledTime;
+        message.RecalledByContactId = recalledByContactId;
+        // Clear nội dung/attachment để API fetch (cache) không trả về nội dung đã thu hồi.
+        message.Content = string.Empty;
+        message.Attachments = new();
+        message.IsPinned = false;
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
+
+        // Recall tin cuối → set LastMessage về placeholder, giữ nguyên LastMessageTime
+        // (không scan ngược tìm tin kế trước để tránh chi phí trên unbounded array).
+        await UpdateLastMessagePreviewIfMatch(conversationId, messageId, AppConstants.Message_Recalled, hasAttachment: false);
+    }
+
+    async Task UpdateLastMessagePreviewIfMatch(string conversationId, string messageId, string preview, bool hasAttachment)
+    {
+        var conversationInfo = await _redisCaching.GetAsync<ConversationCacheModel>(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? default;
+        if (conversationInfo is null || conversationInfo.LastMessageId != messageId) return;
+
+        conversationInfo.LastMessage = preview;
+        conversationInfo.HasAttachment = hasAttachment;
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId), conversationInfo);
+    }
 }

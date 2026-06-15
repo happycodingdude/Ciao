@@ -103,6 +103,11 @@ export type MessageModel = BaseModel & {
   angryCount?: number;
   currentReaction?: string | null;
   pinnedBy?: string | null;
+  // Tính năng 2: edit / recall / delete-for-me
+  editedTime?: string | null;
+  recalledTime?: string | null;
+  recalledByContactId?: string | null;
+  deletedForContactIds?: string[];
   // reactions?: ReactionModel[];
 };
 

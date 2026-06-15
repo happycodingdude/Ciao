@@ -48,6 +48,12 @@ public class DataStoreConsumer : IGenericConsumer
                 case Topic.MessageRead:
                     await HandleMessageRead(JsonConvert.DeserializeObject<MessageReadModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.MessageEdited:
+                    await HandleMessageEdited(JsonConvert.DeserializeObject<MessageEditedModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.MessageRecalled:
+                    await HandleMessageRecalled(JsonConvert.DeserializeObject<MessageRecalledModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -130,6 +136,73 @@ public class DataStoreConsumer : IGenericConsumer
             ContactId = param.UserId,
             MessageId = param.MessageId,
             ReadTime = param.ReadTime
+        });
+    }
+
+    async Task HandleMessageEdited(MessageEditedModel param)
+    {
+        // Idempotent ở Mongo layer: chỉ update khi EditedTime null hoặc cũ hơn param.EditedTime
+        // (last-write-wins an toàn cho concurrency 2 thiết bị cùng sender edit đồng thời).
+        // ElemMatch điều kiện thời gian → duplicate/out-of-order event = no-op tự nhiên (không match).
+        var filter = Builders<Conversation>.Filter.And(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(c => c.Messages,
+                m => m.Id == param.MessageId
+                    && m.RecalledTime == null
+                    && (m.EditedTime == null || m.EditedTime < param.EditedTime))
+        );
+        var updates = Builders<Conversation>.Update
+            .Set("Messages.$.Content", param.Content)
+            .Set("Messages.$.EditedTime", param.EditedTime);
+        _conversationRepository.UpdateNoTrackingTime(filter, updates);
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.NotifyMessageEdited, new NotifyMessageEditedModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            Content = param.Content,
+            EditedTime = param.EditedTime
+        });
+    }
+
+    async Task HandleMessageRecalled(MessageRecalledModel param)
+    {
+        // Trong cùng 1 transaction (UnitOfWork batch → 1 Mongo session):
+        //  Op1: set recalled fields + clear Content/Attachments + unpin (idempotent: chỉ khi RecalledTime==null).
+        //  Op2: overwrite ReplyContent của MỌI reply trỏ tới message này về placeholder (chống leak privacy).
+        // Eager (không lazy ở FE) vì tin gốc có thể nằm ngoài cửa sổ paginated của FE.
+        var conversationFilter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
+
+        var recallFilter = Builders<Conversation>.Filter.And(
+            conversationFilter,
+            Builders<Conversation>.Filter.ElemMatch(c => c.Messages,
+                m => m.Id == param.MessageId && m.RecalledTime == null)
+        );
+        var recallUpdates = Builders<Conversation>.Update
+            .Set("Messages.$.RecalledTime", param.RecalledTime)
+            .Set("Messages.$.RecalledByContactId", param.RecalledByContactId)
+            .Set("Messages.$.Content", string.Empty)
+            .Set("Messages.$.Attachments", new List<Attachment>())
+            .Set("Messages.$.IsPinned", false);
+        _conversationRepository.UpdateNoTrackingTime(recallFilter, recallUpdates);
+
+        var replyArrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+            new BsonDocument("reply.ReplyId", param.MessageId));
+        var replyUpdates = Builders<Conversation>.Update
+            .Set("Messages.$[reply].ReplyContent", AppConstants.Message_Recalled);
+        _conversationRepository.UpdateNoTrackingTime(conversationFilter, replyUpdates, replyArrayFilter);
+
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.NotifyMessageRecalled, new NotifyMessageRecalledModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            RecalledTime = param.RecalledTime,
+            RecalledByContactId = param.RecalledByContactId
         });
     }
 

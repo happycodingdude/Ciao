@@ -24,6 +24,8 @@ global using MongoDB.Bson;
 global using Shared.Utils;
 global using Application.Jwt;
 global using Application.Caching;
+global using Application.Configurations;
+global using Microsoft.Extensions.Options;
 global using Application.Kafka.Model;
 global using Application.Kafka.Producer;
 global using AutoMapper;

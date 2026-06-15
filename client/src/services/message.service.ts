@@ -143,3 +143,37 @@ export const markRead = async (conversationId: string, messageId: string, readTi
     })
   ).data;
 };
+
+// Tính năng 2: edit (PUT) — chỉ áp dụng cho message type text của chính mình, còn trong TTL.
+export const editMessage = async (
+  conversationId: string,
+  messageId: string,
+  content: string,
+) => {
+  return (
+    await HttpRequest<{ content: string }, boolean>({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_EDIT.replace(
+        "{conversationId}",
+        conversationId,
+      ).replace("{id}", messageId),
+      data: { content },
+    })
+  ).data;
+};
+
+// Recall (delete-for-everyone) — sender hoặc moderator group, còn trong TTL.
+export const recallMessage = async (
+  conversationId: string,
+  messageId: string,
+) => {
+  return (
+    await HttpRequest<undefined, boolean>({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_RECALL.replace(
+        "{conversationId}",
+        conversationId,
+      ).replace("{id}", messageId),
+    })
+  ).data;
+};

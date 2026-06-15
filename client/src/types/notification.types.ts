@@ -88,3 +88,20 @@ export type MessageReadEvent = {
   readTime: string;
   userId?: string;
 };
+
+// Tính năng 2: payload từ BE (NotifyMessageEditedModel / NotifyMessageRecalledModel).
+export type MessageEditedEvent = {
+  conversationId: string;
+  messageId: string;
+  content: string;
+  editedTime: string;
+  userId?: string;
+};
+
+export type MessageRecalledEvent = {
+  conversationId: string;
+  messageId: string;
+  recalledTime: string;
+  recalledByContactId: string;
+  userId?: string;
+};

@@ -19,4 +19,8 @@ public static class Topic
     public const string MessageRead = "message.read";
     public const string NotifyMessageDelivered = "message.delivered.notify";
     public const string NotifyMessageRead = "message.read.notify";
+    public const string MessageEdited = "message.edited";
+    public const string MessageRecalled = "message.recalled";
+    public const string NotifyMessageEdited = "message.edited.notify";
+    public const string NotifyMessageRecalled = "message.recalled.notify";
 }

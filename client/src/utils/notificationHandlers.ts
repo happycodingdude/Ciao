@@ -5,7 +5,9 @@ import { ConversationCache, ConversationModel } from "../types/conv.types";
 import { AttachmentCache, MessageCache } from "../types/message.types";
 import {
   MessageDeliveredEvent,
+  MessageEditedEvent,
   MessageReadEvent,
+  MessageRecalledEvent,
   NewConversation,
   NewMessage,
   NewMessagePinned,
@@ -17,6 +19,8 @@ import {
   updateConversationCache,
   updateMemberDeliveredHorizon,
   updateMemberReadHorizon,
+  updateMessageEdited,
+  updateMessageRecalled,
   updateMessagesCache,
 } from "./notificationCacheHelpers";
 import { markDelivered } from "../services/message.service";
@@ -36,6 +40,8 @@ export const classifyNotification = (
     case "NewMessagePinned":  return onNewMessagePinned(queryClient, data);
     case "MessageDelivered":  return onMessageDelivered(queryClient, data, userInfo);
     case "MessageRead":       return onMessageRead(queryClient, data, userInfo);
+    case "MessageEdited":     return onMessageEdited(queryClient, data);
+    case "MessageRecalled":   return onMessageRecalled(queryClient, data);
   }
 };
 
@@ -240,6 +246,30 @@ const onMessageRead = (
           ev.contactId,
           ev.messageId,
           ev.readTime,
+        )
+      : old,
+  );
+};
+
+// Tính năng 2: edit/recall realtime. BE đã loại người thực hiện khỏi recipient list,
+// cache helper idempotent (no-op nếu cũ hơn / đã recalled) nên an toàn với duplicate FCM.
+const onMessageEdited = (queryClient: QueryClient, ev: MessageEditedEvent) => {
+  queryClient.setQueryData(["message", ev.conversationId], (old: MessageCache) =>
+    old ? updateMessageEdited(old, ev.messageId, ev.content, ev.editedTime) : old,
+  );
+};
+
+const onMessageRecalled = (
+  queryClient: QueryClient,
+  ev: MessageRecalledEvent,
+) => {
+  queryClient.setQueryData(["message", ev.conversationId], (old: MessageCache) =>
+    old
+      ? updateMessageRecalled(
+          old,
+          ev.messageId,
+          ev.recalledTime,
+          ev.recalledByContactId,
         )
       : old,
   );

@@ -9,6 +9,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.Configure<MongoConfiguration>(configuration.GetSection("Mongo"));
         services.Configure<RedisConfiguration>(configuration.GetSection("Redis"));
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+        services.Configure<MessageActionsOptions>(configuration.GetSection(MessageActionsOptions.SectionName));
 
         // Common
         services.AddHttpContextAccessor();

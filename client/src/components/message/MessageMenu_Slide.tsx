@@ -1,11 +1,22 @@
-import { CopyOutlined, PushpinOutlined, SyncOutlined } from "@ant-design/icons";
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PushpinOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
 import { Suspense, useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import useInfo from "../../hooks/useInfo";
+import { useMessageActions, useMessageEdit } from "../../hooks/useMessageActions";
 import { usePinMessage } from "../../hooks/usePinMessage";
 import { useReply } from "../../hooks/useReply";
+import {
+  canEditMessage,
+  canRecallMessage,
+} from "../../utils/messageActionHelpers";
 import "../../styles/messagemenu_slide.css";
 import { MessageMenuProps } from "../../types/message.types";
 import BackgroundPortal from "../common/BackgroundPortal";
@@ -20,6 +31,8 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
   const { data: info } = useInfo();
   const { pin, pinning } = usePinMessage(conversationId);
   const { setReply } = useReply();
+  const { setEdit } = useMessageEdit();
+  const { recall, processing } = useMessageActions(conversationId);
 
   const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
@@ -27,6 +40,22 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
 
   const [show, setShow] = useState(false);
   const [openForward, setOpenForward] = useState(false);
+
+  const recalled = !!message.recalledTime;
+
+  const showEdit = canEditMessage(message, mine);
+  const showDelete = canRecallMessage(message, mine);
+
+  // Tin đã recall: không render menu (tránh hover hiện action bar rỗng).
+  if (recalled) return null;
+
+  const startEdit = () =>
+    setEdit({ messageId: message.id ?? "", content: message.content ?? "" });
+
+  const onDelete = () => {
+    if (!message.id) return;
+    recall(message.id, info?.id ?? "");
+  };
 
   const refMenu = useRef<HTMLDivElement>(null);
 
@@ -65,6 +94,16 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
       data-mine={mine}
       className="message-menu-container shadow-md"
     >
+      {showEdit && (
+        <MessageMenuItem
+          onClick={startEdit}
+          closeOnClick={true}
+          close={() => setShow(false)}
+          tooltip="Edit message"
+        >
+          <EditOutlined />
+        </MessageMenuItem>
+      )}
       <MessageMenuItem
         onClick={copyMessage}
         closeOnClick={false}
@@ -118,6 +157,17 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           </div>
         </BackgroundPortal>
       </MessageMenuItem>
+      {showDelete && (
+        <MessageMenuItem
+          className={processing ? "pointer-events-none" : ""}
+          onClick={onDelete}
+          closeOnClick={true}
+          close={() => setShow(false)}
+          tooltip="Delete message"
+        >
+          {processing ? <SyncOutlined spin /> : <DeleteOutlined />}
+        </MessageMenuItem>
+      )}
     </div>
   );
 };

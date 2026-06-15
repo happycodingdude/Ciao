@@ -14,6 +14,7 @@ import useEventListener from "../../hooks/useEventListener";
 import { useFileAttachment } from "../../hooks/useFileAttachment";
 import useInfo from "../../hooks/useInfo";
 import { useMentionList } from "../../hooks/useMentionList";
+import { useMessageActions, useMessageEdit } from "../../hooks/useMessageActions";
 import { useReply } from "../../hooks/useReply";
 import { useSendMessage } from "../../hooks/useSendMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
@@ -39,6 +40,8 @@ const ChatInput = ({ className }: ChatInputProps) => {
   const { conversationId } = Route.useParams();
   const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
   const { reply, clearReply } = useReply();
+  const { edit, clearEdit } = useMessageEdit();
+  const { submitEdit } = useMessageActions(conversationId);
 
   const sendMessage = useSendMessage(conversationId);
   const { mentions, resetMentions, filterMentions } = useMentionList(
@@ -62,8 +65,18 @@ const ChatInput = ({ className }: ChatInputProps) => {
     // Chuyển sang conversation khác → reset toàn bộ input state
     clearFiles();
     resetMentions();
+    clearEdit();
     if (inputRef.current) inputRef.current.innerText = "";
   }, [conversation?.id]);
+
+  useEffect(() => {
+    // Vào edit mode → prefill nội dung hiện tại, đưa caret về cuối để user sửa ngay.
+    if (edit && inputRef.current) {
+      inputRef.current.innerText = edit.content;
+      setIsEmpty(edit.content.trim() === "");
+      setCaretToEnd(inputRef.current, false);
+    }
+  }, [edit?.messageId]);
 
   useEffect(() => {
     // Có file được thêm → đưa caret về cuối contentEditable để user tiếp tục gõ caption
@@ -87,6 +100,15 @@ const ChatInput = ({ className }: ChatInputProps) => {
   const chat = useCallback(() => {
     if (!inputRef.current) return;
     const content = getMessageValue(inputRef.current);
+
+    // Đang edit → submit chỉnh sửa (optimistic) thay vì gửi tin mới.
+    if (edit) {
+      if (content !== "") submitEdit(edit.messageId, content);
+      else clearEdit();
+      inputRef.current.innerText = "";
+      return;
+    }
+
     // Không có nội dung text và không có file → không gửi
     if (content === "" && files.length === 0) return;
     const lazyImages: AttachmentModel[] = files.map((f) => ({
@@ -99,7 +121,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
     sendMessage({ type: content === "" ? "media" : "text", content, attachments: lazyImages, files });
     inputRef.current.innerText = "";
     clearFiles();
-  }, [files, sendMessage, clearFiles]);
+  }, [files, sendMessage, clearFiles, edit, submitEdit, clearEdit]);
 
   const { keydownBindingFn, keyupBindingFn, chooseMention } = useChatInputKeyboard({
     inputRef,
@@ -134,6 +156,23 @@ const ChatInput = ({ className }: ChatInputProps) => {
       >
         {reply && (
           <ReplyPreview contactName={reply.replyContactName} content={reply.replyContent} onClose={clearReply} />
+        )}
+        {edit && (
+          <div className="flex w-full items-center justify-center py-4">
+            <div className="flex w-[95%] items-center justify-between rounded-xl border-l-[.3rem] border-l-orange-400/60 bg-orange-50 px-4 py-2">
+              <div className="max-w-[80%]">
+                <p className="truncate italic text-orange-500">Editing message</p>
+                <p className="truncate">{edit.content}</p>
+              </div>
+              <i
+                className="fa fa-times cursor-pointer"
+                onClick={() => {
+                  clearEdit();
+                  if (inputRef.current) inputRef.current.innerText = "";
+                }}
+              />
+            </div>
+          </div>
         )}
         {files.length !== 0 && (
           <div className="flex gap-4 overflow-x-auto rounded-2xl px-6 py-3">

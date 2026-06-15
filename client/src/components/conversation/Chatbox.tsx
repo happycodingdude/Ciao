@@ -42,6 +42,8 @@ const Chatbox = () => {
   const { data: conversations } = useConversation();
   const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
 
+  const { data: info } = useInfo();
+
   const refPage = useRef<number>(1);
   const { data: messages } = useMessage(conversationId, refPage.current);
 
@@ -105,8 +107,6 @@ const Chatbox = () => {
 
   const grouped = groupMessagesByDate(messages?.messages ?? []);
   const groupedEntries = Object.entries(grouped);
-
-  const { data: info } = useInfo();
 
   /**
    * Rule sản phẩm: CHỈ hiển thị trạng thái tin nhắn (avatar người xem hoặc

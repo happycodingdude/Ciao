@@ -48,6 +48,12 @@ public class NotificationConsumer : IGenericConsumer
                 case Topic.NotifyMessageRead:
                     await HandleNotifyMessageRead(JsonConvert.DeserializeObject<NotifyMessageReadModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.NotifyMessageEdited:
+                    await HandleNotifyMessageEdited(JsonConvert.DeserializeObject<NotifyMessageEditedModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.NotifyMessageRecalled:
+                    await HandleNotifyMessageRecalled(JsonConvert.DeserializeObject<NotifyMessageRecalledModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -94,6 +100,44 @@ public class NotificationConsumer : IGenericConsumer
 
         await _firebaseFunction.Notify(
             ChatEventNames.MessageRead,
+            recipients,
+            param);
+    }
+
+    async Task HandleNotifyMessageEdited(NotifyMessageEditedModel param)
+    {
+        // Fanout event MessageEdited tới các member khác (loại bỏ chính người vừa edit — UI họ đã
+        // tự cập nhật optimistic + cache server). Không gửi push notification mới cho edit (tránh spam).
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members is null) return;
+
+        var recipients = members
+            .Where(q => q.Contact.Id != param.UserId)
+            .Select(q => q.Contact.Id)
+            .ToArray();
+        if (recipients.Length == 0) return;
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.MessageEdited,
+            recipients,
+            param);
+    }
+
+    async Task HandleNotifyMessageRecalled(NotifyMessageRecalledModel param)
+    {
+        // Fanout MessageRecalled tới mọi member khác người thực hiện. Lưu ý: với recall của moderator,
+        // sender gốc (khác người recall) VẪN nhận event để ẩn tin của mình.
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members is null) return;
+
+        var recipients = members
+            .Where(q => q.Contact.Id != param.UserId)
+            .Select(q => q.Contact.Id)
+            .ToArray();
+        if (recipients.Length == 0) return;
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.MessageRecalled,
             recipients,
             param);
     }

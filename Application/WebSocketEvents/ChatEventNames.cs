@@ -12,4 +12,7 @@ public static class ChatEventNames
     public const string NewMessagePinned = "NewMessagePinned";
     public const string MessageDelivered = "MessageDelivered";
     public const string MessageRead = "MessageRead";
+    public const string MessageEdited = "MessageEdited";
+    public const string MessageRecalled = "MessageRecalled";
+    // không có event MessageDeletedForMe — multi-device của chính user sync qua cache update tại API call.
 }
