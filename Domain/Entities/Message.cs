@@ -14,12 +14,11 @@ public class Message : MongoBaseModel
     public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 
-    // Tính năng 2: edit / delete-for-me / recall.
-    // Đều dùng soft-flag (timestamp/list) thay vì hard-delete để giữ reply chain, audit và search consistency.
-    public DateTime? EditedTime { get; set; }                        // null = chưa từng edit
-    public DateTime? RecalledTime { get; set; }                      // null = chưa recall (thay cho cờ IsRecalled)
-    public string? RecalledByContactId { get; set; }                 // sender hoặc moderator thực hiện thu hồi (audit)
-    public List<string> DeletedForContactIds { get; set; } = new();  // delete-for-me horizon (per-user, $addToSet)
+    // Tính năng 2: edit / recall.
+    // Đều dùng soft-flag (timestamp) thay vì hard-delete để giữ reply chain, audit và search consistency.
+    public DateTime? EditedTime { get; set; }            // null = chưa từng edit
+    public DateTime? RecalledTime { get; set; }          // null = chưa recall (thay cho cờ IsRecalled)
+    public string? RecalledByContactId { get; set; }     // sender hoặc moderator thực hiện thu hồi (audit)
 }
 
 public class MessageReaction

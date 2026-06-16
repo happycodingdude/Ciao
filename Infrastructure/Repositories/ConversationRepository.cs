@@ -188,7 +188,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         return conversations;
     }
 
-    public async Task<List<MessageSearchResult>> SearchMessages(string conversationId, string keyword, string userId, PagingParam pagingParam)
+    public async Task<List<MessageSearchResult>> SearchMessages(string conversationId, string keyword, PagingParam pagingParam)
     {
         // Pipeline search message theo keyword trong 1 conversation cụ thể.
         // Chiến thuật: $unwind Messages rồi $match content regex để Mongo lọc tại DB,
@@ -212,9 +212,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "Messages.Type", "text" },
                 { "Messages.Content", new BsonRegularExpression(escaped, "i") },
                 // Loại tin đã thu hồi (Content đã bị clear nhưng vẫn cần loại theo cờ để chắc chắn).
-                { "Messages.RecalledTime", BsonNull.Value },
-                // Loại tin user hiện tại đã delete-for-me.
-                { "Messages.DeletedForContactIds", new BsonDocument("$nin", new BsonArray { userId }) }
+                { "Messages.RecalledTime", BsonNull.Value }
             }),
             new BsonDocument("$sort", new BsonDocument("Messages.CreatedTime", -1)),
             new BsonDocument("$skip", pagingParam.Skip),

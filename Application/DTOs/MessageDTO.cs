@@ -47,13 +47,10 @@ public class MessageReactionSummary : MongoBaseModel
     public int AngryCount { get; set; }
     public string? CurrentReaction { get; set; }
 
-    // Tính năng 2: phản chiếu trạng thái edit/recall/delete-for-me xuống cache + FE.
-    // DeletedForContactIds để FE filter message khỏi list của user hiện tại (cache là dữ liệu chung
-    // cho cả conversation, không per-user, nên không thể xóa cứng khỏi list).
+    // Tính năng 2: phản chiếu trạng thái edit/recall xuống cache + FE.
     public DateTime? EditedTime { get; set; }
     public DateTime? RecalledTime { get; set; }
     public string? RecalledByContactId { get; set; }
-    public List<string> DeletedForContactIds { get; set; } = new();
 }
 
 public class MessageWithReactions : MessageReactionSummary
