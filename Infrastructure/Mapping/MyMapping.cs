@@ -63,6 +63,14 @@ public class MyMapping : Profile
         CreateMap<FriendCacheModel, GetListFriendItem>()
             .ForMember(q => q.Id, s => s.MapFrom(w => w.FriendId))
             .ForMember(q => q.Status, s => s.MapFrom(w => w.FriendStatus))
+            // Quan hệ bạn bè ở parent → đẩy xuống contact để frontend đọc nhất quán.
+            .AfterMap((src, dest) =>
+            {
+                if (dest.Contact is null) return;
+                dest.Contact.FriendId = src.FriendId;
+                dest.Contact.FriendStatus = src.FriendStatus;
+                dest.Contact.DirectConversation = src.DirectConversation;
+            })
             .ReverseMap();
         CreateMap<ContactInfo, Contact>().ReverseMap();
         CreateMap<ContactInfo, GetListFriendItem_Contact>().ReverseMap();

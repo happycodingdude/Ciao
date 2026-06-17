@@ -52,6 +52,9 @@ export const getFriends = async (): Promise<FriendCache[]> => {
       await HttpRequest<undefined, FriendCache[]>({
         method: "get",
         url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GET,
+        // Endpoint poll presence định kỳ: ép revalidate, tránh browser/ngrok trả response cache
+        // khiến isOnline đứng yên dù đã refetch.
+        headers: { "Cache-Control": "no-cache" },
       })
     ).data ?? []
   );

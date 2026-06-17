@@ -23,6 +23,13 @@ public class RedisPresenceService : IPresenceService
         );
     }
 
+    public async Task SetOfflineAsync(string userId)
+    {
+        // Xóa user khỏi presence set ngay khi logout để friend thấy offline tức thì,
+        // không phải chờ score quá threshold (PresenceCleanup chỉ chạy định kỳ).
+        await _db.SortedSetRemoveAsync(PresenceKey, userId);
+    }
+
     public async Task<bool> IsOnlineAsync(string userId)
     {
         var score = await _db.SortedSetScoreAsync(

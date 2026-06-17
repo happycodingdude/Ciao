@@ -1,14 +1,18 @@
+using Application.Services;
+
 namespace Application.Caching;
 
 public class UserCache
 {
     readonly IRedisCaching _redisCaching;
     readonly IHttpContextAccessor _httpContextAccessor;
+    readonly IPresenceService _presenceService;
 
-    public UserCache(IRedisCaching redisCaching, IHttpContextAccessor httpContextAccessor)
+    public UserCache(IRedisCaching redisCaching, IHttpContextAccessor httpContextAccessor, IPresenceService presenceService)
     {
         _redisCaching = redisCaching;
         _httpContextAccessor = httpContextAccessor;
+        _presenceService = presenceService;
     }
 
     private string UserId => _httpContextAccessor.HttpContext!.Items["UserId"]!.ToString()!;
@@ -77,10 +81,13 @@ public class UserCache
 
     public async Task SyncUserInfo(List<GetListFriendItem> friends)
     {
+        // IsOnline phải lấy từ presence service (Redis sorted set, heartbeat 30s/threshold 60s) —
+        // đây là single source of truth, đồng nhất với GetConversations. Trước đây dùng sự tồn tại
+        // của user-info cache làm proxy, nhưng cache đó chỉ bị xoá khi user signout tường minh nên
+        // friend đóng tab/expire token vẫn hiển thị "online" vĩnh viễn → trạng thái sai.
         var tasks = friends.Select(async friend =>
         {
-            var userInfo = await _redisCaching.GetAsync<Contact>(AppConstants.RedisKey_UserInfo.Replace("{userId}", friend.Contact.Id));
-            friend.Contact.IsOnline = userInfo is not null;
+            friend.Contact.IsOnline = await _presenceService.IsOnlineAsync(friend.Contact.Id);
         });
         await Task.WhenAll(tasks);
     }

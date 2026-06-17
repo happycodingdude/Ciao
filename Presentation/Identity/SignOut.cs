@@ -10,13 +10,15 @@ public static class SignOut
         readonly UserCache _userCache;
         readonly ConversationCache _conversationCache;
         readonly FriendCache _friendCache;
+        readonly IPresenceService _presenceService;
 
-        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, FriendCache friendCache)
+        public Handler(IContactRepository contactRepository, UserCache userCache, ConversationCache conversationCache, FriendCache friendCache, IPresenceService presenceService)
         {
             _contactRepository = contactRepository;
             _userCache = userCache;
             _conversationCache = conversationCache;
             _friendCache = friendCache;
+            _presenceService = presenceService;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -32,6 +34,7 @@ public static class SignOut
             _contactRepository.Update(filter, updates);
 
             await _userCache.RemoveAllAsync();
+            await _presenceService.SetOfflineAsync(userId);
             _conversationCache.RemoveAll();
             _friendCache.RemoveAll();
 

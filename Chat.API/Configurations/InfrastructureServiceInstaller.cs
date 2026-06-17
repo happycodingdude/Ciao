@@ -1,9 +1,19 @@
+using MongoDB.Bson.Serialization.Conventions;
+
 namespace Chat.API.Configurations;
 
 public class InfrastructureServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
+        // MongoDB global conventions — bỏ qua field thừa/legacy còn sót trong document cũ
+        // (vd: 'DeletedForContactIds' còn lại sau khi gỡ tính năng delete-for-me ở commit b9727d2).
+        // Áp cho mọi class map; phải đăng ký trước lần (de)serialize đầu tiên (startup, trước khi nhận request).
+        ConventionRegistry.Register(
+            "AppGlobalConventions",
+            new ConventionPack { new IgnoreExtraElementsConvention(true) },
+            _ => true);
+
         // Configuration
         services.Configure<KafkaConfiguration>(configuration.GetSection("Kafka"));
         services.Configure<MongoConfiguration>(configuration.GetSection("Mongo"));
