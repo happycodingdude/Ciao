@@ -13,7 +13,7 @@ import useInfo from "../hooks/useInfo";
 import { FriendItemProps } from "../types/base.types";
 import { FriendCache } from "../types/friend.types";
 
-const RECENT_LIMIT = 6;
+const RECENT_LIMIT = 4;
 
 const Home = () => {
   const queryClient = useQueryClient();
@@ -61,8 +61,7 @@ const Home = () => {
     () =>
       friends
         .filter(
-          (f) =>
-            f.contact?.friendStatus === "friend" && f.contact?.isOnline,
+          (f) => f.contact?.friendStatus === "friend" && f.contact?.isOnline,
         )
         .map((f) => f.contact),
     [friends],
@@ -138,33 +137,42 @@ const Home = () => {
   };
 
   return (
-    <section className="bg-(--bg-color) absolute inset-0 overflow-y-auto">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
-        <HomeHero
-          name={info?.name}
-          avatar={info?.avatar}
-          isOnline={info?.isOnline}
-          unreadCount={unreadCount}
-        />
+    <section className="bg-(--bg-color) relative h-screen w-full overflow-hidden">
+      {/* #portal (global CSS có height:100%) phải nằm NGOÀI flex container, nếu không nó
+          thành flex-item chiếm hết chiều cao và ép vùng flex-1 co về 0. */}
+      <div className="flex h-full flex-col">
+        {/* Header cố định (shrink-0) — luôn nằm gọn trong tầm mắt. */}
+        <div className="mx-auto flex w-full max-w-5xl shrink-0 flex-col gap-4 px-6 pt-5">
+          <HomeHero
+            name={info?.name}
+            avatar={info?.avatar}
+            isOnline={info?.isOnline}
+            unreadCount={unreadCount}
+          />
 
-        <HomeStats stats={stats} />
+          <HomeStats stats={stats} />
 
-        <HomeQuickActions />
+          <HomeQuickActions />
+        </div>
 
-        <div className="grid grid-cols-1 gap-6 laptop:grid-cols-3">
-          <div className="laptop:col-span-2">
-            <HomeRecentChats
-              conversations={recentChats}
-              selfId={info?.id}
-              onlineFriendIds={onlineFriendIds}
-            />
-          </div>
-          <div className="flex flex-col gap-6">
-            <HomeOnlineFriends friends={onlineFriends} />
-            <HomePendingRequests
-              requests={pendingRequests}
-              friendAction={handleFriendAction}
-            />
+        {/* Vùng nội dung lấp đầy phần còn lại của 100vh; min-h-0 + overflow-hidden để KHÔNG
+            có scrollbar — toàn bộ Home nằm gọn trong tầm nhìn, không phần nào phải scroll. */}
+        <div className="mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-hidden px-6 pb-5 pt-4">
+          <div className="laptop:grid-cols-3 grid grid-cols-1 gap-4">
+            <div className="laptop:col-span-2">
+              <HomeRecentChats
+                conversations={recentChats}
+                selfId={info?.id}
+                onlineFriendIds={onlineFriendIds}
+              />
+            </div>
+            <div className="flex flex-col gap-4">
+              <HomeOnlineFriends friends={onlineFriends} />
+              <HomePendingRequests
+                requests={pendingRequests}
+                friendAction={handleFriendAction}
+              />
+            </div>
           </div>
         </div>
       </div>

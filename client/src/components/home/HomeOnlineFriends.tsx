@@ -51,7 +51,7 @@ const HomeOnlineFriends = ({ friends }: Props) => {
   };
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-2">
       <h2 className="text-(--text-main-color) flex items-center gap-2 font-semibold">
         <i className="fa-solid fa-circle text-(--online-color) text-[10px]" />
         Friends online
@@ -61,7 +61,7 @@ const HomeOnlineFriends = ({ friends }: Props) => {
       </h2>
 
       {friends.length === 0 ? (
-        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) rounded-2xl p-6 text-center text-sm">
+        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) rounded-2xl p-4 text-center text-sm">
           None of your friends are online right now.
         </p>
       ) : (
@@ -78,7 +78,7 @@ const HomeOnlineFriends = ({ friends }: Props) => {
               <div className="relative">
                 <ImageWithLightBoxAndNoLazy
                   src={contact.avatar}
-                  className="pointer-events-none aspect-square w-14 ring-2 ring-(--online-color)"
+                  className="ring-(--online-color) pointer-events-none aspect-square w-14 ring-2"
                   circle
                   slides={[{ src: contact.avatar ?? "" }]}
                 />

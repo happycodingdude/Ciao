@@ -57,7 +57,7 @@ const ConnectionFriendList = ({
           <ConnectionEmpty icon={emptyIcon} title={emptyTitle} hint={emptyHint} />
         )
       ) : (
-        <div className="bg-(--bg-color) flex flex-col rounded-2xl border border-(--border-color) p-2">
+        <div className="bg-(--bg-color) flex flex-col rounded-2xl border border-(--border-color) p-2 overflow-y-auto">
           {filtered.map((contact) => (
             <ConnectionContact
               key={contact.id}

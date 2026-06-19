@@ -37,18 +37,18 @@ const actions: QuickAction[] = [
 
 const HomeQuickActions = () => {
   return (
-    <div className="grid grid-cols-1 gap-4 laptop:grid-cols-3">
+    <div className="laptop:grid-cols-3 grid grid-cols-1 gap-4">
       {actions.map((action, index) => (
         <Link
           key={action.label}
           to={action.to}
           search={action.search}
-          className="animate-slide-up bg-(--bg-color) hover:-translate-y-1 flex items-center gap-4
-            rounded-2xl border border-(--border-color) p-4 shadow-sm transition-transform"
+          className="bg-(--bg-color) border-(--border-color) flex animate-slide-up items-center gap-3
+            rounded-2xl border p-3 shadow-sm transition-transform hover:-translate-y-1"
           style={{ animationDelay: `${index * 60}ms` }}
         >
           <div
-            className={`bg-linear-to-br ${action.gradient} flex aspect-square w-11 items-center
+            className={`bg-linear-to-br ${action.gradient} flex aspect-square w-10 items-center
               justify-center rounded-xl text-white shadow-sm`}
           >
             <i className={`fa-solid ${action.icon}`} />

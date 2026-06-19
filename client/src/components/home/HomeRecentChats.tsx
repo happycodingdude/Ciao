@@ -12,13 +12,9 @@ type Props = {
   onlineFriendIds: Set<string>;
 };
 
-const HomeRecentChats = ({
-  conversations,
-  selfId,
-  onlineFriendIds,
-}: Props) => {
+const HomeRecentChats = ({ conversations, selfId, onlineFriendIds }: Props) => {
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <h2 className="text-(--text-main-color) flex items-center gap-2 font-semibold">
           <i className="fa-solid fa-clock-rotate-left text-(--main-color-bold)" />
@@ -33,11 +29,11 @@ const HomeRecentChats = ({
       </div>
 
       {conversations.length === 0 ? (
-        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) rounded-2xl p-6 text-center text-sm">
+        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) rounded-2xl p-4 text-center text-sm">
           No conversations yet. Start chatting with your friends!
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-3 laptop:grid-cols-2">
+        <div className="laptop:grid-cols-2 grid grid-cols-1 gap-2">
           {conversations.map((item) => {
             // Direct chat → lấy thành viên còn lại để hiển thị avatar/tên
             const otherMember = (item.members ?? []).find(
@@ -49,7 +45,9 @@ const HomeRecentChats = ({
                 m.contact?.id != null &&
                 onlineFriendIds.has(m.contact.id),
             );
-            const title = item.isGroup ? item.title : otherMember?.contact?.name;
+            const title = item.isGroup
+              ? item.title
+              : otherMember?.contact?.name;
             const avatar = item.isGroup
               ? item.avatar
               : otherMember?.contact?.avatar;
@@ -59,13 +57,13 @@ const HomeRecentChats = ({
                 key={item.id}
                 to="/conversations/$conversationId"
                 params={{ conversationId: item.id ?? "" }}
-                className="bg-(--bg-color) hover:bg-(--bg-color-extrathin) flex items-center gap-3
-                  rounded-2xl border border-(--border-color) p-3 transition-colors"
+                className="bg-(--bg-color) hover:bg-(--bg-color-extrathin) border-(--border-color) flex items-center
+                  gap-3 rounded-2xl border p-2.5 transition-colors"
               >
                 <div className="relative shrink-0">
                   <ImageWithLightBoxAndNoLazy
                     src={avatar}
-                    className="pointer-events-none aspect-square w-11"
+                    className="pointer-events-none aspect-square w-10"
                     circle
                     slides={[{ src: avatar ?? "" }]}
                   />
