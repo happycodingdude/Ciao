@@ -8,6 +8,8 @@ public static class ChatEventNames
     public const string NewFriendRequest = "NewFriendRequest";
     public const string FriendRequestAccepted = "FriendRequestAccepted";
     public const string FriendRequestCanceled = "FriendRequestCanceled";
+    public const string FriendRequestDenied = "FriendRequestDenied";
+    public const string Unfriended = "Unfriended";
     public const string NewReaction = "NewReaction";
     public const string NewMessagePinned = "NewMessagePinned";
     public const string MessageDelivered = "MessageDelivered";

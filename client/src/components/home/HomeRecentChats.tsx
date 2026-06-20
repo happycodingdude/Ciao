@@ -14,8 +14,8 @@ type Props = {
 
 const HomeRecentChats = ({ conversations, selfId, onlineFriendIds }: Props) => {
   return (
-    <section className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
+    <section className="flex h-full min-h-0 flex-col gap-2">
+      <div className="flex shrink-0 items-center justify-between">
         <h2 className="text-(--text-main-color) flex items-center gap-2 font-semibold">
           <i className="fa-solid fa-clock-rotate-left text-(--main-color-bold)" />
           Continue chatting
@@ -29,11 +29,11 @@ const HomeRecentChats = ({ conversations, selfId, onlineFriendIds }: Props) => {
       </div>
 
       {conversations.length === 0 ? (
-        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) rounded-2xl p-4 text-center text-sm">
+        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) flex flex-1 items-center justify-center rounded-2xl p-4 text-center text-sm">
           No conversations yet. Start chatting with your friends!
         </p>
       ) : (
-        <div className="laptop:grid-cols-2 grid grid-cols-1 gap-2">
+        <div className="laptop:grid-cols-2 laptop:auto-rows-fr grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden">
           {conversations.map((item) => {
             // Direct chat → lấy thành viên còn lại để hiển thị avatar/tên
             const otherMember = (item.members ?? []).find(

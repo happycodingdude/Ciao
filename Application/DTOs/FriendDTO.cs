@@ -20,6 +20,16 @@ public class GetListFriendItem_Contact
     public string? DirectConversation { get; set; }
 }
 
+public class FriendSuggestionItem
+{
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public bool IsOnline { get; set; }
+    // Số bạn chung giữa user hiện tại và contact được gợi ý.
+    public int MutualCount { get; set; }
+}
+
 public class FriendWithStatus : MongoBaseModel
 {
     public FriendDto_Contact FromContact { get; set; } = null!;

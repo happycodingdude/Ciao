@@ -17,7 +17,7 @@ type Props = {
 
 const HomeStats = ({ stats }: Props) => {
   return (
-    <div className="laptop:grid-cols-4 grid grid-cols-2 gap-4">
+    <div className="laptop:grid-cols-4 grid min-h-0 flex-1 auto-rows-fr grid-cols-2 gap-4">
       {stats.map((stat, index) => (
         <Link
           key={stat.label}

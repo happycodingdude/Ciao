@@ -136,9 +136,9 @@ public static class AddFriend
                 FriendId = friend.Id,
                 ContactId = fromContact.Id
             };
-            _ = _notificationProcessor.Notify(
+            _ = _firebase.Notify(
                 ChatEventNames.NewFriendRequest,
-                toContact.Id,
+                new[] { toContact.Id },
                 notiFriendRequest
             );
             // Push notification

@@ -3,6 +3,7 @@ import { isConversationActive } from "../hooks/useActiveConversation";
 import { UserProfile } from "../types/base.types";
 import { ConversationCache, ConversationModel } from "../types/conv.types";
 import { AttachmentCache, MessageCache } from "../types/message.types";
+import { FriendCache } from "../types/friend.types";
 import {
   MessageDeliveredEvent,
   MessageEditedEvent,
@@ -42,7 +43,46 @@ export const classifyNotification = (
     case "MessageRead":       return onMessageRead(queryClient, data, userInfo);
     case "MessageEdited":     return onMessageEdited(queryClient, data);
     case "MessageRecalled":   return onMessageRecalled(queryClient, data);
+    // Friend events (realtime qua SignalR). Cập nhật cache ["friend"] TRỰC TIẾP từ payload
+    // (friendId) — không refetch. Riêng NewFriendRequest: phía nhận chưa có entry và payload
+    // không kèm contact info → buộc refetch (vẫn do event kích hoạt, không phải poll).
+    case "NewFriendRequest":  return onFriendRequestReceived(queryClient);
+    case "FriendRequestAccepted": return onFriendAccepted(queryClient, data);
+    case "FriendRequestCanceled":
+    case "FriendRequestDenied":
+    case "Unfriended":
+      return onFriendRemoved(queryClient, data);
   }
+};
+
+type FriendEventData = { friendId?: string };
+
+const onFriendRequestReceived = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ["friend"] });
+  queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+};
+
+// Lời mời được chấp nhận: entry đã có (request_sent) → đổi status sang "friend".
+const onFriendAccepted = (queryClient: QueryClient, data: FriendEventData) => {
+  const friendId = data?.friendId;
+  if (!friendId) return;
+  queryClient.setQueryData<FriendCache[]>(["friend"], (old) =>
+    (old ?? []).map((f) =>
+      f.contact?.friendId !== friendId
+        ? f
+        : { ...f, contact: { ...f.contact, friendStatus: "friend" } },
+    ),
+  );
+};
+
+// Huỷ lời mời / từ chối / huỷ kết bạn: xoá entry theo friendId.
+const onFriendRemoved = (queryClient: QueryClient, data: FriendEventData) => {
+  const friendId = data?.friendId;
+  if (!friendId) return;
+  queryClient.setQueryData<FriendCache[]>(["friend"], (old) =>
+    (old ?? []).filter((f) => f.contact?.friendId !== friendId),
+  );
+  queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
 };
 
 const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: UserProfile) => {

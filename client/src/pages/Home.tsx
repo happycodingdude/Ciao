@@ -13,7 +13,7 @@ import useInfo from "../hooks/useInfo";
 import { FriendItemProps } from "../types/base.types";
 import { FriendCache } from "../types/friend.types";
 
-const RECENT_LIMIT = 4;
+const RECENT_LIMIT = 8;
 
 const Home = () => {
   const queryClient = useQueryClient();
@@ -140,33 +140,38 @@ const Home = () => {
     <section className="bg-(--bg-color) relative h-screen w-full overflow-hidden">
       {/* #portal (global CSS có height:100%) phải nằm NGOÀI flex container, nếu không nó
           thành flex-item chiếm hết chiều cao và ép vùng flex-1 co về 0. */}
-      <div className="flex h-full flex-col">
-        {/* Header cố định (shrink-0) — luôn nằm gọn trong tầm mắt. */}
-        <div className="mx-auto flex w-full max-w-5xl shrink-0 flex-col gap-4 px-6 pt-5">
-          <HomeHero
-            name={info?.name}
-            avatar={info?.avatar}
-            isOnline={info?.isOnline}
-            unreadCount={unreadCount}
-          />
+      {/* Chia dọc 5/5: phần trên (Hero + Stats + Quick actions) = 50%, phần dưới
+          (Recent + cột phải) = 50%. */}
+      <div className="grid h-full grid-rows-2">
+        {/* Phần trên (60%): Hero giữ nguyên kích thước (shrink-0), Stats & Quick actions
+            giãn (flex-1) để hút phần dôi lấp đầy đúng 60% mà KHÔNG kéo giãn Hero. */}
+        <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-col gap-4 px-6 pt-5">
+          <div className="shrink-0">
+            <HomeHero
+              name={info?.name}
+              avatar={info?.avatar}
+              isOnline={info?.isOnline}
+              unreadCount={unreadCount}
+            />
+          </div>
 
           <HomeStats stats={stats} />
 
           <HomeQuickActions />
         </div>
 
-        {/* Vùng nội dung lấp đầy phần còn lại của 100vh; min-h-0 + overflow-hidden để KHÔNG
-            có scrollbar — toàn bộ Home nằm gọn trong tầm nhìn, không phần nào phải scroll. */}
-        <div className="mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-hidden px-6 pb-5 pt-4">
-          <div className="laptop:grid-cols-3 grid grid-cols-1 gap-4">
-            <div className="laptop:col-span-2">
+        {/* Phần dưới (40%): min-h-0 + overflow-hidden để KHÔNG có scrollbar —
+            toàn bộ Home nằm gọn trong tầm nhìn, không phần nào phải scroll. */}
+        <div className="mx-auto min-h-0 w-full max-w-5xl overflow-hidden px-6 pb-5 pt-4">
+          <div className="laptop:grid-cols-3 grid h-full min-h-0 grid-cols-1 gap-4">
+            <div className="laptop:col-span-2 flex min-h-0 flex-col">
               <HomeRecentChats
                 conversations={recentChats}
                 selfId={info?.id}
                 onlineFriendIds={onlineFriendIds}
               />
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="grid min-h-0 grid-rows-2 gap-4">
               <HomeOnlineFriends friends={onlineFriends} />
               <HomePendingRequests
                 requests={pendingRequests}

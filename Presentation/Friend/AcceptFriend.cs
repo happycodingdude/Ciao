@@ -82,9 +82,9 @@ public static class AcceptFriend
             {
                 FriendId = request.id
             };
-            _ = _notificationProcessor.Notify(
+            _ = _firebase.Notify(
                 ChatEventNames.FriendRequestAccepted,
-                selected.Contact.Id,
+                new[] { selected.Contact.Id },
                 notiFriendRequest
             );
 

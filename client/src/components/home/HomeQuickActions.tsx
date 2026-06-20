@@ -37,7 +37,7 @@ const actions: QuickAction[] = [
 
 const HomeQuickActions = () => {
   return (
-    <div className="laptop:grid-cols-3 grid grid-cols-1 gap-4">
+    <div className="laptop:grid-cols-3 grid min-h-0 flex-1 auto-rows-fr grid-cols-1 gap-4">
       {actions.map((action, index) => (
         <Link
           key={action.label}

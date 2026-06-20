@@ -73,10 +73,6 @@ const Connection = () => {
     );
   };
 
-  // Add panel thao tác trên contact ngoài cache → invalidate để friend list/Requests đồng bộ.
-  const refreshFriends = () =>
-    queryClient.invalidateQueries({ queryKey: ["friend"] });
-
   const setTab = (next: ConnectionTab) => navigate({ search: { tab: next } });
 
   return (
@@ -107,13 +103,15 @@ const Connection = () => {
           />
         </div>
 
-        {/* Vùng nội dung tab — flex-1 + min-h-0, nơi DUY NHẤT được scroll. */}
-        <div className="hide-scrollbar mx-auto min-h-0 w-full max-w-3xl flex-1 overflow-y-auto px-6 pb-6 pt-6">
+        {/* Vùng nội dung tab — flex-1 + min-h-0; overflow-hidden để mỗi tab tự quản scroll
+            (search pin shrink-0, list box cuộn nội bộ giữ đủ 4 border). */}
+        <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col overflow-hidden px-6 pb-6 pt-6">
           {tab === "all" && (
             <ConnectionFriendList
               contacts={allFriends}
               friendAction={handleFriendAction}
               searchable
+              sortable
               emptyIcon="fa-user-group"
               emptyTitle="No friends yet"
               emptyHint="Head to the Add friend tab to grow your connections."
@@ -138,7 +136,7 @@ const Connection = () => {
             />
           )}
 
-          {tab === "add" && <AddFriendPanel onChanged={refreshFriends} />}
+          {tab === "add" && <AddFriendPanel />}
         </div>
       </div>
 

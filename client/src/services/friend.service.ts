@@ -4,6 +4,7 @@ import {
   CreateDirectChatReq,
   CreateDirectChatRes,
   FriendCache,
+  FriendSuggestion,
 } from "../types/friend.types";
 
 export const createDirectChat = async (contactId: string) => {
@@ -44,6 +45,32 @@ export const getContacts = async (name: string) => {
       ),
     })
   ).data;
+};
+
+// Xoá quan hệ bạn bè qua DELETE /friends/{id} — dùng chung cho deny lời mời & unfriend.
+export const removeFriend = async (friendId: string) => {
+  return (
+    await HttpRequest({
+      method: "delete",
+      url: import.meta.env.VITE_ENDPOINT_FRIEND_REQUEST_GETBYID.replace(
+        "{id}",
+        friendId,
+      ),
+    })
+  ).data;
+};
+
+export const getFriendSuggestions = async (
+  limit = 10,
+): Promise<FriendSuggestion[]> => {
+  return (
+    (
+      await HttpRequest<undefined, FriendSuggestion[]>({
+        method: "get",
+        url: `${import.meta.env.VITE_ENDPOINT_FRIEND_SUGGESTIONS}?limit=${limit}`,
+      })
+    ).data ?? []
+  );
 };
 
 export const getFriends = async (): Promise<FriendCache[]> => {

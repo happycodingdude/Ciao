@@ -52,7 +52,7 @@ const ConnectionRequests = ({ incoming, outgoing, friendAction }: Props) => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="hide-scrollbar flex h-full flex-col gap-6 overflow-y-auto">
       <Section
         title="Received"
         icon="fa-user-plus"

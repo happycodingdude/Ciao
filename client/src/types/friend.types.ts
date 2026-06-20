@@ -33,6 +33,15 @@ export type QuickChatProps = OnCloseType & {
   profile?: ContactModel;
 };
 
+export type FriendSuggestion = {
+  id: string;
+  name?: string;
+  avatar?: string;
+  isOnline?: boolean;
+  // Số bạn chung với user hiện tại.
+  mutualCount: number;
+};
+
 export type CreateDirectChatReq = {
   message?: string;
   isForwarded?: boolean;

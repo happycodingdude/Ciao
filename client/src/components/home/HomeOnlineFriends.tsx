@@ -51,8 +51,8 @@ const HomeOnlineFriends = ({ friends }: Props) => {
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-(--text-main-color) flex items-center gap-2 font-semibold">
+    <section className="flex min-h-0 flex-col gap-2">
+      <h2 className="text-(--text-main-color) flex shrink-0 items-center gap-2 font-semibold">
         <i className="fa-solid fa-circle text-(--online-color) text-[10px]" />
         Friends online
         <span className="text-(--text-main-color-blur) text-xs font-normal">
@@ -61,11 +61,11 @@ const HomeOnlineFriends = ({ friends }: Props) => {
       </h2>
 
       {friends.length === 0 ? (
-        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) rounded-2xl p-4 text-center text-sm">
+        <p className="text-(--text-main-color-blur) bg-(--bg-color-extrathin) flex flex-1 items-center justify-center rounded-2xl p-4 text-center text-sm">
           None of your friends are online right now.
         </p>
       ) : (
-        <div className="hide-scrollbar flex gap-4 overflow-x-auto pb-1">
+        <div className="hide-scrollbar flex min-h-0 flex-1 items-start gap-4 overflow-x-auto pb-1">
           {friends.map((contact) => (
             <button
               key={contact.id}

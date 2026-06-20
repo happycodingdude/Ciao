@@ -70,9 +70,11 @@ public class CreateDirectConversationEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Contact).MapPost("/{contactId}/conversations",
-        async (ISender sender, string contactId, CreateDirectConversationReq request) =>
+        // request nullable → body optional: hỗ trợ tạo direct chat KHÔNG kèm message
+        // (createDirectChat gửi POST không body) lẫn có message (createDirectChatWithMessage).
+        async (ISender sender, string contactId, CreateDirectConversationReq? request) =>
         {
-            var query = new CreateDirectConversation.Request(contactId, request.Message, request.IsForwarded);
+            var query = new CreateDirectConversation.Request(contactId, request?.Message ?? string.Empty, request?.IsForwarded ?? false);
             var result = await sender.Send(query);
             return Results.Ok(result);
         }).RequireAuthorization();

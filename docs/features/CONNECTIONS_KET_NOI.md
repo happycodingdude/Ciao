@@ -1,7 +1,7 @@
 # Kế Hoạch Tính Năng — Connections (Kết nối / Quan hệ bạn bè)
 
 > Trạng thái: **PLAN — chờ duyệt để implement**
-> Scope đã chốt: **Phase 1 + Phase 2 + Phase 4** (KHÔNG làm Block/Unblock). Add friend = **tab riêng trong trang**.
+> Scope đã chốt: **Phase 1 + Phase 2 + Phase 3** (KHÔNG làm Block/Unblock). Add friend = **tab riêng trong trang**.
 
 ## Mục đích
 
@@ -95,7 +95,11 @@ responsive (mobile 1 cột); empty state mỗi tab; không đổi behavior Dashb
 
 ---
 
-## Phase 2 — Backend: Deny + Unfriend
+## Phase 2 — Backend: Deny + Unfriend ✅ ĐÃ XONG
+
+> Đã implement & build (BE `dotnet build` 0 errors, FE build/lint sạch).
+> BE: `Presentation/Friend/RemoveFriend.cs` (thay `CancelFriend.cs`), event constants `FriendRequestDenied`/`Unfriended`.
+> FE: `services/friend.service.ts#removeFriend`, `components/connection/DenyButton.tsx` + `UnfriendMenu.tsx` (confirm popover), wire trong `ConnectionContact`. Đã xoá `DenyButton.jsx` legacy hỏng.
 
 ### Quyết định thiết kế
 Thay vì nới lỏng `CancelFriend` (làm rối ngữ nghĩa), **tổng quát hoá** thành một command
@@ -121,20 +125,23 @@ Thay vì nới lỏng `CancelFriend` (làm rối ngữ nghĩa), **tổng quát h
 
 ---
 
-## Phase 4 — Chiến lược (nâng cao)
+## Phase 3 — Chiến lược (nâng cao) ✅ ĐÃ XONG
+
+> Đã implement & build sạch.
+> A-Z: `ConnectionFriendList` thêm toggle Online-first ↔ A-Z (group chữ cái + header sticky), bật `sortable` cho tab All.
+> Mutual suggestions: BE `Presentation/Friend/GetFriendSuggestions.cs` (`GET /friends/suggestions?limit=`), FE hiển thị "People you may know" trong tab Add (`AddFriendPanel`).
+> ⚠️ **Vận hành**: nên tạo index Mongo trên `Friend.FromContact.ContactId` & `Friend.ToContact.ContactId` để query suggestions không full-scan khi scale.
 
 | Tính năng | Phạm vi | Phụ thuộc |
 |---|---|---|
 | **Sort/Group A-Z** + toggle (online-first ↔ A-Z) | Frontend-only | — |
 | **Gợi ý kết bạn (bạn chung / mutual)** | Endpoint mới `GET /friends/suggestions` | Mongo graph: index `FromContact.ContactId`, `ToContact.ContactId`; depth=2; **cap kết quả** tránh full scan |
-| **Sinh nhật** (tuỳ chọn, stretch) | Cần field `DateOfBirth` trên Contact + DTO + populate vào `/friends` | ⚠️ **Schema migration** (nullable, backward-compat) — có thể defer |
 
-> Đề xuất core Phase 4 = **A-Z group/sort** + **mutual suggestions**. Sinh nhật tách riêng vì
-> kéo theo thay đổi schema; chỉ làm khi có yêu cầu rõ.
+> Phase 3 = **A-Z group/sort** + **mutual suggestions**.
+> ~~Sinh nhật~~ — **không làm** (theo yêu cầu); kéo theo schema migration (`DateOfBirth`), chỉ xét lại khi có nhu cầu rõ.
 
-### Rủi ro Phase 4
+### Rủi ro Phase 3
 - `suggestions`: traversal graph có thể đắt → bắt buộc index + limit + projection; cân nhắc cache.
-- Không suy đoán dữ liệu chưa có (DOB) — sinh nhật chỉ làm sau khi thêm field.
 
 ---
 
@@ -143,7 +150,24 @@ Thay vì nới lỏng `CancelFriend` (làm rối ngữ nghĩa), **tổng quát h
 1. **Phase 1** (rủi ro ~0): thuần frontend, không migration. Rollback = revert FE commit.
 2. **Phase 2** (rủi ro thấp): thay `CancelFriend`→`RemoveFriend`, backward-compatible.
    Rollback = giữ endpoint cũ song song nếu cần.
-3. **Phase 4 core** (rủi ro TB): endpoint suggestions + sort FE. Rollback độc lập từng phần.
+3. **Phase 3 core** (rủi ro TB): endpoint suggestions + sort FE. Rollback độc lập từng phần.
+
+## Realtime (event-driven qua Firebase/FCM)
+**Transport:** BE đẩy friend events qua Firebase Cloud Messaging —
+`IFirebaseFunction.Notify(event, userIds[], data)` (FCM data-message `{event, data}`). Client nhận
+ở `requestPermission` → `onMessage` → `classifyNotification` (đã wire sẵn trong `SignalContext`).
+BE: `AddFriend`/`AcceptFriend`/`RemoveFriend` gọi `_firebase.Notify(event, new[]{ otherUserId }, payload)`
+(không dùng SignalR/`INotificationProcessor` cho friend nữa).
+
+**Xử lý (`utils/notificationHandlers.ts`) — cập nhật cache `["friend"]` TRỰC TIẾP từ payload
+(`friendId`), không refetch:**
+- `FriendRequestCanceled`/`Denied`/`Unfriended` → xoá entry theo `friendId`.
+- `FriendRequestAccepted` → đổi `friendStatus` entry sang `"friend"`.
+- `NewFriendRequest` → refetch `["friend"]` (phía nhận chưa có entry & payload thiếu contact info;
+  vẫn do **event** kích hoạt, không phải poll).
+
+Người khởi tạo dùng optimistic update; phía còn lại nhận realtime. Poll 30s giữ làm fallback khi
+FCM không tới foreground (mất permission / tab background).
 
 ## Trade-off chính
 - Presence: tái dùng `refetchInterval: 30_000` + `refetchIntervalInBackground` như Home — không
