@@ -30,7 +30,7 @@ const ConnectionTabs = ({ active, onChange, counts }: Props) => {
             className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors
               ${
                 isActive
-                  ? "bg-(--main-color-bold) border-(--main-color-bold) font-medium text-white"
+                  ? "bg-light-blue-500 border-light-blue-500 font-medium text-white"
                   : "text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color)"
               }`}
           >
@@ -46,7 +46,7 @@ const ConnectionTabs = ({ active, onChange, counts }: Props) => {
                   ${
                     isActive
                       ? "bg-white/25 text-white"
-                      : "bg-(--main-color-bold) text-white"
+                      : "bg-light-blue-500 text-white"
                   }`}
               >
                 {count}

@@ -166,14 +166,24 @@ BE: `AddFriend`/`AcceptFriend`/`RemoveFriend` gọi `_firebase.Notify(event, new
 - `NewFriendRequest` → refetch `["friend"]` (phía nhận chưa có entry & payload thiếu contact info;
   vẫn do **event** kích hoạt, không phải poll).
 
-Người khởi tạo dùng optimistic update; phía còn lại nhận realtime. Poll 30s giữ làm fallback khi
-FCM không tới foreground (mất permission / tab background).
+Người khởi tạo dùng optimistic update; phía còn lại nhận realtime. **Trang Connections KHÔNG còn
+poll `/friends`** (đã bỏ `refetchInterval`) — chỉ dựa vào FCM. Event names khớp 2 phía:
+`NewFriendRequest`, `FriendRequestAccepted`, `FriendRequestCanceled`, `FriendRequestDenied`, `Unfriended`.
+
+> ⚠️ **Bẫy persistence (đã fix phiên 2):** BE ghi DB qua `UnitOfWork` **defer**, commit ở
+> `uow.SaveAsync()` do `GlobalTransactionMiddleware` gọi **sau** handler. Nếu handler throw (vd. đụng
+> `_friendCache.GetFriends()` trả null rồi `.SingleOrDefault`/`.Add`) thì `SaveAsync()` không chạy →
+> **mất write** (AcceptTime/Friend không vào Mongo) dù Redis cache đã đổi → suggestion (đọc Mongo) sai.
+> ⇒ Mọi code sau lệnh ghi DB trong handler friend **phải null-safe, không throw**. Xem
+> `CONNECTIONS_HANDOFF.md` (Cập nhật phiên 2) + `scripts/backfill_accept_time.py`.
 
 ## Trade-off chính
-- Presence: tái dùng `refetchInterval: 30_000` + `refetchIntervalInBackground` như Home — không
-  phát sinh tải mới, đồng nhất nguồn presence.
+- Presence: **đã bỏ poll** ở trang này (yêu cầu "không internal fetch") ⇒ online/offline không
+  realtime — chỉ đúng tại thời điểm load/refetch. Muốn realtime presence phải đẩy qua FCM.
 - Block/Unblock **không làm** (theo scope) ⇒ không đụng chạm search/chat/presence cross-cutting.
 - Tab state qua URL: thêm chút phức tạp routing nhưng đổi lại deep-link từ Dashboard + share link.
+- Màu accent: dùng `light-blue-500` (#0ea5e9 — màu chủ đạo app, khớp sidebar/nút Chat), không dùng
+  `--main-color-bold` (hồng ở theme light).
 
 ## Lệnh vận hành (khi implement)
 ```bash

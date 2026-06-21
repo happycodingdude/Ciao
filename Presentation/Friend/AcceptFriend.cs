@@ -37,16 +37,14 @@ public static class AcceptFriend
         readonly IFriendRepository _friendRepository;
         readonly FriendCache _friendCache;
         readonly UserCache _userCache;
-        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IFriendRepository friendRepository, FriendCache friendCache, UserCache userCache, INotificationProcessor notificationProcessor)
+        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IFriendRepository friendRepository, FriendCache friendCache, UserCache userCache)
         {
             _validator = validator;
             _firebase = firebase;
             _friendRepository = friendRepository;
             _friendCache = friendCache;
             _userCache = userCache;
-            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -56,35 +54,52 @@ public static class AcceptFriend
                 throw new BadRequestException(validationResult.ToString());
 
             var filter = MongoQuery<Friend>.IdFilter(request.id);
-            // var entity = await _friendRepository.GetItemAsync(filter);
 
+            // Lấy entity từ DB để biết người GỬI (FromContact) — dùng cho notify/sync cache phía họ.
+            // Không phụ thuộc Redis cache (có thể trống) → tránh NRE làm rollback transaction.
+            var entity = await _friendRepository.GetItemAsync(filter);
+            if (entity is null)
+                throw new BadRequestException("Friend request not found");
+            var senderId = entity.FromContact.ContactId;
+
+            // CORE: set AcceptTime. Update bị DEFER vào UnitOfWork → chỉ commit ở uow.SaveAsync()
+            // (GlobalTransactionMiddleware) SAU khi handler chạy xong. Vì vậy MỌI code phía sau
+            // PHẢI null-safe, không được throw — nếu throw thì SaveAsync không chạy, AcceptTime
+            // không persist (DB lệch cache "friend") → GetFriendSuggestions/DB thấy sai trạng thái.
             var updates = Builders<Friend>.Update.Set(q => q.AcceptTime, DateTime.UtcNow);
             _friendRepository.Update(filter, updates);
 
-            // Update cache
+            // Sync cache phía người nhận (chính là user hiện tại). Best-effort, null-safe:
+            // cache có thể trống nếu user chưa được build cache (chưa login phiên này...).
             var friends = await _friendCache.GetFriends();
-            var selected = friends.SingleOrDefault(q => q.FriendId == request.id);
-            selected.FriendStatus = AppConstants.FriendStatus_Friend;
-            await _friendCache.SetFriends(friends);
-
-            // Check if senderks is online then update sender cache
-            var sender = _userCache.GetInfo(selected.Contact.Id);
-            if (sender is not null)
+            var selected = friends?.SingleOrDefault(q => q.FriendId == request.id);
+            if (selected is not null)
             {
-                var senderFriends = await _friendCache.GetFriends(selected.Contact.Id);
-                var senderSelected = senderFriends.SingleOrDefault(q => q.FriendId == request.id);
-                senderSelected.FriendStatus = AppConstants.FriendStatus_Friend;
-                await _friendCache.SetFriends(selected.Contact.Id, senderFriends);
+                selected.FriendStatus = AppConstants.FriendStatus_Friend;
+                await _friendCache.SetFriends(friends!);
             }
 
-            // Push accepted request            
+            // Sync cache phía người gửi nếu họ đang online (có thông tin trong UserCache).
+            var sender = await _userCache.GetInfo(senderId);
+            if (sender is not null)
+            {
+                var senderFriends = await _friendCache.GetFriends(senderId);
+                var senderSelected = senderFriends?.SingleOrDefault(q => q.FriendId == request.id);
+                if (senderSelected is not null)
+                {
+                    senderSelected.FriendStatus = AppConstants.FriendStatus_Friend;
+                    await _friendCache.SetFriends(senderId, senderFriends!);
+                }
+            }
+
+            // Push accepted request tới người gửi (FCM giao cả khi offline → mở app sẽ nhận).
             var notiFriendRequest = new EventNewFriendRequest
             {
                 FriendId = request.id
             };
             _ = _firebase.Notify(
                 ChatEventNames.FriendRequestAccepted,
-                new[] { selected.Contact.Id },
+                new[] { senderId },
                 notiFriendRequest
             );
 

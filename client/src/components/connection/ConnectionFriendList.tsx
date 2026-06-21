@@ -83,7 +83,7 @@ const ConnectionFriendList = ({
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder="Search friends"
-                className="bg-(--bg-color-extrathin) text-(--text-main-color) w-full rounded-full border border-(--border-color) py-2.5 pl-10 pr-4 text-sm outline-none focus:border-(--main-color-bold)"
+                className="bg-(--bg-color-extrathin) text-(--text-main-color) w-full rounded-full border border-(--border-color) py-2.5 pl-10 pr-4 text-sm outline-none focus:border-light-blue-500"
               />
             </div>
           )}
@@ -95,7 +95,7 @@ const ConnectionFriendList = ({
                 onClick={() => setSortMode("online")}
                 className={`rounded-full px-3 py-1.5 transition-colors ${
                   sortMode === "online"
-                    ? "bg-(--main-color-bold) font-medium text-white"
+                    ? "bg-light-blue-500 font-medium text-white"
                     : "text-(--text-main-color)"
                 }`}
               >
@@ -107,7 +107,7 @@ const ConnectionFriendList = ({
                 onClick={() => setSortMode("az")}
                 className={`rounded-full px-3 py-1.5 transition-colors ${
                   sortMode === "az"
-                    ? "bg-(--main-color-bold) font-medium text-white"
+                    ? "bg-light-blue-500 font-medium text-white"
                     : "text-(--text-main-color)"
                 }`}
               >

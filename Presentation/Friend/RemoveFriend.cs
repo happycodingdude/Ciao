@@ -75,7 +75,7 @@ public static class RemoveFriend
             {
                 var otherId = selected.Contact.Id;
 
-                var other = _userCache.GetInfo(otherId);
+                var other = await _userCache.GetInfo(otherId);
                 if (other is not null)
                 {
                     var otherFriends = await _friendCache.GetFriends(otherId);

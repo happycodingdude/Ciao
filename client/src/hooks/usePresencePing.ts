@@ -9,6 +9,9 @@ const PING_INTERVAL = 30000; // 30s
 
 export function usePresencePing() {
   const intervalRef = useRef<number | null>(null);
+  // Guard chống double-ping của React StrictMode (dev mount→unmount→mount trên cùng instance →
+  // ref persist nên chỉ ping tức thì 1 lần). Remount thật (logout/login) = instance mới → ping lại.
+  const didInitialPing = useRef(false);
 
   useEffect(() => {
     const ping = () => {
@@ -18,7 +21,10 @@ export function usePresencePing() {
       }).catch(() => {});
     };
 
-    ping(); // Ping ngay khi mount để online tức thì
+    if (!didInitialPing.current) {
+      didInitialPing.current = true;
+      ping(); // Ping ngay khi mount để online tức thì
+    }
     intervalRef.current = window.setInterval(ping, PING_INTERVAL);
 
     return () => {

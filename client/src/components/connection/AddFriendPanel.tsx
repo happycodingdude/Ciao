@@ -161,7 +161,7 @@ const AddFriendPanel = () => {
           value={keyword}
           onChange={(e) => onSearch(e.target.value)}
           placeholder="Search people by name"
-          className="bg-(--bg-color-extrathin) text-(--text-main-color) w-full rounded-full border border-(--border-color) py-2.5 pl-10 pr-4 text-sm outline-none focus:border-(--main-color-bold)"
+          className="bg-(--bg-color-extrathin) text-(--text-main-color) w-full rounded-full border border-(--border-color) py-2.5 pl-10 pr-4 text-sm outline-none focus:border-light-blue-500"
         />
       </div>
 
@@ -196,7 +196,7 @@ const AddFriendPanel = () => {
       ) : (
         <div className="flex min-h-0 flex-col gap-2">
           <h2 className="text-(--text-main-color) flex shrink-0 items-center gap-2 text-sm font-semibold">
-            <i className="fa-solid fa-user-group text-(--main-color-bold)" />
+            <i className="fa-solid fa-user-group text-light-blue-500" />
             People you may know
           </h2>
           <div className="bg-(--bg-color) hide-scrollbar flex min-h-0 flex-col overflow-y-auto rounded-2xl border border-(--border-color) p-2">

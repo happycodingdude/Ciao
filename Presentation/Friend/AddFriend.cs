@@ -48,9 +48,8 @@ public static class AddFriend
         readonly IMapper _mapper;
         readonly FriendCache _friendCache;
         readonly UserCache _userCache;
-        readonly INotificationProcessor _notificationProcessor;
 
-        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IContactRepository contactRepository, IFriendRepository friendRepository, INotificationRepository notificationRepository, IMapper mapper, FriendCache friendCache, UserCache userCache, INotificationProcessor notificationProcessor)
+        public Handler(IValidator<Request> validator, IFirebaseFunction firebase, IContactRepository contactRepository, IFriendRepository friendRepository, INotificationRepository notificationRepository, IMapper mapper, FriendCache friendCache, UserCache userCache)
         {
             _validator = validator;
             _firebase = firebase;
@@ -60,7 +59,6 @@ public static class AddFriend
             _mapper = mapper;
             _friendCache = friendCache;
             _userCache = userCache;
-            _notificationProcessor = notificationProcessor;
         }
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
@@ -79,6 +77,8 @@ public static class AddFriend
             // var toContact = await _contactRepository.GetItemAsync(MongoQuery<Contact>.IdFilter(request.contactId));
             var fromContact = contacts.SingleOrDefault(q => q.Id == userId);
             var toContact = contacts.SingleOrDefault(q => q.Id == request.contactId);
+            if (fromContact is null || toContact is null)
+                throw new BadRequestException("Contact not found");
             var friend = new Friend
             {
                 FromContact = new FriendDto_Contact
@@ -94,28 +94,37 @@ public static class AddFriend
             };
             _friendRepository.Add(friend);
 
-            // Update cache
+            // Update cache (best-effort, null-safe). Add bị DEFER vào UnitOfWork → chỉ commit ở
+            // uow.SaveAsync(); nếu code cache dưới đây throw (vd. GetFriends trả null → NRE) thì
+            // transaction ROLLBACK, Friend KHÔNG được tạo. Vì vậy chỉ cập nhật khi cache đã tồn tại
+            // (cache sẽ tự rebuild từ DB khi user login lại).
             var friends = await _friendCache.GetFriends();
-            friends.Add(new FriendCacheModel
+            if (friends is not null)
             {
-                Contact = _mapper.Map<ContactInfo>(toContact),
-                FriendId = friend.Id,
-                FriendStatus = AppConstants.FriendStatus_Sent
-            });
-            await _friendCache.SetFriends(friends);
+                friends.Add(new FriendCacheModel
+                {
+                    Contact = _mapper.Map<ContactInfo>(toContact),
+                    FriendId = friend.Id,
+                    FriendStatus = AppConstants.FriendStatus_Sent
+                });
+                await _friendCache.SetFriends(friends);
+            }
 
             // Check if receiver is online then update receiver cache
-            var receiver = _userCache.GetInfo(request.contactId);
+            var receiver = await _userCache.GetInfo(request.contactId);
             if (receiver is not null)
             {
                 var receiverFriends = await _friendCache.GetFriends(request.contactId);
-                receiverFriends.Add(new FriendCacheModel
+                if (receiverFriends is not null)
                 {
-                    Contact = _mapper.Map<ContactInfo>(fromContact),
-                    FriendId = friend.Id,
-                    FriendStatus = AppConstants.FriendStatus_Received
-                });
-                await _friendCache.SetFriends(request.contactId, receiverFriends);
+                    receiverFriends.Add(new FriendCacheModel
+                    {
+                        Contact = _mapper.Map<ContactInfo>(fromContact),
+                        FriendId = friend.Id,
+                        FriendStatus = AppConstants.FriendStatus_Received
+                    });
+                    await _friendCache.SetFriends(request.contactId, receiverFriends);
+                }
             }
 
             // Create notification            

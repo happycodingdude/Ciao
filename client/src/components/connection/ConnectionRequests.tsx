@@ -21,9 +21,9 @@ const Section = ({ title, icon, contacts, friendAction }: SectionProps) => {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-(--text-main-color) flex items-center gap-2 font-semibold">
-        <i className={`fa-solid ${icon} text-(--main-color-bold)`} />
+        <i className={`fa-solid ${icon} text-light-blue-500`} />
         {title}
-        <span className="bg-(--main-color-bold) flex aspect-square min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-medium text-white">
+        <span className="bg-light-blue-500 flex aspect-square min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-medium text-white">
           {contacts.length}
         </span>
       </h2>

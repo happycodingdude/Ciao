@@ -21,9 +21,13 @@ Scope đã chốt với user: **KHÔNG làm Block/Unblock**, **KHÔNG làm sinh 
 ## Kiến trúc & quyết định quan trọng
 
 1. **Single source of truth = React Query cache `["friend"]`** (key `["friend"]`). Trang dùng
-   `useFriend({ refetchInterval: 30_000 })` (poll presence 30s). Mọi tab phái sinh status từ cache
-   này — kể cả **tab Add** (search results lấy identity từ `getContacts`, nhưng status nút map từ
-   cache `relByContactId`; không có trong cache → `"new"`). Đây là fix cho bug "deny không flip nút".
+   `useFriend()` **KHÔNG poll** (đã bỏ `refetchInterval` — realtime do FCM lo). Mọi tab phái sinh
+   status từ cache này — kể cả **tab Add** (search results lấy identity từ `getContacts`, nhưng
+   status nút map từ cache `relByContactId`; không có trong cache → `"new"`). Đây là fix cho bug
+   "deny không flip nút".
+   - ⚠️ Hệ quả của việc bỏ poll: **presence online/offline ở tab Online/All không tự cập nhật**
+     realtime (FCM không đẩy presence) — chỉ đúng tại thời điểm load/refetch. Chấp nhận tradeoff
+     này theo yêu cầu "không dùng internal fetch/polling". Cần presence realtime → phải đẩy qua FCM.
 
 2. **Realtime = Firebase Cloud Messaging** (user đã chuyển từ SignalR sang Firebase). BE đẩy event
    bằng `IFirebaseFunction.Notify(event, userIds[], data)` (FCM data-message `{event, data}`).
@@ -60,21 +64,51 @@ participant-only, phân nhánh event Cancel/Deny/Unfriend, đồng bộ FriendCa
   `CreateDirectConversation.cs` — body optional (`CreateDirectConversationReq?`).
 - Xoá: `Presentation/Friend/CancelFriend.cs`, `client/src/components/friend/DenyButton.jsx` (legacy hỏng).
 
+## Cập nhật phiên 2 (2026-06-21) — bug fix & polish
+
+1. **🔴 Root-cause "suggestion không hiện": AcceptFriend rollback mất `AcceptTime`.**
+   `AcceptFriend`/`AddFriend` đọc `_friendCache.GetFriends()` (Redis) rồi `.SingleOrDefault`/`.Add`
+   ngay; khi cache trống → NRE. Vì `_friendRepository.Update/Add` **defer** vào `UnitOfWork` (commit
+   ở `uow.SaveAsync()` do `GlobalTransactionMiddleware` gọi **sau** handler), handler throw ⇒
+   `SaveAsync()` không chạy ⇒ **`AcceptTime`/`Friend` không persist vào Mongo**. "All friends" vẫn
+   hiện vì đọc Redis. `GetFriendSuggestions` đọc **Mongo** lọc `AcceptTime != null` → thấy 0 bạn
+   accepted → rỗng.
+   - **Fix:** `AcceptFriend.cs` lấy `senderId` từ **DB entity** (không phụ thuộc cache), null-safe
+     toàn bộ phần sync cache; bỏ dead `using Newtonsoft.Json` + `_notificationProcessor` (chính
+     `JsonConvert` cũ gây log "Self referencing loop"). `AddFriend.cs` null-guard cache sender/receiver
+     + guard `Contact not found`; bỏ `_notificationProcessor`.
+   - **Dữ liệu cũ:** quan hệ đã "accept" qua flow lỗi đang có `AcceptTime=null` trong Mongo →
+     script `scripts/backfill_accept_time.py` (đối chiếu Redis `FriendStatus='friend'`, **dry-run mặc
+     định**, `--apply` để ghi). Người dùng tự review + chạy (DB cloud).
+2. **`_userCache.GetInfo(...)` thiếu `await`** trong `AddFriend`/`RemoveFriend` → trả `Task` (luôn
+   `!= null`) ⇒ guard "chỉ khi online" vô hiệu. Đã thêm `await`.
+3. **Bỏ poll `/friends` ở trang Connections** (`useFriend()` không `refetchInterval`).
+4. **Fix `/ping` double-call** khi reload: `usePresencePing` thêm ref guard chống double-invoke của
+   React `StrictMode` (`hooks/usePresencePing.ts`).
+5. **Đổi màu hồng → xanh chủ đạo** `light-blue-500` (#0ea5e9, khớp sidebar/nút Chat) cho toàn bộ
+   accent trang Connections (tabs active, badge, toggle Online/A-Z, icon header/section, focus search).
+
 ## Cần lưu ý / việc còn lại
 
-- ⚠️ **Restart backend** sau khi sửa `CreateDirectConversation.cs` (body optional) để nút Chat hết lỗi
-  `BadHttpRequestException: Implicit body inferred`.
-- ⚠️ **Vận hành**: nên tạo index Mongo `Friend.FromContact.ContactId` & `Friend.ToContact.ContactId`
-  để `GET /friends/suggestions` không full-scan khi scale.
-- Realtime chỉ foreground (FCM). Nếu phía nhận offline lúc thao tác, BE bỏ qua cập nhật cache họ
-  (guard `if receiver is not null`) — nhận khi online lại qua poll.
-- **Chưa commit**: toàn bộ thay đổi đang ở working tree (chưa `git commit`). Phase 1 đã được commit
-  trước đó (`9622371`); Phase 2/3 + fixes nằm trên working tree.
+- ⚠️ **Restart backend** để nạp bản fix mới (binary đang chạy là bản cũ — log còn `JsonConvert` ở
+  AcceptFriend mà source đã bỏ; endpoint `/friends/suggestions` mới cũng cần build mới). `CreateDirectConversation.cs`
+  body-optional cũng cần bản này.
+- ⚠️ **Backfill `AcceptTime`** cho dữ liệu cũ: `python3 scripts/backfill_accept_time.py` (xem trước)
+  → `--apply` (ghi). Bắt buộc để suggestion dùng được bạn bè hiện có làm "cầu nối".
+- ⚠️ **Index Mongo** `Friend.FromContact.ContactId` & `Friend.ToContact.ContactId` để
+  `GET /friends/suggestions` không full-scan khi scale.
+- **Tradeoff presence:** đã bỏ poll → online/offline không realtime (FCM không đẩy presence). Muốn
+  realtime presence phải đẩy event qua FCM.
+- Realtime friend chỉ foreground (FCM). Nếu phía nhận offline lúc thao tác, BE bỏ qua cập nhật cache
+  họ (guard `is not null`) — đồng bộ lại khi họ load/login.
 - Chưa làm (out of scope đã chốt): Block/Unblock, sinh nhật (cần field `DateOfBirth`).
 
 ## Lệnh
 
 ```bash
-cd client && npm run build && npm run lint   # frontend
-dotnet build                                  # backend
+cd client && npm run build && npm run lint     # frontend
+dotnet build                                    # backend
+dotnet run --project Chat.API                   # restart backend (nạp fix)
+python3 scripts/backfill_accept_time.py         # backfill AcceptTime — dry-run
+python3 scripts/backfill_accept_time.py --apply # backfill AcceptTime — ghi thật
 ```

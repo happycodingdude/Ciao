@@ -18,8 +18,9 @@ const Connection = () => {
   const navigate = routeApi.useNavigate();
   const queryClient = useQueryClient();
 
-  // Poll 30s để presence (online/offline) cập nhật real-time — cùng nguồn/nhịp với Dashboard.
-  const { data: friendCache } = useFriend({ refetchInterval: 30_000 });
+  // Không poll /friends ở trang này — realtime đã do FCM xử lý (add/accept/deny/cancel/unfriend
+  // cập nhật cache ["friend"] trực tiếp). Presence online/offline đồng bộ khi quay lại / qua event.
+  const { data: friendCache } = useFriend();
   const friends = friendCache ?? [];
 
   const allFriends = useMemo(
@@ -84,7 +85,7 @@ const Connection = () => {
         <div className="mx-auto flex w-full max-w-3xl shrink-0 flex-col gap-6 px-6 pt-6">
           <header className="flex flex-col gap-1">
             <h1 className="text-(--text-main-color) flex items-center gap-3 text-2xl font-semibold">
-              <i className="fa-solid fa-user-friends text-(--main-color-bold)" />
+              <i className="fa-solid fa-user-friends text-light-blue-500" />
               Connections
             </h1>
             <p className="text-(--text-main-color-blur) text-sm">
