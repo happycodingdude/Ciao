@@ -16,4 +16,6 @@ public class Contact : MongoBaseModel
     public string RefreshToken { get; set; } = null!;
     [JsonIgnore]
     public DateTime? ExpiryDate { get; set; }
+    // Per-user preferences (privacy + notification). Trả về kèm GetInfo để FE hydrate 1 lần.
+    public ContactSettings Settings { get; set; } = new();
 }

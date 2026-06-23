@@ -1,7 +1,10 @@
 # Kế hoạch triển khai: Trang Informations (Notifications) & Settings
 
 > **Mode:** PLANNING
-> **Trạng thái:** Đã thiết kế, chờ duyệt để code.
+> **Trạng thái:** ✅ Đã triển khai **toàn bộ Phase 1 + 2 + 3** (2026-06-23). Build BE/FE sạch.
+> → Tiến độ & files: [`MENU_THONG_BAO_CAI_DAT_TRIEN_KHAI.md`](./MENU_THONG_BAO_CAI_DAT_TRIEN_KHAI.md)
+> → API contract: [`../api-changes/MENU_THONG_BAO_CAI_DAT_API_CHANGES.md`](../api-changes/MENU_THONG_BAO_CAI_DAT_API_CHANGES.md)
+> Còn lại 1 hạng mục **optional** chưa làm (cố ý): BE suppress push per-type — xem doc triển khai.
 > **Phạm vi đã chốt với người dùng:** Full-stack · Có Dark mode · Notifications dùng refetch (không realtime push).
 > **Session:** menu-notifications
 

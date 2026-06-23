@@ -106,18 +106,38 @@ export type BaseModel = {
   updatedTime?: string;
 };
 
+// Per-user preferences (embedded trên Contact). camelCase khớp JSON serializer của BE.
+export type ContactSettings = {
+  // Privacy
+  showOnlineStatus: boolean;
+  showLastSeen: boolean;
+  // Notification preferences
+  pushEnabled: boolean;
+  notifyOnMessage: boolean;
+  notifyOnFriendRequest: boolean;
+  notifyOnReaction: boolean;
+  soundEnabled: boolean;
+};
+
 export type UserProfile = BaseModel & {
   name: string;
   avatar: string;
   bio: string;
   isOnline: boolean;
   lastLogout: string;
+  // GetInfo trả kèm Settings (optional để tương thích payload cũ).
+  settings?: ContactSettings;
 };
 
 export type UpdateProfileRequest = {
   name: string;
   bio: string;
   avatar: string;
+};
+
+export type ChangePasswordRequest = {
+  oldPassword: string;
+  newPassword: string;
 };
 
 export type NotificationModel = BaseModel & {

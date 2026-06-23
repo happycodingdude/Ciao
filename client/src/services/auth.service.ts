@@ -1,6 +1,8 @@
 import { QueryClient } from "@tanstack/react-query";
 import HttpRequest from "../lib/fetch";
 import {
+  ChangePasswordRequest,
+  ContactSettings,
   RefreshRequest,
   SigninRequest,
   SignupRequest,
@@ -96,5 +98,25 @@ export const updateInfo = async (model: UpdateProfileRequest) => {
     url: import.meta.env.VITE_ENDPOINT_CONTACT_GET,
     data: model,
     alert: true,
+  });
+};
+
+// PUT /contacts/settings — cập nhật privacy + notification preferences.
+// Không alert (toggle tần suất cao → tránh spam toast); caller xử lý optimistic + rollback.
+export const updateSettings = async (model: ContactSettings) => {
+  return await HttpRequest<ContactSettings>({
+    method: "put",
+    url: import.meta.env.VITE_ENDPOINT_CONTACT_SETTINGS,
+    data: model,
+  });
+};
+
+// PUT /contacts/password — đổi mật khẩu. BE verify mật khẩu cũ + invalidate refresh token,
+// nên sau khi thành công FE phải đăng xuất để đăng nhập lại.
+export const changePassword = async (model: ChangePasswordRequest) => {
+  return await HttpRequest<ChangePasswordRequest>({
+    method: "put",
+    url: import.meta.env.VITE_ENDPOINT_CONTACT_PASSWORD,
+    data: model,
   });
 };

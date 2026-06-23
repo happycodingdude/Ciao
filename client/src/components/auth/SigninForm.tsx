@@ -46,7 +46,7 @@ const SigninForm = () => {
 
       // Navigate về trang chủ
       setTimeout(() => {
-        router.navigate({ to: "/conversations", replace: true });
+        router.navigate({ to: "/", replace: true });
       }, 500);
     },
     onError: (error) => {

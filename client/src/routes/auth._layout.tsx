@@ -9,7 +9,7 @@ export const Route = createFileRoute("/auth/_layout")({
       const user = await queryClient.ensureQueryData(userQueryOptions);
 
       if (user) {
-        throw redirect({ to: "/conversations" });
+        throw redirect({ to: "/" });
       }
     } catch (error) {
       if (isRedirect(error)) throw error;

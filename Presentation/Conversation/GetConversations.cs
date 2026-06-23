@@ -15,8 +15,9 @@ public static class GetConversations
         readonly MessageCache _messageCache;
         readonly IRedisCaching _redisCaching;
         readonly IPresenceService _presenceService;
+        readonly UserCache _userCache;
 
-        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching, IPresenceService presenceService)
+        public Handler(IContactRepository contactRepository, IConversationRepository conversationRepository, IMapper mapper, ConversationCache conversationCache, MemberCache memberCache, FriendCache friendCache, MessageCache messageCache, IRedisCaching redisCaching, IPresenceService presenceService, UserCache userCache)
         {
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
@@ -27,6 +28,7 @@ public static class GetConversations
             _messageCache = messageCache;
             _redisCaching = redisCaching;
             _presenceService = presenceService;
+            _userCache = userCache;
         }
 
         public async Task<List<GetConversationsResponse>> Handle(Request request, CancellationToken cancellationToken)
@@ -66,10 +68,10 @@ public static class GetConversations
                     }
                 }
 
-                // Cập nhật trạng thái online cho các thành viên
+                // Cập nhật trạng thái online cho các thành viên (đã áp privacy mask ShowOnlineStatus).
                 foreach (var member in conversation.Members)
                 {
-                    member.Contact.IsOnline = await _presenceService.IsOnlineAsync(member.Contact.Id);
+                    member.Contact.IsOnline = await _userCache.IsOnlineVisibleAsync(member.Contact.Id);
                 }
             }
             return result;

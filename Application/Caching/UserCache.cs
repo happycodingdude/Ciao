@@ -87,9 +87,20 @@ public class UserCache
         // friend đóng tab/expire token vẫn hiển thị "online" vĩnh viễn → trạng thái sai.
         var tasks = friends.Select(async friend =>
         {
-            friend.Contact.IsOnline = await _presenceService.IsOnlineAsync(friend.Contact.Id);
+            friend.Contact.IsOnline = await IsOnlineVisibleAsync(friend.Contact.Id);
         });
         await Task.WhenAll(tasks);
+    }
+
+    // Presence ĐÃ áp privacy mask: nếu người được xem tắt ShowOnlineStatus → luôn trả offline.
+    // Phải enforce ở BE (không chỉ ẩn FE) vì IsOnline lộ qua API. Settings đọc từ user-info cache
+    // (đã populate khi user online qua CacheConsumer). Cache miss → fail-open (mặc định bật) —
+    // chỉ xảy ra với user vốn đã online mà cache evicted, hiếm và mặc định ShowOnlineStatus=true.
+    public async Task<bool> IsOnlineVisibleAsync(string userId)
+    {
+        if (!await _presenceService.IsOnlineAsync(userId)) return false;
+        var info = await GetInfo(userId);
+        return info?.Settings?.ShowOnlineStatus ?? true;
     }
 
     public async Task SetInfoAsync(Contact info) =>

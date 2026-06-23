@@ -97,7 +97,9 @@ public static class GetFriendSuggestions
                     Name = c.Name,
                     Avatar = c.Avatar,
                     MutualCount = mutualCounts[id],
-                    IsOnline = await _presenceService.IsOnlineAsync(id)
+                    // Privacy mask: candidate đã tắt ShowOnlineStatus → luôn offline (c là Contact từ DB,
+                    // có sẵn Settings nên không cần lookup cache thêm).
+                    IsOnline = await _presenceService.IsOnlineAsync(id) && (c.Settings?.ShowOnlineStatus ?? true)
                 });
             }
 

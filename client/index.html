@@ -2,6 +2,17 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
+    <!-- Chống flash theme: set data-theme từ localStorage TRƯỚC khi React/CSS render.
+         Fallback "light" (đã set sẵn trên <html>) nếu không có lưu trữ hoặc lỗi. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "dark" || t === "light")
+            document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- <link

@@ -40,3 +40,9 @@ public class RefreshTokenRequest
     public string UserId { get; set; } = null!;
     public string RefreshToken { get; set; } = null!;
 }
+
+public class ChangePasswordRequest
+{
+    public string OldPassword { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
+}

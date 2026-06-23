@@ -3,17 +3,20 @@ import HttpRequest from "../lib/fetch";
 import { NotificationData, NotificationModel, RequestPermission } from "../types/base.types";
 import getFirebaseApp from "../utils/firebaseConfig";
 
-const page = 1;
-const limit = 10;
-
-export const getNotifications = async (): Promise<NotificationModel[]> =>
+// Page/limit truyền thật vào BE (GetNotifications đã paged). Default param giữ tương thích
+// callsite cũ (sidebar dropdown gọi trang đầu). Không dùng trực tiếp làm queryFn để tránh
+// React Query truyền QueryFunctionContext vào tham số `page`.
+export const getNotifications = async (
+  page: number = 1,
+  limit: number = 10,
+): Promise<NotificationModel[]> =>
   (
     await HttpRequest<undefined, NotificationModel[]>({
       method: "get",
-      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GET.replace("{page}", page).replace(
-        "{limit}",
-        limit,
-      ),
+      url: import.meta.env.VITE_ENDPOINT_NOTIFICATION_GET_PAGED.replace(
+        "{page}",
+        String(page),
+      ).replace("{limit}", String(limit)),
     })
   ).data ?? [];
 

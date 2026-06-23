@@ -78,11 +78,19 @@ const SideBarMenu = () => {
           <i className="fa-solid fa-message"></i>
           <div className="tooltip">Chats</div>
         </Link>
-        <Link to="/connections" className="sidebar-item">
+        <Link
+          to="/connections"
+          search={{ tab: "all" }}
+          className="sidebar-item"
+        >
           <i className="fa-solid fa-user-friends"></i>
           <div className="tooltip">Connections</div>
         </Link>
-        <Link to="/notifications" className="sidebar-item">
+        <Link
+          to="/notifications"
+          search={{ tab: "all" }}
+          className="sidebar-item"
+        >
           <i className="fa-solid fa-bell"></i>
           <div className="tooltip">Notifications</div>
         </Link>

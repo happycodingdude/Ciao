@@ -1,5 +1,16 @@
 import { ConversationModel_Member } from "./conv.types";
 
+// ─── Informations (notifications) page tabs ───────────────────────────────────
+export type NotificationTab = "all" | "unread" | "requests" | "system";
+
+// Thứ tự hiển thị tab + validate search param trên route (mirror CONNECTION_TABS).
+export const NOTIFICATION_TABS: NotificationTab[] = [
+  "all",
+  "unread",
+  "requests",
+  "system",
+];
+
 type NewMessage_Contact = {
   id: string;
   name: string | null;
