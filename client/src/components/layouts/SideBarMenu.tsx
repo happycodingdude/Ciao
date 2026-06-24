@@ -1,10 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
+import useUnseenConversationCount from "../../hooks/useUnseenConversationCount";
 import Signout from "../auth/Signout";
+import UnseenBadge from "../sidebar/UnseenBadge";
 
 const SideBarMenu = () => {
   const queryClient = useQueryClient();
+  const unseenCount = useUnseenConversationCount();
 
   useEffect(() => {
     const items = document.querySelectorAll(".sidebar-item");
@@ -76,6 +79,7 @@ const SideBarMenu = () => {
           onClick={handleChatClick}
         >
           <i className="fa-solid fa-message"></i>
+          <UnseenBadge count={unseenCount} />
           <div className="tooltip">Chats</div>
         </Link>
         <Link

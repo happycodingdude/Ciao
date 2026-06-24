@@ -14,6 +14,8 @@ export const notificationVisual = (sourceType: string): NotificationVisual => {
       return { icon: "fa-comment-dots", tone: "text-(--main-color)" };
     case "reaction":
       return { icon: "fa-heart", tone: "text-red-500" };
+    case "mention":
+      return { icon: "fa-at", tone: "text-light-blue-500" };
     default:
       return { icon: "fa-bell", tone: "text-(--text-main-color-blur)" };
   }

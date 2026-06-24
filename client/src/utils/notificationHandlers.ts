@@ -25,6 +25,7 @@ import {
   updateMessagesCache,
 } from "./notificationCacheHelpers";
 import { markDelivered } from "../services/message.service";
+import { playNotificationSound } from "./notificationSound";
 
 // Phân luồng sự kiện realtime từ SignalR/push notification theo tên event
 export const classifyNotification = (
@@ -89,6 +90,12 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
   const conversationId = message.conversation.id;
   // Kiểm tra user đang mở đúng conversation nhận tin hay không
   const isActive = isConversationActive(conversationId);
+
+  // Phase 3 — phát âm thông báo khi có tin mới ở conversation KHÔNG đang mở,
+  // nếu user bật SoundEnabled (mặc định bật khi payload cũ chưa có settings).
+  if (!isActive && userInfo.settings?.soundEnabled !== false) {
+    playNotificationSound();
+  }
 
   queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
     if (!old) return old;

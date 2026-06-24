@@ -12,6 +12,15 @@ export const setCaretToEnd = (el: HTMLDivElement, addSpace: boolean) => {
   selection.addRange(range);
 };
 
+// Thu thập userId của các mention trong input (từ data-mention-id), bỏ trùng.
+// Sentinel "all" giữ nguyên để BE expand thành cả nhóm. Dùng lúc gửi tin (Option B).
+export const getMentionIds = (el: HTMLDivElement): string[] => {
+  const ids = Array.from(el.querySelectorAll("[data-mention-id]"))
+    .map((node) => node.getAttribute("data-mention-id") ?? "")
+    .filter(Boolean);
+  return Array.from(new Set(ids));
+};
+
 // Parse nội dung contentEditable thành text thuần, xử lý mention span và xuống dòng
 export const getMessageValue = (el: HTMLDivElement): string => {
   const parseNodes = (nodes: NodeListOf<ChildNode>): string => {

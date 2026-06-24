@@ -90,6 +90,8 @@ export const useSendMessage = (conversationId: string) => {
       let bodyToCreate: SendMessageRequest = {
         type: param.type,
         content: param.content,
+        // Chỉ gửi mentions khi có (tránh body thừa với tin không tag).
+        ...(param.mentions?.length ? { mentions: param.mentions } : {}),
         ...((reply as object) ?? {}),
       };
 

@@ -16,6 +16,8 @@ export type SendMessageRequest = {
   isForwarded?: boolean;
   attachments?: AttachmentModel[];
   files?: File[];
+  // Option B: userId các mention (sentinel "all" cho @All). BE dùng để tạo notification.
+  mentions?: string[];
 };
 
 export type SendMessageResponse = {

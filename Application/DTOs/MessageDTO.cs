@@ -11,6 +11,8 @@ public class SendMessageReq
     public string? ReplyContent { get; set; }
     public string? ReplyContact { get; set; }
     public List<SendMessageReq_Attachment> Attachments { get; set; } = new();
+    // @mention userIds từ FE (sentinel "all" cho @All). Default rỗng → tin không tag không đổi.
+    public List<string> Mentions { get; set; } = new();
 }
 
 public class SendMessageReq_Attachment

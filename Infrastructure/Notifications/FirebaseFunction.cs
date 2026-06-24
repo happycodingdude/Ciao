@@ -31,34 +31,70 @@ public class FirebaseFunction : IFirebaseFunction
         using var scope = _serviceProvider.CreateScope();
         var userCache = scope.ServiceProvider.GetRequiredService<UserCache>();
 
-        // Lookup connection token tuần tự (N round-trip Redis). Với N nhỏ (vài chục member) thì ổn,
-        // nhưng group lớn nên xem xét batch GET (Redis MGET) để giảm latency.
-        var connections = new List<string>();
+        // Giữ cặp (userId, token) để còn phân nhóm banner/data-only theo preference của TỪNG người.
+        // Lookup tuần tự (N round-trip Redis) — N nhỏ (vài chục member) thì ổn; group lớn cân nhắc MGET.
+        var pairs = new List<(string userId, string token)>();
         foreach (var id in userIds)
         {
             var token = await userCache.GetUserConnection(id);
             if (!string.IsNullOrEmpty(token))
-                connections.Add(token);
+                pairs.Add((id, token));
         }
-        if (!connections.Any())
+        if (pairs.Count == 0)
         {
             _logger.Information("No connection");
             return;
         }
+
+        // Event sync (delivered/read/edited/...) không bao giờ có banner → 1 lần gửi, data-only.
+        // Vừa đúng ý nghĩa (không phải push), vừa dẹp banner "Ciao notify" rác cho receipt.
+        if (!NotificationPolicy.IsBannerable(_event))
+        {
+            await SendMulticast(_event, pairs.Select(p => p.token).ToArray(), data, banner: false);
+            return;
+        }
+
+        // Event user-facing: đọc ContactSettings (kèm trong user-info cache) để phân nhóm.
+        // GetInfo chỉ trả những user có trong cache → user vắng cache rơi vào fail-open (vẫn banner).
+        var infoMap = (await userCache.GetInfo(pairs.Select(p => p.userId).ToArray()))
+            .Where(c => c is not null)
+            .ToDictionary(c => c.Id);
+
+        var bannerTokens = new List<string>();
+        var dataOnlyTokens = new List<string>();
+        foreach (var (userId, token) in pairs)
+        {
+            infoMap.TryGetValue(userId, out var contact);
+            (NotificationPolicy.ShouldShowBanner(_event, contact?.Settings) ? bannerTokens : dataOnlyTokens)
+                .Add(token);
+        }
+
+        if (bannerTokens.Count > 0)
+            await SendMulticast(_event, bannerTokens.ToArray(), data, banner: true);
+        if (dataOnlyTokens.Count > 0)
+            await SendMulticast(_event, dataOnlyTokens.ToArray(), data, banner: false);
+    }
+
+    // Gửi 1 multicast. banner=false → bỏ block Notification (title/body) ⇒ KHÔNG hiện banner OS,
+    // nhưng vẫn gửi block Data nên realtime FE (onMessage / SW postMessage) hoạt động bình thường.
+    async Task SendMulticast(string _event, string[] tokens, object data, bool banner)
+    {
         var notification = new FirebaseNotification
         {
             _event = _event,
-            tokens = connections.ToArray(),
+            tokens = tokens,
             data = data
         };
         var message = new MulticastMessage()
         {
             Tokens = notification.tokens,
-            Notification = new FirebaseAdmin.Messaging.Notification()
-            {
-                Title = notification.title,
-                Body = notification.body
-            },
+            Notification = banner
+                ? new FirebaseAdmin.Messaging.Notification()
+                {
+                    Title = notification.title,
+                    Body = notification.body
+                }
+                : null,
             Data = new Dictionary<string, string>()
             {
                 { "event", notification._event },

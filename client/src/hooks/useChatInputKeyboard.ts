@@ -56,6 +56,9 @@ export const useChatInputKeyboard = ({
       const node = document.createElement("span");
       node.textContent = user.name;
       node.setAttribute("data-mention", `@[${user.name}]`);
+      // Option B: lưu userId (sentinel "all" cho @All) để BE tạo notification chính xác,
+      // không phụ thuộc tên (tránh báo nhầm khi trùng tên). Content vẫn giữ "@[Tên]" như cũ.
+      node.setAttribute("data-mention-id", user.userId);
       node.contentEditable = "false";
       node.style.color = "#1d9bf0";
       node.style.fontWeight = "500";

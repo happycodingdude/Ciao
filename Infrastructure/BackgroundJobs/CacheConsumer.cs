@@ -231,6 +231,7 @@ public class CacheConsumer : IGenericConsumer
             UserId = param.UserId,
             ConversationId = param.ConversationId,
             MessageId = param.MessageId,
+            Type = param.Type,
             LikeCount = likes,
             LoveCount = loves,
             CareCount = cares,

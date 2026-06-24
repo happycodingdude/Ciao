@@ -27,6 +27,8 @@ public class NewMessageModel_Message : BaseIdModel
     public string? ReplyContent { get; set; }
     public string? ReplyContact { get; set; }
     public List<NewMessageModel_Message_Attachment> Attachments { get; set; } = new List<NewMessageModel_Message_Attachment>();
+    // @mention userIds (sentinel "all"). AutoMapper thread qua SendMessageReq → Message theo tên.
+    public List<string> Mentions { get; set; } = new List<string>();
 }
 
 public class NewMessageModel_Message_Attachment : BaseIdModel
@@ -131,6 +133,8 @@ public class NotifyNewReactionModel : KafkaBaseModel
 {
     public string ConversationId { get; set; } = null!;
     public string MessageId { get; set; } = null!;
+    // null/empty = gỡ reaction (unreact) → KHÔNG tạo notification. Có giá trị = thêm/đổi reaction.
+    public string? Type { get; set; }
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }
     public int CareCount { get; set; }

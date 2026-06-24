@@ -8,8 +8,11 @@ public class NotificationConsumer : IGenericConsumer
     readonly MemberCache _memberCache;
     readonly IContactRepository _contactRepository;
     readonly IFirebaseFunction _firebaseFunction;
+    readonly INotificationRepository _notificationRepository;
+    readonly IConversationRepository _conversationRepository;
+    readonly IUnitOfWork _uow;
 
-    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, MemberCache memberCache, IContactRepository contactRepository, IFirebaseFunction firebaseFunction)
+    public NotificationConsumer(ILogger logger, IMapper mapper, UserCache userCache, MemberCache memberCache, IContactRepository contactRepository, IFirebaseFunction firebaseFunction, INotificationRepository notificationRepository, IConversationRepository conversationRepository, IUnitOfWork uow)
     {
         _logger = logger;
         _mapper = mapper;
@@ -17,6 +20,9 @@ public class NotificationConsumer : IGenericConsumer
         _memberCache = memberCache;
         _contactRepository = contactRepository;
         _firebaseFunction = firebaseFunction;
+        _notificationRepository = notificationRepository;
+        _conversationRepository = conversationRepository;
+        _uow = uow;
     }
 
     public async Task ProcessMessageAsync(ConsumerResultData param, CancellationToken cancellationToken = default)
@@ -171,6 +177,44 @@ public class NotificationConsumer : IGenericConsumer
             ChatEventNames.NewMessage,
             notify.Members.Select(q => q.Contact.Id).ToArray(),
             notify);
+
+        // Phase 5 — @mention: lưu Notification cho người bị tag để hiện ở trang Informations.
+        // Chỉ áp dụng cho group; recipient phải là member thật (lọc người đã rời) và ≠ sender.
+        // Đặt SAU FCM nên lỗi persist (nếu có) không chặn realtime/push (đã gửi xong).
+        await PersistMentionNotifications(param);
+    }
+
+    // Tạo notification cho các userId trong Message.Mentions (sentinel "all" = cả nhóm).
+    async Task PersistMentionNotifications(NewStoredMessageModel param)
+    {
+        var mentions = param.Message.Mentions;
+        if (!param.Conversation.IsGroup || mentions is null || mentions.Count == 0) return;
+
+        var memberIds = param.Members.Select(m => m.ContactId).ToHashSet();
+        var isAll = mentions.Contains("all");
+        var recipients = (isAll ? memberIds.AsEnumerable() : mentions.Where(memberIds.Contains))
+            .Where(id => id != param.UserId)
+            .Distinct()
+            .ToArray();
+        if (recipients.Length == 0) return;
+
+        var sender = await _userCache.GetInfo(param.UserId);
+        var senderName = sender?.Name ?? "Someone";
+        var group = param.Conversation.Title;
+
+        foreach (var recipient in recipients)
+        {
+            _notificationRepository.Add(new Notification
+            {
+                ContactId = recipient,
+                SourceType = "mention",
+                SourceId = param.Conversation.Id,
+                Content = isAll
+                    ? $"{senderName} mentioned everyone in {group}"
+                    : $"{senderName} mentioned you in {group}"
+            });
+        }
+        await _uow.SaveAsync();
     }
 
     async Task HandleNewGroupConversation(NewStoredGroupConversationModel param)
@@ -268,5 +312,36 @@ public class NotificationConsumer : IGenericConsumer
             ChatEventNames.NewReaction,
             members.Select(q => q.Contact.Id).ToArray(),
             param);
+
+        // Phase 4 — lưu Notification cho TÁC GIẢ message bị react.
+        await PersistReactionNotification(param);
+    }
+
+    async Task PersistReactionNotification(NotifyNewReactionModel param)
+    {
+        // Type rỗng = unreact (gỡ) → không tạo notification (tránh spam khi gỡ tym).
+        if (string.IsNullOrEmpty(param.Type)) return;
+
+        // Message nhúng trong Conversation → load doc để lấy tác giả. Nhất quán pattern hiện có
+        // (DataStoreConsumer cũng GetItemAsync cả conversation). Có thể tối ưu bằng projection sau.
+        var conversation = await _conversationRepository.GetItemAsync(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId));
+        var message = conversation?.Messages?.SingleOrDefault(m => m.Id == param.MessageId);
+        if (message is null) return;
+
+        // Tự react message của chính mình → không cần báo.
+        if (message.ContactId == param.UserId) return;
+
+        var reactor = await _userCache.GetInfo(param.UserId);
+        var reactorName = reactor?.Name ?? "Someone";
+
+        _notificationRepository.Add(new Notification
+        {
+            ContactId = message.ContactId,
+            SourceType = "reaction",
+            SourceId = param.ConversationId,
+            Content = $"{reactorName} reacted to your message"
+        });
+        await _uow.SaveAsync();
     }
 }

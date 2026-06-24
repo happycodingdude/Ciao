@@ -21,7 +21,7 @@ import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/chatinput.css";
 import { ChatInputProps } from "../../types/base.types";
 import { AttachmentModel } from "../../types/message.types";
-import { getMessageValue, setCaretToEnd } from "../../utils/contentEditableUtils";
+import { getMentionIds, getMessageValue, setCaretToEnd } from "../../utils/contentEditableUtils";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import CustomContentEditable from "../common/CustomContentEditable";
 import ReplyPreview from "../common/ReplyPreview";
@@ -117,8 +117,10 @@ const ChatInput = ({ className }: ChatInputProps) => {
       pending: true,
       local: true,
     }));
+    // Thu thập userId các mention (Option B) để BE tạo notification cho người bị tag.
+    const mentions = getMentionIds(inputRef.current);
     // Không có text → type "media"; có text → type "text"
-    sendMessage({ type: content === "" ? "media" : "text", content, attachments: lazyImages, files });
+    sendMessage({ type: content === "" ? "media" : "text", content, attachments: lazyImages, files, mentions });
     inputRef.current.innerText = "";
     clearFiles();
   }, [files, sendMessage, clearFiles, edit, submitEdit, clearEdit]);
