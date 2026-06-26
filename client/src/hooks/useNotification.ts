@@ -29,7 +29,9 @@ export const useInfiniteNotifications = () => {
     // Còn trang tiếp nếu trang vừa rồi trả về đủ PAGE_SIZE item.
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined,
-    staleTime: Infinity,
+    // staleTime:0 → refetchOnMount (default) tự làm mới mỗi lần vào trang, đúng 1 lần.
+    // Tránh phải invalidate thủ công (gây fetch trùng). read/readAll vẫn cross-invalidate.
+    staleTime: 0,
   });
 };
 

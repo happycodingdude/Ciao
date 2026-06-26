@@ -14,12 +14,13 @@
 1. ⚠️ **Restart backend** (`dotnet run --project Chat.API`) → nạp suppression + persistence mới. *(Phase 7 badge thuần FE, không cần.)*
 2. ✅ **Verify end-to-end** theo checklist `AP_DUNG_CAI_DAT_NGHIEM_THU.md` (3 account + 1 group + 1 chat 1-1). Mẹo: banner chỉ hiện khi tab người nhận ở **nền**; xác minh payload qua console service worker.
 3. ⏸ **Phase 6 — ShowLastSeen:** defer tới khi `lastLogout` được expose ra API mới enforce mask.
-4. 📌 **Task tách riêng (chưa làm):** banner FCM `title/body` đang cứng "Ciao notify" → đổi thành câu có nghĩa (sender + preview). Cần truyền title/body theo event vào `FirebaseFunction.Notify`.
+4. ✅ **Banner FCM title/body (đã làm 2026-06-26):** thay chuỗi cứng "Ciao notify" bằng câu có nghĩa. Helper mới `Application/Notifications/NotificationBanner.cs` derive `(title, body)` từ `(_event, data)`; wired vào `FirebaseFunction.SendMulticast` (chỉ khi `banner=true`). NewMessage giàu nhất: 1-1 → title=tên người gửi, body=preview; group → title=tên nhóm, body="{sender}: {preview}"; media → "📷 Photo"/"📎 File"/"N attachments". Reaction/friend-request hiện **fallback chung** (payload không kèm tên actor) — nâng cấp tên actor là follow-up (cần thread tên vào event data).
 
 ### Bản đồ file (nơi đã sửa — khỏi điều tra lại)
 | Mảng | File chính |
 |---|---|
 | Suppression (P1/2) | `Application/Notifications/NotificationPolicy.cs` (mới) · `Infrastructure/Notifications/FirebaseFunction.cs` |
+| Banner text | `Application/Notifications/NotificationBanner.cs` (mới) · `Infrastructure/Notifications/FirebaseFunction.cs` (`SendMulticast`) |
 | Reaction + mention persist (P4/5) | `Infrastructure/BackgroundJobs/NotificationConsumer.cs` (`PersistReactionNotification`, `PersistMentionNotifications`) |
 | Mention pipeline (P5) | `Domain/Entities/Message.cs` (`Mentions`) · `Application/Kafka/Model/KafkaMessage.cs` · `Application/DTOs/MessageDTO.cs` · `CacheConsumer.cs` (`Type`) |
 | Mention FE (P5) | `hooks/useChatInputKeyboard.ts` · `utils/contentEditableUtils.ts` (`getMentionIds`) · `components/conversation/ChatInput.tsx` · `hooks/useSendMessage.ts` · `types/message.types.ts` |

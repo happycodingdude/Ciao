@@ -113,6 +113,19 @@
 
 ---
 
+## 5f. Banner text có nghĩa (thay "Ciao notify")
+> Banner chỉ hiện khi tab người nhận ở **nền** + đã grant permission.
+- [ ] Chat 1-1: B gửi text "hello" cho A (tab A nền).
+  → **Pass:** banner title = **tên B**, body = **"hello"** (không còn "Ciao notify").
+- [ ] Group: B gửi "hi team" trong group X (tab A nền).
+  → **Pass:** title = **tên group X**, body = **"{B}: hi team"**.
+- [ ] B gửi 1 ảnh (media) trong group.
+  → **Pass:** body = **"{B}: 📷 Photo"** (nhiều ảnh → "📷 N photos"; file → "📎 File").
+- [ ] C gửi lời mời kết bạn cho A.
+  → **Pass:** banner fallback **"You have a new friend request"** (chưa có tên — đã biết, follow-up).
+
+---
+
 ## 6. Kiểm tra REALTIME KHÔNG vỡ (an toàn lõi)
 > Mục quan trọng nhất — đảm bảo suppression không giết đồng bộ.
 - [ ] A tắt **toàn bộ** thông báo (PushEnabled off). A **mở** app (tab focus). B gửi tin liên tục.

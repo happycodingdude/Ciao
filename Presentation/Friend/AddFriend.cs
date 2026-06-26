@@ -132,8 +132,12 @@ public static class AddFriend
             {
                 SourceId = friend.Id,
                 SourceType = "friend_request",
-                Content = $"{fromContact.Name} send you a request",
-                ContactId = request.contactId
+                Content = $"{fromContact.Name} sent you a friend request",
+                ContactId = request.contactId,
+                ActorName = fromContact.Name,
+                ActorAvatar = fromContact.Avatar ?? "",
+                Action = "sent you a friend request",
+                Preview = "",
             };
             _notificationRepository.Add(notification);
 

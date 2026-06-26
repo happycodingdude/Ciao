@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
+import useUnreadNotificationCount from "../../hooks/useUnreadNotificationCount";
 import useUnseenConversationCount from "../../hooks/useUnseenConversationCount";
 import Signout from "../auth/Signout";
 import UnseenBadge from "../sidebar/UnseenBadge";
@@ -8,6 +9,7 @@ import UnseenBadge from "../sidebar/UnseenBadge";
 const SideBarMenu = () => {
   const queryClient = useQueryClient();
   const unseenCount = useUnseenConversationCount();
+  const unreadNotiCount = useUnreadNotificationCount();
 
   useEffect(() => {
     const items = document.querySelectorAll(".sidebar-item");
@@ -85,6 +87,9 @@ const SideBarMenu = () => {
         <Link
           to="/connections"
           search={{ tab: "all" }}
+          // Active dựa trên pathname, KHÔNG so khớp search param: nếu không, đổi tab (?tab=)
+          // sẽ làm link hết "active" do mặc định includeSearch=true của TanStack Router.
+          activeOptions={{ includeSearch: false }}
           className="sidebar-item"
         >
           <i className="fa-solid fa-user-friends"></i>
@@ -93,9 +98,11 @@ const SideBarMenu = () => {
         <Link
           to="/notifications"
           search={{ tab: "all" }}
+          activeOptions={{ includeSearch: false }}
           className="sidebar-item"
         >
           <i className="fa-solid fa-bell"></i>
+          <UnseenBadge count={unreadNotiCount} />
           <div className="tooltip">Notifications</div>
         </Link>
         <Link to="/settings" className="sidebar-item">

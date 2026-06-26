@@ -10,6 +10,7 @@ type Props = {
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
   onOpen: (n: NotificationModel) => void;
+  selectedId?: string | null;
 };
 
 const NotificationSkeleton = () => (
@@ -17,11 +18,12 @@ const NotificationSkeleton = () => (
     {Array.from({ length: 6 }).map((_, i) => (
       <div
         key={i}
-        className="bg-(--bg-color-extrathin) flex items-center gap-3 rounded-xl px-3 py-3"
+        className="bg-(--bg-color-extrathin) flex items-center gap-3 rounded-xl px-3 py-2.5"
       >
-        <div className="aspect-square w-9 shrink-0 animate-pulse rounded-full bg-(--bg-color-light)" />
+        <div className="aspect-square w-11 shrink-0 animate-pulse rounded-full bg-(--bg-color-light)" />
         <div className="flex flex-1 flex-col gap-2">
           <div className="h-3 w-2/3 animate-pulse rounded bg-(--bg-color-light)" />
+          <div className="h-2 w-2/5 animate-pulse rounded bg-(--bg-color-light)" />
           <div className="h-2 w-1/4 animate-pulse rounded bg-(--bg-color-light)" />
         </div>
       </div>
@@ -36,6 +38,7 @@ const NotificationList = ({
   isFetchingNextPage,
   onLoadMore,
   onOpen,
+  selectedId,
 }: Props) => {
   if (isLoading) return <NotificationSkeleton />;
 
@@ -58,7 +61,12 @@ const NotificationList = ({
           </h3>
           <div className="flex flex-col">
             {group.items.map((n) => (
-              <NotificationItem key={n.id} notification={n} onOpen={onOpen} />
+              <NotificationItem
+                key={n.id}
+                notification={n}
+                onOpen={onOpen}
+                isSelected={!!selectedId && n.id === selectedId}
+              />
             ))}
           </div>
         </section>

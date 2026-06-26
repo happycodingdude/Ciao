@@ -18,16 +18,28 @@ public static class UpdateContact
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
         readonly UserCache _userCache;
+        readonly FriendCache _friendCache;
+        readonly MemberCache _memberCache;
+        readonly ConversationCache _conversationCache;
+        readonly IFirebaseFunction _firebase;
 
         public Handler(IValidator<Request> validator,
             IContactRepository contactRepository,
             IConversationRepository conversationRepository,
-            UserCache userCache)
+            UserCache userCache,
+            FriendCache friendCache,
+            MemberCache memberCache,
+            ConversationCache conversationCache,
+            IFirebaseFunction firebase)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
             _userCache = userCache;
+            _friendCache = friendCache;
+            _memberCache = memberCache;
+            _conversationCache = conversationCache;
+            _firebase = firebase;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
@@ -56,14 +68,78 @@ public static class UpdateContact
             //     );
             // _conversationRepository.UpdateNoTrackingTime(conversationFilter, conversationUpdates, arrayFilter);
 
-            // Update cache
+            // Update cache (user-info của chính mình)
             var userToUpdate = user;
             userToUpdate.Name = request.model.Name;
             userToUpdate.Bio = request.model.Bio;
             userToUpdate.Avatar = request.model.Avatar;
             await _userCache.SetInfoAsync(userToUpdate);
 
+            // Fan-out: tên/avatar/bio bị denormalize ở friend cache của người khác + member
+            // cache mỗi conversation. Nếu không cập nhật, user khác vẫn thấy tên CŨ (vì các
+            // surface đó đọc từ cache, không join lại Contact). Đồng thời push realtime để
+            // app đang mở của họ patch ngay, không cần re-login.
+            await PropagateProfile(user.Id, request.model.Name, request.model.Avatar, request.model.Bio);
+
             return Unit.Value;
+        }
+
+        async Task PropagateProfile(string userId, string name, string avatar, string bio)
+        {
+            var recipients = new HashSet<string>();
+
+            // 1) Friend cache của từng người bạn: cập nhật entry trỏ tới mình (Contact.Id == userId).
+            //    A's friend cache liệt kê bạn của A → mỗi bạn X có entry cho A trong cache của X.
+            var myFriends = await _friendCache.GetFriends(userId);
+            if (myFriends is not null)
+                foreach (var f in myFriends)
+                {
+                    var friendUserId = f.Contact?.Id;
+                    if (string.IsNullOrEmpty(friendUserId)) continue;
+                    recipients.Add(friendUserId);
+
+                    var theirFriends = await _friendCache.GetFriends(friendUserId);
+                    var entry = theirFriends?.FirstOrDefault(x => x.Contact?.Id == userId);
+                    if (entry is null) continue;
+                    entry.Contact.Name = name;
+                    entry.Contact.Avatar = avatar; // ContactInfo không có Bio
+                    await _friendCache.SetFriends(friendUserId, theirFriends!);
+                }
+
+            // 2) Member cache mỗi conversation mình tham gia: cập nhật contact của chính mình.
+            //    Direct-chat title FE lấy từ otherMember.contact.name nên việc này fix luôn title.
+            var conversationIds = await _conversationCache.GetListConversationId(userId);
+            if (conversationIds is not null)
+                foreach (var conversationId in conversationIds)
+                {
+                    var members = await _memberCache.GetMembers(conversationId);
+                    var me = members?.FirstOrDefault(m => m.Contact?.Id == userId);
+                    if (me is null) continue;
+                    me.Contact.Name = name;
+                    me.Contact.Avatar = avatar;
+                    me.Contact.Bio = bio;
+                    await _memberCache.UpdateMembers(conversationId, members!);
+
+                    foreach (var m in members!)
+                        if (m.Contact?.Id is { } id && id != userId)
+                            recipients.Add(id);
+                }
+
+            recipients.Remove(userId);
+            if (recipients.Count == 0) return;
+
+            // Sync-event (không bannerable) → FirebaseFunction tự gửi data-only.
+            // Fire-and-forget: cache đã nhất quán, realtime fail thì user khác bù khi refetch/login.
+            _ = _firebase.Notify(
+                ChatEventNames.ContactUpdated,
+                recipients.ToArray(),
+                new EventContactUpdated
+                {
+                    ContactId = userId,
+                    Name = name,
+                    Avatar = avatar,
+                    Bio = bio,
+                });
         }
     }
 }

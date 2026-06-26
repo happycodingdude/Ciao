@@ -1,12 +1,13 @@
 import { NotificationTab } from "../../types/notification.types";
 
-type TabDef = { key: NotificationTab; label: string; icon: string };
+type TabDef = { key: NotificationTab; label: string };
 
+// Pill tối giản kiểu Teams (Unread / @Mentions...). Bỏ icon, chỉ chữ + badge số nhỏ.
 const TAB_DEFS: TabDef[] = [
-  { key: "all", label: "All", icon: "fa-inbox" },
-  { key: "unread", label: "Unread", icon: "fa-circle-dot" },
-  { key: "requests", label: "Requests", icon: "fa-user-plus" },
-  { key: "system", label: "System", icon: "fa-gear" },
+  { key: "all", label: "All" },
+  { key: "unread", label: "Unread" },
+  { key: "requests", label: "Requests" },
+  { key: "system", label: "System" },
 ];
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
 
 const NotificationTabs = ({ active, onChange, counts }: Props) => {
   return (
-    <div className="hide-scrollbar flex gap-2 overflow-x-auto">
+    <div className="hide-scrollbar flex gap-2 overflow-x-auto px-1">
       {TAB_DEFS.map((tab) => {
         const isActive = tab.key === active;
         const count = counts?.[tab.key];
@@ -27,20 +28,16 @@ const NotificationTabs = ({ active, onChange, counts }: Props) => {
             key={tab.key}
             type="button"
             onClick={() => onChange(tab.key)}
-            className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors
               ${
                 isActive
-                  ? "bg-light-blue-500 border-light-blue-500 font-medium text-white"
-                  : "text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color)"
+                  ? "border-transparent bg-(--bg-color-extrathin) text-(--text-main-color) font-medium"
+                  : "text-(--text-main-color-light) hover:bg-(--bg-color-extrathin) border-(--border-color)"
               }`}
           >
-            <i className={`fa-solid ${tab.icon} text-xs`} />
             {tab.label}
             {count != null && count > 0 && (
-              <span
-                className={`flex aspect-square min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-medium
-                  ${isActive ? "bg-white/25 text-white" : "bg-light-blue-500 text-white"}`}
-              >
+              <span className="bg-light-blue-500 flex aspect-square min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium text-white">
                 {count}
               </span>
             )}

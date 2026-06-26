@@ -211,7 +211,12 @@ public class NotificationConsumer : IGenericConsumer
                 SourceId = param.Conversation.Id,
                 Content = isAll
                     ? $"{senderName} mentioned everyone in {group}"
-                    : $"{senderName} mentioned you in {group}"
+                    : $"{senderName} mentioned you in {group}",
+                ActorName = senderName,
+                ActorAvatar = sender?.Avatar ?? "",
+                Action = isAll ? "mentioned everyone" : "mentioned you",
+                Preview = group ?? "",
+                SourceMessageId = param.Message.Id ?? "",
             });
         }
         await _uow.SaveAsync();
@@ -340,7 +345,12 @@ public class NotificationConsumer : IGenericConsumer
             ContactId = message.ContactId,
             SourceType = "reaction",
             SourceId = param.ConversationId,
-            Content = $"{reactorName} reacted to your message"
+            Content = $"{reactorName} reacted to your message",
+            ActorName = reactorName,
+            ActorAvatar = reactor?.Avatar ?? "",
+            Action = "reacted to your message",
+            Preview = message.Type == "text" ? (message.Content ?? "") : "",
+            SourceMessageId = param.MessageId ?? "",
         });
         await _uow.SaveAsync();
     }

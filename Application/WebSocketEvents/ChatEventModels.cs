@@ -59,3 +59,13 @@ public class EventNewFriendRequest
     public string FriendId { get; set; } = null!;
     public string ContactId { get; set; } = null!;
 }
+
+// Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,
+// không banner) → FE patch trực tiếp cache ["friend"] + members trong ["conversation"].
+public class EventContactUpdated
+{
+    public string ContactId { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public string Bio { get; set; } = null!;
+}

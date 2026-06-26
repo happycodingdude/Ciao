@@ -116,3 +116,11 @@ export type MessageRecalledEvent = {
   recalledByContactId: string;
   userId?: string;
 };
+
+// 1 contact đổi profile → patch tên/avatar/bio ở mọi nơi denormalize tên người đó.
+export type ContactUpdatedEvent = {
+  contactId: string;
+  name: string;
+  avatar: string;
+  bio: string;
+};

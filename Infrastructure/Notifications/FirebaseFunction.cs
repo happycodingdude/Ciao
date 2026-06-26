@@ -85,6 +85,10 @@ public class FirebaseFunction : IFirebaseFunction
             tokens = tokens,
             data = data
         };
+        // Banner OS: derive title/body có nghĩa (sender + preview) từ payload, thay chuỗi cứng.
+        // Chỉ tính khi banner=true để khỏi tốn công cho nhóm data-only.
+        if (banner)
+            (notification.title, notification.body) = NotificationBanner.Build(_event, data);
         var message = new MulticastMessage()
         {
             Tokens = notification.tokens,

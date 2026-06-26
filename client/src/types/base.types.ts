@@ -146,4 +146,11 @@ export type NotificationModel = BaseModel & {
   contactId: string;
   sourceId: string;
   sourceType: string;
+  // Bóc tách cho UI kiểu Teams (avatar + tên đậm + action + preview).
+  // Optional: bản ghi cũ chưa có → FE fallback về content/icon.
+  actorName?: string;
+  actorAvatar?: string;
+  action?: string;
+  preview?: string;
+  sourceMessageId?: string; // tin nhắn gốc → highlight trong pane review
 };

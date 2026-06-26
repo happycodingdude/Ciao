@@ -9,6 +9,7 @@ import {
   MessageEditedEvent,
   MessageReadEvent,
   MessageRecalledEvent,
+  ContactUpdatedEvent,
   NewConversation,
   NewMessage,
   NewMessagePinned,
@@ -53,14 +54,28 @@ export const classifyNotification = (
     case "FriendRequestDenied":
     case "Unfriended":
       return onFriendRemoved(queryClient, data);
+    // 1 contact đổi profile → patch tên/avatar/bio ở friend list + members.
+    case "ContactUpdated":    return onContactUpdated(queryClient, data);
   }
 };
 
 type FriendEventData = { friendId?: string };
 
+// Làm mới CẢ HAI cache notification khi có event tạo notification mới:
+//  - ["notifications","infinite"]: trang /notifications + badge bell ở sidebar (cùng nguồn).
+//  - ["notification"]: dropdown notification ở menu mobile.
+// Lưu ý: notification được BE tạo bất đồng bộ (Kafka consumer) nên refetch ngay có thể
+// chưa thấy bản ghi mới; lần vào trang / event kế tiếp sẽ tự đồng bộ (eventual consistency).
+const invalidateNotifications = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ["notifications", "infinite"] });
+  queryClient.invalidateQueries({ queryKey: ["notification"] });
+};
+
 const onFriendRequestReceived = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ["friend"] });
   queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+  // friend_request luôn tạo 1 notification → làm mới badge bell + list.
+  invalidateNotifications(queryClient);
 };
 
 // Lời mời được chấp nhận: entry đã có (request_sent) → đổi status sang "friend".
@@ -84,6 +99,46 @@ const onFriendRemoved = (queryClient: QueryClient, data: FriendEventData) => {
     (old ?? []).filter((f) => f.contact?.friendId !== friendId),
   );
   queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+};
+
+// Patch tên/avatar/bio của 1 contact ở mọi nơi FE denormalize: friend list + member
+// của từng conversation (direct-chat title FE suy từ otherMember.contact.name nên cũng tự đúng).
+const onContactUpdated = (
+  queryClient: QueryClient,
+  data: ContactUpdatedEvent,
+) => {
+  const { contactId, name, avatar, bio } = data ?? {};
+  if (!contactId) return;
+
+  queryClient.setQueryData<FriendCache[]>(["friend"], (old) =>
+    (old ?? []).map((f) =>
+      f.contact?.id !== contactId
+        ? f
+        : { ...f, contact: { ...f.contact, name, avatar, bio } },
+    ),
+  );
+
+  const patchMembers = (conv: ConversationModel): ConversationModel => {
+    if (!conv.members?.some((m) => m.contact?.id === contactId)) return conv;
+    return {
+      ...conv,
+      members: conv.members.map((m) =>
+        m.contact?.id !== contactId
+          ? m
+          : { ...m, contact: { ...m.contact, name, avatar, bio } },
+      ),
+    };
+  };
+
+  queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
+    if (!old) return old;
+    return {
+      ...old,
+      conversations: old.conversations?.map(patchMembers),
+      filterConversations: old.filterConversations?.map(patchMembers),
+      selected: old.selected ? patchMembers(old.selected) : old.selected,
+    };
+  });
 };
 
 const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: UserProfile) => {
@@ -142,6 +197,17 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
 
   if (message.contact.id !== userInfo.id) {
     markDelivered(conversationId, message.id).catch(console.error);
+
+    // BE tạo notification mention khi user bị nhắc tên (@[name]) hoặc nhắc cả nhóm (@[All]).
+    // Chỉ invalidate badge bell khi ĐÚNG có mention tới mình → tránh refetch mỗi tin nhắn.
+    // Token tên khớp convention dùng ở ConversationReview/renderMessageWithMentions.
+    const content = message.content ?? "";
+    const mentionsMe =
+      content.includes("@[All]") ||
+      (!!userInfo.name && content.includes(`@[${userInfo.name}]`));
+    if (mentionsMe) {
+      invalidateNotifications(queryClient);
+    }
   }
 };
 
@@ -233,6 +299,9 @@ const onNewReaction = (queryClient: QueryClient, reaction: NewReaction) => {
       ),
     } as MessageCache;
   });
+  // BE tạo notification khi có người react tin của user → làm mới badge bell + list.
+  // Reaction tần suất thấp nên invalidate không đáng kể.
+  invalidateNotifications(queryClient);
 };
 
 const onNewMessagePinned = (

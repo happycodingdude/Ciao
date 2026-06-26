@@ -12,6 +12,7 @@ public static class ChatEventNames
     public const string Unfriended = "Unfriended";
     public const string NewReaction = "NewReaction";
     public const string NewMessagePinned = "NewMessagePinned";
+    public const string ContactUpdated = "ContactUpdated";
     public const string MessageDelivered = "MessageDelivered";
     public const string MessageRead = "MessageRead";
     public const string MessageEdited = "MessageEdited";
