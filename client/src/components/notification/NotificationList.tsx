@@ -20,7 +20,7 @@ const NotificationSkeleton = () => (
         key={i}
         className="bg-(--bg-color-extrathin) flex items-center gap-3 rounded-xl px-3 py-2.5"
       >
-        <div className="aspect-square w-11 shrink-0 animate-pulse rounded-full bg-(--bg-color-light)" />
+        <div className="aspect-square w-10 shrink-0 animate-pulse rounded-full bg-(--bg-color-light)" />
         <div className="flex flex-1 flex-col gap-2">
           <div className="h-3 w-2/3 animate-pulse rounded bg-(--bg-color-light)" />
           <div className="h-2 w-2/5 animate-pulse rounded bg-(--bg-color-light)" />
@@ -56,7 +56,7 @@ const NotificationList = ({
     <div className="hide-scrollbar flex flex-col gap-5 overflow-y-auto pr-1">
       {groups.map((group) => (
         <section key={group.key} className="flex flex-col gap-1">
-          <h3 className="text-(--text-main-color-blur) px-3 text-xs font-semibold uppercase tracking-wide">
+          <h3 className="text-(--text-main-color-blur) text-4xs px-3 font-semibold uppercase tracking-wide">
             {group.label}
           </h3>
           <div className="flex flex-col">
@@ -77,12 +77,12 @@ const NotificationList = ({
           type="button"
           onClick={onLoadMore}
           disabled={isFetchingNextPage}
-          className="text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color) mx-auto mt-1 flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors disabled:opacity-60"
+          className="text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color) text-2xs mx-auto mt-1 flex items-center gap-2 rounded-full border px-4 py-2 transition-colors disabled:opacity-60"
         >
           <i
             className={`fa-solid ${
               isFetchingNextPage ? "fa-spinner animate-spin" : "fa-chevron-down"
-            } text-xs`}
+            } text-3xs`}
           />
           {isFetchingNextPage ? "Loading…" : "Load more"}
         </button>

@@ -20,8 +20,11 @@ const ConversationReview = ({
   const conversationId = notification.sourceId;
   const navigate = useNavigate();
   const { data: info } = useInfo();
-  const { data: conversationCache } = useConversation();
-  const { data, isLoading } = useMessage(conversationId, 1);
+  // isLoading của /conversations: cần cho header (title/avatar/members). Chưa xong mà render
+  // → fallback "Conversation"/avatar mặc định pop sang data thật ⇒ nháy. Gate theo cờ này.
+  const { data: conversationCache, isLoading: isConversationLoading } =
+    useConversation();
+  const { data, isLoading: isMessageLoading } = useMessage(conversationId, 1);
 
   const selfId = info?.id;
   const selfName = info?.name;
@@ -94,6 +97,15 @@ const ConversationReview = ({
     else bottomRef.current?.scrollIntoView({ block: "end" });
   }, [messages.length, conversationId, firstHighlightId]);
 
+  // Gate render tới khi /conversations + messages cùng xong → header không nháy
+  // fallback "Conversation"/avatar mặc định khi cache chưa về.
+  if (isConversationLoading || isMessageLoading)
+    return (
+      <div className="text-(--text-main-color-blur) flex h-full w-full items-center justify-center">
+        <i className="fa-solid fa-spinner animate-spin text-xl" />
+      </div>
+    );
+
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       {/* Header */}
@@ -101,7 +113,7 @@ const ConversationReview = ({
         <div className="flex min-w-0 items-center gap-3">
           <span
             style={{ backgroundImage: `url(${avatar || FALLBACK_AVATAR})` }}
-            className="block aspect-square w-9 shrink-0 rounded-full bg-(--bg-color-extrathin) bg-cover bg-center"
+            className="bg-(--bg-color-extrathin) block aspect-square w-9 shrink-0 rounded-full bg-cover bg-center"
           />
           <span className="text-(--text-main-color) truncate font-semibold">
             {title ?? "Conversation"}
@@ -115,21 +127,17 @@ const ConversationReview = ({
               params: { conversationId },
             })
           }
-          className="bg-light-blue-500 hover:bg-light-blue-600 flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-white transition-colors"
+          className="text-2xs flex shrink-0 items-center gap-2 rounded-full bg-light-blue-500 px-3.5 py-1.5 font-medium text-white transition-colors hover:bg-light-blue-600"
         >
           Open in chat
-          <i className="fa-solid fa-arrow-right text-xs" />
+          <i className="fa-solid fa-arrow-right text-3xs" />
         </button>
       </div>
 
       {/* Messages (read-only) */}
       <div className="hide-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-5 py-4">
-        {isLoading ? (
-          <div className="text-(--text-main-color-blur) m-auto text-sm">
-            Loading…
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="text-(--text-main-color-blur) m-auto text-sm">
+        {messages.length === 0 ? (
+          <div className="text-(--text-main-color-blur) text-2xs m-auto">
             No messages yet.
           </div>
         ) : (
@@ -142,32 +150,32 @@ const ConversationReview = ({
               <div
                 key={m.id}
                 ref={m.id === firstHighlightId ? firstHlRef : undefined}
-                className={`flex items-end gap-2 px-2 py-1 ${mine ? "flex-row-reverse" : ""}`}
+                className={`flex items-start gap-2 px-2 py-1 ${mine ? "flex-row-reverse" : ""}`}
               >
                 {!mine && (
                   <span
                     style={{
                       backgroundImage: `url(${sender?.avatar || FALLBACK_AVATAR})`,
                     }}
-                    className="block aspect-square w-7 shrink-0 rounded-full bg-(--bg-color-extrathin) bg-cover bg-center"
+                    className="bg-(--bg-color-extrathin) block aspect-square w-7 shrink-0 rounded-full bg-cover bg-center"
                   />
                 )}
                 <div
                   className={`flex max-w-[75%] flex-col ${mine ? "items-end" : "items-start"}`}
                 >
                   {!mine && isGroup && (
-                    <span className="text-(--text-main-color-blur) mb-0.5 px-1 text-xs">
+                    <span className="text-(--text-main-color-blur) text-3xs mb-0.5 px-1">
                       {sender?.name}
                     </span>
                   )}
                   {/* Highlight GÓI GỌN trong bong bóng (không tràn full-width). */}
                   <span
-                    className={`whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm transition-colors
+                    className={`text-2xs whitespace-pre-wrap break-words rounded-2xl px-3 py-2 transition-colors
                       ${
                         mine
                           ? "bg-light-blue-500 text-white"
                           : highlighted
-                            ? "bg-amber-200 text-(--text-main-color)"
+                            ? "text-(--text-main-color) bg-amber-200"
                             : "bg-(--bg-color-extrathin) text-(--text-main-color)"
                       }
                       ${highlighted ? "ring-2 ring-amber-400" : ""}

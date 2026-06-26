@@ -7,8 +7,8 @@ const FALLBACK_AVATAR = "/assets/imagenotfound.jpg";
 
 const EmptyReview = ({ hint }: { hint: string }) => (
   <div className="text-(--text-main-color-blur) flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-    <i className="fa-regular fa-bell text-4xl opacity-40" />
-    <p className="text-sm">{hint}</p>
+    <i className="fa-regular fa-bell text-3xl opacity-40" />
+    <p className="text-2xs">{hint}</p>
   </div>
 );
 
@@ -35,18 +35,18 @@ const FriendRequestReview = ({
         </span>
       )}
       <div className="flex flex-col gap-1">
-        <span className="text-(--text-main-color) text-lg font-semibold">
+        <span className="text-(--text-main-color) text-base font-semibold">
           {actorName}
         </span>
-        <span className="text-(--text-main-color-light) text-sm">{action}</span>
+        <span className="text-(--text-main-color-light) text-2xs">{action}</span>
       </div>
       <button
         type="button"
         onClick={() => navigate({ to: "/connections", search: { tab: "requests" } })}
-        className="bg-light-blue-500 hover:bg-light-blue-600 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white transition-colors"
+        className="bg-light-blue-500 hover:bg-light-blue-600 text-2xs flex items-center gap-2 rounded-full px-4 py-2 font-medium text-white transition-colors"
       >
         View request
-        <i className="fa-solid fa-arrow-right text-xs" />
+        <i className="fa-solid fa-arrow-right text-3xs" />
       </button>
     </div>
   );

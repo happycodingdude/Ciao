@@ -64,11 +64,27 @@ type FriendEventData = { friendId?: string };
 // Làm mới CẢ HAI cache notification khi có event tạo notification mới:
 //  - ["notifications","infinite"]: trang /notifications + badge bell ở sidebar (cùng nguồn).
 //  - ["notification"]: dropdown notification ở menu mobile.
-// Lưu ý: notification được BE tạo bất đồng bộ (Kafka consumer) nên refetch ngay có thể
-// chưa thấy bản ghi mới; lần vào trang / event kế tiếp sẽ tự đồng bộ (eventual consistency).
+//
+// RACE: notification do BE tạo BẤT ĐỒNG BỘ (Kafka NotificationConsumer). FCM push được bắn
+// lúc gửi tin — TRƯỚC khi bản ghi notification persist. Vì vậy refetch ngay thường trả list
+// CŨ (chưa có noti mới) và không có event thứ 2 báo "đã persist". Hệ quả: đang đứng yên ở
+// trang /notifications (tab focus, không refetchOnWindowFocus) thì trang không cập nhật gì.
+//
+// FIX: ngoài lần invalidate tức thì (đủ khi consumer nhanh / data đã có), lặp lại invalidate
+// trễ vài nhịp để bắt được bản ghi persist muộn. invalidate chỉ refetch query đang ACTIVE
+// (badge sidebar + trang nếu đang mở) và notification là sự kiện tần suất thấp → chi phí
+// không đáng kể. (Triệt để hơn: BE phát event "NotificationCreated" sau khi persist.)
+const REFRESH_DELAYS_MS = [0, 1200, 3000];
+
 const invalidateNotifications = (queryClient: QueryClient) => {
-  queryClient.invalidateQueries({ queryKey: ["notifications", "infinite"] });
-  queryClient.invalidateQueries({ queryKey: ["notification"] });
+  const run = () => {
+    queryClient.invalidateQueries({ queryKey: ["notifications", "infinite"] });
+    queryClient.invalidateQueries({ queryKey: ["notification"] });
+  };
+  for (const delay of REFRESH_DELAYS_MS) {
+    if (delay === 0) run();
+    else setTimeout(run, delay);
+  }
 };
 
 const onFriendRequestReceived = (queryClient: QueryClient) => {

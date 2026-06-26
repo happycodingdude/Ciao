@@ -123,7 +123,7 @@ const Notification = () => {
           {/* Header + tabs cố định (shrink-0); chỉ list bên dưới scroll. */}
           <div className="flex shrink-0 flex-col gap-3 px-4 pt-5">
             <header className="flex items-center justify-between gap-3 px-1">
-              <h1 className="text-(--text-main-color) text-xl font-bold">
+              <h1 className="text-(--text-main-color) text-base font-bold">
                 Activity
               </h1>
 
@@ -131,11 +131,11 @@ const Notification = () => {
                 type="button"
                 onClick={() => unreadCount > 0 && readAllMutation()}
                 disabled={unreadCount === 0 || markingAll}
-                className="text-(--text-main-color-light) hover:bg-(--bg-color-extrathin) flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-colors disabled:opacity-40"
+                className="text-(--text-main-color-light) hover:bg-(--bg-color-extrathin) text-3xs flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 transition-colors disabled:opacity-40"
               >
                 <i
                   className={`fa-solid ${markingAll ? "fa-spinner animate-spin" : "fa-check-double"
-                    } text-xs`}
+                    } text-3xs`}
                 />
                 Mark all as read
               </button>

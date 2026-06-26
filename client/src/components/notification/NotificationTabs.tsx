@@ -28,7 +28,7 @@ const NotificationTabs = ({ active, onChange, counts }: Props) => {
             key={tab.key}
             type="button"
             onClick={() => onChange(tab.key)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors
+            className={`text-2xs flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 transition-colors
               ${
                 isActive
                   ? "border-transparent bg-(--bg-color-extrathin) text-(--text-main-color) font-medium"
