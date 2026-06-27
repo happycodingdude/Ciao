@@ -71,6 +71,21 @@ export type NewReaction = {
   sadCount: number;
   angryCount: number;
   userId: string;
+  // Enrich (BE EventNewReaction): để FE dựng banner + gate "tin của tôi" mà không lookup cache.
+  // null/empty type = unreact → không banner.
+  type?: string | null;
+  reactorId?: string;
+  reactorName?: string | null;
+  reactorAvatar?: string | null;
+  messageOwnerId?: string | null;
+};
+
+// Payload FCM "NewFriendRequest" (BE EventNewFriendRequest).
+export type NewFriendRequest = {
+  friendId: string;
+  contactId: string;
+  contactName?: string | null;
+  contactAvatar?: string | null;
 };
 
 export type NewMessagePinned = {

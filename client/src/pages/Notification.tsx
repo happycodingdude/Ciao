@@ -27,9 +27,12 @@ const Notification = () => {
   const {
     data,
     isLoading,
+    isError,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isFetchNextPageError,
   } = useInfiniteNotifications();
 
   // Làm mới khi vào trang được xử lý qua staleTime:0 + refetchOnMount của query
@@ -153,8 +156,11 @@ const Notification = () => {
             <NotificationList
               groups={groups}
               isLoading={isLoading}
+              isError={isError}
+              onRetry={() => refetch()}
               hasNextPage={!!hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
+              isFetchNextPageError={isFetchNextPageError}
               onLoadMore={() => fetchNextPage()}
               onOpen={onSelect}
               selectedId={selectedId}

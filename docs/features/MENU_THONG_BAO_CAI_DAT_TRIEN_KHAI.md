@@ -1,6 +1,6 @@
 # Handoff — Trang Informations (`/notifications`) & Settings (`/settings`)
 
-> Mục đích: ghi lại trạng thái triển khai để tiếp tục ở phiên mới. Cập nhật tới 2026-06-23.
+> Mục đích: ghi lại trạng thái triển khai tính năng. Cập nhật tới 2026-06-23.
 > Kế hoạch gốc: [`MENU_THONG_BAO_CAI_DAT.md`](./MENU_THONG_BAO_CAI_DAT.md).
 > API contract: [`../api-changes/MENU_THONG_BAO_CAI_DAT_API_CHANGES.md`](../api-changes/MENU_THONG_BAO_CAI_DAT_API_CHANGES.md).
 

@@ -313,32 +313,52 @@ public class NotificationConsumer : IGenericConsumer
     {
         var members = await _memberCache.GetMembers(param.ConversationId);
 
-        await _firebaseFunction.Notify(
-            ChatEventNames.NewReaction,
-            members.Select(q => q.Contact.Id).ToArray(),
-            param);
-
-        // Phase 4 — lưu Notification cho TÁC GIẢ message bị react.
-        await PersistReactionNotification(param);
-    }
-
-    async Task PersistReactionNotification(NotifyNewReactionModel param)
-    {
-        // Type rỗng = unreact (gỡ) → không tạo notification (tránh spam khi gỡ tym).
-        if (string.IsNullOrEmpty(param.Type)) return;
-
-        // Message nhúng trong Conversation → load doc để lấy tác giả. Nhất quán pattern hiện có
-        // (DataStoreConsumer cũng GetItemAsync cả conversation). Có thể tối ưu bằng projection sau.
+        // Load message (tác giả) + reactor 1 lần, dùng chung cho cả banner payload lẫn persist.
+        // GetItemAsync cả conversation: nhất quán pattern hiện có (có thể tối ưu projection sau).
         var conversation = await _conversationRepository.GetItemAsync(
             MongoQuery<Conversation>.IdFilter(param.ConversationId));
         var message = conversation?.Messages?.SingleOrDefault(m => m.Id == param.MessageId);
-        if (message is null) return;
-
-        // Tự react message của chính mình → không cần báo.
-        if (message.ContactId == param.UserId) return;
-
         var reactor = await _userCache.GetInfo(param.UserId);
         var reactorName = reactor?.Name ?? "Someone";
+
+        // Event gửi cho TẤT CẢ member để đồng bộ count realtime; kèm MessageOwnerId + ReactorName
+        // để FE quyết định có banner (chỉ chủ tin, ≠ reactor) và dựng nội dung không cần lookup.
+        var notify = new EventNewReaction
+        {
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            Type = param.Type,
+            ReactorId = param.UserId,
+            ReactorName = reactorName,
+            ReactorAvatar = reactor?.Avatar,
+            MessageOwnerId = message?.ContactId,
+            LikeCount = param.LikeCount,
+            LoveCount = param.LoveCount,
+            CareCount = param.CareCount,
+            WowCount = param.WowCount,
+            SadCount = param.SadCount,
+            AngryCount = param.AngryCount,
+        };
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.NewReaction,
+            members.Select(q => q.Contact.Id).ToArray(),
+            notify);
+
+        // Phase 4 — lưu Notification cho TÁC GIẢ message bị react (tái dùng message/reactor đã load).
+        // Chỉ SaveAsync khi thực sự thêm bản ghi (tránh round-trip thừa cho unreact / tự-react).
+        if (PersistReactionNotification(param, message, reactor, reactorName))
+            await _uow.SaveAsync();
+    }
+
+    bool PersistReactionNotification(
+        NotifyNewReactionModel param, Message? message, Contact? reactor, string reactorName)
+    {
+        // Type rỗng = unreact (gỡ) → không tạo notification (tránh spam khi gỡ tym).
+        if (string.IsNullOrEmpty(param.Type)) return false;
+        if (message is null) return false;
+        // Tự react message của chính mình → không cần báo.
+        if (message.ContactId == param.UserId) return false;
 
         _notificationRepository.Add(new Notification
         {
@@ -352,6 +372,6 @@ public class NotificationConsumer : IGenericConsumer
             Preview = message.Type == "text" ? (message.Content ?? "") : "",
             SourceMessageId = param.MessageId ?? "",
         });
-        await _uow.SaveAsync();
+        return true;
     }
 }

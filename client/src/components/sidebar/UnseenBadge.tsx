@@ -4,8 +4,8 @@ const UnseenBadge = ({ count }: { count: number }) => {
   if (count <= 0) return null;
   return (
     <span
-      className="pointer-events-none absolute right-1 top-1 z-10 flex aspect-square min-w-[1.05rem]
-      items-center justify-center rounded-full bg-red-500 px-1 text-[0.6rem] font-bold leading-none text-white"
+      className="pointer-events-none absolute -right-1 -top-1 z-10 flex aspect-square min-w-[1.3rem]
+      items-center justify-center rounded-full bg-red-500 px-1 text-[0.72rem] font-bold leading-none text-white"
     >
       {count > 99 ? "99+" : count}
     </span>

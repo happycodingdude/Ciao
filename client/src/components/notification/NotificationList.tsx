@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import ConnectionEmpty from "../connection/ConnectionEmpty";
 import { NotificationModel } from "../../types/base.types";
 import { NotificationGroup } from "../../utils/notificationDisplay";
@@ -6,8 +7,11 @@ import NotificationItem from "./NotificationItem";
 type Props = {
   groups: NotificationGroup[];
   isLoading: boolean;
+  isError: boolean;
+  onRetry: () => void;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
+  isFetchNextPageError: boolean;
   onLoadMore: () => void;
   onOpen: (n: NotificationModel) => void;
   selectedId?: string | null;
@@ -34,16 +38,63 @@ const NotificationSkeleton = () => (
 const NotificationList = ({
   groups,
   isLoading,
+  isError,
+  onRetry,
   hasNextPage,
   isFetchingNextPage,
+  isFetchNextPageError,
   onLoadMore,
   onOpen,
   selectedId,
 }: Props) => {
+  // Scroll container = root cho IntersectionObserver; sentinel ở đáy để auto-load.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  // onLoadMore là arrow mới mỗi render → giữ ref để effect không re-subscribe liên tục.
+  const onLoadMoreRef = useRef(onLoadMore);
+  onLoadMoreRef.current = onLoadMore;
+
+  // Auto-load khi sentinel lọt vào tầm nhìn (preload sớm 120px trước đáy).
+  // NGỪNG auto khi load-more vừa lỗi → tránh retry storm: nếu vẫn observe, sentinel còn
+  // trong view sẽ gọi lại onLoadMore ngay → vòng lặp đập server. Lúc lỗi để user bấm Retry.
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage || isFetchNextPageError) return;
+    const root = scrollRef.current;
+    const target = sentinelRef.current;
+    if (!root || !target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) onLoadMoreRef.current();
+      },
+      { root, rootMargin: "120px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, isFetchNextPageError]);
+
   if (isLoading) return <NotificationSkeleton />;
 
+  if (isError)
+    return (
+      <div className="text-(--text-main-color-blur) flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+        <i className="fa-regular fa-circle-xmark text-3xl opacity-40" />
+        <p className="text-2xs">Couldn&apos;t load notifications.</p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color) text-2xs flex items-center gap-2 rounded-full border px-4 py-1.5 transition-colors"
+        >
+          <i className="fa-solid fa-rotate-right text-3xs" />
+          Retry
+        </button>
+      </div>
+    );
+
   const total = groups.reduce((sum, g) => sum + g.items.length, 0);
-  if (total === 0)
+  // Rỗng THẬT (không còn trang để thử) mới hiện empty. Nếu còn trang (vd tab lọc rỗng
+  // nhưng trang sau có item khớp) → rơi xuống render sentinel để auto-load tiếp.
+  if (total === 0 && !hasNextPage)
     return (
       <ConnectionEmpty
         icon="fa-bell-slash"
@@ -53,7 +104,10 @@ const NotificationList = ({
     );
 
   return (
-    <div className="hide-scrollbar flex flex-col gap-5 overflow-y-auto pr-1">
+    <div
+      ref={scrollRef}
+      className="hide-scrollbar flex flex-col gap-5 overflow-y-auto pr-1"
+    >
       {groups.map((group) => (
         <section key={group.key} className="flex flex-col gap-1">
           <h3 className="text-(--text-main-color-blur) text-4xs px-3 font-semibold uppercase tracking-wide">
@@ -72,20 +126,28 @@ const NotificationList = ({
         </section>
       ))}
 
+      {/* Sentinel auto-load (có chiều cao để observe được):
+          - load-more lỗi → nút Retry thủ công (observer đã tắt auto để tránh retry storm);
+          - đang tải / tab lọc rỗng còn trang (total===0) → spinner;
+          - idle bình thường → trống, observer tự kích khi cuộn tới. */}
       {hasNextPage && (
-        <button
-          type="button"
-          onClick={onLoadMore}
-          disabled={isFetchingNextPage}
-          className="text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color) text-2xs mx-auto mt-1 flex items-center gap-2 rounded-full border px-4 py-2 transition-colors disabled:opacity-60"
+        <div
+          ref={sentinelRef}
+          className="text-(--text-main-color-blur) flex justify-center py-3"
         >
-          <i
-            className={`fa-solid ${
-              isFetchingNextPage ? "fa-spinner animate-spin" : "fa-chevron-down"
-            } text-3xs`}
-          />
-          {isFetchingNextPage ? "Loading…" : "Load more"}
-        </button>
+          {isFetchNextPageError ? (
+            <button
+              type="button"
+              onClick={onLoadMore}
+              className="text-(--text-main-color) hover:bg-(--bg-color-extrathin) border-(--border-color) text-2xs flex items-center gap-2 rounded-full border px-4 py-1.5 transition-colors"
+            >
+              <i className="fa-solid fa-rotate-right text-3xs" />
+              Couldn&apos;t load more — Retry
+            </button>
+          ) : isFetchingNextPage || total === 0 ? (
+            <i className="fa-solid fa-spinner animate-spin text-3xs" />
+          ) : null}
+        </div>
       )}
     </div>
   );

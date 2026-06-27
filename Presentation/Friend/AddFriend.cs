@@ -147,7 +147,9 @@ public static class AddFriend
             var notiFriendRequest = new EventNewFriendRequest
             {
                 FriendId = friend.Id,
-                ContactId = fromContact.Id
+                ContactId = fromContact.Id,
+                ContactName = fromContact.Name,
+                ContactAvatar = fromContact.Avatar
             };
             _ = _firebase.Notify(
                 ChatEventNames.NewFriendRequest,

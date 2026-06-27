@@ -170,12 +170,12 @@ Người khởi tạo dùng optimistic update; phía còn lại nhận realtime.
 poll `/friends`** (đã bỏ `refetchInterval`) — chỉ dựa vào FCM. Event names khớp 2 phía:
 `NewFriendRequest`, `FriendRequestAccepted`, `FriendRequestCanceled`, `FriendRequestDenied`, `Unfriended`.
 
-> ⚠️ **Bẫy persistence (đã fix phiên 2):** BE ghi DB qua `UnitOfWork` **defer**, commit ở
+> ⚠️ **Bẫy persistence (đã fix):** BE ghi DB qua `UnitOfWork` **defer**, commit ở
 > `uow.SaveAsync()` do `GlobalTransactionMiddleware` gọi **sau** handler. Nếu handler throw (vd. đụng
 > `_friendCache.GetFriends()` trả null rồi `.SingleOrDefault`/`.Add`) thì `SaveAsync()` không chạy →
 > **mất write** (AcceptTime/Friend không vào Mongo) dù Redis cache đã đổi → suggestion (đọc Mongo) sai.
 > ⇒ Mọi code sau lệnh ghi DB trong handler friend **phải null-safe, không throw**. Xem
-> `CONNECTIONS_HANDOFF.md` (Cập nhật phiên 2) + `scripts/backfill_accept_time.py`.
+> `CONNECTIONS_HANDOFF.md` (mục Cập nhật 2026-06-21) + `scripts/backfill_accept_time.py`.
 
 ## Trade-off chính
 - Presence: **đã bỏ poll** ở trang này (yêu cầu "không internal fetch") ⇒ online/offline không
@@ -192,3 +192,11 @@ cd client && npm run lint && npm run build
 # Backend
 dotnet build
 ```
+
+---
+
+## Cập nhật 2026-06-28 — Nút Chat dùng `useOpenDirectChat`
+
+`ConnectionChatButton` chuyển sang hook chung `useOpenDirectChat` (optimistic insert theo id
+thật) → fix race "tạo direct chat xong nhưng list chưa thấy". Chi tiết:
+[`FIX_DIRECT_CHAT_RACE.md`](./FIX_DIRECT_CHAT_RACE.md).

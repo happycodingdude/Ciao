@@ -6,7 +6,7 @@
 > → API contract: [`../api-changes/MENU_THONG_BAO_CAI_DAT_API_CHANGES.md`](../api-changes/MENU_THONG_BAO_CAI_DAT_API_CHANGES.md)
 > Còn lại 1 hạng mục **optional** chưa làm (cố ý): BE suppress push per-type — xem doc triển khai.
 > **Phạm vi đã chốt với người dùng:** Full-stack · Có Dark mode · Notifications dùng refetch (không realtime push).
-> **Session:** menu-notifications
+> **Phạm vi tính năng:** menu-notifications
 
 ---
 

@@ -11,7 +11,15 @@ import useConversation from "../hooks/useConversation";
 import useMessage from "../hooks/useMessage";
 import { ConversationCache } from "../types/conv.types";
 
+// Search param `messageId`: dùng để nhảy tới + highlight 1 tin cụ thể (vd click banner
+// reaction). Optional — hội thoại mở bình thường khi không có.
+type ConversationSearch = { messageId?: string };
+
 export const Route = createFileRoute("/_layout/conversations/$conversationId")({
+  validateSearch: (search: Record<string, unknown>): ConversationSearch => ({
+    messageId:
+      typeof search.messageId === "string" ? search.messageId : undefined,
+  }),
   loader: async ({ params, context }) => {
     const { queryClient } = context;
     const conversationId = params.conversationId;

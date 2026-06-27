@@ -177,3 +177,15 @@ Mỗi item trả về có dạng (đã được làm self-contained ở `contact
 - `Presentation/Contact/PresencePing.cs` — endpoint `/presence/ping`.
 - `Presentation/Identity/SignOut.cs` — `SetOfflineAsync` khi logout.
 - `Application/DTOs/FriendDTO.cs` + `Infrastructure/Mapping/MyMapping.cs` — DTO contact self-contained.
+
+---
+
+## Cập nhật 2026-06-28 — Fix click "Friends online" không thấy hội thoại
+
+**Bug:** click bạn online (chưa từng chat) → điều hướng `/conversations/$id` nhưng không thấy
+hội thoại. **Nguyên nhân:** BE `CreateDirectConversation` persist **bất đồng bộ qua Kafka** →
+`getConversations` ngay sau create chưa thấy → `ChatboxContainer` (đọc từ cache list) không tìm ra.
+
+**Fix:** hook chung `useOpenDirectChat` chèn **optimistic** conversation theo id thật vào cache
+(thay vì `invalidateQueries` gây race). Áp cho `HomeOnlineFriends` + nút Chat ở Connections.
+Chi tiết: [`FIX_DIRECT_CHAT_RACE.md`](./FIX_DIRECT_CHAT_RACE.md).

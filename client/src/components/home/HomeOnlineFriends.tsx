@@ -1,8 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
-import { useState } from "react";
-import useLoading from "../../hooks/useLoading";
-import { createDirectChat } from "../../services/friend.service";
+import useOpenDirectChat from "../../hooks/useOpenDirectChat";
 import { ContactModel } from "../../types/friend.types";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
@@ -12,43 +8,8 @@ type Props = {
 };
 
 const HomeOnlineFriends = ({ friends }: Props) => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { setLoading } = useLoading();
-
-  // Chặn double-click khi đang tạo direct chat cho một contact cụ thể
-  const [openingId, setOpeningId] = useState<string | null>(null);
-
-  const openChat = async (contact: ContactModel) => {
-    if (openingId) return;
-
-    // Đã có direct conversation → điều hướng thẳng, không gọi API
-    if (contact.directConversation) {
-      router.navigate({
-        to: "/conversations/$conversationId",
-        params: { conversationId: contact.directConversation },
-      });
-      return;
-    }
-
-    if (!contact.id) return;
-
-    try {
-      setOpeningId(contact.id);
-      setLoading(true);
-      const res = await createDirectChat(contact.id);
-      if (!res?.conversationId) return;
-      // Conversation mới chưa có trong cache → invalidate để list/route load đúng
-      await queryClient.invalidateQueries({ queryKey: ["conversation"] });
-      router.navigate({
-        to: "/conversations/$conversationId",
-        params: { conversationId: res.conversationId },
-      });
-    } finally {
-      setOpeningId(null);
-      setLoading(false);
-    }
-  };
+  // openChat: tạo (nếu cần) + chèn optimistic + điều hướng — fix race persist Kafka ở BE.
+  const { openChat, openingId } = useOpenDirectChat();
 
   return (
     <section className="flex min-h-0 flex-col gap-2">

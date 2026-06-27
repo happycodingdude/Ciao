@@ -2,6 +2,24 @@
   transition: all 0.3s ease;
 }
 
+/* Highlight tạm thời khi nhảy tới 1 tin (click banner reaction / từ notification). */
+.message-highlight {
+  animation: message-highlight-pulse 2.2s ease;
+  border-radius: 0.75rem;
+}
+
+@keyframes message-highlight-pulse {
+  0% {
+    background-color: rgba(59, 130, 246, 0.28);
+  }
+  70% {
+    background-color: rgba(59, 130, 246, 0.18);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
 .message-bubble:hover {
   transform: translateY(-1px);
 }

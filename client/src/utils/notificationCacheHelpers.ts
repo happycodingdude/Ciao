@@ -60,12 +60,35 @@ export const updateConversationCache = (
           ...(patch.lastMessage && { lastMessage: patch.lastMessage }),
           ...(patch.lastMessageContact && { lastMessageContact: patch.lastMessageContact }),
           ...(patch.lastMessageTime && { lastMessageTime: patch.lastMessageTime }),
-          ...(patch.unSeen && { unSeen: patch.unSeen }),
+          // unSeen là boolean → phải dùng !== undefined, KHÔNG dùng truthy (false bị bỏ qua
+          // → unSeen kẹt true → badge overcount khi tin đến lúc đang xem chính hội thoại đó).
+          ...(patch.unSeen !== undefined && { unSeen: patch.unSeen }),
           // membersUpdater là function transform → gọi với members hiện tại
           ...(patch.membersUpdater && { members: patch.membersUpdater(conv.members ?? []) }),
         },
   );
   return { ...oldData, conversations: updated, filterConversations: updated };
+};
+
+// Đánh dấu 1 conversation là ĐÃ XEM trong cache (cả conversations + filterConversations).
+// Gọi đúng thời điểm user đọc tin cuối (markRead ở Chatbox) → tự sửa cả trường hợp race:
+// tin đến lúc đang xem nhưng isConversationActive lỡ trả false → unSeen bị set true →
+// badge đếm oan dù list tô màu "active". No-op nếu đã seen (giữ reference, tránh re-render).
+export const markConversationSeen = (
+  oldData: ConversationCache,
+  conversationId: string,
+): ConversationCache => {
+  let changed = false;
+  const clear = (list?: ConversationModel[]) =>
+    (list ?? []).map((c) => {
+      if (c.id !== conversationId || !c.unSeen) return c;
+      changed = true;
+      return { ...c, unSeen: false };
+    });
+  const conversations = clear(oldData.conversations);
+  const filterConversations = clear(oldData.filterConversations);
+  if (!changed) return oldData;
+  return { ...oldData, conversations, filterConversations };
 };
 
 export const updateMessagesCache = (

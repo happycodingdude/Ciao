@@ -183,11 +183,14 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
         unSeen: !isActive,
       });
     }
-    // Conversation chưa có trong list → thêm mới (user được thêm vào group hoặc tin nhắn từ contact mới)
+    // Conversation chưa có trong list → thêm mới (user được thêm vào group hoặc tin nhắn từ contact mới).
+    // PHẢI kèm members (nếu thiếu, list lọc theo membership sẽ ẨN hội thoại mới → "không nhận
+    // được tin") và unSeen (nếu thiếu, badge không đếm → lệch số).
+    const newConv = buildConvFromMessage(message, !isActive);
     return {
       ...old,
-      conversations: [buildConvFromMessage(message), ...(old.conversations ?? [])],
-      filterConversations: [buildConvFromMessage(message), ...(old.conversations ?? [])],
+      conversations: [newConv, ...(old.conversations ?? [])],
+      filterConversations: [newConv, ...(old.filterConversations ?? [])],
     };
   });
 
@@ -227,16 +230,23 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
   }
 };
 
-// Helper: map dữ liệu tin nhắn mới sang ConversationModel để thêm vào list
-const buildConvFromMessage = (message: NewMessage): ConversationModel => ({
+// Helper: map dữ liệu tin nhắn mới sang ConversationModel để thêm vào list.
+// Gắn ĐỦ members (để list không lọc ẩn) + unSeen (để badge đếm đúng) + lastMessageId.
+const buildConvFromMessage = (
+  message: NewMessage,
+  unSeen: boolean,
+): ConversationModel => ({
   id: message.conversation.id,
   title: message.conversation.title,
   avatar: message.conversation.avatar ?? undefined,
   isGroup: message.conversation.isGroup,
   isNotifying: true,
+  lastMessageId: message.id,
   lastMessage: message.content,
   lastMessageContact: message.contact.id,
   lastMessageTime: message.createdTime,
+  unSeen,
+  members: message.members,
 });
 
 const onNewMembers = (

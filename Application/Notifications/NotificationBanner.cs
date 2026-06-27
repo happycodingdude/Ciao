@@ -26,8 +26,14 @@ public static class NotificationBanner
             case ChatEventNames.NewMembers when data is EventNewConversation c:
                 return (Fallback(c.Conversation?.Title, AppName), "You were added to the group");
 
+            case ChatEventNames.NewReaction when data is EventNewReaction r:
+                return (AppName, $"{Fallback(r.ReactorName, "Someone")} reacted to your message");
+
             case ChatEventNames.NewReaction:
                 return (AppName, "New reaction to your message");
+
+            case ChatEventNames.NewFriendRequest when data is EventNewFriendRequest f:
+                return (AppName, $"{Fallback(f.ContactName, "Someone")} sent you a friend request");
 
             case ChatEventNames.NewFriendRequest:
                 return (AppName, "You have a new friend request");

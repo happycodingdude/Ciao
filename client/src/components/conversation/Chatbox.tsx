@@ -1,3 +1,5 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef } from "react";
 import { useChatboxScroll } from "../../hooks/useChatboxScroll";
@@ -5,12 +7,14 @@ import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useMessage from "../../hooks/useMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
+import { ConversationCache } from "../../types/conv.types";
 import {
   GroupedMessage,
   PendingMessageModel,
   SeenContact,
 } from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
+import { markConversationSeen } from "../../utils/notificationCacheHelpers";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
 import { markRead } from "../../services/message.service";
@@ -39,6 +43,9 @@ const groupMessagesByDate = (
 
 const Chatbox = () => {
   const { conversationId } = Route.useParams();
+  const { messageId: targetMessageId } = Route.useSearch();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: conversations } = useConversation();
   const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
 
@@ -89,6 +96,40 @@ const Chatbox = () => {
     oldLastMsgRef.current = currentLastMsg;
   }, [messages]);
 
+  // Nhảy tới + highlight 1 tin cụ thể khi có ?messageId (vd click banner reaction).
+  // Mỗi message render với id={message.id} (MessageContent) → getElementById tìm DOM.
+  // Tin có thể chưa render xong (async) → retry vài nhịp; tin quá cũ chưa load → no-op
+  // (graceful, vẫn ở trong hội thoại). Clear param sau khi nhảy để không lặp lại.
+  useEffect(() => {
+    if (!targetMessageId) return;
+    let cancelled = false;
+    let attempts = 0;
+
+    const tryScroll = () => {
+      if (cancelled) return;
+      const el = document.getElementById(targetMessageId);
+      if (el) {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+        el.classList.add("message-highlight");
+        setTimeout(() => el.classList.remove("message-highlight"), 2200);
+        navigate({
+          to: "/conversations/$conversationId",
+          params: { conversationId },
+          search: {},
+          replace: true,
+        });
+        return;
+      }
+      if (attempts++ < 10) setTimeout(tryScroll, 250);
+    };
+
+    const t = setTimeout(tryScroll, 150);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [targetMessageId, conversationId, navigate]);
+
   // Gửi read receipt khi người dùng đọc tin nhắn (ở đáy màn hình)
   useEffect(() => {
     if (!messages || messages.messages.length === 0 || !conversationId) return;
@@ -99,11 +140,16 @@ const Chatbox = () => {
       const timer = setTimeout(() => {
         if (currentLastMsg && currentLastMsg.id) {
           markRead(conversationId, currentLastMsg.id).catch(console.error);
+          // Clear unSeen ngay tại thời điểm đọc tin cuối → badge khớp list, tự sửa
+          // race "tin đến lúc đang xem nhưng isConversationActive=false → unSeen=true".
+          queryClient.setQueryData(["conversation"], (old: ConversationCache) =>
+            old ? markConversationSeen(old, conversationId) : old,
+          );
         }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showScrollToBottom, messages, conversationId]);
+  }, [showScrollToBottom, messages, conversationId, queryClient]);
 
   const grouped = groupMessagesByDate(messages?.messages ?? []);
   const groupedEntries = Object.entries(grouped);

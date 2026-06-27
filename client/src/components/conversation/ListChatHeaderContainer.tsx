@@ -11,7 +11,7 @@ const ListChatHeaderContainer = () => {
         <ListChatHeader />
       </div>
       {/* MARK: List chat filter */}
-      <div className="flex justify-between">
+      <div className="flex justify-evenly">
         <div
           className={`${filter === "all" ? "selected" : ""} custom-button`}
           onClick={() => setFilter("all")}

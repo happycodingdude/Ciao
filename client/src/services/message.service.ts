@@ -34,6 +34,31 @@ export const getMessages = async (conversationId: string, page: number) => {
   return result;
 };
 
+// Lấy cửa sổ tin nhắn quanh 1 messageId (mặc định 5 trước + 5 sau). Dùng cho pane review
+// notification: tin được mention/react có thể nằm sâu trong lịch sử, không có ở page 1.
+export const getMessagesAround = async (
+  conversationId: string,
+  messageId: string,
+  radius: number = 5,
+): Promise<MessageCache> => {
+  const data = (
+    await HttpRequest<undefined, MessageCache>({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_GET_AROUND.replace(
+        "{id}",
+        conversationId,
+      )
+        .replace("{messageId}", messageId)
+        .replace("{radius}", String(radius)),
+    })
+  ).data as MessageCache;
+  return {
+    conversationId,
+    hasMore: data.hasMore,
+    messages: data.messages,
+  };
+};
+
 export const sendMessage = async (
   id: string,
   data: SendMessageRequest,

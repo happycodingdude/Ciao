@@ -3,7 +3,8 @@
 > **Cập nhật:** 2026-06-26 · **Trạng thái:** code xong, build/typecheck sạch, **CHƯA verify end-to-end với BE thật**.
 > Liên quan: [`AP_DUNG_CAI_DAT_TRIEN_KHAI.md`](./AP_DUNG_CAI_DAT_TRIEN_KHAI.md) · [`AP_DUNG_CAI_DAT_NGHIEM_THU.md`](./AP_DUNG_CAI_DAT_NGHIEM_THU.md)
 >
-> **Mới nhất 2026-06-26 (session FE):** xem [§7 — Fix layout bể + badge bell sidebar](#7-fix-layout-bể--badge-unread-trên-icon-bell-2026-06-26).
+> **Mới nhất 2026-06-26:** xem [§7 — Fix layout bể + badge bell sidebar](#7-fix-layout-bể--badge-unread-trên-icon-bell-2026-06-26).
+> **2026-06-27 (BE+FE):** xem [§8 — Highlight tin sâu lịch sử (messages/around)](#8-highlight-tin-nằm-sâu-lịch-sử--fetch-cửa-sổ-quanh-messageid-2026-06-27) và [§9 — fix paging/font/realtime/resilience](#9-menu-notifications-2026-06-2627--fix-paging-font-realtime-resilience). Index doc: [`NOTIFICATION_INDEX.md`](./NOTIFICATION_INDEX.md).
 
 ---
 
@@ -84,7 +85,7 @@ cd client && npm run dev
 
 ## 7. Fix layout bể + badge unread trên icon bell (2026-06-26)
 
-> Session FE thuần. Tất cả thay đổi ở `client/`. Typecheck file liên quan sạch (lỗi `tsc` còn lại là pre-existing ở `AddMembersModal`/`CreateGroupChatModal`, không liên quan).
+> Thay đổi FE thuần. Tất cả ở `client/`. Typecheck file liên quan sạch (lỗi `tsc` còn lại là pre-existing ở `AddMembersModal`/`CreateGroupChatModal`, không liên quan).
 
 ### 7.1 Layout Notifications bị "bể" — header bị cắt đỉnh (ĐÃ FIX)
 **Triệu chứng:** chọn 1 notification → cả 2 cột (Activity + pane phải) bị cắt mất phần trên.
@@ -121,6 +122,71 @@ Hiện số notification chưa đọc trên chuông để thấy khi đang ở m
 
 ---
 
+## 8. Highlight tin nằm sâu lịch sử — fetch cửa sổ quanh messageId (2026-06-27)
+
+> Thay đổi BE+FE. Trước đây pane review chỉ fetch page 1 (10 tin mới nhất) → tin được mention/react nằm sâu lịch sử không có trong page 1 → **không highlight được**.
+
+**Giải pháp:** endpoint mới lấy cửa sổ tin **quanh `sourceMessageId`** (mặc định 5 trước + 5 sau).
+
+### BE
+| File | Nội dung |
+|---|---|
+| `Presentation/Conversation/GetMessagesAround.cs` (**mới**) | `GET /conversations/{id}/messages/around?messageId={id}&radius=5`. Lấy full list từ Redis cache (`MessageCache.GetMessages`), `OrderBy(CreatedTime)` → `FindIndex(messageId)` → cắt `[idx-radius .. idx+radius]`, map `MessageReactionSummary` + set `CurrentReaction`, trả cũ→mới. Validator `ContactRelatedToConversation` (mirror `GetMessages`). |
+
+- **Không tìm thấy** messageId (cache evict / tin đã xoá) → fallback trả cửa sổ tin **mới nhất** (`2*radius`) để pane không rỗng.
+- Reuse DTO `MessagesWithHasMore`; `HasMore = start > 0` (còn tin cũ hơn trước cửa sổ).
+
+### FE
+| File | Nội dung |
+|---|---|
+| `client/.env` | `VITE_ENDPOINT_MESSAGE_GET_AROUND = '/conversations/{id}/messages/around?messageId={messageId}&radius={radius}'` |
+| `services/message.service.ts` | `getMessagesAround(convId, messageId, radius=5)` |
+| `hooks/useMessage.ts` | `messagesAroundQueryOption` — **key riêng** `["message","around",convId,messageId]` (KHÔNG đụng cache chat chính `["message", convId]`) |
+| `components/notification/ConversationReview.tsx` | Có `sourceMessageId` → `useQuery(messagesAroundQueryOption, enabled)`; không có (data cũ) → page 1 + heuristic cũ. Loading gate theo query đang active. |
+
+### Quyết định
+- **Key cache riêng** cho around: tránh ghi đè `["message", conversationId]` mà Chatbox chính dùng (full-semantics list, không thể bị thay bằng 11 tin).
+- Chỉ kích hoạt around khi có `sourceMessageId` (data tạo **sau restart BE**); data cũ giữ heuristic thời gian → không regression.
+- ⚠️ Cần **restart Vite** (đổi `.env`) + **restart BE** (endpoint mới).
+
+---
+
+## 9. Menu Notifications (2026-06-26→27) — fix paging, font, realtime, resilience
+
+> Gộp các thay đổi còn lại. Build BE + typecheck FE sạch. **Chưa verify end-to-end với BE thật.**
+
+### 9.1 Bug fixes
+
+| # | Bug | Root cause | Fix | File |
+|---|---|---|---|---|
+| 1 | Trang `/notifications` **trắng**, không load data | `notification.service.ts` đọc `VITE_ENDPOINT_NOTIFICATION_GET_PAGED` nhưng key **thiếu** trong `.env` → `undefined.replace()` ném `TypeError` trong queryFn | Thêm lại env key | `client/.env` |
+| 2 | API `/notifications` **trả vượt limit** | Handler gọi `GetAllAsync` → trả TOÀN BỘ noti của user, bỏ qua `page/limit`, không sort | Thêm `GetPagedAsync` generic (sort `CreatedTime` desc + skip/limit), handler dùng `PagingParam`. Bonus: page 1 = mới nhất | `IMongoRepository.cs`, `MongoBaseRepository.cs`, `GetNotifications.cs` |
+| 3 | **Font tổng thể to** so với conversations | Component viết theo thang Tailwind chuẩn, nhưng project **remap** lớn hơn (`text-sm`=18px, `text-xs`=16px, `text-xl`=32px) | Hạ về thang nhỏ của project: `text-2xs`(14)/`text-3xs`(12)/`text-4xs`(10); header `text-base`(20); avatar `w-11→w-10` | `NotificationItem/List/Tabs.tsx`, `Notification.tsx`, `NotificationReview/ConversationReview.tsx` |
+| 4 | Dot unread **làm lệch giờ** | Dot là flex-child có điều kiện → item read/unread khác width → cột content co lại đẩy `timeLabel` lệch giữa các dòng | **Slot cố định** `w-2` (dot khi unread, trống khi read) → width đồng nhất | `NotificationItem.tsx` |
+| 5 | Pane review **nháy** header | `ConversationReview` render khi `/conversations` chưa về → fallback "Conversation"/avatar pop sang data thật | Gate loading: chờ `isConversationLoading` + `isMessageLoading` (gate theo cờ `isLoading`, KHÔNG theo `conversation===undefined` để tránh kẹt spinner khi conv ngoài cache) | `ConversationReview.tsx` |
+| 6 | Ở **chính trang** notifications **không nhận** tín hiệu noti mới (menu khác thì có) | BE tạo noti **async** (Kafka); FCM push bắn trước khi persist → invalidate tức thì refetch trúng list cũ. Menu khác "có" là nhờ `refetchOnWindowFocus`; đứng yên trên trang (tab focus) thì không có refocus | `invalidateNotifications` invalidate tức thì **+ lặp lại trễ** `[0,1200,3000]ms` để bắt bản ghi persist muộn | `notificationHandlers.ts` |
+| 7 | List tin pane review **dồn lên đầu** khi ít tin | container `flex-col` mặc định align top | Wrapper trong `mt-auto` → ít tin dồn xuống đáy, nhiều tin collapse + cuộn bình thường (an toàn hơn `justify-end`) | `ConversationReview.tsx` |
+
+### 9.2 Tính năng FE thêm (resilience cho list)
+
+| Tính năng | Mô tả | File |
+|---|---|---|
+| **Error state + Retry** | API lỗi lần đầu (chưa có data) → UI lỗi + nút Retry (`refetch`), thay vì hiện nhầm "No notifications" | `NotificationList.tsx` (+ `isError`/`refetch` từ `Notification.tsx`) |
+| **Auto infinite scroll** | Bỏ nút "Load more" thủ công → IntersectionObserver sentinel (preload 120px), `onLoadMore` giữ qua ref | `NotificationList.tsx` |
+| **Tab lọc rỗng còn trang** | Empty chỉ hiện khi `total===0 && !hasNextPage`; nếu còn trang (tab Unread/Requests/System lọc rỗng) → render sentinel auto-load tiếp, không hiện "No notifications" sai | `NotificationList.tsx` |
+| **Chặn retry storm** | `fetchNextPage` lỗi → observer ngừng auto (`isFetchNextPageError`), hiện nút "Retry" thủ công → tránh vòng lặp đập server | `NotificationList.tsx` (+ `isFetchNextPageError` từ `Notification.tsx`) |
+
+### 9.3 Còn nợ (chưa fix)
+
+- **Badge & tab Unread chỉ đếm trang đã load** — >10 noti chưa đọc mà mới load page 1 → đếm thiếu. Cần BE trả `unreadTotal` (hoặc auto-load hết ở tab Unread). Auto-scroll giảm nhẹ nhưng chưa triệt để.
+- Index Mongo `Notification { ContactId:1, CreatedTime:-1 }` — script ở [`NOTIFICATION_INDEX.md`](./NOTIFICATION_INDEX.md), **chưa chạy trên DB**.
+
+### 9.4 Môi trường (lưu ý)
+- Máy hiện tại là **macOS** → `dotnet` (10.0.203) ở `/usr/local/bin/dotnet`, **KHÔNG** dùng path WSL `/mnt/c/...` như §"LÀM TRƯỚC KHI TEST" cũ.
+- Build tránh lock khi BE chạy: `-p:BaseOutputPath=/private/tmp/...`.
+
+---
+
 ## Quyết định đã chốt (đừng mở lại)
 
 - Pane review **READ-ONLY** + nút "Open in chat". Hướng **reply inline** (full chat nhúng như Teams) **DEFER** — cần decouple `ChatboxContainer` khỏi route `/conversations/$conversationId` (~11 component dùng `Route.useParams()`), rủi ro cho chat chính.
@@ -133,9 +199,10 @@ Hiện số notification chưa đọc trên chuông để thấy khi đang ở m
 
 1. **Verify end-to-end** sau khi restart BE+FE: đổi profile lan sang user khác; mention trùng tên; banner suppression per-type; highlight chính xác.
 2. Banner reaction/friend-request kèm tên actor (thread vào event data).
-3. Highlight chính xác cho **reaction** + mọi loại chỉ chạy với notification tạo **sau restart BE** (`SourceMessageId`); data cũ dùng heuristic thời gian.
+3. Highlight chính xác cho **reaction** + mọi loại chỉ chạy với notification tạo **sau restart BE** (`SourceMessageId`); data cũ dùng heuristic thời gian. ✅ Tin nằm sâu lịch sử nay highlight được nhờ endpoint `messages/around` (§8).
 4. (Tuỳ chọn) Reply inline trong pane review.
 5. (Cũ) Phase 6 `ShowLastSeen` defer; index Mongo `Friend.FromContact/ToContact.ContactId`; backfill `AcceptTime`.
+   - **Notification paging index** `{ ContactId: 1, CreatedTime: -1 }` — script + verify ở [`NOTIFICATION_INDEX.md`](./NOTIFICATION_INDEX.md) (CHƯA chạy trên DB).
 6. **Badge bell realtime (§7.3):** đang dựa vào FE đoán noti từ event NewMessage/NewReaction/NewFriendRequest + invalidate (có race với consumer async). Cân nhắc BE phát event riêng "NotificationCreated" sau khi `NotificationConsumer` persist để badge chính xác tức thì. Cũng cần verify badge khi >10 noti chưa đọc (hiện đếm theo các page đã load).
 
 ## Lệnh nhanh
@@ -146,3 +213,30 @@ Hiện số notification chưa đọc trên chuông để thấy khi đang ở m
 # FE typecheck
 cd client && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json
 ```
+
+---
+
+## §10 — 2026-06-28: tín hiệu tin nhắn + style preview + badge
+
+### 10.1 Fix tín hiệu tin nhắn (badge lệch / không nhận tin / badge phantom)
+Chi tiết: [`FIX_MESSAGE_SIGNAL.md`](./FIX_MESSAGE_SIGNAL.md).
+- `buildConvFromMessage` thiếu `members` → list lọc ẩn hội thoại từ người/nhóm **mới** (nhắn
+  lần đầu không thấy); thiếu `unSeen` → badge không đếm. ⇒ gắn đủ `members` + `unSeen`.
+- `updateConversationCache` dùng `...(patch.unSeen && …)` → không set được `false` (badge kẹt
+  cao). ⇒ đổi `!== undefined`.
+- Badge `useUnseenConversationCount` đếm không áp filter membership như list ⇒ thêm filter đồng bộ.
+- **Badge=1 nhưng list không có cái nào chưa đọc:** conversation đang mở nhận tin lúc đang xem
+  nhưng `isConversationActive` race → `unSeen=true`, list tô màu active (xám) không đỏ, badge vẫn
+  đếm. ⇒ helper `markConversationSeen` clear `unSeen` đúng lúc `markRead` (Chatbox).
+- (Đã thử catch-up refetch khi focus nhưng **revert** vì gây loading mỗi lần focus.)
+- ⚠️ Realtime vẫn **FCM-only** (SignalR chỉ cho WebRTC) → Brave/browser chặn Google push dễ mất
+  tin. Hướng bền vững: chuyển message events qua SignalR hub `ciaohub` (đã có) — **chờ duyệt**.
+
+### 10.2 Chat preview /notifications đồng nhất style khung chat
+Chi tiết: [`FIX_NOTIF_CHAT_PREVIEW_STYLE.md`](./FIX_NOTIF_CHAT_PREVIEW_STYLE.md).
+`ConversationReview`: bong bóng `bg-white + shadow + rounded-xl` (cả 2 phía), nền `--bg-color`,
+avatar `h-8` gom block, tên/giờ (`HH:mm`) theo `MessageContent`. Cỡ chữ bong bóng **`text-xs`**.
+
+### 10.3 Badge số trên menu sidebar to hơn
+`UnseenBadge` (dùng chung Conversations + Notifications + ChatIcon): `text-[0.6rem]→0.72rem`,
+`min-w 1.05rem→1.3rem`.

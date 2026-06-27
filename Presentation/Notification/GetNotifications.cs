@@ -26,7 +26,10 @@ public static class GetByConversationId
 
             var user = await _contactRepository.GetInfoAsync();
             var filter = Builders<Notification>.Filter.Where(q => q.ContactId == user.Id);
-            return await _notificationRepository.GetAllAsync(filter);
+            // Trước đây gọi GetAllAsync → trả TOÀN BỘ noti của user (vượt limit, không sort).
+            // Giờ phân trang server-side, sort CreatedTime giảm dần (page 1 = mới nhất).
+            var paging = new PagingParam(request.page, request.limit);
+            return await _notificationRepository.GetPagedAsync(filter, paging);
 
             // var result = new List<NotificationWithSourceData>(notifications.Count());
             // foreach (var notification in notifications)

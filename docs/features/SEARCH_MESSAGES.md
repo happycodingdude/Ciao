@@ -32,7 +32,7 @@ Cho phép user tìm tin nhắn theo keyword trong 1 conversation cụ thể.
   - Header chỉ hiển thị tiêu đề "Search messages" — KHÔNG có nút back. User đóng panel bằng cách click lại icon Search trên `ChatboxHeaderMenu` (`toggleDetail("search")` flip về null).
   - Search input dùng [CustomInput](../client/src/components/common/CustomInput.tsx) để đồng nhất visual với thanh search trong AddMembersModal (flat, underline animation khi focus); auto-focus thủ công qua `refInput` trong `useEffect([showSearch])` — focus mỗi khi panel hiện ra, không chỉ lần mount đầu (component always-mounted). Gọi `focus({ preventScroll: true })` để chặn browser scroll-into-view trên ancestor scrollable trong lúc sidebar đang transition `w-0` → `sidebar-w`, tránh chat list/chatbox bị xê dịch 1 thoáng.
   - Trigger search: nhấn Enter trên input hoặc click icon `SearchOutlined` đặt cùng hàng; icon mờ + `pointer-events-none` khi keyword rỗng hoặc đang loading
-  - `handleKeyDown` guard `e.nativeEvent.isComposing` để chặn double-fire khi dùng IME (Vietnamese/Japanese/Chinese/Korean) — pattern giống [IME_BUG_FIX.md](./IME_BUG_FIX.md)
+  - `handleKeyDown` guard `e.nativeEvent.isComposing` để chặn double-fire khi dùng IME (Vietnamese/Japanese/Chinese/Korean) — pattern giống [IME_BUG_FIX.md](../bug-fixes/IME_BUG_FIX.md)
   - Render kết quả theo nhóm tháng: mỗi nhóm có 1 separator căn trái, hiển thị "This month" / "Last month" / "MMMM" (cùng năm) / "MMMM YYYY" (khác năm)
   - Mỗi kết quả: avatar người gửi (lookup từ `conversation.members` qua `contactId`) bên trái; bên phải gồm tên + thời gian ở hàng trên, content highlight keyword ở hàng dưới
   - Format thời gian từng message: trong ngày hôm nay → `HH:mm`; khác ngày → `DD/MM`

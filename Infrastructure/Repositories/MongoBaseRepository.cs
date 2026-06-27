@@ -14,6 +14,15 @@ public class MongoBaseRepository<T> : IMongoRepository<T> where T : MongoBaseMod
     #region CRUD
     public async Task<IEnumerable<T>> GetAllAsync(FilterDefinition<T> filter) => await _collection.Find(filter).ToListAsync();
 
+    // Phân trang server-side: sort (mặc định CreatedTime giảm dần → mới nhất trước) + skip + limit.
+    // Tránh trả full collection (vốn vượt limit và scale kém khi dữ liệu lớn).
+    public async Task<IEnumerable<T>> GetPagedAsync(FilterDefinition<T> filter, PagingParam paging, SortDefinition<T>? sort = null) =>
+        await _collection.Find(filter)
+            .Sort(sort ?? Builders<T>.Sort.Descending(x => x.CreatedTime))
+            .Skip(paging.Skip)
+            .Limit(paging.Limit)
+            .ToListAsync();
+
     public async Task<T> GetItemAsync(FilterDefinition<T> filter) => await _collection.Find(filter).SingleOrDefaultAsync();
 
 

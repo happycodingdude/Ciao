@@ -1,6 +1,6 @@
 # Handoff — Tính năng Connections (`/connections`)
 
-> Mục đích: tiếp tục ở phiên mới. Cập nhật tới 2026-06-21.
+> Mục đích: tài liệu bàn giao tính năng Connections. Cập nhật tới 2026-06-21.
 > Kế hoạch gốc: [`CONNECTIONS_KET_NOI.md`](./CONNECTIONS_KET_NOI.md).
 
 ## Trạng thái tổng quan
@@ -64,7 +64,7 @@ participant-only, phân nhánh event Cancel/Deny/Unfriend, đồng bộ FriendCa
   `CreateDirectConversation.cs` — body optional (`CreateDirectConversationReq?`).
 - Xoá: `Presentation/Friend/CancelFriend.cs`, `client/src/components/friend/DenyButton.jsx` (legacy hỏng).
 
-## Cập nhật phiên 2 (2026-06-21) — bug fix & polish
+## Cập nhật 2026-06-21 — bug fix & polish
 
 1. **🔴 Root-cause "suggestion không hiện": AcceptFriend rollback mất `AcceptTime`.**
    `AcceptFriend`/`AddFriend` đọc `_friendCache.GetFriends()` (Redis) rồi `.SingleOrDefault`/`.Add`

@@ -1,9 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef } from "react";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
-import useMessage from "../../hooks/useMessage";
+import {
+  messageQueryOption,
+  messagesAroundQueryOption,
+} from "../../hooks/useMessage";
 import { NotificationModel } from "../../types/base.types";
 import { PendingMessageModel } from "../../types/message.types";
 import { renderMessageWithMentions } from "../../utils/renderMention";
@@ -24,7 +28,22 @@ const ConversationReview = ({
   // → fallback "Conversation"/avatar mặc định pop sang data thật ⇒ nháy. Gate theo cờ này.
   const { data: conversationCache, isLoading: isConversationLoading } =
     useConversation();
-  const { data, isLoading: isMessageLoading } = useMessage(conversationId, 1);
+
+  // Có sourceMessageId → fetch cửa sổ tin QUANH tin gốc (5 trước + 5 sau) để highlight được
+  // cả khi tin nằm sâu trong lịch sử (không có ở page 1). Không có (data cũ) → page 1 + heuristic.
+  const hasAround = !!notification.sourceMessageId;
+  const aroundQuery = useQuery({
+    ...messagesAroundQueryOption(conversationId, notification.sourceMessageId ?? ""),
+    enabled: hasAround && !!conversationId,
+  });
+  const pageQuery = useQuery({
+    ...messageQueryOption(conversationId, 1),
+    enabled: !hasAround && !!conversationId,
+  });
+  const data = hasAround ? aroundQuery.data : pageQuery.data;
+  const isMessageLoading = hasAround
+    ? aroundQuery.isLoading
+    : pageQuery.isLoading;
 
   const selfId = info?.id;
   const selfName = info?.name;
@@ -134,68 +153,74 @@ const ConversationReview = ({
         </button>
       </div>
 
-      {/* Messages (read-only) */}
-      <div className="hide-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-5 py-4">
+      {/* Messages (read-only) — mt-auto ở wrapper trong: ít tin thì dồn xuống đáy như chat
+          thật; nhiều tin thì mt-auto collapse, cuộn bình thường không cắt mất tin trên cùng
+          (an toàn hơn justify-end khi overflow). */}
+      <div className="hide-scrollbar bg-(--bg-color) flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4">
         {messages.length === 0 ? (
           <div className="text-(--text-main-color-blur) text-2xs m-auto">
             No messages yet.
           </div>
         ) : (
-          messages.map((m) => {
-            const mine = m.contactId === selfId;
-            const sender = contactById.get(m.contactId);
-            const highlighted = isHighlighted(m);
-            const isText = m.type === "text" && !m.recalledTime;
-            return (
-              <div
-                key={m.id}
-                ref={m.id === firstHighlightId ? firstHlRef : undefined}
-                className={`flex items-start gap-2 px-2 py-1 ${mine ? "flex-row-reverse" : ""}`}
-              >
-                {!mine && (
-                  <span
-                    style={{
-                      backgroundImage: `url(${sender?.avatar || FALLBACK_AVATAR})`,
-                    }}
-                    className="bg-(--bg-color-extrathin) block aspect-square w-7 shrink-0 rounded-full bg-cover bg-center"
-                  />
-                )}
+          <div className="mt-auto flex flex-col gap-2">
+            {messages.map((m, idx) => {
+              const mine = m.contactId === selfId;
+              const sender = contactById.get(m.contactId);
+              const prev = messages[idx - 1];
+              // Gom block theo người gửi liên tiếp: avatar + tên chỉ hiện ở tin đầu block (như khung chat).
+              const firstOfBlock = !prev || prev.contactId !== m.contactId;
+              const highlighted = isHighlighted(m);
+              const isText = m.type === "text" && !m.recalledTime;
+              return (
                 <div
-                  className={`flex max-w-[75%] flex-col ${mine ? "items-end" : "items-start"}`}
+                  key={m.id}
+                  ref={m.id === firstHighlightId ? firstHlRef : undefined}
+                  className={`flex gap-3 ${mine ? "flex-row-reverse" : ""} ${firstOfBlock ? "" : "mt-0.5"}`}
                 >
-                  {!mine && isGroup && (
-                    <span className="text-(--text-main-color-blur) text-3xs mb-0.5 px-1">
-                      {sender?.name}
-                    </span>
+                  {/* Slot avatar cố định (chỉ tin người khác) → bong bóng thẳng hàng dù ẩn avatar */}
+                  {!mine && (
+                    <div className="aspect-square h-8 shrink-0">
+                      {firstOfBlock && (
+                        <span
+                          style={{
+                            backgroundImage: `url(${sender?.avatar || FALLBACK_AVATAR})`,
+                          }}
+                          className="bg-(--bg-color-extrathin) block h-full w-full rounded-full bg-cover bg-center"
+                        />
+                      )}
+                    </div>
                   )}
-                  {/* Highlight GÓI GỌN trong bong bóng (không tràn full-width). */}
-                  <span
-                    className={`text-2xs whitespace-pre-wrap break-words rounded-2xl px-3 py-2 transition-colors
-                      ${
-                        mine
-                          ? "bg-light-blue-500 text-white"
-                          : highlighted
-                            ? "text-(--text-main-color) bg-amber-200"
-                            : "bg-(--bg-color-extrathin) text-(--text-main-color)"
-                      }
-                      ${highlighted ? "ring-2 ring-amber-400" : ""}
-                      ${m.recalledTime ? "italic opacity-70" : ""}`}
+                  <div
+                    className={`flex max-w-[78%] flex-col ${mine ? "items-end" : "items-start"}`}
                   >
-                    {m.recalledTime
-                      ? "Message was recalled"
-                      : isText
-                        ? renderMessageWithMentions(m.content ?? "")
-                        : messageMedia(m)}
-                  </span>
-                  <span className="text-(--text-main-color-blur) mt-0.5 px-1 text-[10px]">
-                    {dayjs(m.createdTime).format("h:mm A")}
-                  </span>
+                    {!mine && isGroup && firstOfBlock && (
+                      <span className="text-(--text-main-color-thin) mb-1 px-1 text-xs font-medium">
+                        {sender?.name}
+                      </span>
+                    )}
+                    {/* Bong bóng đồng nhất khung chat conversations: nền trắng + shadow + rounded-xl
+                        cho CẢ hai phía (phân biệt bằng canh lề + avatar). */}
+                    <span
+                      className={`w-fit whitespace-pre-wrap break-words rounded-xl px-3.5 py-1.5 text-xs shadow-[0_2px_10px_rgba(0,0,0,0.1)]
+                        ${highlighted ? "bg-amber-100 ring-2 ring-amber-300" : "bg-white"}
+                        ${m.recalledTime ? "italic text-gray-400" : "text-(--text-main-color)"}`}
+                    >
+                      {m.recalledTime
+                        ? "Tin nhắn đã được thu hồi"
+                        : isText
+                          ? renderMessageWithMentions(m.content ?? "")
+                          : messageMedia(m)}
+                    </span>
+                    <span className="text-(--text-main-color-blur) mt-1 px-1 text-[10px]">
+                      {dayjs(m.createdTime).format("HH:mm")}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+            <div ref={bottomRef} />
+          </div>
         )}
-        <div ref={bottomRef} />
       </div>
     </div>
   );

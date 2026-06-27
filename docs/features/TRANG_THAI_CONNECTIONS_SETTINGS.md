@@ -12,7 +12,7 @@ Chú thích: `[x]` done · `[ ]` todo · ⚠️ lưu ý vận hành/rủi ro.
 
 ## 🔗 Connections (`/connections`)
 
-> Đã chạy ổn định nhiều phiên + có data-migration. Build BE/FE sạch.
+> Đã chạy ổn định + có data-migration. Build BE/FE sạch.
 
 ### Done
 - [x] Tabs **All / Online / Requests / Add** + deep-link `?tab=` (validateSearch)
@@ -32,7 +32,7 @@ Chú thích: `[x]` done · `[ ]` todo · ⚠️ lưu ý vận hành/rủi ro.
 
 ## ⚙️ Settings (`/settings`)
 
-> Vừa code xong phiên này. Build BE (`dotnet build`) + FE (`tsc`) sạch.
+> Vừa hoàn tất. Build BE (`dotnet build`) + FE (`tsc`) sạch.
 > ⚠️ **Chưa verify end-to-end với backend thật** (mới test layout/typecheck).
 
 ### Done

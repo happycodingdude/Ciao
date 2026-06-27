@@ -58,6 +58,31 @@ public class EventNewFriendRequest
 {
     public string FriendId { get; set; } = null!;
     public string ContactId { get; set; } = null!;
+    // Tên/avatar người gửi lời mời → để FE dựng banner "X đã gửi lời mời kết bạn"
+    // mà không phải lookup thêm (payload cũ chỉ có id ⇒ banner generic).
+    public string? ContactName { get; set; }
+    public string? ContactAvatar { get; set; }
+}
+
+// Payload realtime khi có reaction mới. Gửi cho TẤT CẢ member (đồng bộ count),
+// nhưng kèm MessageOwnerId + ReactorName để FE chỉ banner cho CHỦ tin (≠ reactor).
+public class EventNewReaction
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    // null/empty = unreact (gỡ) → FE không banner.
+    public string? Type { get; set; }
+    public string ReactorId { get; set; } = null!;
+    public string? ReactorName { get; set; }
+    public string? ReactorAvatar { get; set; }
+    // Chủ nhân tin bị react — FE so với chính mình để quyết định có banner không.
+    public string? MessageOwnerId { get; set; }
+    public int LikeCount { get; set; }
+    public int LoveCount { get; set; }
+    public int CareCount { get; set; }
+    public int WowCount { get; set; }
+    public int SadCount { get; set; }
+    public int AngryCount { get; set; }
 }
 
 // Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,

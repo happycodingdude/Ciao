@@ -1,5 +1,6 @@
 import { HubConnection } from "@microsoft/signalr";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import useInfo from "../hooks/useInfo";
 import { useWebRTC } from "../hooks/useWebRTC";
@@ -9,6 +10,11 @@ import {
   requestPermission,
 } from "../services/notification.service";
 import { UserProfile } from "../types/base.types";
+import {
+  BannerNav,
+  buildBanner,
+  showBannerToast,
+} from "../utils/inAppNotification";
 
 type SignalContextType = {
   startCall: () => void;
@@ -35,7 +41,34 @@ export const useSignal = (): SignalContextType => {
 export const SignalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: info } = useInfo();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const connectionRef = useRef<HubConnection | null>(null);
+
+  // Latest-ref: SignalR subscription chỉ đăng ký lại theo info.id (tránh re-register
+  // FCM/permission mỗi lần đổi settings). Nhưng handler phải đọc settings MỚI NHẤT
+  // (vd soundEnabled) → giữ info hiện tại trong ref để callback luôn lấy bản mới,
+  // áp dụng tức thì khi toggle mà không cần reload.
+  const infoRef = useRef(info);
+  infoRef.current = info;
+
+  // navigate cũng giữ qua ref: subscription không phụ thuộc nó nhưng banner onClick cần
+  // bản mới nhất (router state đổi giữa các lần render).
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
+  // Điều hướng khi click banner — typed theo route tree.
+  const goToBannerTarget = (nav: BannerNav) => {
+    if (nav.kind === "friendRequests") {
+      navigateRef.current({ to: "/connections", search: { tab: "requests" } });
+      return;
+    }
+    navigateRef.current({
+      to: "/conversations/$conversationId",
+      params: { conversationId: nav.conversationId },
+      // messageId chỉ set cho reaction → Chatbox cuộn + highlight đúng tin.
+      search: nav.messageId ? { messageId: nav.messageId } : {},
+    });
+  };
 
   const {
     localStream,
@@ -71,7 +104,18 @@ export const SignalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       onNotification: (notificationData: any) => {
         // Bỏ qua notification đến sau khi component đã unmount
         if (!isMounted) return;
-        classifyNotification(notificationData, queryClient, info);
+        // Đọc info qua ref → luôn lấy settings mới nhất (không bị stale closure).
+        const current = infoRef.current;
+        if (!current) return;
+        classifyNotification(notificationData, queryClient, current);
+
+        // In-app banner (foreground): build spec gated theo settings, click → điều hướng.
+        const spec = buildBanner(
+          notificationData?.event,
+          notificationData?.data,
+          current,
+        );
+        if (spec) showBannerToast(spec, () => goToBannerTarget(spec.nav));
       },
     });
 
