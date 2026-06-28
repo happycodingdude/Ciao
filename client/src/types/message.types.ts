@@ -114,6 +114,8 @@ export type MessageModel = BaseModel & {
 
 export type PendingMessageModel = MessageModel & {
   pending?: boolean;
+  // Gửi thất bại (API lỗi / mất mạng) → hiển thị trạng thái lỗi thay vì kẹt pending vô hạn.
+  failed?: boolean;
 };
 
 export type MessageCache = {

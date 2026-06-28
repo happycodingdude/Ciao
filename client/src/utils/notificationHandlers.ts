@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { isConversationActive } from "../hooks/useActiveConversation";
 import { UserProfile } from "../types/base.types";
 import { ConversationCache, ConversationModel } from "../types/conv.types";
-import { AttachmentCache, MessageCache } from "../types/message.types";
+import { AttachmentCache } from "../types/message.types";
 import { FriendCache } from "../types/friend.types";
 import {
   MessageDeliveredEvent,
@@ -17,14 +17,19 @@ import {
 } from "../types/notification.types";
 import {
   createNewConversation,
+  toPendingMessage,
   updateAttachmentsCache,
   updateConversationCache,
   updateMemberDeliveredHorizon,
   updateMemberReadHorizon,
   updateMessageEdited,
   updateMessageRecalled,
-  updateMessagesCache,
 } from "./notificationCacheHelpers";
+import {
+  appendMessage,
+  mutateMessagePages,
+  updateMessageById,
+} from "./messageCache";
 import { markDelivered } from "../services/message.service";
 import { playNotificationSound } from "./notificationSound";
 
@@ -194,18 +199,10 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
     };
   });
 
-  if (isActive) {
-    // User đang xem conversation → cập nhật message list ngay lập tức
-    queryClient.setQueryData(["message", conversationId], (old: MessageCache) =>
-      old ? updateMessagesCache(old, message) : old,
-    );
-  }
-
-  // Invalidate cache cho các conversation không active để refetch khi user mở
-  queryClient.invalidateQueries({
-    queryKey: ["message", conversationId],
-    refetchType: "inactive",
-  });
+  // Append tin mới vào message cache. appendMessage no-op nếu conversation chưa load (chưa có
+  // pages) → user mở sẽ fetch fresh; nếu đã load (active hoặc inactive) thì cache nhất quán ngay.
+  // Bỏ invalidate-inactive: không cần refetch, tránh reset pagination đã cuộn (đúng FCM-only).
+  appendMessage(queryClient, conversationId, toPendingMessage(message));
 
   if (isActive && message.attachments.length > 0) {
     // Chỉ update attachment cache khi đang xem và tin có file đính kèm
@@ -299,32 +296,24 @@ const onNewConversation = (
     return {
       ...old,
       conversations: [newConv, ...(old.conversations ?? [])],
-      filterConversations: [newConv, ...(old.conversations ?? [])],
+      // Phải mirror từ filterConversations (không phải conversations) để không reset
+      // bộ lọc/search đang active khi có hội thoại mới tới realtime.
+      filterConversations: [newConv, ...(old.filterConversations ?? [])],
     };
   });
 };
 
 const onNewReaction = (queryClient: QueryClient, reaction: NewReaction) => {
-  queryClient.setQueryData(["message", reaction.conversationId], (old: MessageCache) => {
-    if (!old) return old;
-    return {
-      ...old,
-      messages: old.messages.map((m) =>
-        m.id !== reaction.messageId
-          ? m
-          // Cập nhật toàn bộ reaction counts của tin nhắn theo dữ liệu server
-          : {
-              ...m,
-              likeCount: reaction.likeCount,
-              loveCount: reaction.loveCount,
-              careCount: reaction.careCount,
-              wowCount: reaction.wowCount,
-              sadCount: reaction.sadCount,
-              angryCount: reaction.angryCount,
-            },
-      ),
-    } as MessageCache;
-  });
+  // Cập nhật toàn bộ reaction counts của tin nhắn theo dữ liệu server
+  updateMessageById(queryClient, reaction.conversationId, reaction.messageId, (m) => ({
+    ...m,
+    likeCount: reaction.likeCount,
+    loveCount: reaction.loveCount,
+    careCount: reaction.careCount,
+    wowCount: reaction.wowCount,
+    sadCount: reaction.sadCount,
+    angryCount: reaction.angryCount,
+  }));
   // BE tạo notification khi có người react tin của user → làm mới badge bell + list.
   // Reaction tần suất thấp nên invalidate không đáng kể.
   invalidateNotifications(queryClient);
@@ -334,18 +323,12 @@ const onNewMessagePinned = (
   queryClient: QueryClient,
   pinned: NewMessagePinned,
 ) => {
-  queryClient.setQueryData(["message", pinned.conversationId], (old: MessageCache) => {
-    if (!old) return old;
-    return {
-      ...old,
-      messages: old.messages.map((m) =>
-        m.id !== pinned.messageId
-          ? m
-          // Đồng bộ trạng thái pin và người ghim từ server
-          : { ...m, isPinned: pinned.isPinned, pinnedBy: pinned.pinnedBy },
-      ),
-    } as MessageCache;
-  });
+  // Đồng bộ trạng thái pin và người ghim từ server
+  updateMessageById(queryClient, pinned.conversationId, pinned.messageId, (m) => ({
+    ...m,
+    isPinned: pinned.isPinned,
+    pinnedBy: pinned.pinnedBy,
+  }));
 };
 
 // Receipt events từ FCM — cập nhật horizon của member tương ứng trong conversation cache.
@@ -396,8 +379,8 @@ const onMessageRead = (
 // Tính năng 2: edit/recall realtime. BE đã loại người thực hiện khỏi recipient list,
 // cache helper idempotent (no-op nếu cũ hơn / đã recalled) nên an toàn với duplicate FCM.
 const onMessageEdited = (queryClient: QueryClient, ev: MessageEditedEvent) => {
-  queryClient.setQueryData(["message", ev.conversationId], (old: MessageCache) =>
-    old ? updateMessageEdited(old, ev.messageId, ev.content, ev.editedTime) : old,
+  mutateMessagePages(queryClient, ev.conversationId, (page) =>
+    updateMessageEdited(page, ev.messageId, ev.content, ev.editedTime),
   );
 };
 
@@ -405,14 +388,12 @@ const onMessageRecalled = (
   queryClient: QueryClient,
   ev: MessageRecalledEvent,
 ) => {
-  queryClient.setQueryData(["message", ev.conversationId], (old: MessageCache) =>
-    old
-      ? updateMessageRecalled(
-          old,
-          ev.messageId,
-          ev.recalledTime,
-          ev.recalledByContactId,
-        )
-      : old,
+  mutateMessagePages(queryClient, ev.conversationId, (page) =>
+    updateMessageRecalled(
+      page,
+      ev.messageId,
+      ev.recalledTime,
+      ev.recalledByContactId,
+    ),
   );
 };

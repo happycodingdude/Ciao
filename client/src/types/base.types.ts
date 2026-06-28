@@ -65,7 +65,11 @@ export type HttpRequest<TReq = undefined, TRes = undefined> = {
   data?: TReq | undefined;
   alert?: boolean;
   response?: TRes;
+  // Delay nhân tạo TRƯỚC khi gửi request (dev/test simulate slow). KHÔNG phải timeout abort.
   timeout?: number;
+  // Timeout abort thật của axios (ms): quá hạn → reject ECONNABORTED (request bị huỷ, không
+  // resolve muộn). Dùng cho gửi tin để phát hiện mạng treo/chậm thay vì pending vô hạn.
+  requestTimeout?: number;
 };
 
 export type SigninRequest = {

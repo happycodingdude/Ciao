@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import {
-  messageQueryOption,
+  messageFirstPageQueryOption,
   messagesAroundQueryOption,
 } from "../../hooks/useMessage";
 import { NotificationModel } from "../../types/base.types";
@@ -37,7 +37,7 @@ const ConversationReview = ({
     enabled: hasAround && !!conversationId,
   });
   const pageQuery = useQuery({
-    ...messageQueryOption(conversationId, 1),
+    ...messageFirstPageQueryOption(conversationId),
     enabled: !hasAround && !!conversationId,
   });
   const data = hasAround ? aroundQuery.data : pageQuery.data;

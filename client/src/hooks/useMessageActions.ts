@@ -5,11 +5,15 @@ import {
   editMessage as editMessageApi,
   recallMessage as recallMessageApi,
 } from "../services/message.service";
-import { MessageCache } from "../types/message.types";
 import {
   updateMessageEdited,
   updateMessageRecalled,
 } from "../utils/notificationCacheHelpers";
+import {
+  mutateMessagePages,
+  readMessageData,
+  writeMessageData,
+} from "../utils/messageCache";
 
 // Trạng thái edit chia sẻ giữa ChatInput và message menu (pattern giống useReply).
 export type EditState = { messageId: string; content: string } | null;
@@ -41,17 +45,17 @@ export const useMessageActions = (conversationId: string | undefined) => {
     if (!conversationId || !messageId || !trimmed) return;
 
     const editedTime = new Date().toISOString();
-    const prev = queryClient.getQueryData<MessageCache>(["message", conversationId]);
+    const prev = readMessageData(queryClient, conversationId);
 
-    queryClient.setQueryData(["message", conversationId], (old: MessageCache) =>
-      old ? updateMessageEdited(old, messageId, trimmed, editedTime) : old,
+    mutateMessagePages(queryClient, conversationId, (page) =>
+      updateMessageEdited(page, messageId, trimmed, editedTime),
     );
     clearEdit();
 
     try {
       await editMessageApi(conversationId, messageId, trimmed);
     } catch (err) {
-      if (prev) queryClient.setQueryData(["message", conversationId], prev);
+      if (prev) writeMessageData(queryClient, conversationId, prev);
       toast.error("Không thể sửa tin nhắn");
       console.error(err);
     }
@@ -64,15 +68,13 @@ export const useMessageActions = (conversationId: string | undefined) => {
     setProcessing(true);
     try {
       await recallMessageApi(conversationId, messageId);
-      queryClient.setQueryData(["message", conversationId], (old: MessageCache) =>
-        old
-          ? updateMessageRecalled(
-              old,
-              messageId,
-              new Date().toISOString(),
-              recalledByContactId,
-            )
-          : old,
+      mutateMessagePages(queryClient, conversationId, (page) =>
+        updateMessageRecalled(
+          page,
+          messageId,
+          new Date().toISOString(),
+          recalledByContactId,
+        ),
       );
     } catch (err) {
       toast.error("Không thể thu hồi tin nhắn");

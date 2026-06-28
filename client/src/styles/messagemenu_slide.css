@@ -53,6 +53,40 @@
   }
 }
 
+/* Nút copy đơn lẻ cho tin gửi lỗi (chỉ 1 icon, không có cả thanh menu). */
+@utility message-copy-btn {
+  position: absolute;
+  top: -0.7rem;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  border: 1px solid var(--color-gray-200);
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 0.35rem 0.45rem;
+  color: var(--text-main-color, #1a202c);
+  transform: scale(0);
+  transition: transform 0.2s ease;
+  z-index: 1;
+
+  &[data-mine="true"] {
+    right: 90%;
+    transform-origin: right center;
+  }
+  &[data-mine="false"] {
+    left: 90%;
+    transform-origin: left center;
+  }
+
+  .peer:hover ~ &,
+  &:hover {
+    transform: scale(1);
+    z-index: 2;
+  }
+}
+
 @utility message-menu-item {
   display: flex;
   cursor: pointer;

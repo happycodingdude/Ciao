@@ -78,7 +78,7 @@ export const Route = createFileRoute("/_layout/conversations/$conversationId")({
     } = useConversation();
 
     const { isLoading: isLoadingMessages, isRefetching: isRefetchingMessages } =
-      useMessage(conversationId, 1);
+      useMessage(conversationId);
 
     if (
       isLoadingConversation ||

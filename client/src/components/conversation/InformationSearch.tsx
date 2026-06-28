@@ -1,6 +1,13 @@
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  KeyboardEvent,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversation from "../../hooks/useConversation";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
@@ -29,6 +36,42 @@ const highlightKeyword = (text: string, keyword: string) => {
       <span key={idx}>{part}</span>
     ),
   );
+};
+
+// Render nội dung kết quả: vừa hiển thị mention @[name] đúng style (xanh, bỏ ký tự @[]) đồng bộ
+// với MessageItem/ConversationItem, vừa highlight keyword — kể cả khi keyword nằm trong tên mention.
+const renderContent = (text: string, keyword: string): ReactNode => {
+  const mentionRegex = /@\[([^\]]+)\]/g;
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let seg = 0;
+  while ((match = mentionRegex.exec(text)) !== null) {
+    // Đoạn text thường trước mention → highlight keyword bình thường.
+    if (match.index > lastIndex) {
+      nodes.push(
+        <span key={`t${seg++}`}>
+          {highlightKeyword(text.substring(lastIndex, match.index), keyword)}
+        </span>,
+      );
+    }
+    // Mention: tên hiển thị màu xanh (bỏ @[]) + vẫn highlight keyword bên trong tên.
+    nodes.push(
+      <span key={`m${seg++}`} className="text-light-blue-600">
+        {highlightKeyword(match[1], keyword)}
+      </span>,
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  // Đoạn text còn lại sau mention cuối.
+  if (lastIndex < text.length) {
+    nodes.push(
+      <span key={`t${seg++}`}>
+        {highlightKeyword(text.substring(lastIndex), keyword)}
+      </span>,
+    );
+  }
+  return nodes.length > 0 ? nodes : highlightKeyword(text, keyword);
 };
 
 // Sinh nhãn tháng cho separator: This month / Last month / MMMM / MMMM YYYY.
@@ -80,13 +123,26 @@ const InformationSearch = () => {
     (HTMLInputElement & { reset?: () => void }) | undefined
   >(undefined);
 
+  // Reset toàn bộ trạng thái search về rỗng (ô input uncontrolled → clear value qua ref.reset()).
+  const resetSearch = () => {
+    setKeyword("");
+    setResults([]);
+    setSearched(false);
+    setSearchedKeyword("");
+    refInput.current?.reset?.();
+  };
+
   // Component giờ always-mounted (render sibling, không còn `showSearch && <...>` ở parent).
-  // → focus theo `showSearch` để mỗi lần user mở Search panel đều auto-focus input.
+  // → mỗi lần user MỞ Search panel: clear ô input + list cũ rồi auto-focus (yêu cầu #3 — vào lại
+  //   không thấy kết quả/keyword của lần trước).
   // `preventScroll: true` BẮT BUỘC: khi panel mở, sidebar đang transition w-0 → sidebar-w,
   // focus() mặc định trigger browser scroll-into-view trên ancestor scrollable → chat list +
   // chatbox bị xê dịch 1 thoáng. Information/Attachment không focus input nên không gặp.
   useEffect(() => {
-    if (showSearch) refInput.current?.focus({ preventScroll: true });
+    if (showSearch) {
+      resetSearch();
+      refInput.current?.focus({ preventScroll: true });
+    }
   }, [showSearch]);
 
   const { data: conversations } = useConversation();
@@ -166,7 +222,16 @@ const InformationSearch = () => {
             type="text"
             placeholder="Type keyword..."
             inputRef={refInput}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setKeyword(v);
+              // Yêu cầu #2: xoá trắng ô search → clear luôn list kết quả bên dưới.
+              if (v.trim() === "") {
+                setResults([]);
+                setSearched(false);
+                setSearchedKeyword("");
+              }
+            }}
             onKeyDown={handleKeyDown}
           />
         </div>
@@ -229,7 +294,7 @@ const InformationSearch = () => {
                         </p>
                       </div>
                       <p className="text-2xs wrap-break-word">
-                        {highlightKeyword(m.content, searchedKeyword)}
+                        {renderContent(m.content, searchedKeyword)}
                       </p>
                     </div>
                   </div>

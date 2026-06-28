@@ -2,7 +2,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { createDirectChatWithMessage } from "../services/friend.service";
 import { getAttachments, getMessages, sendMessage } from "../services/message.service";
-import { AttachmentCache, MessageCache, SendMessageRequest } from "../types/message.types";
+import { AttachmentCache, SendMessageRequest } from "../types/message.types";
+import {
+  appendMessage,
+  makeInfinite,
+  readMessageData,
+  updateMessageById,
+  writeMessageData,
+} from "../utils/messageCache";
 import { ConversationCache } from "../types/conv.types";
 import { ContactModel } from "../types/friend.types";
 import {
@@ -58,12 +65,12 @@ export const useDirectMessage = () => {
 
       if (prefetch) {
         // Prefetch khi cần navigate ngay lập tức: đảm bảo cache có data trước khi render
-        const hasMsgs = queryClient.getQueryData<MessageCache>(["message", convId]);
+        const hasMsgs = readMessageData(queryClient, convId);
         const hasAtts = queryClient.getQueryData<AttachmentCache>(["attachment", convId]);
         if (!hasMsgs || !hasAtts) {
           const [msgs, atts] = await Promise.all([getMessages(convId, 1), getAttachments(convId)]);
           // Chỉ set vào cache nếu chưa có để tránh ghi đè data mới hơn
-          if (!hasMsgs) queryClient.setQueryData(["message", convId], msgs);
+          if (!hasMsgs) writeMessageData(queryClient, convId, makeInfinite(msgs));
           if (!hasAtts) queryClient.setQueryData(["attachment", convId], atts);
         }
       }
@@ -93,10 +100,7 @@ export const useDirectMessage = () => {
 
       const randomId = optimisticId();
       // Optimistic update: thêm tin nhắn pending ngay lập tức vào cache
-      queryClient.setQueryData(["message", convId], (old: MessageCache) => ({
-        ...old,
-        messages: [...(old.messages ?? []), buildMessageEntry(randomId, payload, info?.id)],
-      }));
+      appendMessage(queryClient, convId, buildMessageEntry(randomId, payload, info?.id));
 
       // Optimistic update attachment nếu có file đính kèm
       if (hasMedia) upsertAttachmentCache(queryClient, convId, randomId, payload.attachments!);
@@ -115,11 +119,10 @@ export const useDirectMessage = () => {
       if (!res) return;
 
       // Replace pending id bằng id thật từ server
-      queryClient.setQueryData(["message", convId], (old: MessageCache) => ({
-        ...old,
-        messages: (old.messages ?? []).map((m) =>
-          m.id !== randomId ? m : { ...m, id: res.messageId, pending: false },
-        ),
+      updateMessageById(queryClient, convId, randomId, (m) => ({
+        ...m,
+        id: res.messageId,
+        pending: false,
       }));
     } else {
       // --- Luồng: chưa có hội thoại với contact này → tạo mới ---
@@ -148,11 +151,15 @@ export const useDirectMessage = () => {
         );
 
         // Khởi tạo message cache cho conversation mới với tin nhắn đã confirmed
-        queryClient.setQueryData(["message", res.conversationId], (): MessageCache => ({
-          conversationId: res.conversationId ?? "",
-          hasMore: false,
-          messages: [buildMessageEntry(res.messageId ?? tempId, payload, info?.id, false)],
-        }));
+        writeMessageData(
+          queryClient,
+          res.conversationId ?? "",
+          makeInfinite({
+            conversationId: res.conversationId ?? "",
+            hasMore: false,
+            messages: [buildMessageEntry(res.messageId ?? tempId, payload, info?.id, false)],
+          }),
+        );
 
         if (hasMedia) {
           // Khởi tạo attachment cache cho conversation mới

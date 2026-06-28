@@ -22,7 +22,7 @@ import "../../styles/chatinput.css";
 import { ChatInputProps } from "../../types/base.types";
 import { AttachmentModel } from "../../types/message.types";
 import { getMentionIds, getMessageValue, setCaretToEnd } from "../../utils/contentEditableUtils";
-import { isPhoneScreen } from "../../utils/getScreenSize";
+import useIsPhoneScreen from "../../hooks/useIsPhoneScreen";
 import CustomContentEditable from "../common/CustomContentEditable";
 import ReplyPreview from "../common/ReplyPreview";
 import ImageItem from "../message/ImageItem";
@@ -35,6 +35,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
   const { activeDetail } = useChatDetailToggles();
   // anyPanelOpen = có panel nào đang mở ở sidebar phải → chat input thu hẹp lại nhường chỗ.
   const anyPanelOpen = activeDetail !== null;
+  const isPhone = useIsPhoneScreen();
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   const { conversationId } = Route.useParams();
@@ -152,7 +153,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
       {/* Phone → fixed max-width; desktop: panel mở → thu hẹp max-width; panel đóng → rộng hơn */}
       <div
         className={`${className} chat-input-container relative flex w-full grow flex-col bg-white transition-all duration-200
-          ${isPhoneScreen()
+          ${isPhone
             ? "max-w-140"
             : !anyPanelOpen ? "laptop-lg:max-w-240 laptop:max-w-200" : "laptop-lg:max-w-180 laptop:max-w-150"}`}
       >

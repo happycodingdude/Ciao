@@ -7,6 +7,7 @@ import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useMessage from "../../hooks/useMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
+import { markRead } from "../../services/message.service";
 import { ConversationCache } from "../../types/conv.types";
 import {
   GroupedMessage,
@@ -14,10 +15,10 @@ import {
   SeenContact,
 } from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
+import { flattenInfinite } from "../../utils/messageCache";
 import { markConversationSeen } from "../../utils/notificationCacheHelpers";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
-import { markRead } from "../../services/message.service";
 
 // Gom tin nhắn thành nhóm theo ngày, rồi trong mỗi ngày gom tiếp theo người gửi liên tiếp
 const groupMessagesByDate = (
@@ -47,22 +48,31 @@ const Chatbox = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: conversations } = useConversation();
-  const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
+  const conversation = conversations?.conversations?.find(
+    (c) => c.id === conversationId,
+  );
 
   const { data: info } = useInfo();
 
-  const refPage = useRef<number>(1);
-  const { data: messages } = useMessage(conversationId, refPage.current);
+  const { data, hasPreviousPage, isFetchingPreviousPage, fetchPreviousPage } =
+    useMessage(conversationId);
+  // Flatten các page (chronological cũ→mới) — nguồn duy nhất cho render & các effect bên dưới.
+  const messages = useMemo(() => flattenInfinite(data), [data]);
 
   const oldLastMsgRef = useRef<PendingMessageModel | null>(null);
   const isInitialLoad = useRef(true);
 
   const { refChatContent, bottomRef, scrollToBottom, showScrollToBottom } =
-    useChatboxScroll(conversationId, messages, refPage);
+    useChatboxScroll(
+      hasPreviousPage,
+      isFetchingPreviousPage,
+      fetchPreviousPage,
+      messages[0]?.id,
+      conversationId,
+    );
 
   // Reset state khi chuyển sang conversation khác
   useEffect(() => {
-    refPage.current = 1;
     isInitialLoad.current = true;
     oldLastMsgRef.current = null;
     if (refChatContent.current) {
@@ -73,9 +83,9 @@ const Chatbox = () => {
 
   useEffect(() => {
     // Không làm gì nếu chưa có tin nhắn
-    if (!messages || messages.messages.length === 0) return;
+    if (messages.length === 0) return;
     const container = refChatContent.current;
-    const currentLastMsg = messages.messages[messages.messages.length - 1];
+    const currentLastMsg = messages[messages.length - 1];
 
     if (isInitialLoad.current) {
       if (container) {
@@ -89,12 +99,15 @@ const Chatbox = () => {
         if (container) container.style.scrollBehavior = "smooth";
       });
     } else if (currentLastMsg?.id !== oldLastMsgRef.current?.id) {
-      // Có tin nhắn mới (id thay đổi) → scroll xuống đáy để xem tin mới nhất
-      scrollToBottom("smooth");
+      // Tin mới (id đổi): CHỈ auto-scroll khi đang ở gần đáy (showScrollToBottom=false) để
+      // không cướp vị trí khi user đang đọc lịch sử; hoặc tin mới là của chính mình (vừa gửi
+      // → luôn kéo xuống). Tránh "đang đọc tin cũ thì bị nhảy xuống đáy mỗi khi có tin mới".
+      const isMine = currentLastMsg?.contactId === info?.id;
+      if (isMine || !showScrollToBottom) scrollToBottom("smooth");
     }
 
     oldLastMsgRef.current = currentLastMsg;
-  }, [messages]);
+  }, [messages, info?.id, showScrollToBottom, scrollToBottom]);
 
   // Nhảy tới + highlight 1 tin cụ thể khi có ?messageId (vd click banner reaction).
   // Mỗi message render với id={message.id} (MessageContent) → getElementById tìm DOM.
@@ -132,26 +145,41 @@ const Chatbox = () => {
 
   // Gửi read receipt khi người dùng đọc tin nhắn (ở đáy màn hình)
   useEffect(() => {
-    if (!messages || messages.messages.length === 0 || !conversationId) return;
-    
+    if (messages.length === 0 || !conversationId) return;
+
     // Nếu không hiện nút cuộn xuống nghĩa là đã ở cuối cùng
     if (!showScrollToBottom) {
-      const currentLastMsg = messages.messages[messages.messages.length - 1];
+      const currentLastMsg = messages[messages.length - 1];
       const timer = setTimeout(() => {
-        if (currentLastMsg && currentLastMsg.id) {
+        // Không cần markRead nếu tin cuối là của chính mình (tránh request thừa)
+        if (
+          currentLastMsg &&
+          currentLastMsg.id &&
+          currentLastMsg.contactId !== info?.id
+        ) {
           markRead(conversationId, currentLastMsg.id).catch(console.error);
           // Clear unSeen ngay tại thời điểm đọc tin cuối → badge khớp list, tự sửa
           // race "tin đến lúc đang xem nhưng isConversationActive=false → unSeen=true".
-          queryClient.setQueryData(["conversation"], (old: ConversationCache) =>
-            old ? markConversationSeen(old, conversationId) : old,
+          queryClient.setQueryData(
+            ["conversation"],
+            (old: ConversationCache) =>
+              old ? markConversationSeen(old, conversationId) : old,
           );
         }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showScrollToBottom, messages, conversationId, queryClient]);
+    // Dep theo ID tin cuối (không phải cả mảng `messages`) → chỉ chạy lại khi tin cuối thực sự
+    // đổi, tránh đặt lại timer + markRead thừa mỗi khi cache mutate (reaction/seen/confirm).
+  }, [
+    showScrollToBottom,
+    messages[messages.length - 1]?.id,
+    conversationId,
+    queryClient,
+    info?.id,
+  ]);
 
-  const grouped = groupMessagesByDate(messages?.messages ?? []);
+  const grouped = useMemo(() => groupMessagesByDate(messages), [messages]);
   const groupedEntries = Object.entries(grouped);
 
   /**
@@ -161,7 +189,7 @@ const Chatbox = () => {
    *
    * Pending message của mình cũng không thoả (chưa confirmed → chưa có id thật).
    */
-  const allMessages = messages?.messages ?? [];
+  const allMessages = messages;
   const lastMessage =
     allMessages.length > 0 ? allMessages[allMessages.length - 1] : null;
   const lastMessageIsMineConfirmed =
@@ -260,7 +288,7 @@ const Chatbox = () => {
                 );
               }
               return (
-                <div key={blockIndex} className="mb-6 flex flex-col gap-3">
+                <div key={blockIndex} className="mb-6 flex flex-col gap-4">
                   {block.messages.map((message) => (
                     <MessageContent
                       key={message.id}
@@ -270,14 +298,18 @@ const Chatbox = () => {
                       showName={message === firstMessage}
                       showAvatar={message === firstMessage}
                       isLastFromMe={
-                        lastMyMessageId !== null && message.id === lastMyMessageId
+                        lastMyMessageId !== null &&
+                        message.id === lastMyMessageId
                       }
                       // Pre-computed: tin này là điểm dừng đọc cuối của các member nào
                       seenContacts={
-                        message.id ? seenContactsByMessageId[message.id] : undefined
+                        message.id
+                          ? seenContactsByMessageId[message.id]
+                          : undefined
                       }
                       getContainerRect={() =>
-                        refChatContent.current?.getBoundingClientRect() ?? new DOMRect()
+                        refChatContent.current?.getBoundingClientRect() ??
+                        new DOMRect()
                       }
                     />
                   ))}

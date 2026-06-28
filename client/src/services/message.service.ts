@@ -23,7 +23,7 @@ export const getMessages = async (conversationId: string, page: number) => {
           : import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
               "{id}",
               conversationId,
-            ).replace("{page}", page),
+            ).replace("{page}", String(page)),
     })
   ).data as MessageCache;
   const result: MessageCache = {
@@ -62,7 +62,7 @@ export const getMessagesAround = async (
 export const sendMessage = async (
   id: string,
   data: SendMessageRequest,
-  timeout?: number,
+  requestTimeout?: number,
 ) => {
   return (
     await HttpRequest<SendMessageRequest, SendMessageResponse>({
@@ -72,7 +72,8 @@ export const sendMessage = async (
         id,
       ),
       data: data,
-      timeout: timeout,
+      // Abort nếu server treo/chậm quá lâu → reject → đánh dấu tin failed (không pending vô hạn)
+      requestTimeout,
     })
   ).data;
 };

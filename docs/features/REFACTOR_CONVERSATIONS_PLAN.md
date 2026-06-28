@@ -137,5 +137,39 @@ Trade-off chấp nhận: rủi ro cao đổi lấy bỏ hẳn pagination thủ c
 ---
 
 ## Phase 7 — Trạng thái
-- [ ] Duyệt kế hoạch → bắt đầu Batch 0
-- [ ] Batch 0-1 (an toàn) · [ ] Batch 2 (helper+test) · [ ] Batch 3 (core) · [ ] Batch 4 (polish)
+- [x] Duyệt kế hoạch → bắt đầu Batch 0
+- [x] Batch 0-1 (an toàn) · [x] Batch 2 (helper+test) · [x] Batch 3 (core) · [x] Batch 4 (polish)
+
+> ✅ ĐÃ HOÀN THÀNH (2026-06-28). Chi tiết những gì đã đổi: xem mục dưới.
+
+---
+
+## Tổng kết thực thi
+
+### Files thêm mới
+| File | Vai trò |
+|------|---------|
+| `client/src/utils/messageCache.ts` | Lớp helper bọc `InfiniteData<MessageCache>` (append/update/remove/flatten/mutatePages + wrapper QueryClient). Gom 19 call-site về ~6 hàm. |
+| `client/src/hooks/useIsPhoneScreen.ts` | Hook reactive thay `isPhoneScreen()` (useSyncExternalStore + resize). |
+
+### Files xoá (dead code)
+`ListChat.tsx`, `ListchatContent.tsx`, `ToggleNotification.jsx`.
+
+### Thay đổi cốt lõi
+- `useMessage` → **useInfiniteQuery** (`messageQueryOption` 1 tham số). pages chronological [cũ…mới] qua `fetchPreviousPage`. `getNextPageParam=undefined` (tin mới qua realtime append). Thêm `messageFirstPageQueryOption` (key `["message","review",id]`) cho pane review notification.
+- `useChatboxScroll` — bỏ pagination thủ công (refPage + ghi cache). Dùng `fetchPreviousPage` + scroll-anchor `useLayoutEffect`. Gắn listener deterministic qua state node (#12).
+- `Chatbox` — đọc `flattenInfinite(data)` (memo), memo grouping, auto-scroll có guard near-bottom/own-message (#3), markRead bỏ tin của mình (#14).
+- `notificationHandlers` — realtime append thay `invalidate-inactive`; react/pin → `updateMessageById`; edit/recall → `mutateMessagePages`.
+- Migrate cache writes sang helper: `useSendMessage`, `useMessageActions`, `usePinMessage`, `useDirectMessage`, `AddMembersModal`, `FriendCtaButton` (sửa phantom key + shape), `SideBarMenu_Mobile` (xoá no-op), `ChatboxHeader` (#1 attachment key).
+- `useSendMessage` — try/catch upload+send → đánh dấu `failed` + toast (#10); MessageContent hiển thị "Gửi lỗi".
+
+### Kiểm thử đã chạy
+- `vite build` ✅ · `tsc --noEmit` chỉ còn lỗi **pre-existing** `useRef()` (AddMembersModal, CreateGroupChatModal) — không phải do refactor.
+- Helper `messageCache.ts`: 14 assertion qua `tsx` (ordering/append-to-last/dedupe/update-cross-page/remove/map/undefined-safe) ✅.
+
+### Còn lại / quyết định giữ nguyên
+- `#16 prevConvId` module-scope `let`: GIỮ NGUYÊN (hành vi survive-remount đã được document có chủ đích; đổi sang storage rủi ro > lợi ích).
+- `isPhoneScreen()` vẫn dùng ở 16 file NGOÀI trang conversations (auth/sidebar/profile…) — ngoài scope, không đổi.
+
+### ⚠️ Cần test thủ công (runtime — build/type không phủ)
+Đổi hội thoại liên tục · cuộn lên load nhiều trang (giữ vị trí) · gửi text/media mạng chậm + mất mạng (thấy "Gửi lỗi") · nhận tin khi active/inactive · react/pin/edit/recall qua 2 tab · resize/xoay màn hình · offline→online reconnect (refetch-merge không mất trang).

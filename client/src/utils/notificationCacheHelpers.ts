@@ -91,33 +91,21 @@ export const markConversationSeen = (
   return { ...oldData, conversations, filterConversations };
 };
 
-export const updateMessagesCache = (
-  oldData: MessageCache,
-  message: NewMessage,
-): MessageCache => {
-  // Tránh duplicate: server có thể gửi lại cùng message nếu reconnect
-  if (oldData.messages.some((m) => m.id === message.id)) return oldData;
-
-  return {
-    ...oldData,
-    messages: [
-      ...oldData.messages,
-      {
-        ...message,
-        contactId: message.contact.id,
-        // Khởi tạo reaction với giá trị 0 (reaction thực tế đến qua event NewReaction)
-        currentReaction: null,
-        likeCount: 0,
-        loveCount: 0,
-        careCount: 0,
-        wowCount: 0,
-        sadCount: 0,
-        angryCount: 0,
-        isForwarded: message.isForwarded,
-      } as PendingMessageModel,
-    ],
-  };
-};
+// Map NewMessage (payload FCM) → PendingMessageModel để đưa vào message cache.
+export const toPendingMessage = (message: NewMessage): PendingMessageModel =>
+  ({
+    ...message,
+    contactId: message.contact.id,
+    // Khởi tạo reaction với giá trị 0 (reaction thực tế đến qua event NewReaction)
+    currentReaction: null,
+    likeCount: 0,
+    loveCount: 0,
+    careCount: 0,
+    wowCount: 0,
+    sadCount: 0,
+    angryCount: 0,
+    isForwarded: message.isForwarded,
+  }) as PendingMessageModel;
 
 // Nâng forward delivered horizon cho một member cụ thể trong conversation cache.
 // Idempotent: nếu deliveredTime cũ hơn lastDeliveredTime hiện có → no-op, giữ nguyên reference

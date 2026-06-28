@@ -6,7 +6,8 @@ import { reopenMember as callReopenMember } from "../../services/conv.service";
 import { createDirectChat } from "../../services/friend.service";
 import { FriendItemProps } from "../../types/base.types";
 import { ConversationCache } from "../../types/conv.types";
-import { AttachmentCache, MessageCache } from "../../types/message.types";
+import { AttachmentCache } from "../../types/message.types";
+import { makeInfinite, writeMessageData } from "../../utils/messageCache";
 import {
   buildOptimisticConversation,
   findDirectConversation,
@@ -93,30 +94,35 @@ const FriendCtaButton = (props: FriendItemProps) => {
           (oldData: ConversationCache) =>
             replaceConversationId(oldData, tempId, res.conversationId ?? ""),
         );
-        queryClient.setQueryData(
-          ["message", res.conversationId],
-          (oldData: MessageCache) => ({
-            ...oldData,
-            conversationId: res.conversationId,
+        // Seed message cache rỗng cho conversation mới (shape InfiniteData hợp lệ)
+        writeMessageData(
+          queryClient,
+          res.conversationId ?? "",
+          makeInfinite({
+            conversationId: res.conversationId ?? "",
+            hasMore: false,
+            messages: [],
           }),
         );
-        queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => ({
-          ...oldData,
-          conversationId: res.conversationId,
-        }));
+        queryClient.setQueryData(
+          ["attachment", res.conversationId],
+          (oldData: AttachmentCache) => ({
+            ...oldData,
+            conversationId: res.conversationId,
+            attachments: oldData?.attachments ?? [],
+          }),
+        );
       });
 
-      queryClient.setQueryData(["message"], (oldData: MessageCache) => ({
-        ...oldData,
-        conversationId: tempId,
-        messages: [],
-        hasMore: false,
-      }));
-      queryClient.setQueryData(["attachment"], (oldData: AttachmentCache) => ({
-        ...oldData,
+      writeMessageData(
+        queryClient,
+        tempId,
+        makeInfinite({ conversationId: tempId, hasMore: false, messages: [] }),
+      );
+      queryClient.setQueryData(["attachment", tempId], {
         conversationId: tempId,
         attachments: [],
-      }));
+      } as AttachmentCache);
 
       setLoading(false);
     }

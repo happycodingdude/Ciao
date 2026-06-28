@@ -10,7 +10,6 @@ import { conversationQueryOption } from "../hooks/useConversation";
 
 export const Route = createFileRoute("/_layout/conversations")({
   loader: ({ context: { queryClient } }) => {
-    console.log("Fetching conversations");
     localStorage.removeItem("conversationId");
     return {
       conversations: defer(

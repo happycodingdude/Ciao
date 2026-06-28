@@ -9,7 +9,8 @@ import { addMembers } from "../../services/conv.service";
 import { OnCloseType } from "../../types/base.types";
 import { ConversationCache } from "../../types/conv.types";
 import { ContactModel } from "../../types/friend.types";
-import { MessageCache, PendingMessageModel } from "../../types/message.types";
+import { PendingMessageModel } from "../../types/message.types";
+import { appendMessage } from "../../utils/messageCache";
 import blurImage from "../../utils/blurImage";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import CustomButton from "../common/CustomButton";
@@ -68,18 +69,12 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
       return { ...old, conversations: updated } as ConversationCache;
     });
 
-    queryClient.setQueryData(["message", conversationId], (old: MessageCache) => ({
-      ...old,
-      messages: [
-        ...(old.messages ?? []),
-        {
-          type: "system",
-          content: `${info?.name} added new members: ${membersToAdd.map((m) => m.name).join(", ")}`,
-          contactId: "system",
-          createdTime: dayjs().format(),
-        } as PendingMessageModel,
-      ],
-    }));
+    appendMessage(queryClient, conversationId, {
+      type: "system",
+      content: `${info?.name} added new members: ${membersToAdd.map((m) => m.name).join(", ")}`,
+      contactId: "system",
+      createdTime: dayjs().format(),
+    } as PendingMessageModel);
 
     addMembers(conversation?.id ?? "", membersToAdd.map((m) => m.id ?? ""));
   };

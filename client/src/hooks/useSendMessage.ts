@@ -1,35 +1,41 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
 import { sendMessage } from "../services/message.service";
+import { ConversationCache, ConversationModel } from "../types/conv.types";
 import {
   AttachmentCache,
   AttachmentModel,
-  MessageCache,
   PendingMessageModel,
   SendMessageRequest,
 } from "../types/message.types";
-import { ConversationCache, ConversationModel } from "../types/conv.types";
 import { getToday } from "../utils/datetime";
 import delay from "../utils/delay";
+import { appendMessage, updateMessageById } from "../utils/messageCache";
 import { uploadFile } from "../utils/uploadFile";
-import useConversation from "./useConversation";
 import useInfo from "./useInfo";
 import { useReply } from "./useReply";
+
+// Quá hạn này mà server chưa phản hồi → abort + đánh dấu tin failed (không pending vô hạn).
+const SEND_REQUEST_TIMEOUT_MS = 5_000;
 
 export const useSendMessage = (conversationId: string) => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();
-  const { data: conversations } = useConversation();
   const { reply, clearReply } = useReply();
-
-  const conversation = conversations?.conversations?.find(
-    (c) => c.id === conversationId,
-  );
 
   const { mutate } = useMutation({
     mutationFn: async (param: SendMessageRequest) => {
       const randomId = Math.random().toString(36).substring(2, 7);
       const hasMedia = (param.files ?? []).length !== 0;
+
+      // Đánh dấu 1 tin pending là gửi lỗi (dùng khi upload/send thất bại).
+      const markMessageFailed = (id: string) =>
+        updateMessageById(queryClient, conversationId, id, (msg) => ({
+          ...msg,
+          pending: false,
+          failed: true,
+        }));
 
       // Optimistic update: cập nhật preview lastMessage ngay lập tức
       queryClient.setQueryData(
@@ -79,13 +85,14 @@ export const useSendMessage = (conversationId: string) => {
       };
 
       // Thêm tin nhắn pending vào cuối danh sách (hiển thị ngay cho user)
-      queryClient.setQueryData(
-        ["message", conversationId],
-        (oldData: MessageCache) => ({
-          ...oldData,
-          messages: [...(oldData.messages || []), pendingMessage],
-        }),
-      );
+      appendMessage(queryClient, conversationId, pendingMessage);
+
+      // Offline → fail NGAY, không gọi API (tránh request treo rồi tự gửi khi online lại).
+      if (!navigator.onLine) {
+        markMessageFailed(randomId);
+        toast.error("Không có kết nối mạng");
+        return;
+      }
 
       let bodyToCreate: SendMessageRequest = {
         type: param.type,
@@ -129,7 +136,10 @@ export const useSendMessage = (conversationId: string) => {
               ...oldData,
               attachments: oldData.attachments.map((a) =>
                 a.date === today
-                  ? { ...a, attachments: [...pendingAttachments, ...a.attachments] }
+                  ? {
+                      ...a,
+                      attachments: [...pendingAttachments, ...a.attachments],
+                    }
                   : a,
               ),
             } as AttachmentCache;
@@ -137,13 +147,37 @@ export const useSendMessage = (conversationId: string) => {
         );
 
         // Upload thực tế lên server sau khi đã show pending
-        const uploaded: AttachmentModel[] = await uploadFile(param.files ?? []);
-        bodyToCreate = { ...bodyToCreate, attachments: uploaded };
+        try {
+          const uploaded: AttachmentModel[] = await uploadFile(
+            param.files ?? [],
+          );
+          bodyToCreate = { ...bodyToCreate, attachments: uploaded };
+        } catch (err) {
+          console.error("uploadFile failed", err);
+          markMessageFailed(randomId);
+          toast.error("Không thể tải tệp đính kèm");
+          return;
+        }
       }
 
-      const res = await sendMessage(conversation?.id ?? "", bodyToCreate);
-      // API thất bại → dừng, tin nhắn giữ trạng thái pending
-      if (!res) return;
+      let res: Awaited<ReturnType<typeof sendMessage>> | undefined;
+      try {
+        res = await sendMessage(
+          // Dùng thẳng conversationId (route param) — nhất quán với cache append ở trên;
+          // tránh gửi tới "" khi conversation chưa nằm trong list cache (race tạo mới).
+          conversationId,
+          bodyToCreate,
+          SEND_REQUEST_TIMEOUT_MS,
+        );
+      } catch (err) {
+        console.error("sendMessage failed", err);
+      }
+      // API thất bại → đánh dấu failed (không kẹt pending vô hạn) + báo lỗi
+      if (!res) {
+        markMessageFailed(randomId);
+        toast.error("Không thể gửi tin nhắn");
+        return;
+      }
 
       // Delay nhỏ để tránh flickering khi chuyển trạng thái pending → confirmed
       await delay(500);
@@ -151,30 +185,21 @@ export const useSendMessage = (conversationId: string) => {
       clearReply();
 
       // Confirm tin nhắn: thay randomId bằng messageId thật, xóa pending flag
-      queryClient.setQueryData(
-        ["message", conversationId],
-        (oldData: MessageCache) => ({
-          ...oldData,
-          messages: oldData.messages.map((msg) => {
-            if (msg.id !== randomId) return msg;
-            return {
-              ...msg,
-              id: res.messageId,
-              loaded: true,
-              pending: false,
-              // Cập nhật id từng attachment theo thứ tự server trả về
-              attachments: (msg.attachments ?? []).map((atta, i) => {
-                if (atta.id !== randomId) return atta;
-                return {
-                  ...atta,
-                  id: (res.attachments ?? [])[i],
-                  pending: false,
-                };
-              }),
-            };
-          }),
+      updateMessageById(queryClient, conversationId, randomId, (msg) => ({
+        ...msg,
+        id: res.messageId,
+        loaded: true,
+        pending: false,
+        // Cập nhật id từng attachment theo thứ tự server trả về
+        attachments: (msg.attachments ?? []).map((atta, i) => {
+          if (atta.id !== randomId) return atta;
+          return {
+            ...atta,
+            id: (res.attachments ?? [])[i],
+            pending: false,
+          };
         }),
-      );
+      }));
 
       if (hasMedia) {
         // Confirm attachment cache: thay pending id bằng id thật từ server

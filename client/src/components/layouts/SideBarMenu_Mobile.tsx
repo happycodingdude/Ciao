@@ -39,12 +39,6 @@ const SideBarMenu_Mobile = (props: SideBarProps) => {
                   } as ConversationCache;
                 },
               );
-            queryClient.setQueryData(["message"], (oldData) => {
-              return null;
-            });
-            queryClient.setQueryData(["attachment"], (oldData) => {
-              return null;
-            });
           }}
         />
         <div className="sidebar-menu-item-text">Chats</div>

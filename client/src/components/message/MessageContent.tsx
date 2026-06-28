@@ -1,6 +1,7 @@
-import { EditOutlined } from "@ant-design/icons";
+import { CopyOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { forwardRef } from "react";
+import { toast } from "react-toastify";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import { useMessageEdit } from "../../hooks/useMessageActions";
@@ -36,6 +37,14 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const isRecalled = !!message.recalledTime;
     const isEdited = !!message.editedTime && !isRecalled;
     const showEdit = canEditMessage(message, isSelf);
+
+    // Tin gửi lỗi chỉ cho phép copy nội dung (thao tác local, không chạm DB).
+    const copyMessage = () => {
+      navigator.clipboard
+        .writeText(message.content ?? "")
+        .then(() => toast.success("Message copied to clipboard"))
+        .catch((err) => console.error("Failed to copy message: ", err));
+    };
 
     const sender = !isSelf
       ? (conversation?.members ?? []).find(
@@ -284,8 +293,46 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               </div>
             )}
 
+            {/* Badge "đã chỉnh sửa": icon bút chì nổi ở góc trên bubble, cùng góc
+                với badge ghim. Nếu tin vừa ghim vừa edit → đẩy badge này vào trong
+                để nằm cạnh badge ghim (ghim ngoài cùng), tránh đè lên nhau. */}
+            {isEdited && (
+              <div
+                title="Đã chỉnh sửa"
+                className={`laptop:h-5.5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-gray-400 shadow-md
+                  ${
+                    isSelf
+                      ? message.isPinned
+                        ? "right-[1.15rem]"
+                        : "-right-3"
+                      : message.isPinned
+                        ? "left-[1.15rem]"
+                        : "-left-[.8rem]"
+                  }`}
+              >
+                <i className="fa-solid fa-pen laptop-lg:text-2xs laptop:text-3xs text-white"></i>
+              </div>
+            )}
+
+            {/* Tin gửi lỗi: KHÔNG cho menu chức năng (edit/pin/reply/forward/delete)
+                vì message chưa tồn tại trong DB → chỉ hiện đúng 1 nút copy. */}
+            {message.failed && isSelf && (
+              <button
+                type="button"
+                data-mine={isSelf}
+                className="message-copy-btn"
+                title="Copy message"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyMessage();
+                }}
+              >
+                <CopyOutlined />
+              </button>
+            )}
+
             {/* Tin đã recall: chỉ hiện thời gian khi hover, không có menu/edit */}
-            {!message.pending && !isRecalled && showEdit && (
+            {!message.pending && !message.failed && !isRecalled && showEdit && (
               <button
                 type="button"
                 className="message-edit-btn"
@@ -301,7 +348,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 <EditOutlined />
               </button>
             )}
-            {!message.pending && !isRecalled && (
+            {!message.pending && !message.failed && !isRecalled && (
               <MessageMenu_Slide
                 conversationId={id}
                 message={message}
@@ -325,10 +372,19 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               data-recalled={isRecalled}
               className="message-time"
             >
-              {isEdited && <span className="mr-1 italic">(edited)</span>}
               {dayjs(message.createdTime).format("HH:mm")}
             </p>
           </div>
+
+          {/* Gửi lỗi: đặt NGOÀI khối .relative (anchor của .message-time) để dòng
+              chữ lỗi không đẩy lệch vị trí thời gian — thời gian vẫn neo theo bubble
+              như tin gửi thành công. */}
+          {message.failed && isSelf && (
+            <p className="text-2xs flex items-center justify-end text-red-500">
+              <i className="fa fa-circle-exclamation mr-1" />
+              Gửi lỗi
+            </p>
+          )}
 
           {/*
             Receipt area: CHỈ render khi tin CUỐI CÙNG của conversation là của

@@ -77,6 +77,8 @@ const HttpRequest = async <TReq = undefined, TRes = undefined>(
     baseURL: import.meta.env.VITE_ASPNETCORE_CHAT_URL,
     url: fullUrl,
     data: req.data,
+    // Abort timeout thật (0/undefined = không giới hạn, giữ nguyên hành vi cũ cho mọi request khác)
+    timeout: req.requestTimeout,
     headers: {
       // FormData: để browser tự set Content-Type + boundary; JSON: set tường minh
       ...(isFormData

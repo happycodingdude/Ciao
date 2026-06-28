@@ -3,7 +3,7 @@ import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { ConversationCache } from "../../types/conv.types";
-import { isPhoneScreen } from "../../utils/getScreenSize";
+import useIsPhoneScreen from "../../hooks/useIsPhoneScreen";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ChatboxHeaderMenu from "./ChatboxHeaderMenu";
@@ -14,6 +14,7 @@ const ChatboxHeader = () => {
   const { data: info } = useInfo();
   const { data: conversations } = useConversation();
   const { conversationId } = Route.useParams();
+  const isPhone = useIsPhoneScreen();
 
   if (!conversations) return null;
   const conversation = conversations?.conversations?.find(
@@ -30,7 +31,7 @@ const ChatboxHeader = () => {
       items-center justify-between border-b-[.1rem] bg-white px-4"
     >
       <div className="relative flex items-center gap-4">
-        {isPhoneScreen() ? (
+        {isPhone ? (
           <i
             className="fa-arrow-left fa flex cursor-pointer items-center justify-center p-2
             text-xl transition-all duration-500"
@@ -48,7 +49,7 @@ const ChatboxHeader = () => {
                 ["message", conversationId],
                 () => null,
               );
-              queryClient.setQueryData(["attachment"], () => null);
+              queryClient.setQueryData(["attachment", conversationId], () => null);
             }}
           ></i>
         ) : (
@@ -94,7 +95,7 @@ const ChatboxHeader = () => {
         </div>
       </div>
       <div className="flex gap-8">
-        {isPhoneScreen() ? <ChatboxHeaderMenu_Mobile /> : <ChatboxHeaderMenu />}
+        {isPhone ? <ChatboxHeaderMenu_Mobile /> : <ChatboxHeaderMenu />}
       </div>
     </div>
   );
