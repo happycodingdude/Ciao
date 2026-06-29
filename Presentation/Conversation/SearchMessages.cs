@@ -38,7 +38,7 @@ public static class SearchMessages
                 throw new BadRequestException(validationResult.ToString());
 
             var paging = new PagingParam(request.page, request.limit);
-            return await _conversationRepository.SearchMessages(request.id, request.keyword.Trim(), paging);
+            return await _conversationRepository.SearchMessages(request.id, request.keyword.Trim(), paging, cancellationToken);
         }
     }
 }

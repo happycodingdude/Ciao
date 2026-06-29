@@ -1,64 +1,21 @@
-# Dọn dẹp trạng thái Online của Contact
+# Tự động dọn trạng thái "đang online" cũ
 
 ## Mục đích
 
-Background job tự động quét bảng `Contact` mỗi 1 phút. Nếu một contact có `IsOnline = true` nhưng `LastLogin` đã quá 7 ngày tính từ thời điểm hiện tại (hoặc chưa từng login), job sẽ tự động set `IsOnline = false`.
+Giữ cho trạng thái online của người dùng phản ánh đúng thực tế: tự động chuyển những người được đánh dấu "đang online" nhưng thực chất đã rời đi từ lâu về trạng thái offline, để danh sách online không hiển thị sai.
 
-`LastLogout` được giữ nguyên hoàn toàn, dùng để tính "user đã offline bao lâu" (`DateTime.Now - LastLogout`).
+## Hành vi
 
-## Các thay đổi
+- Hệ thống định kỳ (mỗi phút) rà soát toàn bộ người dùng.
+- Một người đang được đánh dấu "online" nhưng lần đăng nhập gần nhất đã quá **7 ngày** (hoặc chưa từng đăng nhập) sẽ được tự động chuyển thành "offline".
+- Thời điểm "đăng xuất gần nhất" luôn được giữ nguyên, dùng để tính "người dùng đã offline bao lâu".
 
-### 1. Domain/Entities/Contact.cs
-- Thêm field `LastLogin` (nullable DateTime): ghi lại thời điểm login gần nhất.
-- Dùng `NullableLocalDateTimeSerializer` theo convention hiện tại.
+## Quy tắc
 
-### 2. Presentation/Identity/SignIn.cs
-- Khi login thành công, thêm `.Set(q => q.LastLogin, DateTime.Now)` vào MongoDB update.
-- `LastLogout` không bị chạm → bảo toàn để tính offline duration.
+- Vừa đăng nhập → đánh dấu online; lần dọn kế tiếp bỏ qua vì còn mới.
+- Đã đăng xuất → đã là offline; lần dọn bỏ qua.
+- Online nhưng quá 7 ngày không đăng nhập lại (bị "kẹt" online) → bị chuyển về offline.
 
-### 3. Application/Repositories/IContactRepository.cs
-- Thêm method: `Task ResetStaleOnlineStatusAsync(DateTime threshold, CancellationToken cancellationToken)`
+## Trường hợp đặc biệt
 
-### 4. Infrastructure/Repositories/ContactRepository.cs
-- Implement `ResetStaleOnlineStatusAsync`:
-  - Filter: `IsOnline == true AND (LastLogin == null OR LastLogin < threshold)`
-  - Update: `IsOnline = false`, `UpdatedTime = DateTime.Now`
-  - Dùng `_collection.UpdateManyAsync` trực tiếp (bypass UoW/session) vì batch cleanup không cần transactional guarantees.
-
-### 5. Infrastructure/BackgroundJobs/ContactCleanupService.cs *(file mới)*
-- `BackgroundService` chạy tuần tự mỗi 1 phút.
-- Tạo scoped DI scope để resolve `IContactRepository`.
-- Tính `threshold = DateTime.Now - 7 ngày`, gọi `ResetStaleOnlineStatusAsync`.
-- Handle `OperationCanceledException` để graceful shutdown khi app stop.
-- Log error nếu có exception bất ngờ.
-
-### 6. Chat.API/Configurations/InfrastructureServiceInstaller.cs
-- Đăng ký: `services.AddHostedService<ContactCleanupService>()`
-
-## Lý do thiết kế
-
-- **Dùng `LastLogin` thay `LastLogout` cho job**: `LastLogout` thuộc về session trước, không phản ánh session hiện tại. Dùng `LastLogout` để detect stale gây conflict khi user vừa login mà `LastLogout` cũ > 7 ngày. `LastLogin` là signal đúng: nếu login cuối > 7 ngày mà `IsOnline=true` thì chắc chắn là stale.
-- **`LastLogout` bảo toàn hoàn toàn**: Không bị reset khi login, dùng để tính `DateTime.Now - LastLogout` = thời gian user đã offline.
-- **Xử lý null `LastLogin`**: User chưa có `LastLogin` (data cũ trước khi có feature) mà `IsOnline=true` → cũng reset, tránh stale vĩnh viễn.
-- **Bypass UoW cho cleanup**: Batch update không cần transaction. `UpdateManyAsync` trực tiếp an toàn và hiệu quả hơn.
-
-## Luồng hoạt động
-
-```
-Login       → IsOnline = true,  LastLogin = DateTime.Now,  LastLogout = <không đổi>
-Job cleanup → LastLogin = hôm nay → LastLogin < threshold sai → bỏ qua ✅
-
-Logout      → IsOnline = false, LastLogout = DateTime.Now
-Job cleanup → IsOnline == false → bỏ qua ✅
-
-Sau 7 ngày không login lại, IsOnline vẫn true (bị kẹt):
-Job cleanup → IsOnline=true AND LastLogin < threshold → reset IsOnline=false ✅
-
-Tính offline duration: DateTime.Now - LastLogout ✅ (LastLogout không bị ảnh hưởng)
-```
-
-## Index khuyến nghị (production)
-
-```javascript
-db.Contact.createIndex({ IsOnline: 1, LastLogin: 1 })
-```
+- Người dùng cũ chưa có dữ liệu "lần đăng nhập gần nhất" mà vẫn đang online → cũng được dọn, tránh bị kẹt online vĩnh viễn.

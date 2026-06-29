@@ -188,7 +188,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
         return conversations;
     }
 
-    public async Task<List<MessageSearchResult>> SearchMessages(string conversationId, string keyword, PagingParam pagingParam)
+    public async Task<List<MessageSearchResult>> SearchMessages(string conversationId, string keyword, PagingParam pagingParam, CancellationToken cancellationToken = default)
     {
         // Pipeline search message theo keyword trong 1 conversation cụ thể.
         // Chiến thuật: $unwind Messages rồi $match content regex để Mongo lọc tại DB,
@@ -229,9 +229,13 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             })
         };
 
+        // AllowDiskUse=true: $sort sau $unwind chạy in-memory; conversation nhiều tin match có thể
+        // vượt giới hạn 100MB của aggregation → bật spill ra disk để query không fail đột ngột.
+        // (Band-aid: fix gốc là tách Messages ra collection riêng + index, xem note trên.)
+        // CancellationToken: client hủy request (đổi keyword/đóng panel) → dừng luôn việc ở DB.
         var results = (await _collection
-            .Aggregate<BsonDocument>(pipeline)
-            .ToListAsync())
+            .Aggregate<BsonDocument>(pipeline, new AggregateOptions { AllowDiskUse = true }, cancellationToken)
+            .ToListAsync(cancellationToken))
             .Select(bson => BsonSerializer.Deserialize<MessageSearchResult>(bson))
             .ToList();
 

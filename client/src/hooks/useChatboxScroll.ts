@@ -4,8 +4,9 @@ import useEventListener from "./useEventListener";
 /**
  * Quản lý scroll của khung chat:
  * - Nút "scroll to bottom" khi user cuộn lên xa đáy.
- * - Load trang CŨ hơn khi chạm đỉnh (qua fetchPreviousPage của useInfiniteQuery), GIỮ NGUYÊN
- *   vị trí đọc bằng cách bù chênh lệch scrollHeight trong useLayoutEffect (chống nhảy).
+ * - PREFETCH trang CŨ hơn khi còn cách đỉnh ~1 viewport (qua fetchPreviousPage của
+ *   useInfiniteQuery) để giấu latency, GIỮ NGUYÊN vị trí đọc bằng cách bù chênh lệch scrollHeight
+ *   trong useLayoutEffect (chống nhảy).
  *
  * Không còn tự quản refPage / ghi cache thủ công — pagination do React Query lo.
  */
@@ -48,9 +49,15 @@ export const useChatboxScroll = (
       el.clientHeight !== 0 && distanceFromBottom >= el.clientHeight / 2,
     );
 
-    // Chạm đỉnh + còn trang cũ + không đang fetch + chưa có prepend đang chờ → load thêm
+    // PREFETCH-AHEAD: bắt đầu load trang cũ TRƯỚC khi user chạm đỉnh, khi còn cách đỉnh trong
+    // khoảng ~1 viewport (floor 400px). Mục tiêu: giấu network latency — tới lúc user thật sự
+    // cuộn tới đỉnh thì trang cũ đã được prepend sẵn, không phải đứng đợi. Cơ chế bù scrollHeight
+    // (theo firstMessageId) giữ nguyên vị trí đọc kể cả khi prepend lúc user chưa ở đỉnh, nên
+    // prefetch sớm là an toàn. Các guard (hasPreviousPage / !isFetchingPreviousPage /
+    // !pendingPrepend) chống fetch chồng + chain-load vô tận.
+    const prefetchMargin = Math.max(400, el.clientHeight);
     if (
-      el.scrollTop <= 4 &&
+      el.scrollTop <= prefetchMargin &&
       hasPreviousPage &&
       !isFetchingPreviousPage &&
       !pendingPrepend.current

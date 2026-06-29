@@ -1,4 +1,5 @@
 import { SearchOutlined } from "@ant-design/icons";
+import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import {
   KeyboardEvent,
@@ -107,6 +108,20 @@ const InformationSearch = () => {
   // ở ChatboxHeaderMenu (không có nút back trong panel này).
   const { conversationId } = Route.useParams();
   const { showSearch } = useChatDetailToggles();
+  const navigate = useNavigate();
+
+  // Click 1 kết quả → set ?messageId, Chatbox tự kéo trang cũ (nếu cần) tới khi tin xuất hiện
+  // rồi scroll + highlight. GIỮ panel search mở (không đóng) để user click tiếp kết quả khác —
+  // panel chỉ phủ sidebar phải, khung chat vẫn hiển thị nên vẫn thấy tin nhảy tới.
+  const handleResultClick = (messageId?: string) => {
+    if (!messageId) return;
+    navigate({
+      to: "/conversations/$conversationId",
+      params: { conversationId },
+      search: { messageId },
+      replace: true,
+    });
+  };
 
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<MessageSearchResult[]>([]);
@@ -271,7 +286,8 @@ const InformationSearch = () => {
                 return (
                   <div
                     key={m.id}
-                    className="border-b-(--border-color) hover:bg-(--bg-color-extrathin) flex items-start gap-3 border-b-[.1rem] px-4 py-3"
+                    onClick={() => handleResultClick(m.id)}
+                    className="border-b-(--border-color) hover:bg-(--bg-color-extrathin) flex cursor-pointer items-start gap-3 border-b-[.1rem] px-4 py-3"
                   >
                     {/* Avatar người gửi bên trái */}
                     <ImageWithLightBoxAndNoLazy

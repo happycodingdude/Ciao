@@ -17,13 +17,13 @@ export const getMessages = async (conversationId: string, page: number) => {
       url:
         page === 1
           ? import.meta.env.VITE_ENDPOINT_MESSAGE_GET.replace(
-              "{id}",
-              conversationId,
-            )
+            "{id}",
+            conversationId,
+          )
           : import.meta.env.VITE_ENDPOINT_MESSAGE_GETWITHPAGING.replace(
-              "{id}",
-              conversationId,
-            ).replace("{page}", String(page)),
+            "{id}",
+            conversationId,
+          ).replace("{page}", String(page)),
     })
   ).data as MessageCache;
   const result: MessageCache = {
@@ -84,15 +84,15 @@ export const reactMessage = async (model: ReactMessageRequest) => {
       method: "put",
       url: model.isUnReact
         ? import.meta.env.VITE_ENDPOINT_MESSAGE_UNREACT.replace(
-            "{conversationId}",
-            model.conversationId,
-          ).replace("{id}", model.messageId)
+          "{conversationId}",
+          model.conversationId,
+        ).replace("{id}", model.messageId)
         : import.meta.env.VITE_ENDPOINT_MESSAGE_REACT.replace(
-            "{conversationId}",
-            model.conversationId,
-          )
-            .replace("{id}", model.messageId)
-            .replace("{type}", model.type),
+          "{conversationId}",
+          model.conversationId,
+        )
+          .replace("{id}", model.messageId)
+          .replace("{type}", model.type),
     })
   ).data;
 };

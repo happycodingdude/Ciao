@@ -66,8 +66,6 @@ public static class SendMessage
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            await Task.Delay(15000);
-
             var message = _mapper.Map<NewMessageModel_Message>(request.model);
             await _kafkaProducer.ProduceAsync(Topic.NewMessage, new NewMessageModel
             {

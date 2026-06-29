@@ -17,6 +17,7 @@ import {
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
 import { flattenInfinite } from "../../utils/messageCache";
 import { markConversationSeen } from "../../utils/notificationCacheHelpers";
+import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
 
@@ -109,15 +110,28 @@ const Chatbox = () => {
     oldLastMsgRef.current = currentLastMsg;
   }, [messages, info?.id, showScrollToBottom, scrollToBottom]);
 
-  // Nhảy tới + highlight 1 tin cụ thể khi có ?messageId (vd click banner reaction).
+  // Nhảy tới + highlight 1 tin cụ thể khi có ?messageId (click banner reaction hoặc kết quả Search).
   // Mỗi message render với id={message.id} (MessageContent) → getElementById tìm DOM.
-  // Tin có thể chưa render xong (async) → retry vài nhịp; tin quá cũ chưa load → no-op
-  // (graceful, vẫn ở trong hội thoại). Clear param sau khi nhảy để không lặp lại.
+  //
+  // Tin search/banner có thể nằm SÂU trong lịch sử, chưa có trong các page mới-nhất đã load.
+  // → Nếu tin chưa nằm trong tập đã load: kéo thêm trang CŨ (fetchPreviousPage) rồi để effect
+  //   chạy lại (deps có `messages`) — lặp tới khi tin xuất hiện hoặc hết trang cũ.
+  //   getMessages/around đều đọc cùng Redis cache full-history nên mọi tin search đều tới được.
+  //   (Page size nhỏ → tin rất cũ tốn nhiều round-trip; tối ưu thực sự là server-side page-jump.)
+  // Khi đã load: tin có thể chưa kịp gắn DOM (render async) → retry vài nhịp rồi scroll + highlight.
+  // Clear param sau khi nhảy để không lặp lại; tin không tồn tại (đã xoá/recall) → no-op graceful.
   useEffect(() => {
     if (!targetMessageId) return;
+
+    const loaded = messages.some((m) => m.id === targetMessageId);
+    if (!loaded) {
+      // Chưa thấy tin trong tập đã load → kéo trang cũ hơn (nếu còn) rồi chờ effect re-run.
+      if (hasPreviousPage && !isFetchingPreviousPage) fetchPreviousPage();
+      return;
+    }
+
     let cancelled = false;
     let attempts = 0;
-
     const tryScroll = () => {
       if (cancelled) return;
       const el = document.getElementById(targetMessageId);
@@ -141,7 +155,25 @@ const Chatbox = () => {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [targetMessageId, conversationId, navigate]);
+  }, [
+    targetMessageId,
+    messages,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    fetchPreviousPage,
+    conversationId,
+    navigate,
+  ]);
+
+  // Đang trong quá trình "jump tới tin search" mà tin chưa load (effect trên đang kéo dần trang cũ).
+  // Giá trị này GIỮ NGUYÊN true LIÊN TỤC suốt vòng lặp — kể cả khoảng nghỉ giữa 2 lần fetch khi
+  // `isFetchingPreviousPage` thoáng về false — nhờ điều kiện `hasPreviousPage`. Dùng nó để giữ
+  // overlay "loading older" SÁNG STEADY thay vì nháy on/off mỗi page (fix nháy khi click tin ở xa).
+  const isJumpingToTarget = useMemo(() => {
+    if (!targetMessageId) return false;
+    const loaded = messages.some((m) => m.id === targetMessageId);
+    return !loaded && (hasPreviousPage || isFetchingPreviousPage);
+  }, [targetMessageId, messages, hasPreviousPage, isFetchingPreviousPage]);
 
   // Gửi read receipt khi người dùng đọc tin nhắn (ở đáy màn hình)
   useEffect(() => {
@@ -252,6 +284,7 @@ const Chatbox = () => {
 
   return (
     <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-4">
+      <FetchingMoreMessages loading={isFetchingPreviousPage || isJumpingToTarget} />
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={() => scrollToBottom("smooth")}
