@@ -1,4 +1,4 @@
-import { CloseOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import { CloseOutlined, EditOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { useRef, useState } from "react";
 import { useSignal } from "../../context/SignalContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
@@ -49,8 +49,10 @@ const Information = () => {
           )}
           <BackgroundPortal
             show={openUpdateTitle}
-            className="phone:w-140 laptop:w-140 desktop:w-[35%]"
+            className="modal-size-lg"
             title="Update group"
+            description="Change the group name and avatar"
+            icon={<EditOutlined />}
             onClose={() => setOpenUpdateTitle(false)}
           >
             {conversation && (

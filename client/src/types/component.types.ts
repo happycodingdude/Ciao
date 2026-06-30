@@ -77,12 +77,18 @@ export type BackgroundPortalProps = OnCloseType & {
   children?: ReactNode;
   show?: boolean;
   title?: string;
+  // Mô tả ngắn 1 dòng hiển thị dưới tiêu đề ở phần đầu hộp thoại.
+  description?: string;
+  // Biểu tượng đại diện cho chức năng, hiển thị bên trái tiêu đề.
+  icon?: ReactNode;
   className?: string;
   noHeader?: boolean;
 };
 
 export type PortalHeaderProps = OnCloseType & {
   title?: string;
+  description?: string;
+  icon?: ReactNode;
 };
 
 export type ListFriendProps = OnCloseType & {};

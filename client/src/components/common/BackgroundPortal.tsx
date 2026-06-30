@@ -5,7 +5,7 @@ import { BackgroundPortalProps } from "../../types/base.types";
 import PortalHeader from "./PortalHeader";
 
 const BackgroundPortal = (props: BackgroundPortalProps) => {
-  const { children, show, title, onClose, className, noHeader } = props;
+  const { children, show, title, description, icon, onClose, className, noHeader } = props;
 
   const hidePortalOnClick = useCallback((e: Event) => {
     if (Array.from((e.target as HTMLElement).classList).includes("portal-container")) onClose?.();
@@ -29,11 +29,18 @@ const BackgroundPortal = (props: BackgroundPortalProps) => {
     >
       <div
         data-show={`${show}`}
-        className={`${className} z-1000 bg-(--bg-color) fixed left-[50%] top-[50%] flex w-[50%] translate-x-[-50%]
-        translate-y-[-50%] flex-col overflow-hidden rounded-2xl transition-all duration-500
+        className={`${className} z-1000 bg-(--portal-container-bg-color) border-(--border-color) fixed left-[50%] top-[50%] flex w-[50%] translate-x-[-50%]
+        translate-y-[-50%] flex-col overflow-hidden rounded-2xl border shadow-2xl transition-all duration-500
         data-[show=false]:scale-0 data-[show=true]:scale-100`}
       >
-        {!noHeader && <PortalHeader title={title} onClose={onClose} />}
+        {!noHeader && (
+          <PortalHeader
+            title={title}
+            description={description}
+            icon={icon}
+            onClose={onClose}
+          />
+        )}
         {children}
       </div>
     </div>,

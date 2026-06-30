@@ -14,9 +14,11 @@ const AddFriend = () => {
         show={open}
         className="modal-size-sm"
         title="Connect friend"
+        description="Search people and send friend requests"
+        icon={<UserAddOutlined />}
         onClose={() => setOpen(false)}
       >
-        <div className="modal-content-h flex flex-col p-5">
+        <div className="modal-content-h flex flex-col gap-4 px-6 pb-6 pt-2">
           <Suspense fallback={<ModalLoading className="left-0 top-0" />}>
             <ListFriend onClose={() => setOpen(false)} />
           </Suspense>

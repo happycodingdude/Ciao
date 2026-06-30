@@ -14,10 +14,11 @@ import { ContactModel } from "../../types/friend.types";
 import blurImage from "../../utils/blurImage";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import { uploadFile } from "../../utils/uploadFile";
-import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
+import ModalFooter from "../common/ModalFooter";
+import ModalSearchInput from "../common/ModalSearchInput";
 import FriendPickerList from "./FriendPickerList";
 
 const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
@@ -127,9 +128,7 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
         />
       </div>
       <div className="flex grow flex-col gap-4">
-        <CustomInput
-          type="text"
-          placeholder="Search for name"
+        <ModalSearchInput
           inputRef={refInputSearch}
           onChange={(e) => {
             const q = e.target.value.toLowerCase();
@@ -143,7 +142,7 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
         />
         {/* Phone → stack dọc (list trên, selected bên dưới); màn lớn → side-by-side */}
         <div
-          className={`border-(--border-color) relative flex grow gap-8 border-b-[.1rem]
+          className={`relative flex grow gap-8
             ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
         >
           <FriendPickerList
@@ -156,16 +155,10 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
           />
         </div>
       </div>
-      <CustomButton
-        className="text-2xs mr-0"
-        width={4}
-        gradientWidth={isPhoneScreen() ? "115%" : "110%"}
-        gradientHeight={isPhoneScreen() ? "130%" : "120%"}
-        rounded="3rem"
-        title="Save"
-        onClick={createGroupChatCTA}
+      <ModalFooter
+        onCancel={() => onClose?.()}
+        onSave={createGroupChatCTA}
         processing={processing}
-        sm
       />
     </>
   );

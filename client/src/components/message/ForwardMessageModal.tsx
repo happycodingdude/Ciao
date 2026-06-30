@@ -5,10 +5,10 @@ import { ContactModel } from "../../types/friend.types";
 import { PendingMessageModel } from "../../types/message.types";
 import { isPhoneScreen } from "../../utils/getScreenSize";
 import CustomButton from "../common/CustomButton";
-import CustomInput from "../common/CustomInput";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../common/ListFriendLoading";
+import ModalSearchInput from "../common/ModalSearchInput";
 
 const ForwardMessageModal = ({
   message,
@@ -55,9 +55,7 @@ const ForwardMessageModal = ({
 
   return (
     <>
-      <CustomInput
-        type="text"
-        placeholder="Search for name"
+      <ModalSearchInput
         inputRef={refInput}
         onChange={(e) => {
           if (e.target.value === "")
@@ -73,18 +71,18 @@ const ForwardMessageModal = ({
         }}
       />
       <div
-        className={`relative flex grow gap-8 ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
+        className={`relative mt-4 flex grow gap-8 ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
       >
         {isLoading || isRefetching ? (
           <ListFriendLoading />
         ) : (
-          <div className="list-friend-container hide-scrollbar mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
+          <div className="list-friend-container hide-scrollbar border-(--border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
             {membersToSearch?.map((item) => {
               const isSent = sentIds.has(item.id ?? "");
               return (
                 <div
                   key={item.id}
-                  className="information-members flex w-full items-center gap-4 rounded-lg p-[.7rem]"
+                  className="information-members border-(--border-color) flex w-full items-center gap-4 border-b p-3 last:border-b-0"
                 >
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar ?? undefined}

@@ -1,3 +1,4 @@
+import { ShareAltOutlined } from "@ant-design/icons";
 import { Suspense, useState } from "react";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
@@ -45,9 +46,11 @@ const ShareImage = ({
         show={show}
         className="modal-size-sm"
         title="Forward message"
+        description="Send this message to your friends"
+        icon={<ShareAltOutlined />}
         onClose={() => setShow(false)}
       >
-        <div className="modal-content-h flex flex-col p-5">
+        <div className="modal-content-h flex flex-col px-6 pb-6 pt-2">
           <Suspense fallback={<ModalLoading />}>
             <ForwardMessageModal
               message={{

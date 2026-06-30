@@ -7,12 +7,11 @@ import {
   UpdateConversationRequest,
 } from "../../types/conv.types";
 import { AttachmentModel } from "../../types/message.types";
-import { isPhoneScreen } from "../../utils/getScreenSize";
 import { uploadFile } from "../../utils/uploadFile";
-import CustomButton from "../common/CustomButton";
 import CustomInput from "../common/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import MediaPicker from "../common/MediaPicker";
+import ModalFooter from "../common/ModalFooter";
 
 const UpdateConversation = (props: UpdateConversationProps) => {
   const { selected, onClose } = props;
@@ -77,7 +76,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-12 p-5 pt-10">
+    <div className="flex flex-col gap-10 px-6 pb-6 pt-2">
       <div className="relative flex items-end justify-evenly">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}
@@ -97,16 +96,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
           placeholder="Type group name"
         />
       </div>
-      <CustomButton
-        className="text-2xs mr-0"
-        width={4}
-        gradientWidth={`${isPhoneScreen() ? "115%" : "110%"}`}
-        gradientHeight={`${isPhoneScreen() ? "130%" : "120%"}`}
-        rounded="3rem"
-        title="Save"
-        onClick={updateConversationCTA}
-        sm
-      />
+      <ModalFooter onCancel={() => onClose?.()} onSave={updateConversationCTA} />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { getContacts } from "../../services/friend.service";
 import { OnCloseType } from "../../types/base.types";
 import { ContactModel } from "../../types/friend.types";
 import blurImage from "../../utils/blurImage";
-import CustomInput from "../common/CustomInput";
+import ModalSearchInput from "../common/ModalSearchInput";
 import FriendItem from "./FriendItem";
 
 const ListFriend = (props: OnCloseType) => {
@@ -52,15 +52,14 @@ const ListFriend = (props: OnCloseType) => {
 
   return (
     <>
-      <CustomInput
-        type="text"
-        placeholder="Search for name"
+      <ModalSearchInput
         inputRef={refInput}
+        placeholder="Search people by name"
         onChange={(e) => {
           findContact(e.target.value);
         }}
       />
-      <div className="list-friend-container hide-scrollbar text-(--text-main-color) mt-4 flex grow flex-col overflow-y-scroll scroll-smooth">
+      <div className="list-friend-container hide-scrollbar text-(--text-main-color) border-(--border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
         {contacts.map((item) => (
           <FriendItem
             key={item.id}

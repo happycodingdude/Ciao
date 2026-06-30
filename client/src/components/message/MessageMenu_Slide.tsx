@@ -3,6 +3,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   PushpinOutlined,
+  ShareAltOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
 import { Suspense, useCallback, useRef, useState } from "react";
@@ -138,9 +139,11 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           show={openForward}
           className="modal-size-sm"
           title="Forward message"
+          description="Send this message to your friends"
+          icon={<ShareAltOutlined />}
           onClose={() => setOpenForward(false)}
         >
-          <div className="modal-content-h flex flex-col p-5">
+          <div className="modal-content-h flex flex-col px-6 pb-6 pt-2">
             <Suspense fallback={<ModalLoading />}>
               <ForwardMessageModal
                 message={message}

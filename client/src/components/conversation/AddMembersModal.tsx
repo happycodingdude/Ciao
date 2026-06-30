@@ -13,8 +13,8 @@ import { PendingMessageModel } from "../../types/message.types";
 import { appendMessage } from "../../utils/messageCache";
 import blurImage from "../../utils/blurImage";
 import { isPhoneScreen } from "../../utils/getScreenSize";
-import CustomButton from "../common/CustomButton";
-import CustomInput from "../common/CustomInput";
+import ModalFooter from "../common/ModalFooter";
+import ModalSearchInput from "../common/ModalSearchInput";
 import FriendPickerList from "./FriendPickerList";
 
 const AddMembersModal = ({ onClose }: OnCloseType) => {
@@ -81,9 +81,7 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
 
   return (
     <>
-      <CustomInput
-        type="text"
-        placeholder="Search for name"
+      <ModalSearchInput
         inputRef={refInput}
         onChange={(e) => {
           const q = e.target.value.toLowerCase();
@@ -96,7 +94,7 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
         }}
       />
       <div
-        className={`border-(--border-color) relative flex grow gap-8 border-b-[.1rem]
+        className={`relative flex grow gap-8
           ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
       >
         <FriendPickerList
@@ -109,16 +107,7 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
           removeMemberToAdd={removeMemberToAdd}
         />
       </div>
-      <CustomButton
-        className="text-2xs mr-0"
-        width={4}
-        gradientWidth={isPhoneScreen() ? "115%" : "110%"}
-        gradientHeight={isPhoneScreen() ? "130%" : "120%"}
-        rounded="3rem"
-        title="Save"
-        onClick={addMembersCTA}
-        sm
-      />
+      <ModalFooter onCancel={() => onClose?.()} onSave={addMembersCTA} />
     </>
   );
 };
