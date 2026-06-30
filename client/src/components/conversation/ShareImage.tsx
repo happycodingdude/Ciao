@@ -33,7 +33,7 @@ const ShareImage = ({
       onClick={showImage}
     >
       <div
-        className="absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm bg-white"
+        className="absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm bg-(--bg-color)"
         onClick={(e) => {
           e.stopPropagation();
           setShow(true);

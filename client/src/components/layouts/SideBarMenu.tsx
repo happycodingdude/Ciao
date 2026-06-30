@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
+import useTheme from "../../hooks/useTheme";
 import useUnreadNotificationCount from "../../hooks/useUnreadNotificationCount";
 import useUnseenConversationCount from "../../hooks/useUnseenConversationCount";
 import Signout from "../auth/Signout";
@@ -10,6 +11,7 @@ const SideBarMenu = () => {
   const queryClient = useQueryClient();
   const unseenCount = useUnseenConversationCount();
   const unreadNotiCount = useUnreadNotificationCount();
+  const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     const items = document.querySelectorAll(".sidebar-item");
@@ -62,11 +64,11 @@ const SideBarMenu = () => {
   return (
     <div
       className="sidebar-3 bg-linear-to-br relative flex h-full w-full flex-col items-center
-      from-light-blue-300 to-light-blue-500 py-6"
+      from-(--sidebar-from) to-(--sidebar-to) py-6"
     >
       <div className="z-10 mb-12 aspect-square w-[60%]">
         <div className="flex h-full w-full items-center justify-center rounded-xl bg-white shadow-md">
-          <i className="fa-solid fa-comments  text-light-blue-600"></i>
+          <i className="fa-solid fa-comments  text-(--sidebar-active-icon)"></i>
         </div>
       </div>
 
@@ -109,6 +111,17 @@ const SideBarMenu = () => {
           <i className="fa-solid fa-gear"></i>
           <div className="tooltip">Settings</div>
         </Link>
+
+        {/* Toggle theme — prominent button (bg + glow theo theme), giống mockup. */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="theme-toggle"
+          aria-label={isDark ? "Dark mode" : "Light mode"}
+        >
+          <i className={`fa-solid ${isDark ? "fa-moon" : "fa-sun"}`}></i>
+          <div className="tooltip">{isDark ? "Dark mode" : "Light mode"}</div>
+        </button>
       </div>
 
       <Signout />

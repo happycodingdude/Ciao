@@ -40,8 +40,8 @@
 .sidebar-3 {
   color: white;
   .active {
-    background: white;
-    color: #0284c7;
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active-icon);
     border-radius: 12px;
   }
 }
@@ -89,6 +89,34 @@
 }
 
 .sidebar-item:hover .tooltip {
+  opacity: 1;
+}
+
+/* Nút toggle theme — prominent (bg + glow theo theme), giống mockup. */
+.theme-toggle {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  font-size: var(--font-size-base);
+  background: var(--theme-toggle-bg);
+  box-shadow: var(--theme-toggle-glow);
+  transition: all 0.25s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.05);
+}
+
+.theme-toggle i {
+  color: var(--theme-toggle-icon);
+}
+
+.theme-toggle:hover .tooltip {
   opacity: 1;
 }
 

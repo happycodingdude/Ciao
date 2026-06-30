@@ -21,8 +21,8 @@ const LazyEmojiPicker = ({
 
   if (!Picker) {
     return (
-      <div className="flex h-176 w-84 animate-pulse items-center justify-center rounded-lg bg-gray-100">
-        <span className="text-gray-500">Loading emoji...</span>
+      <div className="flex h-176 w-84 animate-pulse items-center justify-center rounded-lg bg-(--skeleton-base)">
+        <span className="text-(--text-main-color-blur)">Loading emoji...</span>
       </div>
     );
   }

@@ -202,8 +202,8 @@ const ConversationReview = ({
                         cho CẢ hai phía (phân biệt bằng canh lề + avatar). */}
                     <span
                       className={`w-fit whitespace-pre-wrap break-words rounded-xl px-3.5 py-1.5 text-xs shadow-[0_2px_10px_rgba(0,0,0,0.1)]
-                        ${highlighted ? "bg-amber-100 ring-2 ring-amber-300" : "bg-white"}
-                        ${m.recalledTime ? "italic text-gray-400" : "text-(--text-main-color)"}`}
+                        ${highlighted ? "bg-amber-100 ring-2 ring-amber-300" : "bg-(--bubble-bg)"}
+                        ${m.recalledTime ? "italic text-(--text-main-color-blur)" : "text-(--text-main-color)"}`}
                     >
                       {m.recalledTime
                         ? "Tin nhắn đã được thu hồi"

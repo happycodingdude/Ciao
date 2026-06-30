@@ -27,14 +27,20 @@ const FetchingMoreMessages = ({ loading }: { loading: boolean }) => {
         className="absolute inset-0 backdrop-blur-md"
         style={{ maskImage: fade, WebkitMaskImage: fade }}
       />
-      {/* Lớp ánh sáng: sáng nhất ở mép trên rồi tan vào nền (luồng sáng từ trên xuống). */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/35 to-transparent" />
-      {/* Điểm nhấn sáng toả từ đỉnh-giữa. */}
+      {/* Lớp ánh sáng: sáng nhất ở mép trên rồi tan vào nền chat (theo theme). */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(60% 120% at 50% -25%, rgba(255,255,255,0.9), transparent 70%)",
+            "linear-gradient(to bottom, rgb(var(--chat-fade-rgb) / 0.85), rgb(var(--chat-fade-rgb) / 0.35), transparent)",
+        }}
+      />
+      {/* Điểm nhấn toả từ đỉnh-giữa (theo theme). */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(60% 120% at 50% -25%, rgb(var(--chat-fade-rgb) / 0.9), transparent 70%)",
         }}
       />
       {/* Text trạng thái trong vùng sáng. */}

@@ -9,10 +9,10 @@ type Props = {
 const ChatInputToolbar = ({ onEmojiClick, onFileChange, onImageChange }: Props) => (
   <div className="flex items-center gap-4">
     <label
-      className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square cursor-pointer items-center justify-center rounded-full bg-gray-100 text-base text-gray-500 hover:bg-gray-100 hover:text-light-blue-500"
+      className="emoji-item toolbar-btn fa-regular fa-face-smile flex aspect-square cursor-pointer items-center justify-center rounded-full bg-(--toolbar-btn-bg) text-base text-(--toolbar-btn-text) hover:bg-(--toolbar-btn-bg) hover:text-light-blue-500"
       onClick={onEmojiClick}
     />
-    <div className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+    <div className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-(--toolbar-btn-bg) text-(--toolbar-btn-text) hover:bg-(--toolbar-btn-bg) hover:text-light-blue-500">
       <input
         multiple
         type="file"
@@ -25,7 +25,7 @@ const ChatInputToolbar = ({ onEmojiClick, onFileChange, onImageChange }: Props) 
         <i className="fa-solid fa-paperclip text-base" />
       </label>
     </div>
-    <div className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+    <div className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-(--toolbar-btn-bg) text-(--toolbar-btn-text) hover:bg-(--toolbar-btn-bg) hover:text-light-blue-500">
       <input
         multiple
         type="file"
@@ -38,7 +38,7 @@ const ChatInputToolbar = ({ onEmojiClick, onFileChange, onImageChange }: Props) 
         <i className="fa-solid fa-image text-base" />
       </label>
     </div>
-    <button className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-100 hover:text-light-blue-500">
+    <button className="toolbar-btn flex aspect-square items-center justify-center rounded-full bg-(--toolbar-btn-bg) text-(--toolbar-btn-text) hover:bg-(--toolbar-btn-bg) hover:text-light-blue-500">
       <i className="fa-solid fa-microphone text-base" />
     </button>
   </div>

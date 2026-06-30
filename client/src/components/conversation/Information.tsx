@@ -36,9 +36,9 @@ const Information = () => {
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 pb-4 ${showInformation ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
+      className={`absolute top-0 pb-4 ${showInformation ? "z-10" : "z-0"} flex h-full w-full flex-col bg-(--bg-color)`}
     >
-      <div className="border-b-(--border-color) panel-header-h flex items-center justify-between border-b-[.1rem] bg-white px-4">
+      <div className="border-b-(--border-color) panel-header-h flex items-center justify-between border-b-[.1rem] bg-(--bg-color) px-4">
         <p className="text-base font-medium">Chat information</p>
         <div className="flex gap-4">
           {conversation?.isGroup && (

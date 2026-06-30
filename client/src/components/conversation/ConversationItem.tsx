@@ -38,7 +38,7 @@ const ConversationItem = ({ item, selfId, isActive, itemRef, onClick }: Props) =
               circle
             />
             <div
-              className={`absolute -bottom-1 -right-1 aspect-square w-4 rounded-full border-2 border-white
+              className={`absolute -bottom-1 -right-1 aspect-square w-4 rounded-full border-2 border-(--bg-color)
                 ${isOnline ? "bg-(--online-color)" : "bg-(--offline-color)"}`}
             />
           </div>
@@ -49,9 +49,9 @@ const ConversationItem = ({ item, selfId, isActive, itemRef, onClick }: Props) =
               title={item.isGroup ? item.title : otherMember?.contact?.name}
             />
             {item.lastMessage && (
-              <div className="flex text-gray-600">
+              <div className="flex text-(--text-main-color-blur)">
                 {item.hasAttachment && (
-                  <span className="laptop:text-2xs mr-1 self-center text-gray-500 grayscale">
+                  <span className="laptop:text-2xs mr-1 self-center text-(--text-main-color-blur) grayscale">
                     🖼️
                   </span>
                 )}
@@ -72,7 +72,7 @@ const ConversationItem = ({ item, selfId, isActive, itemRef, onClick }: Props) =
           </div>
           <div
             className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center self-start rounded-full
-              ${item.lastMessageTime === null ? "" : "bg-gray-100"} text-gray-500`}
+              ${item.lastMessageTime === null ? "" : "bg-(--bg-color-extrathin)"} text-(--text-main-color-blur)`}
           >
             {/* Chưa có tin nhắn → không hiển thị badge thời gian */}
             <p>

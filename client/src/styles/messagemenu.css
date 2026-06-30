@@ -5,7 +5,7 @@
   pointer-events: none;
   display: block;
   border-radius: 0.7rem;
-  background-color: white;
+  background-color: var(--bg-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 0.3rem 0;
   &[data-show="true"] {

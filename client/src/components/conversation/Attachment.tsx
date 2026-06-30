@@ -53,9 +53,9 @@ const Attachment = () => {
   return (
     <div
       ref={refAttachment}
-      className={`absolute top-0 pb-4 ${showAttachment ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
+      className={`absolute top-0 pb-4 ${showAttachment ? "z-10" : "z-0"} flex h-full w-full flex-col bg-(--bg-color)`}
     >
-      <div className="border-b-(--border-color) panel-header-h flex items-center justify-evenly border-b-[.1rem] bg-white">
+      <div className="border-b-(--border-color) panel-header-h flex items-center justify-evenly border-b-[.1rem] bg-(--bg-color)">
         <div
           className={`${attachmentToggle === "image" ? "selected" : ""} custom-button`}
           onClick={() => {
@@ -123,7 +123,7 @@ const Attachment = () => {
             width="2rem"
             height="2rem"
           />
-          <p className="text-base text-gray-700">
+          <p className="text-base text-(--text-main-color-blur)">
             Attachments will appear here
           </p>
         </div>

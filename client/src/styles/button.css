@@ -2,14 +2,14 @@
   cursor: pointer;
   border-radius: 9999px;
   /* rounded-full */
-  background-color: #f3f4f6;
-  /* bg-gray-100 */
+  background-color: var(--toolbar-btn-bg);
+  /* bg-gray-100 (light) → token */
   padding: 0.2rem 1rem;
   /* px-4 py-2 */
   font-weight: 500;
   /* font-medium */
-  color: #4b5563;
-  /* text-gray-600 */
+  color: var(--text-main-color-blur);
+  /* text-gray-600 → token */
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   /* shadow-[...] */
   transition-property:

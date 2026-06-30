@@ -5,7 +5,11 @@
 .chat-item:hover,
 .chat-item.active {
   transform: scale(1.02);
-  box-shadow: 0 4px 20px #bae6fd;
+  box-shadow: 0 4px 20px var(--chat-item-glow);
+}
+
+.chat-item.active {
+  background-color: var(--chat-item-active-bg);
 }
 
 
@@ -15,7 +19,12 @@
 }
 
 .shimmer-effect {
-  background: linear-gradient(90deg, #e9dff7 0%, #0ea5e9 50%, #e9dff7 100%);
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base) 0%,
+    var(--shimmer-mid) 50%,
+    var(--shimmer-base) 100%
+  );
   background-size: 200% 100%;
 }
 
@@ -33,7 +42,7 @@
   height: 100%;
   background: linear-gradient(90deg,
       transparent,
-      rgba(214, 197, 240, 0.3),
+      var(--shimmer-sweep),
       transparent);
   animation: wave-shimmer 1.5s infinite;
 }

@@ -13,7 +13,7 @@ const ListChatHeader = () => {
           value={search}
           type="text"
           placeholder="Find and chat"
-          className="text-2xs h-full w-full rounded-3xl bg-gray-100 py-5 pl-4 pr-12 shadow-sm
+          className="text-2xs h-full w-full rounded-3xl bg-(--bg-color-extrathin) text-(--text-main-color) py-5 pl-4 pr-12 shadow-sm
           focus:shadow-md focus:outline-none"
           onChange={(e) => setSearch(e.target.value)}
         ></input>

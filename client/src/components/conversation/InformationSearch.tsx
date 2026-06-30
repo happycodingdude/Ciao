@@ -221,10 +221,10 @@ const InformationSearch = () => {
 
   return (
     <div
-      className={`absolute top-0 pb-4 ${showSearch ? "z-10" : "z-0"} flex h-full w-full flex-col bg-white`}
+      className={`absolute top-0 pb-4 ${showSearch ? "z-10" : "z-0"} flex h-full w-full flex-col bg-(--bg-color)`}
     >
       {/* Header chỉ tiêu đề — đóng panel bằng cách click lại icon Search trên ChatboxHeaderMenu. */}
-      <div className="border-b-(--border-color) panel-header-h flex items-center border-b-[.1rem] bg-white px-4">
+      <div className="border-b-(--border-color) panel-header-h flex items-center border-b-[.1rem] bg-(--bg-color) px-4">
         <p className="text-base font-medium">Search messages</p>
       </div>
 

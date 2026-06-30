@@ -28,7 +28,7 @@ const ChatboxHeader = () => {
   return (
     <div
       className="border-b-(--border-color) text-(--text-main-color-normal) panel-header-h flex w-full
-      items-center justify-between border-b-[.1rem] bg-white px-4"
+      items-center justify-between border-b-[.1rem] bg-(--bg-color) px-4"
     >
       <div className="relative flex items-center gap-4">
         {isPhone ? (

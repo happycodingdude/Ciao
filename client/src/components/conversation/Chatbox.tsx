@@ -304,7 +304,7 @@ const Chatbox = () => {
             // Group đầu tiên có mt-auto để đẩy nội dung xuống đáy khi ít tin nhắn
             className={`flex flex-col ${groupIndex === 0 ? "mt-auto" : ""}`}
           >
-            <div className="text-3xs rounded-4xl laptop:mb-8 pointer-events-none mx-auto w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+            <div className="text-3xs text-(--text-main-color-blur) rounded-4xl laptop:mb-8 pointer-events-none mx-auto w-fit bg-(--date-divider-bg) px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
               {formatDisplayDate(date)}
             </div>
             {blocks.map((block, blockIndex) => {
@@ -314,7 +314,7 @@ const Chatbox = () => {
                 return (
                   <div
                     key={blockIndex}
-                    className="rounded-4xl pointer-events-none mx-auto mb-8 w-fit bg-white px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+                    className="rounded-4xl text-(--text-main-color-blur) pointer-events-none mx-auto mb-8 w-fit bg-(--date-divider-bg) px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                   >
                     {firstMessage.content}
                   </div>

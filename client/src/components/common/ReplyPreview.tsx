@@ -8,7 +8,7 @@ type Props = {
 
 const ReplyPreview = ({ contactName, content, onClose }: Props) => (
   <div className="flex w-full items-center justify-center py-4">
-    <div className="flex w-[95%] items-center justify-between rounded-xl border-l-[.3rem] border-l-light-blue-500/50 bg-light-blue-100 px-4 py-2">
+    <div className="flex w-[95%] items-center justify-between rounded-xl border-l-[.3rem] border-l-light-blue-500/50 bg-(--reply-preview-bg) px-4 py-2">
       <div className="max-w-[80%]">
         <p className="truncate italic text-light-blue-500">
           Reply to {contactName}

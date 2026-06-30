@@ -139,7 +139,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             />
           ))}
           {seenContacts.length > 3 && (
-            <span className="text-3xs text-gray-500">
+            <span className="text-3xs text-(--text-main-color-blur)">
               +{seenContacts.length - 3}
             </span>
           )}
@@ -227,12 +227,12 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   ${message.pending ? "opacity-50" : ""}
-                  ${isRecalled || message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
+                  ${isRecalled || message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
                 `}
               >
                 {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}
                 {isRecalled ? (
-                  <p className="italic text-gray-400">
+                  <p className="italic text-(--text-main-color-blur)">
                     Tin nhắn đã được thu hồi
                   </p>
                 ) : message.isForwarded ? (
@@ -395,13 +395,13 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             hoặc tin cuối là của người khác): không render gì.
           */}
           {hasSeenAvatars && (
-            <div className="text-3xs flex justify-end italic text-gray-500">
+            <div className="text-3xs flex justify-end italic text-(--text-main-color-blur)">
               {renderSeenAvatars()}
             </div>
           )}
 
           {showOwnStatus && (
-            <div className="text-3xs flex justify-end italic text-gray-500">
+            <div className="text-3xs flex justify-end italic text-(--text-main-color-blur)">
               {renderOwnSendStatus()}
             </div>
           )}

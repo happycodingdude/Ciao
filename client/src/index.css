@@ -40,6 +40,8 @@
     overflow: hidden;
     display: flex;
     scrollbar-width: none;
+    background-color: var(--bg-color);
+    color: var(--text-main-color);
   }
 }
 

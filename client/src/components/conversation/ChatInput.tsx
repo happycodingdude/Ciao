@@ -152,7 +152,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
     <div className="mb-2 flex w-full items-center justify-center">
       {/* Phone → fixed max-width; desktop: panel mở → thu hẹp max-width; panel đóng → rộng hơn */}
       <div
-        className={`${className} chat-input-container relative flex w-full grow flex-col bg-white transition-all duration-200
+        className={`${className} chat-input-container relative flex w-full grow flex-col bg-(--bubble-bg) transition-all duration-200
           ${isPhone
             ? "max-w-140"
             : !anyPanelOpen ? "laptop-lg:max-w-240 laptop:max-w-200" : "laptop-lg:max-w-180 laptop:max-w-150"}`}
@@ -162,7 +162,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
         )}
         {edit && (
           <div className="flex w-full items-center justify-center py-4">
-            <div className="flex w-[95%] items-center justify-between rounded-xl border-l-[.3rem] border-l-orange-400/60 bg-orange-50 px-4 py-2">
+            <div className="flex w-[95%] items-center justify-between rounded-xl border-l-[.3rem] border-l-orange-400/60 bg-(--edit-banner-bg) px-4 py-2">
               <div className="max-w-[80%]">
                 <p className="truncate italic text-orange-500">Editing message</p>
                 <p className="truncate">{edit.content}</p>
@@ -211,7 +211,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
         </div>
         {showEmoji && (
           <div className="-top-176 absolute left-0">
-            <Suspense fallback={<div className="h-176 w-84 animate-pulse rounded-lg bg-gray-100" />}>
+            <Suspense fallback={<div className="h-176 w-84 animate-pulse rounded-lg bg-(--skeleton-base)" />}>
               <LazyEmojiPicker
                 onEmojiSelect={(e) => { if (inputRef.current) inputRef.current.innerText += e.native; }}
                 onClickOutside={(e) => {

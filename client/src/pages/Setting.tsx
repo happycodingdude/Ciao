@@ -1,6 +1,5 @@
 import { useState } from "react";
 import AccountSection from "../components/settings/AccountSection";
-import AppearanceSection from "../components/settings/AppearanceSection";
 import NotificationsSection from "../components/settings/NotificationsSection";
 import PrivacySection from "../components/settings/PrivacySection";
 import ProfileSection from "../components/settings/ProfileSection";
@@ -9,7 +8,6 @@ import { SettingsSectionKey } from "../types/settings.types";
 
 const SECTION_COMPONENTS: Record<SettingsSectionKey, () => JSX.Element> = {
   profile: ProfileSection,
-  appearance: AppearanceSection,
   notifications: NotificationsSection,
   privacy: PrivacySection,
   account: AccountSection,

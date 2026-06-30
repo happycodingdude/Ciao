@@ -12,7 +12,7 @@ const ImageItem = memo(
     const { file, onClick } = props;
 
     return (
-      <div className="file-card group relative w-20 shrink-0 rounded-xl border border-chat-gray bg-white p-3">
+      <div className="file-card group relative w-20 shrink-0 rounded-xl border border-chat-gray bg-(--bg-color) p-3">
         <div
           data-key={file.name}
           className="delete-btn absolute -right-2 -top-2 
@@ -32,7 +32,7 @@ const ImageItem = memo(
           ]}
           local
         />
-        <p className="truncate text-gray-600">{file.name}</p>
+        <p className="truncate text-(--text-main-color-blur)">{file.name}</p>
       </div>
     );
   },

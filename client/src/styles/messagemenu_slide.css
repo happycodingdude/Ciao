@@ -6,7 +6,7 @@
   /* pointer-events: none; */
   display: flex;
   border-radius: 0.7rem;
-  background-color: white;
+  background-color: var(--bg-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 0.3rem;
   top: -0.7rem;
@@ -36,7 +36,7 @@
   justify-content: center;
   border-radius: 0.7rem;
   border: 1px solid var(--color-gray-200);
-  background-color: white;
+  background-color: var(--bg-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 0.35rem 0.45rem;
   color: var(--color-light-blue-500, #4299e1);
@@ -63,7 +63,7 @@
   justify-content: center;
   border-radius: 0.7rem;
   border: 1px solid var(--color-gray-200);
-  background-color: white;
+  background-color: var(--bg-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 0.35rem 0.45rem;
   color: var(--text-main-color, #1a202c);

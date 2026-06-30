@@ -30,33 +30,87 @@
   --search-bg-color: #f3f4f6;
   --placehoder-color: #eeeeee;
   --loading-bg-color: #808080ca;
+
+  /* Chat surfaces (theme-hóa Phase 0 dark-mode) — light giữ nguyên diện mạo cũ */
+  --bubble-bg: #ffffff;
+  --toolbar-btn-bg: #f3f4f6;
+  --toolbar-btn-text: #6b7280;
+  --date-divider-bg: #ffffff;
+  --skeleton-base: #e5e7eb;
+  --chat-bg-from: #f0f9ff;
+  --chat-bg-to: #e0f2fe;
+  --edit-banner-bg: #fff7ed;
+  --reply-preview-bg: #e0f2fe;
+  --chat-fade-rgb: 255 255 255;
+  --shimmer-base: #e9dff7;
+  --shimmer-mid: #0ea5e9;
+  --shimmer-sweep: rgba(214, 197, 240, 0.3);
+  --sidebar-from: #7dd3fc;
+  --sidebar-to: #0ea5e9;
+  --chat-item-glow: #bae6fd;
+  --chat-item-active-bg: #e8e8e8;
+  --theme-toggle-bg: #ffffff;
+  --theme-toggle-glow: 0 6px 16px rgba(2, 132, 199, 0.22);
+  --theme-toggle-icon: #f59e0b;
+  --sidebar-active-bg: #ffffff;
+  --sidebar-active-icon: #0ea5e9;
 }
 
 [data-theme="dark"] {
-  --main-color-extrabold: #213a57;
-  --main-color-bold: #0b6477;
-  --main-color: #1fd6e3;
-  --main-color-light: #6df1b6;
-  --main-color-extrathin: #b9f58b;
-  --sub-color: #333333;
+  /* Accent sky-blue (#25a4eb) lấy mẫu trực tiếp từ mockup — chỉ dark. */
+  --main-color-extrabold: #0e3f63;
+  --main-color-bold: #1781c4;
+  --main-color: #25a4eb;
+  --main-color-light: #5cbef2;
+  --main-color-thin: #93d4f7;
+  --main-color-extrathin: #c5e5f8;
+  --sub-color: #1a2536;
 
-  --bg-color: #000000;
-  --bg-color-light: #1b1b1b;
-  --bg-color-thin: #272727;
-  --bg-color-extrathin: #363636;
+  /* Nền navy đậm lấy mẫu từ mockup (list #0c1421, search #1a2536…). */
+  --bg-color: #0c1421;
+  --bg-color-medium: #2a3a52;
+  --bg-color-light: #141f30;
+  --bg-color-thin: #1a2536;
+  --bg-color-extrathin: #1f2c40;
 
   --text-main-color: #ffffff;
   --text-main-color-blur: #ffffff88;
   --text-main-color-light: #dcdcdc;
   --text-main-color-thin: #bdbdbd;
   --text-sub-color: #121212;
-  --text-sub-color-thin: #3e7c5b;
+  --text-sub-color-thin: #ffffff9b;
 
   --shadow-color: gray;
-  --border-color: #d1d5db;
+  --border-color: #1e2b3d;
   --icon-text-color: gray;
   --loading-color: #121212b2;
-  --portal-bg-color: #afafaf9f;
-  --portal-container-bg-color: #e8e8e8;
-  --search-bg-color: #f3f4f6;
+  --portal-bg-color: #060c16cc;
+  --portal-container-bg-color: #141f30;
+  --search-bg-color: #1a2536;
+  --placehoder-color: #1a2536;
+  --loading-bg-color: #0c1421ca;
+
+  /* Chat surfaces — navy lấy mẫu từ mockup (bubble #1e2e44, chat #111c2d…) */
+  --bubble-bg: #1e2e44;
+  --toolbar-btn-bg: #232f43;
+  --toolbar-btn-text: var(--text-main-color-blur);
+  --date-divider-bg: #1c2a3d;
+  --skeleton-base: #182536;
+  --chat-bg-from: #131f31;
+  --chat-bg-to: #0d1726;
+  --edit-banner-bg: #243349;
+  --reply-preview-bg: #1a2738;
+  --chat-fade-rgb: 17 28 45;
+  --shimmer-base: #16202f;
+  --shimmer-mid: #243349;
+  --shimmer-sweep: rgba(255, 255, 255, 0.05);
+  --sidebar-from: #0a2c4a;
+  --sidebar-to: #04162a;
+  --chat-item-glow: #0e2236;
+  --chat-item-active-bg: #141f30;
+  --theme-toggle-bg: #14233a;
+  --theme-toggle-glow: 0 0 20px rgba(37, 164, 235, 0.55);
+  --theme-toggle-icon: #8fd3ff;
+  --sidebar-active-bg: #ffffff;
+  --sidebar-active-icon: #06213c;
 }

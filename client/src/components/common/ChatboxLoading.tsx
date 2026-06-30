@@ -3,9 +3,9 @@ import "../../styles/listchat.css";
 const ChatboxLoading = () => {
   const numberOfLoadingDiv = 6;
   return (
-    <div className="flex h-full w-full grow flex-col border-r border-gray-200 bg-primary-light">
-      <div className="flex flex-1 flex-col bg-white">
-        <div className="flex h-16 items-center border-b border-gray-200 px-4 py-2">
+    <div className="flex h-full w-full grow flex-col border-r border-(--border-color) bg-(--bg-color)">
+      <div className="flex flex-1 flex-col bg-(--bg-color)">
+        <div className="flex h-16 items-center border-b border-(--border-color) px-4 py-2">
           <div className="wave-line shimmer-effect aspect-square w-12 rounded-full bg-opacity-40"></div>
           <div className="ml-3">
             <div className="wave-line shimmer-effect mb-2 h-4 w-40 rounded-sm bg-opacity-40"></div>
@@ -50,7 +50,7 @@ const ChatboxLoading = () => {
             <div className="text-primary-DEFAULT wave-line mb-3 text-5xl opacity-30">
               <i className="fa-solid fa-message"></i>
             </div>
-            <p className="text-sm text-gray-400">Messages will appear here</p>
+            <p className="text-sm text-(--text-main-color-blur)">Messages will appear here</p>
           </div>
         </div>
       </div>
