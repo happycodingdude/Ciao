@@ -254,6 +254,8 @@ public class NotificationConsumer : IGenericConsumer
 
     async Task HandleNewDirectConversation(NewStoredDirectConversationModel param)
     {
+        if (param.Message is null) return;
+
         var notify = _mapper.Map<EventNewMessage>(param.Message);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);

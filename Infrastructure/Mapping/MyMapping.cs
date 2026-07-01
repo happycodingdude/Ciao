@@ -81,6 +81,7 @@ public class MyMapping : Profile
         CreateMap<Message, MessageWithReactions>().ReverseMap();
         CreateMap<MessageReactionSummary, MessageWithReactions>().ReverseMap();
         CreateMap<Message, NewDirectConversationModel_Message>().ReverseMap();
+        CreateMap<Conversation, NewDirectConversationModel_Conversation>().ReverseMap();
         CreateMap<Message, SystemMessage>().ReverseMap();
         CreateMap<NewMessageModel_Message, Message>().ReverseMap();
         CreateMap<NewMessageModel_Message, SendMessageReq>().ReverseMap();

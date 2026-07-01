@@ -23,7 +23,7 @@ import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";
 
 const FriendCtaButton = (props: FriendItemProps) => {
-  const { friend, friendAction, onClose } = props;
+  const { friend, friendAction, onClose, addLabel } = props;
 
   const queryClient = useQueryClient();
   const { setLoading } = useLoading();
@@ -159,6 +159,9 @@ const FriendCtaButton = (props: FriendItemProps) => {
     new: (
       <AddButton
         id={friend.id}
+        // addLabel dài hơn ("Add friend") → nới rộng nút để không bị cắt chữ
+        title={addLabel}
+        width={addLabel ? 6.5 : undefined}
         onClose={(id?: string) => handleFriendAction(id, "request_sent")}
       />
     ),

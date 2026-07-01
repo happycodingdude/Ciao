@@ -56,6 +56,7 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
                   avatar: item.contact?.avatar,
                   isOnline: item.contact?.isOnline,
                   name: item.contact?.name,
+                  isModerator: item.isModerator,
                   friendId: item.friendId,
                   // "friend" → không có nút add friend (đã là bạn); các status khác → hiện CTA
                   friendStatus:

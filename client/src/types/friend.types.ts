@@ -11,6 +11,8 @@ export type ContactModel = BaseModel & {
   friendId?: string | null;
   friendStatus?: "friend" | "request_sent" | "request_received" | "new";
   directConversation?: string | null;
+  // Vai trò trong nhóm (Admin) — dùng cho subtitle của QuickChat.
+  isModerator?: boolean;
 };
 
 export type FriendCache = BaseModel & {

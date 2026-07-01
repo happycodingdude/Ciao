@@ -100,10 +100,15 @@ export type FriendItemProps = OnCloseType & {
     status?: "friend" | "request_sent" | "request_received" | "new" | null,
     userId?: string | null,
   ) => void;
+  // Nhãn tùy biến cho nút thêm bạn (vd QuickChat: "Add friend"). Mặc định "Add".
+  addLabel?: string;
 };
 
 export type FriendCtaButtonProps = OnCloseType & {
   id?: string;
+  // Cho phép override nhãn/độ rộng nút Add ở từng ngữ cảnh (giữ default cho chỗ cũ).
+  title?: string;
+  width?: number;
 };
 
 export type ChatInputProps = {
@@ -120,6 +125,8 @@ export type CustomContentEditableProps = {
   className?: string;
   isEmpty?: boolean;
   quickChat?: boolean;
+  // Placeholder tùy biến (vd QuickChat: "Message @Tên…"). Mặc định giữ nguyên text cũ.
+  placeholder?: string;
   // Callback khi user paste image vào editor. Optional vì không phải nơi nào dùng
   // CustomContentEditable cũng cần upload (vd. QuickChat chỉ gửi text).
   onPasteFiles?: (files: File[]) => void;

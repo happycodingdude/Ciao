@@ -52,7 +52,7 @@ public static class CreateDirectConversation
                 UserId = userId,
                 ContactId = request.contactId,
                 IsNewConversation = isNewConversation,
-                Conversation = _mapper.Map<NewGroupConversationModel_Conversation>(conversation),
+                Conversation = _mapper.Map<NewDirectConversationModel_Conversation>(conversation),
                 Message = message
             });
 

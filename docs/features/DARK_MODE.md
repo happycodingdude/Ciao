@@ -49,3 +49,10 @@ Cho phép người dùng sử dụng ứng dụng ở giao diện tối (dark mo
 
 - Hiệu ứng nhấp nháy của màn hình chờ (loading) dùng dải màu động cố định, không đổi theo chế độ sáng/tối.
 - Hiện chỉ có hai chế độ: Sáng và Tối (chưa có chế độ tương phản cao hoặc theo lịch tự động).
+
+## Mở rộng sau tài liệu gốc
+
+Sau đợt triển khai dark mode ban đầu, theme tiếp tục được phủ nốt các bề mặt còn hardcode màu (30/06–01/07/2026):
+
+- **Hộp thoại (modal popup)**: toàn bộ hộp thoại trung tâm (Thêm thành viên, Tạo nhóm, Cập nhật nhóm, Kết bạn, Chuyển tiếp tin nhắn) được đồng bộ khung + áp theme sáng/tối. Chi tiết nghiệp vụ + changelog: [`DONG_BO_UI_MODAL_PLAN.md`](./DONG_BO_UI_MODAL_PLAN.md).
+- **Các surface danh sách/thông tin/thông báo còn sót**: mục hội thoại, bảng thông tin & đính kèm, danh sách bạn bè/kết nối, danh sách thông báo… đã được token hoá → không còn vùng nền trắng lạc ở chế độ tối trên toàn app.

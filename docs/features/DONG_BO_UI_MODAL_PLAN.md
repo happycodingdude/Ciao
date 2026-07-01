@@ -1,5 +1,9 @@
 # Đồng bộ giao diện hộp thoại (modal popup)
 
+> **Trạng thái:** ✅ Đã triển khai (Phase 1 → 3) qua 4 commit `a8b4697 → f8fa270` (30/06–01/07/2026).
+> Là phần mở rộng của tính năng theme sáng/tối — xem [`DARK_MODE.md`](./DARK_MODE.md) và [`AP_DUNG_DARK_MODE_PLAN.md`](./AP_DUNG_DARK_MODE_PLAN.md).
+> Chi tiết những gì đã thực sự đưa lên: xem [Changelog triển khai](#changelog-triển-khai) cuối tài liệu.
+
 ## Mục đích
 
 Thống nhất giao diện cho tất cả hộp thoại mở ra từ các nút thao tác trong ứng dụng, mang lại
@@ -89,3 +93,23 @@ Mọi hộp thoại hiển thị theo cùng một bố cục:
 
 - Phạm vi đồng bộ chỉ áp dụng cho các hộp thoại trung tâm mở ra từ nút thao tác.
 - Các popover xác nhận nhỏ (ví dụ xác nhận huỷ kết bạn) và menu ngữ cảnh không nằm trong phạm vi này.
+
+---
+
+## Changelog triển khai
+
+> Ghi lại những gì đã thực sự đưa lên qua 4 commit. Đợt này khởi đầu là "đồng bộ modal" nhưng
+> khi test trên app live đã lan sang **hoàn thiện nốt các surface còn hardcode màu** của dark mode
+> (phần đuôi của [`DARK_MODE.md`](./DARK_MODE.md)). Cả hai mảng dùng chung cơ chế token CSS-var.
+
+| Commit | Ngày | Nội dung chính |
+|--------|------|----------------|
+| `a8b4697` | 30/06 | **Phase 1 — khung modal chung.** Tách component tái dùng: `PortalHeader`, `ModalFooter`, `ModalSearchInput`, `BackgroundPortal`; chuẩn hoá header (icon + tiêu đề + mô tả + nút đóng), ô tìm kiếm, vùng nút. Áp cho: Thêm thành viên, Tạo nhóm, Cập nhật nhóm, Kết bạn, Chuyển tiếp tin nhắn. Thêm tài liệu này. |
+| `9e1063b` | 01/07 | **Token hoá nền gốc + modal (cont).** Tokenize `index.css` (nền/chữ modal), tinh chỉnh `MemberToAdd_LargeScreen`, `FriendPickerList`; bổ sung/điều chỉnh token trong `App.css`. |
+| `2f57995` | 01/07 | **Hoàn thiện modal theo 2 kiểu thao tác (Phase 2).** `BackgroundPortal`/`PortalHeader` responsive, `CreateGroupChatModal` + `AddMembersModal` (chọn-rồi-xác-nhận vs theo-dòng), `ShareImage`, `MessageMenu_Slide`; token `index.css`. |
+| `f8fa270` | 01/07 | **Lan sang các surface dark-mode còn sót (Phase 3).** Tokenize màu hardcode ở: `ConversationItem`, `Information`, `InformationAttachments`, `AttachmentIcon`, `ListChatContainer`, `ConnectionFriendList`, `ListFriend`, `NotificationList` + `Notification` page, `ConversationReview`, `ShareImage`, `SettingToggle`, `listchat.css`, `App.css`. → đóng nốt "vùng sáng lạc" ngoài phạm vi modal. |
+
+### Kết quả
+- Toàn bộ 5 hộp thoại trung tâm dùng chung khung + hiển thị đúng ở cả sáng/tối, responsive mobile.
+- Các surface danh sách/thông tin/thông báo còn hardcode màu (ngoài scope plan dark mode gốc) đã được token hoá → dark mode giờ phủ **toàn bộ** app, không còn vùng nền trắng lạc.
+- Thuần CSS/class + tách component — không đổi API/DB/logic nghiệp vụ.

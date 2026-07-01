@@ -97,8 +97,16 @@ public class NewDirectConversationModel : KafkaBaseModel
 {
     public string ContactId { get; set; } = null!;
     public bool IsNewConversation { get; set; }
-    public NewGroupConversationModel_Conversation Conversation { get; set; } = null!;
+    public NewDirectConversationModel_Conversation Conversation { get; set; } = null!;
     public NewDirectConversationModel_Message? Message { get; set; }
+}
+
+public class NewDirectConversationModel_Conversation
+{
+    public string Id { get; set; } = null!;
+    public string Title { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public Member[] Members { get; set; } = null!;
 }
 
 public class NewDirectConversationModel_Message : BaseIdModel
