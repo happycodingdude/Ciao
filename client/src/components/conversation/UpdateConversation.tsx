@@ -76,7 +76,7 @@ const UpdateConversation = (props: UpdateConversationProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-10 px-6 pb-6 pt-2">
+    <div className="text-(--text-main-color) flex flex-col gap-5 px-6 pb-6 pt-2">
       <div className="relative flex items-end justify-evenly">
         <ImageWithLightBoxAndNoLazy
           src={avatar ?? ""}

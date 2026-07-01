@@ -143,7 +143,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           icon={<ShareAltOutlined />}
           onClose={() => setOpenForward(false)}
         >
-          <div className="modal-content-h flex flex-col px-6 pb-6 pt-2">
+          <div className="text-(--text-main-color) flex flex-col gap-5 px-6 pb-6 pt-2 modal-content-h">
             <Suspense fallback={<ModalLoading />}>
               <ForwardMessageModal
                 message={message}

@@ -29,8 +29,8 @@ const BackgroundPortal = (props: BackgroundPortalProps) => {
     >
       <div
         data-show={`${show}`}
-        className={`${className} z-1000 bg-(--portal-container-bg-color) border-(--border-color) fixed left-[50%] top-[50%] flex w-[50%] translate-x-[-50%]
-        translate-y-[-50%] flex-col overflow-hidden rounded-2xl border shadow-2xl transition-all duration-500
+        className={`${className} z-1000 bg-(--portal-container-bg-color) border-(--portal-border-color) fixed left-[50%] top-[50%] flex translate-x-[-50%]
+        translate-y-[-50%] flex-col overflow-hidden rounded-2xl border shadow-2xl ring-1 ring-white/5 transition-all duration-500
         data-[show=false]:scale-0 data-[show=true]:scale-100`}
       >
         {!noHeader && (

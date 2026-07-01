@@ -48,32 +48,56 @@
 @theme {
   /* Custom Breakpoints */
   --breakpoint-*: initial;
-  --breakpoint-phone: 30rem; /* 480px */
-  --breakpoint-tablet: 48rem; /* 768px */
-  --breakpoint-laptop-sm: 64rem; /* 1024px */
-  --breakpoint-laptop: 80rem; /* 1280px */
-  --breakpoint-laptop-lg: 95rem; /* 1520px */
-  --breakpoint-desktop: 160rem; /* 2560px */
+  --breakpoint-phone: 30rem;
+  /* 480px */
+  --breakpoint-tablet: 48rem;
+  /* 768px */
+  --breakpoint-laptop-sm: 64rem;
+  /* 1024px */
+  --breakpoint-laptop: 80rem;
+  /* 1280px */
+  --breakpoint-laptop-lg: 95rem;
+  /* 1520px */
+  --breakpoint-desktop: 160rem;
+  /* 2560px */
 
   /* Custom Font Sizes */
-  --font-size-4xs: 0.625rem; /* ~10px */
-  --font-size-3xs: 0.75rem; /* ~12px */
-  --font-size-2xs: 0.875rem; /* ~14px */
-  --font-size-xs: 1rem; /* ~16px */
-  --font-size-sm: 1.125rem; /* ~18px */
-  --font-size-base: 1.25rem; /* ~20px */
-  --font-size-md: 1.5rem; /* ~24px */
-  --font-size-lg: 1.75rem; /* ~28px */
-  --font-size-xl: 2rem; /* ~32px */
-  --font-size-2xl: 2.5rem; /* ~40px */
-  --font-size-3xl: 3rem; /* ~48px */
-  --font-size-4xl: 3.5rem; /* ~56px */
-  --font-size-5xl: 4rem; /* ~64px */
-  --font-size-6xl: 4.5rem; /* ~72px */
-  --font-size-7xl: 5rem; /* ~80px */
-  --font-size-8xl: 6rem; /* ~96px */
-  --font-size-9xl: 7rem; /* ~112px */
-  --font-size-10xl: 8rem; /* ~128px */
+  --font-size-4xs: 0.625rem;
+  /* ~10px */
+  --font-size-3xs: 0.75rem;
+  /* ~12px */
+  --font-size-2xs: 0.875rem;
+  /* ~14px */
+  --font-size-xs: 1rem;
+  /* ~16px */
+  --font-size-sm: 1.125rem;
+  /* ~18px */
+  --font-size-base: 1.25rem;
+  /* ~20px */
+  --font-size-md: 1.5rem;
+  /* ~24px */
+  --font-size-lg: 1.75rem;
+  /* ~28px */
+  --font-size-xl: 2rem;
+  /* ~32px */
+  --font-size-2xl: 2.5rem;
+  /* ~40px */
+  --font-size-3xl: 3rem;
+  /* ~48px */
+  --font-size-4xl: 3.5rem;
+  /* ~56px */
+  --font-size-5xl: 4rem;
+  /* ~64px */
+  --font-size-6xl: 4.5rem;
+  /* ~72px */
+  --font-size-7xl: 5rem;
+  /* ~80px */
+  --font-size-8xl: 6rem;
+  /* ~96px */
+  --font-size-9xl: 7rem;
+  /* ~112px */
+  --font-size-10xl: 8rem;
+  /* ~128px */
 
   /* Primary Colors */
   --color-primary-50: #f0f9ff;
@@ -225,10 +249,12 @@
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -238,6 +264,7 @@
   0% {
     box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
   }
+
   100% {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
   }
@@ -248,6 +275,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -255,30 +283,36 @@
 }
 
 @keyframes wave {
+
   0%,
   100% {
     transform: scaleY(1);
   }
+
   50% {
     transform: scaleY(1.2);
   }
 }
 
 @keyframes morph {
+
   0%,
   100% {
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
   }
+
   50% {
     border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
   }
 }
 
 @keyframes borderPulse {
+
   0%,
   100% {
     border-color: rgba(59, 130, 246, 0.5);
   }
+
   50% {
     border-color: rgba(59, 130, 246, 1);
   }
@@ -289,6 +323,7 @@
     transform: scale(0.9);
     opacity: 0;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -300,6 +335,7 @@
     transform: translateX(-10px);
     opacity: 0;
   }
+
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -310,6 +346,7 @@
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
@@ -319,14 +356,17 @@
   0% {
     transform: translateX(-50%);
   }
+
   10% {
     transform: translateX(-200%);
     opacity: 0;
   }
+
   60% {
     transform: translateX(250%);
     opacity: 0;
   }
+
   100% {
     transform: translateX(100%);
     opacity: 1;
@@ -339,6 +379,7 @@
     transform-origin: -100% 50%;
     opacity: 0;
   }
+
   100% {
     transform: translateX(0) rotateY(0) scale(1);
     transform-origin: 240rem 50%;
@@ -352,6 +393,7 @@
     transform-origin: -220rem 50%;
     opacity: 1;
   }
+
   100% {
     transform: translateX(100rem) rotateY(-30deg) scale(0);
     transform-origin: -100% 50%;
@@ -363,6 +405,7 @@
   50% {
     opacity: 0;
   }
+
   100% {
     flex-grow: 0;
     opacity: 0;
@@ -375,9 +418,11 @@
     flex-grow: 0;
     opacity: 0;
   }
+
   30% {
     opacity: 0;
   }
+
   100% {
     flex-grow: 1;
     opacity: 1;
@@ -389,34 +434,42 @@
     transform: translateX(-22px) translateY(-22px);
     animation-timing-function: linear;
   }
+
   19% {
     transform: translateX(-10px) translateY(-16px);
     animation-timing-function: linear;
   }
+
   38% {
     transform: translateX(0) translateY(0);
     animation-timing-function: ease-out;
   }
+
   55% {
     transform: translateY(-15px);
     animation-timing-function: ease-in;
   }
+
   72% {
     transform: translateY(0);
     animation-timing-function: ease-out;
   }
+
   81% {
     transform: translateY(-10px);
     animation-timing-function: ease-in;
   }
+
   90% {
     transform: translateY(0);
     animation-timing-function: ease-out;
   }
+
   95% {
     transform: translateY(-5px);
     animation-timing-function: ease-in;
   }
+
   100% {
     transform: translateY(0);
   }
@@ -426,9 +479,11 @@
   0% {
     transform: scale(1) rotate(0);
   }
+
   80% {
     transform: scale(1.5) rotate(-90deg);
   }
+
   100% {
     transform: scale(1) rotate(-180deg);
   }
@@ -438,9 +493,11 @@
   0% {
     transform: scale(1) rotate(180deg);
   }
+
   50% {
     transform: scale(1.5) rotate(270deg);
   }
+
   100% {
     transform: scale(1) rotate(360deg);
   }
@@ -450,10 +507,12 @@
   0% {
     transform: scale(1) rotateY(0);
   }
+
   50% {
     transform: scale(0.4) rotateY(90deg);
     opacity: 0;
   }
+
   100% {
     transform: scale(1) rotateY(0);
     opacity: 0;
@@ -466,10 +525,12 @@
     transform: scale(1) rotateY(0);
     opacity: 0;
   }
+
   50% {
     transform: scale(0.4) rotateY(-90deg);
     opacity: 0;
   }
+
   100% {
     transform: scale(1) rotateY(0);
     opacity: 1;
@@ -481,17 +542,20 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
 }
 
 @keyframes floating-dots {
+
   0%,
   100% {
     transform: translateY(0);
     opacity: 0.5;
   }
+
   50% {
     transform: translateY(-4px);
     opacity: 1;
@@ -503,10 +567,12 @@
     transform: scale(0.95);
     opacity: 0.7;
   }
+
   50% {
     transform: scale(1);
     opacity: 0.9;
   }
+
   100% {
     transform: scale(0.95);
     opacity: 0.7;
@@ -517,9 +583,11 @@
   0% {
     transform: translateY(0);
   }
+
   28% {
     transform: translateY(-5px);
   }
+
   44% {
     transform: translateY(0);
   }
@@ -558,51 +626,40 @@
 }
 
 @utility bg-gradient-radial-to-tr {
-  background-image: radial-gradient(
-    115% 90% at 0% 100%,
-    var(--tw-gradient-stops)
-  );
+  background-image: radial-gradient(115% 90% at 0% 100%,
+      var(--tw-gradient-stops));
 }
 
 @utility bg-gradient-radial-to-tc {
-  background-image: radial-gradient(
-    115% 90% at 50% 120%,
-    var(--tw-gradient-stops)
-  );
+  background-image: radial-gradient(115% 90% at 50% 120%,
+      var(--tw-gradient-stops));
 }
 
 @utility bg-gradient-radial-to-tl {
-  background-image: radial-gradient(
-    115% 90% at 100% 100%,
-    var(--tw-gradient-stops)
-  );
+  background-image: radial-gradient(115% 90% at 100% 100%,
+      var(--tw-gradient-stops));
 }
 
 @utility bg-gradient-radial-to-br {
-  background-image: radial-gradient(
-    90% 115% at 0% 0%,
-    var(--tw-gradient-stops)
-  );
+  background-image: radial-gradient(90% 115% at 0% 0%,
+      var(--tw-gradient-stops));
 }
 
 @utility bg-gradient-radial-to-bc {
-  background-image: radial-gradient(
-    90% 115% at 50% -50%,
-    var(--tw-gradient-stops)
-  );
+  background-image: radial-gradient(90% 115% at 50% -50%,
+      var(--tw-gradient-stops));
 }
 
 @utility bg-gradient-radial-to-bl {
-  background-image: radial-gradient(
-    90% 115% at 100% 0%,
-    var(--tw-gradient-stops)
-  );
+  background-image: radial-gradient(90% 115% at 100% 0%,
+      var(--tw-gradient-stops));
 }
 
 @utility hide-scrollbar {
   &::-webkit-scrollbar {
     display: none;
   }
+
   scrollbar-width: none;
 }
 
@@ -637,7 +694,8 @@
 }
 
 @utility modal-content-h {
-  @apply phone:h-100 laptop:h-120 laptop-lg:h-150 desktop:h-200;
+  @apply h-[70vh] max-h-[40rem] min-h-[20rem]
+         laptop:h-[65vh] laptop-lg:max-h-[45rem] desktop:max-h-[50rem];
 }
 
 
@@ -649,11 +707,13 @@
 }
 
 @keyframes waving-text {
+
   0%,
   40%,
   100% {
     transform: translateY(0);
   }
+
   20% {
     transform: translateY(-2rem);
   }
@@ -668,9 +728,11 @@
     transform: scale(1);
     opacity: 0;
   }
+
   30% {
     opacity: 1;
   }
+
   100% {
     transform: scale(1.5);
     opacity: 0;
@@ -682,9 +744,11 @@
   0% {
     background-color: rgba(255, 255, 255, 0);
   }
+
   50% {
     background-color: rgba(255, 255, 255, 0.5);
   }
+
   100% {
     background-color: rgba(255, 255, 255, 0);
   }
@@ -705,9 +769,11 @@
   justify-content: center;
   font-weight: 300;
   font-size: var(--font-size-xl);
+
   @media (min-width: 1280px) {
     font-size: var(--font-size-base);
   }
+
   @media (min-width: 1920px) {
     font-size: var(--font-size-md);
   }
@@ -720,12 +786,15 @@
   justify-content: center;
   font-weight: 300;
   font-size: var(--font-size-xl);
+
   &:hover {
     color: var(--light-blue-500);
   }
+
   @media (min-width: 1280px) {
     font-size: var(--font-size-xs);
   }
+
   @media (min-width: 1920px) {
     font-size: var(--font-size-base);
   }
@@ -735,17 +804,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   &::after {
     content: "";
     position: absolute;
     top: var(--top);
     z-index: -1;
     border-radius: var(--rounded);
-    background-image: linear-gradient(
-      to top right,
-      var(--from-color, var(--light-blue-400)),
-      var(--to-color, var(--light-blue-500))
-    );
+    background-image: linear-gradient(to top right,
+        var(--from-color, var(--light-blue-400)),
+        var(--to-color, var(--light-blue-500)));
     height: var(--height);
     width: var(--width);
   }
@@ -779,12 +847,15 @@ textarea {
   justify-content: center;
   border-radius: 1rem;
   background-color: black;
+
   @media (min-width: 375px) {
     width: 25rem;
   }
+
   @media (min-width: 1280px) {
     width: 30%;
   }
+
   button {
     aspect-ratio: 1 / 1;
     width: 4rem;
@@ -806,9 +877,11 @@ textarea {
   display: flex;
   height: 80%;
   align-items: center;
+
   @media (min-width: 375px) {
     width: 27rem;
   }
+
   @media (min-width: 1280px) {
     width: 27rem;
   }
@@ -846,4 +919,3 @@ textarea {
   transition-property: color;
   transition-duration: 200ms;
 }
-

@@ -1,11 +1,11 @@
 import { CheckOutlined } from "@ant-design/icons";
 import { ContactModel } from "../../types/friend.types";
+import { isPhoneScreen } from "../../utils/getScreenSize";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ListFriendLoading from "../common/ListFriendLoading";
 import MemberToAdd_LargeScreen from "./MemberToAdd_LargeScreen";
 import MemberToAdd_Phone from "./MemberToAdd_Phone";
-import { isPhoneScreen } from "../../utils/getScreenSize";
 
 type Props = {
   isLoading: boolean;
@@ -31,7 +31,7 @@ const FriendPickerList = ({
 
   return (
     <>
-      <div className="list-friend-container hide-scrollbar border-(--border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
+      <div className="list-friend-container hide-scrollbar border-(--modal-border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
         {membersToSearch.map((item) => {
           const isExisting = existingMemberIds.includes(item.id ?? "");
           const isSelected = membersToAdd.some((m) => m.id === item.id);
@@ -39,7 +39,7 @@ const FriendPickerList = ({
           return (
             <div
               key={item.id}
-              className={`information-members border-(--border-color) flex w-full items-center gap-3 border-b p-3 last:border-b-0
+              className={`information-members border-(--modal-border-color) flex w-full items-center gap-3 border-b p-3 last:border-b-0
                 ${isExisting
                   // Thành viên đã trong group → không cho click (hiển thị "Joined")
                   ? "pointer-events-none"
@@ -60,7 +60,7 @@ const FriendPickerList = ({
                 className="aspect-square w-10 cursor-pointer"
                 circle
                 slides={[{ src: item.avatar ?? "" }]}
-                onClick={() => {}}
+                onClick={() => { }}
                 local
               />
               <div>

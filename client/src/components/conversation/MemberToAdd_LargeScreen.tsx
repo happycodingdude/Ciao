@@ -1,4 +1,3 @@
-import { CSSProperties } from "react";
 import { twMerge } from "tailwind-merge";
 import { ContactModel } from "../../types/friend.types";
 import CustomLabel from "../common/CustomLabel";
@@ -15,15 +14,15 @@ const MemberToAdd_LargeScreen = ({
 }) => {
   return (
     <div
-      style={
-        {
-          "--width": `102%`,
-          "--height": `101.5%`,
-          "--rounded": ".5rem",
-        } as CSSProperties
-      }
+      // style={
+      //   {
+      //     "--width": `102%`,
+      //     "--height": `101.5%`,
+      //     "--rounded": ".5rem",
+      //   } as CSSProperties
+      // }
       className={twMerge(
-        "gradient-item bg-(--bg-color) relative h-[95%] w-[40%] translate-x-0 self-center rounded-lg opacity-100 transition-all duration-300",
+        "gradient-item bg-(--bg-color) relative h-full w-[40%] translate-x-0 self-center rounded-lg opacity-100 transition-all duration-300",
         membersToAdd.length === 0 && "w-0 translate-x-full opacity-0",
       )}
     >
@@ -34,7 +33,7 @@ const MemberToAdd_LargeScreen = ({
             {membersToAdd.length ?? 0}/{total}
           </span>
         </p>
-        <div className="hide-scrollbar text-2xs flex flex-col gap-2 overflow-y-scroll scroll-smooth">
+        <div className="hide-scrollbar grow text-2xs flex flex-col gap-2 overflow-y-scroll scroll-smooth">
           {membersToAdd?.map((item) => (
             <div className="bg-(--bg-color-extrathin) flex items-center justify-between rounded-2xl p-2">
               <div className="pointer-events-none inline-flex w-[85%] items-center gap-2">
@@ -47,7 +46,7 @@ const MemberToAdd_LargeScreen = ({
                       src: item.avatar ?? "",
                     },
                   ]}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 />
 
                 <CustomLabel title={item.name} />

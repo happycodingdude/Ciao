@@ -20,7 +20,7 @@ const CreateGroupChat = () => {
         icon={<TeamOutlined />}
         onClose={() => setOpen(false)}
       >
-        <div className="text-(--text-main-color) modal-content-h flex flex-col gap-4 px-6 pb-6 pt-2">
+        <div className="text-(--text-main-color) flex flex-col gap-5 px-6 pb-6 pt-2 modal-content-h">
           <Suspense fallback={<ModalLoading />}>
             <CreateGroupChatModal onClose={() => setOpen(false)} />
           </Suspense>

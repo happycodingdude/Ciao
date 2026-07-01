@@ -26,7 +26,7 @@ const ModalSearchInput = ({
         type="text"
         placeholder={placeholder}
         onChange={onChange}
-        className="bg-(--search-bg-color) text-(--text-main-color) focus:border-light-blue-500 border-(--border-color) w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition-colors"
+        className="bg-(--search-bg-color) text-(--text-main-color) focus:border-light-blue-500 border-(--modal-border-color) w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition-colors"
       />
     </div>
   );

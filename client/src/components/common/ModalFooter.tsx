@@ -7,6 +7,8 @@ type ModalFooterProps = {
   saveTitle?: string;
   // Hiển thị spinner trên nút Lưu khi đang xử lý.
   processing?: boolean;
+  // Kẻ đường phân cách phía trên footer, tách khỏi phần nội dung.
+  divider?: boolean;
 };
 
 /**
@@ -19,9 +21,13 @@ const ModalFooter = ({
   cancelTitle = "Cancel",
   saveTitle = "Save",
   processing,
+  divider,
 }: ModalFooterProps) => {
   return (
-    <div className="mt-auto flex shrink-0 items-center justify-end gap-3 pt-4">
+    <div
+      className={`flex shrink-0 items-center justify-end gap-3 ${divider ? "border-(--modal-border-color) border-t pt-5" : "pt-4"
+        }`}
+    >
       <button
         type="button"
         onClick={onCancel}

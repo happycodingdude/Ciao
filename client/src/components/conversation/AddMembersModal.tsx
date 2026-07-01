@@ -10,9 +10,9 @@ import { OnCloseType } from "../../types/base.types";
 import { ConversationCache } from "../../types/conv.types";
 import { ContactModel } from "../../types/friend.types";
 import { PendingMessageModel } from "../../types/message.types";
-import { appendMessage } from "../../utils/messageCache";
 import blurImage from "../../utils/blurImage";
 import { isPhoneScreen } from "../../utils/getScreenSize";
+import { appendMessage } from "../../utils/messageCache";
 import ModalFooter from "../common/ModalFooter";
 import ModalSearchInput from "../common/ModalSearchInput";
 import FriendPickerList from "./FriendPickerList";
@@ -94,7 +94,7 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
         }}
       />
       <div
-        className={`relative flex grow gap-8
+        className={`relative flex grow
           ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
       >
         <FriendPickerList
@@ -107,7 +107,7 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
           removeMemberToAdd={removeMemberToAdd}
         />
       </div>
-      <ModalFooter onCancel={() => onClose?.()} onSave={addMembersCTA} />
+      <ModalFooter divider onCancel={() => onClose?.()} onSave={addMembersCTA} />
     </>
   );
 };

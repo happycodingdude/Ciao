@@ -25,8 +25,10 @@
   --border-color: #e5e7eb;
   --icon-text-color: gray;
   --loading-color: #d5d5d5;
-  --portal-bg-color: #a2a2a2a7;
-  --portal-container-bg-color: #e8e8e8;
+  --portal-bg-color: #6b6b6bcc;
+  --portal-container-bg-color: #ffffff;
+  --portal-border-color: #cbd2dc;
+  --modal-border-color: #e5e7eb;
   --search-bg-color: #f3f4f6;
   --placehoder-color: #eeeeee;
   --loading-bg-color: #808080ca;
@@ -84,8 +86,10 @@
   --border-color: #1e2b3d;
   --icon-text-color: gray;
   --loading-color: #121212b2;
-  --portal-bg-color: #060c16cc;
-  --portal-container-bg-color: #141f30;
+  --portal-bg-color: #020a14e6;
+  --portal-container-bg-color: #152235;
+  --portal-border-color: #3566B6;
+  --modal-border-color: #46556E;
   --search-bg-color: #1a2536;
   --placehoder-color: #1a2536;
   --loading-bg-color: #0c1421ca;
