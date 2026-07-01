@@ -26,8 +26,12 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
   const { data, isLoading, isRefetching } = useFriend();
   const { data: info } = useInfo();
 
-  const refInputSearch = useRef<HTMLInputElement & { reset?: () => void }>(undefined);
-  const refInputTitle = useRef<HTMLInputElement & { reset?: () => void }>(undefined);
+  const refInputSearch = useRef<HTMLInputElement & { reset?: () => void }>(
+    undefined,
+  );
+  const refInputTitle = useRef<HTMLInputElement & { reset?: () => void }>(
+    undefined,
+  );
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>([]);
   const [membersToAdd, setMembersToAdd] = useState<ContactModel[]>([]);
   const [avatar, setAvatar] = useState<string>();
@@ -36,7 +40,9 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
 
   useEffect(() => {
     if (!data) return;
-    setMembersToSearch(data.filter((fr) => fr.status === "friend").map((item) => item.contact));
+    setMembersToSearch(
+      data.filter((fr) => fr.status === "friend").map((item) => item.contact),
+    );
     refInputTitle.current?.focus();
     blurImage(".list-friend-container");
   }, [data]);
@@ -53,7 +59,9 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
   const toggleMember = (item: ContactModel) => {
     setMembersToAdd((prev) =>
       // Đã có trong danh sách → bỏ chọn; chưa có → thêm vào
-      prev.some((m) => m.id === item.id) ? prev.filter((m) => m.id !== item.id) : [...prev, item],
+      prev.some((m) => m.id === item.id)
+        ? prev.filter((m) => m.id !== item.id)
+        : [...prev, item],
     );
   };
 
@@ -78,14 +86,38 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
         isNotifying: true,
         lastMessageTime: null,
         members: [
-          { isModerator: true, contact: { id: info?.id, name: info?.name, avatar: info?.avatar, isOnline: true } },
-          ...membersToAdd.map((m) => ({ contact: { id: m.id, name: m.name, avatar: m.avatar, isOnline: m.isOnline } } as ConversationModel_Member)),
+          {
+            isModerator: true,
+            contact: {
+              id: info?.id,
+              name: info?.name,
+              avatar: info?.avatar,
+              isOnline: true,
+            },
+          },
+          ...membersToAdd.map(
+            (m) =>
+              ({
+                contact: {
+                  id: m.id,
+                  name: m.name,
+                  avatar: m.avatar,
+                  isOnline: m.isOnline,
+                },
+              }) as ConversationModel_Member,
+          ),
         ],
       };
       return {
         ...old,
-        conversations: [{ ...newConv, noLazy: true }, ...(old.conversations ?? [])],
-        filterConversations: [{ ...newConv, noLazy: true }, ...(old.conversations ?? [])],
+        conversations: [
+          { ...newConv, noLazy: true },
+          ...(old.conversations ?? []),
+        ],
+        filterConversations: [
+          { ...newConv, noLazy: true },
+          ...(old.conversations ?? []),
+        ],
         selected: newConv,
         noLoading: true,
         reload: false,
@@ -103,7 +135,11 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
           // Giữ nguyên các conv khác; thay tempId bằng real id từ server
           c.id !== tempId ? c : { ...c, id: res?.data ?? "" },
         );
-        return { ...old, conversations: updated, filterConversations: updated } as ConversationCache;
+        return {
+          ...old,
+          conversations: updated,
+          filterConversations: updated,
+        } as ConversationCache;
       });
     });
 
@@ -127,7 +163,7 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
           placeholder="Type group name"
         />
       </div>
-      <div className="flex grow flex-col gap-4">
+      <div className="flex grow flex-col justify-between">
         <ModalSearchInput
           inputRef={refInputSearch}
           onChange={(e) => {
@@ -135,14 +171,18 @@ const CreateGroupChatModal = ({ onClose }: OnCloseType) => {
             setMembersToSearch(
               // Xóa hết search → reset về toàn bộ bạn bè (chỉ status "friend")
               q === ""
-                ? (data ?? []).filter((fr) => fr.status === "friend").map((item) => item.contact)
-                : membersToSearch.filter((item) => (item.name ?? "").toLowerCase().includes(q)),
+                ? (data ?? [])
+                    .filter((fr) => fr.status === "friend")
+                    .map((item) => item.contact)
+                : membersToSearch.filter((item) =>
+                    (item.name ?? "").toLowerCase().includes(q),
+                  ),
             );
           }}
         />
         {/* Phone → stack dọc (list trên, selected bên dưới); màn lớn → side-by-side */}
         <div
-          className={`relative flex grow gap-8
+          className={`relative flex
             ${isPhoneScreen() ? "flex-col" : "flex-row"}`}
         >
           <FriendPickerList

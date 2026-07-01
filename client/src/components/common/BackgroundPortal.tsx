@@ -5,17 +5,37 @@ import { BackgroundPortalProps } from "../../types/base.types";
 import PortalHeader from "./PortalHeader";
 
 const BackgroundPortal = (props: BackgroundPortalProps) => {
-  const { children, show, title, description, icon, onClose, className, noHeader } = props;
+  const {
+    children,
+    show,
+    title,
+    description,
+    icon,
+    onClose,
+    className,
+    noHeader,
+  } = props;
 
-  const hidePortalOnClick = useCallback((e: Event) => {
-    if (Array.from((e.target as HTMLElement).classList).includes("portal-container")) onClose?.();
-  }, [onClose]);
+  const hidePortalOnClick = useCallback(
+    (e: Event) => {
+      if (
+        Array.from((e.target as HTMLElement).classList).includes(
+          "portal-container",
+        )
+      )
+        onClose?.();
+    },
+    [onClose],
+  );
 
-  const hidePortalOnKey = useCallback((e: Event) => {
-    if ((e as KeyboardEvent).key === "Escape") {
-      onClose?.();
-    }
-  }, [onClose]);
+  const hidePortalOnKey = useCallback(
+    (e: Event) => {
+      if ((e as KeyboardEvent).key === "Escape") {
+        onClose?.();
+      }
+    },
+    [onClose],
+  );
 
   useEventListener("keydown", hidePortalOnKey);
 
@@ -30,7 +50,7 @@ const BackgroundPortal = (props: BackgroundPortalProps) => {
       <div
         data-show={`${show}`}
         className={`${className} z-1000 bg-(--portal-container-bg-color) border-(--portal-border-color) fixed left-[50%] top-[50%] flex translate-x-[-50%]
-        translate-y-[-50%] flex-col overflow-hidden rounded-2xl border shadow-2xl ring-1 ring-white/5 transition-all duration-500
+        translate-y-[-50%] flex-col gap-5 overflow-hidden rounded-2xl border shadow-2xl ring-1 ring-white/5 transition-all duration-500
         data-[show=false]:scale-0 data-[show=true]:scale-100`}
       >
         {!noHeader && (

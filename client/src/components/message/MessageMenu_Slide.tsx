@@ -11,15 +11,18 @@ import { toast } from "react-toastify";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import useInfo from "../../hooks/useInfo";
-import { useMessageActions, useMessageEdit } from "../../hooks/useMessageActions";
+import {
+  useMessageActions,
+  useMessageEdit,
+} from "../../hooks/useMessageActions";
 import { usePinMessage } from "../../hooks/usePinMessage";
 import { useReply } from "../../hooks/useReply";
+import "../../styles/messagemenu_slide.css";
+import { MessageMenuProps } from "../../types/message.types";
 import {
   canEditMessage,
   canRecallMessage,
 } from "../../utils/messageActionHelpers";
-import "../../styles/messagemenu_slide.css";
-import { MessageMenuProps } from "../../types/message.types";
 import BackgroundPortal from "../common/BackgroundPortal";
 import ModalLoading from "../common/ModalLoading";
 import ForwardMessageModal from "./ForwardMessageModal";
@@ -137,13 +140,13 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         <i className="fa fa-share" />
         <BackgroundPortal
           show={openForward}
-          className="modal-size-sm"
+          className="modal-size-md"
           title="Forward message"
           description="Send this message to your friends"
           icon={<ShareAltOutlined />}
           onClose={() => setOpenForward(false)}
         >
-          <div className="text-(--text-main-color) flex flex-col gap-5 px-6 pb-6 pt-2 modal-content-h">
+          <div className="text-(--text-main-color) modal-content-h flex flex-col gap-5 px-6 pb-6 pt-2">
             <Suspense fallback={<ModalLoading />}>
               <ForwardMessageModal
                 message={message}

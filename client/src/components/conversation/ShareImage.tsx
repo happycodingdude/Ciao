@@ -34,7 +34,7 @@ const ShareImage = ({
       onClick={showImage}
     >
       <div
-        className="absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm bg-(--bg-color)"
+        className="bg-(--bg-color) absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm"
         onClick={(e) => {
           e.stopPropagation();
           setShow(true);
@@ -44,13 +44,13 @@ const ShareImage = ({
       </div>
       <BackgroundPortal
         show={show}
-        className="modal-size-sm"
-        title="Forward message"
-        description="Send this message to your friends"
+        className="modal-size-md"
+        title="Share image"
+        description="Send this image to your friends"
         icon={<ShareAltOutlined />}
         onClose={() => setShow(false)}
       >
-        <div className="text-(--text-main-color) flex flex-col gap-5 px-6 pb-6 pt-2 modal-content-h">
+        <div className="text-(--text-main-color) modal-content-h flex flex-col gap-5 px-6 pb-6 pt-2">
           <Suspense fallback={<ModalLoading />}>
             <ForwardMessageModal
               message={{
@@ -61,8 +61,8 @@ const ShareImage = ({
               directContact={
                 !conversation?.isGroup
                   ? (conversation?.members ?? []).find(
-                    (item) => item.contact?.id !== info?.id,
-                  )?.contact?.id
+                      (item) => item.contact?.id !== info?.id,
+                    )?.contact?.id
                   : undefined
               }
             />

@@ -249,7 +249,6 @@
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0px);
@@ -283,7 +282,6 @@
 }
 
 @keyframes wave {
-
   0%,
   100% {
     transform: scaleY(1);
@@ -295,7 +293,6 @@
 }
 
 @keyframes morph {
-
   0%,
   100% {
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
@@ -307,7 +304,6 @@
 }
 
 @keyframes borderPulse {
-
   0%,
   100% {
     border-color: rgba(59, 130, 246, 0.5);
@@ -549,7 +545,6 @@
 }
 
 @keyframes floating-dots {
-
   0%,
   100% {
     transform: translateY(0);
@@ -626,33 +621,45 @@
 }
 
 @utility bg-gradient-radial-to-tr {
-  background-image: radial-gradient(115% 90% at 0% 100%,
-      var(--tw-gradient-stops));
+  background-image: radial-gradient(
+    115% 90% at 0% 100%,
+    var(--tw-gradient-stops)
+  );
 }
 
 @utility bg-gradient-radial-to-tc {
-  background-image: radial-gradient(115% 90% at 50% 120%,
-      var(--tw-gradient-stops));
+  background-image: radial-gradient(
+    115% 90% at 50% 120%,
+    var(--tw-gradient-stops)
+  );
 }
 
 @utility bg-gradient-radial-to-tl {
-  background-image: radial-gradient(115% 90% at 100% 100%,
-      var(--tw-gradient-stops));
+  background-image: radial-gradient(
+    115% 90% at 100% 100%,
+    var(--tw-gradient-stops)
+  );
 }
 
 @utility bg-gradient-radial-to-br {
-  background-image: radial-gradient(90% 115% at 0% 0%,
-      var(--tw-gradient-stops));
+  background-image: radial-gradient(
+    90% 115% at 0% 0%,
+    var(--tw-gradient-stops)
+  );
 }
 
 @utility bg-gradient-radial-to-bc {
-  background-image: radial-gradient(90% 115% at 50% -50%,
-      var(--tw-gradient-stops));
+  background-image: radial-gradient(
+    90% 115% at 50% -50%,
+    var(--tw-gradient-stops)
+  );
 }
 
 @utility bg-gradient-radial-to-bl {
-  background-image: radial-gradient(90% 115% at 100% 0%,
-      var(--tw-gradient-stops));
+  background-image: radial-gradient(
+    90% 115% at 100% 0%,
+    var(--tw-gradient-stops)
+  );
 }
 
 @utility hide-scrollbar {
@@ -689,17 +696,17 @@
   @apply phone:w-80 laptop:w-100 desktop:w-[35%];
 }
 
+@utility modal-size-md {
+  @apply phone:w-90 laptop:w-120 desktop:w-[35%];
+}
+
 @utility modal-size-lg {
   @apply phone:w-100 laptop:w-150 desktop:w-[35%];
 }
 
 @utility modal-content-h {
-  @apply h-[70vh] max-h-[40rem] min-h-[20rem]
-         laptop:h-[65vh] laptop-lg:max-h-[45rem] desktop:max-h-[50rem];
+  @apply max-h-160 laptop:h-[65vh] laptop-lg:max-h-180 desktop:max-h-200 h-[70vh] min-h-80;
 }
-
-
-
 
 @utility waving-text {
   animation: waving-text 1.3s both infinite;
@@ -707,7 +714,6 @@
 }
 
 @keyframes waving-text {
-
   0%,
   40%,
   100% {
@@ -739,7 +745,6 @@
   }
 }
 
-
 @keyframes pulse {
   0% {
     background-color: rgba(255, 255, 255, 0);
@@ -759,8 +764,6 @@
     opacity: 0.5;
   }
 }
-
-
 
 @utility base-icon {
   display: flex;
@@ -811,14 +814,15 @@
     top: var(--top);
     z-index: -1;
     border-radius: var(--rounded);
-    background-image: linear-gradient(to top right,
-        var(--from-color, var(--light-blue-400)),
-        var(--to-color, var(--light-blue-500)));
+    background-image: linear-gradient(
+      to top right,
+      var(--from-color, var(--light-blue-400)),
+      var(--to-color, var(--light-blue-500))
+    );
     height: var(--height);
     width: var(--width);
   }
 }
-
 
 svg {
   cursor: pointer;
@@ -827,7 +831,6 @@ svg {
 svg .active {
   fill: #0ea5e9;
 }
-
 
 textarea {
   flex-grow: 1;
@@ -862,7 +865,6 @@ textarea {
     border-radius: 9999px;
   }
 }
-
 
 @utility listchat-filter-container {
   display: flex;

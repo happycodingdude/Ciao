@@ -45,7 +45,7 @@ const CustomInput = (props: CustomInputProps) => {
     <div className="relative">
       <input
         tabIndex={tabIndex}
-        className={`${className ?? ""} border-(--bg-color) border-b-(--border-color)! w-[99%] border-[.1rem]
+        className={`${className ?? ""} border-(--portal-container-bg-color) border-b-(--border-color)! w-[99%] border-[.1rem]
         p-4 pb-[.2rem] pl-0 outline-none transition-all duration-200`}
         type={type}
         ref={inputRef as React.RefObject<HTMLInputElement>}

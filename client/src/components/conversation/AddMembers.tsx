@@ -35,7 +35,7 @@ const AddMembers = forwardRef<AddMembersProps>((props, ref) => {
         icon={<UsergroupAddOutlined />}
         onClose={() => setOpen(false)}
       >
-        <div className="text-(--text-main-color) flex flex-col gap-3 px-6 pb-6 pt-2 modal-content-h">
+        <div className="text-(--text-main-color) modal-content-h flex flex-col gap-6 px-6 pb-6 pt-2">
           <Suspense fallback={<ModalLoading />}>
             <AddMembersModal onClose={() => setOpen(false)} />
           </Suspense>

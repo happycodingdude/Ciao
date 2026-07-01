@@ -22,18 +22,18 @@ const MemberToAdd_LargeScreen = ({
       //   } as CSSProperties
       // }
       className={twMerge(
-        "gradient-item bg-(--bg-color) relative h-full w-[40%] translate-x-0 self-center rounded-lg opacity-100 transition-all duration-300",
+        "gradient-item relative h-full w-[40%] translate-x-0 self-center rounded-lg opacity-100 transition-all duration-300",
         membersToAdd.length === 0 && "w-0 translate-x-full opacity-0",
       )}
     >
-      <div className="bg-(--bg-color) flex h-full w-full flex-col gap-4 rounded-lg p-2">
+      <div className="bg-(--portal-container-bg-color) flex h-full w-full flex-col gap-4 rounded-lg p-2">
         <p>
           Selected{" "}
           <span className="text-pink-500">
             {membersToAdd.length ?? 0}/{total}
           </span>
         </p>
-        <div className="hide-scrollbar grow text-2xs flex flex-col gap-2 overflow-y-scroll scroll-smooth">
+        <div className="hide-scrollbar text-2xs flex grow flex-col gap-2 overflow-y-scroll scroll-smooth">
           {membersToAdd?.map((item) => (
             <div className="bg-(--bg-color-extrathin) flex items-center justify-between rounded-2xl p-2">
               <div className="pointer-events-none inline-flex w-[85%] items-center gap-2">
@@ -46,7 +46,7 @@ const MemberToAdd_LargeScreen = ({
                       src: item.avatar ?? "",
                     },
                   ]}
-                  onClick={() => { }}
+                  onClick={() => {}}
                 />
 
                 <CustomLabel title={item.name} />

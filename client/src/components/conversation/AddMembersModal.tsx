@@ -23,7 +23,9 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
   const { data: conversations } = useConversation();
   const { data, isLoading, isRefetching } = useFriend();
   const { conversationId } = Route.useParams();
-  const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
+  const conversation = conversations?.conversations?.find(
+    (c) => c.id === conversationId,
+  );
 
   const refInput = useRef<HTMLInputElement & { reset?: () => void }>(undefined);
   const [membersToSearch, setMembersToSearch] = useState<ContactModel[]>([]);
@@ -36,7 +38,9 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
     blurImage(".list-friend-container");
   }, [data]);
 
-  const existingMemberIds = (conversation?.members ?? []).map((m) => m.contact?.id ?? "");
+  const existingMemberIds = (conversation?.members ?? []).map(
+    (m) => m.contact?.id ?? "",
+  );
 
   const toggleMember = (item: ContactModel) => {
     setMembersToAdd((prev) =>
@@ -62,7 +66,9 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
           ...conv,
           members: [
             ...(conv.members ?? []),
-            ...membersToAdd.map((m) => ({ contact: { id: m.id, name: m.name, avatar: m.avatar } })),
+            ...membersToAdd.map((m) => ({
+              contact: { id: m.id, name: m.name, avatar: m.avatar },
+            })),
           ],
         };
       });
@@ -76,7 +82,10 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
       createdTime: dayjs().format(),
     } as PendingMessageModel);
 
-    addMembers(conversation?.id ?? "", membersToAdd.map((m) => m.id ?? ""));
+    addMembers(
+      conversation?.id ?? "",
+      membersToAdd.map((m) => m.id ?? ""),
+    );
   };
 
   return (
@@ -88,8 +97,10 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
           setMembersToSearch(
             // Xóa hết search → reset về toàn bộ danh sách bạn bè
             q === ""
-              ? data?.map((item) => item.contact) ?? []
-              : membersToSearch.filter((item) => (item.name ?? "").toLowerCase().includes(q)),
+              ? (data?.map((item) => item.contact) ?? [])
+              : membersToSearch.filter((item) =>
+                  (item.name ?? "").toLowerCase().includes(q),
+                ),
           );
         }}
       />
@@ -107,7 +118,11 @@ const AddMembersModal = ({ onClose }: OnCloseType) => {
           removeMemberToAdd={removeMemberToAdd}
         />
       </div>
-      <ModalFooter divider onCancel={() => onClose?.()} onSave={addMembersCTA} />
+      <ModalFooter
+        divider
+        onCancel={() => onClose?.()}
+        onSave={addMembersCTA}
+      />
     </>
   );
 };

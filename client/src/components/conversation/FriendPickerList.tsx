@@ -31,7 +31,7 @@ const FriendPickerList = ({
 
   return (
     <>
-      <div className="list-friend-container hide-scrollbar border-(--modal-border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
+      <div className="list-friend-container hide-scrollbar border-(--modal-border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto scroll-smooth rounded-xl border">
         {membersToSearch.map((item) => {
           const isExisting = existingMemberIds.includes(item.id ?? "");
           const isSelected = membersToAdd.some((m) => m.id === item.id);
@@ -39,19 +39,23 @@ const FriendPickerList = ({
           return (
             <div
               key={item.id}
-              className={`information-members border-(--modal-border-color) flex w-full items-center gap-3 border-b p-3 last:border-b-0
-                ${isExisting
-                  // Thành viên đã trong group → không cho click (hiển thị "Joined")
-                  ? "pointer-events-none"
-                  : "hover:bg-(--bg-color-extrathin) cursor-pointer"}`}
+              className={`information-members border-(--modal-border-color) flex w-full items-center gap-3 border-b p-3
+                ${
+                  isExisting
+                    ? // Thành viên đã trong group → không cho click (hiển thị "Joined")
+                      "pointer-events-none"
+                    : "hover:bg-(--bg-color-extrathin) cursor-pointer"
+                }`}
               onClick={() => !isExisting && onToggleMember(item)}
             >
               {/* Checkbox ô vuông bo góc: tích xanh khi đã là thành viên hoặc đang được chọn */}
               <span
                 className={`flex aspect-square w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all
-                  ${checked
-                    ? "bg-light-blue-500 border-light-blue-500 text-white"
-                    : "border-(--text-main-color-blur)"}`}
+                  ${
+                    checked
+                      ? "border-light-blue-500 bg-light-blue-500 text-white"
+                      : "border-(--text-main-color-blur)"
+                  }`}
               >
                 {checked && <CheckOutlined className="text-[0.65rem]" />}
               </span>
@@ -60,13 +64,15 @@ const FriendPickerList = ({
                 className="aspect-square w-10 cursor-pointer"
                 circle
                 slides={[{ src: item.avatar ?? "" }]}
-                onClick={() => { }}
+                onClick={() => {}}
                 local
               />
               <div>
                 <CustomLabel title={item.name} />
                 {/* Label "Joined" chỉ hiển thị cho thành viên đã có trong group */}
-                {isExisting && <p className="text-(--text-main-color-blur) text-sm">Joined</p>}
+                {isExisting && (
+                  <p className="text-xs text-light-blue-400">Joined</p>
+                )}
               </div>
             </div>
           );
