@@ -55,7 +55,8 @@ const Notification = () => {
   );
   const unreadCount = useMemo(() => all.filter((n) => !n.read).length, [all]);
   const requestCount = useMemo(
-    () => all.filter((n) => n.sourceType === "friend_request" && !n.read).length,
+    () =>
+      all.filter((n) => n.sourceType === "friend_request" && !n.read).length,
     [all],
   );
 
@@ -113,7 +114,8 @@ const Notification = () => {
     setSelectedId(n.id ?? null);
   };
 
-  const setTab = (next: NotificationTab) => setSearch({ search: { tab: next } });
+  const setTab = (next: NotificationTab) =>
+    setSearch({ search: { tab: next } });
 
   return (
     <section className="bg-(--bg-color) relative h-screen w-full overflow-hidden">
@@ -134,11 +136,12 @@ const Notification = () => {
                 type="button"
                 onClick={() => unreadCount > 0 && readAllMutation()}
                 disabled={unreadCount === 0 || markingAll}
-                className="text-(--text-main-color-light) hover:bg-(--bg-color-extrathin) text-3xs flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 transition-colors disabled:opacity-40"
+                className="text-(--text-main-color-light) hover:bg-(--bg-color-thin) text-2xs flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 transition-colors disabled:opacity-40"
               >
                 <i
-                  className={`fa-solid ${markingAll ? "fa-spinner animate-spin" : "fa-check-double"
-                    } text-3xs`}
+                  className={`fa-solid ${
+                    markingAll ? "fa-spinner animate-spin" : "fa-check-double"
+                  } text-3xs`}
                 />
                 Mark all as read
               </button>

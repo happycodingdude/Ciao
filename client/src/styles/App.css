@@ -29,7 +29,7 @@
   --portal-container-bg-color: #ffffff;
   --portal-border-color: #cbd2dc;
   --modal-border-color: #e5e7eb;
-  --search-bg-color: #f3f4f6;
+  --search-bg-color: #f8f9fb;
   --placehoder-color: #eeeeee;
   --loading-bg-color: #808080ca;
 
@@ -43,14 +43,16 @@
   --chat-bg-to: #e0f2fe;
   --edit-banner-bg: #fff7ed;
   --reply-preview-bg: #e0f2fe;
+  --mention-highlight-bg: #fef3c7;
+  --mention-highlight-ring: #fcd34d;
   --chat-fade-rgb: 255 255 255;
   --shimmer-base: #e9dff7;
   --shimmer-mid: #0ea5e9;
   --shimmer-sweep: rgba(214, 197, 240, 0.3);
   --sidebar-from: #7dd3fc;
   --sidebar-to: #0ea5e9;
-  --chat-item-glow: #bae6fd;
-  --chat-item-active-bg: #e8e8e8;
+  --chat-item-glow: #7dd3fc;
+  --chat-item-active-bg: #ffffff;
   --theme-toggle-bg: #ffffff;
   --theme-toggle-glow: 0 6px 16px rgba(2, 132, 199, 0.22);
   --theme-toggle-icon: #f59e0b;
@@ -104,13 +106,15 @@
   --chat-bg-to: #0d1726;
   --edit-banner-bg: #243349;
   --reply-preview-bg: #1a2738;
+  --mention-highlight-bg: #3d3117;
+  --mention-highlight-ring: #a16207;
   --chat-fade-rgb: 17 28 45;
   --shimmer-base: #16202f;
   --shimmer-mid: #243349;
   --shimmer-sweep: rgba(255, 255, 255, 0.05);
   --sidebar-from: #0a2c4a;
   --sidebar-to: #04162a;
-  --chat-item-glow: #0e2236;
+  --chat-item-glow: #1e6fb0;
   --chat-item-active-bg: #141f30;
   --theme-toggle-bg: #14233a;
   --theme-toggle-glow: 0 0 20px rgba(37, 164, 235, 0.55);

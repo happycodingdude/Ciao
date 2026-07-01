@@ -19,12 +19,17 @@ const AttachmentIcon = (props: AttachmentIcon) => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
-      className={`transition-all duration-200 hover:fill-light-blue-500 ${className}`}
+      fill="currentColor"
+      stroke="currentColor"
+      className={`transition-all duration-200 ${
+        toggle
+          ? "text-light-blue-500"
+          : "text-(--text-main-color) hover:text-light-blue-500"
+      } ${className}`}
     >
       <g>
         <path
-          stroke="black"
-          className={toggle ? "active" : ""}
+          stroke="currentColor"
           d="M179.546,73.358L73.111,179.783c-13.095,13.095-34.4,13.095-47.481,0.007
 c-13.095-13.095-13.095-34.396,0-47.495l13.725-13.739l92.696-92.689l11.166-11.159c8.829-8.833,23.195-8.833,32.038,0
 c8.829,8.836,8.829,23.209,0,32.041L145.79,76.221l-74.383,74.383l-1.714,1.714c-4.42,4.413-11.606,4.42-16.026,0

@@ -14,7 +14,9 @@ const InformationAttachments = ({ conversationId }: Props) => {
   const { setActiveDetail } = useChatDetailToggles();
   const { data: attachmentCache, isLoading } = useAttachment(conversationId);
   const limit = useAttachmentLimit();
-  const [displayAttachments, setDisplayAttachments] = useState<AttachmentModel[]>([]);
+  const [displayAttachments, setDisplayAttachments] = useState<
+    AttachmentModel[]
+  >([]);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -22,7 +24,9 @@ const InformationAttachments = ({ conversationId }: Props) => {
     if (!attachmentCache) return;
     if (attachmentCache.attachments.length > 0) {
       // Flatten tất cả bucket ngày → lấy `limit` item đầu tiên để hiển thị preview
-      const merged = attachmentCache.attachments.flatMap((item) => item.attachments);
+      const merged = attachmentCache.attachments.flatMap(
+        (item) => item.attachments,
+      );
       setDisplayAttachments(merged.slice(0, limit));
     } else {
       // Không có attachment nào → reset về mảng rỗng (hiển thị empty state)
@@ -59,7 +63,10 @@ const InformationAttachments = ({ conversationId }: Props) => {
                   className="peer aspect-square w-full"
                   slides={displayAttachments.map((att) => ({
                     // type image → dùng URL thực; file khác → placeholder "not found"
-                    src: att.type === "image" ? att.mediaUrl ?? "" : "images/filenotfound.svg",
+                    src:
+                      att.type === "image"
+                        ? (att.mediaUrl ?? "")
+                        : "images/filenotfound.svg",
                   }))}
                   index={index}
                   pending={item.pending}

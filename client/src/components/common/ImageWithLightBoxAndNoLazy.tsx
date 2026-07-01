@@ -85,7 +85,7 @@ const ImageWithLightBoxAndNoLazy = forwardRef<
         className={`${className ?? ""} ${imageClassName ?? "bg-cover"} ${
           circle ? "rounded-full" : "rounded-2xl"
         } ${pending ? "opacity-50" : ""}
-          cursor-pointer bg-[image:var(--image-url)] bg-center bg-no-repeat transition-opacity duration-300`}
+          bg-(image:--image-url) cursor-pointer bg-center bg-no-repeat transition-opacity duration-300`}
         onClick={onClick ?? handleShowLightbox}
       />
 

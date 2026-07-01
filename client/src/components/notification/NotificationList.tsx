@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import ConnectionEmpty from "../connection/ConnectionEmpty";
 import { NotificationModel } from "../../types/base.types";
 import { NotificationGroup } from "../../utils/notificationDisplay";
+import ConnectionEmpty from "../connection/ConnectionEmpty";
 import NotificationItem from "./NotificationItem";
 
 type Props = {
@@ -24,11 +24,11 @@ const NotificationSkeleton = () => (
         key={i}
         className="bg-(--bg-color-extrathin) flex items-center gap-3 rounded-xl px-3 py-2.5"
       >
-        <div className="aspect-square w-10 shrink-0 animate-pulse rounded-full bg-(--bg-color-light)" />
+        <div className="bg-(--bg-color-light) aspect-square w-10 shrink-0 animate-pulse rounded-full" />
         <div className="flex flex-1 flex-col gap-2">
-          <div className="h-3 w-2/3 animate-pulse rounded bg-(--bg-color-light)" />
-          <div className="h-2 w-2/5 animate-pulse rounded bg-(--bg-color-light)" />
-          <div className="h-2 w-1/4 animate-pulse rounded bg-(--bg-color-light)" />
+          <div className="bg-(--bg-color-light) h-3 w-2/3 animate-pulse rounded" />
+          <div className="bg-(--bg-color-light) h-2 w-2/5 animate-pulse rounded" />
+          <div className="bg-(--bg-color-light) h-2 w-1/4 animate-pulse rounded" />
         </div>
       </div>
     ))}
@@ -113,7 +113,7 @@ const NotificationList = ({
           <h3 className="text-(--text-main-color-blur) text-4xs px-3 font-semibold uppercase tracking-wide">
             {group.label}
           </h3>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-3">
             {group.items.map((n) => (
               <NotificationItem
                 key={n.id}
@@ -145,7 +145,7 @@ const NotificationList = ({
               Couldn&apos;t load more — Retry
             </button>
           ) : isFetchingNextPage || total === 0 ? (
-            <i className="fa-solid fa-spinner animate-spin text-3xs" />
+            <i className="fa-solid fa-spinner text-3xs animate-spin" />
           ) : null}
         </div>
       )}

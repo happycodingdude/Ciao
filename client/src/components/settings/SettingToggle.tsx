@@ -38,7 +38,7 @@ const SettingToggle = ({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed
-          ${checked ? "bg-light-blue-500" : "bg-(--bg-color-light)"}`}
+          ${checked ? "bg-light-blue-500" : "bg-(--bg-color-medium)"}`}
       >
         <span
           className={`absolute left-0.5 top-0.5 aspect-square w-5 rounded-full bg-white shadow transition-transform

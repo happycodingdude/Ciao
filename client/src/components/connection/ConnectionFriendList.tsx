@@ -83,13 +83,13 @@ const ConnectionFriendList = ({
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder="Search friends"
-                className="bg-(--bg-color-extrathin) text-(--text-main-color) w-full rounded-full border border-(--border-color) py-2.5 pl-10 pr-4 text-sm outline-none focus:border-light-blue-500"
+                className="bg-(--bg-color-extrathin) text-(--text-main-color) border-(--border-color) w-full rounded-full border py-2.5 pl-10 pr-4 text-sm outline-none focus:border-light-blue-500"
               />
             </div>
           )}
 
           {sortable && (
-            <div className="bg-(--bg-color-extrathin) flex shrink-0 rounded-full border border-(--border-color) p-0.5 text-xs">
+            <div className="bg-(--bg-color-extrathin) border-(--border-color) flex shrink-0 rounded-full border p-0.5 text-xs">
               <button
                 type="button"
                 onClick={() => setSortMode("online")}
@@ -126,10 +126,14 @@ const ConnectionFriendList = ({
             hint={`No friends named "${keyword.trim()}".`}
           />
         ) : (
-          <ConnectionEmpty icon={emptyIcon} title={emptyTitle} hint={emptyHint} />
+          <ConnectionEmpty
+            icon={emptyIcon}
+            title={emptyTitle}
+            hint={emptyHint}
+          />
         )
       ) : (
-        <div className="bg-(--bg-color) hide-scrollbar flex min-h-0 flex-col overflow-y-auto rounded-2xl border border-(--border-color) p-2">
+        <div className="bg-(--bg-color) hide-scrollbar border-(--border-color) flex min-h-0 flex-col overflow-y-auto rounded-2xl border p-2">
           {groups
             ? groups.map(([letter, items]) => (
                 <div key={letter}>

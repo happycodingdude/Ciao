@@ -1,4 +1,8 @@
-import { CloseOutlined, EditOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  EditOutlined,
+  VideoCameraOutlined,
+} from "@ant-design/icons";
 import { useRef, useState } from "react";
 import { useSignal } from "../../context/SignalContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
@@ -19,7 +23,9 @@ const Information = () => {
   const { startLocalStream } = useSignal();
   const { data: conversations } = useConversation();
   const { conversationId } = Route.useParams();
-  const conversation = conversations?.conversations?.find((c) => c.id === conversationId);
+  const conversation = conversations?.conversations?.find(
+    (c) => c.id === conversationId,
+  );
 
   // Information thuần lo UI info — toàn bộ lifecycle của Search (reset khi đổi conversation,
   // phím tắt Ctrl/Cmd+F, render overlay) đã được tách sang ChatboxContainer + InformationSearch.
@@ -31,14 +37,16 @@ const Information = () => {
   const refAddMembers = useRef<AddMembersProps>(null);
   const [openUpdateTitle, setOpenUpdateTitle] = useState(false);
 
-  const otherMember = (conversation?.members ?? []).find((m) => m.contact?.id !== info?.id);
+  const otherMember = (conversation?.members ?? []).find(
+    (m) => m.contact?.id !== info?.id,
+  );
 
   return (
     <div
       ref={refInformation}
-      className={`absolute top-0 pb-4 ${showInformation ? "z-10" : "z-0"} flex h-full w-full flex-col bg-(--bg-color)`}
+      className={`absolute top-0 pb-4 ${showInformation ? "z-10" : "z-0"} bg-(--bg-color) flex h-full w-full flex-col`}
     >
-      <div className="border-b-(--border-color) panel-header-h flex items-center justify-between border-b-[.1rem] bg-(--bg-color) px-4">
+      <div className="border-b-(--border-color) panel-header-h bg-(--bg-color) flex items-center justify-between border-b-[.1rem] px-4">
         <p className="text-base font-medium">Chat information</p>
         <div className="flex gap-4">
           {conversation?.isGroup && (
@@ -72,29 +80,41 @@ const Information = () => {
           />
         </div>
       </div>
-      <div className="*:border-b-(--border-color) flex grow flex-col *:border-b-[.1rem] *:px-4 *:py-2 hide-scrollbar overflow-y-auto">
-
+      <div className="*:border-b-(--border-color) hide-scrollbar flex grow flex-col overflow-y-auto *:border-b-[.1rem] *:px-4 *:py-2">
         <div className="flex flex-col items-center gap-4">
           <ImageWithLightBoxAndNoLazy
-            src={conversation?.isGroup ? conversation.avatar : otherMember?.contact?.avatar}
-            slides={[{
-              src: conversation?.isGroup
-                ? conversation.avatar ?? ""
-                : otherMember?.contact?.avatar ?? "",
-            }]}
+            src={
+              conversation?.isGroup
+                ? conversation.avatar
+                : otherMember?.contact?.avatar
+            }
+            slides={[
+              {
+                src: conversation?.isGroup
+                  ? (conversation.avatar ?? "")
+                  : (otherMember?.contact?.avatar ?? ""),
+              },
+            ]}
             className="relative aspect-square w-20 cursor-pointer"
             circle
           />
           <div className="laptop:text-base flex w-[70%] grow flex-col items-center justify-center gap-2">
             <CustomLabel
               className="text-center font-medium"
-              title={conversation?.isGroup ? conversation.title : otherMember?.contact?.name}
+              title={
+                conversation?.isGroup
+                  ? conversation.title
+                  : otherMember?.contact?.name
+              }
               tooltip
             />
           </div>
           <div className="conversation-action-container">
             {conversation?.isGroup && (
-              <div className="conversation-action" onClick={() => refAddMembers.current?.open()}>
+              <div
+                className="conversation-action"
+                onClick={() => refAddMembers.current?.open()}
+              >
                 <AddMembers ref={refAddMembers} />
               </div>
             )}

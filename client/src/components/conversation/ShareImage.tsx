@@ -29,18 +29,20 @@ const ShareImage = ({
   if (!media) return null;
 
   return (
-    <div
-      className="absolute left-0 top-0 z-10 h-full w-full cursor-pointer rounded-2xl bg-black/20 opacity-0 hover:opacity-100 peer-hover:opacity-100"
-      onClick={showImage}
-    >
+    <>
       <div
-        className="bg-(--bg-color) absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm"
-        onClick={(e) => {
-          e.stopPropagation();
-          setShow(true);
-        }}
+        className="absolute left-0 top-0 z-10 h-full w-full cursor-pointer rounded-2xl bg-black/20 opacity-0 hover:opacity-100 peer-hover:opacity-100"
+        onClick={showImage}
       >
-        <i className="fa fa-share" />
+        <div
+          className="bg-(--bg-color) absolute right-2 top-1 flex aspect-square w-5 items-center justify-center rounded-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShow(true);
+          }}
+        >
+          <i className="fa fa-share" />
+        </div>
       </div>
       <BackgroundPortal
         show={show}
@@ -69,7 +71,7 @@ const ShareImage = ({
           </Suspense>
         </div>
       </BackgroundPortal>
-    </div>
+    </>
   );
 };
 

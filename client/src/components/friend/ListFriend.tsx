@@ -10,7 +10,9 @@ import FriendItem from "./FriendItem";
 const ListFriend = (props: OnCloseType) => {
   const { onClose } = props;
 
-  const refInput = useRef<(HTMLInputElement & { reset?: () => void }) | undefined>(undefined);
+  const refInput = useRef<
+    (HTMLInputElement & { reset?: () => void }) | undefined
+  >(undefined);
 
   const [contacts, setContacts] = useState<ContactModel[]>([]);
 
@@ -59,7 +61,7 @@ const ListFriend = (props: OnCloseType) => {
           findContact(e.target.value);
         }}
       />
-      <div className="list-friend-container hide-scrollbar text-(--text-main-color) border-(--border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
+      <div className="list-friend-container hide-scrollbar text-(--text-main-color) border-(--modal-border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto scroll-smooth rounded-xl border">
         {contacts.map((item) => (
           <FriendItem
             key={item.id}

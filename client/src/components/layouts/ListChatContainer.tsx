@@ -26,7 +26,10 @@ const ListChatContainer = () => {
   // Khóa scroll khi đang append conversations để tránh nhảy vị trí
   const lockScroll = (el: HTMLElement) => {
     const lockedTop = el.scrollTop;
-    const prevent = (e: Event) => { e.preventDefault(); el.scrollTop = lockedTop; };
+    const prevent = (e: Event) => {
+      e.preventDefault();
+      el.scrollTop = lockedTop;
+    };
     el.addEventListener("wheel", prevent, { passive: false });
     el.addEventListener("touchmove", prevent, { passive: false });
     return () => {
@@ -43,7 +46,10 @@ const ListChatContainer = () => {
     queryClient.setQueryData(["conversation"], (old: ConversationCache) => ({
       ...old,
       // Append xuống cuối list (conversations cũ hơn)
-      conversations: [...(old.conversations ?? []), ...(newConversations.conversations ?? [])],
+      conversations: [
+        ...(old.conversations ?? []),
+        ...(newConversations.conversations ?? []),
+      ],
       filterConversations: [
         ...(old.filterConversations ?? []),
         ...(newConversations.filterConversations ?? []),
@@ -64,7 +70,8 @@ const ListChatContainer = () => {
     const el = refListConversation.current;
     if (!el || isFetching.current || !conversations) return;
 
-    const distanceFromBottom = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    const distanceFromBottom =
+      el.scrollHeight - (el.scrollTop + el.clientHeight);
     // Khi cách đáy ≤ 50px và còn data → load trang tiếp
     if (distanceFromBottom <= 50 && refHasMore.current) {
       isFetching.current = true;
@@ -92,12 +99,14 @@ const ListChatContainer = () => {
   return (
     <div
       ref={refListConversation}
-      className="relative flex min-h-0 flex-1 flex-col gap-2 overflow-y-scroll scroll-smooth p-2"
+      className="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-scroll scroll-smooth px-4 py-2"
     >
       {(conversations?.filterConversations ?? [])
         // Chỉ hiển thị conversation mà user chưa rời/xóa (isDeleted = false)
         .filter((conv) =>
-          (conv.members ?? []).some((m) => m.contact?.id === info?.id && !m.isDeleted),
+          (conv.members ?? []).some(
+            (m) => m.contact?.id === info?.id && !m.isDeleted,
+          ),
         )
         .map((item) => (
           <ConversationItem
@@ -105,8 +114,12 @@ const ListChatContainer = () => {
             item={item}
             selfId={info?.id}
             isActive={item.id === activeConversationId}
-            itemRef={(el) => { if (item.id) itemRefs.current[item.id] = el; }}
-            onClick={() => { if (item.id) scrollToConversation(item.id); }}
+            itemRef={(el) => {
+              if (item.id) itemRefs.current[item.id] = el;
+            }}
+            onClick={() => {
+              if (item.id) scrollToConversation(item.id);
+            }}
           />
         ))}
     </div>

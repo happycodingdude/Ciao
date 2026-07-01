@@ -76,13 +76,13 @@ const ForwardMessageModal = ({
         {isLoading || isRefetching ? (
           <ListFriendLoading />
         ) : (
-          <div className="list-friend-container hide-scrollbar border-(--border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto rounded-xl border scroll-smooth">
+          <div className="list-friend-container hide-scrollbar border-(--modal-border-color) bg-(--search-bg-color) flex grow flex-col overflow-y-auto scroll-smooth rounded-xl border">
             {membersToSearch?.map((item) => {
               const isSent = sentIds.has(item.id ?? "");
               return (
                 <div
                   key={item.id}
-                  className="information-members border-(--border-color) flex w-full items-center gap-4 border-b p-3 last:border-b-0"
+                  className="information-members border-(--modal-border-color) flex w-full items-center gap-4 border-b p-3"
                 >
                   <ImageWithLightBoxAndNoLazy
                     src={item.avatar ?? undefined}

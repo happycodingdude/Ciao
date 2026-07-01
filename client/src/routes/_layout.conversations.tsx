@@ -22,7 +22,9 @@ export const Route = createFileRoute("/_layout/conversations")({
     const { conversations } = Route.useLoaderData();
     return (
       <LoadingProvider>
-        <section className={`bg-(--bg-color) relative flex grow overflow-hidden`}>
+        <section
+          className={`bg-(--bg-color) relative flex grow overflow-hidden`}
+        >
           <ChatDetailTogglesProvider>
             <ListchatFilterProvider>
               <div className="border-r-(--border-color) sidebar-w flex h-screen shrink-0 flex-col gap-4 border-r-[.1rem]">
