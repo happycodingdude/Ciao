@@ -102,11 +102,27 @@ Khi người dùng bấm vào một thành viên (khác bản thân) trong danh 
     `MO_DUNG_HOI_THOAI_CU_VA_LOAD_MORE_DANH_SACH.md`.
 
 - **Vị trí thẻ Quick Chat lệch nhẹ tùy điểm bấm trong hàng thành viên.**
-  - Trạng thái: **cần xử lý.** Khi bấm trúng phần tử con của hàng thành viên (ảnh đại
-    diện, tên, nhãn Admin), thẻ neo theo vị trí phần tử được bấm thay vì theo cả hàng,
-    làm vị trí dọc của thẻ lệch nhẹ so với khi bấm vào vùng trống của hàng.
-  - Hành vi mong muốn: thẻ luôn neo theo hàng thành viên được chọn, bất kể người dùng
-    bấm vào vị trí nào trong hàng.
+  - Trạng thái: **✅ đã xử lý.** Thẻ luôn neo theo hàng thành viên được chọn, bất kể
+    người dùng bấm vào ảnh đại diện, tên, nhãn Admin hay vùng trống của hàng.
+
+- **Gửi tin nhanh cho người chưa từng trò chuyện gọi thừa yêu cầu tải tệp đính kèm.**
+  - Trạng thái: **✅ đã xử lý.** Hành vi được phân biệt theo việc hội thoại là mới
+    hay đã tồn tại:
+    - **Hội thoại được tạo mới hoàn toàn (hai người chưa từng trò chuyện):** hệ thống
+      biết chắc chưa thể có tệp đính kèm nào (ngoài tệp vừa gửi kèm, nếu có). Vì vậy
+      khi mở hội thoại vừa tạo, ứng dụng **không** gửi yêu cầu tải danh sách tệp đính
+      kèm — vốn luôn rỗng — loại bỏ một lượt gọi thừa. Tương tự, danh sách tin nhắn
+      của hội thoại mới cũng chỉ gồm đúng tin vừa gửi nên không cần tải lại từ máy chủ.
+    - **Hội thoại đã tồn tại (kể cả khi đang nằm ở trang chưa được tải trong danh
+      sách chat):** khi mở, ứng dụng **vẫn** tải lại đầy đủ cả tin nhắn và tệp đính
+      kèm từ máy chủ để hiển thị đúng lịch sử hiện có, không bỏ sót dữ liệu.
+
+- **Hội thoại vừa gửi bị hiển thị là "chưa xem" của chính người gửi sau khi tải lại.**
+  - Trạng thái: **✅ đã xử lý.** Một hội thoại chỉ được coi là "chưa xem" khi có tin
+    nhắn của **người khác** mà người dùng chưa xem. Tin do chính người dùng gửi (kể
+    cả tin đầu tiên tạo ra hội thoại) không bao giờ khiến hội thoại của họ bị đánh
+    dấu chưa xem. Trước đây, người gửi tải lại trang thấy hội thoại mình vừa tạo bị
+    tô đậm như chưa đọc — nay đã đúng.
 
 ## Cải tiến & sửa lỗi liên quan (tham chiếu)
 

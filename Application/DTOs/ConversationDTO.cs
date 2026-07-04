@@ -22,6 +22,13 @@ public class CreateDirectConversationRes
     public bool IsNewConversation { get; set; }
 }
 
+public class GetDirectConversationIdRes
+{
+    // Id hội thoại trực tiếp đã tồn tại giữa 2 người, hoặc null nếu chưa có.
+    // FE dùng để tránh quét toàn bộ danh sách chat phân trang khi xác định "đã có chưa".
+    public string? ConversationId { get; set; }
+}
+
 public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
 {
     public string Title { get; set; } = null!;

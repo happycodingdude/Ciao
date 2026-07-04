@@ -56,18 +56,34 @@ export const appendConversationsPage = (
  *
  * `fetchPage` do call-site truyền vào (thường là getConversations) — giữ module
  * này thuần để test không cần network.
+ *
+ * `lookupExistingId` (tùy chọn): hỏi server hội thoại đã tồn tại chưa TRƯỚC khi quét.
+ * Nếu server trả null → chắc chắn CHƯA có → thoát ngay, KHÔNG quét toàn danh sách
+ * (tối ưu cho case nhắn người chưa từng trò chuyện). Nếu trả id nhưng id đó chưa nằm
+ * trong list đã load → vẫn quét để nạp hội thoại vào đúng vị trí (case hiếm: hội
+ * thoại cũ ở trang xa). Khi omit → giữ nguyên hành vi quét thuần (dùng cho test).
  */
 export const loadConversationsUntilFound = async (
   queryClient: QueryClient,
   contactId: string,
   fetchPage: (page: number) => Promise<ConversationCache>,
   selfId?: string,
+  lookupExistingId?: (contactId: string) => Promise<string | null>,
 ): Promise<ConversationModel | undefined> => {
   const read = () =>
     queryClient.getQueryData<ConversationCache>(["conversation"]);
 
   let cached = read();
   let found = findDirectConversation(cached?.conversations ?? [], contactId);
+  if (found) return found;
+
+  // Pre-check server: tránh quét N trang chỉ để kết luận "chưa có".
+  if (lookupExistingId) {
+    const existingId = await lookupExistingId(contactId);
+    // Server khẳng định chưa có hội thoại → khỏi quét, caller sẽ tạo mới.
+    if (!existingId) return undefined;
+    // Đã có id nhưng chưa nằm trong list đã load → rơi xuống quét để nạp vào đúng vị trí.
+  }
 
   for (let i = 0; !found && (cached?.hasMore ?? true) && i < MAX_DEEP_LOAD_PAGES; i++) {
     // Cache chưa từng load (gọi trước khi list query chạy) → bắt đầu từ trang 1

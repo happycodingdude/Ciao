@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { getConversations } from "../services/conv.service";
-import { createDirectChat } from "../services/friend.service";
+import { createDirectChat, getDirectConversationId } from "../services/friend.service";
 import { ConversationCache } from "../types/conv.types";
 import { ContactModel } from "../types/friend.types";
 import {
@@ -56,6 +56,7 @@ export function useOpenDirectChat() {
         contact.id,
         getConversations,
         info?.id,
+        getDirectConversationId,
       );
       if (found?.id) {
         goToConversation(found.id);

@@ -43,11 +43,12 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
           .map((item) => (
             <div
               key={item.id}
-              className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-4 rounded-lg p-2
-              // Tắt click cho chính mình (không cần QuickChat với bản thân)
-              ${item.contact?.id === selfId ? "pointer-events-none" : ""}`}
+              // pointer-events-none cho chính mình: không cần QuickChat với bản thân
+              className={`information-members hover:bg-(--bg-color-extrathin) flex w-full cursor-pointer items-center gap-4 rounded-lg p-2 ${item.contact?.id === selfId ? "pointer-events-none" : ""}`}
               onClick={(e: MouseEvent<HTMLElement>) => {
-                const rect = (e.target as HTMLElement).getBoundingClientRect();
+                // currentTarget = cả hàng member; dùng target sẽ lấy nhầm rect của phần
+                // tử con (avatar/tên/badge) khi bấm trúng, làm thẻ QuickChat neo lệch.
+                const rect = e.currentTarget.getBoundingClientRect();
                 setQuickChatRect(rect);
                 // Lưu độ rộng panel để tính vị trí hiển thị QuickChat bên ngoài panel
                 setInformationOffsetWidth(panelRef.current?.offsetWidth);
@@ -61,7 +62,6 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
                   // "friend" → không có nút add friend (đã là bạn); các status khác → hiện CTA
                   friendStatus:
                     item.friendStatus === "friend" ? undefined : item.friendStatus ?? undefined,
-                  directConversation: item.directConversation,
                 });
               }}
             >

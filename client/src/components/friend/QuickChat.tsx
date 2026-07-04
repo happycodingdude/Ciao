@@ -72,6 +72,9 @@ const QuickChat = (props: QuickChatProps) => {
   const [innerFriend, setInnerFriend] = useState<ContactModel | undefined>(profile);
   // Vị trí dọc của mũi tên anchor (căn theo member được click)
   const [arrowTop, setArrowTop] = useState<number>();
+  // Trạng thái gửi để hiện spinner + khóa nút (sendToContact có thể mất 1 nhịp khi
+  // phải định vị hội thoại ở trang chưa tải trước khi điều hướng).
+  const [sending, setSending] = useState(false);
 
   // Đồng bộ innerFriend khi prop profile thay đổi (chọn thành viên khác trong group)
   useEffect(() => {
@@ -146,6 +149,7 @@ const QuickChat = (props: QuickChatProps) => {
     if (!message) return;
 
     sendingRef.current = true;
+    setSending(true);
     // Xóa input NGAY (đồng bộ) trước await: nếu còn trigger nào lọt qua guard vẫn
     // đọc được nội dung rỗng → không gửi lại (cùng cơ chế với ChatInput).
     if (refInput.current) refInput.current.textContent = "";
@@ -165,6 +169,7 @@ const QuickChat = (props: QuickChatProps) => {
     } finally {
       // Mở khóa để cho phép gửi lại (vd sau khi sendToContact báo lỗi, popover còn mở).
       sendingRef.current = false;
+      setSending(false);
     }
   };
 
@@ -312,10 +317,13 @@ const QuickChat = (props: QuickChatProps) => {
             type="button"
             aria-label="Gửi"
             onClick={chat}
+            disabled={sending}
             className="bg-(--main-color) hover:bg-(--main-color-bold) flex aspect-square w-8 shrink-0 items-center
-              justify-center rounded-full text-white transition-colors"
+              justify-center rounded-full text-white transition-colors disabled:opacity-60"
           >
-            <i className="fa-solid fa-paper-plane text-xs"></i>
+            <i
+              className={`fa-solid text-xs ${sending ? "fa-spinner animate-spin" : "fa-paper-plane"}`}
+            ></i>
           </button>
         </div>
       </div>

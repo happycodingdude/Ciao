@@ -48,7 +48,10 @@ public static class GetConversations
             {
                 var messages = await _messageCache.GetMessages(conversation.Id);
                 var thisMember = conversation.Members.SingleOrDefault(q => q.Contact.Id == userId);
-                var haventSeenAnyMessage = messages.Any() && thisMember!.LastSeenTime is null;
+                // Chỉ tính CHƯA XEM dựa trên tin của NGƯỜI KHÁC. Tin do chính user gửi
+                // (vd. vừa tạo hội thoại kèm tin nhắn) không được coi là "chưa xem" của
+                // chính họ — nếu không, reload sẽ hiện hội thoại vừa gửi là unseen sai.
+                var haventSeenAnyMessage = thisMember!.LastSeenTime is null && messages.Any(q => q.ContactId != userId);
                 var haventSeenLastMessage = messages.Any(q => q.ContactId != userId && q.CreatedTime >= thisMember!.LastSeenTime);
                 conversation.UnSeen = haventSeenAnyMessage || haventSeenLastMessage;
                 foreach (var member in conversation.Members)

@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import { getConversations } from "../services/conv.service";
 import { createDirectChatWithMessage } from "../services/friend.service";
 import { getAttachments, getMessages, sendMessage } from "../services/message.service";
 import { AttachmentCache, SendMessageRequest } from "../types/message.types";
@@ -22,7 +21,6 @@ import {
   prependConversation,
   reopenMember,
 } from "../utils/conversationCache";
-import { loadConversationsUntilFound } from "../utils/conversationPaging";
 import {
   buildMessageEntry,
   DirectMessagePayload,
@@ -56,21 +54,15 @@ export const useDirectMessage = () => {
     const { prefetch = false, onNavigate } = options;
     const hasMedia = !!(payload.attachments?.length);
 
-    // Tìm direct conversation (1-1) đã tồn tại: tra list đã load trước, chưa thấy
-    // thì load thêm từng trang (như scroll load-more) đến khi thấy hoặc hết trang —
-    // hội thoại cũ nằm ở trang chưa tải vẫn được nhận ra, không tạo nhầm luồng mới.
-    let existedConversation = findDirectConversation(
+    // CHỈ tra hội thoại trực tiếp trong danh sách ĐÃ TẢI — KHÔNG quét thêm trang.
+    // Luồng gửi luôn đẩy hội thoại lên ĐẦU (không cần giữ vị trí như nút Message),
+    // nên nếu không thấy trong list đã tải thì gọi thẳng createDirectChatWithMessage
+    // (lookup-or-create KÈM tin nhắn) ở nhánh else: 1 request lo cả 2 case mới/cũ,
+    // khỏi lookup id riêng và khỏi load-more (giảm tối đa số request).
+    const existedConversation = findDirectConversation(
       conversations?.conversations ?? [],
       contact.id ?? "",
     );
-    if (!existedConversation && contact.id) {
-      existedConversation = await loadConversationsUntilFound(
-        queryClient,
-        contact.id,
-        getConversations,
-        info?.id,
-      );
-    }
 
     if (existedConversation) {
       // --- Luồng: cuộc hội thoại đã tồn tại ---
@@ -191,13 +183,15 @@ export const useDirectMessage = () => {
           }),
         );
 
-        if (hasMedia) {
-          // Khởi tạo attachment cache cho conversation mới
-          queryClient.setQueryData(["attachment", convId], (): AttachmentCache => ({
-            conversationId: convId,
-            attachments: [{ date: getToday("MM/DD/YYYY"), attachments: payload.attachments ?? [] }],
-          }));
-        }
+        // Hội thoại MỚI HOÀN TOÀN → chưa thể có attachment nào ngoài (nếu có) file vừa
+        // gửi. Seed attachment cache LUÔN, kể cả text-only (mảng rỗng), để useAttachment
+        // thấy cache fresh và KHÔNG gọi thừa GET /attachment khi navigate vào hội thoại.
+        queryClient.setQueryData<AttachmentCache>(["attachment", convId], {
+          conversationId: convId,
+          attachments: hasMedia
+            ? [{ date: getToday("MM/DD/YYYY"), attachments: payload.attachments ?? [] }]
+            : [],
+        });
       } else {
         // Hội thoại CŨ chưa được load → KHÔNG ghi đè message cache bằng 1 tin đơn lẻ
         // (sẽ mất toàn bộ history và hasMore=false chặn luôn phân trang tin nhắn).

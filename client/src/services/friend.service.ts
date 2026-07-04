@@ -19,6 +19,21 @@ export const createDirectChat = async (contactId: string) => {
   ).data;
 };
 
+// Tra id hội thoại trực tiếp đã tồn tại với contact (null nếu chưa có). Đọc-thuần,
+// không tạo mới — dùng để tránh quét toàn bộ danh sách chat khi tìm hội thoại.
+export const getDirectConversationId = async (contactId: string) => {
+  const data = (
+    await HttpRequest<undefined, { conversationId?: string | null }>({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_GET_DIRECT_ID.replace(
+        "{contact-id}",
+        contactId,
+      ),
+    })
+  ).data;
+  return data?.conversationId ?? null;
+};
+
 export const createDirectChatWithMessage = async (
   contactId: string,
   request: CreateDirectChatReq,
