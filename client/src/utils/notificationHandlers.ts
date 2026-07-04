@@ -26,9 +26,9 @@ import {
   updateMessageRecalled,
 } from "./notificationCacheHelpers";
 import {
-  appendMessage,
   mutateMessagePages,
   updateMessageById,
+  upsertRealtimeMessage,
 } from "./messageCache";
 import { markDelivered } from "../services/message.service";
 import { playNotificationSound } from "./notificationSound";
@@ -199,10 +199,12 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
     };
   });
 
-  // Append tin mới vào message cache. appendMessage no-op nếu conversation chưa load (chưa có
-  // pages) → user mở sẽ fetch fresh; nếu đã load (active hoặc inactive) thì cache nhất quán ngay.
-  // Bỏ invalidate-inactive: không cần refetch, tránh reset pagination đã cuộn (đúng FCM-only).
-  appendMessage(queryClient, conversationId, toPendingMessage(message));
+  // Append tin mới vào message cache (no-op nếu conversation chưa load pages → user mở sẽ
+  // fetch fresh; không invalidate-inactive để tránh reset pagination, đúng FCM-only).
+  // Dùng upsert thay vì append thô: tin CỦA CHÍNH MÌNH có thể đang có bản optimistic
+  // pending ở tab này (FCM về TRƯỚC khi API send confirm) → confirm bản đó thay vì
+  // append bản thứ hai gây bubble đúp.
+  upsertRealtimeMessage(queryClient, conversationId, toPendingMessage(message), userInfo.id);
 
   if (isActive && message.attachments.length > 0) {
     // Chỉ update attachment cache khi đang xem và tin có file đính kèm

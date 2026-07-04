@@ -17,6 +17,9 @@ public class CreateDirectConversationRes
 {
     public string ConversationId { get; set; } = null!;
     public string? MessageId { get; set; }
+    // Cho FE biết ConversationId là hội thoại MỚI hay hội thoại cũ đã tồn tại
+    // (hội thoại cũ có thể chưa được load trong danh sách chat phân trang phía client).
+    public bool IsNewConversation { get; set; }
 }
 
 public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel

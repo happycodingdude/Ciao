@@ -3,6 +3,7 @@ import { createContext, ReactNode, useEffect, useState } from "react";
 import useInfo from "../hooks/useInfo";
 import { ListchatFilterType } from "../types/base.types";
 import { ConversationCache } from "../types/conv.types";
+import { applyListchatFilter } from "../utils/listchatFilter";
 
 // Create the context
 export const ListchatFilterContext = createContext<
@@ -21,27 +22,17 @@ const ListchatFilterProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     queryClient.setQueryData(["conversation"], (oldData: ConversationCache) => {
       if (!oldData) return oldData;
-      const filteredConversations = (oldData.conversations ?? []).filter((conv) =>
-        filter === "all"
-          ? true
-          : filter === "direct"
-            ? !conv.isGroup
-            : conv.isGroup,
-      );
-      const updatedConversations =
-        search === ""
-          ? filteredConversations
-          : filteredConversations.filter((conv) =>
-              conv.isGroup
-                ? (conv.title ?? "").toLowerCase().includes(search.toLowerCase())
-                : (conv.members ?? [])
-                    .find((item) => item.contact?.id !== info?.id)
-                    ?.contact?.name?.toLowerCase()
-                    .includes(search.toLowerCase()),
-            );
       return {
         ...oldData,
-        filterConversations: updatedConversations,
+        filterConversations: applyListchatFilter(
+          oldData.conversations ?? [],
+          filter,
+          search,
+          info?.id,
+        ),
+        // Ghi filter/search đang active vào cache để load-more append đúng bộ lọc
+        listFilter: filter,
+        listSearch: search,
         // conversations: updatedConversations,
         noLazy: true,
       };

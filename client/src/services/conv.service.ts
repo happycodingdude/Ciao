@@ -5,6 +5,7 @@ import {
   CreateGroupChatRequest,
   UpdateConversationRequest,
 } from "../types/conv.types";
+import { CONVERSATIONS_PAGE_LIMIT } from "../utils/conversationPaging";
 
 export const updateConversation = async (model: UpdateConversationRequest) => {
   return (
@@ -74,6 +75,9 @@ export const getConversations = async (page: number) => {
   const result: ConversationCache = {
     conversations: data,
     filterConversations: data,
+    page,
+    // Trang trả về ít hơn limit → đây là trang cuối, khỏi tốn 1 call trả rỗng
+    hasMore: (data?.length ?? 0) >= CONVERSATIONS_PAGE_LIMIT,
   };
   return result;
 };

@@ -11,13 +11,14 @@ import {
 } from "../types/message.types";
 import { getToday } from "../utils/datetime";
 import delay from "../utils/delay";
-import { appendMessage, updateMessageById } from "../utils/messageCache";
+import { appendMessage, confirmMessage, updateMessageById } from "../utils/messageCache";
 import { uploadFile } from "../utils/uploadFile";
 import useInfo from "./useInfo";
 import { useReply } from "./useReply";
 
 // Quá hạn này mà server chưa phản hồi → abort + đánh dấu tin failed (không pending vô hạn).
-const SEND_REQUEST_TIMEOUT_MS = 5_000;
+// Export để luồng gửi nhanh (useDirectMessage) dùng chung mức timeout.
+export const SEND_REQUEST_TIMEOUT_MS = 5_000;
 
 export const useSendMessage = (conversationId: string) => {
   const queryClient = useQueryClient();
@@ -184,8 +185,9 @@ export const useSendMessage = (conversationId: string) => {
 
       clearReply();
 
-      // Confirm tin nhắn: thay randomId bằng messageId thật, xóa pending flag
-      updateMessageById(queryClient, conversationId, randomId, (msg) => ({
+      // Confirm tin nhắn: thay randomId bằng messageId thật, xóa pending flag.
+      // confirmMessage chống trùng nếu FCM own-message đã append bản realId trước đó.
+      confirmMessage(queryClient, conversationId, randomId, res.messageId ?? "", (msg) => ({
         ...msg,
         id: res.messageId,
         loaded: true,

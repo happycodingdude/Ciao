@@ -42,6 +42,14 @@ export type ConversationModel = BaseModel & {
 export type ConversationCache = {
   conversations?: ConversationModel[];
   filterConversations?: ConversationModel[];
+  // Trạng thái phân trang của danh sách chat. Nằm TRONG cache để refetch page 1
+  // (queryFn trả object mới) tự reset paging về đầu.
+  page?: number;
+  hasMore?: boolean;
+  // Filter tab + search đang active (ListchatFilterContext ghi vào) để các helper
+  // append trang mới lọc đúng mà không cần chạm React context.
+  listFilter?: string;
+  listSearch?: string;
   selected?: ConversationModel | null;
   reload?: boolean;
   createGroupChat?: boolean;

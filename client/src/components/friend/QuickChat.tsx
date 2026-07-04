@@ -1,11 +1,9 @@
 import { useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSignal } from "../../context/SignalContext";
-import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import { useDirectMessage } from "../../hooks/useDirectMessage";
 import useOpenDirectChat from "../../hooks/useOpenDirectChat";
-import { findDirectConversation } from "../../utils/conversationCache";
 import { UserProfile } from "../../types/base.types";
 import { ContactModel, QuickChatProps } from "../../types/friend.types";
 import { avatarColor, getInitials } from "../../utils/avatar";
@@ -62,11 +60,14 @@ const QuickChat = (props: QuickChatProps) => {
   const router = useRouter();
   const { sendToContact } = useDirectMessage();
   const { openChat } = useOpenDirectChat();
-  const { data: conversations } = useConversation();
   const { startLocalStream } = useSignal();
 
   const refQuickProfile = useRef<HTMLDivElement>(null);
   const refInput = useRef<HTMLDivElement>(null);
+  // Khóa chống double-send: sendToContact là async dài (gồm deep-find phân trang),
+  // nếu chat() được gọi 2 lần (Enter + click nút gửi, hoặc IME confirm Enter) mà
+  // không khóa thì cả 2 đọc cùng nội dung → double call API → tin nhắn bị nhân đôi.
+  const sendingRef = useRef(false);
 
   const [innerFriend, setInnerFriend] = useState<ContactModel | undefined>(profile);
   // Vị trí dọc của mũi tên anchor (căn theo member được click)
@@ -138,24 +139,39 @@ const QuickChat = (props: QuickChatProps) => {
   if (!profile) return null;
 
   const chat = async () => {
+    // In-flight guard: chặn lần gọi thứ 2 khi lần 1 chưa xong.
+    if (sendingRef.current) return;
     const message = (refInput.current?.textContent ?? "").trim();
     // Không gửi tin rỗng (tránh tạo conversation/tin nhắn trắng)
     if (!message) return;
 
-    await sendToContact(
-      innerFriend!,
-      { type: "text", content: message },
-      {
-        // Prefetch data để navigation vào conversation diễn ra mượt không bị loading
-        prefetch: true,
-        onNavigate: (convId) =>
-          router.navigate({ to: `/conversations/${convId}` }),
-      },
-    );
-    onClose?.();
+    sendingRef.current = true;
+    // Xóa input NGAY (đồng bộ) trước await: nếu còn trigger nào lọt qua guard vẫn
+    // đọc được nội dung rỗng → không gửi lại (cùng cơ chế với ChatInput).
+    if (refInput.current) refInput.current.textContent = "";
+
+    try {
+      await sendToContact(
+        innerFriend!,
+        { type: "text", content: message },
+        {
+          // Prefetch data để navigation vào conversation diễn ra mượt không bị loading
+          prefetch: true,
+          onNavigate: (convId) =>
+            router.navigate({ to: `/conversations/${convId}` }),
+        },
+      );
+      onClose?.();
+    } finally {
+      // Mở khóa để cho phép gửi lại (vd sau khi sendToContact báo lỗi, popover còn mở).
+      sendingRef.current = false;
+    }
   };
 
   const keydownBindingFn = (e: React.KeyboardEvent<HTMLElement>) => {
+    // Bỏ qua Enter khi IME đang ghép chữ (gõ tiếng Việt): Enter xác nhận composition
+    // KHÔNG được tính là gửi, nếu không sẽ gửi 2 lần. Khớp useChatInputKeyboard.
+    if (e.nativeEvent.isComposing) return;
     // Enter không Shift → gửi tin; Shift+Enter → xuống dòng trong quick chat
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -163,24 +179,13 @@ const QuickChat = (props: QuickChatProps) => {
     }
   };
 
-  // Mở hội thoại đầy đủ với thành viên. Dùng hook chuẩn useOpenDirectChat: tự điều
-  // hướng nếu đã có hội thoại trực tiếp, hoặc tạo mới (seed cache theo id thật để
-  // tránh race/vỡ header). slideOff thay vì onClose để không unmount giữa lúc hook
-  // đang chạy async (tránh setState sau unmount).
+  // Mở hội thoại đầy đủ với thành viên. useOpenDirectChat tự tìm hội thoại 1-1
+  // trong danh sách (load thêm trang nếu nằm ở trang chưa tải) → điều hướng giữ
+  // nguyên vị trí; thật sự chưa có mới tạo. slideOff thay vì onClose để không
+  // unmount giữa lúc hook đang chạy async (tránh setState sau unmount).
   const openConversation = () => {
     if (!innerFriend) return;
-    // Ưu tiên tra hội thoại trực tiếp có sẵn trong cache list (nguồn tin cậy giống
-    // danh sách chat) để điều hướng tức thì, không phụ thuộc field directConversation
-    // của member (không được populate). Không thấy → openChat sẽ tạo mới.
-    const existing = findDirectConversation(
-      conversations?.conversations ?? [],
-      innerFriend.id ?? "",
-    );
-    openChat(
-      existing?.id
-        ? { ...innerFriend, directConversation: existing.id }
-        : innerFriend,
-    );
+    openChat(innerFriend);
     slideOff();
   };
 

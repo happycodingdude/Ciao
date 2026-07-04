@@ -52,4 +52,7 @@ export type CreateDirectChatReq = {
 export type CreateDirectChatRes = {
   conversationId?: string;
   messageId?: string;
+  // true = server vừa tạo hội thoại mới; false = trả về hội thoại cũ đã tồn tại
+  // (có thể chưa nằm trong các trang danh sách chat đã load phía client)
+  isNewConversation?: boolean;
 };

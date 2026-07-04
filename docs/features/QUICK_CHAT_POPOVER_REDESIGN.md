@@ -95,15 +95,30 @@ Khi người dùng bấm vào một thành viên (khác bản thân) trong danh 
 ## Vấn đề đã biết / cần xử lý sau
 
 - **Message không nhận ra hội thoại cũ nằm ở trang chưa tải của danh sách chat.**
-  Thao tác Message tìm hội thoại trực tiếp đã tồn tại trong phần danh sách chat
-  hiện đang được nạp. Danh sách chat được tải theo trang (cuộn để tải thêm), nên
-  nếu hội thoại với thành viên đó nằm ở một trang chưa được tải, thao tác Message
-  sẽ không "nhìn thấy" nó.
-  - Hệ quả: thay vì mở đúng hội thoại cũ, hệ thống có thể phải khởi tạo lại luồng
-    mở hội thoại, dẫn tới trải nghiệm không nhất quán (không nhảy thẳng tới đúng
-    hội thoại đã có, hoặc phụ thuộc vào việc máy chủ trả về đúng hội thoại cũ).
-  - Hành vi mong muốn: xác định được hội thoại trực tiếp đã tồn tại với thành viên
-    kể cả khi nó chưa được tải trong danh sách, rồi điều hướng/chọn đúng hội thoại
-    đó (ví dụ: tra cứu hội thoại trực tiếp theo người dùng ở phía máy chủ, hoặc tự
-    động tải thêm/định vị hội thoại trong danh sách trước khi điều hướng).
-  - Trạng thái: **chưa xử lý — để lại làm sau.**
+  - Trạng thái: **✅ đã xử lý.** Máy chủ tra cứu hội thoại trực tiếp đã tồn tại giữa
+    hai người và trả về đúng hội thoại cũ kèm cờ phân biệt mới/cũ; thao tác Message
+    và gửi tin nhanh luôn điều hướng vào đúng hội thoại thật, lịch sử được giữ
+    nguyên và nạp đầy đủ. Chi tiết nghiệp vụ xem
+    `MO_DUNG_HOI_THOAI_CU_VA_LOAD_MORE_DANH_SACH.md`.
+
+- **Vị trí thẻ Quick Chat lệch nhẹ tùy điểm bấm trong hàng thành viên.**
+  - Trạng thái: **cần xử lý.** Khi bấm trúng phần tử con của hàng thành viên (ảnh đại
+    diện, tên, nhãn Admin), thẻ neo theo vị trí phần tử được bấm thay vì theo cả hàng,
+    làm vị trí dọc của thẻ lệch nhẹ so với khi bấm vào vùng trống của hàng.
+  - Hành vi mong muốn: thẻ luôn neo theo hàng thành viên được chọn, bất kể người dùng
+    bấm vào vị trí nào trong hàng.
+
+## Cải tiến & sửa lỗi liên quan (tham chiếu)
+
+Các thay đổi mở rộng từ thẻ Quick Chat, ghi ở tài liệu riêng để giữ tài liệu này gọn:
+
+- **Mở đúng hội thoại cũ & tải thêm danh sách chat** —
+  `MO_DUNG_HOI_THOAI_CU_VA_LOAD_MORE_DANH_SACH.md`.
+  Máy chủ phân biệt hội thoại mới/cũ; nút Message tự tải thêm danh sách đến khi thấy
+  hội thoại rồi mở **giữ nguyên vị trí** (gửi tin thì đẩy lên đầu); danh sách chat tự
+  cuộn tới hội thoại đang mở; củng cố tải thêm (nhận biết trang cuối, chống trùng mục,
+  tôn trọng bộ lọc/tìm kiếm, không kẹt khi lỗi mạng).
+- **Sửa lỗi hiển thị & gửi trùng tin nhắn** — `FIX_TIN_NHAN_PENDING_VA_TRUNG.md`.
+  Bỏ trạng thái "đang gửi" kẹt vĩnh viễn (báo lỗi rõ ràng); không còn bong bóng trùng
+  khi bản thời gian thực về sớm; **một thao tác gửi chỉ tạo đúng một tin** (chặn gửi
+  đôi do bộ gõ tiếng Việt/Enter hai lần).

@@ -79,6 +79,61 @@ export const updateInfiniteById = (
   };
 };
 
+/** Xác nhận tin optimistic (tempId → realId) qua updater, CHỐNG TRÙNG với bản realtime:
+ *  nếu bản realId đã nằm trong cache (FCM own-message về TRƯỚC khi API confirm) thì xóa
+ *  entry temp và đảm bảo bản realId hết pending — tránh 2 bubble cho cùng một tin. */
+export const confirmInInfinite = (
+  data: InfiniteMessageData | undefined,
+  tempId: string,
+  realId: string,
+  updater: (msg: PendingMessageModel) => PendingMessageModel,
+): InfiniteMessageData | undefined => {
+  if (!data) return data;
+  const realExists = flattenInfinite(data).some((m) => m.id === realId);
+  if (!realExists) return updateInfiniteById(data, tempId, updater);
+  return {
+    ...data,
+    pages: data.pages.map((p) => ({
+      ...p,
+      messages: (p.messages ?? [])
+        .filter((m) => m.id !== tempId)
+        .map((m) => (m.id === realId ? { ...m, pending: false } : m)),
+    })),
+  };
+};
+
+/** Append tin đến từ realtime (FCM). Với tin CỦA CHÍNH MÌNH: tab này có thể vừa gửi và
+ *  đang giữ bản optimistic pending (id tạm) — khi đó CONFIRM bản pending trùng nội dung
+ *  thay vì append bản thứ hai (nguồn gây bubble đúp). Tin của người khác / own message
+ *  từ thiết bị khác (không có bản pending) → append như cũ, dedup theo id. */
+export const upsertRealtimeInInfinite = (
+  data: InfiniteMessageData | undefined,
+  msg: PendingMessageModel,
+  selfId?: string,
+): InfiniteMessageData | undefined => {
+  if (!data || data.pages.length === 0) return data;
+  const flat = flattenInfinite(data);
+  if (msg.id && flat.some((m) => m.id === msg.id)) return data;
+
+  if (selfId && msg.contactId === selfId) {
+    const pendingTwin = flat.find(
+      (m) =>
+        m.pending &&
+        m.contactId === selfId &&
+        m.type === msg.type &&
+        (m.content ?? "") === (msg.content ?? ""),
+    );
+    if (pendingTwin?.id) {
+      return updateInfiniteById(data, pendingTwin.id, (old) => ({
+        ...old,
+        ...msg,
+        pending: false,
+      }));
+    }
+  }
+  return appendToInfinite(data, msg);
+};
+
 /** Xoá message theo id khỏi mọi page. */
 export const removeFromInfinite = (
   data: InfiniteMessageData | undefined,
@@ -136,6 +191,29 @@ export const removeMessageById = (
 ) =>
   qc.setQueryData<InfiniteMessageData>(messageKey(conversationId), (old) =>
     removeFromInfinite(old, id),
+  );
+
+/** Confirm tin optimistic (tempId→realId) — chống trùng nếu bản realtime đã về trước. */
+export const confirmMessage = (
+  qc: QueryClient,
+  conversationId: string,
+  tempId: string,
+  realId: string,
+  updater: (msg: PendingMessageModel) => PendingMessageModel,
+) =>
+  qc.setQueryData<InfiniteMessageData>(messageKey(conversationId), (old) =>
+    confirmInInfinite(old, tempId, realId, updater),
+  );
+
+/** Nhận tin realtime — confirm bản pending trùng (tin của mình) thay vì append đúp. */
+export const upsertRealtimeMessage = (
+  qc: QueryClient,
+  conversationId: string,
+  msg: PendingMessageModel,
+  selfId?: string,
+) =>
+  qc.setQueryData<InfiniteMessageData>(messageKey(conversationId), (old) =>
+    upsertRealtimeInInfinite(old, msg, selfId),
   );
 
 /** Áp transform per-page (bọc các helper MessageCache→MessageCache cũ: edit/recall...). */

@@ -28,7 +28,13 @@ public static class CreateDirectConversation
                 Builders<Conversation>.Filter.ElemMatch(q => q.Members, w => w.ContactId == request.contactId),
                 Builders<Conversation>.Filter.Eq(q => q.IsGroup, false)
             );
-            var conversation = (await _conversationRepository.GetAllAsync(filter)).SingleOrDefault();
+            // FirstOrDefault theo Id (ObjectId tăng dần theo thời gian tạo) thay vì SingleOrDefault:
+            // creation đi qua Kafka bất đồng bộ nên check-then-create không atomic, có thể tồn tại
+            // duplicate → SingleOrDefault sẽ throw 500 vĩnh viễn cho cặp user này. Chọn hội thoại
+            // cũ nhất để mọi client hội tụ về cùng một hội thoại.
+            var conversation = (await _conversationRepository.GetAllAsync(filter))
+                .OrderBy(q => q.Id)
+                .FirstOrDefault();
             // Đánh dấu cuộc trò chuyện mới và tạo cuộc trò chuyện nếu chưa có
             var isNewConversation = conversation is null;
             conversation ??= new Conversation
@@ -59,7 +65,8 @@ public static class CreateDirectConversation
             return new CreateDirectConversationRes
             {
                 ConversationId = conversation.Id,
-                MessageId = message?.Id
+                MessageId = message?.Id,
+                IsNewConversation = isNewConversation
             };
         }
     }
