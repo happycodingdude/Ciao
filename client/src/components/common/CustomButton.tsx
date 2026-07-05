@@ -14,6 +14,7 @@ const CustomButton = (props: CustomButtonProps) => {
     height,
     top,
     sm,
+    compact,
   } = props;
   const handleClick = () => {
     onClick?.();
@@ -33,7 +34,7 @@ const CustomButton = (props: CustomButtonProps) => {
             "--top": `${top ?? "-2.6px"}`,
           } as CSSProperties
         }
-        className={`gradient-item rounded-4xl bg-(--bg-color) relative ${sm ? "h-7" : "h-10"} cursor-pointer text-center font-medium 
+        className={`gradient-item rounded-4xl bg-(--bg-color) relative ${compact ? "h-6" : sm ? "h-7" : "h-10"} cursor-pointer text-center font-medium
           transition-all data-[process=true]:pointer-events-none`}
         onClick={(e) => {
           e.stopPropagation(); // Prevent bubbling to parent

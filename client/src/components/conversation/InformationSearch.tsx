@@ -1,4 +1,3 @@
-import { SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import {
@@ -15,8 +14,8 @@ import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { searchMessages } from "../../services/message.service";
 import { ConversationModel_Contact } from "../../types/conv.types";
 import { MessageSearchResult } from "../../types/message.types";
-import CustomInput from "../common/CustomInput";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import ModalSearchInput from "../common/ModalSearchInput";
 
 // Escape user input trước khi đưa vào RegExp để tránh ký tự đặc biệt phá pattern.
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -132,19 +131,16 @@ const InformationSearch = () => {
   // gây highlight lệch với kết quả đang hiển thị.
   const [searchedKeyword, setSearchedKeyword] = useState("");
 
-  // CustomInput không có prop autoFocus; focus thủ công qua ref khi mount (giống AddMembersModal).
-  // Type khớp đúng signature `MutableRefObject<... | undefined>` mà CustomInput expect.
-  const refInput = useRef<
-    (HTMLInputElement & { reset?: () => void }) | undefined
-  >(undefined);
+  // ModalSearchInput không có prop autoFocus; focus thủ công qua ref khi mở panel.
+  const refInput = useRef<HTMLInputElement>(null);
 
-  // Reset toàn bộ trạng thái search về rỗng (ô input uncontrolled → clear value qua ref.reset()).
+  // Reset toàn bộ trạng thái search về rỗng (ô input uncontrolled → clear value trực tiếp).
   const resetSearch = () => {
     setKeyword("");
     setResults([]);
     setSearched(false);
     setSearchedKeyword("");
-    refInput.current?.reset?.();
+    if (refInput.current) refInput.current.value = "";
   };
 
   // Component giờ always-mounted (render sibling, không còn `showSearch && <...>` ở parent).
@@ -221,42 +217,33 @@ const InformationSearch = () => {
 
   return (
     <div
-      className={`absolute top-0 pb-4 ${showSearch ? "z-10" : "z-0"} flex h-full w-full flex-col bg-(--bg-color)`}
+      className={`absolute top-0 pb-4 ${showSearch ? "z-10" : "z-0"} bg-(--bg-color) flex h-full w-full flex-col`}
     >
       {/* Header chỉ tiêu đề — đóng panel bằng cách click lại icon Search trên ChatboxHeaderMenu. */}
-      <div className="border-b-(--border-color) panel-header-h flex items-center border-b-[.1rem] bg-(--bg-color) px-4">
+      <div className="border-b-(--border-color) panel-header-h bg-(--bg-color) flex items-center border-b-[.1rem] px-4">
         <p className="text-base font-medium">Search messages</p>
       </div>
 
-      {/* Search input — dùng CustomInput để đồng nhất visual với thanh search trong AddMembersModal
-          (flat, underline animation khi focus). Icon kính lúp đặt cùng hàng làm trigger phụ
-          ngoài Enter (cho mobile/mouse). Disabled style khi keyword rỗng để báo trạng thái. */}
-      <div className="flex items-center gap-3 px-4 py-3">
-        <div className="grow">
-          <CustomInput
-            type="text"
-            placeholder="Type keyword..."
-            inputRef={refInput}
-            onChange={(e) => {
-              const v = e.target.value;
-              setKeyword(v);
-              // Yêu cầu #2: xoá trắng ô search → clear luôn list kết quả bên dưới.
-              if (v.trim() === "") {
-                setResults([]);
-                setSearched(false);
-                setSearchedKeyword("");
-              }
-            }}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
-        <SearchOutlined
-          onClick={() => {
-            if (!loading && keyword.trim()) handleSearch();
+      {/* Search input — dùng ModalSearchInput để đồng bộ diện mạo với ô search ở các
+          modal (box bo góc, viền modal, icon kính lúp trái, focus xanh). Icon kính lúp
+          làm trigger phụ ngoài Enter (mobile/mouse), mờ khi keyword rỗng/đang tải. */}
+      <div className="px-4 py-3">
+        <ModalSearchInput
+          inputRef={refInput}
+          placeholder="Type keyword..."
+          onChange={(e) => {
+            const v = e.target.value;
+            setKeyword(v);
+            // Yêu cầu #2: xoá trắng ô search → clear luôn list kết quả bên dưới.
+            if (v.trim() === "") {
+              setResults([]);
+              setSearched(false);
+              setSearchedKeyword("");
+            }
           }}
-          className={`base-icon-sm shrink-0 transition-opacity duration-200 ${
-            loading || !keyword.trim() ? "pointer-events-none opacity-40" : ""
-          }`}
+          onKeyDown={handleKeyDown}
+          onIconClick={handleSearch}
+          iconDisabled={loading || !keyword.trim()}
         />
       </div>
 

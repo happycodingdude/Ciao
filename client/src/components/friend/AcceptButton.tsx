@@ -4,7 +4,7 @@ import { FriendCtaButtonProps } from "../../types/base.types";
 import CustomButton from "../common/CustomButton";
 
 const AcceptButton = (props: FriendCtaButtonProps) => {
-  const { id, onClose } = props;
+  const { id, onClose, compact } = props;
 
   const [processing, setProcessing] = useState<boolean>(false);
 
@@ -28,13 +28,14 @@ const AcceptButton = (props: FriendCtaButtonProps) => {
   return (
     <CustomButton
       title="Accept"
-      className="text-2xs"
-      width={4}
+      className={compact ? "text-3xs" : "text-2xs"}
+      width={compact ? 3.5 : 4}
       gradientWidth="110%"
       gradientHeight="120%"
       rounded="3rem"
       onClick={acceptFriendRequest}
       processing={processing}
+      compact={compact}
       sm
     />
   );

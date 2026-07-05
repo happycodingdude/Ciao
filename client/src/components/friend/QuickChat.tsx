@@ -1,8 +1,8 @@
 import { useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSignal } from "../../context/SignalContext";
-import useEventListener from "../../hooks/useEventListener";
 import { useDirectMessage } from "../../hooks/useDirectMessage";
+import useEventListener from "../../hooks/useEventListener";
 import useOpenDirectChat from "../../hooks/useOpenDirectChat";
 import { UserProfile } from "../../types/base.types";
 import { ContactModel, QuickChatProps } from "../../types/friend.types";
@@ -30,8 +30,8 @@ const QuickAvatar = ({
   return (
     <div className="relative w-fit">
       <div
-        className="ring-(--portal-container-bg-color) laptop:w-16 relative flex aspect-square w-14 items-center justify-center
-          overflow-hidden rounded-full text-lg font-semibold text-white ring-4"
+        className="ring-(--portal-container-bg-color) laptop:w-14 relative flex aspect-square w-12 items-center justify-center
+          overflow-hidden rounded-full text-sm font-semibold text-white ring-[3px]"
         style={{ backgroundColor: avatarColor(name) }}
       >
         <span>{getInitials(name)}</span>
@@ -69,7 +69,9 @@ const QuickChat = (props: QuickChatProps) => {
   // không khóa thì cả 2 đọc cùng nội dung → double call API → tin nhắn bị nhân đôi.
   const sendingRef = useRef(false);
 
-  const [innerFriend, setInnerFriend] = useState<ContactModel | undefined>(profile);
+  const [innerFriend, setInnerFriend] = useState<ContactModel | undefined>(
+    profile,
+  );
   // Vị trí dọc của mũi tên anchor (căn theo member được click)
   const [arrowTop, setArrowTop] = useState<number>();
   // Trạng thái gửi để hiện spinner + khóa nút (sendToContact có thể mất 1 nhịp khi
@@ -95,7 +97,9 @@ const QuickChat = (props: QuickChatProps) => {
     // Tính toán vị trí dọc: căn giữa với element được click, nhưng không vượt ra ngoài viewport
     let offsetTop = rect.top - refQuickProfile.current.offsetHeight / 3;
     const maxTopPosition =
-      window.innerHeight + window.scrollY - refQuickProfile.current.offsetHeight;
+      window.innerHeight +
+      window.scrollY -
+      refQuickProfile.current.offsetHeight;
     offsetTop = Math.min(offsetTop, maxTopPosition);
 
     // Nếu tính ra âm (gần top của viewport) → snap về 0 thay vì bị khuất
@@ -222,62 +226,66 @@ const QuickChat = (props: QuickChatProps) => {
       {/* Mũi tên anchor trỏ về phía member được click (bên phải) */}
       {arrowTop !== undefined && (
         <div
-          style={{ top: arrowTop, borderLeftColor: "var(--portal-container-bg-color)" }}
-          className="absolute right-0 -translate-y-1/2 translate-x-full border-y-8 border-r-0 border-l-8 border-y-transparent"
+          style={{
+            top: arrowTop,
+            borderLeftColor: "var(--portal-container-bg-color)",
+          }}
+          className="absolute right-0 -translate-y-1/2 translate-x-full border-y-8 border-l-8 border-r-0 border-y-transparent"
         ></div>
       )}
 
       {/* Dải accent mảnh thay cho nền xanh đặc 2 tông cũ */}
-      <div className="from-(--sidebar-from) to-(--sidebar-to) relative h-14 rounded-t-xl bg-gradient-to-r">
+      <div className="from-(--sidebar-from) to-(--sidebar-to) bg-linear-to-r relative h-12 rounded-t-xl">
         <button
           type="button"
           aria-label="Đóng"
           onClick={slideOff}
-          className="absolute right-2 top-2 flex aspect-square w-6 items-center justify-center rounded-full
+          className="absolute right-2 top-2 flex aspect-square w-5 items-center justify-center rounded-full
             bg-white/25 text-white transition-colors hover:bg-white/40"
         >
-          <i className="fa-solid fa-xmark text-xs"></i>
+          <i className="fa-solid fa-xmark text-3xs"></i>
         </button>
       </div>
 
       <div className="px-4 pb-4">
         {/* Avatar đè lên banner + CTA (Add/Accept/Cancel) căn phải */}
-        <div className="-mt-8 flex items-end justify-between">
+        <div className="-mt-6 flex items-end justify-between">
           <QuickAvatar
             src={innerFriend?.avatar}
             name={innerFriend?.name}
             online={innerFriend?.isOnline}
           />
-          <div className="mb-1">
+          <div>
             <FriendCtaButton
               friend={innerFriend}
               friendAction={handleFriendAction}
               addLabel="Add friend"
+              compact
             />
           </div>
         </div>
 
         {/* Tên + vai trò */}
-        <div className="mt-2 flex items-center gap-2">
-          <p className="text-(--text-main-color) truncate text-sm font-semibold">
+        <div className="mt-2 flex items-center gap-1.5">
+          <p className="text-(--text-main-color) text-2xs truncate font-semibold">
             {innerFriend?.name}
           </p>
           {innerFriend?.isModerator && (
-            <span className="text-3xs from-light-blue-300 to-light-blue-500 shrink-0 rounded-full bg-gradient-to-br px-2 py-0.5 font-medium text-white">
+            <span className="text-4xs bg-linear-to-br shrink-0 rounded-full from-light-blue-300 to-light-blue-500 px-1.5 py-0.5 font-medium text-white">
               Admin
             </span>
           )}
         </div>
         <div className="mt-0.5 flex items-center gap-1.5">
           <span
-            className="aspect-square w-2 rounded-full"
+            className="aspect-square w-1.5 rounded-full"
             style={{
               backgroundColor: innerFriend?.isOnline
                 ? "var(--online-color)"
                 : "var(--offline-color)",
             }}
           ></span>
-          <span className="text-(--text-main-color-blur) text-xs">
+          <span className="text-(--text-main-color-blur) text-3xs">
             {innerFriend?.isOnline ? "Online" : "Offline"}
           </span>
         </div>
@@ -287,25 +295,26 @@ const QuickChat = (props: QuickChatProps) => {
           <button
             type="button"
             onClick={openConversation}
-            className="bg-(--bg-color-extrathin) hover:bg-(--bg-color-thin) text-(--text-main-color) flex flex-1 items-center
-              justify-center gap-2 rounded-lg py-2 text-xs font-medium transition-colors"
+            className="bg-(--bg-color-extrathin) hover:bg-(--bg-color-thin) text-(--text-main-color) text-3xs flex flex-1 items-center
+              justify-center gap-1.5 rounded-lg py-1.5 font-medium transition-colors"
           >
-            <i className="fa-solid fa-comment text-(--main-color)"></i>
+            <i className="fa-solid fa-comment text-(--main-color) text-3xs"></i>
             <span>Message</span>
           </button>
           <button
             type="button"
             onClick={videoCall}
-            className="bg-(--bg-color-extrathin) hover:bg-(--bg-color-thin) text-(--text-main-color) flex flex-1 items-center
-              justify-center gap-2 rounded-lg py-2 text-xs font-medium transition-colors"
+            className="bg-(--bg-color-extrathin) hover:bg-(--bg-color-thin) text-(--text-main-color) text-3xs flex flex-1 items-center
+              justify-center gap-1.5 rounded-lg py-1.5 font-medium transition-colors"
           >
-            <i className="fa-solid fa-video text-(--main-color)"></i>
+            <i className="fa-solid fa-video text-(--main-color) text-3xs"></i>
             <span>Call</span>
           </button>
         </div>
 
-        {/* Ô nhập + nút gửi */}
-        <div className="bg-(--search-bg-color) border-(--border-color) mt-3 flex items-center gap-2 rounded-lg border py-2 pl-3 pr-2">
+        {/* Ô nhập + nút gửi — đồng bộ diện mạo với ModalSearchInput (bo góc xl,
+            viền modal, focus xanh, nền inset). */}
+        <div className="bg-(--search-bg-color) border-(--modal-border-color) mt-3 flex items-center gap-2 rounded-xl border py-1 pl-4 pr-2 transition-colors focus-within:border-light-blue-500">
           <CustomContentEditable
             ref={refInput}
             className="text-(--text-main-color) grow"
@@ -318,11 +327,11 @@ const QuickChat = (props: QuickChatProps) => {
             aria-label="Gửi"
             onClick={chat}
             disabled={sending}
-            className="bg-(--main-color) hover:bg-(--main-color-bold) flex aspect-square w-8 shrink-0 items-center
+            className="bg-(--main-color) hover:bg-(--main-color-bold) flex aspect-square w-7 shrink-0 items-center
               justify-center rounded-full text-white transition-colors disabled:opacity-60"
           >
             <i
-              className={`fa-solid text-xs ${sending ? "fa-spinner animate-spin" : "fa-paper-plane"}`}
+              className={`fa-solid text-3xs ${sending ? "fa-spinner animate-spin" : "fa-paper-plane"}`}
             ></i>
           </button>
         </div>

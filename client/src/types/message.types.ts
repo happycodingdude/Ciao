@@ -45,6 +45,11 @@ export type MessageContentProps = {
   // theo rule sản phẩm, status (Sent/Delivered/Seen) chỉ được hiện ở tin
   // cuối conversation khi đó là tin của mình.
   isLastFromMe?: boolean;
+  // True khi message này là tin CUỐI CÙNG của conversation VÀ là của mình,
+  // KỂ CẢ khi còn pending (chưa confirmed). Dùng để RESERVE sẵn chỗ cho slot
+  // receipt (icon Sent/Delivered) ngay từ lúc pending → tránh layout shift khi
+  // icon xuất hiện sau lúc gửi thành công.
+  isLastMine?: boolean;
   // Danh sách contact đã xem tin nhắn này. Theo rule sản phẩm, chỉ được set
   // khi tin này là tin cuối của conversation và là của mình. Pre-compute ở
   // Chatbox (`seenContactsByMessageId`) để tránh scan messages mỗi lần render.

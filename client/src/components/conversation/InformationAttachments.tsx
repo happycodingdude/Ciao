@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import useAttachment from "../../hooks/useAttachment";
-import { useAttachmentLimit } from "../../hooks/useAttachmentLimit";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { AttachmentModel } from "../../types/message.types";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
@@ -10,10 +9,13 @@ type Props = {
   conversationId: string;
 };
 
+// Preview trong panel Information chỉ hiển thị tối đa 8 item;
+// hội thoại có nhiều hơn thì cắt lấy đúng 8, phần còn lại xem ở "View all".
+const MAX_PREVIEW_ATTACHMENTS = 8;
+
 const InformationAttachments = ({ conversationId }: Props) => {
   const { setActiveDetail } = useChatDetailToggles();
   const { data: attachmentCache, isLoading } = useAttachment(conversationId);
-  const limit = useAttachmentLimit();
   const [displayAttachments, setDisplayAttachments] = useState<
     AttachmentModel[]
   >([]);
@@ -23,16 +25,16 @@ const InformationAttachments = ({ conversationId }: Props) => {
     // Cache chưa load → chờ
     if (!attachmentCache) return;
     if (attachmentCache.attachments.length > 0) {
-      // Flatten tất cả bucket ngày → lấy `limit` item đầu tiên để hiển thị preview
+      // Flatten tất cả bucket ngày → lấy tối đa 8 item đầu tiên để hiển thị preview
       const merged = attachmentCache.attachments.flatMap(
         (item) => item.attachments,
       );
-      setDisplayAttachments(merged.slice(0, limit));
+      setDisplayAttachments(merged.slice(0, MAX_PREVIEW_ATTACHMENTS));
     } else {
       // Không có attachment nào → reset về mảng rỗng (hiển thị empty state)
       setDisplayAttachments([]);
     }
-  }, [attachmentCache, limit]);
+  }, [attachmentCache]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -53,7 +55,7 @@ const InformationAttachments = ({ conversationId }: Props) => {
         {isLoading ? (
           <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
         ) : displayAttachments.length > 0 ? (
-          <div className="display-attachment-container laptop:grid-cols-4 desktop:grid-cols-5 grid w-full gap-4">
+          <div className="display-attachment-container laptop:grid-cols-4 grid w-full gap-4">
             {displayAttachments.map((item, index) => (
               <div className="relative" key={index}>
                 <ImageWithLightBoxAndNoLazy

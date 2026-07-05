@@ -7,7 +7,6 @@ import { createDirectChat } from "../../services/friend.service";
 import { FriendItemProps } from "../../types/base.types";
 import { ConversationCache } from "../../types/conv.types";
 import { AttachmentCache } from "../../types/message.types";
-import { makeInfinite, writeMessageData } from "../../utils/messageCache";
 import {
   buildOptimisticConversation,
   findDirectConversation,
@@ -17,13 +16,14 @@ import {
   replaceConversationId,
   syncConversations,
 } from "../../utils/conversationCache";
+import { makeInfinite, writeMessageData } from "../../utils/messageCache";
 import CustomButton from "../common/CustomButton";
 import AcceptButton from "./AcceptButton";
 import AddButton from "./AddButton";
 import CancelButton from "./CancelButton";
 
 const FriendCtaButton = (props: FriendItemProps) => {
-  const { friend, friendAction, onClose, addLabel } = props;
+  const { friend, friendAction, onClose, addLabel, compact } = props;
 
   const queryClient = useQueryClient();
   const { setLoading } = useLoading();
@@ -50,7 +50,10 @@ const FriendCtaButton = (props: FriendItemProps) => {
         (oldData: ConversationCache) => {
           const updatedConv = {
             ...existedConversation,
-            members: reopenMember(existedConversation.members ?? [], info?.id ?? ""),
+            members: reopenMember(
+              existedConversation.members ?? [],
+              info?.id ?? "",
+            ),
           };
           const base = isDeletedConversation
             ? prependConversation(oldData, updatedConv)
@@ -59,7 +62,13 @@ const FriendCtaButton = (props: FriendItemProps) => {
                 (oldData.conversations ?? []).map((conv) =>
                   conv.id !== existedConversation.id
                     ? conv
-                    : { ...conv, members: reopenMember(conv.members ?? [], info?.id ?? "") },
+                    : {
+                        ...conv,
+                        members: reopenMember(
+                          conv.members ?? [],
+                          info?.id ?? "",
+                        ),
+                      },
                 ),
               );
           return {
@@ -76,7 +85,11 @@ const FriendCtaButton = (props: FriendItemProps) => {
     } else {
       setLoading(true);
 
-      const newConversation = buildOptimisticConversation(tempId, info!, contact);
+      const newConversation = buildOptimisticConversation(
+        tempId,
+        info!,
+        contact,
+      );
 
       queryClient.setQueryData(
         ["conversation"],
@@ -146,7 +159,11 @@ const FriendCtaButton = (props: FriendItemProps) => {
             ...conversation,
             members: (conversation.members ?? []).map((mem) => {
               if (mem.contact?.id !== friend.id) return mem;
-              return { ...mem, friendId: id ?? undefined, friendStatus: status ?? undefined };
+              return {
+                ...mem,
+                friendId: id ?? undefined,
+                friendStatus: status ?? undefined,
+              };
             }),
           };
         }),
@@ -159,33 +176,38 @@ const FriendCtaButton = (props: FriendItemProps) => {
     new: (
       <AddButton
         id={friend.id}
-        // addLabel dài hơn ("Add friend") → nới rộng nút để không bị cắt chữ
+        // addLabel dài hơn ("Add friend") → nới rộng nút để không bị cắt chữ;
+        // compact (QuickChat, chữ nhỏ hơn) cần ít bề rộng hơn.
         title={addLabel}
-        width={addLabel ? 6.5 : undefined}
+        width={addLabel ? (compact ? 5.5 : 6.5) : undefined}
+        compact={compact}
         onClose={(id?: string) => handleFriendAction(id, "request_sent")}
       />
     ),
     request_received: (
       <AcceptButton
         id={friend.friendId ?? undefined}
+        compact={compact}
         onClose={() => handleFriendAction(friend.friendId, "friend")}
       />
     ),
     request_sent: (
       <CancelButton
         id={friend.friendId ?? undefined}
+        compact={compact}
         onClose={() => handleFriendAction(null, "new")}
       />
     ),
     friend: (
       <CustomButton
         title="Chat"
-        className="text-2xs"
-        width={4}
+        className={compact ? "text-3xs" : "text-2xs"}
+        width={compact ? 3.5 : 4}
         gradientWidth="110%"
         gradientHeight="120%"
         rounded="3rem"
         onClick={() => chat(friend)}
+        compact={compact}
         sm
       />
     ),

@@ -233,6 +233,12 @@ const Chatbox = () => {
     ? (lastMessage?.id ?? null)
     : null;
 
+  // Tin cuối của conversation là của mình (tính cả pending). Dùng để reserve
+  // sẵn chỗ cho slot receipt ngay khi tin còn đang gửi → khi icon Sent xuất
+  // hiện lúc gửi thành công sẽ không đẩy lệch layout.
+  const lastMessageIsMine =
+    !!lastMessage && lastMessage.contactId === info?.id;
+
   /**
    * Map: messageId -> danh sách contact đã xem tin cuối (chỉ khi tin cuối là của mình).
    *
@@ -334,6 +340,9 @@ const Chatbox = () => {
                         lastMyMessageId !== null &&
                         message.id === lastMyMessageId
                       }
+                      // Reserve chỗ slot receipt (kể cả lúc pending) để tránh
+                      // layout shift khi icon Sent hiện ra sau khi gửi xong.
+                      isLastMine={lastMessageIsMine && message === lastMessage}
                       // Pre-computed: tin này là điểm dừng đọc cuối của các member nào
                       seenContacts={
                         message.id

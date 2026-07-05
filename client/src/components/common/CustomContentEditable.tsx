@@ -61,10 +61,10 @@ const CustomContentEditable = forwardRef(
         ref={ref}
         contentEditable={true}
         data-placeholder={placeholder ?? "Type your message here..."}
-        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-5 w-full resize-none overflow-y-auto break-all laptop:text-xs
+        className={`${className ?? ""} editor hide-scrollbar outline-hidden relative min-h-5 w-full resize-none overflow-y-auto break-all
         ${quickChat
-            ? "phone:max-h-40 laptop:max-h-10 laptop-lg:max-h-40"
-            : "phone:max-h-40 laptop:max-h-28 laptop-lg:max-h-40"
+            ? "text-3xs phone:max-h-40 laptop:max-h-10 laptop-lg:max-h-40"
+            : "laptop:text-xs phone:max-h-40 laptop:max-h-28 laptop-lg:max-h-40"
           }`}
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}

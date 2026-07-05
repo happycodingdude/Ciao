@@ -2,6 +2,7 @@ import { CopyOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { forwardRef } from "react";
 import { toast } from "react-toastify";
+import { Tooltip } from "react-tooltip";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import { useMessageEdit } from "../../hooks/useMessageActions";
@@ -180,8 +181,6 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     // rule này (chỉ true cho tin cuối conversation nếu là của mình & confirmed).
     const hasSeenAvatars =
       isSelf && !!props.isLastFromMe && (seenContacts?.length ?? 0) > 0;
-    const showOwnStatus =
-      isSelf && props.isLastFromMe && !message.pending && !hasSeenAvatars;
 
     return (
       <div
@@ -381,28 +380,32 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               như tin gửi thành công. */}
           {message.failed && isSelf && (
             <p className="text-2xs flex items-center justify-end text-red-500">
-              <i className="fa fa-circle-exclamation mr-1" />
-              Gửi lỗi
+              {/* Chỉ hiện icon lỗi; text "Gửi lỗi" hiện qua tooltip khi hover.
+                  Dùng react-tooltip thay `title` native (native hay bị delay/che,
+                  không hiện ổn định). */}
+              <i
+                data-tooltip-id={`msg-failed-${message.id}`}
+                data-tooltip-content="Gửi lỗi"
+                className="fa fa-circle-exclamation cursor-default"
+              />
+              <Tooltip id={`msg-failed-${message.id}`} />
             </p>
           )}
 
           {/*
-            Receipt area: CHỈ render khi tin CUỐI CÙNG của conversation là của
-            mình (isSelf && isLastFromMe).
-            - Đối phương đã đọc tin cuối này → render avatar (ưu tiên).
-            - Chưa ai đọc → fallback Sent/Delivered icon.
-            Mọi trường hợp khác (tin người khác, tin của mình không phải tin cuối,
-            hoặc tin cuối là của người khác): không render gì.
+            Receipt slot: CHỈ render khi tin CUỐI CÙNG của conversation là của
+            mình (isSelf && isLastMine) — tính CẢ lúc còn pending.
+            - Reserve sẵn chiều cao (min-h-3.5 = 14px = size icon/avatar) ngay
+              từ lúc pending → icon Sent xuất hiện sau khi gửi xong KHÔNG đẩy
+              lệch layout.
+            - Nội dung ưu tiên: avatar người đã xem → icon Sent/Delivered →
+              rỗng (khi còn pending, renderOwnSendStatus trả null).
+            Mọi trường hợp khác (tin người khác, không phải tin cuối, tin lỗi):
+            không render.
           */}
-          {hasSeenAvatars && (
-            <div className="text-3xs flex justify-end italic text-(--text-main-color-blur)">
-              {renderSeenAvatars()}
-            </div>
-          )}
-
-          {showOwnStatus && (
-            <div className="text-3xs flex justify-end italic text-(--text-main-color-blur)">
-              {renderOwnSendStatus()}
+          {isSelf && props.isLastMine && !message.failed && (
+            <div className="text-3xs min-h-3.5 flex items-center justify-end italic text-(--text-main-color-blur)">
+              {hasSeenAvatars ? renderSeenAvatars() : renderOwnSendStatus()}
             </div>
           )}
         </div>

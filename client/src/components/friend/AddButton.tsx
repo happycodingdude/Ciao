@@ -4,7 +4,7 @@ import { FriendCtaButtonProps } from "../../types/base.types";
 import CustomButton from "../common/CustomButton";
 
 const AddButton = (props: FriendCtaButtonProps) => {
-  const { id, onClose, title, width } = props;
+  const { id, onClose, title, width, compact } = props;
 
   const [processing, setProcessing] = useState<boolean>(false);
 
@@ -28,13 +28,14 @@ const AddButton = (props: FriendCtaButtonProps) => {
   return (
     <CustomButton
       title={title ?? "Add"}
-      className="text-2xs"
+      className={compact ? "text-3xs" : "text-2xs"}
       width={width ?? 4}
       gradientWidth="110%"
       gradientHeight="120%"
       rounded="3rem"
       onClick={addFriend}
       processing={processing}
+      compact={compact}
       sm
     />
   );

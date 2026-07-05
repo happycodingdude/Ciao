@@ -67,6 +67,8 @@ export type CustomButtonProps = {
   height?: string | number;
   top?: string | number;
   sm?: boolean;
+  // Biến thể gọn hơn sm (thấp hơn) dùng cho ngữ cảnh dày đặc như thẻ QuickChat.
+  compact?: boolean;
 };
 
 export type OnCloseType = {
@@ -102,6 +104,8 @@ export type FriendItemProps = OnCloseType & {
   ) => void;
   // Nhãn tùy biến cho nút thêm bạn (vd QuickChat: "Add friend"). Mặc định "Add".
   addLabel?: string;
+  // Thu nhỏ nút quan hệ bạn bè cho ngữ cảnh gọn (QuickChat). Mặc định false.
+  compact?: boolean;
 };
 
 export type FriendCtaButtonProps = OnCloseType & {
@@ -109,6 +113,8 @@ export type FriendCtaButtonProps = OnCloseType & {
   // Cho phép override nhãn/độ rộng nút Add ở từng ngữ cảnh (giữ default cho chỗ cũ).
   title?: string;
   width?: number;
+  // Biến thể gọn (thấp + chữ nhỏ) cho thẻ QuickChat. Mặc định false.
+  compact?: boolean;
 };
 
 export type ChatInputProps = {
