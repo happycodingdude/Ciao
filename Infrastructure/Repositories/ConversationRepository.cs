@@ -148,7 +148,11 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                 { "ReplyContact", "$$message.ReplyContact" },
                                 { "Attachments", "$$message.Attachments" },
                                 { "CreatedTime", "$$message.CreatedTime" },
-                                { "Reactions", "$$message.Reactions" }
+                                { "Reactions", "$$message.Reactions" },
+                                // Loại tin giàu nội dung: BẮT BUỘC giữ ở warmup re-login, nếu không
+                                // bình chọn (kèm phiếu) và thẻ danh bạ sẽ MẤT khỏi message cache.
+                                { "Poll", "$$message.Poll" },
+                                { "SharedContact", "$$message.SharedContact" }
                             }
                         }
                     })
@@ -178,7 +182,7 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
             if (lastMessage is not null)
             {
                 conversation.LastMessageId = lastMessage.Id;
-                conversation.LastMessage = lastMessage.Type == "text" ? lastMessage.Content : string.Join(",", lastMessage.Attachments.Select(q => q.MediaName));
+                conversation.LastMessage = AppConstants.BuildLastMessagePreview(lastMessage.Type, lastMessage.Content, lastMessage.Attachments.Select(q => q.MediaName));
                 conversation.LastMessageTime = lastMessage.CreatedTime;
                 conversation.LastMessageContact = lastMessage.ContactId;
                 conversation.HasAttachment = lastMessage.Attachments.Any();

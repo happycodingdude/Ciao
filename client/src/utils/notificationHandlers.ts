@@ -4,6 +4,7 @@ import { UserProfile } from "../types/base.types";
 import { ConversationCache, ConversationModel } from "../types/conv.types";
 import { AttachmentCache } from "../types/message.types";
 import { FriendCache } from "../types/friend.types";
+import { getMessagePreviewText } from "./messagePreview";
 import {
   MessageDeliveredEvent,
   MessageEditedEvent,
@@ -14,6 +15,7 @@ import {
   NewMessage,
   NewMessagePinned,
   NewReaction,
+  PollUpdatedEvent,
 } from "../types/notification.types";
 import {
   createNewConversation,
@@ -50,6 +52,7 @@ export const classifyNotification = (
     case "MessageRead":       return onMessageRead(queryClient, data, userInfo);
     case "MessageEdited":     return onMessageEdited(queryClient, data);
     case "MessageRecalled":   return onMessageRecalled(queryClient, data);
+    case "PollUpdated":       return onPollUpdated(queryClient, data);
     // Friend events (realtime qua SignalR). Cập nhật cache ["friend"] TRỰC TIẾP từ payload
     // (friendId) — không refetch. Riêng NewFriendRequest: phía nhận chưa có entry và payload
     // không kèm contact info → buộc refetch (vẫn do event kích hoạt, không phải poll).
@@ -181,7 +184,7 @@ const onNewMessage = (queryClient: QueryClient, message: NewMessage, userInfo: U
       // Conversation đã có → chỉ update metadata (lastMessage, unSeen...)
       return updateConversationCache(old, message.conversation as ConversationModel, {
         lastMessageId: message.id,
-        lastMessage: message.content,
+        lastMessage: getMessagePreviewText(message.type, message.content, message.attachments?.map((a) => a?.mediaName)),
         lastMessageContact: message.contact.id,
         lastMessageTime: message.createdTime,
         // Đánh dấu unSeen chỉ khi user không đang xem conversation này
@@ -319,6 +322,27 @@ const onNewReaction = (queryClient: QueryClient, reaction: NewReaction) => {
   // BE tạo notification khi có người react tin của user → làm mới badge bell + list.
   // Reaction tần suất thấp nên invalidate không đáng kể.
   invalidateNotifications(queryClient);
+};
+
+// Bình chọn realtime: ghi đè voterIds theo key + closedTime/closedBy từ state server.
+// Authoritative → reconcile bản optimistic của người vote; idempotent với duplicate/out-of-order.
+// closedTime dùng `?? hiện tại` để event vote (poll mở, closedTime null) KHÔNG mở lại poll đã đóng.
+const onPollUpdated = (queryClient: QueryClient, ev: PollUpdatedEvent) => {
+  const voteMap = new Map((ev.options ?? []).map((o) => [o.key, o.voterIds ?? []]));
+  updateMessageById(queryClient, ev.conversationId, ev.messageId, (m) => {
+    if (!m.poll) return m;
+    return {
+      ...m,
+      poll: {
+        ...m.poll,
+        closedTime: ev.closedTime ?? m.poll.closedTime,
+        closedBy: ev.closedBy ?? m.poll.closedBy,
+        options: m.poll.options.map((o) =>
+          voteMap.has(o.key) ? { ...o, voterIds: voteMap.get(o.key)! } : o,
+        ),
+      },
+    };
+  });
 };
 
 const onNewMessagePinned = (

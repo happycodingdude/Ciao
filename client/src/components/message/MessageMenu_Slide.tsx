@@ -17,6 +17,7 @@ import {
 } from "../../hooks/useMessageActions";
 import { usePinMessage } from "../../hooks/usePinMessage";
 import { useReply } from "../../hooks/useReply";
+import { useTranslation } from "../../hooks/useTranslation";
 import "../../styles/messagemenu_slide.css";
 import { MessageMenuProps } from "../../types/message.types";
 import {
@@ -37,6 +38,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
   const { setReply } = useReply();
   const { setEdit } = useMessageEdit();
   const { recall, processing } = useMessageActions(conversationId);
+  const { translate } = useTranslation();
 
   const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
@@ -108,13 +110,17 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           <EditOutlined />
         </MessageMenuItem>
       )}
-      <MessageMenuItem
-        onClick={copyMessage}
-        closeOnClick={false}
-        tooltip="Copy message"
-      >
-        <CopyOutlined />
-      </MessageMenuItem>
+      {/* Copy chỉ áp dụng cho tin văn bản — content của contact/sticker/gif/media
+          không phải text hữu ích để copy. */}
+      {message.type === "text" && (
+        <MessageMenuItem
+          onClick={copyMessage}
+          closeOnClick={false}
+          tooltip="Copy message"
+        >
+          <CopyOutlined />
+        </MessageMenuItem>
+      )}
       <MessageMenuItem
         className={`${pinning ? "pointer-events-none" : ""} ${message.isPinned && !pinning ? "text-light-blue-500" : ""}`}
         onClick={() => pin(message.id ?? "", message.isPinned ?? false)}
@@ -131,6 +137,17 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
       >
         <i className="fa fa-reply" />
       </MessageMenuItem>
+      {/* Dịch: chỉ áp dụng cho tin văn bản có nội dung. */}
+      {message.type === "text" && !!message.content && (
+        <MessageMenuItem
+          onClick={() => translate(message.id ?? "", message.content ?? "")}
+          closeOnClick={true}
+          close={() => setShow(false)}
+          tooltip="Dịch"
+        >
+          <i className="fa fa-language" />
+        </MessageMenuItem>
+      )}
       <MessageMenuItem
         onClick={() => setOpenForward(true)}
         closeOnClick={true}

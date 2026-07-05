@@ -14,6 +14,10 @@ public class EventNewMessage
     public EventNewConversation_Member[] Members { get; set; } = null!;
     public EventNewMessage_Contact Contact { get; set; } = null!;
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();
+    // Chia sẻ danh bạ: thẻ liên hệ đính kèm để FE dựng card realtime.
+    public SharedContact? SharedContact { get; set; }
+    // Bình chọn: FE dựng poll realtime khi có tin bình chọn mới.
+    public Poll? Poll { get; set; }
 }
 
 public class EventNewMessage_Conversation
@@ -83,6 +87,23 @@ public class EventNewReaction
     public int WowCount { get; set; }
     public int SadCount { get; set; }
     public int AngryCount { get; set; }
+}
+
+// Payload realtime khi state bình chọn thay đổi (vote/đóng). Sync-event (data-only, không banner)
+// → FE ghi đè voterIds + closedTime/closedBy theo state server (authoritative, idempotent).
+public class EventPollUpdated
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public List<EventPollUpdated_Option> Options { get; set; } = new();
+    public DateTime? ClosedTime { get; set; }
+    public string? ClosedBy { get; set; }
+}
+
+public class EventPollUpdated_Option
+{
+    public string Key { get; set; } = null!;
+    public List<string> VoterIds { get; set; } = new();
 }
 
 // Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,

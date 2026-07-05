@@ -14,6 +14,13 @@ public class Message : MongoBaseModel
     public List<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 
+    // Chia sẻ danh bạ (Type = contact): thẻ liên hệ đính kèm. Content giữ tên để preview/search.
+    // Cùng một type dùng xuyên suốt DTO/Kafka/Event nên AutoMapper map theo tham chiếu, không cần nested map.
+    public SharedContact? SharedContact { get; set; }
+
+    // Bình chọn (Type = poll): Content giữ câu hỏi để preview/search. Phiếu bầu lưu theo từng option.
+    public Poll? Poll { get; set; }
+
     // @mention (Option B — có cấu trúc): danh sách userId được tag, sentinel "all" cho @All.
     // Lưu userId (không phải tên) để tạo notification chính xác, tránh báo nhầm khi trùng tên.
     // Doc Mongo cũ thiếu field → default rỗng (no migration).
@@ -30,4 +37,31 @@ public class MessageReaction
 {
     public string ContactId { get; set; } = null!;
     public string Type { get; set; } = null!;
+}
+
+// Thẻ danh bạ được chia sẻ trong tin nhắn (Type = contact).
+public class SharedContact
+{
+    public string ContactId { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string? Avatar { get; set; }
+}
+
+// Bình chọn (Type = poll). Câu hỏi lưu ở Message.Content (preview/search).
+public class Poll
+{
+    public string Question { get; set; } = null!;
+    public bool AllowMultiple { get; set; }      // cho phép chọn nhiều đáp án
+    public DateTime? ClosedTime { get; set; }    // null = còn mở
+    public string? ClosedBy { get; set; }        // ai đóng bình chọn (audit)
+    public List<PollOption> Options { get; set; } = new List<PollOption>();
+}
+
+public class PollOption
+{
+    // Định danh option do client sinh (ổn định để bỏ phiếu). Đặt tên "Key" (KHÔNG phải "Id")
+    // để tránh driver Mongo tự map "Id" → _id gây lệch arrayFilter khi cập nhật phiếu.
+    public string Key { get; set; } = null!;
+    public string Text { get; set; } = null!;
+    public List<string> VoterIds { get; set; } = new List<string>();
 }

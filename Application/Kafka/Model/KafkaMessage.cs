@@ -29,6 +29,10 @@ public class NewMessageModel_Message : BaseIdModel
     public List<NewMessageModel_Message_Attachment> Attachments { get; set; } = new List<NewMessageModel_Message_Attachment>();
     // @mention userIds (sentinel "all"). AutoMapper thread qua SendMessageReq → Message theo tên.
     public List<string> Mentions { get; set; } = new List<string>();
+    // Chia sẻ danh bạ: cùng type SharedContact xuyên suốt → AutoMapper map theo tham chiếu.
+    public SharedContact? SharedContact { get; set; }
+    // Bình chọn: cùng type Poll xuyên suốt → AutoMapper map theo tham chiếu.
+    public Poll? Poll { get; set; }
 }
 
 public class NewMessageModel_Message_Attachment : BaseIdModel
@@ -221,4 +225,38 @@ public class NotifyMessageRecalledModel : KafkaBaseModel
     public string MessageId { get; set; } = null!;
     public DateTime RecalledTime { get; set; }
     public string RecalledByContactId { get; set; } = null!;
+}
+
+// ===== Bình chọn (poll) =====
+
+public class PollVoteModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public string OptionKey { get; set; } = null!;
+    // Từ FE: poll cho phép nhiều lựa chọn hay không (quyết định toggle vs độc quyền).
+    public bool AllowMultiple { get; set; }
+}
+
+public class PollCloseModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+}
+
+// State bình chọn authoritative để fanout realtime + đồng bộ FE.
+// UserId = người vừa gây ra thay đổi (vote/close). Options mang voterIds đầy đủ theo cache.
+public class NotifyPollModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public List<NotifyPollOption> Options { get; set; } = new();
+    public DateTime? ClosedTime { get; set; }
+    public string? ClosedBy { get; set; }
+}
+
+public class NotifyPollOption
+{
+    public string Key { get; set; } = null!;
+    public List<string> VoterIds { get; set; } = new();
 }

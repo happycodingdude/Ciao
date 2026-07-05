@@ -13,6 +13,7 @@ import {
 } from "../types/message.types";
 import { getToday } from "./datetime";
 import delay from "./delay";
+import { getMessagePreviewText } from "./messagePreview";
 import {
   buildFailedRecord,
   getPersistedFailed,
@@ -88,11 +89,12 @@ export const sendMessageFlow = async (
         if (conv.id !== conversationId) return conv;
         return {
           ...conv,
-          // Text message → dùng nội dung; media-only → dùng tên file
-          lastMessage:
-            param.type === "text"
-              ? param.content
-              : (param.files ?? []).map((f) => f.name).join(","),
+          // Preview theo loại tin (text/media/sticker/poll/contact) — đồng bộ BE.
+          lastMessage: getMessagePreviewText(
+            param.type,
+            param.content,
+            (param.files ?? []).map((f) => f.name),
+          ),
           lastMessageTime: dayjs().format(),
           hasAttachment: hasMedia,
         } as ConversationModel;
@@ -122,6 +124,10 @@ export const sendMessageFlow = async (
       angryCount: 0,
       currentReaction: null,
       createdTime,
+      // Chia sẻ danh bạ: giữ thẻ liên hệ để render optimistic ngay.
+      ...(param.sharedContact ? { sharedContact: param.sharedContact } : {}),
+      // Bình chọn: giữ dữ liệu poll để render optimistic ngay.
+      ...(param.poll ? { poll: param.poll } : {}),
       // Merge reply metadata nếu đang trong reply mode
       ...((reply as object) ?? {}),
     };
@@ -142,6 +148,10 @@ export const sendMessageFlow = async (
     content: param.content,
     // Chỉ gửi mentions khi có (tránh body thừa với tin không tag).
     ...(param.mentions?.length ? { mentions: param.mentions } : {}),
+    // Chia sẻ danh bạ: kèm thẻ liên hệ khi gửi.
+    ...(param.sharedContact ? { sharedContact: param.sharedContact } : {}),
+    // Bình chọn: kèm dữ liệu poll khi gửi.
+    ...(param.poll ? { poll: param.poll } : {}),
     ...((reply as object) ?? {}),
   };
 

@@ -54,6 +54,12 @@ public class DataStoreConsumer : IGenericConsumer
                 case Topic.MessageRecalled:
                     await HandleMessageRecalled(JsonConvert.DeserializeObject<MessageRecalledModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.PollVote:
+                    await HandlePollVote(JsonConvert.DeserializeObject<PollVoteModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.PollClose:
+                    await HandlePollClose(JsonConvert.DeserializeObject<PollCloseModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -206,6 +212,73 @@ public class DataStoreConsumer : IGenericConsumer
         });
     }
 
+    // Bỏ phiếu bình chọn — atomic, KHÔNG read-modify-write (chống mất phiếu khi vote đồng thời).
+    // Chỉ áp dụng khi poll còn mở (ClosedTime == null) — poll đã đóng → filter không match → no-op.
+    async Task HandlePollVote(PollVoteModel param)
+    {
+        // Match đúng message có poll đang mở trong conversation. Positional "$" trỏ tới message này.
+        var messageFilter = Builders<Conversation>.Filter.And(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(c => c.Messages,
+                m => m.Id == param.MessageId && m.Poll != null && m.Poll.ClosedTime == null)
+        );
+
+        var optionArrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
+            new BsonDocument("opt.Key", param.OptionKey));
+
+        if (param.AllowMultiple)
+        {
+            // Chọn nhiều: TOGGLE trên option được chọn (thêm nếu chưa có, gỡ nếu đã có).
+            // Dùng cặp Update(key)+AddFallback(key) như reaction: pull trước, nếu không gỡ được gì thì addToSet.
+            var key = Guid.NewGuid();
+            _conversationRepository.Update(key, messageFilter,
+                Builders<Conversation>.Update.Pull("Messages.$.Poll.Options.$[opt].VoterIds", param.UserId),
+                optionArrayFilter);
+            _conversationRepository.AddFallback(key, messageFilter,
+                Builders<Conversation>.Update.AddToSet("Messages.$.Poll.Options.$[opt].VoterIds", param.UserId),
+                optionArrayFilter);
+        }
+        else
+        {
+            // Chọn một: độc quyền — gỡ phiếu khỏi TẤT CẢ option ($[]) rồi thêm vào option được chọn.
+            // Hai op tách biệt (không thể vừa pull vừa addToSet cùng path Options trong 1 update → xung đột).
+            _conversationRepository.UpdateNoTrackingTime(messageFilter,
+                Builders<Conversation>.Update.Pull("Messages.$.Poll.Options.$[].VoterIds", param.UserId));
+            _conversationRepository.UpdateNoTrackingTime(messageFilter,
+                Builders<Conversation>.Update.AddToSet("Messages.$.Poll.Options.$[opt].VoterIds", param.UserId),
+                optionArrayFilter);
+        }
+
+        await _uow.SaveAsync();
+
+        // Persist Mongo xong → phát tiếp để CacheConsumer đồng bộ Redis message cache (nguồn đọc
+        // của GetMessages) + fanout realtime. Nếu poll đã đóng, Mongo no-op nhưng ta vẫn phát:
+        // CacheConsumer mirror cùng guard (ClosedTime==null) nên sẽ no-op tương ứng, không lệch.
+        await _kafkaProducer.ProduceAsync(Topic.StoredPollVote, param);
+    }
+
+    // Đóng bình chọn — chỉ người tạo poll (ContactId == UserId) mới đóng được; idempotent (chỉ khi đang mở).
+    async Task HandlePollClose(PollCloseModel param)
+    {
+        var filter = Builders<Conversation>.Filter.And(
+            MongoQuery<Conversation>.IdFilter(param.ConversationId),
+            Builders<Conversation>.Filter.ElemMatch(c => c.Messages,
+                m => m.Id == param.MessageId
+                    && m.ContactId == param.UserId
+                    && m.Poll != null
+                    && m.Poll.ClosedTime == null)
+        );
+        var update = Builders<Conversation>.Update
+            .Set("Messages.$.Poll.ClosedTime", DateTime.UtcNow)
+            .Set("Messages.$.Poll.ClosedBy", param.UserId);
+        _conversationRepository.UpdateNoTrackingTime(filter, update);
+        await _uow.SaveAsync();
+
+        // Đồng bộ Redis cache + realtime. CacheConsumer mirror guard (chỉ creator + đang mở)
+        // nên nếu người gọi không phải creator, cache no-op và không fanout.
+        await _kafkaProducer.ProduceAsync(Topic.StoredPollClose, param);
+    }
+
     async Task HandleNewMessage(NewMessageModel param)
     {
         var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
@@ -214,6 +287,14 @@ public class DataStoreConsumer : IGenericConsumer
         var message = _mapper.Map<Message>(param.Message);
         message.ContactId = param.UserId;
         if (message.Type == "media") message.Content = default!;
+        // Bình chọn: khởi tạo sạch — không tin phiếu/đóng do client gửi lên.
+        if (message.Poll != null)
+        {
+            message.Poll.ClosedTime = null;
+            message.Poll.ClosedBy = null;
+            foreach (var option in message.Poll.Options)
+                option.VoterIds = new List<string>();
+        }
         conversation.Messages.Add(message);
 
         foreach (var member in conversation.Members.Where(q => q.IsDeleted))

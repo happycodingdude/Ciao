@@ -31,7 +31,9 @@ public class KafkaBackground : BackgroundService
                     Topic.MessageDelivered,
                     Topic.MessageRead,
                     Topic.MessageEdited,
-                    Topic.MessageRecalled
+                    Topic.MessageRecalled,
+                    Topic.PollVote,
+                    Topic.PollClose
                     ])
                 .Build(),
             cancellationToken));
@@ -45,7 +47,9 @@ public class KafkaBackground : BackgroundService
                     Topic.StoredGroupConversation,
                     Topic.StoredDirectConversation,
                     Topic.StoredMember,
-                    Topic.StoredReaction
+                    Topic.StoredReaction,
+                    Topic.StoredPollVote,
+                    Topic.StoredPollClose
                     ])
                 .Build(),
             cancellationToken));
@@ -62,7 +66,8 @@ public class KafkaBackground : BackgroundService
                     Topic.NotifyMessageDelivered,
                     Topic.NotifyMessageRead,
                     Topic.NotifyMessageEdited,
-                    Topic.NotifyMessageRecalled
+                    Topic.NotifyMessageRecalled,
+                    Topic.NotifyPoll
                     ])
                 .Build(),
             cancellationToken));

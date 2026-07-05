@@ -55,6 +55,12 @@ public class CacheConsumer : IGenericConsumer
                 case Topic.StoredReaction:
                     await HandleNewReaction(JsonConvert.DeserializeObject<NewReactionModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.StoredPollVote:
+                    await HandlePollVote(JsonConvert.DeserializeObject<PollVoteModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.StoredPollClose:
+                    await HandlePollClose(JsonConvert.DeserializeObject<PollCloseModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -238,6 +244,37 @@ public class CacheConsumer : IGenericConsumer
             WowCount = wows,
             SadCount = sads,
             AngryCount = angries
+        });
+    }
+
+    // Bình chọn: cập nhật Redis message cache rồi fanout realtime state authoritative (từ cache).
+    // Cache trả null ⇒ no-op (message vắng cache / poll đã đóng / không phải creator) ⇒ KHÔNG broadcast.
+    async Task HandlePollVote(PollVoteModel param)
+    {
+        var poll = await _messageCache.UpdatePollVote(param.ConversationId, param.MessageId, param.UserId, param.OptionKey, param.AllowMultiple);
+        if (poll is null) return;
+        await NotifyPollUpdated(param.UserId, param.ConversationId, param.MessageId, poll);
+    }
+
+    async Task HandlePollClose(PollCloseModel param)
+    {
+        var poll = await _messageCache.UpdatePollClose(param.ConversationId, param.MessageId, param.UserId);
+        if (poll is null) return;
+        await NotifyPollUpdated(param.UserId, param.ConversationId, param.MessageId, poll);
+    }
+
+    async Task NotifyPollUpdated(string userId, string conversationId, string messageId, Poll poll)
+    {
+        await _kafkaProducer.ProduceAsync(Topic.NotifyPoll, new NotifyPollModel
+        {
+            UserId = userId,
+            ConversationId = conversationId,
+            MessageId = messageId,
+            ClosedTime = poll.ClosedTime,
+            ClosedBy = poll.ClosedBy,
+            Options = poll.Options
+                .Select(o => new NotifyPollOption { Key = o.Key, VoterIds = o.VoterIds ?? new List<string>() })
+                .ToList()
         });
     }
 

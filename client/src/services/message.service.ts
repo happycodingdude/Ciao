@@ -188,6 +188,57 @@ export const editMessage = async (
   ).data;
 };
 
+// Dịch tin nhắn: gửi text + ngôn ngữ đích, nhận bản dịch (provider abstraction ở BE).
+export const translateMessage = async (
+  text: string,
+  targetLang?: string,
+): Promise<{ translatedText: string; detectedSourceLang?: string }> => {
+  return (
+    await HttpRequest<
+      { text: string; targetLang?: string },
+      { translatedText: string; detectedSourceLang?: string }
+    >({
+      method: "post",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_TRANSLATE,
+      data: { text, targetLang },
+    })
+  ).data as { translatedText: string; detectedSourceLang?: string };
+};
+
+// Bình chọn: bỏ phiếu 1 option (fire-and-forget, persist atomic ở BE).
+export const votePoll = async (
+  conversationId: string,
+  messageId: string,
+  optionKey: string,
+  allowMultiple: boolean,
+) => {
+  return (
+    await HttpRequest({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_POLL_VOTE.replace(
+        "{conversationId}",
+        conversationId,
+      )
+        .replace("{id}", messageId)
+        .replace("{optionKey}", encodeURIComponent(optionKey))
+        .replace("{allowMultiple}", String(allowMultiple)),
+    })
+  ).data;
+};
+
+// Bình chọn: đóng poll (chỉ người tạo).
+export const closePoll = async (conversationId: string, messageId: string) => {
+  return (
+    await HttpRequest({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_POLL_CLOSE.replace(
+        "{conversationId}",
+        conversationId,
+      ).replace("{id}", messageId),
+    })
+  ).data;
+};
+
 // Recall (delete-for-everyone) — sender hoặc moderator group, còn trong TTL.
 export const recallMessage = async (
   conversationId: string,

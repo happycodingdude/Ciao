@@ -18,6 +18,7 @@ import { useMentionList } from "../../hooks/useMentionList";
 import { useMessageActions, useMessageEdit } from "../../hooks/useMessageActions";
 import { useReply } from "../../hooks/useReply";
 import { useSendMessage } from "../../hooks/useSendMessage";
+import { useStickerFavorites } from "../../hooks/useStickerFavorites";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/chatinput.css";
 import { ChatInputProps } from "../../types/base.types";
@@ -29,6 +30,12 @@ import ReplyPreview from "../common/ReplyPreview";
 import ImageItem from "../message/ImageItem";
 import ChatInputToolbar from "./ChatInputToolbar";
 import MentionDropdown from "./MentionDropdown";
+import StickerPicker from "./StickerPicker";
+import GifPicker from "./GifPicker";
+import ShareContactModal from "./ShareContactModal";
+import CreatePollModal from "./CreatePollModal";
+import { ContactModel } from "../../types/friend.types";
+import { PollModel } from "../../types/message.types";
 
 const LazyEmojiPicker = lazy(() => import("../common/LazyEmojiPicker"));
 
@@ -52,9 +59,14 @@ const ChatInput = ({ className }: ChatInputProps) => {
     info?.id ?? "",
   );
   const { files, chooseFile, addFiles, removeFile, clearFiles } = useFileAttachment();
+  const { markUsed: markStickerUsed } = useStickerFavorites();
 
   const [showMention, setShowMention] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [showSticker, setShowSticker] = useState(false);
+  const [showGif, setShowGif] = useState(false);
+  const [showShareContact, setShowShareContact] = useState(false);
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -142,6 +154,51 @@ const ChatInput = ({ className }: ChatInputProps) => {
     clearDraft(conversationId);
   }, [files, sendMessage, clearFiles, edit, submitEdit, clearEdit, clearDraft, conversationId]);
 
+  // Gửi sticker: tin độc lập (không kèm text/file), gửi ngay khi chọn.
+  const sendSticker = useCallback(
+    (stickerId: string) => {
+      sendMessage({ type: "sticker", content: stickerId });
+      markStickerUsed(stickerId);
+      setShowSticker(false);
+    },
+    [sendMessage, markStickerUsed],
+  );
+
+  // Gửi GIF: tin độc lập type gif, Content = url GIF từ nguồn sẵn.
+  const sendGif = useCallback(
+    (gifUrl: string) => {
+      sendMessage({ type: "gif", content: gifUrl });
+      setShowGif(false);
+    },
+    [sendMessage],
+  );
+
+  // Chia sẻ danh bạ: gửi thẻ liên hệ của người được chọn vào hội thoại hiện tại.
+  const shareContact = useCallback(
+    (contact: ContactModel) => {
+      sendMessage({
+        type: "contact",
+        content: contact.name ?? "",
+        sharedContact: {
+          contactId: contact.id ?? "",
+          name: contact.name ?? "",
+          avatar: contact.avatar,
+        },
+      });
+      setShowShareContact(false);
+    },
+    [sendMessage],
+  );
+
+  // Tạo bình chọn: gửi tin type poll với câu hỏi ở content + dữ liệu poll.
+  const createPoll = useCallback(
+    (poll: PollModel) => {
+      sendMessage({ type: "poll", content: poll.question, poll });
+      setShowCreatePoll(false);
+    },
+    [sendMessage],
+  );
+
   const { keydownBindingFn, keyupBindingFn, chooseMention } = useChatInputKeyboard({
     inputRef,
     isEmpty,
@@ -170,7 +227,21 @@ const ChatInput = ({ className }: ChatInputProps) => {
   }, []), undefined);
 
   useEventListener("keydown", useCallback((e: Event) => {
-    if ((e as KeyboardEvent).key === "Escape") setShowEmoji(false);
+    if ((e as KeyboardEvent).key === "Escape") {
+      setShowEmoji(false);
+      setShowSticker(false);
+    }
+  }, []), undefined);
+
+  // Click ngoài bảng sticker/gif (không phải panel/nút tương ứng) → đóng.
+  useEventListener("click", useCallback((e: Event) => {
+    const el = e.target as HTMLElement;
+    if (!el.closest?.(".sticker-picker") && !el.closest?.(".sticker-item")) {
+      setShowSticker(false);
+    }
+    if (!el.closest?.(".gif-picker") && !el.closest?.(".gif-item")) {
+      setShowGif(false);
+    }
   }, []), undefined);
 
   return (
@@ -221,9 +292,29 @@ const ChatInput = ({ className }: ChatInputProps) => {
           <div className="flex flex-col gap-4 px-4 pb-2 pt-4">
             <ChatInputToolbar
               onEmojiClick={() => setShowEmoji(true)}
+              onStickerClick={() => setShowSticker((v) => !v)}
+              onGifClick={() => setShowGif((v) => !v)}
+              onContactClick={() => setShowShareContact(true)}
+              onPollClick={() => setShowCreatePoll(true)}
               onFileChange={chooseFile}
               onImageChange={chooseFile}
             />
+            {showSticker && (
+              <div className="absolute bottom-full left-2 z-30 mb-2">
+                <StickerPicker onSelect={sendSticker} />
+              </div>
+            )}
+            {showGif && (
+              <div className="absolute bottom-full left-2 z-30 mb-2">
+                <GifPicker onSelect={sendGif} />
+              </div>
+            )}
+            {showShareContact && (
+              <ShareContactModal onPick={shareContact} onClose={() => setShowShareContact(false)} />
+            )}
+            {showCreatePoll && (
+              <CreatePollModal onCreate={createPoll} onClose={() => setShowCreatePoll(false)} />
+            )}
             <div className="flex items-end gap-4">
               <div className="flex-1 self-center">
                 <CustomContentEditable ref={inputRef} onKeyDown={keydownBindingFn} onKeyUp={handleKeyUp} isEmpty={isEmpty} onPasteFiles={addFiles} />

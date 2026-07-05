@@ -60,6 +60,9 @@ public class NotificationConsumer : IGenericConsumer
                 case Topic.NotifyMessageRecalled:
                     await HandleNotifyMessageRecalled(JsonConvert.DeserializeObject<NotifyMessageRecalledModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.NotifyPoll:
+                    await HandleNotifyPoll(JsonConvert.DeserializeObject<NotifyPollModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -148,15 +151,43 @@ public class NotificationConsumer : IGenericConsumer
             param);
     }
 
+    // Bình chọn: fanout state authoritative tới TẤT CẢ member để đồng bộ voterIds/đóng realtime.
+    // Sync-only (không banner). Gửi cả actor: FE ghi đè optimistic bằng state server (idempotent),
+    // duplicate/out-of-order an toàn. Không tạo Notification bell cho vote (tránh spam).
+    async Task HandleNotifyPoll(NotifyPollModel param)
+    {
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members is null) return;
+
+        var notify = new EventPollUpdated
+        {
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            ClosedTime = param.ClosedTime,
+            ClosedBy = param.ClosedBy,
+            Options = param.Options
+                .Select(o => new EventPollUpdated_Option { Key = o.Key, VoterIds = o.VoterIds })
+                .ToList()
+        };
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.PollUpdated,
+            members.Select(q => q.Contact.Id).ToArray(),
+            notify);
+    }
+
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
         // Lọc bỏ chính sender khỏi danh sách Members nhận notify — sender không cần nhận push notification
         // cho message do mình gửi (UI đã có sẵn message ở local).
         var notify = _mapper.Map<EventNewMessage>(param.Message);
         notify.Contact = _mapper.Map<EventNewMessage_Contact>(await _userCache.GetInfo(param.UserId));
-        // Chỉ giữ Content khi type=text. Với media/file, Content được set null để giảm payload và
-        // tránh leak metadata không cần thiết qua FCM.
-        notify.Content = notify.Type == "text" ? notify.Content : null;
+        // Media/file: Content vốn đã rỗng (DataStore set null) → giữ null để giảm payload FCM.
+        // Các loại còn lại CẦN Content để FE render/preview realtime:
+        //   sticker = id, gif = url, poll = câu hỏi, contact = tên.
+        // Trước đây null-hoá mọi type ≠ text khiến GIF/Sticker realtime ra placeholder
+        // (chỉ hiện đúng sau khi reload vì lúc đó đọc từ cache có đủ Content).
+        notify.Content = notify.Type == AppConstants.MessageType_Media ? null : notify.Content;
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
         notify.Members = _mapper.Map<EventNewConversation_Member[]>(
             param.Members.Where(q => q.ContactId != param.UserId).ToArray());

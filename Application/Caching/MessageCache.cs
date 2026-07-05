@@ -60,9 +60,8 @@ public class MessageCache
         {
             var conversationInfo = await _redisCaching.GetAsync<ConversationCacheModel>(AppConstants.RedisKey_ConversationInfo.Replace("{conversationId}", conversationId)) ?? new();
             conversationInfo.LastMessageId = message.Id;
-            conversationInfo.LastMessage = message.Type == "text"
-                ? message.Content
-                : string.Join(",", message.Attachments.Select(q => q.MediaName));
+            conversationInfo.LastMessage = AppConstants.BuildLastMessagePreview(
+                message.Type, message.Content, message.Attachments.Select(q => q.MediaName));
             conversationInfo.LastMessageTime = message.CreatedTime;
             conversationInfo.LastMessageContact = userId;
             conversationInfo.UpdatedTime = updatedTime;
@@ -233,6 +232,54 @@ public class MessageCache
         // Recall tin cuối → set LastMessage về placeholder, giữ nguyên LastMessageTime
         // (không scan ngược tìm tin kế trước để tránh chi phí trên unbounded array).
         await UpdateLastMessagePreviewIfMatch(conversationId, messageId, AppConstants.Message_Recalled, hasAttachment: false);
+    }
+
+    // ===== Bình chọn (poll): đồng bộ Redis cache = nguồn đọc của GetMessages =====
+    // Mirror ĐÚNG logic atomic của DataStoreConsumer để cache khớp Mongo. Trả về Poll đã cập nhật
+    // (để fanout realtime) hoặc null khi no-op (message không có trong cache / poll đã đóng /
+    // không phải creator) → caller sẽ KHÔNG broadcast.
+    // ⚠️ Kế thừa known-issue read-modify-write không nguyên tử của cache này; Mongo là
+    // source-of-truth, cache self-heal khi user re-login.
+    public async Task<Poll?> UpdatePollVote(string conversationId, string messageId, string userId, string optionKey, bool allowMultiple)
+    {
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
+        var message = messageCache?.SingleOrDefault(q => q.Id == messageId);
+        var poll = message?.Poll;
+        if (poll is null || poll.ClosedTime is not null) return null; // no message / poll đã đóng → no-op
+
+        if (allowMultiple)
+        {
+            // Chọn nhiều: TOGGLE trên option được chọn.
+            var option = poll.Options.SingleOrDefault(o => o.Key == optionKey);
+            if (option is null) return null; // optionKey không tồn tại → no-op (khớp arrayFilter Mongo)
+            if (option.VoterIds.Contains(userId)) option.VoterIds.Remove(userId);
+            else option.VoterIds.Add(userId);
+        }
+        else
+        {
+            // Chọn một: gỡ phiếu khỏi TẤT CẢ option rồi thêm vào option được chọn.
+            foreach (var o in poll.Options) o.VoterIds.Remove(userId);
+            var option = poll.Options.SingleOrDefault(o => o.Key == optionKey);
+            if (option is not null && !option.VoterIds.Contains(userId)) option.VoterIds.Add(userId);
+        }
+
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
+        return poll;
+    }
+
+    public async Task<Poll?> UpdatePollClose(string conversationId, string messageId, string userId)
+    {
+        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
+        var message = messageCache?.SingleOrDefault(q => q.Id == messageId);
+        var poll = message?.Poll;
+        if (poll is null) return null;
+        // Chỉ creator được đóng + idempotent (đã đóng → no-op) — khớp filter Mongo (ContactId==UserId).
+        if (message!.ContactId != userId || poll.ClosedTime is not null) return null;
+
+        poll.ClosedTime = DateTime.UtcNow;
+        poll.ClosedBy = userId;
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
+        return poll;
     }
 
     async Task UpdateLastMessagePreviewIfMatch(string conversationId, string messageId, string preview, bool hasAttachment)

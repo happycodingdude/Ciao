@@ -23,4 +23,12 @@ public static class Topic
     public const string MessageRecalled = "message.recalled";
     public const string NotifyMessageEdited = "message.edited.notify";
     public const string NotifyMessageRecalled = "message.recalled.notify";
+    // Bình chọn: bỏ phiếu / đóng bình chọn (persist atomic ở DataStoreConsumer).
+    public const string PollVote = "poll.vote";
+    public const string PollClose = "poll.close";
+    // Sau khi persist Mongo → phát tiếp để cập nhật Redis message cache (CacheConsumer).
+    public const string StoredPollVote = "poll.vote.stored";
+    public const string StoredPollClose = "poll.close.stored";
+    // Fanout realtime state bình chọn (voterIds/đóng) tới member (NotificationConsumer → FCM).
+    public const string NotifyPoll = "poll.notify";
 }

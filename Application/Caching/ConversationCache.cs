@@ -135,9 +135,8 @@ public class ConversationCache
 
         // Update conversation info cache
         conversation.LastMessageId = message.Id;
-        conversation.LastMessage = message.Type == "text"
-            ? message.Content
-            : string.Join(",", message.Attachments.Select(q => q.MediaName));
+        conversation.LastMessage = AppConstants.BuildLastMessagePreview(
+            message.Type, message.Content, message.Attachments.Select(q => q.MediaName));
         conversation.LastMessageTime = message.CreatedTime;
         conversation.LastMessageContact = userId;
         conversation.UpdatedTime = DateTime.UtcNow;

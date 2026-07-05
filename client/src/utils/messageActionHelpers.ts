@@ -4,9 +4,10 @@ import { PendingMessageModel } from "../types/message.types";
 
 /** Tin text có thể sửa (backend chỉ accept type text). */
 export const isEditableTextMessage = (message: PendingMessageModel) => {
-  if (message.type === "system" || message.type === "media") return false;
   if ((message.attachments?.length ?? 0) > 0) return false;
-  return message.type === "text" || !!message.content;
+  // Backend chỉ accept edit cho tin text. Các loại có Content không phải văn bản
+  // (sticker = id, poll = câu hỏi, contact = tên) KHÔNG được sửa nội dung.
+  return message.type === "text";
 };
 
 export const canEditMessage = (

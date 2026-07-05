@@ -52,15 +52,15 @@
 
 | STT | Tính năng       | Mô tả                            |  Ưu tiên   | Trạng thái |
 | --: | --------------- | -------------------------------- | :--------: | ---------- |
-|   1 | Sticker         | Bộ sticker và sticker yêu thích  | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
-|   2 | GIF             | Tìm kiếm và gửi GIF              | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm (chỉ chấp nhận upload file .gif) |
+|   1 | Sticker         | Bộ sticker và sticker yêu thích  | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (bộ built-in động + gần đây) |
+|   2 | GIF             | Gửi GIF                          | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (chọn từ nguồn GIF sẵn) |
 |   3 | Tin nhắn thoại  | Ghi âm, waveform, playback       | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
 |   4 | Preview Link    | Thumbnail, tiêu đề, mô tả        | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
 |   5 | Album ảnh       | Gom nhiều ảnh thành album        | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (grid nhiều ảnh) |
 |   6 | Trình xem ảnh   | Zoom, swipe, fullscreen          | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành |
-|   7 | Bình chọn       | Poll trong cuộc trò chuyện       | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
-|   8 | Chia sẻ danh bạ | Contact card                     | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
-|   9 | Dịch tin nhắn   | Translate message                |  ⭐⭐⭐☆☆  | ⬜ Chưa làm |
+|   7 | Bình chọn       | Poll trong cuộc trò chuyện       | ⭐⭐⭐⭐☆  | ✅ Hoàn thành (tạo/bỏ phiếu/đóng; realtime tally chờ Phase sau) |
+|   8 | Chia sẻ danh bạ | Contact card                     | ⭐⭐⭐⭐☆  | ✅ Hoàn thành (gửi thẻ liên hệ) |
+|   9 | Dịch tin nhắn   | Translate message                |  ⭐⭐⭐☆☆  | ✅ Hoàn thành (dịch tự nhận diện ngôn ngữ) |
 
 > 📄 **Kế hoạch triển khai các tính năng chưa xong:** [`KE_HOACH_PHASE_2_SINH_DONG.md`](./KE_HOACH_PHASE_2_SINH_DONG.md)
 

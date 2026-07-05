@@ -2,8 +2,10 @@ namespace Application.DTOs;
 
 public class SendMessageReq
 {
+    // Nguồn validate chính là FluentValidation (SendMessage.Validator). RegularExpression
+    // ở đây chỉ là hàng rào phụ — giữ đồng bộ với danh sách type được hỗ trợ.
     [Required]
-    [RegularExpression("^(text|image)$", ErrorMessage = "Type must be either 'text' or 'image'.")]
+    [RegularExpression("^(text|media|sticker|gif|poll|contact)$", ErrorMessage = "Unsupported message type.")]
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public bool IsForwarded { get; set; }
@@ -13,6 +15,10 @@ public class SendMessageReq
     public List<SendMessageReq_Attachment> Attachments { get; set; } = new();
     // @mention userIds từ FE (sentinel "all" cho @All). Default rỗng → tin không tag không đổi.
     public List<string> Mentions { get; set; } = new();
+    // Chia sẻ danh bạ (Type = contact): thẻ liên hệ đính kèm. Content = tên để preview.
+    public SharedContact? SharedContact { get; set; }
+    // Bình chọn (Type = poll): Content = câu hỏi để preview.
+    public Poll? Poll { get; set; }
 }
 
 public class SendMessageReq_Attachment
@@ -29,6 +35,20 @@ public class SendMessageRes
     public string[] Attachments { get; set; } = null!;
 }
 
+public class TranslateMessageReq
+{
+    [Required]
+    public string Text { get; set; } = null!;
+    // Ngôn ngữ đích (mặc định "vi" nếu bỏ trống).
+    public string? TargetLang { get; set; }
+}
+
+public class TranslateMessageRes
+{
+    public string TranslatedText { get; set; } = null!;
+    public string? DetectedSourceLang { get; set; }
+}
+
 public class MessageReactionSummary : MongoBaseModel
 {
     public string Type { get; set; } = null!;
@@ -41,6 +61,9 @@ public class MessageReactionSummary : MongoBaseModel
     public string? ReplyContent { get; set; }
     public string? ReplyContact { get; set; }
     public List<Attachment> Attachments { get; set; } = new();
+    // Loại tin giàu nội dung: phải có trong DTO đọc, nếu không sẽ mất khi cache/fetch (reload biến mất).
+    public SharedContact? SharedContact { get; set; }
+    public Poll? Poll { get; set; }
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }
     public int CareCount { get; set; }

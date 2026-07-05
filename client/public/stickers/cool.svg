@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#FFE47A"/><stop offset="70%" stop-color="#FFCE3A"/><stop offset="100%" stop-color="#F5B816"/>
+    </radialGradient>
+    <clipPath id="lens"><rect x="64" y="90" width="112" height="32" rx="11"/></clipPath>
+  </defs>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" dur="2.2s" repeatCount="indefinite"/>
+    <circle cx="120" cy="120" r="108" fill="url(#g)" stroke="#E5A50A" stroke-width="4"/>
+    <rect x="64" y="90" width="48" height="32" rx="11" fill="#20232A"/>
+    <rect x="128" y="90" width="48" height="32" rx="11" fill="#20232A"/>
+    <rect x="110" y="98" width="20" height="8" rx="4" fill="#20232A"/>
+    <rect x="48" y="94" width="18" height="7" rx="3" fill="#20232A"/>
+    <rect x="174" y="94" width="18" height="7" rx="3" fill="#20232A"/>
+    <g clip-path="url(#lens)">
+      <rect x="-40" y="90" width="26" height="32" fill="#ffffff" opacity="0.5" transform="skewX(-20)">
+        <animate attributeName="x" values="-40;210" dur="2.6s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <path d="M92 158 Q120 178 150 156" fill="none" stroke="#3B2A1A" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

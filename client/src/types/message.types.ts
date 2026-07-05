@@ -10,6 +10,28 @@ export type MentionModel = {
   userId: string;
 };
 
+// Thẻ danh bạ được chia sẻ (tin nhắn type = contact).
+export type SharedContactModel = {
+  contactId: string;
+  name: string;
+  avatar?: string | null;
+};
+
+// Bình chọn (tin nhắn type = poll).
+export type PollOptionModel = {
+  key: string;
+  text: string;
+  voterIds: string[];
+};
+
+export type PollModel = {
+  question: string;
+  allowMultiple: boolean;
+  closedTime?: string | null;
+  closedBy?: string | null;
+  options: PollOptionModel[];
+};
+
 export type SendMessageRequest = {
   type: string;
   content: string;
@@ -18,6 +40,10 @@ export type SendMessageRequest = {
   files?: File[];
   // Option B: userId các mention (sentinel "all" cho @All). BE dùng để tạo notification.
   mentions?: string[];
+  // Chia sẻ danh bạ: thẻ liên hệ đính kèm khi type = contact.
+  sharedContact?: SharedContactModel;
+  // Bình chọn: dữ liệu poll khi type = poll.
+  poll?: PollModel;
 };
 
 export type SendMessageResponse = {
@@ -114,6 +140,10 @@ export type MessageModel = BaseModel & {
   editedTime?: string | null;
   recalledTime?: string | null;
   recalledByContactId?: string | null;
+  // Chia sẻ danh bạ: thẻ liên hệ (type = contact).
+  sharedContact?: SharedContactModel;
+  // Bình chọn (type = poll).
+  poll?: PollModel;
   // reactions?: ReactionModel[];
 };
 

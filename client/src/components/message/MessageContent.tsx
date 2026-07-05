@@ -7,6 +7,7 @@ import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import { useMessageEdit } from "../../hooks/useMessageActions";
 import { useRetryMessage } from "../../hooks/useSendMessage";
+import { useTranslation } from "../../hooks/useTranslation";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/messagecontent.css";
 import "../../styles/messagemenu_slide.css";
@@ -18,6 +19,10 @@ import {
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import { ForwardedMessage, MessageItem, ReplyMessage } from "./MessageItem";
 import MessageMenu_Slide from "./MessageMenu_Slide";
+import StickerMessage from "./StickerMessage";
+import GifMessage from "./GifMessage";
+import ContactCard from "./ContactCard";
+import PollMessage from "./PollMessage";
 
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
@@ -27,6 +32,8 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const { setEdit } = useMessageEdit();
     const { data: conversations } = useConversation();
     const retryMessage = useRetryMessage(id);
+    const { translations, hide: hideTranslation } = useTranslation();
+    const translation = message?.id ? translations[message.id] : undefined;
 
     const { conversationId } = Route.useParams();
     const conversation = conversations?.conversations?.find(
@@ -38,6 +45,14 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
 
     const isSelf = message.contactId === info?.id;
     const isRecalled = !!message.recalledTime;
+    // Sticker render nổi bật, không bọc bong bóng.
+    const isSticker = message.type === "sticker" && !isRecalled;
+    // GIF render ảnh động, không bọc bong bóng.
+    const isGif = message.type === "gif" && !isRecalled;
+    // Contact card có khung riêng → không bọc bong bóng mặc định.
+    const isContact = message.type === "contact" && !isRecalled;
+    // Bình chọn có khung riêng → không bọc bong bóng mặc định.
+    const isPoll = message.type === "poll" && !isRecalled;
     const isEdited = !!message.editedTime && !isRecalled;
     const showEdit = canEditMessage(message, isSelf);
 
@@ -228,7 +243,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   ${message.pending ? "opacity-50" : ""}
-                  ${isRecalled || message.content || message.isForwarded || message.replyId ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
+                  ${!isSticker && !isGif && !isContact && !isPoll && (isRecalled || message.content || message.isForwarded || message.replyId) ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
                 `}
               >
                 {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}
@@ -236,6 +251,14 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                   <p className="italic text-(--text-main-color-blur)">
                     Tin nhắn đã được thu hồi
                   </p>
+                ) : isSticker ? (
+                  <StickerMessage src={message.content} />
+                ) : isGif ? (
+                  <GifMessage src={message.content} />
+                ) : isContact ? (
+                  <ContactCard contact={message.sharedContact} />
+                ) : isPoll ? (
+                  <PollMessage message={message} conversationId={id} />
                 ) : message.isForwarded ? (
                   <ForwardedMessage
                     message={message.content ?? ""}
@@ -283,6 +306,33 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 )}
               </div>
             </div>
+
+            {/* Bản dịch (lớp phủ): giữ nguyên bản gốc, hiển thị thêm bên dưới, có thể ẩn. */}
+            {translation?.visible && (
+              <div
+                className={`mt-1 flex max-w-full flex-col gap-1 rounded-xl border-l-2 border-l-light-blue-400 bg-(--bubble-bg) px-3 py-2 shadow-[0_2px_10px_rgba(0,0,0,0.06)]
+                  ${isSelf ? "self-end" : "self-start"}`}
+              >
+                {translation.loading ? (
+                  <span className="italic text-(--text-main-color-blur)">Đang dịch…</span>
+                ) : (
+                  <>
+                    <p className="text-2xs flex items-center gap-1 text-(--text-main-color-blur)">
+                      <i className="fa fa-language" />
+                      Bản dịch{translation.sourceLang ? ` · ${translation.sourceLang}` : ""}
+                    </p>
+                    <p className="whitespace-pre-line break-words">{translation.text}</p>
+                    <button
+                      type="button"
+                      onClick={() => hideTranslation(message.id ?? "")}
+                      className="text-2xs w-fit text-light-blue-500 hover:underline"
+                    >
+                      Ẩn bản dịch
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Badge ghim: vị trí lệch theo bên trái/phải tùy là tin của mình hay người khác */}
             {message.isPinned && !isRecalled && (
@@ -350,7 +400,9 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 <EditOutlined />
               </button>
             )}
-            {!message.pending && !message.failed && !isRecalled && (
+            {/* Bình chọn: KHÔNG hiện menu chức năng (reply/forward/pin/delete) — mọi thao
+                tác poll nằm trong chính card (bỏ phiếu, đóng bình chọn). */}
+            {!message.pending && !message.failed && !isRecalled && !isPoll && (
               <MessageMenu_Slide
                 conversationId={id}
                 message={message}

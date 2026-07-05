@@ -54,6 +54,16 @@ export type NewMessage = {
   contact: NewMessage_Contact;
   attachments: any[];
   isForwarded?: boolean;
+  // Chia sẻ danh bạ: thẻ liên hệ đính kèm (type = contact).
+  sharedContact?: { contactId: string; name: string; avatar?: string | null };
+  // Bình chọn (type = poll).
+  poll?: {
+    question: string;
+    allowMultiple: boolean;
+    closedTime?: string | null;
+    closedBy?: string | null;
+    options: { key: string; text: string; voterIds: string[] }[];
+  };
 };
 
 export type NewConversation = {
@@ -130,6 +140,16 @@ export type MessageRecalledEvent = {
   recalledTime: string;
   recalledByContactId: string;
   userId?: string;
+};
+
+// Bình chọn: state authoritative từ BE (EventPollUpdated). FE ghi đè voterIds theo key +
+// closedTime/closedBy. Idempotent với duplicate/out-of-order FCM.
+export type PollUpdatedEvent = {
+  conversationId: string;
+  messageId: string;
+  options: { key: string; voterIds: string[] }[];
+  closedTime?: string | null;
+  closedBy?: string | null;
 };
 
 // 1 contact đổi profile → patch tên/avatar/bio ở mọi nơi denormalize tên người đó.

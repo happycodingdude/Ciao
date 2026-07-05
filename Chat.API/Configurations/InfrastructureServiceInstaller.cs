@@ -125,6 +125,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // External services
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
+        services.AddScoped<ITranslationService, TranslationService>();
         services.AddScoped<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<INotificationProcessor, WebSocketProcessor>();
 
