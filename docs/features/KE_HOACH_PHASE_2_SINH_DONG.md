@@ -3,9 +3,9 @@
 > **Cập nhật:** 2026-07-05 · **Nguồn:** [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
 > Kế hoạch nghiệp vụ Phase 2 kèm trạng thái triển khai của từng tính năng.
 >
-> ✅ **Đã hoàn thành:** Sticker, GIF, Bình chọn, Chia sẻ danh bạ, Dịch tin nhắn — xem hành vi nghiệp vụ chi tiết ở
+> ✅ **Đã hoàn thành:** Sticker, GIF, Bình chọn, Chia sẻ danh bạ, Dịch tin nhắn, Preview Link — xem hành vi nghiệp vụ chi tiết ở
 > [`TINH_NANG_PHASE_2_STICKER_GIF_POLL_CONTACT_TRANSLATE.md`](./TINH_NANG_PHASE_2_STICKER_GIF_POLL_CONTACT_TRANSLATE.md).
-> ⬜ **Chưa triển khai (giữ nguyên trong kế hoạch):** Đợt 2 — Tin nhắn thoại, Preview Link.
+> ⬜ **Chưa triển khai (giữ nguyên trong kế hoạch):** Đợt 2 — Tin nhắn thoại.
 
 ---
 
@@ -16,7 +16,7 @@
 | Sticker | ✅ Hoàn thành | Bộ sticker + sticker yêu thích |
 | GIF | ✅ Hoàn thành | Tìm kiếm và gửi GIF động |
 | Tin nhắn thoại | ⬜ Chưa triển khai | Ghi âm, hiển thị dạng sóng, phát lại |
-| Preview Link | ⬜ Chưa triển khai | Thumbnail + tiêu đề + mô tả cho liên kết |
+| Preview Link | ✅ Hoàn thành | Thumbnail + tiêu đề + mô tả cho liên kết |
 | Bình chọn (Poll) | ✅ Hoàn thành | Tạo bình chọn trong hội thoại |
 | Chia sẻ danh bạ | ✅ Hoàn thành | Gửi thẻ liên hệ |
 | Dịch tin nhắn | ✅ Hoàn thành | Dịch nội dung tin nhắn |
@@ -28,7 +28,8 @@
 | Đợt | Mục tiêu | Trạng thái | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- | --- |
 | **Đợt 1** | Sticker + GIF | ✅ Hoàn thành | Bản quyền/nguồn nội dung, dung lượng | Kho sticker/GIF | Ẩn bảng chọn sticker/GIF |
-| **Đợt 2** | Tin nhắn thoại + Preview Link | ⬜ Chưa triển khai | Xử lý media nặng, tải nội dung ngoài | Lưu trữ media | Tắt ghi âm / tắt preview |
+| **Đợt 2** | Preview Link | ✅ Hoàn thành | Tải nội dung ngoài (SSRF, trang chậm) | Không | Tắt sinh preview |
+| **Đợt 2** | Tin nhắn thoại | ⬜ Chưa triển khai | Xử lý media nặng | Lưu trữ media | Tắt ghi âm |
 | **Đợt 3** | Bình chọn + Chia sẻ danh bạ | ✅ Hoàn thành | Quyền riêng tư (danh bạ) | Quyền thiết bị | Ẩn tùy chọn tương ứng |
 | **Đợt 4** | Dịch tin nhắn | ✅ Hoàn thành | Chất lượng dịch, chi phí dịch vụ | Dịch vụ dịch | Ẩn nút dịch |
 
@@ -63,13 +64,13 @@
 - **Trường hợp đặc biệt:** từ chối quyền micro → thông báo hướng dẫn; ghi âm quá ngắn → hủy.
 - **Hạn chế:** chưa hỗ trợ chuyển giọng nói thành văn bản ở giai đoạn này.
 
-### 3.4 Preview Link — ⬜ Chưa triển khai
+### 3.4 Preview Link — ✅ Hoàn thành
 
 - **Mục đích:** hiển thị liên kết trực quan (ảnh, tiêu đề, mô tả) thay vì URL trần.
-- **Hành vi:** khi tin chứa liên kết → tự sinh thẻ xem trước (thumbnail, tiêu đề, mô tả, tên miền); nhấn vào mở liên kết.
+- **Hành vi:** khi tin văn bản chứa liên kết → tự sinh thẻ xem trước (thumbnail, tiêu đề, mô tả, tên miền); nhấn vào thẻ mở liên kết ở tab mới. Thẻ xuất hiện **ngay sau khi gửi** (tin hiển thị tức thì, thẻ được bổ sung sau vài giây khi lấy xong dữ liệu) và **cập nhật realtime** cho mọi người trong hội thoại.
 - **Input:** liên kết trong nội dung tin. **Output:** thẻ xem trước đính kèm tin.
-- **Quy tắc:** chỉ xử lý liên kết hợp lệ; lấy dữ liệu xem trước một lần và dùng lại.
-- **Trường hợp đặc biệt:** liên kết không lấy được metadata → hiển thị liên kết thường; nhiều liên kết → ưu tiên liên kết đầu.
+- **Quy tắc:** chỉ xử lý liên kết hợp lệ; lấy dữ liệu xem trước một lần rồi dùng lại (giữ nguyên khi tải lại / đăng nhập lại).
+- **Trường hợp đặc biệt:** liên kết không lấy được metadata → hiển thị liên kết thường; nhiều liên kết → ưu tiên liên kết đầu tiên.
 - **Hạn chế:** một số trang chặn lấy metadata → không có xem trước.
 
 ### 3.5 Bình chọn (Poll) — ✅ Hoàn thành

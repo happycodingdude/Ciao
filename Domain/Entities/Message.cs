@@ -21,6 +21,12 @@ public class Message : MongoBaseModel
     // Bình chọn (Type = poll): Content giữ câu hỏi để preview/search. Phiếu bầu lưu theo từng option.
     public Poll? Poll { get; set; }
 
+    // Preview Link (Type = text có URL): thẻ xem trước sinh ASYNC sau khi persist tin
+    // (không chặn luồng gửi). null = chưa/không có preview → FE render link thường.
+    // KHÔNG phải message type riêng: chỉ làm giàu tin text có link. Doc Mongo cũ thiếu field
+    // → default null (no migration).
+    public LinkPreview? LinkPreview { get; set; }
+
     // @mention (Option B — có cấu trúc): danh sách userId được tag, sentinel "all" cho @All.
     // Lưu userId (không phải tên) để tạo notification chính xác, tránh báo nhầm khi trùng tên.
     // Doc Mongo cũ thiếu field → default rỗng (no migration).
@@ -64,4 +70,16 @@ public class PollOption
     public string Key { get; set; } = null!;
     public string Text { get; set; } = null!;
     public List<string> VoterIds { get; set; } = new List<string>();
+}
+
+// Thẻ xem trước liên kết (Open Graph / meta) của tin text chứa URL.
+// Url = URL cuối cùng (sau redirect) đã được xác thực an toàn (không private/loopback).
+// Mọi field metadata đều optional: trang chặn OG → chỉ có Url, FE vẫn render tối thiểu.
+public class LinkPreview
+{
+    public string Url { get; set; } = null!;
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
+    public string? SiteName { get; set; }
 }

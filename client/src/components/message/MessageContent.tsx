@@ -23,6 +23,7 @@ import StickerMessage from "./StickerMessage";
 import GifMessage from "./GifMessage";
 import ContactCard from "./ContactCard";
 import PollMessage from "./PollMessage";
+import LinkPreviewCard from "./LinkPreviewCard";
 
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
@@ -306,6 +307,17 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 )}
               </div>
             </div>
+
+            {/* Preview Link: thẻ xem trước dưới bubble cho tin text có URL (đính kèm async).
+                Chỉ hiển thị với tin text thường (không sticker/gif/contact/poll/recalled). */}
+            {message.linkPreview &&
+              !isRecalled &&
+              !isSticker &&
+              !isGif &&
+              !isContact &&
+              !isPoll && (
+                <LinkPreviewCard preview={message.linkPreview} mine={isSelf} />
+              )}
 
             {/* Bản dịch (lớp phủ): giữ nguyên bản gốc, hiển thị thêm bên dưới, có thể ẩn. */}
             {translation?.visible && (

@@ -64,6 +64,8 @@ public class MessageReactionSummary : MongoBaseModel
     // Loại tin giàu nội dung: phải có trong DTO đọc, nếu không sẽ mất khi cache/fetch (reload biến mất).
     public SharedContact? SharedContact { get; set; }
     public Poll? Poll { get; set; }
+    // Preview Link: phải có trong DTO đọc để reload/đăng nhập lại vẫn hiển thị thẻ (đã persist Mongo).
+    public LinkPreview? LinkPreview { get; set; }
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }
     public int CareCount { get; set; }

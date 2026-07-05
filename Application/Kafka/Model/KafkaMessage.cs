@@ -260,3 +260,21 @@ public class NotifyPollOption
     public string Key { get; set; } = null!;
     public List<string> VoterIds { get; set; } = new();
 }
+
+// ===== Preview Link =====
+
+// Yêu cầu fetch preview cho 1 tin text có URL. Url = URL đầu tiên trong nội dung (đã trích ở DataStore).
+public class LinkPreviewRequestedModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public string Url { get; set; } = null!;
+}
+
+// Kết quả preview đã persist — dùng chung cho topic stored (→ cache) và notify (→ FCM fanout).
+public class StoredLinkPreviewModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public LinkPreview LinkPreview { get; set; } = null!;
+}

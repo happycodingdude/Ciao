@@ -106,6 +106,15 @@ public class EventPollUpdated_Option
     public List<string> VoterIds { get; set; } = new();
 }
 
+// Payload realtime khi thẻ preview link của 1 tin đã sẵn sàng (fetch async xong).
+// Sync-event (data-only, không banner) → FE patch message.linkPreview theo messageId. Idempotent.
+public class EventLinkPreviewReady
+{
+    public string ConversationId { get; set; } = null!;
+    public string MessageId { get; set; } = null!;
+    public LinkPreview LinkPreview { get; set; } = null!;
+}
+
 // Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,
 // không banner) → FE patch trực tiếp cache ["friend"] + members trong ["conversation"].
 public class EventContactUpdated

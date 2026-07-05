@@ -11,6 +11,7 @@ import {
   MessageReadEvent,
   MessageRecalledEvent,
   ContactUpdatedEvent,
+  LinkPreviewReadyEvent,
   NewConversation,
   NewMessage,
   NewMessagePinned,
@@ -53,6 +54,7 @@ export const classifyNotification = (
     case "MessageEdited":     return onMessageEdited(queryClient, data);
     case "MessageRecalled":   return onMessageRecalled(queryClient, data);
     case "PollUpdated":       return onPollUpdated(queryClient, data);
+    case "LinkPreviewReady":  return onLinkPreviewReady(queryClient, data);
     // Friend events (realtime qua SignalR). Cập nhật cache ["friend"] TRỰC TIẾP từ payload
     // (friendId) — không refetch. Riêng NewFriendRequest: phía nhận chưa có entry và payload
     // không kèm contact info → buộc refetch (vẫn do event kích hoạt, không phải poll).
@@ -343,6 +345,19 @@ const onPollUpdated = (queryClient: QueryClient, ev: PollUpdatedEvent) => {
       },
     };
   });
+};
+
+// Preview Link realtime: gắn thẻ preview vào tin theo messageId (BE fetch async xong).
+// Idempotent: ghi đè linkPreview từ state server, an toàn với duplicate/out-of-order FCM.
+const onLinkPreviewReady = (
+  queryClient: QueryClient,
+  ev: LinkPreviewReadyEvent,
+) => {
+  if (!ev?.messageId || !ev?.linkPreview) return;
+  updateMessageById(queryClient, ev.conversationId, ev.messageId, (m) => ({
+    ...m,
+    linkPreview: ev.linkPreview,
+  }));
 };
 
 const onNewMessagePinned = (

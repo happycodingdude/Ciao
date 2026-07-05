@@ -310,6 +310,21 @@ public class DataStoreConsumer : IGenericConsumer
             Members = conversation.Members.ToArray(),
             Message = message
         });
+
+        // Preview Link: tin text có URL → enqueue fetch async ở consumer RIÊNG (external I/O chậm,
+        // không chặn luồng tin nhắn). Chỉ trích URL đầu tiên (đúng spec "nhiều link → ưu tiên link đầu").
+        if (message.Type == AppConstants.MessageType_Text)
+        {
+            var url = LinkDetector.FirstUrl(message.Content);
+            if (url is not null)
+                await _kafkaProducer.ProduceAsync(Topic.LinkPreviewRequested, new LinkPreviewRequestedModel
+                {
+                    UserId = param.UserId,
+                    ConversationId = param.ConversationId,
+                    MessageId = message.Id,
+                    Url = url
+                });
+        }
     }
 
     async Task HandleNewGroupConversation(NewGroupConversationModel param)

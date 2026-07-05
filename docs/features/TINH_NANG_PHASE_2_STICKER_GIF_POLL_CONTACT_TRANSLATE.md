@@ -7,7 +7,7 @@
 
 ## Mục đích
 
-Làm cuộc trò chuyện phong phú và biểu cảm hơn: gửi nhãn dán, ảnh động, tạo bình chọn, chia sẻ danh bạ và dịch tin nhắn xuyên ngôn ngữ.
+Làm cuộc trò chuyện phong phú và biểu cảm hơn: gửi nhãn dán, ảnh động, tạo bình chọn, chia sẻ danh bạ, dịch tin nhắn xuyên ngôn ngữ và xem trước liên kết.
 
 ## Phạm vi triển khai theo đợt
 
@@ -17,13 +17,13 @@ Kế hoạch Phase 2 chia thành các đợt. Tình trạng triển khai:
 | --- | --- | --- |
 | **Đợt 1** | Sticker | ✅ Hoàn thành |
 | **Đợt 1** | GIF | ✅ Hoàn thành (chỉ upload .gif) |
+| **Đợt 2** | Preview Link | ✅ Hoàn thành |
 | **Đợt 2** | Tin nhắn thoại | ⏭️ Chưa triển khai (ngoài phạm vi lần này) |
-| **Đợt 2** | Preview Link | ⏭️ Chưa triển khai (ngoài phạm vi lần này) |
 | **Đợt 3** | Bình chọn (Poll) | ✅ Hoàn thành |
 | **Đợt 3** | Chia sẻ danh bạ | ✅ Hoàn thành |
 | **Đợt 4** | Dịch tin nhắn | ✅ Hoàn thành |
 
-> Đợt 2 được giữ nguyên trong kế hoạch, chỉ chưa thực hiện trong lần triển khai này.
+> Tin nhắn thoại (Đợt 2) được giữ nguyên trong kế hoạch, chỉ chưa thực hiện trong lần triển khai này.
 
 ---
 
@@ -88,11 +88,31 @@ Kế hoạch Phase 2 chia thành các đợt. Tình trạng triển khai:
 - **Trường hợp đặc biệt:** dịch thất bại (lỗi mạng/dịch vụ) → báo lỗi, không phá vỡ luồng chat; nội dung rỗng → không dịch.
 - **Hạn chế:** chất lượng phụ thuộc dịch vụ dịch; ngôn ngữ đích mặc định là tiếng Việt.
 
+## 6. Preview Link (Xem trước liên kết)
+
+- **Mục đích:** hiển thị liên kết trực quan (ảnh, tiêu đề, mô tả, tên miền) thay vì URL trần.
+- **Luồng sử dụng:** gửi tin văn bản có chứa liên kết như bình thường → tin hiển thị **ngay lập tức** → thẻ xem trước được **bổ sung tự động** bên dưới tin sau khi hệ thống lấy xong dữ liệu (thường vài giây).
+- **Hành vi:**
+  - Thẻ hiển thị **ảnh đại diện, tiêu đề, mô tả ngắn và tên miền** của trang. Nhấn vào thẻ → mở liên kết ở tab mới.
+  - **Không chặn việc gửi tin:** việc lấy dữ liệu xem trước diễn ra ngầm, không làm chậm thao tác gửi.
+  - **Realtime:** mọi người trong hội thoại thấy thẻ **xuất hiện ngay** khi có, không cần tải lại trang.
+  - **Bền vững:** thẻ được **lấy một lần và lưu lại** → tải lại trang hoặc đăng nhập lại vẫn hiển thị, không lấy lại.
+- **Input:** liên kết trong nội dung tin văn bản. **Output:** thẻ xem trước đính kèm dưới tin.
+- **Quy tắc:**
+  - Chỉ áp dụng cho **tin văn bản** (bỏ qua nhãn dán, GIF, bình chọn, thẻ danh bạ).
+  - Chỉ xử lý **liên kết web hợp lệ**; nếu tin có nhiều liên kết → **ưu tiên liên kết đầu tiên**.
+- **Trường hợp đặc biệt:**
+  - Trang chặn / không có dữ liệu xem trước → **hiển thị liên kết thường**, không có thẻ.
+  - Ảnh xem trước lỗi tải → **tự ẩn ảnh**, thẻ vẫn hiển thị tiêu đề/mô tả/tên miền.
+  - Liên kết trỏ tới địa chỉ nội bộ/không an toàn → **bị bỏ qua** (không sinh thẻ) để bảo vệ hệ thống.
+- **Hạn chế:** chất lượng thẻ phụ thuộc dữ liệu trang cung cấp; một số trang không hỗ trợ xem trước.
+
 ---
 
 ## Ghi chú chung
 
 - Sticker, GIF, bình chọn và thẻ danh bạ đều hiển thị realtime khi có tin mới đến — **hiển thị ngay** trên máy người nhận, không cần tải lại trang.
+- Thẻ xem trước liên kết được sinh **ngầm sau khi gửi** (không chặn thao tác gửi) và **cập nhật realtime** cho mọi người trong hội thoại; giữ nguyên khi tải lại trang.
 - Xem trước tin cuối ở danh sách hội thoại được chuẩn hóa theo loại tin: nhãn dán, bình chọn, danh bạ đều có nhãn riêng dễ đọc.
 
 ## Tổng kết đợt hoàn thiện (2026-07-05)

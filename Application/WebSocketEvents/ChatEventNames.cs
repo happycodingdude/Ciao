@@ -18,4 +18,5 @@ public static class ChatEventNames
     public const string MessageEdited = "MessageEdited";
     public const string MessageRecalled = "MessageRecalled";
     public const string PollUpdated = "PollUpdated";
+    public const string LinkPreviewReady = "LinkPreviewReady";
 }

@@ -49,7 +49,8 @@ public class KafkaBackground : BackgroundService
                     Topic.StoredMember,
                     Topic.StoredReaction,
                     Topic.StoredPollVote,
-                    Topic.StoredPollClose
+                    Topic.StoredPollClose,
+                    Topic.StoredLinkPreview
                     ])
                 .Build(),
             cancellationToken));
@@ -67,7 +68,19 @@ public class KafkaBackground : BackgroundService
                     Topic.NotifyMessageRead,
                     Topic.NotifyMessageEdited,
                     Topic.NotifyMessageRecalled,
-                    Topic.NotifyPoll
+                    Topic.NotifyPoll,
+                    Topic.NotifyLinkPreview
+                    ])
+                .Build(),
+            cancellationToken));
+
+        // Preview Link: consumer group RIÊNG. Fetch OG metadata là external I/O chậm → cô lập
+        // để không chặn pipeline tin nhắn (mỗi group xử lý tuần tự trên 1 thread).
+        _ = Task.Run(() => ConsumeAsync<LinkPreviewConsumer>(
+            new KafkaConsumer()
+                .UseGroup("linkpreview-consumer")
+                .Subscribe([
+                    Topic.LinkPreviewRequested
                     ])
                 .Build(),
             cancellationToken));

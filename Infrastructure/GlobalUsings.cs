@@ -24,6 +24,7 @@ global using Application.Specifications;
 global using MongoDB.Bson;
 global using MongoDB.Bson.Serialization;
 global using Shared.Constants;
+global using Shared.Utils;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.AspNetCore.Builder;

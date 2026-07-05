@@ -126,6 +126,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         // External services
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<ITranslationService, TranslationService>();
+        services.AddScoped<ILinkPreviewService, LinkPreviewService>();
         services.AddScoped<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<INotificationProcessor, WebSocketProcessor>();
 
@@ -135,6 +136,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<DataStoreConsumer>();
         services.AddScoped<CacheConsumer>();
         services.AddScoped<NotificationConsumer>();
+        services.AddScoped<LinkPreviewConsumer>();
         services.AddHostedService<KafkaBackground>();
         services.AddHostedService<PresenceCleanupService>();
         services.AddHostedService<ContactCleanupService>();

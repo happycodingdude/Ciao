@@ -152,6 +152,20 @@ export type PollUpdatedEvent = {
   closedBy?: string | null;
 };
 
+// Preview Link: thẻ preview đã sẵn sàng (BE fetch async xong). FE patch message.linkPreview
+// theo messageId. Idempotent với duplicate/out-of-order FCM.
+export type LinkPreviewReadyEvent = {
+  conversationId: string;
+  messageId: string;
+  linkPreview: {
+    url: string;
+    title?: string | null;
+    description?: string | null;
+    imageUrl?: string | null;
+    siteName?: string | null;
+  };
+};
+
 // 1 contact đổi profile → patch tên/avatar/bio ở mọi nơi denormalize tên người đó.
 export type ContactUpdatedEvent = {
   contactId: string;

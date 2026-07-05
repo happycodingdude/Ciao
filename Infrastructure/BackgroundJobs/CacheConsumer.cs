@@ -61,6 +61,9 @@ public class CacheConsumer : IGenericConsumer
                 case Topic.StoredPollClose:
                     await HandlePollClose(JsonConvert.DeserializeObject<PollCloseModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.StoredLinkPreview:
+                    await HandleLinkPreview(JsonConvert.DeserializeObject<StoredLinkPreviewModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -261,6 +264,16 @@ public class CacheConsumer : IGenericConsumer
         var poll = await _messageCache.UpdatePollClose(param.ConversationId, param.MessageId, param.UserId);
         if (poll is null) return;
         await NotifyPollUpdated(param.UserId, param.ConversationId, param.MessageId, poll);
+    }
+
+    // Preview Link: cập nhật Redis message cache (reload giữ thẻ) rồi fanout realtime.
+    // Cache trả false ⇒ no-op (tin vắng cache / đã recalled / đã có preview) ⇒ KHÔNG broadcast.
+    async Task HandleLinkPreview(StoredLinkPreviewModel param)
+    {
+        var updated = await _messageCache.UpdateLinkPreview(param.ConversationId, param.MessageId, param.LinkPreview);
+        if (!updated) return;
+
+        await _kafkaProducer.ProduceAsync(Topic.NotifyLinkPreview, param);
     }
 
     async Task NotifyPollUpdated(string userId, string conversationId, string messageId, Poll poll)

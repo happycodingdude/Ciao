@@ -32,6 +32,15 @@ export type PollModel = {
   options: PollOptionModel[];
 };
 
+// Thẻ xem trước liên kết (tin text có URL). Sinh async ở BE, về sau qua realtime "LinkPreviewReady".
+export type LinkPreviewModel = {
+  url: string;
+  title?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  siteName?: string | null;
+};
+
 export type SendMessageRequest = {
   type: string;
   content: string;
@@ -144,6 +153,8 @@ export type MessageModel = BaseModel & {
   sharedContact?: SharedContactModel;
   // Bình chọn (type = poll).
   poll?: PollModel;
+  // Preview Link: thẻ xem trước cho tin text có URL (đính kèm async, có thể null lúc đầu).
+  linkPreview?: LinkPreviewModel | null;
   // reactions?: ReactionModel[];
 };
 

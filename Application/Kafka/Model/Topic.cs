@@ -31,4 +31,13 @@ public static class Topic
     public const string StoredPollClose = "poll.close.stored";
     // Fanout realtime state bình chọn (voterIds/đóng) tới member (NotificationConsumer → FCM).
     public const string NotifyPoll = "poll.notify";
+
+    // ===== Preview Link =====
+    // Enqueue khi tin text có URL (DataStoreConsumer). Consumer group RIÊNG (linkpreview-consumer)
+    // fetch OG metadata — external I/O chậm, phải cô lập để không chặn pipeline tin nhắn.
+    public const string LinkPreviewRequested = "linkpreview.requested";
+    // Fetch xong → persist Mongo → phát để CacheConsumer cập nhật Redis message cache.
+    public const string StoredLinkPreview = "linkpreview.stored";
+    // Fanout realtime thẻ preview tới member (NotificationConsumer → FCM "LinkPreviewReady").
+    public const string NotifyLinkPreview = "linkpreview.notify";
 }

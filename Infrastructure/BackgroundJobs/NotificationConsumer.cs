@@ -63,6 +63,9 @@ public class NotificationConsumer : IGenericConsumer
                 case Topic.NotifyPoll:
                     await HandleNotifyPoll(JsonConvert.DeserializeObject<NotifyPollModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.NotifyLinkPreview:
+                    await HandleNotifyLinkPreview(JsonConvert.DeserializeObject<StoredLinkPreviewModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -172,6 +175,27 @@ public class NotificationConsumer : IGenericConsumer
 
         await _firebaseFunction.Notify(
             ChatEventNames.PollUpdated,
+            members.Select(q => q.Contact.Id).ToArray(),
+            notify);
+    }
+
+    // Preview Link: fanout thẻ preview tới TẤT CẢ member để hiển thị realtime (không cần reload).
+    // Sync-only (không banner, không tạo Notification bell). Gửi cả sender: FE patch theo messageId,
+    // idempotent với duplicate/out-of-order FCM.
+    async Task HandleNotifyLinkPreview(StoredLinkPreviewModel param)
+    {
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members is null) return;
+
+        var notify = new EventLinkPreviewReady
+        {
+            ConversationId = param.ConversationId,
+            MessageId = param.MessageId,
+            LinkPreview = param.LinkPreview
+        };
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.LinkPreviewReady,
             members.Select(q => q.Contact.Id).ToArray(),
             notify);
     }
