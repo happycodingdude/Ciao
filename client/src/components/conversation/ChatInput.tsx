@@ -10,6 +10,7 @@ import {
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { useChatInputKeyboard } from "../../hooks/useChatInputKeyboard";
 import useConversation from "../../hooks/useConversation";
+import { useDrafts } from "../../hooks/useDraft";
 import useEventListener from "../../hooks/useEventListener";
 import { useFileAttachment } from "../../hooks/useFileAttachment";
 import useInfo from "../../hooks/useInfo";
@@ -43,8 +44,9 @@ const ChatInput = ({ className }: ChatInputProps) => {
   const { reply, clearReply } = useReply();
   const { edit, clearEdit } = useMessageEdit();
   const { submitEdit } = useMessageActions(conversationId);
+  const { drafts, setDraft, clearDraft } = useDrafts();
 
-  const sendMessage = useSendMessage(conversationId);
+  const { send: sendMessage } = useSendMessage(conversationId);
   const { mentions, resetMentions, filterMentions } = useMentionList(
     conversation?.members ?? [],
     info?.id ?? "",
@@ -59,15 +61,27 @@ const ChatInput = ({ className }: ChatInputProps) => {
   const inputRef = useRef<HTMLDivElement>(null);
   const refMentionContainer = useRef<HTMLDivElement | null>(null);
   const mentionRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  // Latest-ref cho drafts: effect khôi phục chỉ chạy theo conversation?.id nhưng vẫn phải
+  // đọc bản draft mới nhất tại thời điểm chuyển hội thoại (tránh stale + không re-run thừa).
+  const draftsRef = useRef(drafts);
+  draftsRef.current = drafts;
+
+  // Lưu nội dung đang soạn thành draft của hội thoại hiện tại (bỏ qua khi đang sửa tin cũ).
+  const saveDraft = useCallback(() => {
+    if (edit || !inputRef.current) return;
+    setDraft(conversationId, getMessageValue(inputRef.current));
+  }, [edit, conversationId, setDraft]);
 
   useEffect(() => {
     // conversation chưa load → chờ
     if (!conversation) return;
-    // Chuyển sang conversation khác → reset toàn bộ input state
+    // Chuyển sang conversation khác → reset input state, rồi KHÔI PHỤC draft (nếu có).
     clearFiles();
     resetMentions();
     clearEdit();
-    if (inputRef.current) inputRef.current.innerText = "";
+    const saved = draftsRef.current[conversation.id] ?? "";
+    if (inputRef.current) inputRef.current.innerText = saved;
+    setIsEmpty(saved.trim() === "");
   }, [conversation?.id]);
 
   useEffect(() => {
@@ -124,7 +138,9 @@ const ChatInput = ({ className }: ChatInputProps) => {
     sendMessage({ type: content === "" ? "media" : "text", content, attachments: lazyImages, files, mentions });
     inputRef.current.innerText = "";
     clearFiles();
-  }, [files, sendMessage, clearFiles, edit, submitEdit, clearEdit]);
+    // Gửi thành công (đã enqueue) → xóa draft của hội thoại này.
+    clearDraft(conversationId);
+  }, [files, sendMessage, clearFiles, edit, submitEdit, clearEdit, clearDraft, conversationId]);
 
   const { keydownBindingFn, keyupBindingFn, chooseMention } = useChatInputKeyboard({
     inputRef,
@@ -138,6 +154,15 @@ const ChatInput = ({ className }: ChatInputProps) => {
     filterMentions,
     chat,
   });
+
+  // Gõ phím xong → cập nhật trạng thái (mention/empty) như cũ, đồng thời lưu draft.
+  const handleKeyUp = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      keyupBindingFn(e);
+      saveDraft();
+    },
+    [keyupBindingFn, saveDraft],
+  );
 
   useEventListener("click", useCallback((e: Event) => {
     // Click ngoài vùng mention (không phải .mention-item) → đóng dropdown
@@ -201,7 +226,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
             />
             <div className="flex items-end gap-4">
               <div className="flex-1 self-center">
-                <CustomContentEditable ref={inputRef} onKeyDown={keydownBindingFn} onKeyUp={keyupBindingFn} isEmpty={isEmpty} onPasteFiles={addFiles} />
+                <CustomContentEditable ref={inputRef} onKeyDown={keydownBindingFn} onKeyUp={handleKeyUp} isEmpty={isEmpty} onPasteFiles={addFiles} />
               </div>
               <button className="send-btn laptop:w-9 flex aspect-square cursor-pointer items-center justify-center rounded-full bg-light-blue-400 text-white">
                 <i className="fa-solid fa-paper-plane laptop:text-xs" />
@@ -213,7 +238,7 @@ const ChatInput = ({ className }: ChatInputProps) => {
           <div className="-top-176 absolute left-0">
             <Suspense fallback={<div className="h-176 w-84 animate-pulse rounded-lg bg-(--skeleton-base)" />}>
               <LazyEmojiPicker
-                onEmojiSelect={(e) => { if (inputRef.current) inputRef.current.innerText += e.native; }}
+                onEmojiSelect={(e) => { if (inputRef.current) { inputRef.current.innerText += e.native; setIsEmpty(false); saveDraft(); } }}
                 onClickOutside={(e) => {
                   if (e.target.classList.contains("emoji-item")) setShowEmoji(true);
                   else setShowEmoji(false);

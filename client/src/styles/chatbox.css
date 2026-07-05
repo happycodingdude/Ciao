@@ -76,3 +76,60 @@
 
   cursor: pointer;
 }
+
+/* New Message Divider — vạch ngăn "Tin nhắn mới" trước tin chưa đọc đầu tiên.
+   Khác hẳn date-divider (dạng pill ở giữa): đây là đường kẻ ngang + nhãn màu nhấn,
+   để người dùng nhận ra ngay ranh giới chưa đọc. */
+.new-message-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.25rem;
+  color: var(--danger-text-color, #e53935);
+}
+.new-message-divider::before,
+.new-message-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+.new-message-divider > span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+/* Banner "n tin nhắn mới" — bước 1 của New Message Divider: text nhấp nháy, bấm để hiện
+   vạch + các tin mới. Nổi giữa dưới khung chat, gây chú ý bằng nhịp nhấp nháy. */
+.new-message-banner {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--danger-text-color, #e53935);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  white-space: nowrap;
+  animation: new-message-blink 1s ease-in-out infinite;
+}
+.new-message-banner:hover {
+  filter: brightness(1.05);
+}
+@keyframes new-message-blink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: translateX(-50%) scale(0.97);
+  }
+}

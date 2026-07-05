@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import dayjs from "dayjs";
+import { useDrafts } from "../../hooks/useDraft";
 import { ConversationModel } from "../../types/conv.types";
 import { renderMessageWithMentions } from "../../utils/renderMention";
 import CustomLabel from "../common/CustomLabel";
@@ -28,6 +29,10 @@ const ConversationItem = ({
   const isOnline = (item.members ?? []).some(
     (m) => m.contact?.isOnline && m.contact?.id !== selfId,
   );
+
+  // Còn nội dung soạn dở → hiển thị chỉ báo "Bản nháp" thay cho preview tin cuối.
+  const { drafts } = useDrafts();
+  const draft = drafts[item.id ?? ""];
 
   return (
     <Link
@@ -59,7 +64,17 @@ const ConversationItem = ({
               className="font-medium"
               title={item.isGroup ? item.title : otherMember?.contact?.name}
             />
-            {item.lastMessage && (
+            {draft ? (
+              <div className="text-(--text-main-color-blur) flex">
+                <p className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                  <span className="text-(--danger-text-color) mr-1 font-medium">
+                    Bản nháp:
+                  </span>
+                  {draft}
+                </p>
+              </div>
+            ) : (
+              item.lastMessage && (
               <div className="text-(--text-main-color-blur) flex">
                 {item.hasAttachment && (
                   <span className="laptop:text-2xs text-(--text-main-color-blur) mr-1 self-center grayscale">
@@ -79,6 +94,7 @@ const ConversationItem = ({
                   {renderMessageWithMentions(item.lastMessage)}
                 </p>
               </div>
+              )
             )}
           </div>
           <div

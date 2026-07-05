@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useChatboxScroll } from "../../hooks/useChatboxScroll";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
@@ -15,7 +15,11 @@ import {
   SeenContact,
 } from "../../types/message.types";
 import { formatDate, formatDisplayDate } from "../../utils/datetime";
-import { flattenInfinite } from "../../utils/messageCache";
+import {
+  buildFailedPending,
+  getPersistedFailed,
+} from "../../utils/failedMessageStore";
+import { appendMessage, flattenInfinite } from "../../utils/messageCache";
 import { markConversationSeen } from "../../utils/notificationCacheHelpers";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import RelightBackground from "../common/RelightBackground";
@@ -63,6 +67,17 @@ const Chatbox = () => {
   const oldLastMsgRef = useRef<PendingMessageModel | null>(null);
   const isInitialLoad = useRef(true);
 
+  // New Message Divider: id của tin CHƯA ĐỌC đầu tiên khi mở hội thoại.
+  // Tính đúng MỘT lần cho mỗi hội thoại (freeze) rồi giữ nguyên suốt phiên xem — không nhảy
+  // khi markRead chạy (1s sau) hay khi có tin mới đến. Đổi hội thoại → tính lại.
+  const [firstUnreadId, setFirstUnreadId] = useState<string | null>(null);
+  const dividerComputedRef = useRef(false);
+  // Divider 2 bước: khi mở hội thoại có tin chưa đọc, các tin mới bị ẨN, chỉ hiện text nhấp
+  // nháy "n tin nhắn mới". Người dùng bấm text → newRevealed=true → hiện vạch + các tin mới.
+  const [newRevealed, setNewRevealed] = useState(false);
+  // Khôi phục tin lỗi đã persist (một lần / hội thoại) — chống mất tin lỗi khi tải lại trang.
+  const failedRestoredRef = useRef<string | null>(null);
+
   const { refChatContent, bottomRef, scrollToBottom, showScrollToBottom } =
     useChatboxScroll(
       hasPreviousPage,
@@ -76,11 +91,64 @@ const Chatbox = () => {
   useEffect(() => {
     isInitialLoad.current = true;
     oldLastMsgRef.current = null;
+    // Reset mốc divider để tính lại cho hội thoại mới
+    dividerComputedRef.current = false;
+    setFirstUnreadId(null);
+    setNewRevealed(false);
+    failedRestoredRef.current = null;
     if (refChatContent.current) {
       // Tắt smooth scroll trước khi reset để không animate khi jump về đầu
       refChatContent.current.style.scrollBehavior = "auto";
     }
   }, [conversationId]);
+
+  // Tính mốc "tin chưa đọc đầu tiên" đúng một lần khi hội thoại có dữ liệu.
+  // Neo theo lastSeenTime của CHÍNH MÌNH tại thời điểm mở (trước khi markRead nâng mốc).
+  useEffect(() => {
+    if (dividerComputedRef.current) return;
+    if (messages.length === 0 || !conversation || !info?.id) return;
+
+    const selfMember = (conversation.members ?? []).find(
+      (m) => m.contact?.id === info.id,
+    );
+    // Ưu tiên mốc đọc của self ở member; fallback lastSeenTime cấp conversation.
+    const seenRaw = selfMember?.lastSeenTime ?? conversation.lastSeenTime ?? null;
+    const seenMs = seenRaw ? dayjs(seenRaw).valueOf() : 0;
+
+    // Tin chưa đọc = tin của NGƯỜI KHÁC, đã confirmed (có id), tạo sau mốc đã đọc.
+    const firstUnread = messages.find(
+      (m) =>
+        m.contactId !== info.id &&
+        !!m.id &&
+        !m.pending &&
+        dayjs(m.createdTime ?? "").valueOf() > seenMs,
+    );
+
+    dividerComputedRef.current = true;
+    setFirstUnreadId(firstUnread?.id ?? null);
+  }, [messages, conversation, info?.id]);
+
+  // Khôi phục tin GỬI LỖI đã lưu (localStorage) vào danh sách sau khi trang tải lại — tin lỗi
+  // không nằm ở server nên phải tự chèn lại để người dùng vẫn thấy và bấm "Gửi lại".
+  // Chạy đúng một lần / hội thoại, sau khi cache tin đã có (data) để append an toàn.
+  useEffect(() => {
+    if (failedRestoredRef.current === conversationId) return;
+    if (!data || !conversationId) return;
+
+    const persisted = getPersistedFailed(conversationId);
+    if (persisted.length > 0) {
+      const existingIds = new Set(messages.map((m) => m.id));
+      persisted.forEach((rec) => {
+        if (existingIds.has(rec.id)) return;
+        appendMessage(
+          queryClient,
+          conversationId,
+          buildFailedPending(rec, info?.id),
+        );
+      });
+    }
+    failedRestoredRef.current = conversationId;
+  }, [conversationId, data, messages, info?.id, queryClient]);
 
   useEffect(() => {
     // Không làm gì nếu chưa có tin nhắn
@@ -175,9 +243,51 @@ const Chatbox = () => {
     return !loaded && (hasPreviousPage || isFetchingPreviousPage);
   }, [targetMessageId, messages, hasPreviousPage, isFetchingPreviousPage]);
 
+  // --- Divider 2 bước: ẩn phần tin mới cho tới khi người dùng bấm "n tin nhắn mới" ---
+  // Khai báo TRƯỚC effect markRead vì effect đó phụ thuộc `hasHiddenNew` (tránh TDZ).
+  const firstUnreadIndex = useMemo(
+    () =>
+      firstUnreadId ? messages.findIndex((m) => m.id === firstUnreadId) : -1,
+    [messages, firstUnreadId],
+  );
+  // Còn tin mới đang ẩn (chưa reveal)?
+  const hasHiddenNew = !newRevealed && firstUnreadIndex >= 0;
+  // Số tin mới (của người khác) đang ẩn — cập nhật khi có tin mới đến.
+  const hiddenNewCount = useMemo(() => {
+    if (firstUnreadIndex < 0) return 0;
+    return messages
+      .slice(firstUnreadIndex)
+      .filter((m) => m.contactId !== info?.id).length;
+  }, [messages, firstUnreadIndex, info?.id]);
+  // Danh sách render: ẩn phần tin mới khi chưa reveal.
+  const renderedMessages = hasHiddenNew
+    ? messages.slice(0, firstUnreadIndex)
+    : messages;
+
+  // Auto-reveal: nếu vùng đang ẩn có tin CỦA MÌNH (vừa gửi, hoặc tin lỗi khôi phục mới hơn
+  // mốc chưa đọc) → mở luôn, không được giấu nội dung của chính người dùng sau banner.
+  useEffect(() => {
+    if (newRevealed || firstUnreadIndex < 0) return;
+    const mineInHidden = messages
+      .slice(firstUnreadIndex)
+      .some((m) => m.contactId === info?.id);
+    if (mineInHidden) setNewRevealed(true);
+  }, [messages, firstUnreadIndex, newRevealed, info?.id]);
+
+  // Bấm "n tin nhắn mới" → hiện vạch + các tin mới, rồi cuộn tới vạch.
+  const revealNewMessages = () => {
+    setNewRevealed(true);
+    requestAnimationFrame(() => {
+      const el = document.getElementById("new-message-divider-anchor");
+      el?.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+  };
+
   // Gửi read receipt khi người dùng đọc tin nhắn (ở đáy màn hình)
   useEffect(() => {
     if (messages.length === 0 || !conversationId) return;
+    // Tin mới còn đang ẩn (chưa bấm "n tin nhắn mới") → CHƯA coi là đã đọc.
+    if (hasHiddenNew) return;
 
     // Nếu không hiện nút cuộn xuống nghĩa là đã ở cuối cùng
     if (!showScrollToBottom) {
@@ -209,9 +319,13 @@ const Chatbox = () => {
     conversationId,
     queryClient,
     info?.id,
+    hasHiddenNew,
   ]);
 
-  const grouped = useMemo(() => groupMessagesByDate(messages), [messages]);
+  const grouped = useMemo(
+    () => groupMessagesByDate(renderedMessages),
+    [renderedMessages],
+  );
   const groupedEntries = Object.entries(grouped);
 
   /**
@@ -228,7 +342,8 @@ const Chatbox = () => {
     !!lastMessage &&
     !!lastMessage.id &&
     lastMessage.contactId === info?.id &&
-    !lastMessage.pending;
+    !lastMessage.pending &&
+    !lastMessage.failed;
   const lastMyMessageId = lastMessageIsMineConfirmed
     ? (lastMessage?.id ?? null)
     : null;
@@ -237,7 +352,7 @@ const Chatbox = () => {
   // sẵn chỗ cho slot receipt ngay khi tin còn đang gửi → khi icon Sent xuất
   // hiện lúc gửi thành công sẽ không đẩy lệch layout.
   const lastMessageIsMine =
-    !!lastMessage && lastMessage.contactId === info?.id;
+    !!lastMessage && lastMessage.contactId === info?.id && !lastMessage.failed;
 
   /**
    * Map: messageId -> danh sách contact đã xem tin cuối (chỉ khi tin cuối là của mình).
@@ -291,6 +406,17 @@ const Chatbox = () => {
   return (
     <div className="chatbox-content relative flex h-full w-full flex-col justify-end overflow-hidden pb-4">
       <FetchingMoreMessages loading={isFetchingPreviousPage || isJumpingToTarget} />
+      {/* Bước 1 của divider: text nhấp nháy báo có tin mới; bấm để hiện vạch + các tin mới. */}
+      {hasHiddenNew && hiddenNewCount > 0 && (
+        <button
+          type="button"
+          onClick={revealNewMessages}
+          className="new-message-banner absolute bottom-[9%] left-1/2 z-30 -translate-x-1/2"
+        >
+          <i className="fa fa-arrow-down mr-2" />
+          {hiddenNewCount} tin nhắn mới
+        </button>
+      )}
       <RelightBackground
         data-show={showScrollToBottom}
         onClick={() => scrollToBottom("smooth")}
@@ -329,8 +455,16 @@ const Chatbox = () => {
               return (
                 <div key={blockIndex} className="mb-6 flex flex-col gap-4">
                   {block.messages.map((message) => (
+                    <Fragment key={message.id}>
+                      {firstUnreadId && message.id === firstUnreadId && (
+                        <div
+                          id="new-message-divider-anchor"
+                          className="new-message-divider"
+                        >
+                          <span>Tin nhắn mới</span>
+                        </div>
+                      )}
                     <MessageContent
-                      key={message.id}
                       message={message}
                       id={conversation?.id ?? ""}
                       // Avatar và tên chỉ hiển thị ở tin đầu của block
@@ -354,6 +488,7 @@ const Chatbox = () => {
                         new DOMRect()
                       }
                     />
+                    </Fragment>
                   ))}
                 </div>
               );

@@ -1,4 +1,4 @@
-import { CopyOutlined, EditOutlined } from "@ant-design/icons";
+import { CopyOutlined, EditOutlined, RedoOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { forwardRef } from "react";
 import { toast } from "react-toastify";
@@ -6,6 +6,7 @@ import { Tooltip } from "react-tooltip";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import { useMessageEdit } from "../../hooks/useMessageActions";
+import { useRetryMessage } from "../../hooks/useSendMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/messagecontent.css";
 import "../../styles/messagemenu_slide.css";
@@ -25,6 +26,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const { data: info } = useInfo();
     const { setEdit } = useMessageEdit();
     const { data: conversations } = useConversation();
+    const retryMessage = useRetryMessage(id);
 
     const { conversationId } = Route.useParams();
     const conversation = conversations?.conversations?.find(
@@ -313,8 +315,9 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               </div>
             )}
 
-            {/* Tin gửi lỗi: KHÔNG cho menu chức năng (edit/pin/reply/forward/delete)
-                vì message chưa tồn tại trong DB → chỉ hiện đúng 1 nút copy. */}
+            {/* Tin gửi lỗi: chưa tồn tại trong DB → không có menu chức năng (edit/pin/reply/
+                forward/delete). Nút Copy (hover) ở đây; nút "Gửi lại" luôn hiện ở dòng báo
+                lỗi bên dưới để người dùng thấy ngay. */}
             {message.failed && isSelf && (
               <button
                 type="button"
@@ -379,17 +382,27 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               chữ lỗi không đẩy lệch vị trí thời gian — thời gian vẫn neo theo bubble
               như tin gửi thành công. */}
           {message.failed && isSelf && (
-            <p className="text-2xs flex items-center justify-end text-red-500">
-              {/* Chỉ hiện icon lỗi; text "Gửi lỗi" hiện qua tooltip khi hover.
-                  Dùng react-tooltip thay `title` native (native hay bị delay/che,
-                  không hiện ổn định). */}
+            <div className="text-2xs flex items-center justify-end gap-2 text-red-500">
+              {/* Icon lỗi + tooltip "Gửi lỗi" (react-tooltip ổn định hơn title native). */}
               <i
                 data-tooltip-id={`msg-failed-${message.id}`}
                 data-tooltip-content="Gửi lỗi"
                 className="fa fa-circle-exclamation cursor-default"
               />
               <Tooltip id={`msg-failed-${message.id}`} />
-            </p>
+              {/* Nút "Gửi lại" LUÔN hiển thị (không ẩn theo hover) để người dùng thấy ngay. */}
+              <button
+                type="button"
+                className="flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 font-medium text-red-500 hover:bg-red-500/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (message.id) retryMessage(message.id);
+                }}
+              >
+                <RedoOutlined />
+                <span>Gửi lại</span>
+              </button>
+            </div>
           )}
 
           {/*
