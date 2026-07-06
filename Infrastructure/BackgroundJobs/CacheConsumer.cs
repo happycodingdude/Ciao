@@ -270,7 +270,11 @@ public class CacheConsumer : IGenericConsumer
     // Cache trả false ⇒ no-op (tin vắng cache / đã recalled / đã có preview) ⇒ KHÔNG broadcast.
     async Task HandleLinkPreview(StoredLinkPreviewModel param)
     {
-        var updated = await _messageCache.UpdateLinkPreview(param.ConversationId, param.MessageId, param.LinkPreview);
+        // LinkPreviews (mới) ưu tiên; fallback LinkPreview (event cũ còn trong topic) → 1 phần tử.
+        var previews = param.LinkPreviews is { Count: > 0 }
+            ? param.LinkPreviews
+            : (param.LinkPreview is not null ? new List<LinkPreview> { param.LinkPreview } : new List<LinkPreview>());
+        var updated = await _messageCache.UpdateLinkPreview(param.ConversationId, param.MessageId, previews);
         if (!updated) return;
 
         await _kafkaProducer.ProduceAsync(Topic.NotifyLinkPreview, param);

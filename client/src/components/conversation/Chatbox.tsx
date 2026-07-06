@@ -78,8 +78,13 @@ const Chatbox = () => {
   // Khôi phục tin lỗi đã persist (một lần / hội thoại) — chống mất tin lỗi khi tải lại trang.
   const failedRestoredRef = useRef<string | null>(null);
 
-  const { refChatContent, bottomRef, scrollToBottom, showScrollToBottom } =
-    useChatboxScroll(
+  const {
+    refChatContent,
+    contentRef,
+    bottomRef,
+    scrollToBottom,
+    showScrollToBottom,
+  } = useChatboxScroll(
       hasPreviousPage,
       isFetchingPreviousPage,
       fetchPreviousPage,
@@ -430,6 +435,9 @@ const Chatbox = () => {
         ref={refChatContent}
         className="flex grow flex-col overflow-x-hidden overflow-y-scroll scroll-smooth p-4"
       >
+        {/* Wrapper nội dung: grow để lấp đầy container (mt-auto trên group đầu đẩy tin xuống
+            đáy khi ít tin); được ResizeObserver theo dõi để auto-stick đáy khi cao thêm async. */}
+        <div ref={contentRef} className="flex grow flex-col">
         {groupedEntries.map(([date, blocks], groupIndex) => (
           <div
             key={date}
@@ -496,6 +504,7 @@ const Chatbox = () => {
           </div>
         ))}
         <div ref={bottomRef} />
+        </div>
       </div>
     </div>
   );

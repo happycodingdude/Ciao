@@ -17,13 +17,13 @@ import {
   isMessageDeliveredToMember,
 } from "../../utils/messageActionHelpers";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import ContactCard from "./ContactCard";
+import GifMessage from "./GifMessage";
+import LinkPreviewCard from "./LinkPreviewCard";
 import { ForwardedMessage, MessageItem, ReplyMessage } from "./MessageItem";
 import MessageMenu_Slide from "./MessageMenu_Slide";
-import StickerMessage from "./StickerMessage";
-import GifMessage from "./GifMessage";
-import ContactCard from "./ContactCard";
 import PollMessage from "./PollMessage";
-import LinkPreviewCard from "./LinkPreviewCard";
+import StickerMessage from "./StickerMessage";
 
 const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
   (props, ref) => {
@@ -56,6 +56,33 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const isPoll = message.type === "poll" && !isRecalled;
     const isEdited = !!message.editedTime && !isRecalled;
     const showEdit = canEditMessage(message, isSelf);
+
+    // Tin chỉ chứa 1 URL và đã có preview → ẩn bong bóng text, chỉ hiển thị thẻ
+    // preview (click mở tab mới). Không áp dụng cho sticker/gif/contact/poll/
+    // recalled/forward/reply hay tin có kèm chữ khác ngoài link.
+    const isLinkOnly =
+      // Bắt buộc có url: nếu preview lưu thiếu url → LinkPreviewCard trả null,
+      // ẩn text lúc này sẽ ra tin nhắn TRẮNG. Chỉ ẩn text khi chắc có card thay thế.
+      !!message.linkPreview?.url &&
+      !isRecalled &&
+      !isSticker &&
+      !isGif &&
+      !isContact &&
+      !isPoll &&
+      !message.isForwarded &&
+      !(message.replyId && message.replyContent) &&
+      !!message.content &&
+      /^https?:\/\/\S+$/i.test(message.content.trim());
+
+    // Danh sách thẻ preview cần render: ưu tiên linkPreviews (nhiều link); fallback linkPreview
+    // (singular, tin/payload cũ). Lọc phần tử thiếu url (fetch fail lưu rỗng) để không render trắng.
+    const linkPreviews = (
+      message.linkPreviews && message.linkPreviews.length > 0
+        ? message.linkPreviews
+        : message.linkPreview
+          ? [message.linkPreview]
+          : []
+    ).filter((p) => !!p?.url);
 
     // Tin gửi lỗi chỉ cho phép copy nội dung (thao tác local, không chạm DB).
     const copyMessage = () => {
@@ -239,101 +266,130 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             ${(message.attachments?.length ?? 0) > 0 ? "gap-2" : ""}
           `}
           >
-            <div className="peer flex w-full flex-col">
-              <div
-                className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
+            <div className={`peer flex flex-col ${isSelf && "items-end"}`}>
+              {isLinkOnly ? (
+                // Tin chỉ là link: thay bong bóng text bằng thẻ preview có thể
+                // click. Đặt trong .peer để hover vẫn hiện timestamp như bình thường.
+                <LinkPreviewCard preview={message.linkPreview} mine={isSelf} />
+              ) : (
+                <div
+                  className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   ${message.pending ? "opacity-50" : ""}
                   ${!isSticker && !isGif && !isContact && !isPoll && (isRecalled || message.content || message.isForwarded || message.replyId) ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
                 `}
-              >
-                {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}
-                {isRecalled ? (
-                  <p className="italic text-(--text-main-color-blur)">
-                    Tin nhắn đã được thu hồi
-                  </p>
-                ) : isSticker ? (
-                  <StickerMessage src={message.content} />
-                ) : isGif ? (
-                  <GifMessage src={message.content} />
-                ) : isContact ? (
-                  <ContactCard contact={message.sharedContact} />
-                ) : isPoll ? (
-                  <PollMessage message={message} conversationId={id} />
-                ) : message.isForwarded ? (
-                  <ForwardedMessage
-                    message={message.content ?? ""}
-                    contact={
-                      // "You" cho tin của mình; tên người gửi gốc cho tin forward từ người khác
-                      isSelf
-                        ? "You"
-                        : ((conversation?.members ?? []).find(
-                            (q) => q.contact?.id === message.contactId,
-                          )?.contact?.name ?? "")
-                    }
-                    mine={isSelf}
-                    isPinned={message.isPinned}
-                    attachments={message.attachments}
-                  />
-                ) : message.replyId && message.replyContent ? (
-                  // Có replyId và replyContent → đây là tin reply
-                  <ReplyMessage
-                    message={message.content ?? ""}
-                    replyId={message.replyId}
-                    replyContent={message.replyContent}
-                    contact={
-                      (conversation?.members ?? []).find(
-                        (q) => q.contact?.id === message.replyContact,
-                      )?.contact?.name ?? ""
-                    }
-                    mine={isSelf}
-                    isPinned={message.isPinned}
-                    attachments={message.attachments}
-                  />
-                ) : (
-                  // Tin nhắn thông thường
-                  <MessageItem
-                    message={message.content ?? ""}
-                    contact={
-                      // pinnedBy: tên người ghim (dùng để hiển thị tooltip "pinned by ...")
-                      (conversation?.members ?? []).find(
-                        (q) => q.contact?.id === message.pinnedBy,
-                      )?.contact?.name ?? ""
-                    }
-                    mine={isSelf}
-                    isPinned={message.isPinned}
-                    attachments={message.attachments}
-                  />
-                )}
-              </div>
+                >
+                  {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}
+                  {isRecalled ? (
+                    <p className="text-(--text-main-color-blur) italic">
+                      Tin nhắn đã được thu hồi
+                    </p>
+                  ) : isSticker ? (
+                    <StickerMessage src={message.content} />
+                  ) : isGif ? (
+                    <GifMessage src={message.content} />
+                  ) : isContact ? (
+                    <ContactCard contact={message.sharedContact} />
+                  ) : isPoll ? (
+                    <PollMessage message={message} conversationId={id} />
+                  ) : message.isForwarded ? (
+                    <ForwardedMessage
+                      message={message.content ?? ""}
+                      contact={
+                        // "You" cho tin của mình; tên người gửi gốc cho tin forward từ người khác
+                        isSelf
+                          ? "You"
+                          : ((conversation?.members ?? []).find(
+                              (q) => q.contact?.id === message.contactId,
+                            )?.contact?.name ?? "")
+                      }
+                      mine={isSelf}
+                      isPinned={message.isPinned}
+                      attachments={message.attachments}
+                    />
+                  ) : message.replyId && message.replyContent ? (
+                    // Có replyId và replyContent → đây là tin reply
+                    <ReplyMessage
+                      message={message.content ?? ""}
+                      replyId={message.replyId}
+                      replyContent={message.replyContent}
+                      contact={
+                        (conversation?.members ?? []).find(
+                          (q) => q.contact?.id === message.replyContact,
+                        )?.contact?.name ?? ""
+                      }
+                      mine={isSelf}
+                      isPinned={message.isPinned}
+                      attachments={message.attachments}
+                    />
+                  ) : (
+                    // Tin nhắn thông thường
+                    <MessageItem
+                      message={message.content ?? ""}
+                      contact={
+                        // pinnedBy: tên người ghim (dùng để hiển thị tooltip "pinned by ...")
+                        (conversation?.members ?? []).find(
+                          (q) => q.contact?.id === message.pinnedBy,
+                        )?.contact?.name ?? ""
+                      }
+                      mine={isSelf}
+                      isPinned={message.isPinned}
+                      attachments={message.attachments}
+                    />
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Preview Link: thẻ xem trước dưới bubble cho tin text có URL (đính kèm async).
+            {/* Preview Link: thẻ xem trước dưới bubble cho tin text CÓ chữ kèm URL.
+                Nhiều link → nhiều thẻ xếp NGANG, cuộn ngang khi vượt bề rộng bong bóng
+                (mỗi thẻ shrink-0 giữ nguyên khổ; snap-x cho cảm giác cuộn mượt).
+                Tin chỉ-là-1-link đã render thẻ thay bong bóng ở trên (isLinkOnly).
                 Chỉ hiển thị với tin text thường (không sticker/gif/contact/poll/recalled). */}
-            {message.linkPreview &&
+            {linkPreviews.length > 0 &&
+              !isLinkOnly &&
               !isRecalled &&
               !isSticker &&
               !isGif &&
               !isContact &&
               !isPoll && (
-                <LinkPreviewCard preview={message.linkPreview} mine={isSelf} />
+                <div
+                  className={`flex max-w-full snap-x items-start gap-2 overflow-x-auto pb-1
+                    ${isSelf ? "self-end" : "self-start"}`}
+                >
+                  {linkPreviews.map((preview, idx) => (
+                    <div
+                      key={preview.url ?? idx}
+                      className="shrink-0 snap-start"
+                    >
+                      <LinkPreviewCard preview={preview} mine={isSelf} />
+                    </div>
+                  ))}
+                </div>
               )}
 
             {/* Bản dịch (lớp phủ): giữ nguyên bản gốc, hiển thị thêm bên dưới, có thể ẩn. */}
             {translation?.visible && (
               <div
-                className={`mt-1 flex max-w-full flex-col gap-1 rounded-xl border-l-2 border-l-light-blue-400 bg-(--bubble-bg) px-3 py-2 shadow-[0_2px_10px_rgba(0,0,0,0.06)]
+                className={`bg-(--bubble-bg) mt-1 flex max-w-full flex-col gap-1 rounded-xl border-l-2 border-l-light-blue-400 px-3 py-2 shadow-[0_2px_10px_rgba(0,0,0,0.06)]
                   ${isSelf ? "self-end" : "self-start"}`}
               >
                 {translation.loading ? (
-                  <span className="italic text-(--text-main-color-blur)">Đang dịch…</span>
+                  <span className="text-(--text-main-color-blur) italic">
+                    Đang dịch…
+                  </span>
                 ) : (
                   <>
-                    <p className="text-2xs flex items-center gap-1 text-(--text-main-color-blur)">
+                    <p className="text-2xs text-(--text-main-color-blur) flex items-center gap-1">
                       <i className="fa fa-language" />
-                      Bản dịch{translation.sourceLang ? ` · ${translation.sourceLang}` : ""}
+                      Bản dịch
+                      {translation.sourceLang
+                        ? ` · ${translation.sourceLang}`
+                        : ""}
                     </p>
-                    <p className="whitespace-pre-line break-words">{translation.text}</p>
+                    <p className="whitespace-pre-line break-words">
+                      {translation.text}
+                    </p>
                     <button
                       type="button"
                       onClick={() => hideTranslation(message.id ?? "")}
@@ -395,8 +451,13 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
               </button>
             )}
 
-            {/* Tin đã recall: chỉ hiện thời gian khi hover, không có menu/edit */}
-            {!message.pending && !message.failed && !isRecalled && showEdit && (
+            {/* Tin đã recall: chỉ hiện thời gian khi hover, không có menu/edit.
+                Tin chỉ-là-link (isLinkOnly): ẩn nút Edit — chỉ cho Xoá. */}
+            {!message.pending &&
+              !message.failed &&
+              !isRecalled &&
+              !isLinkOnly &&
+              showEdit && (
               <button
                 type="button"
                 className="message-edit-btn"
@@ -425,6 +486,8 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                   )?.contact ?? {}
                 }
                 getContainerRect={props.getContainerRect}
+                // Tin chỉ-là-link (thẻ preview thay bong bóng): chỉ cho Xoá.
+                onlyDelete={isLinkOnly}
               />
             )}
             {/*
@@ -481,7 +544,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             không render.
           */}
           {isSelf && props.isLastMine && !message.failed && (
-            <div className="text-3xs min-h-3.5 flex items-center justify-end italic text-(--text-main-color-blur)">
+            <div className="text-3xs text-(--text-main-color-blur) flex min-h-3.5 items-center justify-end italic">
               {hasSeenAvatars ? renderSeenAvatars() : renderOwnSendStatus()}
             </div>
           )}

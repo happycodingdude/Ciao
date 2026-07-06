@@ -187,11 +187,15 @@ public class NotificationConsumer : IGenericConsumer
         var members = await _memberCache.GetMembers(param.ConversationId);
         if (members is null) return;
 
+        var previews = param.LinkPreviews is { Count: > 0 }
+            ? param.LinkPreviews
+            : (param.LinkPreview is not null ? new List<LinkPreview> { param.LinkPreview } : new List<LinkPreview>());
         var notify = new EventLinkPreviewReady
         {
             ConversationId = param.ConversationId,
             MessageId = param.MessageId,
-            LinkPreview = param.LinkPreview
+            LinkPreview = previews.Count > 0 ? previews[0] : param.LinkPreview,
+            LinkPreviews = previews
         };
 
         await _firebaseFunction.Notify(

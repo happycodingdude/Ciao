@@ -112,7 +112,9 @@ public class EventLinkPreviewReady
 {
     public string ConversationId { get; set; } = null!;
     public string MessageId { get; set; } = null!;
+    // LinkPreviews = tất cả thẻ (giữ thứ tự); LinkPreview (cũ) = phần tử đầu, giữ cho FE cũ.
     public LinkPreview LinkPreview { get; set; } = null!;
+    public List<LinkPreview> LinkPreviews { get; set; } = new List<LinkPreview>();
 }
 
 // Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,

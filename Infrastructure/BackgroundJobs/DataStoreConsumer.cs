@@ -312,17 +312,18 @@ public class DataStoreConsumer : IGenericConsumer
         });
 
         // Preview Link: tin text có URL → enqueue fetch async ở consumer RIÊNG (external I/O chậm,
-        // không chặn luồng tin nhắn). Chỉ trích URL đầu tiên (đúng spec "nhiều link → ưu tiên link đầu").
+        // không chặn luồng tin nhắn). Trích MỌI URL (bounded) → nhiều link = nhiều thẻ preview.
         if (message.Type == AppConstants.MessageType_Text)
         {
-            var url = LinkDetector.FirstUrl(message.Content);
-            if (url is not null)
+            var urls = LinkDetector.AllUrls(message.Content);
+            if (urls.Count > 0)
                 await _kafkaProducer.ProduceAsync(Topic.LinkPreviewRequested, new LinkPreviewRequestedModel
                 {
                     UserId = param.UserId,
                     ConversationId = param.ConversationId,
                     MessageId = message.Id,
-                    Url = url
+                    Url = urls[0],   // backward-compat: reader cũ vẫn có URL đầu
+                    Urls = urls
                 });
         }
     }

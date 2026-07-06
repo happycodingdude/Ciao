@@ -49,18 +49,30 @@ public class LinkPreviewConsumer : IGenericConsumer
 
     async Task HandleRequested(LinkPreviewRequestedModel param, CancellationToken cancellationToken)
     {
-        // Fetch trả null (URL không hợp lệ / bị chặn SSRF / thất bại / không có metadata) → no-op.
-        var preview = await _linkPreviewService.FetchAsync(param.Url, cancellationToken);
-        if (preview is null) return;
+        // Urls (mới) ưu tiên; fallback Url (cũ) cho tin ĐANG NẰM TRONG TOPIC từ trước khi deploy.
+        var urls = param.Urls is { Count: > 0 }
+            ? param.Urls
+            : (string.IsNullOrWhiteSpace(param.Url) ? new List<string>() : new List<string> { param.Url });
+        if (urls.Count == 0) return;
 
-        // Persist positional, idempotent: chỉ set khi chưa có preview (duplicate Kafka / retry → no-op).
-        // Không cho tin recalled: nếu tin đã thu hồi thì bỏ qua (RecalledTime != null → không match).
+        // Fetch SONG SONG (mỗi URL độc lập) để giới hạn wall-time ≈ 1 lần fetch chậm nhất thay vì
+        // cộng dồn. Giữ THỨ TỰ theo urls; loại URL fail (null) — trang chặn OG / SSRF / timeout.
+        var fetched = await Task.WhenAll(urls.Select(u => _linkPreviewService.FetchAsync(u, cancellationToken)));
+        var previews = fetched.Where(p => p is not null).Select(p => p!).ToList();
+        if (previews.Count == 0) return;
+
+        // Persist positional, idempotent: chỉ set khi CHƯA có preview nào (duplicate Kafka / retry →
+        // no-op). Không cho tin recalled (RecalledTime != null → không match).
         var filter = Builders<Conversation>.Filter.And(
             MongoQuery<Conversation>.IdFilter(param.ConversationId),
             Builders<Conversation>.Filter.ElemMatch(c => c.Messages,
-                m => m.Id == param.MessageId && m.RecalledTime == null && m.LinkPreview == null)
+                m => m.Id == param.MessageId && m.RecalledTime == null
+                     && m.LinkPreview == null
+                     && (m.LinkPreviews == null || m.LinkPreviews.Count == 0))
         );
-        var update = Builders<Conversation>.Update.Set("Messages.$.LinkPreview", preview);
+        var update = Builders<Conversation>.Update
+            .Set("Messages.$.LinkPreviews", previews)
+            .Set("Messages.$.LinkPreview", previews[0]);   // singular = link đầu (backward-compat)
         _conversationRepository.UpdateNoTrackingTime(filter, update);
         await _uow.SaveAsync();
 
@@ -70,7 +82,8 @@ public class LinkPreviewConsumer : IGenericConsumer
             UserId = param.UserId,
             ConversationId = param.ConversationId,
             MessageId = param.MessageId,
-            LinkPreview = preview
+            LinkPreview = previews[0],
+            LinkPreviews = previews
         });
     }
 }

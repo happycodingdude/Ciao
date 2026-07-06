@@ -30,7 +30,7 @@ import ForwardMessageModal from "./ForwardMessageModal";
 import MessageMenuItem from "./MessageMenuItem";
 
 const MessageMenu_Slide = (props: MessageMenuProps) => {
-  const { conversationId, message, mine, contact } = props;
+  const { conversationId, message, mine, contact, onlyDelete } = props;
 
   const { data: conversations } = useConversation();
   const { data: info } = useInfo();
@@ -46,23 +46,6 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
 
   const [show, setShow] = useState(false);
   const [openForward, setOpenForward] = useState(false);
-
-  const recalled = !!message.recalledTime;
-
-  const showEdit = canEditMessage(message, mine);
-  const showDelete = canRecallMessage(message, mine);
-
-  // Tin đã recall: không render menu (tránh hover hiện action bar rỗng).
-  if (recalled) return null;
-
-  const startEdit = () =>
-    setEdit({ messageId: message.id ?? "", content: message.content ?? "" });
-
-  const onDelete = () => {
-    if (!message.id) return;
-    recall(message.id, info?.id ?? "");
-  };
-
   const refMenu = useRef<HTMLDivElement>(null);
 
   const hideMenuOnClick = useCallback((e: Event) => {
@@ -74,7 +57,29 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
       return;
     setShow(false);
   }, []);
+  // QUAN TRỌNG: mọi Hook (useRef/useCallback/useEventListener) PHẢI đứng TRƯỚC các early
+  // return bên dưới. Nếu để sau, khi tin chuyển sang trạng thái ẩn menu (vd: tin chỉ-là-link
+  // của người khác → onlyDelete && !showDelete, hoặc tin bị recall) số hook gọi ở lần render
+  // sau sẽ ÍT hơn lần trước → React lỗi "Rendered fewer hooks than expected" và crash cả view.
   useEventListener("click", hideMenuOnClick);
+
+  const recalled = !!message.recalledTime;
+
+  const showEdit = canEditMessage(message, mine);
+  const showDelete = canRecallMessage(message, mine);
+
+  // Tin đã recall: không render menu (tránh hover hiện action bar rỗng).
+  if (recalled) return null;
+  // Tin chỉ-là-link + không được phép xoá → không còn action nào → ẩn hẳn menu.
+  if (onlyDelete && !showDelete) return null;
+
+  const startEdit = () =>
+    setEdit({ messageId: message.id ?? "", content: message.content ?? "" });
+
+  const onDelete = () => {
+    if (!message.id) return;
+    recall(message.id, info?.id ?? "");
+  };
 
   const copyMessage = () => {
     if (!message) return;
@@ -100,6 +105,9 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
       data-mine={mine}
       className="message-menu-container shadow-md"
     >
+      {/* Tin chỉ-là-link: ẩn toàn bộ action ngoài Xoá. */}
+      {!onlyDelete && (
+        <>
       {showEdit && (
         <MessageMenuItem
           onClick={startEdit}
@@ -180,6 +188,8 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
           </div>
         </BackgroundPortal>
       </MessageMenuItem>
+        </>
+      )}
       {showDelete && (
         <MessageMenuItem
           className={processing ? "pointer-events-none" : ""}

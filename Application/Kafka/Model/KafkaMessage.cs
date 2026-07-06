@@ -263,18 +263,23 @@ public class NotifyPollOption
 
 // ===== Preview Link =====
 
-// Yêu cầu fetch preview cho 1 tin text có URL. Url = URL đầu tiên trong nội dung (đã trích ở DataStore).
+// Yêu cầu fetch preview cho 1 tin text có URL. Urls = mọi URL trong nội dung (giữ thứ tự, đã trích
+// ở DataStore). Url (cũ) = URL đầu tiên — giữ lại để tin ĐANG NẰM TRONG TOPIC trước khi deploy vẫn
+// xử lý được (consumer fallback Url → Urls khi Urls rỗng).
 public class LinkPreviewRequestedModel : KafkaBaseModel
 {
     public string ConversationId { get; set; } = null!;
     public string MessageId { get; set; } = null!;
     public string Url { get; set; } = null!;
+    public List<string> Urls { get; set; } = new List<string>();
 }
 
 // Kết quả preview đã persist — dùng chung cho topic stored (→ cache) và notify (→ FCM fanout).
+// LinkPreviews = tất cả thẻ (giữ thứ tự); LinkPreview (cũ) = phần tử đầu (backward-compat).
 public class StoredLinkPreviewModel : KafkaBaseModel
 {
     public string ConversationId { get; set; } = null!;
     public string MessageId { get; set; } = null!;
     public LinkPreview LinkPreview { get; set; } = null!;
+    public List<LinkPreview> LinkPreviews { get; set; } = new List<LinkPreview>();
 }

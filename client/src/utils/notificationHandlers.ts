@@ -354,9 +354,17 @@ const onLinkPreviewReady = (
   ev: LinkPreviewReadyEvent,
 ) => {
   if (!ev?.messageId || !ev?.linkPreview) return;
+  // linkPreviews (mới) ưu tiên; fallback linkPreview (payload cũ) → 1 phần tử.
+  const previews =
+    ev.linkPreviews && ev.linkPreviews.length > 0
+      ? ev.linkPreviews
+      : ev.linkPreview
+        ? [ev.linkPreview]
+        : [];
   updateMessageById(queryClient, ev.conversationId, ev.messageId, (m) => ({
     ...m,
     linkPreview: ev.linkPreview,
+    linkPreviews: previews,
   }));
 };
 

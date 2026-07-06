@@ -284,13 +284,17 @@ public class MessageCache
 
     // Preview Link: gắn thẻ preview vào tin trong Redis cache (nguồn đọc của GetMessages → reload giữ thẻ).
     // Idempotent: chỉ set khi tin còn trong cache, chưa recalled, chưa có preview. Trả false ⇒ CacheConsumer no-op.
-    public async Task<bool> UpdateLinkPreview(string conversationId, string messageId, LinkPreview preview)
+    public async Task<bool> UpdateLinkPreview(string conversationId, string messageId, List<LinkPreview> previews)
     {
+        if (previews is null || previews.Count == 0) return false;
         var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
         var message = messageCache?.SingleOrDefault(q => q.Id == messageId);
-        if (message is null || message.RecalledTime is not null || message.LinkPreview is not null) return false;
+        if (message is null || message.RecalledTime is not null) return false;
+        // Idempotent: đã có preview (singular hoặc list) → no-op.
+        if (message.LinkPreview is not null || message.LinkPreviews is { Count: > 0 }) return false;
 
-        message.LinkPreview = preview;
+        message.LinkPreviews = previews;
+        message.LinkPreview = previews[0];   // singular = link đầu (backward-compat)
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
         return true;
     }

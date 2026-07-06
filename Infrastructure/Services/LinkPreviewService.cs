@@ -22,9 +22,16 @@ public partial class LinkPreviewService : ILinkPreviewService
     // Trần đọc HTML. Nhiều trang "nặng" (YouTube nhồi ytInitialData ~600KB TRƯỚC thẻ meta,
     // một số SPA tương tự) đặt <meta og:*> rất sâu → 2MB để không cắt mất OG. Đọc theo buffer
     // co giãn (ReadBoundedAsync) nên trang nhỏ vẫn nhẹ, chỉ pathological mới chạm trần này.
+    // Mọi og/twitter/title đều nằm trong <head> → ReadBoundedAsync DỪNG SỚM tại </head>: trang
+    // thương mại điện tử body nặng (product page ~800KB nhưng head chỉ ~20KB) chỉ tải phần head,
+    // tránh timeout khi kéo cả body. YouTube (head ~637KB) vẫn đọc đủ vì OG nằm trước </head>.
     const int MaxContentBytes = 2 * 1024 * 1024;
     const int MaxRedirects = 3;
-    static readonly TimeSpan Timeout = TimeSpan.FromSeconds(6);
+    // Marker kết thúc <head> (ASCII, so khớp không phân biệt hoa/thường). Không cần dấu '>' cuối.
+    static readonly byte[] HeadEndMarker = "</head"u8.ToArray();
+    // Timeout tổng: nới lên 15s cho site thật chậm (product page lớn, TLS chậm) — nhờ dừng-sớm
+    // tại </head> đa số fetch xong rất nhanh, chỉ server thực sự chậm mới chạm trần này.
+    static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
     public LinkPreviewService(ILogger logger)
     {
@@ -42,7 +49,8 @@ public partial class LinkPreviewService : ILinkPreviewService
                 AllowAutoRedirect = true,
                 MaxAutomaticRedirections = MaxRedirects,
                 AutomaticDecompression = DecompressionMethods.All,
-                ConnectTimeout = TimeSpan.FromSeconds(5),
+                // 8s: một số site (WAF/địa lý) bắt tay TCP/TLS chậm — 5s từng gây ConnectTimeout.
+                ConnectTimeout = TimeSpan.FromSeconds(8),
                 // Xác thực mọi TCP connect (gồm cả các hop redirect) tới IP public → anti-SSRF + anti-rebinding.
                 ConnectCallback = SafeConnectAsync,
             };
@@ -160,13 +168,24 @@ public partial class LinkPreviewService : ILinkPreviewService
         // không pre-alloc trọn trần. Chỉ trang lớn bất thường mới bị cắt ở trần.
         using var ms = new MemoryStream();
         var chunk = ArrayPool<byte>.Shared.Rent(32 * 1024);
+        // Vị trí đã quét tìm </head>. Quét lại có trừ hao (marker.Length-1) để bắt match nằm
+        // vắt qua ranh giới 2 chunk. Mỗi byte chỉ được quét ~1 lần → tổng chi phí tuyến tính.
+        int scanned = 0;
         try
         {
             int read;
             while (ms.Length < MaxContentBytes &&
                    (read = await stream.ReadAsync(
                         chunk.AsMemory(0, (int)Math.Min(chunk.Length, MaxContentBytes - ms.Length)), ct)) > 0)
+            {
                 ms.Write(chunk, 0, read);
+                // Dừng SỚM khi đã đọc hết <head>: mọi meta cần dùng đều nằm trước </head>. Nhờ vậy
+                // không phải kéo phần <body> khổng lồ (nguồn gốc timeout ở product page nặng).
+                var from = Math.Max(0, scanned - (HeadEndMarker.Length - 1));
+                if (IndexOfIgnoreCase(ms.GetBuffer(), from, (int)ms.Length, HeadEndMarker) >= 0)
+                    break;
+                scanned = (int)ms.Length;
+            }
         }
         finally
         {
@@ -175,6 +194,25 @@ public partial class LinkPreviewService : ILinkPreviewService
 
         // Best-effort UTF-8 (đa số meta là UTF-8/ASCII). Không cần dò charset cho mục đích preview.
         return Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)ms.Length);
+    }
+
+    // Tìm chuỗi byte ASCII (không phân biệt hoa/thường) trong [start, end) của buffer. needle
+    // phải cho sẵn dạng CHỮ THƯỜNG. Dùng để dò </head> — đủ nhẹ ở quy mô vài chục KB head.
+    static int IndexOfIgnoreCase(byte[] hay, int start, int end, byte[] needle)
+    {
+        var last = end - needle.Length;
+        for (var i = start; i <= last; i++)
+        {
+            var j = 0;
+            for (; j < needle.Length; j++)
+            {
+                var a = hay[i + j];
+                if (a >= (byte)'A' && a <= (byte)'Z') a = (byte)(a + 32); // hạ về chữ thường ASCII
+                if (a != needle[j]) break;
+            }
+            if (j == needle.Length) return i;
+        }
+        return -1;
     }
 
     static LinkPreview? BuildPreview(string html, Uri baseUri)

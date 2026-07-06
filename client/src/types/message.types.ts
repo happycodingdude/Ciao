@@ -99,6 +99,9 @@ export type MessageMenuProps = {
   pinned?: boolean;
   contact: ConversationModel_Contact;
   getContainerRect?: () => DOMRect;
+  // Tin chỉ-là-link (hiển thị dạng thẻ preview thay bong bóng text): chỉ cho phép Xoá,
+  // ẩn edit/copy/pin/reply/dịch/forward vì không có nội dung text hữu ích để thao tác.
+  onlyDelete?: boolean;
 };
 
 export type PinMessageRequest = {
@@ -154,7 +157,9 @@ export type MessageModel = BaseModel & {
   // Bình chọn (type = poll).
   poll?: PollModel;
   // Preview Link: thẻ xem trước cho tin text có URL (đính kèm async, có thể null lúc đầu).
+  // linkPreviews = mọi thẻ (nhiều link → nhiều thẻ); linkPreview (singular) = thẻ đầu (backward-compat).
   linkPreview?: LinkPreviewModel | null;
+  linkPreviews?: LinkPreviewModel[] | null;
   // reactions?: ReactionModel[];
 };
 

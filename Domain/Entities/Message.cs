@@ -27,6 +27,11 @@ public class Message : MongoBaseModel
     // → default null (no migration).
     public LinkPreview? LinkPreview { get; set; }
 
+    // Nhiều link trong 1 tin → nhiều thẻ preview (giữ thứ tự xuất hiện). LinkPreview (singular) ở
+    // trên = phần tử đầu của list, giữ lại cho backward-compat (doc/tin cũ + reader cũ). Doc Mongo
+    // cũ thiếu field này → default rỗng (no migration); FE fallback về LinkPreview khi list rỗng.
+    public List<LinkPreview> LinkPreviews { get; set; } = new List<LinkPreview>();
+
     // @mention (Option B — có cấu trúc): danh sách userId được tag, sentinel "all" cho @All.
     // Lưu userId (không phải tên) để tạo notification chính xác, tránh báo nhầm khi trùng tên.
     // Doc Mongo cũ thiếu field → default rỗng (no migration).

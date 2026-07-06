@@ -66,6 +66,8 @@ public class MessageReactionSummary : MongoBaseModel
     public Poll? Poll { get; set; }
     // Preview Link: phải có trong DTO đọc để reload/đăng nhập lại vẫn hiển thị thẻ (đã persist Mongo).
     public LinkPreview? LinkPreview { get; set; }
+    // Nhiều link → nhiều thẻ (giữ thứ tự). LinkPreview (singular) = phần tử đầu, giữ cho backward-compat.
+    public List<LinkPreview> LinkPreviews { get; set; } = new();
     public int LikeCount { get; set; }
     public int LoveCount { get; set; }
     public int CareCount { get; set; }

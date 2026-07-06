@@ -25,7 +25,7 @@
 | **Phase 6** | AI hỗ trợ trò chuyện                          | ⭐⭐⭐☆☆   |
 
 > **Chú thích trạng thái:** ✅ Hoàn thành · 🟡 Một phần · ⬜ Chưa làm
-> _(Cập nhật ngày 2026-07-05 dựa trên rà soát thực tế codebase FE + BE)_
+> _(Cập nhật ngày 2026-07-06 dựa trên rà soát thực tế codebase FE + BE + file kế hoạch từng Phase)_
 
 ---
 
@@ -55,7 +55,7 @@
 |   1 | Sticker         | Bộ sticker và sticker yêu thích  | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (bộ built-in động + gần đây) |
 |   2 | GIF             | Gửi GIF                          | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (chọn từ nguồn GIF sẵn) |
 |   3 | Tin nhắn thoại  | Ghi âm, waveform, playback       | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
-|   4 | Preview Link    | Thumbnail, tiêu đề, mô tả        | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
+|   4 | Preview Link    | Thumbnail, tiêu đề, mô tả        | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (thẻ xem trước realtime, SSRF-safe) |
 |   5 | Album ảnh       | Gom nhiều ảnh thành album        | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (grid nhiều ảnh) |
 |   6 | Trình xem ảnh   | Zoom, swipe, fullscreen          | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành |
 |   7 | Bình chọn       | Poll trong cuộc trò chuyện       | ⭐⭐⭐⭐☆  | ✅ Hoàn thành (tạo/bỏ phiếu/đóng; realtime tally chờ Phase sau) |
