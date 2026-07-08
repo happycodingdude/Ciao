@@ -20,7 +20,10 @@ import {
   getPersistedFailed,
 } from "../../utils/failedMessageStore";
 import { appendMessage, flattenInfinite } from "../../utils/messageCache";
-import { markConversationSeen } from "../../utils/notificationCacheHelpers";
+import {
+  markConversationSeen,
+  updateMemberReadHorizon,
+} from "../../utils/notificationCacheHelpers";
 import FetchingMoreMessages from "../common/FetchingMoreMessages";
 import RelightBackground from "../common/RelightBackground";
 import MessageContent from "../message/MessageContent";
@@ -83,6 +86,7 @@ const Chatbox = () => {
     contentRef,
     bottomRef,
     scrollToBottom,
+    suppressAutoStick,
     showScrollToBottom,
   } = useChatboxScroll(
       hasPreviousPage,
@@ -281,6 +285,9 @@ const Chatbox = () => {
 
   // Bấm "n tin nhắn mới" → hiện vạch + các tin mới, rồi cuộn tới vạch.
   const revealNewMessages = () => {
+    // Chặn ResizeObserver auto-stick đáy: reveal làm nội dung cao thêm đột ngột, nếu không tắt
+    // thì RO sẽ nhảy thẳng xuống đáy (không animation) và cướp cuộn tới divider bên dưới.
+    suppressAutoStick();
     setNewRevealed(true);
     requestAnimationFrame(() => {
       const el = document.getElementById("new-message-divider-anchor");
@@ -304,13 +311,29 @@ const Chatbox = () => {
           currentLastMsg.id &&
           currentLastMsg.contactId !== info?.id
         ) {
-          markRead(conversationId, currentLastMsg.id).catch(console.error);
-          // Clear unSeen ngay tại thời điểm đọc tin cuối → badge khớp list, tự sửa
-          // race "tin đến lúc đang xem nhưng isConversationActive=false → unSeen=true".
+          const readTime = dayjs().toISOString();
+          markRead(conversationId, currentLastMsg.id, readTime).catch(
+            console.error,
+          );
+          // Clear unSeen + NÂNG read horizon của CHÍNH MÌNH ngay tại thời điểm đọc tin cuối.
+          // - markConversationSeen: badge khớp list, tự sửa race "tin đến lúc đang xem nhưng
+          //   isConversationActive=false → unSeen=true".
+          // - updateMemberReadHorizon: đẩy selfMember.lastSeenTime tiến lên. Bắt buộc, nếu không
+          //   khi rời rồi quay lại hội thoại (conversation cache staleTime=1h, không refetch),
+          //   divider tính lại từ lastSeenTime CŨ → banner "n tin nhắn mới" hiện lại dù đã đọc.
           queryClient.setQueryData(
             ["conversation"],
-            (old: ConversationCache) =>
-              old ? markConversationSeen(old, conversationId) : old,
+            (old: ConversationCache) => {
+              if (!old || !info?.id) return old;
+              const seen = markConversationSeen(old, conversationId);
+              return updateMemberReadHorizon(
+                seen,
+                conversationId,
+                info.id,
+                currentLastMsg.id!,
+                readTime,
+              );
+            },
           );
         }
       }, 1000);

@@ -66,6 +66,16 @@ export const useChatboxScroll = (
     bottomRef.current?.scrollIntoView({ behavior, block: "end" });
   }, []);
 
+  // Tắt auto-stick đáy cho một thao tác cuộn CÓ CHỦ ĐÍCH tới vị trí KHÔNG PHẢI đáy (vd: reveal
+  // tin mới → cuộn smooth tới divider). Khi reveal làm nội dung cao thêm đột ngột, ResizeObserver
+  // sẽ thấy atBottom=true và stickToBottom() (gán scrollTop=scrollHeight, KHÔNG animation) → cướp
+  // cuộn, "bay thẳng xuống đáy". Đặt atBottom=false để RO bỏ qua; skipStickOnce nuốt đúng đợt
+  // cao-thêm ngay sau đó. User tự cuộn xuống đáy sau này thì handleScroll bật lại atBottom=true.
+  const suppressAutoStick = useCallback(() => {
+    atBottomRef.current = false;
+    skipStickOnceRef.current = true;
+  }, []);
+
   // Ghim tức thì xuống đáy (không animation) — dùng khi nội dung cao thêm do tải async
   // để tránh giật khi nhiều ảnh load liên tiếp.
   const stickToBottom = useCallback(() => {
@@ -194,6 +204,7 @@ export const useChatboxScroll = (
     contentRef,
     bottomRef,
     scrollToBottom,
+    suppressAutoStick,
     showScrollToBottom,
   };
 };
