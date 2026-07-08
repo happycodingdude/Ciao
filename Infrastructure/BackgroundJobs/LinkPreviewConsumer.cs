@@ -13,14 +13,16 @@ public class LinkPreviewConsumer : IGenericConsumer
     readonly IUnitOfWork _uow;
     readonly IConversationRepository _conversationRepository;
     readonly ILinkPreviewService _linkPreviewService;
+    readonly LinkPreviewCache _linkPreviewCache;
     readonly IKafkaProducer _kafkaProducer;
 
-    public LinkPreviewConsumer(ILogger logger, IUnitOfWork uow, IConversationRepository conversationRepository, ILinkPreviewService linkPreviewService, IKafkaProducer kafkaProducer)
+    public LinkPreviewConsumer(ILogger logger, IUnitOfWork uow, IConversationRepository conversationRepository, ILinkPreviewService linkPreviewService, LinkPreviewCache linkPreviewCache, IKafkaProducer kafkaProducer)
     {
         _logger = logger;
         _uow = uow;
         _conversationRepository = conversationRepository;
         _linkPreviewService = linkPreviewService;
+        _linkPreviewCache = linkPreviewCache;
         _kafkaProducer = kafkaProducer;
     }
 
@@ -57,7 +59,8 @@ public class LinkPreviewConsumer : IGenericConsumer
 
         // Fetch SONG SONG (mỗi URL độc lập) để giới hạn wall-time ≈ 1 lần fetch chậm nhất thay vì
         // cộng dồn. Giữ THỨ TỰ theo urls; loại URL fail (null) — trang chặn OG / SSRF / timeout.
-        var fetched = await Task.WhenAll(urls.Select(u => _linkPreviewService.FetchAsync(u, cancellationToken)));
+        // Qua cache theo-URL: link đã fetch gần đây (kể cả fail) không gọi ngoài lại → giảm I/O + tải.
+        var fetched = await Task.WhenAll(urls.Select(u => FetchWithCacheAsync(u, cancellationToken)));
         var previews = fetched.Where(p => p is not null).Select(p => p!).ToList();
         if (previews.Count == 0) return;
 
@@ -85,5 +88,26 @@ public class LinkPreviewConsumer : IGenericConsumer
             LinkPreview = previews[0],
             LinkPreviews = previews
         });
+    }
+
+    // Get-or-fetch theo URL: cache hit (dương → preview, âm → null) không gọi ngoài; miss thì fetch
+    // rồi lưu kết quả (kèm cache âm TTL ngắn để không hammer link lỗi). Cô lập lỗi cache: nếu Redis
+    // trục trặc vẫn fallback fetch trực tiếp (không để cache chặn tính năng chính).
+    async Task<LinkPreview?> FetchWithCacheAsync(string url, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var cached = await _linkPreviewCache.GetAsync(url);
+            if (cached is not null) return cached.Preview;
+
+            var preview = await _linkPreviewService.FetchAsync(url, cancellationToken);
+            await _linkPreviewCache.SetAsync(url, preview);
+            return preview;
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, "[LinkPreviewConsumer] URL cache path failed, fetching direct for {Url}", url);
+            return await _linkPreviewService.FetchAsync(url, cancellationToken);
+        }
     }
 }

@@ -22,7 +22,16 @@ const LinkPreviewCard = ({
     }
   })();
 
-  const showImage = !!preview.imageUrl && !imageFailed;
+  // imageUrl từ BE giờ là path proxy tương đối ("/api/v1/link-preview/image?...") — ảnh tải QUA BE
+  // để không lộ IP/tracking người xem cho server bên thứ 3. Ghép base host cho path tương đối;
+  // preview cũ (đã lưu URL tuyệt đối trước khi có proxy) vẫn tải trực tiếp (backward-compat).
+  const imageSrc = preview.imageUrl
+    ? /^https?:\/\//i.test(preview.imageUrl)
+      ? preview.imageUrl
+      : `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}${preview.imageUrl}`
+    : undefined;
+
+  const showImage = !!imageSrc && !imageFailed;
 
   return (
     <a
@@ -34,7 +43,7 @@ const LinkPreviewCard = ({
     >
       {showImage && (
         <img
-          src={preview.imageUrl!}
+          src={imageSrc}
           alt={preview.title ?? host}
           referrerPolicy="no-referrer"
           loading="lazy"

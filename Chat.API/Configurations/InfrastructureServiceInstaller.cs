@@ -110,6 +110,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<ConversationCache>();
         services.AddScoped<MessageCache>();
         services.AddScoped<MemberCache>();
+        services.AddScoped<LinkPreviewCache>();
         services.AddScoped<FriendCache>();
 
         // Repositories
@@ -127,6 +128,8 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();
         services.AddScoped<ITranslationService, TranslationService>();
         services.AddScoped<ILinkPreviewService, LinkPreviewService>();
+        // Stateless (chỉ giữ khóa HMAC) → Singleton, dùng cho ký/verify path proxy ảnh preview.
+        services.AddSingleton<ILinkImageProxySigner, LinkImageProxySigner>();
         services.AddScoped<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<INotificationProcessor, WebSocketProcessor>();
 

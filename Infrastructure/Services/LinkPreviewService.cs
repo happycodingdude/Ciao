@@ -18,6 +18,7 @@ namespace Infrastructure.Services;
 public partial class LinkPreviewService : ILinkPreviewService
 {
     readonly ILogger _logger;
+    readonly ILinkImageProxySigner _proxySigner;
 
     // Trần đọc HTML. Nhiều trang "nặng" (YouTube nhồi ytInitialData ~600KB TRƯỚC thẻ meta,
     // một số SPA tương tự) đặt <meta og:*> rất sâu → 2MB để không cắt mất OG. Đọc theo buffer
@@ -32,10 +33,13 @@ public partial class LinkPreviewService : ILinkPreviewService
     // Timeout tổng: nới lên 15s cho site thật chậm (product page lớn, TLS chậm) — nhờ dừng-sớm
     // tại </head> đa số fetch xong rất nhanh, chỉ server thực sự chậm mới chạm trần này.
     static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
+    // Trần dung lượng ảnh proxy: ảnh preview OG hợp lý < 5MB; vượt → coi như bất thường, bỏ.
+    const int MaxImageBytes = 5 * 1024 * 1024;
 
-    public LinkPreviewService(ILogger logger)
+    public LinkPreviewService(ILogger logger, ILinkImageProxySigner proxySigner)
     {
         _logger = logger;
+        _proxySigner = proxySigner;
     }
 
     public async Task<LinkPreview?> FetchAsync(string url, CancellationToken cancellationToken = default)
@@ -44,21 +48,8 @@ public partial class LinkPreviewService : ILinkPreviewService
 
         try
         {
-            using var handler = new SocketsHttpHandler
-            {
-                AllowAutoRedirect = true,
-                MaxAutomaticRedirections = MaxRedirects,
-                AutomaticDecompression = DecompressionMethods.All,
-                // 8s: một số site (WAF/địa lý) bắt tay TCP/TLS chậm — 5s từng gây ConnectTimeout.
-                ConnectTimeout = TimeSpan.FromSeconds(8),
-                // Xác thực mọi TCP connect (gồm cả các hop redirect) tới IP public → anti-SSRF + anti-rebinding.
-                ConnectCallback = SafeConnectAsync,
-            };
-            using var client = new HttpClient(handler) { Timeout = Timeout };
-            client.MaxResponseContentBufferSize = MaxContentBytes;
-            // UA thân thiện bot: nhiều trang chỉ trả OG đầy đủ khi nhận diện được crawler.
-            client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent",
-                "Mozilla/5.0 (compatible; CiaoLinkPreview/1.0; +https://ciao.app/bot)");
+            using var handler = CreateSafeHandler();
+            using var client = CreateClient(handler);
             client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml");
 
             using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -82,6 +73,60 @@ public partial class LinkPreviewService : ILinkPreviewService
             _logger.Warning(ex, "[LinkPreviewService] Fetch failed for {Url}", uri);
             return null;
         }
+    }
+
+    public async Task<LinkPreviewImage?> FetchImageAsync(string url, CancellationToken cancellationToken = default)
+    {
+        if (!TryNormalizeUrl(url, out var uri)) return null;
+
+        try
+        {
+            using var handler = CreateSafeHandler();
+            using var client = CreateClient(handler);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "image/*");
+
+            using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            if (!response.IsSuccessStatusCode) return null;
+
+            // Chỉ phục vụ ảnh — chặn upstream trả HTML/script để không bị dùng làm proxy nội dung tùy ý.
+            var mediaType = response.Content.Headers.ContentType?.MediaType;
+            if (mediaType is null || !mediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            var bytes = await ReadImageBytesAsync(response, cancellationToken);
+            if (bytes is null || bytes.Length == 0) return null;
+
+            return new LinkPreviewImage(bytes, mediaType);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, "[LinkPreviewService] Image fetch failed for {Url}", uri);
+            return null;
+        }
+    }
+
+    // ---- HTTP client (SSRF-safe, dùng chung cho fetch HTML & ảnh) -----------
+
+    // Handler là điểm CỐT LÕI chống SSRF (ConnectCallback xác thực IP thực mỗi hop) → tách dùng chung
+    // để mọi đường fetch (HTML/ảnh) đều đi qua đúng một cơ chế bảo vệ, không lệch cấu hình.
+    static SocketsHttpHandler CreateSafeHandler() => new()
+    {
+        AllowAutoRedirect = true,
+        MaxAutomaticRedirections = MaxRedirects,
+        AutomaticDecompression = DecompressionMethods.All,
+        // 8s: một số site (WAF/địa lý) bắt tay TCP/TLS chậm — 5s từng gây ConnectTimeout.
+        ConnectTimeout = TimeSpan.FromSeconds(8),
+        // Xác thực mọi TCP connect (gồm cả các hop redirect) tới IP public → anti-SSRF + anti-rebinding.
+        ConnectCallback = SafeConnectAsync,
+    };
+
+    static HttpClient CreateClient(SocketsHttpHandler handler)
+    {
+        var client = new HttpClient(handler) { Timeout = Timeout };
+        // UA thân thiện bot: nhiều trang chỉ trả OG/ảnh đầy đủ khi nhận diện được crawler.
+        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent",
+            "Mozilla/5.0 (compatible; CiaoLinkPreview/1.0; +https://ciao.app/bot)");
+        return client;
     }
 
     // ---- SSRF guard --------------------------------------------------------
@@ -196,6 +241,32 @@ public partial class LinkPreviewService : ILinkPreviewService
         return Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)ms.Length);
     }
 
+    // Đọc bytes ảnh với trần MaxImageBytes. Vượt trần → trả null (ảnh cắt dở sẽ hỏng, thà bỏ).
+    static async Task<byte[]?> ReadImageBytesAsync(HttpResponseMessage response, CancellationToken ct)
+    {
+        // Early-reject nếu server khai báo Content-Length vượt trần (tiết kiệm băng thông).
+        if (response.Content.Headers.ContentLength is long len && len > MaxImageBytes) return null;
+
+        await using var stream = await response.Content.ReadAsStreamAsync(ct);
+        using var ms = new MemoryStream();
+        var buffer = ArrayPool<byte>.Shared.Rent(32 * 1024);
+        try
+        {
+            int read;
+            while ((read = await stream.ReadAsync(buffer, ct)) > 0)
+            {
+                // Server có thể nói dối/không khai Content-Length → chặn cứng khi luồng vượt trần.
+                if (ms.Length + read > MaxImageBytes) return null;
+                ms.Write(buffer, 0, read);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+        return ms.ToArray();
+    }
+
     // Tìm chuỗi byte ASCII (không phân biệt hoa/thường) trong [start, end) của buffer. needle
     // phải cho sẵn dạng CHỮ THƯỜNG. Dùng để dò </head> — đủ nhẹ ở quy mô vài chục KB head.
     static int IndexOfIgnoreCase(byte[] hay, int start, int end, byte[] needle)
@@ -215,7 +286,7 @@ public partial class LinkPreviewService : ILinkPreviewService
         return -1;
     }
 
-    static LinkPreview? BuildPreview(string html, Uri baseUri)
+    LinkPreview? BuildPreview(string html, Uri baseUri)
     {
         var meta = ParseMeta(html);
 
@@ -232,11 +303,12 @@ public partial class LinkPreviewService : ILinkPreviewService
         var siteName = Pick("og:site_name");
         var image = Pick("og:image", "og:image:url", "og:image:secure_url", "twitter:image", "twitter:image:src");
 
-        // Resolve ảnh tương đối (/img/a.png) về tuyệt đối theo URL cuối.
+        // Resolve ảnh tương đối (/img/a.png) về tuyệt đối theo URL cuối, rồi bọc bằng path proxy có
+        // chữ ký: client tải ảnh QUA BE (không lộ IP người xem cho server bên thứ 3, chặn tracking).
         if (!string.IsNullOrWhiteSpace(image) &&
             Uri.TryCreate(baseUri, image, out var absImage) &&
             (absImage.Scheme == Uri.UriSchemeHttp || absImage.Scheme == Uri.UriSchemeHttps))
-            image = absImage.ToString();
+            image = _proxySigner.BuildProxyPath(absImage.ToString());
         else
             image = null;
 

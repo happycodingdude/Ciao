@@ -59,7 +59,7 @@ Vì URL do người dùng nhập, `LinkPreviewService` phải chặn truy cập 
 
 - Chỉ chấp nhận `http`/`https`.
 - `SocketsHttpHandler.ConnectCallback` xác thực **IP thực tại mỗi lần connect** (kể cả sau redirect) → chặn private/loopback/link-local/**metadata cloud 169.254.169.254**/CGNAT/IPv4-mapped, và **triệt tiêu DNS-rebinding** (connect đúng IP đã kiểm, không resolve lại).
-- Giới hạn: redirect ≤ 3, timeout 6s, chỉ parse `text/html`.
+- Giới hạn: redirect ≤ 3, timeout 15s (dừng-sớm tại `</head>` nên đa số fetch xong nhanh), chỉ parse `text/html`.
 - Đọc tối đa **2MB** (buffer co giãn) — xem mục 6.
 - Mọi thất bại → trả `null` → tin giữ link thường (không phá luồng chat).
 
@@ -162,3 +162,39 @@ Hai lỗi phía client phát hiện khi dùng thật với tin nhắn có previe
 **Cách sửa:** Đưa toàn bộ hook lên trước mọi nhánh thoát sớm (tuân thủ Rules of Hooks). Việc ẩn/hiện menu giờ chỉ tác động phần hiển thị, không còn thay đổi số hook. Fix luôn nhánh tin đã thu hồi vốn có cùng lỗi tiềm ẩn.
 
 **Verify:** Đối chiếu code xác nhận đúng đường dẫn trigger (tin nhận → không quyền thu hồi + tin chỉ-là-link → ẩn menu → thiếu hook); typecheck sạch; HMR nạp live.
+
+---
+
+## 10. Cải tiến vận hành (phiên 2026-07-08) — Cache theo URL + Proxy ảnh
+
+Xử lý 2 rủi ro phát hiện khi rà soát: fetch trùng lặp (scale) và lộ IP/tracking người xem (privacy).
+
+### 10.1. Cache thẻ preview theo URL (giảm fetch ngoài)
+
+**Vấn đề:** cùng 1 liên kết gửi bởi nhiều người / nhiều tin đều fetch ngoài lại từ đầu → tốn I/O, tăng tải `LinkPreviewConsumer`, dễ bị lợi dụng spam link chậm.
+
+**Cách làm (nghiệp vụ):** thêm một lớp nhớ tạm kết quả theo **từng liên kết** (không theo tin). Khi cần dựng thẻ cho một liên kết:
+- Đã nhớ **thành công** → dùng lại ngay, không gọi ra ngoài.
+- Đã nhớ **thất bại** (trang chặn/thời gian chờ) → bỏ qua, không thử lại ngay để khỏi "dội" trang lỗi; sau một khoảng ngắn mới cho thử lại (lỗi có thể tạm thời).
+- Chưa nhớ → fetch một lần rồi ghi nhớ kết quả.
+
+**Thời hạn nhớ:** thành công giữ lâu (nội dung xem-trước hiếm đổi); thất bại giữ ngắn. Nếu lớp nhớ tạm trục trặc → tự động fetch trực tiếp, không chặn tính năng chính.
+
+**Kết quả:** một liên kết "viral" chỉ tốn đúng 1 lần fetch ngoài trong thời hạn nhớ, thay vì mỗi tin một lần.
+
+### 10.2. Proxy ảnh xem-trước qua BE (bảo vệ IP/riêng tư người xem)
+
+**Vấn đề:** trước đây trình duyệt người xem tải ảnh xem-trước **trực tiếp** từ máy chủ bên thứ 3 do **người gửi chọn** → lộ IP người xem, có thể bị cài ảnh theo dõi (tracking pixel).
+
+**Cách làm (nghiệp vụ):** ảnh xem-trước giờ được tải **qua máy chủ Ciao** rồi mới trả về trình duyệt. Người xem không còn kết nối thẳng tới máy chủ lạ.
+- Đường dẫn ảnh do BE tạo có **chữ ký** để chỉ những ảnh BE đã duyệt mới được phục vụ → không biến máy chủ thành "cổng trung chuyển" tùy tiện cho bất kỳ ai.
+- Máy chủ tải lại ảnh vẫn theo đúng cơ chế **an toàn chống truy cập nội bộ (SSRF)** như khi dựng thẻ, và **chỉ chấp nhận đúng loại ảnh**.
+- Ảnh không đổi theo đường dẫn đã ký → được lưu đệm mạnh ở trình duyệt/CDN, không tăng tải lặp lại.
+
+**Tương thích ngược:** thẻ preview cũ (đã lưu đường dẫn ảnh trực tiếp trước cải tiến) vẫn hiển thị bình thường.
+
+**API mới:** `GET /api/v1/link-preview/image` — endpoint proxy ảnh, **ẩn danh nhưng chỉ phục vụ đường dẫn có chữ ký hợp lệ**. Không dùng để gọi trực tiếp từ client thủ công.
+
+**Verify:** harness chạy trên DLL đã build — 22/22 pass: round-trip ký/giải mã (gồm URL unicode, ký tự đặc biệt, URL dài), chặn chữ ký sai/rỗng/rác, **chặn tấn công đổi URL giữ chữ ký cũ** (chống trỏ vào địa chỉ nội bộ), chặn cross-key. BE build 0 error, FE typecheck sạch.
+
+**Hạn chế còn lại:** chống lạm dụng theo tần suất (rate-limit số link/người) vẫn chưa làm — nằm ngoài phạm vi đợt này.
