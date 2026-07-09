@@ -15,7 +15,9 @@
 ## Trường hợp đặc biệt đã xử lý
 - Tin có ảnh / thẻ xem trước liên kết tải bất đồng bộ (chiều cao tăng dần sau khi đã cuộn): khung chat vẫn bám sát đáy trong suốt quá trình tải, không dừng lại giữa chừng.
 - Đang tải trang tin cũ hơn (cuộn lên lịch sử): giữ nguyên vị trí đọc, không tự bám đáy.
-- **Cuộn lên tải thêm tin cũ (load more): khung chat GIỮ NGUYÊN vị trí đang đọc, KHÔNG bị kéo xuống đáy.** Trang tin cũ được chèn ở phía trên; vị trí đọc được bù chính xác nên nội dung không nhảy. Cơ chế bám-đáy-khi-cao-thêm chỉ áp dụng cho nội dung tăng ở PHÍA DƯỚI (ảnh/thẻ tải xong), tuyệt đối không kích hoạt cho đợt tin cũ chèn ở phía trên.
+- **Cuộn lên tải thêm tin cũ (load more): khung chat GIỮ NGUYÊN vị trí đang đọc, KHÔNG bị kéo xuống đáy.** Vị trí đọc được neo theo **chính tin nhắn người dùng đang nhìn** (không dựa vào số đo tổng chiều cao — số đo này sai lệch khi ảnh trong trang cũ chưa tải xong). Sau khi tải thêm, hệ thống coi người dùng **đang xem lịch sử** bất kể vị trí hình học còn cách đáy bao nhiêu; cơ chế bám-đáy tuyệt đối không kích hoạt cho tới khi người dùng TỰ cuộn về đáy. Nhờ vậy hội thoại nhiều ảnh / thẻ xem trước tải chậm không còn bị giật xuống đáy sau khi tải trang cũ.
+- **Tin cũ tải về trong lúc người dùng vẫn đang cuộn tiếp:** vị trí neo được cập nhật liên tục theo thao tác cuộn, nên khi trang cũ chèn vào, khung nhìn giữ đúng chỗ người dùng đang đọc tại thời điểm đó (không quay về chỗ lúc bắt đầu tải).
+- **Tải trang cũ thất bại (mất mạng) hoặc trang rỗng:** trạng thái chờ được dọn sạch, các lần tải sau và cơ chế bám đáy hoạt động lại bình thường, không bị khoá.
 - **Tải thêm tin cũ chỉ diễn ra khi người dùng đã rời khỏi đáy (đang thực sự xem lịch sử).** Khi còn đứng ở đáy xem tin mới nhất, hệ thống KHÔNG tự tải trang cũ. Điều này đặc biệt quan trọng với hội thoại ngắn (tổng nội dung chỉ hơn một màn hình): trước đây tin cũ có thể tự nạp ngay cả khi đang ở đáy, và khi ảnh / thẻ xem trước trong tin cũ tải xong sẽ kéo khung chat giật xuống đáy — nay đã hết.
 - Chuyển sang hội thoại khác: đặt lại về trạng thái bám đáy cho hội thoại mới.
 

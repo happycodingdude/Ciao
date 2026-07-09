@@ -472,11 +472,19 @@ const Chatbox = () => {
             </div>
             {blocks.map((block, blockIndex) => {
               const firstMessage = block.messages[0];
+              // Key ỔN ĐỊNH theo tin đầu block (không dùng index): khi prepend trang cũ vào
+              // cùng date-group, index của mọi block phía sau dịch đi → key=index sẽ REMOUNT
+              // toàn bộ DOM tin nhắn (ảnh mất trạng thái loaded, chiều cao sập rồi nở lại
+              // nhiều đợt) → phá scroll anchoring + làm anchor-restore đo sai. Tin pending
+              // chưa có id thì fallback createdTime (chỉ nằm cuối danh sách, không bị prepend
+              // ảnh hưởng).
+              const blockKey =
+                firstMessage.id ?? firstMessage.createdTime ?? blockIndex;
               if (firstMessage.type === "system") {
                 // Tin hệ thống (ai đó được thêm vào group, ...) → hiển thị dạng label ở giữa
                 return (
                   <div
-                    key={blockIndex}
+                    key={blockKey}
                     className="rounded-4xl text-(--text-main-color-blur) pointer-events-none mx-auto mb-8 w-fit bg-(--date-divider-bg) px-8 py-1 text-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                   >
                     {firstMessage.content}
@@ -484,7 +492,7 @@ const Chatbox = () => {
                 );
               }
               return (
-                <div key={blockIndex} className="mb-6 flex flex-col gap-4">
+                <div key={blockKey} className="mb-6 flex flex-col gap-4">
                   {block.messages.map((message) => (
                     <Fragment key={message.id}>
                       {firstUnreadId && message.id === firstUnreadId && (
