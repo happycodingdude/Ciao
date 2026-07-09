@@ -1,4 +1,5 @@
 import {
+  BookOutlined,
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
@@ -8,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Suspense, useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { useBookmark } from "../../hooks/useBookmark";
 import useConversation from "../../hooks/useConversation";
 import useEventListener from "../../hooks/useEventListener";
 import useInfo from "../../hooks/useInfo";
@@ -35,6 +37,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
   const { data: conversations } = useConversation();
   const { data: info } = useInfo();
   const { pin, pinning } = usePinMessage(conversationId);
+  const { isBookmarked, toggle: toggleBookmark, saving } = useBookmark(conversationId);
   const { setReply } = useReply();
   const { setEdit } = useMessageEdit();
   const { recall, processing } = useMessageActions(conversationId);
@@ -136,6 +139,15 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         tooltip={message.isPinned ? "Unpin message" : "Pin message"}
       >
         {pinning ? <SyncOutlined spin /> : <PushpinOutlined rotate={316} />}
+      </MessageMenuItem>
+      {/* Bookmark riêng tư (Phase 3): lưu tin để xem lại ở trang "Tin đã lưu". */}
+      <MessageMenuItem
+        className={`${saving ? "pointer-events-none" : ""} ${isBookmarked(message.id) && !saving ? "text-orange-500" : ""}`}
+        onClick={() => toggleBookmark(message.id ?? "", isBookmarked(message.id))}
+        closeOnClick={false}
+        tooltip={isBookmarked(message.id) ? "Bỏ lưu tin nhắn" : "Lưu tin nhắn"}
+      >
+        {saving ? <SyncOutlined spin /> : <BookOutlined />}
       </MessageMenuItem>
       <MessageMenuItem
         onClick={replyMessage}

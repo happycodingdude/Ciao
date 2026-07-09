@@ -13,6 +13,8 @@ public class GetListFriendItem_Contact
     public string Name { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsOnline { get; set; }
+    // Last Seen (Phase 3): xem ContactInfoMoreDetails.LastActiveTime.
+    public DateTime? LastActiveTime { get; set; }
     // Quan hệ bạn bè nằm ở FriendCacheModel (parent) nhưng frontend đọc trong contact
     // (friendStatus/friendId/directConversation). Populate vào đây để contact self-contained.
     public string? FriendId { get; set; }

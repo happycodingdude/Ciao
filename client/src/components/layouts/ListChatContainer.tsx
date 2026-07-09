@@ -124,13 +124,24 @@ const ListChatContainer = () => {
       ref={refListConversation}
       className="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-scroll scroll-smooth px-4 py-2"
     >
-      {(conversations?.filterConversations ?? [])
+      {[...(conversations?.filterConversations ?? [])]
+        // (copy mảng trước khi sort — sort mutate in-place, không được đụng vào cache)
         // Chỉ hiển thị conversation mà user chưa rời/xóa (isDeleted = false)
         .filter((conv) =>
           (conv.members ?? []).some(
             (m) => m.contact?.id === info?.id && !m.isDeleted,
           ),
         )
+        // Nhóm ghim lên đầu (Phase 3). Trong từng nhóm giữ thứ tự server
+        // (hoạt động mới nhất trước) — sort stable của JS bảo toàn điều đó.
+        .sort((a, b) => {
+          const pinnedOf = (c: typeof a) =>
+            (c.members ?? []).find((m) => m.contact?.id === info?.id)
+              ?.pinnedTime
+              ? 1
+              : 0;
+          return pinnedOf(b) - pinnedOf(a);
+        })
         .map((item) => (
           <ConversationItem
             key={item.id}

@@ -1,0 +1,44 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import {
+  bookmarkMessage,
+  getConversationBookmarkIds,
+} from "../services/bookmark.service";
+
+// Phase 3 — Bookmark: trạng thái "đã lưu" của các tin trong 1 hội thoại + toggle.
+// Cache ["bookmarkIds", conversationId] = string[] messageId đã lưu (riêng tư per-user).
+export const useBookmark = (conversationId: string | undefined) => {
+  const queryClient = useQueryClient();
+  const [saving, setSaving] = useState(false);
+
+  const { data: bookmarkIds } = useQuery({
+    queryKey: ["bookmarkIds", conversationId],
+    queryFn: () => getConversationBookmarkIds(conversationId!),
+    enabled: !!conversationId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isBookmarked = (messageId: string | undefined) =>
+    !!messageId && (bookmarkIds ?? []).includes(messageId);
+
+  const toggle = async (messageId: string, currentlyBookmarked: boolean) => {
+    if (!conversationId || !messageId || saving) return;
+    setSaving(true);
+    try {
+      await bookmarkMessage(conversationId, messageId, !currentlyBookmarked);
+      queryClient.setQueryData<string[]>(
+        ["bookmarkIds", conversationId],
+        (old) =>
+          currentlyBookmarked
+            ? (old ?? []).filter((id) => id !== messageId)
+            : [...(old ?? []), messageId],
+      );
+      // Trang "Tin nhắn đã lưu" refetch lần xem tới.
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return { isBookmarked, toggle, saving };
+};

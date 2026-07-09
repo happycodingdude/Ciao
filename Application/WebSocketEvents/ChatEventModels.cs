@@ -117,6 +117,16 @@ public class EventLinkPreviewReady
     public List<LinkPreview> LinkPreviews { get; set; } = new List<LinkPreview>();
 }
 
+// Phase 3 — biệt danh: sync-event (data-only, không banner) → FE patch nickname của member
+// trong cache ["conversation"]. Nickname null/rỗng = xóa biệt danh, quay về tên gốc.
+public class EventMemberNicknameChanged
+{
+    public string ConversationId { get; set; } = null!;
+    public string ContactId { get; set; } = null!;      // thành viên được đặt biệt danh
+    public string? Nickname { get; set; }
+    public string ChangedBy { get; set; } = null!;
+}
+
 // Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,
 // không banner) → FE patch trực tiếp cache ["friend"] + members trong ["conversation"].
 public class EventContactUpdated

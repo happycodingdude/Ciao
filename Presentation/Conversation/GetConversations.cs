@@ -75,6 +75,8 @@ public static class GetConversations
                 foreach (var member in conversation.Members)
                 {
                     member.Contact.IsOnline = await _userCache.IsOnlineVisibleAsync(member.Contact.Id);
+                    // Last Seen (Phase 3): chỉ có giá trị khi offline + được phép xem (mask ở BE).
+                    member.Contact.LastActiveTime = await _userCache.GetLastActiveVisibleAsync(member.Contact.Id, member.Contact.IsOnline);
                 }
             }
             return result;

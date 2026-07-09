@@ -1,7 +1,8 @@
 # Kế hoạch triển khai — Phase 3: Tăng tương tác và cá nhân hóa cuộc trò chuyện
 
-> **Cập nhật:** 2026-07-05 · **Nguồn:** [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
+> **Cập nhật:** 2026-07-09 · **Nguồn:** [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
 > Phạm vi: các tính năng **chưa hoàn thành** của Phase 3 (⬜) và phần còn thiếu của các tính năng 🟡.
+> **Điều chỉnh 2026-07-09:** tính năng **Trạng thái hoạt động (Idle / Invisible)** được **bỏ khỏi phạm vi Phase 3** theo yêu cầu — chưa cần ở giai đoạn này, sẽ xem xét lại sau.
 
 ---
 
@@ -15,7 +16,7 @@
 | Đổi hình nền chat | ⬜ | Hình nền theo từng hội thoại |
 | Theme chat | ⬜ | Đổi màu bong bóng chat |
 | Đặt biệt danh | ⬜ | Biệt danh thành viên trong nhóm |
-| Trạng thái hoạt động | 🟡 | Bổ sung Idle / Ẩn (Invisible) |
+| ~~Trạng thái hoạt động~~ | Bỏ khỏi phạm vi | Bỏ theo yêu cầu (2026-07-09) — chưa cần Idle/Invisible |
 | Lần hoạt động cuối | 🟡 | Hiển thị "hoạt động lần cuối" |
 
 ---
@@ -24,10 +25,12 @@
 
 | Đợt | Mục tiêu | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- |
-| **Đợt 1** | Bookmark + Ghim cuộc trò chuyện | Đồng bộ trạng thái đa thiết bị | Không | Ẩn mục đã lưu / bỏ ghim |
+| **Đợt 1** ✅ | Bookmark + Ghim cuộc trò chuyện — **code xong 2026-07-09, chờ verify E2E** | Đồng bộ trạng thái đa thiết bị | Không | Ẩn mục đã lưu / bỏ ghim |
 | **Đợt 2** | Media phân loại + Đặt biệt danh | Phân loại sai loại tệp | Kho đính kèm hiện có | Quay lại danh sách gộp |
 | **Đợt 3** | Đổi hình nền + Theme chat | Ảnh hưởng độ tương phản/đọc chữ | Hệ theme sáng/tối | Quay về nền/màu mặc định |
-| **Đợt 4** | Trạng thái Idle/Invisible + Hoạt động lần cuối | Quyền riêng tư, chính xác thời điểm | Cơ chế hiện diện online | Về Online/Offline như hiện tại |
+| **Đợt 4** | Hoạt động lần cuối (Last Seen) | Quyền riêng tư, chính xác thời điểm | Cơ chế hiện diện online hiện có | Không hiển thị last seen như hiện tại |
+
+> Đợt 4 không còn bao gồm Trạng thái hoạt động (Idle/Invisible) — đã bỏ khỏi phạm vi theo yêu cầu.
 
 ---
 
@@ -87,16 +90,11 @@
 - **Trường hợp đặc biệt:** bộ màu không đạt tương phản → chặn hoặc tự điều chỉnh.
 - **Hạn chế:** giai đoạn đầu dùng bộ màu định sẵn.
 
-### 3.7 Trạng thái hoạt động — bổ sung Idle / Ẩn (Invisible)
+### 3.7 Trạng thái hoạt động — ĐÃ BỎ KHỎI PHẠM VI
 
-- **Mục đích:** phản ánh chính xác hơn mức độ hiện diện và tôn trọng nhu cầu riêng tư.
-- **Hành vi:**
-  - **Idle:** khi người dùng online nhưng không thao tác một khoảng thời gian → tự chuyển sang "chờ".
-  - **Ẩn (Invisible):** người dùng chọn ẩn trạng thái → người khác thấy như offline dù vẫn dùng ứng dụng.
-- **Input:** hoạt động của người dùng + tùy chọn hiển thị. **Output:** trạng thái hiển thị (Online/Idle/Offline/Ẩn).
-- **Quy tắc:** khi Ẩn thì không hiển thị Online lẫn "hoạt động lần cuối"; tôn trọng cài đặt "Hiển thị trạng thái" đã có.
-- **Trường hợp đặc biệt:** đang Ẩn nhưng vẫn gửi tin → không lộ Online; nhiều thiết bị → hợp nhất về một trạng thái.
-- **Hạn chế:** hiện mới có Online/Offline; cần bổ sung Idle và Ẩn.
+- Bỏ theo yêu cầu ngày 2026-07-09: chưa cần bổ sung Idle / Ẩn (Invisible) ở giai đoạn này.
+- Hệ thống giữ nguyên hành vi hiện tại: Online/Offline + tùy chọn ẩn trạng thái sẵn có.
+- Sẽ xem xét lại khi có nhu cầu thực tế.
 
 ### 3.8 Lần hoạt động cuối (Last Seen)
 
@@ -111,7 +109,7 @@
 
 ## 4. Rủi ro & lưu ý vận hành
 
-- **Hiện diện (Idle/Invisible/Last Seen):** phải đối xứng — Ẩn thì phải giấu cả online lẫn last seen, tránh rò rỉ.
+- **Hiện diện (Last Seen):** tôn trọng cài đặt riêng tư — tắt "Hiển thị lần hoạt động cuối" hoặc ẩn trạng thái thì không lộ last seen.
 - **Theme/Hình nền:** ưu tiên khả năng đọc; luôn có đường lui về mặc định.
 - **Bookmark/Ghim:** cần thống nhất phạm vi riêng tư và giới hạn số lượng.
 
@@ -120,3 +118,5 @@
 ## 5. Liên kết
 
 - Roadmap tổng: [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
+- Tiến độ + việc còn lại (Đợt 2–4): [`PHASE3_HANDOFF.md`](./PHASE3_HANDOFF.md)
+- Tài liệu Đợt 1 (Ghim hội thoại + Bookmark): [`GHIM_HOI_THOAI_VA_BOOKMARK.md`](./GHIM_HOI_THOAI_VA_BOOKMARK.md)

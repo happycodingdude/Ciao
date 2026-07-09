@@ -7,6 +7,8 @@ export type ConversationModel_Contact = {
   avatar?: string;
   bio?: string;
   isOnline?: boolean;
+  // Last Seen (Phase 3): mốc hoạt động cuối (BE đã áp privacy mask); null = online hoặc bị ẩn.
+  lastActiveTime?: string | null;
 };
 
 export type ConversationModel_Member = BaseModel & {
@@ -22,6 +24,11 @@ export type ConversationModel_Member = BaseModel & {
   // unSeenMessages?: number;
   isNew?: boolean;
   directConversation?: string | null;
+  // Phase 3 — cá nhân hóa (per-user trên member):
+  pinnedTime?: string | null; // ghim hội thoại (member của chính mình)
+  nickname?: string | null; // biệt danh member này trong hội thoại (mọi người thấy)
+  wallpaper?: string | null; // key preset hình nền (member của chính mình)
+  bubbleColor?: string | null; // key preset màu bong bóng (member của chính mình)
 };
 
 export type ConversationModel = BaseModel & {

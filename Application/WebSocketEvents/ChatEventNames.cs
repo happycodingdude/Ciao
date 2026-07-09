@@ -19,4 +19,6 @@ public static class ChatEventNames
     public const string MessageRecalled = "MessageRecalled";
     public const string PollUpdated = "PollUpdated";
     public const string LinkPreviewReady = "LinkPreviewReady";
+    // Phase 3: biệt danh thành viên trong hội thoại thay đổi (mọi thành viên đều thấy).
+    public const string MemberNicknameChanged = "MemberNicknameChanged";
 }

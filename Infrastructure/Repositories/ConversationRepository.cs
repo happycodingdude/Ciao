@@ -99,6 +99,12 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         { "IsNotifying", "$Members.IsNotifying" },
                         { "ContactId", "$Members.ContactId" },
                         { "LastSeenTime", "$Members.LastSeenTime" },
+                        // Phase 3 — cá nhân hóa: thiếu các field này thì cache warmup sau re-login
+                        // sẽ MẤT ghim hội thoại / biệt danh / hình nền / màu bong bóng.
+                        { "PinnedTime", "$Members.PinnedTime" },
+                        { "Nickname", "$Members.Nickname" },
+                        { "Wallpaper", "$Members.Wallpaper" },
+                        { "BubbleColor", "$Members.BubbleColor" },
                         { "Contact", new BsonDocument("$first", "$MatchingContact")},
                         // { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
                         // { "FriendStatus", new BsonDocument("$cond", new BsonArray

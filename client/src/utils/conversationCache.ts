@@ -42,6 +42,31 @@ export const replaceConversationId = (
   return syncConversations(oldData, updated);
 };
 
+/** Cập nhật 1 conversation theo id (giữ nguyên thứ tự danh sách) */
+export const updateConversationInCache = (
+  oldData: ConversationCache,
+  id: string,
+  updater: (c: ConversationModel) => ConversationModel,
+): ConversationCache =>
+  syncConversations(
+    oldData,
+    (oldData.conversations ?? []).map((c) => (c.id === id ? updater(c) : c)),
+  );
+
+/** Cập nhật member (theo contactId) trong 1 conversation */
+export const updateConversationMember = (
+  oldData: ConversationCache,
+  conversationId: string,
+  contactId: string,
+  updater: (m: ConversationModel_Member) => ConversationModel_Member,
+): ConversationCache =>
+  updateConversationInCache(oldData, conversationId, (c) => ({
+    ...c,
+    members: (c.members ?? []).map((m) =>
+      m.contact?.id === contactId ? updater(m) : m,
+    ),
+  }));
+
 /** Tìm direct conversation (1-1) với một contact */
 export const findDirectConversation = (
   conversations: ConversationModel[],

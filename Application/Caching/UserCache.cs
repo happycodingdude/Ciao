@@ -88,8 +88,21 @@ public class UserCache
         var tasks = friends.Select(async friend =>
         {
             friend.Contact.IsOnline = await IsOnlineVisibleAsync(friend.Contact.Id);
+            friend.Contact.LastActiveTime = await GetLastActiveVisibleAsync(friend.Contact.Id, friend.Contact.IsOnline);
         });
         await Task.WhenAll(tasks);
+    }
+
+    // Last Seen (Phase 3): mốc hoạt động cuối ĐÃ áp privacy mask — tắt ShowLastSeen hoặc
+    // ẩn trạng thái online (ShowOnlineStatus=false) thì không lộ last seen (enforce ở BE).
+    // isOnlineVisible truyền vào để khỏi query presence 2 lần: đang online → không cần last seen.
+    public async Task<DateTime?> GetLastActiveVisibleAsync(string userId, bool isOnlineVisible)
+    {
+        if (isOnlineVisible) return null;
+        var info = await GetInfo(userId);
+        var settings = info?.Settings;
+        if (settings is not null && (!settings.ShowLastSeen || !settings.ShowOnlineStatus)) return null;
+        return await _presenceService.GetLastActiveAsync(userId);
     }
 
     // Presence ĐÃ áp privacy mask: nếu người được xem tắt ShowOnlineStatus → luôn trả offline.

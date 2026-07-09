@@ -1,6 +1,8 @@
+import { PushpinFilled, PushpinOutlined } from "@ant-design/icons";
 import { Link } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { useDrafts } from "../../hooks/useDraft";
+import { usePinConversation } from "../../hooks/usePinConversation";
 import { ConversationModel } from "../../types/conv.types";
 import { renderMessageWithMentions } from "../../utils/renderMention";
 import CustomLabel from "../common/CustomLabel";
@@ -34,6 +36,11 @@ const ConversationItem = ({
   const { drafts } = useDrafts();
   const draft = drafts[item.id ?? ""];
 
+  // Ghim hội thoại (per-user): đọc pinnedTime trên member của chính mình.
+  const selfMember = (item.members ?? []).find((m) => m.contact?.id === selfId);
+  const pinned = !!selfMember?.pinnedTime;
+  const { togglePin, pinning } = usePinConversation();
+
   return (
     <Link
       to="/conversations/$conversationId"
@@ -43,8 +50,23 @@ const ConversationItem = ({
       <div
         ref={itemRef}
         onClick={onClick}
-        className={`chat-item cursor-pointer rounded-2xl p-2 ${isActive ? "active" : ""}`}
+        className={`chat-item group relative cursor-pointer rounded-2xl p-2 ${isActive ? "active" : ""}`}
       >
+        {/* Nút ghim: luôn hiện khi đã ghim, còn lại chỉ hiện khi hover.
+            stopPropagation + preventDefault để không điều hướng vào hội thoại. */}
+        <button
+          type="button"
+          title={pinned ? "Bỏ ghim hội thoại" : "Ghim hội thoại"}
+          className={`text-(--text-main-color-blur) hover:text-orange-500 absolute right-1 top-1 z-10 rounded-full p-1
+            ${pinned ? "text-orange-500" : "opacity-0 group-hover:opacity-100"} ${pinning ? "pointer-events-none" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            togglePin(item.id ?? "", pinned);
+          }}
+        >
+          {pinned ? <PushpinFilled /> : <PushpinOutlined />}
+        </button>
         <div className="laptop-lg:h-12 laptop:h-12 flex items-center justify-between">
           <div className="relative">
             {/* Group → avatar của group; direct chat → avatar của người kia */}

@@ -71,13 +71,13 @@
 | STT | Tính năng            | Mô tả                               |  Ưu tiên   | Trạng thái |
 | --: | -------------------- | ----------------------------------- | :--------: | ---------- |
 |   1 | Ghim nhiều tin nhắn  | Multiple pinned messages            | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (pin/unpin nhiều tin + badge) |
-|   2 | Bookmark             | Lưu tin nhắn cho riêng mình         | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
-|   3 | Ghim cuộc trò chuyện | Pin/Favorite conversation           | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
+|   2 | Bookmark             | Lưu tin nhắn cho riêng mình         | ⭐⭐⭐⭐⭐ | 🟡 Code xong BE+FE (2026-07-09) — chờ restart BE + verify E2E |
+|   3 | Ghim cuộc trò chuyện | Pin/Favorite conversation           | ⭐⭐⭐⭐⭐ | 🟡 Code xong BE+FE (2026-07-09) — chờ restart BE + verify E2E |
 |   4 | Media                | Phân loại Ảnh / Video / File / Link | ⭐⭐⭐⭐⭐ | 🟡 Một phần (xem attachment nhưng chưa tách tab Ảnh/Video/File/Link) |
 |   5 | Đổi hình nền chat    | Wallpaper theo cuộc trò chuyện      | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   6 | Theme chat           | Đổi màu bong bóng chat              | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   7 | Đặt biệt danh        | Nickname trong nhóm                 | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
-|   8 | Trạng thái hoạt động | Online / Offline / Idle / Invisible | ⭐⭐⭐⭐☆  | 🟡 Một phần (chỉ Online/Offline + toggle ẩn trạng thái; thiếu Idle) |
+|   8 | Trạng thái hoạt động | Online / Offline / Idle / Invisible | ⭐⭐⭐⭐☆  | ⏸️ Bỏ khỏi phạm vi Phase 3 (2026-07-09, theo yêu cầu) — giữ Online/Offline hiện có |
 |   9 | Lần hoạt động cuối   | Last Seen                           |  ⭐⭐⭐☆☆  | 🟡 Một phần (có setting + thời điểm đã đọc; chưa hiển thị "online lần cuối") |
 |  10 | Đã xem bởi           | Read by                             |  ⭐⭐⭐☆☆  | ✅ Hoàn thành (avatar người đã xem) |
 

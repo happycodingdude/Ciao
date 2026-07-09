@@ -29,6 +29,12 @@ public class MemberWithContactInfo : MongoBaseModel
     public string? LastDeliveredMessageId { get; set; }
     public DateTime? LastDeliveredTime { get; set; }
     public bool IsSelected { get; set; }
+
+    // Phase 3 — cá nhân hóa hội thoại (per-user trên Member, xem Domain.Entities.Member).
+    public DateTime? PinnedTime { get; set; }
+    public string? Nickname { get; set; }
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
 }
 
 [BsonIgnoreExtraElements]

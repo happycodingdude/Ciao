@@ -59,6 +59,55 @@ export const createGroupChat = async (model: CreateGroupChatRequest) => {
   });
 };
 
+// Phase 3 — ghim/bỏ ghim hội thoại (per-user).
+export const pinConversation = async (id: string, pinned: boolean) => {
+  return (
+    await HttpRequest({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_PIN.replace(
+        "{id}",
+        id,
+      ).replace("{pinned}", String(pinned)),
+    })
+  ).data;
+};
+
+// Phase 3 — hình nền + màu bong bóng riêng của user cho một hội thoại (key preset, null = mặc định).
+export const updateConversationAppearance = async (
+  id: string,
+  wallpaper: string | null,
+  bubbleColor: string | null,
+) => {
+  return (
+    await HttpRequest({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_APPEARANCE.replace(
+        "{id}",
+        id,
+      ),
+      data: { wallpaper, bubbleColor },
+    })
+  ).data;
+};
+
+// Phase 3 — đặt/xóa biệt danh member trong hội thoại (nickname rỗng/null = xóa).
+export const updateMemberNickname = async (
+  conversationId: string,
+  contactId: string,
+  nickname: string | null,
+) => {
+  return (
+    await HttpRequest({
+      method: "put",
+      url: import.meta.env.VITE_ENDPOINT_MEMBER_NICKNAME.replace(
+        "{conversationId}",
+        conversationId,
+      ).replace("{contactId}", contactId),
+      data: { nickname },
+    })
+  ).data;
+};
+
 export const getConversations = async (page: number) => {
   const data = (
     await HttpRequest<undefined, ConversationModel[]>({
