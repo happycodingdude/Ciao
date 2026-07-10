@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { commitPanelConversation } from "../../context/ChatDetailTogglesContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import Attachment from "../conversation/Attachment";
@@ -6,14 +7,8 @@ import Chatbox from "../conversation/Chatbox";
 import ChatboxHeader from "../conversation/ChatboxHeader";
 import ChatInput from "../conversation/ChatInput";
 import Information from "../conversation/Information";
+import InformationBookmark from "../conversation/InformationBookmark";
 import InformationSearch from "../conversation/InformationSearch";
-
-// Tracker phải SURVIVE qua remount của ChatboxContainer. Khi chuyển conversation có data
-// fetch, route có thể unmount-remount component (Suspense/loader) → useRef sẽ reset null
-// mỗi lần mount → first-mount check skip reset → toggle không default Information như mong
-// muốn. Đặt module-scope `let` để giữ giá trị nguyên qua các lần remount trong cùng tab.
-// Reset thực sự chỉ xảy ra khi user reload trang (script re-evaluate).
-let prevConvId: string | null = null;
 
 const ChatboxContainer = () => {
   const { activeDetail, setActiveDetail } = useChatDetailToggles();
@@ -26,13 +21,14 @@ const ChatboxContainer = () => {
   const { conversationId } = Route.useParams();
 
   // Khi user chuyển conversation: default về panel Information bất kể đang ở panel nào.
-  // KHÔNG chạy ở mount đầu của tab (prevConvId === null) — giữ nguyên activeDetail vừa
-  // restore từ localStorage để refresh page không bị mất state user đang dùng.
+  // KHÔNG chạy ở mount đầu của tab — giữ nguyên activeDetail vừa restore từ localStorage
+  // để refresh page không bị mất state user đang dùng. Tracker đặt module-scope trong
+  // ChatDetailTogglesContext để survive remount (Suspense/loader) và để panel con
+  // (InformationBookmark) biết trước mình sắp bị đóng mà skip fetch thừa.
   useEffect(() => {
-    if (prevConvId !== null && prevConvId !== conversationId) {
+    if (commitPanelConversation(conversationId)) {
       setActiveDetail("information");
     }
-    prevConvId = conversationId;
   }, [conversationId, setActiveDetail]);
 
   // Phím tắt mở nhanh UI Search messages: Ctrl+F (Win/Linux) hoặc Cmd+F (Mac).
@@ -72,6 +68,7 @@ const ChatboxContainer = () => {
         <Information />
         <Attachment />
         <InformationSearch />
+        <InformationBookmark />
       </div>
     </div>
   );

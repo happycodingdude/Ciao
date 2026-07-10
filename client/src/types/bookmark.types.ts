@@ -16,11 +16,6 @@ export type BookmarkItemModel = {
   isUnavailable: boolean; // tin gốc đã thu hồi hoặc không còn
 };
 
-export type GetBookmarksResponse = {
-  hasMore: boolean;
-  bookmarks: BookmarkItemModel[];
-};
-
 export type ConversationLinkItem = {
   messageId: string;
   contactId: string;

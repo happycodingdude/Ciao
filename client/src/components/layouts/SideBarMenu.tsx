@@ -107,10 +107,6 @@ const SideBarMenu = () => {
           <UnseenBadge count={unreadNotiCount} />
           <div className="tooltip">Notifications</div>
         </Link>
-        <Link to="/saved" className="sidebar-item">
-          <i className="fa-solid fa-bookmark"></i>
-          <div className="tooltip">Saved</div>
-        </Link>
         <Link to="/settings" className="sidebar-item">
           <i className="fa-solid fa-gear"></i>
           <div className="tooltip">Settings</div>

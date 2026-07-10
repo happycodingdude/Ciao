@@ -1,10 +1,11 @@
-import { PushpinFilled, PushpinOutlined } from "@ant-design/icons";
 import { Link } from "@tanstack/react-router";
 import dayjs from "dayjs";
+import { useState } from "react";
 import { useDrafts } from "../../hooks/useDraft";
 import { usePinConversation } from "../../hooks/usePinConversation";
 import { ConversationModel } from "../../types/conv.types";
 import { renderMessageWithMentions } from "../../utils/renderMention";
+import ConversationItemMenu from "./ConversationItemMenu";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 
@@ -36,37 +37,35 @@ const ConversationItem = ({
   const { drafts } = useDrafts();
   const draft = drafts[item.id ?? ""];
 
-  // Ghim hội thoại (per-user): đọc pinnedTime trên member của chính mình.
+  // Favorites (per-user): đọc pinnedTime trên member của chính mình
+  // (BE giữ nguyên field pinnedTime — chỉ đổi khái niệm/UI thành Favorites).
   const selfMember = (item.members ?? []).find((m) => m.contact?.id === selfId);
-  const pinned = !!selfMember?.pinnedTime;
+  const favorited = !!selfMember?.pinnedTime;
   const { togglePin, pinning } = usePinConversation();
+
+  // Menu ba chấm đang mở → giữ nút ba chấm hiển thị, ẩn badge thời gian (không phụ thuộc hover)
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <Link
       to="/conversations/$conversationId"
       params={{ conversationId: item.id ?? "" }}
     >
-      {/* isActive → thêm class "active" để highlight conversation đang xem */}
+      {/* isActive → thêm class "active" để highlight conversation đang xem.
+          menuOpen → thêm "menu-open" để giữ hiệu ứng hover khi menu ba chấm đang mở
+          (backdrop của popover che chuột → :hover mất nếu không có class này). */}
       <div
         ref={itemRef}
         onClick={onClick}
-        className={`chat-item group relative cursor-pointer rounded-2xl p-2 ${isActive ? "active" : ""}`}
+        className={`chat-item group relative cursor-pointer rounded-2xl p-2 ${isActive ? "active" : ""} ${menuOpen ? "menu-open" : ""}`}
       >
-        {/* Nút ghim: luôn hiện khi đã ghim, còn lại chỉ hiện khi hover.
-            stopPropagation + preventDefault để không điều hướng vào hội thoại. */}
-        <button
-          type="button"
-          title={pinned ? "Bỏ ghim hội thoại" : "Ghim hội thoại"}
-          className={`text-(--text-main-color-blur) hover:text-orange-500 absolute right-1 top-1 z-10 rounded-full p-1
-            ${pinned ? "text-orange-500" : "opacity-0 group-hover:opacity-100"} ${pinning ? "pointer-events-none" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            togglePin(item.id ?? "", pinned);
-          }}
-        >
-          {pinned ? <PushpinFilled /> : <PushpinOutlined />}
-        </button>
+        {/* Menu ba chấm (hiện khi hover) — chứa các hành động với hội thoại */}
+        <ConversationItemMenu
+          favorited={favorited}
+          pinning={pinning}
+          onToggleFavorite={() => togglePin(item.id ?? "", favorited)}
+          onOpenChange={setMenuOpen}
+        />
         <div className="laptop-lg:h-12 laptop:h-12 flex items-center justify-between">
           <div className="relative">
             {/* Group → avatar của group; direct chat → avatar của người kia */}
@@ -119,9 +118,10 @@ const ConversationItem = ({
               )
             )}
           </div>
+          {/* Badge thời gian ẩn khi hover để nhường chỗ cho nút menu ba chấm */}
           <div
-            className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center self-start rounded-full
-              ${item.lastMessageTime === null ? "" : "bg-(--bg-color-extrathin)"} text-(--text-main-color-blur)`}
+            className={`laptop:text-4xs laptop:w-7 flex aspect-square flex-col items-center justify-center self-start rounded-full transition-opacity group-hover:opacity-0
+              ${menuOpen ? "opacity-0" : ""} ${item.lastMessageTime === null ? "" : "bg-(--bg-color-extrathin)"} text-(--text-main-color-blur)`}
           >
             {/* Chưa có tin nhắn → không hiển thị badge thời gian */}
             <p>

@@ -35,6 +35,11 @@ export const useBookmark = (conversationId: string | undefined) => {
       );
       // Trang "Tin nhắn đã lưu" refetch lần xem tới.
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      // Panel "Saved messages" trong khung chat: mark stale để lần mở tới refetch
+      // (panel đang đóng → không bắn request ngay, chỉ refetch khi query enabled lại).
+      queryClient.invalidateQueries({
+        queryKey: ["conversationBookmarks", conversationId],
+      });
     } finally {
       setSaving(false);
     }

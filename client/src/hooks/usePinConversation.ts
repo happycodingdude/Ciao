@@ -5,8 +5,8 @@ import { ConversationCache } from "../types/conv.types";
 import { updateConversationMember } from "../utils/conversationCache";
 import useInfo from "./useInfo";
 
-// Phase 3 — ghim/bỏ ghim hội thoại (per-user): lưu pinnedTime trên member của chính mình.
-// ListChatContainer đọc pinnedTime để đưa nhóm ghim lên đầu danh sách.
+// Favorites (per-user, trước đây là "ghim hội thoại"): lưu pinnedTime trên member của
+// chính mình. ListChatContainer đọc pinnedTime để tách vùng Favorites trên đầu danh sách.
 export const usePinConversation = () => {
   const queryClient = useQueryClient();
   const { data: info } = useInfo();

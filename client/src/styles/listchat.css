@@ -2,7 +2,10 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* .menu-open: menu ba chấm đang mở — backdrop popover che chuột làm mất :hover,
+   class này giữ nguyên hiệu ứng hover cho item tới khi menu đóng. */
 .chat-item:hover,
+.chat-item.menu-open,
 .chat-item.active {
   transform: scale(1.02);
   box-shadow:

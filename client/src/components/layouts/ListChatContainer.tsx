@@ -1,3 +1,4 @@
+import { StarFilled } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { debounce } from "lodash-es";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -44,7 +45,9 @@ const ListChatContainer = () => {
     try {
       // page/hasMore đọc từ cache (không dùng ref): refetch page 1 tạo cache mới
       // → paging tự reset về đầu, không bị "nhảy cóc" trang.
-      const cached = queryClient.getQueryData<ConversationCache>(["conversation"]);
+      const cached = queryClient.getQueryData<ConversationCache>([
+        "conversation",
+      ]);
       const nextPage = (cached?.page ?? 1) + 1;
       const newConversations = await getConversations(nextPage);
       // Util dùng chung: dedup theo id + append đúng filter/search + set page/hasMore
@@ -70,7 +73,9 @@ const ListChatContainer = () => {
     const el = refListConversation.current;
     if (!el || isFetching.current) return;
     // hasMore đọc trực tiếp từ cache; undefined (chưa fetch thêm lần nào) = còn data
-    const cached = queryClient.getQueryData<ConversationCache>(["conversation"]);
+    const cached = queryClient.getQueryData<ConversationCache>([
+      "conversation",
+    ]);
     if (!cached || cached.hasMore === false) return;
 
     const distanceFromBottom =
@@ -114,48 +119,64 @@ const ListChatContainer = () => {
       scrollToConversation(activeConversationId),
     );
     return () => cancelAnimationFrame(raf);
-  }, [activeConversationId, conversations?.filterConversations, scrollToConversation]);
+  }, [
+    activeConversationId,
+    conversations?.filterConversations,
+    scrollToConversation,
+  ]);
 
   // Hiển thị skeleton trong khi load lần đầu hoặc refetch
   if (isLoading || isRefetching) return <ListchatLoading />;
+
+  // Chỉ hiển thị conversation mà user chưa rời/xóa (isDeleted = false),
+  // rồi chia 2 vùng: Favorites (member của mình có pinnedTime) và Chats.
+  // Trong từng vùng giữ nguyên thứ tự server (hoạt động mới nhất trước).
+  const visible = (conversations?.filterConversations ?? []).filter((conv) =>
+    (conv.members ?? []).some(
+      (m) => m.contact?.id === info?.id && !m.isDeleted,
+    ),
+  );
+  const favorites = visible.filter(
+    (conv) =>
+      !!(conv.members ?? []).find((m) => m.contact?.id === info?.id)
+        ?.pinnedTime,
+  );
+  const others = visible.filter((conv) => !favorites.includes(conv));
+
+  const renderItem = (item: (typeof visible)[number]) => (
+    <ConversationItem
+      key={item.id}
+      item={item}
+      selfId={info?.id}
+      isActive={item.id === activeConversationId}
+      itemRef={(el) => {
+        if (item.id) itemRefs.current[item.id] = el;
+      }}
+      onClick={() => {
+        if (item.id) scrollToConversation(item.id);
+      }}
+    />
+  );
 
   return (
     <div
       ref={refListConversation}
       className="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-scroll scroll-smooth px-4 py-2"
     >
-      {[...(conversations?.filterConversations ?? [])]
-        // (copy mảng trước khi sort — sort mutate in-place, không được đụng vào cache)
-        // Chỉ hiển thị conversation mà user chưa rời/xóa (isDeleted = false)
-        .filter((conv) =>
-          (conv.members ?? []).some(
-            (m) => m.contact?.id === info?.id && !m.isDeleted,
-          ),
-        )
-        // Nhóm ghim lên đầu (Phase 3). Trong từng nhóm giữ thứ tự server
-        // (hoạt động mới nhất trước) — sort stable của JS bảo toàn điều đó.
-        .sort((a, b) => {
-          const pinnedOf = (c: typeof a) =>
-            (c.members ?? []).find((m) => m.contact?.id === info?.id)
-              ?.pinnedTime
-              ? 1
-              : 0;
-          return pinnedOf(b) - pinnedOf(a);
-        })
-        .map((item) => (
-          <ConversationItem
-            key={item.id}
-            item={item}
-            selfId={info?.id}
-            isActive={item.id === activeConversationId}
-            itemRef={(el) => {
-              if (item.id) itemRefs.current[item.id] = el;
-            }}
-            onClick={() => {
-              if (item.id) scrollToConversation(item.id);
-            }}
-          />
-        ))}
+      {/* Vùng Favorites — chỉ hiển thị khi có ít nhất 1 hội thoại được đánh dấu sao */}
+      {favorites.length > 0 && (
+        <>
+          <p className="text-2xs text-(--text-main-color-blur) flex items-center gap-1 px-2 pt-1 font-semibold uppercase tracking-wide">
+            Favorites
+            <StarFilled style={{ color: "#eab308", fontSize: 20 }} />
+          </p>
+          {favorites.map(renderItem)}
+          <p className="text-2xs text-(--text-main-color-blur) px-2 pt-2 font-semibold uppercase tracking-wide">
+            Chats
+          </p>
+        </>
+      )}
+      {others.map(renderItem)}
     </div>
   );
 };
