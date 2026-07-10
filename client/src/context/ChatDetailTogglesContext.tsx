@@ -12,6 +12,12 @@ import {
 // derive bằng priority. Persist nguyên string vào localStorage để refresh giữ panel.
 export type ChatDetailKind = "search" | "information" | "attachment" | "bookmark";
 
+// Tab đang chọn trong panel Attachment. Nằm ở context (không phải state local của
+// Attachment.tsx) vì Information cần preselect tab khi bấm "View all" của từng section —
+// Attachment luôn mounted (ẩn bằng z-index) nên chỉ context mới re-render nó tức thì.
+// KHÔNG persist localStorage: mỗi lần mở panel từ đầu luôn default "image".
+export type AttachmentTabKind = "image" | "file" | "video" | "link";
+
 export type ChatDetailTogglesContextValue = {
   activeDetail: ChatDetailKind | null;
   setActiveDetail: (kind: ChatDetailKind | null) => void;
@@ -22,6 +28,10 @@ export type ChatDetailTogglesContextValue = {
   showInformation: boolean;
   showAttachment: boolean;
   showBookmark: boolean;
+  attachmentTab: AttachmentTabKind;
+  setAttachmentTab: (tab: AttachmentTabKind) => void;
+  // "View all" của từng section Information: chọn tab rồi mở panel Attachment.
+  openAttachment: (tab: AttachmentTabKind) => void;
 };
 
 export const ChatDetailTogglesContext = createContext<
@@ -68,6 +78,7 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
   const [activeDetail, setActiveDetail] = useState<ChatDetailKind | null>(
     initial,
   );
+  const [attachmentTab, setAttachmentTab] = useState<AttachmentTabKind>("image");
 
   // Persist: có panel active → ghi string; không → xóa key cho sạch.
   useEffect(() => {
@@ -79,6 +90,11 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
     setActiveDetail((prev) => (prev === kind ? null : kind));
   }, []);
 
+  const openAttachment = useCallback((tab: AttachmentTabKind) => {
+    setAttachmentTab(tab);
+    setActiveDetail("attachment");
+  }, []);
+
   const value = useMemo<ChatDetailTogglesContextValue>(
     () => ({
       activeDetail,
@@ -88,8 +104,11 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
       showInformation: activeDetail === "information",
       showAttachment: activeDetail === "attachment",
       showBookmark: activeDetail === "bookmark",
+      attachmentTab,
+      setAttachmentTab,
+      openAttachment,
     }),
-    [activeDetail, toggleDetail],
+    [activeDetail, toggleDetail, attachmentTab, openAttachment],
   );
 
   return (

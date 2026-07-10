@@ -1,6 +1,6 @@
 # Phase 3 — Handoff: tiến độ & việc còn lại
 
-> **Cập nhật:** 2026-07-09 · Nguồn kế hoạch: [`KE_HOACH_PHASE_3_CA_NHAN_HOA.md`](./KE_HOACH_PHASE_3_CA_NHAN_HOA.md)
+> **Cập nhật:** 2026-07-11 · Nguồn kế hoạch: [`KE_HOACH_PHASE_3_CA_NHAN_HOA.md`](./KE_HOACH_PHASE_3_CA_NHAN_HOA.md)
 > **Lưu ý phạm vi:** Trạng thái hoạt động (Idle/Invisible) đã **bỏ khỏi Phase 3** theo yêu cầu (2026-07-09).
 
 ## Tổng quan tiến độ
@@ -9,7 +9,7 @@
 | --- | --- | --- | --- | --- |
 | 1 | Ghim cuộc trò chuyện | ✅ Xong | ✅ Xong | Chờ restart BE + verify E2E — xem [`GHIM_HOI_THOAI_VA_BOOKMARK.md`](./GHIM_HOI_THOAI_VA_BOOKMARK.md) |
 | 1 | Bookmark (tin đã lưu) | ✅ Xong | ✅ Xong | Trang `/saved` + menu tin nhắn; chờ verify E2E |
-| 2 | Media tabs (Ảnh/Video/File/Link) | ✅ Xong (endpoint links) | ⬜ Chưa làm | FE: thêm tab Video + Link vào `Attachment.tsx` |
+| 2 | Media tabs (Ảnh/Video/File/Link) | ✅ Xong (endpoint links) | ✅ Code xong (2026-07-11) | 4 section Information + 4 tab `Attachment.tsx` + preselect tab; build + tsc sạch, chờ verify E2E — xem [`MEDIA_TABS_REDESIGN.md`](./MEDIA_TABS_REDESIGN.md) |
 | 2 | Đặt biệt danh | ✅ Xong | ⬜ Chưa làm | FE: UI sửa trong `InformationMembers.tsx` + hiển thị nickname + case realtime |
 | 3 | Đổi hình nền chat | ✅ Xong | ⬜ Chưa làm | FE: preset + override CSS var trên `ChatboxContainer` |
 | 3 | Theme chat (màu bong bóng) | ✅ Xong | ⬜ Chưa làm | FE: preset + override `--bubble-bg` trong `MessageContent` |
@@ -50,11 +50,38 @@ FE đã chuẩn bị sẵn:
 
 ## Việc còn lại (FE là chính) — khi quay lại làm tiếp
 
-### Đợt 2a — Media tabs (`client/src/components/conversation/Attachment.tsx`)
+### Đợt 2a — Media tabs redesign (✅ CODE XONG 2026-07-11 — chờ verify E2E)
 
-1. Thêm 2 tab: **Video** (filter `type === "video"`, upload BE đã hỗ trợ video/mp4|mov) và **Liên kết**.
-2. Tab Liên kết: query mới `["links", conversationId]` gọi `getConversationLinks` (đã có trong `bookmark.service.ts`), render thẻ (favicon/ảnh + title + url), click mở tab mới; empty state riêng.
-3. Cân nhắc đồng bộ preview `InformationAttachments.tsx`.
+**Đã implement đủ 6 bước bảng dưới.** Trạng thái verify: `tsc` các file mới sạch, `npm run build` OK, Vite dev transform 5 module mới/sửa OK (FE :5000, BE :4000 đang chạy). CHƯA chạy Playwright E2E (môi trường session không có Playwright MCP) — checklist verify ở cuối mục này vẫn cần chạy tay/Playwright khi có.
+
+Files đã đổi: `context/ChatDetailTogglesContext.tsx` (thêm `attachmentTab` + `openAttachment`), `hooks/useConversationLinks.ts` (mới), `components/conversation/MediaItems.tsx` (mới: `FileRow`/`LinkRow`/`VideoThumb`/`formatBytes`), `Attachment.tsx` (4 tab), `InformationAttachments.tsx` (4 section).
+
+**Known issue (2026-07-11, chưa fix):** thumbnail trong section/tab Links hiện icon ảnh vỡ (link CELLPHONES) — `imageUrl` có giá trị nhưng ảnh tải lỗi (khả năng site chặn hotlink/referrer hoặc URL ảnh hết hạn). Fix dự kiến: thêm `onError` trên `<img>` trong `LinkRow` (`MediaItems.tsx`) để fallback về icon `fa-link` như case thiếu `imageUrl`; cân nhắc thêm `referrerPolicy="no-referrer"` trên `<img>`.
+
+**Yêu cầu chốt:**
+
+1. `Information` tách section Attachments chung thành **4 section riêng: Images, Files, Videos, Links**.
+2. `Attachment.tsx` có **4 nút filter trên đầu** (Images/Files/Videos/Links), show đúng loại.
+3. Mỗi section Information show **tối đa 8 item** + nút **View all** mở panel Attachment **đúng tab tương ứng**.
+
+**Thứ tự implement:**
+
+| # | Việc | File |
+| --- | --- | --- |
+| 1 | Thêm `AttachmentTabKind` (`image\|file\|video\|link`), state `attachmentTab` (default `image`, KHÔNG persist localStorage) + helper `openAttachment(tab)` = set tab + `setActiveDetail("attachment")` | `context/ChatDetailTogglesContext.tsx` |
+| 2 | Hook `useConversationLinks(conversationId, limit, enabled)` — `useInfiniteQuery`, queryKey `["conversationLinks", id, limit]`, `getNextPageParam` theo `hasMore`, staleTime 120s | `hooks/useConversationLinks.ts` (mới) |
+| 3 | Component dùng chung: `FileRow` (icon + tên + size qua `formatBytes` helper mới), `LinkRow` (thumbnail 32px + title + siteName, `<a target="_blank" rel="noopener noreferrer">`, layout theo `InformationBookmark.tsx` row), `VideoThumb` (`<video preload="metadata" muted>` + overlay play, click mở mediaUrl — lightbox không hỗ trợ video) | `components/conversation/MediaItems.tsx` (mới) |
+| 4 | 4 tab từ config array, giữ class `.custom-button/selected`; thay state local bằng `attachmentTab` context; **XÓA 2 effect reset cũ (lines ~41-51)** thay bằng 1 effect duy nhất `if (!showAttachment) setAttachmentTab("image")` (không clobber preselection, refetch nền không kéo về tab Images); filter bucket ngày bằng `useMemo`; tab Link: `useConversationLinks(id, 20, showAttachment && tab==="link" && !willResetPanelOnConversation(id))`, nhóm theo ngày + nút Load more khi `hasNextPage`; empty state đổi text theo tab | `components/conversation/Attachment.tsx` |
+| 5 | Bỏ `useEffect+setState`, `useMemo` flatten 1 lần → partition `images/videos/files = flat.filter(type).slice(0,8)`; Links: `useConversationLinks(id, 8, showInformation && ...)` đọc page 1; 4 section header luôn hiện, thân rỗng → 1 dòng text muted (không dùng emptybox.svg to); mỗi View all gọi `openAttachment(tab)`; Images giữ grid 4 cột lightbox (slides thuần ảnh, hết filenotfound.svg), Videos grid `VideoThumb`, Files/Links list row | `components/conversation/InformationAttachments.tsx` |
+| 6 | Docs: cập nhật file này + tạo `MEDIA_TABS_REDESIGN.md` (doc nghiệp vụ) + `PRODUCT_ROADMAP.md` | `docs/features/` |
+
+**Lý do thiết kế chính:**
+
+- Preselect tab qua **context state** (không phải module ref) vì `Attachment.tsx` luôn mounted (ẩn bằng z-index), cần re-render ngay khi bấm View all lúc data đã cache.
+- Attachments filter **client-side** trên cache `useAttachment` sẵn có (BE trả tất cả, type `image/file/video` đã tag từ `Upload.cs`) — không cần sửa BE. Riêng **Links** dùng endpoint phân trang riêng `getConversationLinks` (service + types đã có sẵn, hiện CHƯA được consume ở đâu).
+- `limit` nằm trong queryKey nên cache preview (limit=8) và cache panel (limit=20) không đụng nhau.
+
+**Verify (MODE FRONTEND):** build sạch; hội thoại đủ 4 loại media → 4 section đúng loại ≤8 item; từng View all mở đúng tab; đóng/mở lại từ header icon default Images; đang ở tab Videos/Links gửi attachment mới → tab KHÔNG nhảy về Images; đổi hội thoại khi panel mở → không request links thừa; Load more hoạt động; light/dark + width hẹp (4 nút fit); console/network sạch.
 
 ### Đợt 2b — Biệt danh
 

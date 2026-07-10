@@ -73,7 +73,7 @@
 |   1 | Ghim nhiều tin nhắn  | Multiple pinned messages            | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (pin/unpin nhiều tin + badge) |
 |   2 | Bookmark             | Lưu tin nhắn cho riêng mình         | ⭐⭐⭐⭐⭐ | 🟡 Code xong BE+FE (2026-07-09) — chờ restart BE + verify E2E |
 |   3 | Ghim cuộc trò chuyện | Pin/Favorite conversation           | ⭐⭐⭐⭐⭐ | 🟡 Code xong BE+FE (2026-07-09) — chờ restart BE + verify E2E |
-|   4 | Media                | Phân loại Ảnh / Video / File / Link | ⭐⭐⭐⭐⭐ | 🟡 Một phần (xem attachment nhưng chưa tách tab Ảnh/Video/File/Link) |
+|   4 | Media                | Phân loại Ảnh / Video / File / Link | ⭐⭐⭐⭐⭐ | 🟡 Code xong BE+FE (2026-07-11) — 4 section preview + 4 tab, chờ verify E2E ([chi tiết](./MEDIA_TABS_REDESIGN.md)) |
 |   5 | Đổi hình nền chat    | Wallpaper theo cuộc trò chuyện      | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   6 | Theme chat           | Đổi màu bong bóng chat              | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   7 | Đặt biệt danh        | Nickname trong nhóm                 | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
