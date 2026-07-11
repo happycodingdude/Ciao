@@ -9,8 +9,8 @@
 
 | Tính năng | Trạng thái | Mục tiêu |
 | --- | --- | --- |
-| Emoji động | ⬜ | Emoji chuyển động |
-| Emoji cỡ lớn | ⬜ | Tin chỉ chứa emoji hiển thị cỡ lớn |
+| Emoji động | ✅ Đã code (2026-07-11, chờ nghiệm thu) | Emoji chuyển động |
+| Emoji cỡ lớn | ✅ Đã code (2026-07-11, chờ nghiệm thu) | Tin chỉ chứa emoji hiển thị cỡ lớn |
 | Hiệu ứng tin nhắn | ⬜ | Pháo hoa, trái tim, confetti |
 | Khung avatar | ⬜ | Khung trang trí quanh ảnh đại diện |
 | Theme hệ thống | 🟡 | Bổ sung biến thể Gradient |
@@ -24,7 +24,7 @@
 
 | Đợt | Mục tiêu | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- |
-| **Đợt 1** | Emoji cỡ lớn + Emoji động | Hiệu năng render hoạt họa | Không | Về emoji tĩnh cỡ thường |
+| **Đợt 1** ✅ | Emoji cỡ lớn + Emoji động — đã code 2026-07-11, chờ nghiệm thu ([chi tiết](./TINH_NANG_PHASE_4_EMOJI.md)) | Hiệu năng render hoạt họa | Không | Về emoji tĩnh cỡ thường |
 | **Đợt 2** | Hiệu ứng tin nhắn + Theme Gradient | Gây phân tán/nhiễu, tương phản chữ | Hệ theme sáng/tối | Tắt hiệu ứng / bỏ gradient |
 | **Đợt 3** | Khung avatar | Che khuất ảnh đại diện | Không | Ẩn khung |
 | **Đợt 4** | Chat Streak + Memories + Sinh nhật | Cần dữ liệu ngày sinh, tính chuỗi chính xác | Dữ liệu hồ sơ/lịch sử | Ẩn widget tương ứng |

@@ -1,113 +1,32 @@
-import { LikeOutlined } from "@ant-design/icons";
-import "../../styles/chatbox.css";
-import { MessageReactionProps } from "../../types/base.types";
+import { summarizeReactions } from "../../packs/reactionPack";
+import "../../styles/reaction.css";
+import { PendingMessageModel } from "../../types/message.types";
 
-const MessageReaction = (props: MessageReactionProps) => {
-  const { message, react, pending } = props;
+type Props = {
+  message: PendingMessageModel;
+  mine: boolean;
+};
+
+// Chip tổng reaction trên tin: top 3 loại (icon tĩnh) + tổng số, neo góc dưới-trong
+// của bubble (mine: trái — né icon trạng thái; người khác: phải). Pop animation khi
+// số lượng đổi (remount theo key). Nút THẢ reaction nằm trong menu hover của tin
+// (MessageMenu_Slide) — component này chỉ hiển thị kết quả.
+const MessageReaction = ({ message, mine }: Props) => {
+  const { total, top } = summarizeReactions(message);
+  if (total === 0) return null;
+
   return (
-    <>
-      <div
-        className={`absolute -bottom-5 z-10 flex items-center justify-between gap-2  
-      ${(message.mine && message.reaction.total) || (!message.mine && !message.reaction.total) ? "" : "flex-row-reverse"}`}
-      >
-        {/* MARK: TOTAL AND TOP REACTIONS */}
-        {message.reaction.total ? (
-          <div className="rounded-4xl border-(--main-color) bg-(--sub-color) flex cursor-pointer items-center gap-2 border-[.2rem] px-2 py-[.1rem]">
-            <div className="inline-flex">
-              {message.topReactions.map((item) => (
-                <div
-                  key={item}
-                  className={`top-reaction bg-[url('/assets/${item}.svg')]`}
-                />
-              ))}
-            </div>
-            <p className="leading-6">{message.reaction.total}</p>
-          </div>
-        ) : null}
-        {/* MARK: CURRENT REACTION */}
-        <div className="current-reaction-container peer">
-          {
-            {
-              like: (
-                <div
-                  className="current-reaction-item bg-[url('/assets/like.svg')] "
-                  onClick={() => react("like")}
-                ></div>
-              ),
-              love: (
-                <div
-                  className="current-reaction-item bg-[url('/assets/love.svg')] "
-                  onClick={() => react("love")}
-                ></div>
-              ),
-              care: (
-                <div
-                  className="current-reaction-item bg-[url('/assets/care.svg')] "
-                  onClick={() => react("care")}
-                ></div>
-              ),
-              wow: (
-                <div
-                  className="current-reaction-item bg-[url('/assets/wow.svg')] "
-                  onClick={() => react("wow")}
-                ></div>
-              ),
-              sad: (
-                <div
-                  className="current-reaction-item bg-[url('/assets/sad.svg')] "
-                  onClick={() => react("sad")}
-                ></div>
-              ),
-              angry: (
-                <div
-                  className="current-reaction-item bg-[url('/assets/angry.svg')] "
-                  onClick={() => react("angry")}
-                ></div>
-              ),
-              null: (
-                <LikeOutlined
-                  className={`bg-(--sub-color) flex! aspect-square h-6 cursor-pointer items-center justify-center rounded-full 
-                  border-[.15rem] border-blue-300
-                  ${pending ? "pointer-events-none opacity-50" : ""}`}
-                  style={{ fontSize: "12px" }}
-                  onClick={() => react("like")}
-                />
-              ),
-            }[message.reaction.currentReaction ?? "null"]
-          }
-        </div>
-        {/* MARK: LIST REACTIONS */}
-        <div
-          className={`list-reaction-container
-          ${message.mine ? "right-6 origin-bottom-right" : "left-6 origin-bottom-left"}`}
-        >
-          <div
-            className="reaction-item bg-[url('/assets/like.svg')] "
-            onClick={() => react("like")}
-          ></div>
-          <div
-            className="reaction-item bg-[url('/assets/love.svg')] "
-            onClick={() => react("love")}
-          ></div>
-          <div
-            className="reaction-item bg-[url('/assets/care.svg')] "
-            onClick={() => react("care")}
-          ></div>
-          <div
-            className="reaction-item bg-[url('/assets/wow.svg')] "
-            onClick={() => react("wow")}
-          ></div>
-          <div
-            className="reaction-item bg-[url('/assets/sad.svg')] "
-            onClick={() => react("sad")}
-          ></div>
-          <div
-            className="reaction-item bg-[url('/assets/angry.svg')] "
-            onClick={() => react("angry")}
-          ></div>
-        </div>
-      </div>
-    </>
+    <div
+      key={total}
+      className="reaction-chip"
+      data-mine={mine}
+      title={top.map((def) => def.label).join(", ")}
+    >
+      {top.map((def) => (
+        <img key={def.key} src={def.staticSrc} alt={def.emoji} />
+      ))}
+      <span>{total}</span>
+    </div>
   );
 };
 

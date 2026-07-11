@@ -121,6 +121,13 @@ export default defineConfig({
             return "react-utils";
           }
 
+          // Lottie (sticker .tgs / animation pack) + fflate: chỉ được import ĐỘNG
+          // từ LottiePlayer — trả undefined để Rollup tự tách async chunk,
+          // không để rơi vào "vendor" (eager, tải ngay từ đầu).
+          if (id.includes("lottie-web") || id.includes("fflate")) {
+            return undefined;
+          }
+
           // Other node_modules
           if (id.includes("node_modules")) {
             return "vendor";

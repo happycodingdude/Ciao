@@ -5,6 +5,7 @@ import {
   EditOutlined,
   PushpinOutlined,
   ShareAltOutlined,
+  SmileOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
 import { Suspense, useCallback, useRef, useState } from "react";
@@ -18,9 +19,16 @@ import {
   useMessageEdit,
 } from "../../hooks/useMessageActions";
 import { usePinMessage } from "../../hooks/usePinMessage";
+import useReactMessage from "../../hooks/useReactMessage";
 import { useReply } from "../../hooks/useReply";
 import { useTranslation } from "../../hooks/useTranslation";
+import {
+  DEFAULT_REACTION_PACK,
+  getReactionDef,
+} from "../../packs/reactionPack";
 import "../../styles/messagemenu_slide.css";
+import "../../styles/reaction.css";
+import { prefersReducedMotion } from "../../utils/motion";
 import { MessageMenuProps } from "../../types/message.types";
 import {
   canEditMessage,
@@ -42,6 +50,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
   const { setEdit } = useMessageEdit();
   const { recall, processing } = useMessageActions(conversationId);
   const { translate } = useTranslation();
+  const { react, pendingId } = useReactMessage(conversationId);
 
   const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
@@ -70,11 +79,17 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
 
   const showEdit = canEditMessage(message, mine);
   const showDelete = canRecallMessage(message, mine);
+  // Sticker: chỉ có action Xoá (theo nghiệp vụ) → không có reaction.
+  const showReaction = message.type !== "sticker";
+  const currentReactionDef = getReactionDef(message.currentReaction);
+  const reactionPending = pendingId === message.id;
+  const reduceMotion = prefersReducedMotion();
 
   // Tin đã recall: không render menu (tránh hover hiện action bar rỗng).
   if (recalled) return null;
-  // Tin chỉ-là-link + không được phép xoá → không còn action nào → ẩn hẳn menu.
-  if (onlyDelete && !showDelete) return null;
+  // onlyDelete (link-only/sticker) + không được xoá + không có reaction
+  // → không còn action nào → ẩn hẳn menu.
+  if (onlyDelete && !showDelete && !showReaction) return null;
 
   const startEdit = () =>
     setEdit({ messageId: message.id ?? "", content: message.content ?? "" });
@@ -212,6 +227,60 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         >
           {processing ? <SyncOutlined spin /> : <DeleteOutlined />}
         </MessageMenuItem>
+      )}
+      {/* Thả cảm xúc: item CUỐI menu (rìa phải); hover mở bảng emoji động phía trên.
+          Icon trạng thái đã-react dùng emoji native (không phụ thuộc asset).
+          Click emoji đang chọn = gỡ. Sticker không có reaction (showReaction). */}
+      {showReaction && (
+        <div className="reaction-menu-wrap">
+          <MessageMenuItem
+            className={reactionPending ? "pointer-events-none opacity-50" : ""}
+            closeOnClick={false}
+            tooltip={
+              currentReactionDef
+                ? `Bạn đã thả ${currentReactionDef.label}`
+                : "Thả cảm xúc"
+            }
+            // Bấm nhanh: chưa react = thả 👍; đã react = gỡ.
+            onClick={() =>
+              react(message, currentReactionDef?.key ?? DEFAULT_REACTION_PACK[0].key)
+            }
+          >
+            {currentReactionDef ? (
+              // Ảnh Fluent 3D tĩnh — cùng style với bảng động, đồng bộ với chip.
+              <img
+                className="reaction-current-icon"
+                src={currentReactionDef.staticSrc}
+                alt={currentReactionDef.emoji}
+                width={20}
+                height={20}
+              />
+            ) : (
+              <SmileOutlined />
+            )}
+          </MessageMenuItem>
+          <div className={`reaction-bar ${reactionPending ? "pointer-events-none" : ""}`}>
+            {DEFAULT_REACTION_PACK.map((def) => (
+              <button
+                key={def.key}
+                type="button"
+                data-active={message.currentReaction === def.key}
+                className="reaction-option"
+                title={def.label}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  react(message, def.key);
+                }}
+              >
+                <img
+                  src={reduceMotion ? def.staticSrc : def.animatedSrc}
+                  alt={def.emoji}
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

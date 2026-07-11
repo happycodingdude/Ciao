@@ -153,26 +153,3 @@ export type ReactionModel = {
   contactId: string;
   type: string;
 };
-
-export type MessageReactionProps_Message_Reaction = {
-  likeCount: number;
-  loveCount: number;
-  careCount: number;
-  wowCount: number;
-  sadCount: number;
-  angryCount: number;
-  total: number;
-  currentReaction: string | null;
-};
-
-export type MessageReactionProps_Message = {
-  mine: boolean;
-  reaction: MessageReactionProps_Message_Reaction;
-  topReactions: string[];
-};
-
-export type MessageReactionProps = {
-  message: MessageReactionProps_Message;
-  react: (type: string) => void;
-  pending: boolean;
-};

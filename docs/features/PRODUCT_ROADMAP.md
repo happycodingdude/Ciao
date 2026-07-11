@@ -35,7 +35,7 @@
 | --: | -------------------- | ------------------------------------------ | :--------: | ---------- |
 |   1 | Trạng thái tin nhắn  | Sending / Sent / Delivered / Seen / Failed | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành |
 |   2 | Đang nhập            | Hiển thị người đang nhập                   | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm (hoãn — chờ chốt hạ tầng realtime, xem kế hoạch Phase 1) |
-|   3 | Reaction             | Thả emoji cho tin nhắn                     | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành |
+|   3 | Reaction             | Thả emoji cho tin nhắn                     | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành — nâng cấp emoji động, nghiệm thu 2026-07-11 |
 |   4 | Chỉnh sửa tin nhắn   | Edit message                               | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành |
 |   5 | Xóa tin nhắn         | Delete for everyone (Delete for me: bỏ theo yêu cầu) | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (thu hồi cho mọi người) |
 |   6 | Gửi lại tin nhắn lỗi | Retry failed message                       | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành |
@@ -52,7 +52,7 @@
 
 | STT | Tính năng       | Mô tả                            |  Ưu tiên   | Trạng thái |
 | --: | --------------- | -------------------------------- | :--------: | ---------- |
-|   1 | Sticker         | Bộ sticker và sticker yêu thích  | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (bộ built-in động + gần đây) |
+|   1 | Sticker         | Bộ sticker và sticker yêu thích  | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành — sticker động + panel Emoji & Sticker chung (Gần đây/Yêu thích/Tìm kiếm), nghiệm thu 2026-07-11 |
 |   2 | GIF             | Gửi GIF                          | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (chọn từ nguồn GIF sẵn) |
 |   3 | Tin nhắn thoại  | Ghi âm, waveform, playback       | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
 |   4 | Preview Link    | Thumbnail, tiêu đề, mô tả        | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (thẻ xem trước realtime, SSRF-safe) |
@@ -89,8 +89,8 @@
 
 | STT | Tính năng          | Mô tả                       |  Ưu tiên  | Trạng thái |
 | --: | ------------------ | --------------------------- | :-------: | ---------- |
-|   1 | Emoji động         | Animated Emoji              | ⭐⭐⭐⭐☆ | ⬜ Chưa làm |
-|   2 | Emoji cỡ lớn       | Big Emoji                   | ⭐⭐⭐⭐☆ | ⬜ Chưa làm |
+|   1 | Emoji động         | Animated Emoji              | ⭐⭐⭐⭐☆ | ✅ Hoàn thành (đã code 2026-07-11, chờ nghiệm thu) — tập emoji hỗ trợ chuyển động vài nhịp, tôn trọng "giảm chuyển động" |
+|   2 | Emoji cỡ lớn       | Big Emoji                   | ⭐⭐⭐⭐☆ | ✅ Hoàn thành (đã code 2026-07-11, chờ nghiệm thu) — tin emoji-only ≤5 hiển thị cỡ lớn không bong bóng |
 |   3 | Hiệu ứng tin nhắn  | Fireworks, Hearts, Confetti | ⭐⭐⭐☆☆  | ⬜ Chưa làm |
 |   4 | Khung avatar       | Avatar Frame                | ⭐⭐⭐☆☆  | ⬜ Chưa làm |
 |   5 | Theme hệ thống     | Light / Dark / Gradient     | ⭐⭐⭐☆☆  | 🟡 Một phần (Light/Dark xong; chưa có Gradient) |

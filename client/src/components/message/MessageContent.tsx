@@ -18,12 +18,16 @@ import {
   canEditMessage,
   isMessageDeliveredToMember,
 } from "../../utils/messageActionHelpers";
+import { analyzeEmojiOnly } from "../../utils/emoji";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
+import BigEmojiMessage from "./BigEmojiMessage";
 import ContactCard from "./ContactCard";
 import GifMessage from "./GifMessage";
 import LinkPreviewCard from "./LinkPreviewCard";
 import { ForwardedMessage, MessageItem, ReplyMessage } from "./MessageItem";
 import MessageMenu_Slide from "./MessageMenu_Slide";
+import MessageReaction from "./MessageReaction";
+import { summarizeReactions } from "../../packs/reactionPack";
 import PollMessage from "./PollMessage";
 import StickerMessage from "./StickerMessage";
 
@@ -57,6 +61,21 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     // Bình chọn có khung riêng → không bọc bong bóng mặc định.
     const isPoll = message.type === "poll" && !isRecalled;
     const isEdited = !!message.editedTime && !isRecalled;
+    // Phase 4 — Đợt 1: tin text CHỈ chứa emoji (không forward/reply/attachment)
+    // trong ngưỡng → hiển thị cỡ lớn, không bọc bong bóng. Vượt ngưỡng hoặc
+    // lẫn chữ → giữ hiển thị thường.
+    const emojiOnly =
+      !isRecalled &&
+      !isSticker &&
+      !isGif &&
+      !isContact &&
+      !isPoll &&
+      !message.isForwarded &&
+      !(message.replyId && message.replyContent) &&
+      (message.attachments?.length ?? 0) === 0
+        ? analyzeEmojiOnly(message.content)
+        : null;
+    const isBigEmoji = !!emojiOnly?.isBigEmoji;
     const showEdit = canEditMessage(message, isSelf);
 
     // Tin chỉ chứa 1 URL và đã có preview → ẩn bong bóng text, chỉ hiển thị thẻ
@@ -236,13 +255,17 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const hasSeenAvatars =
       isSelf && !!props.isLastFromMe && (seenContacts?.length ?? 0) > 0;
 
+    // Tin có reaction → chừa khoảng dưới để chip (neo -bottom) không đè tin kế tiếp.
+    // Sticker không render reaction (chỉ có action Xoá) → không chừa.
+    const hasReactions = !isSticker && summarizeReactions(message).total > 0;
+
     return (
       <div
         ref={ref}
         id={message.id}
         key={message.id}
         // Tin của mình → căn phải (flex-row-reverse); tin người khác → căn trái
-        className={`flex shrink-0 gap-4 ${isSelf ? "mr-6 flex-row-reverse" : ""} `}
+        className={`flex shrink-0 gap-4 ${isSelf ? "mr-6 flex-row-reverse" : ""} ${hasReactions ? "mb-3" : ""}`}
       >
         {/* Avatar chỉ hiển thị cho tin người khác gửi */}
         {!isSelf && (
@@ -285,7 +308,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                   className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   ${message.pending ? "opacity-50" : ""}
-                  ${!isSticker && !isGif && !isContact && !isPoll && (isRecalled || message.content || message.isForwarded || message.replyId) ? `laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)] ${bubbleClass}` : ""}
+                  ${!isSticker && !isGif && !isContact && !isPoll && !isBigEmoji && (isRecalled || message.content || message.isForwarded || message.replyId) ? `laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)] ${bubbleClass}` : ""}
                 `}
                 >
                   {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}
@@ -301,6 +324,9 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                     <ContactCard contact={message.sharedContact} />
                   ) : isPoll ? (
                     <PollMessage message={message} conversationId={id} />
+                  ) : isBigEmoji && emojiOnly ? (
+                    // Emoji-only trong ngưỡng: cỡ lớn, không bọc bong bóng.
+                    <BigEmojiMessage emojis={emojiOnly.emojis} />
                   ) : message.isForwarded ? (
                     <ForwardedMessage
                       message={message.content ?? ""}
@@ -495,9 +521,14 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                   )?.contact ?? {}
                 }
                 getContainerRect={props.getContainerRect}
-                // Tin chỉ-là-link (thẻ preview thay bong bóng): chỉ cho Xoá.
-                onlyDelete={isLinkOnly}
+                // Tin chỉ-là-link (thẻ preview thay bong bóng) và tin sticker: chỉ cho Xoá.
+                onlyDelete={isLinkOnly || isSticker}
               />
+            )}
+            {/* Chip tổng reaction (nút THẢ reaction nằm trong MessageMenu_Slide).
+                Sticker không có reaction (chỉ action Xoá theo nghiệp vụ). */}
+            {!message.pending && !message.failed && !isRecalled && !isSticker && (
+              <MessageReaction message={message} mine={isSelf} />
             )}
             {/*
               QUAN TRỌNG: <p.message-time> PHẢI là sibling trực tiếp của .peer

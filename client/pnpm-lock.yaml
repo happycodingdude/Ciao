@@ -59,12 +59,18 @@ importers:
       esbuild-plugin-react-virtualized:
         specifier: ^1.0.5
         version: 1.0.5(esbuild@0.27.3)
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       firebase:
         specifier: 11.3.1
         version: 11.3.1
       lodash-es:
         specifier: ^4.17.23
         version: 4.17.23
+      lottie-web:
+        specifier: ^5.13.0
+        version: 5.13.0
       prettier-plugin-tailwindcss:
         specifier: 0.5.11
         version: 0.5.11(prettier@3.8.1)
@@ -1849,6 +1855,9 @@ packages:
   fetch-cookie@2.2.0:
     resolution: {integrity: sha512-h9AgfjURuCgA2+2ISl8GbavpUdR+WGAM2McW/ovn4tVccegp8ZqCKWSBR8uRdM8dDNlx5WdKRWxBYUwteLDCNQ==}
 
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
   file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -2313,6 +2322,9 @@ packages:
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
+
+  lottie-web@5.13.0:
+    resolution: {integrity: sha512-+gfBXl6sxXMPe8tKQm7qzLnUy5DUPJPKIyRHwtpCpyUEYjHYRJC/5gjUvdkuO2c3JllrPtHXH5UJJK8LRYl5yQ==}
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -5275,6 +5287,8 @@ snapshots:
       set-cookie-parser: 2.7.2
       tough-cookie: 4.1.4
 
+  fflate@0.8.3: {}
+
   file-entry-cache@6.0.1:
     dependencies:
       flat-cache: 3.2.0
@@ -5729,6 +5743,8 @@ snapshots:
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
+
+  lottie-web@5.13.0: {}
 
   lru-cache@5.1.1:
     dependencies:

@@ -1,7 +1,5 @@
 import {
   MutableRefObject,
-  Suspense,
-  lazy,
   useCallback,
   useEffect,
   useRef,
@@ -37,8 +35,6 @@ import CreatePollModal from "./CreatePollModal";
 import { ContactModel } from "../../types/friend.types";
 import { PollModel } from "../../types/message.types";
 
-const LazyEmojiPicker = lazy(() => import("../common/LazyEmojiPicker"));
-
 const ChatInput = ({ className }: ChatInputProps) => {
   const { activeDetail } = useChatDetailToggles();
   // anyPanelOpen = có panel nào đang mở ở sidebar phải → chat input thu hẹp lại nhường chỗ.
@@ -62,7 +58,6 @@ const ChatInput = ({ className }: ChatInputProps) => {
   const { markUsed: markStickerUsed } = useStickerFavorites();
 
   const [showMention, setShowMention] = useState(false);
-  const [showEmoji, setShowEmoji] = useState(false);
   const [showSticker, setShowSticker] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const [showShareContact, setShowShareContact] = useState(false);
@@ -228,7 +223,6 @@ const ChatInput = ({ className }: ChatInputProps) => {
 
   useEventListener("keydown", useCallback((e: Event) => {
     if ((e as KeyboardEvent).key === "Escape") {
-      setShowEmoji(false);
       setShowSticker(false);
     }
   }, []), undefined);
@@ -291,7 +285,6 @@ const ChatInput = ({ className }: ChatInputProps) => {
           )}
           <div className="flex flex-col gap-4 px-4 pb-2 pt-4">
             <ChatInputToolbar
-              onEmojiClick={() => setShowEmoji(true)}
               onStickerClick={() => setShowSticker((v) => !v)}
               onGifClick={() => setShowGif((v) => !v)}
               onContactClick={() => setShowShareContact(true)}
@@ -301,7 +294,17 @@ const ChatInput = ({ className }: ChatInputProps) => {
             />
             {showSticker && (
               <div className="absolute bottom-full left-2 z-30 mb-2">
-                <StickerPicker onSelect={sendSticker} />
+                <StickerPicker
+                  onSelect={sendSticker}
+                  // Tab Emoji trong panel: chèn emoji vào ô nhập (thay nút emoji rời cũ),
+                  // KHÔNG đóng panel để chèn được nhiều emoji liên tiếp.
+                  onEmojiSelect={(native) => {
+                    if (!inputRef.current) return;
+                    inputRef.current.innerText += native;
+                    setIsEmpty(false);
+                    saveDraft();
+                  }}
+                />
               </div>
             )}
             {showGif && (
@@ -325,19 +328,6 @@ const ChatInput = ({ className }: ChatInputProps) => {
             </div>
           </div>
         </div>
-        {showEmoji && (
-          <div className="-top-176 absolute left-0">
-            <Suspense fallback={<div className="h-176 w-84 animate-pulse rounded-lg bg-(--skeleton-base)" />}>
-              <LazyEmojiPicker
-                onEmojiSelect={(e) => { if (inputRef.current) { inputRef.current.innerText += e.native; setIsEmpty(false); saveDraft(); } }}
-                onClickOutside={(e) => {
-                  if (e.target.classList.contains("emoji-item")) setShowEmoji(true);
-                  else setShowEmoji(false);
-                }}
-              />
-            </Suspense>
-          </div>
-        )}
       </div>
     </div>
   );

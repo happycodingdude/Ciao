@@ -1,0 +1,133 @@
+/* Reaction UI — 2 phần tách biệt:
+   1) .reaction-chip: chip tổng (top reactions + số) neo góc DƯỚI-TRONG bubble —
+      mine: góc trái (né icon trạng thái Sent/Seen nằm bên phải dưới tin cuối),
+      người khác: góc phải. width max-content để không bị bó theo bubble hẹp.
+   2) .reaction-menu-wrap: nút thả cảm xúc nằm TRONG thanh menu hover của tin
+      (không còn phần tử nổi dưới bubble → không đè tin kế tiếp); hover mở bảng
+      6 emoji động phía trên menu. */
+
+.reaction-chip {
+  position: absolute;
+  bottom: -0.7rem;
+  /* Dưới menu hover (z-index 2 khi mở) — chip của tin lân cận không đè bảng emoji. */
+  z-index: 1;
+  width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 2rem;
+  background-color: var(--bubble-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  cursor: default;
+  animation: reaction-pop 0.25s ease;
+}
+.reaction-chip[data-mine="true"] {
+  left: 0.35rem;
+}
+.reaction-chip[data-mine="false"] {
+  right: 0.35rem;
+}
+.reaction-chip img {
+  height: 1.15rem;
+  width: 1.15rem;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.reaction-chip img + img {
+  margin-left: -0.35rem;
+}
+.reaction-chip span {
+  font-size: 0.8rem;
+  line-height: 1.15rem;
+  white-space: nowrap;
+  color: var(--text-main-color);
+}
+
+/* Nút reaction trong menu hover + bảng emoji động mở phía trên. */
+.reaction-menu-wrap {
+  position: relative;
+  display: flex;
+}
+.reaction-current-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.reaction-bar {
+  position: absolute;
+  bottom: calc(100% + 0.35rem);
+  /* Item reaction nằm CUỐI menu (rìa phải) → neo bảng theo mép phải, nở về trái. */
+  right: -0.3rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 2rem;
+  background-color: var(--bubble-bg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  transform: scale(0);
+  transform-origin: bottom right;
+  transition: transform 0.18s ease;
+}
+/* Cầu hover vô hình lấp khe giữa nút và bảng — rê chuột lên không bị tắt giữa chừng. */
+.reaction-bar::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 0.45rem;
+}
+.reaction-menu-wrap:hover .reaction-bar {
+  transform: scale(1);
+}
+
+.reaction-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.1rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.reaction-option img {
+  height: 1.8rem;
+  width: 1.8rem;
+  object-fit: contain;
+}
+.reaction-option:hover {
+  transform: scale(1.3) translateY(-0.15rem);
+}
+.reaction-option:active {
+  transform: scale(0.95);
+}
+.reaction-option[data-active="true"] {
+  background-color: var(--toolbar-btn-bg);
+}
+
+@keyframes reaction-pop {
+  0% {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reaction-chip {
+    animation: none;
+  }
+  .reaction-bar,
+  .reaction-option {
+    transition: none;
+  }
+}
