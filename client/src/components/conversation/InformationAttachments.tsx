@@ -15,7 +15,8 @@ type Props = {
 };
 
 // Mỗi section preview tối đa 8 item; phần còn lại xem qua "View all"
-// (mở panel Attachment đúng tab tương ứng).
+// (mở panel Attachment đúng tab tương ứng). Videos/Files/Links cap max-h-40,
+// tràn thì scroll trong section để panel Information không bị kéo quá dài.
 const MAX_PREVIEW = 8;
 
 // Header section + nút View all — dùng chung cho 4 section.
@@ -115,7 +116,7 @@ const InformationAttachments = ({ conversationId }: Props) => {
       <div className="flex flex-col gap-2">
         <SectionHeader title="Videos" tab="video" onViewAll={openAttachment} />
         {videos.length > 0 ? (
-          <div className="laptop:grid-cols-4 grid w-full gap-4">
+          <div className="hide-scrollbar laptop:grid-cols-4 grid max-h-40 w-full gap-4 overflow-y-auto">
             {videos.map((item, index) => (
               <VideoThumb key={item.id ?? index} item={item} />
             ))}
@@ -129,7 +130,7 @@ const InformationAttachments = ({ conversationId }: Props) => {
       <div className="flex flex-col gap-2">
         <SectionHeader title="Files" tab="file" onViewAll={openAttachment} />
         {files.length > 0 ? (
-          <div className="flex flex-col">
+          <div className="hide-scrollbar flex max-h-40 flex-col overflow-y-auto">
             {files.map((item, index) => (
               <FileRow key={item.id ?? index} item={item} />
             ))}
@@ -145,7 +146,7 @@ const InformationAttachments = ({ conversationId }: Props) => {
         {linksLoading ? (
           <EmptyLine text="Loading..." />
         ) : links.length > 0 ? (
-          <div className="flex flex-col">
+          <div className="hide-scrollbar flex max-h-40 flex-col overflow-y-auto">
             {links.map((link) => (
               <LinkRow key={link.messageId + link.url} item={link} />
             ))}

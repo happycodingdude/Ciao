@@ -1,12 +1,13 @@
 # Tùy chỉnh đoạn chat — Hình nền & Màu bong bóng (Phase 3 — Đợt 3)
 
-> **Trạng thái:** ✅ **HOÀN THÀNH — user đã nghiệm thu trên app thật (2026-07-11)**, đủ các rev 1→5.
+> **Trạng thái:** ✅ **HOÀN THÀNH — user đã nghiệm thu trên app thật (2026-07-11)**, đủ các rev 1→6.
 > **Nguồn kế hoạch:** [`KE_HOACH_PHASE_3_CA_NHAN_HOA.md`](./KE_HOACH_PHASE_3_CA_NHAN_HOA.md) · Handoff: [`PHASE3_HANDOFF.md`](./PHASE3_HANDOFF.md)
 > **Rev 2 (2026-07-11, theo yêu cầu user):** theme chuyển từ "riêng từng người" thành **chung cho cả hội thoại** — mọi thành viên đều thấy, đồng bộ realtime; đồng thời tăng tương phản chữ màu trong bong bóng.
 > **Rev 3 (2026-07-11, theo yêu cầu user):** (1) màu bong bóng áp cho **tất cả tin nhắn** hai phía, không chỉ tin của người xem; (2) mỗi lần đổi theme sinh **dòng tin hệ thống** "… changed the chat theme" trong khung chat; (3) thêm **3 chủ đề sự kiện** (Noel, Halloween, Valentine) — một lựa chọn đổi đồng bộ cả hình nền lẫn màu bong bóng.
 > **Rev 3.1 (2026-07-11, theo yêu cầu user):** **tạm ẩn** 2 hàng chọn riêng lẻ Chat wallpaper và Bubble color — giao diện chỉ còn hàng **Themes** (kèm ô Default để về mặc định). Bộ preset riêng lẻ vẫn giữ nguyên trong mã nguồn để bật lại khi cần.
 > **Rev 4 (2026-07-11, theo yêu cầu user):** (1) trong **nhóm** chỉ **trưởng nhóm** mới được đổi theme (chat 1-1 không đổi hành vi — cả hai phía đều đổi được); (2) dòng tin hệ thống nêu rõ **tên chủ đề** vừa đổi sang.
 > **Rev 5 (2026-07-11, theo yêu cầu user):** tối ưu tốc độ lưu — thao tác đổi theme phản hồi **ngay lập tức** với người đổi; việc lưu bền và đồng bộ tới các thành viên khác diễn ra ngay sau đó ở hậu trường (độ trễ không đáng kể, hành vi nhìn thấy không đổi).
+> **Rev 6 (2026-07-11, theo yêu cầu user):** (1) mục Customize chat **đổi tên thành "Theme"**; (2) mục này có thể **thu gọn** trong panel thông tin — khi thu gọn hiển thị **tên theme đang áp dụng** (ngang hàng cạnh tiêu đề) kèm ô màu thu nhỏ. Chi tiết: [`THU_GON_PANEL_THONG_TIN.md`](./THU_GON_PANEL_THONG_TIN.md).
 
 ## Các giai đoạn thực hiện
 

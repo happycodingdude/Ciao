@@ -1,6 +1,7 @@
 import useConversation from "../../hooks/useConversation";
 import useConversationAppearance from "../../hooks/useConversationAppearance";
 import useInfo from "../../hooks/useInfo";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import "../../styles/chatAppearance.css";
 import {
   BUBBLE_PRESETS,
@@ -28,6 +29,24 @@ const InformationAppearance = ({ conversationId }: Props) => {
     useConversationAppearance(conversationId);
   const { data: conversations } = useConversation();
   const { data: info } = useInfo();
+  const [showAppearance, setShowAppearance] = useLocalStorage(
+    "showCustomizeChat",
+    true,
+  );
+
+  // Theme hiện tại: chỉ khớp khi wallpaper + bubbleColor cùng key event-theme
+  // (cách duy nhất set qua UI hiện tại). null cả hai = Default; lệch nhau hoặc
+  // key lẻ (từ 2 hàng riêng đang ẩn) = Custom.
+  const currentTheme =
+    EVENT_THEME_PRESETS.find(
+      (p) =>
+        p.key === (wallpaper ?? null) && p.key === (bubbleColor ?? null),
+    ) ?? null;
+  const currentThemeLabel =
+    currentTheme?.label ??
+    ((wallpaper ?? null) === null && (bubbleColor ?? null) === null
+      ? "Default"
+      : "Custom");
 
   // Quyền đổi theme: nhóm → chỉ trưởng nhóm (isModerator); chat 1-1 không có
   // trưởng nhóm nên cả hai phía đều đổi được. Thành viên thường KHÔNG thấy section
@@ -49,17 +68,65 @@ const InformationAppearance = ({ conversationId }: Props) => {
 
   return (
     <div className={`flex flex-col gap-3 ${saving ? "opacity-60" : ""}`}>
-      <div>
-        <p className="font-medium">Customize chat</p>
+      {/* min-h-8 đồng bộ với header mục Members — chiều cao không đổi khi toggle */}
+      <div className="min-h-8 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <p className="font-medium">Theme</p>
+          {/* Thu gọn: tên theme đang set + swatch thu nhỏ (nền theme + chấm bubble)
+              NGANG HÀNG cạnh tiêu đề — bấm vào để mở lại phần chọn theme */}
+          {!showAppearance && (
+            <div
+              className="flex cursor-pointer items-center gap-2"
+              onClick={() => setShowAppearance(true)}
+            >
+              <div
+                className={`${getWallpaperClass(currentTheme?.key)} bg-linear-to-br flex h-5 w-5 items-center
+                  justify-center rounded-full from-(--chat-bg-from) to-(--chat-bg-to) ring-1 ring-(--border-color)`}
+              >
+                <div
+                  className={`${getBubbleClass(currentTheme?.key)} bg-(--bubble-bg) h-2 w-2 rounded-full`}
+                />
+              </div>
+              <p className="text-2xs text-(--text-main-color-blur)">
+                {currentThemeLabel}
+              </p>
+            </div>
+          )}
+        </div>
+        <i
+          data-show={showAppearance}
+          className="fa-arrow-down fa-solid base-icon-sm flex aspect-square cursor-pointer items-center justify-center
+          transition-all duration-500 data-[show=false]:rotate-90"
+          onClick={() => setShowAppearance((v) => !v)}
+        ></i>
+      </div>
+
+      {/* p-1/-m-1: overflow-hidden sẽ cắt ring của swatch (offset 2px + ring 2px
+          = 4px lòi ra ngoài) → đệm 4px trong rồi bù margin âm để layout không đổi.
+          Khi thu gọn, max-h-0 (border-box) vẫn còn 8px padding dọc — margin âm
+          triệt tiêu đúng phần đó.
+          max-h khi mở phải SÁT chiều cao nội dung thật: đặt thừa quá nhiều thì
+          transition tốn phần lớn thời gian ở vùng không nhìn thấy → hiệu ứng
+          trông nhanh/giật, lệch nhịp với mục Members. */}
+      <div
+        data-show={showAppearance}
+        className={`-m-1 flex flex-col gap-3 overflow-hidden p-1 transition-all duration-500 data-[show=false]:max-h-0
+          data-[show=false]:opacity-0 data-[show=true]:opacity-100
+          ${
+            // Bật lại 2 hàng chọn riêng lẻ → nội dung cao hơn nhiều, cần trần lớn hơn
+            SHOW_INDIVIDUAL_ROWS
+              ? "data-[show=true]:max-h-100"
+              : "data-[show=true]:max-h-40"
+          }`}
+      >
         <p className="text-2xs text-(--text-main-color-blur)">
           Áp dụng cho mọi thành viên trong đoạn chat
         </p>
-      </div>
 
-      {/* Theme sự kiện: 1 ô đổi CẢ wallpaper + bubble (cùng key). Swatch = nền gradient
+        {/* Theme sự kiện: 1 ô đổi CẢ wallpaper + bubble (cùng key). Swatch = nền gradient
           của theme + chấm tròn màu bubble ở giữa để thấy trước cả hai. Ô Default
           (cần thiết khi 2 hàng riêng lẻ đang ẩn — là lối duy nhất về mặc định). */}
-      <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
         <p className="text-2xs text-(--text-main-color-blur)">Themes</p>
         <div className="flex flex-wrap gap-3">
           {[{ key: null as string | null, label: "Default" }]
@@ -88,9 +155,9 @@ const InformationAppearance = ({ conversationId }: Props) => {
               </div>
             ))}
         </div>
-      </div>
+        </div>
 
-      {SHOW_INDIVIDUAL_ROWS && (
+        {SHOW_INDIVIDUAL_ROWS && (
         <>
           <div className="flex flex-col gap-2">
             <p className="text-2xs text-(--text-main-color-blur)">
@@ -132,8 +199,9 @@ const InformationAppearance = ({ conversationId }: Props) => {
                 ))}
             </div>
           </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

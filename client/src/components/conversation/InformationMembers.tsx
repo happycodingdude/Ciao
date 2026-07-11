@@ -20,13 +20,65 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
   const [informationOffsetWidth, setInformationOffsetWidth] = useState<number>();
   const refMembers = useRef<HTMLDivElement>(null);
 
+  // Admin luôn hiển thị trước — dùng chung cho cả danh sách đầy đủ lẫn dải
+  // avatar xếp chồng khi thu gọn.
+  const members = [...(conversation.members ?? [])].sort(
+    (a, b) => Number(b.isModerator) - Number(a.isModerator),
+  );
+
+  // Thu gọn: tối đa 5 avatar xếp chồng, từ người thứ 6 trở đi gộp thành vòng "+N"
+  const MAX_STACK = 5;
+  const stackMembers = members.slice(0, MAX_STACK);
+  const overflowCount = members.length - MAX_STACK;
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between">
-        <p className="font-medium">Members ({(conversation.members ?? []).length})</p>
+      {/* min-h-8 = đúng chiều cao avatar dải thu gọn → hàng tiêu đề cao bằng nhau
+          ở cả 2 trạng thái, toggle không bị xô lệch layout */}
+      <div className="min-h-8 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <p className="font-medium">Members ({(conversation.members ?? []).length})</p>
+          {/* Thu gọn: dải avatar tròn xếp chồng NGANG HÀNG cạnh tiêu đề (vòng sau
+              nằm DƯỚI vòng trước, chỉ lộ 1/2) — bấm vào để mở lại danh sách đầy đủ.
+              Viền ring màu nền panel để tách các vòng chồng nhau. */}
+          {!showMembers && (
+            <div
+              className="flex cursor-pointer items-center"
+              onClick={() => setShowMembers(true)}
+            >
+              {stackMembers.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="relative -ml-4 rounded-full ring-2 ring-(--bg-color) first:ml-0"
+                  // Vòng trước đè lên vòng sau → z-index giảm dần theo thứ tự
+                  style={{ zIndex: stackMembers.length - index }}
+                >
+                  <ImageWithLightBoxAndNoLazy
+                    src={item.contact?.avatar}
+                    title={item.contact?.name}
+                    className="aspect-square h-8"
+                    circle
+                    slides={[{ src: item.contact?.avatar ?? "" }]}
+                    onClick={() => setShowMembers(true)}
+                  />
+                </div>
+              ))}
+              {overflowCount > 0 && (
+                <div
+                  className="text-2xs bg-(--bg-color-extrathin) relative -ml-4 flex aspect-square h-8 items-center
+                    justify-center rounded-full font-medium ring-2 ring-(--bg-color)"
+                  style={{ zIndex: 0 }}
+                  title={`${overflowCount} thành viên khác`}
+                >
+                  +{overflowCount}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         <i
           data-show={showMembers}
-          className="fa-arrow-down fa-solid base-icon-sm flex aspect-square h-full cursor-pointer items-center justify-center
+          className="fa-arrow-down fa-solid base-icon-sm flex aspect-square cursor-pointer items-center justify-center
           transition-all duration-500 data-[show=false]:rotate-90"
           onClick={() => setShowMembers((v) => !v)}
         ></i>
@@ -37,10 +89,7 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
         className="members-image-container hide-scrollbar laptop:max-h-50 desktop:max-h-200 phone:max-h-80 flex flex-col overflow-y-auto
           scroll-smooth transition-all duration-500 data-[show=false]:max-h-0 data-[show=false]:opacity-0 data-[show=true]:opacity-100"
       >
-        {[...(conversation.members ?? [])]
-          // Admin luôn hiển thị trước
-          .sort((a, b) => Number(b.isModerator) - Number(a.isModerator))
-          .map((item) => (
+        {members.map((item) => (
             <div
               key={item.id}
               // pointer-events-none cho chính mình: không cần QuickChat với bản thân

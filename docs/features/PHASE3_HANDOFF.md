@@ -11,8 +11,8 @@
 | 1 | Bookmark (tin đã lưu) | ✅ Xong | ✅ Xong | Trang `/saved` + menu tin nhắn + panel trong hội thoại; **đã nghiệm thu app thật (2026-07-11)** |
 | 2 | Media tabs (Ảnh/Video/File/Link) | ✅ Xong (endpoint links) | ✅ Xong — **đã nghiệm thu app thật (2026-07-11)** | 4 section Information + 4 tab `Attachment.tsx` + preselect tab — xem [`MEDIA_TABS_REDESIGN.md`](./MEDIA_TABS_REDESIGN.md) |
 | 2 | Đặt biệt danh | ✅ Xong | ⬜ Chưa làm | FE: UI sửa trong `InformationMembers.tsx` + hiển thị nickname + case realtime |
-| 3 | Đổi hình nền chat | ✅ Xong (rev 2: conversation-level) | ✅ Code xong rev 2 — **chưa verify E2E (BE chưa chạy)** | Theme CHUNG cả hội thoại + sync realtime — xem [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md) |
-| 3 | Theme chat (màu bong bóng) | ✅ Xong (rev 2: conversation-level) | ✅ Code xong rev 2 — **chưa verify E2E (BE chưa chạy)** | 5 preset AA-contrast + override chữ màu trong bubble — xem [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md) |
+| 3 | Đổi hình nền chat | ✅ Xong | ✅ Xong — **đã nghiệm thu app thật (2026-07-11, đủ rev 1→6)** | Theme CHUNG cả hội thoại + sync realtime + leader-only — xem [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md) |
+| 3 | Theme chat (màu bong bóng) | ✅ Xong | ✅ Xong — **đã nghiệm thu app thật (2026-07-11, đủ rev 1→6)** | Preset AA-contrast + 3 chủ đề sự kiện + collapse mục Theme — xem [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md) |
 | 4 | Lần hoạt động cuối (Last Seen) | ✅ Xong | ⬜ Chưa làm | FE: hiển thị "hoạt động x trước" khi offline |
 
 **Backend đã build 0 lỗi (`dotnet build MyConnect.sln`), client build OK (`npm run build`).**
@@ -89,7 +89,7 @@ Files đã đổi: `context/ChatDetailTogglesContext.tsx` (thêm `attachmentTab`
 2. Hiển thị: ưu tiên `member.nickname` thay `contact.name` trong tin nhắn nhóm (`MessageContent.tsx`), danh sách member, mention… (chỉ trong hội thoại đó).
 3. Realtime: thêm case `MemberNicknameChanged` vào `utils/notificationHandlers.ts` (payload: conversationId, contactId, nickname, changedBy) → patch member trong cache `["conversation"]`.
 
-### Đợt 3 — Hình nền + màu bong bóng (rev 2 ĐÃ CODE 2026-07-11 — **CHƯA VERIFY E2E, BE cần restart**)
+### Đợt 3 — Hình nền + màu bong bóng (✅ HOÀN THÀNH — user đã nghiệm thu app thật 2026-07-11, đủ rev 1→6)
 
 Doc nghiệp vụ: [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md).
 
@@ -111,7 +111,7 @@ FE (build sạch; 4 lỗi tsc pre-existing không liên quan):
 - Contrast: `getBubbleClass` trả `chat-bubble-custom chat-bubble-{key}`; `.chat-bubble-custom` trong `chatAppearance.css` ép trắng các text màu trong bubble (`.text-light-blue-500/600` mention + reply/forward header, `.text-green-500` View more + underline, `[class*="border-l-light-blue"]` vạch quote) — selector 2 class thắng utility, không cần `!important`. Màu preset chỉnh đậm hơn đạt AA với chữ trắng: teal `#0f766e`, amber `#b45309`, rose `#be123c`.
 - UI: subtitle "Áp dụng cho mọi thành viên trong đoạn chat" dưới heading Customize chat.
 
-**Việc còn lại để đóng đợt 3:** restart BE (Docker daemon đang tắt — cần user mở Docker/approve quyền) → verify E2E: 2 account 2 browser context, A đổi theme → B thấy ngay không reload; reload giữ theme; contrast reply/mention/View more trong bubble màu; regression harness Playwright cũ (scratchpad session 2026-07-11: login `/auth`, click `.anticon-info-circle` mở panel).
+**Đợt 3 ĐÃ ĐÓNG (2026-07-11):** user nghiệm thu trực tiếp trên app thật, đủ rev 1→6 (rev 3: bubble mọi tin + system message + 3 theme sự kiện; rev 4: leader-only + tên theme trong system message; rev 5: pipeline async Kafka; rev 6: đổi tên mục thành "Theme" + thu gọn được — xem [`THU_GON_PANEL_THONG_TIN.md`](./THU_GON_PANEL_THONG_TIN.md)). Mục này giữ lại làm tham chiếu, không còn việc tồn đọng.
 
 ### Đợt 4 — Last Seen
 
