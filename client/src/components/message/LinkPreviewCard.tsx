@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { LinkPreviewModel } from "../../types/message.types";
+import { resolveLinkPreviewImageSrc } from "../../utils/linkPreview";
 
 // Thẻ xem trước liên kết (tin text có URL). Bấm vào mở link ở tab mới.
 // Ảnh lỗi tải → tự ẩn (fallback), thẻ vẫn hiển thị tiêu đề/mô tả/tên miền.
@@ -22,14 +23,7 @@ const LinkPreviewCard = ({
     }
   })();
 
-  // imageUrl từ BE giờ là path proxy tương đối ("/api/v1/link-preview/image?...") — ảnh tải QUA BE
-  // để không lộ IP/tracking người xem cho server bên thứ 3. Ghép base host cho path tương đối;
-  // preview cũ (đã lưu URL tuyệt đối trước khi có proxy) vẫn tải trực tiếp (backward-compat).
-  const imageSrc = preview.imageUrl
-    ? /^https?:\/\//i.test(preview.imageUrl)
-      ? preview.imageUrl
-      : `${import.meta.env.VITE_ASPNETCORE_CHAT_URL}${preview.imageUrl}`
-    : undefined;
+  const imageSrc = resolveLinkPreviewImageSrc(preview.imageUrl);
 
   const showImage = !!imageSrc && !imageFailed;
 

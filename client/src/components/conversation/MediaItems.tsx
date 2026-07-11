@@ -1,5 +1,8 @@
+import { useState } from "react";
+
 import { ConversationLinkItem } from "../../types/bookmark.types";
 import { AttachmentModel } from "../../types/message.types";
+import { resolveLinkPreviewImageSrc } from "../../utils/linkPreview";
 
 // Item hiển thị dùng chung giữa panel Attachment (4 tab) và các section preview
 // trong Information — giữ 1 nguồn markup để 2 nơi không lệch UI.
@@ -52,6 +55,10 @@ const hostnameOf = (url: string) => {
 
 // Row liên kết: thumbnail + title + siteName — layout đồng bộ row của InformationBookmark.
 export const LinkRow = ({ item }: { item: ConversationLinkItem }) => {
+  // imageUrl là path proxy tương đối qua BE — phải resolve về host BE, không để
+  // trình duyệt resolve nhầm về origin FE. Ảnh tải lỗi → fallback icon link.
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageSrc = resolveLinkPreviewImageSrc(item.imageUrl);
   return (
     <a
       href={item.url}
@@ -59,11 +66,13 @@ export const LinkRow = ({ item }: { item: ConversationLinkItem }) => {
       rel="noopener noreferrer"
       className="hover:bg-(--bg-color-extrathin) flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2"
     >
-      {item.imageUrl ? (
+      {imageSrc && !imageFailed ? (
         <img
-          src={item.imageUrl}
+          src={imageSrc}
           alt=""
           loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setImageFailed(true)}
           className="aspect-square w-8 shrink-0 rounded-lg object-cover"
         />
       ) : (

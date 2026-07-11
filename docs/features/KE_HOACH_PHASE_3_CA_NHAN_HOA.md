@@ -1,6 +1,6 @@
 # Kế hoạch triển khai — Phase 3: Tăng tương tác và cá nhân hóa cuộc trò chuyện
 
-> **Cập nhật:** 2026-07-09 · **Nguồn:** [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
+> **Cập nhật:** 2026-07-11 · **Nguồn:** [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
 > Phạm vi: các tính năng **chưa hoàn thành** của Phase 3 (⬜) và phần còn thiếu của các tính năng 🟡.
 > **Điều chỉnh 2026-07-09:** tính năng **Trạng thái hoạt động (Idle / Invisible)** được **bỏ khỏi phạm vi Phase 3** theo yêu cầu — chưa cần ở giai đoạn này, sẽ xem xét lại sau.
 
@@ -10,9 +10,9 @@
 
 | Tính năng | Trạng thái | Mục tiêu |
 | --- | --- | --- |
-| Bookmark | ⬜ | Lưu tin nhắn cho riêng mình |
-| Ghim cuộc trò chuyện | ⬜ | Ghim/đánh dấu hội thoại lên đầu |
-| Media (phân loại) | 🟡 | Tách rõ Ảnh / Video / Tệp / Liên kết |
+| Bookmark | ✅ Nghiệm thu 2026-07-11 | Lưu tin nhắn cho riêng mình |
+| Ghim cuộc trò chuyện | ✅ Nghiệm thu 2026-07-11 | Ghim/đánh dấu hội thoại lên đầu |
+| Media (phân loại) | ✅ Nghiệm thu 2026-07-11 | Tách rõ Ảnh / Video / Tệp / Liên kết |
 | Đổi hình nền chat | ⬜ | Hình nền theo từng hội thoại |
 | Theme chat | ⬜ | Đổi màu bong bóng chat |
 | Đặt biệt danh | ⬜ | Biệt danh thành viên trong nhóm |
@@ -25,8 +25,8 @@
 
 | Đợt | Mục tiêu | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- |
-| **Đợt 1** ✅ | Bookmark + Ghim cuộc trò chuyện — **code xong 2026-07-09, chờ verify E2E** | Đồng bộ trạng thái đa thiết bị | Không | Ẩn mục đã lưu / bỏ ghim |
-| **Đợt 2** | Media phân loại + Đặt biệt danh | Phân loại sai loại tệp | Kho đính kèm hiện có | Quay lại danh sách gộp |
+| **Đợt 1** ✅ | Bookmark + Ghim cuộc trò chuyện — **hoàn thành, nghiệm thu 2026-07-11** | Đồng bộ trạng thái đa thiết bị | Không | Ẩn mục đã lưu / bỏ ghim |
+| **Đợt 2** 🟡 | Media phân loại (✅ nghiệm thu 2026-07-11) + Đặt biệt danh (⬜ chưa làm) | Phân loại sai loại tệp | Kho đính kèm hiện có | Quay lại danh sách gộp |
 | **Đợt 3** | Đổi hình nền + Theme chat | Ảnh hưởng độ tương phản/đọc chữ | Hệ theme sáng/tối | Quay về nền/màu mặc định |
 | **Đợt 4** | Hoạt động lần cuối (Last Seen) | Quyền riêng tư, chính xác thời điểm | Cơ chế hiện diện online hiện có | Không hiển thị last seen như hiện tại |
 

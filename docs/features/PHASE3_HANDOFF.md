@@ -7,9 +7,9 @@
 
 | Đợt | Tính năng | Backend | Frontend | Ghi chú |
 | --- | --- | --- | --- | --- |
-| 1 | Ghim cuộc trò chuyện | ✅ Xong | ✅ Xong | Chờ restart BE + verify E2E — xem [`GHIM_HOI_THOAI_VA_BOOKMARK.md`](./GHIM_HOI_THOAI_VA_BOOKMARK.md) |
-| 1 | Bookmark (tin đã lưu) | ✅ Xong | ✅ Xong | Trang `/saved` + menu tin nhắn; chờ verify E2E |
-| 2 | Media tabs (Ảnh/Video/File/Link) | ✅ Xong (endpoint links) | ✅ Code xong (2026-07-11) | 4 section Information + 4 tab `Attachment.tsx` + preselect tab; build + tsc sạch, chờ verify E2E — xem [`MEDIA_TABS_REDESIGN.md`](./MEDIA_TABS_REDESIGN.md) |
+| 1 | Ghim cuộc trò chuyện | ✅ Xong | ✅ Xong | **Đã nghiệm thu app thật (2026-07-11)** — xem [`GHIM_HOI_THOAI_VA_BOOKMARK.md`](./GHIM_HOI_THOAI_VA_BOOKMARK.md) |
+| 1 | Bookmark (tin đã lưu) | ✅ Xong | ✅ Xong | Trang `/saved` + menu tin nhắn + panel trong hội thoại; **đã nghiệm thu app thật (2026-07-11)** |
+| 2 | Media tabs (Ảnh/Video/File/Link) | ✅ Xong (endpoint links) | ✅ Xong — **đã nghiệm thu app thật (2026-07-11)** | 4 section Information + 4 tab `Attachment.tsx` + preselect tab — xem [`MEDIA_TABS_REDESIGN.md`](./MEDIA_TABS_REDESIGN.md) |
 | 2 | Đặt biệt danh | ✅ Xong | ⬜ Chưa làm | FE: UI sửa trong `InformationMembers.tsx` + hiển thị nickname + case realtime |
 | 3 | Đổi hình nền chat | ✅ Xong | ⬜ Chưa làm | FE: preset + override CSS var trên `ChatboxContainer` |
 | 3 | Theme chat (màu bong bóng) | ✅ Xong | ⬜ Chưa làm | FE: preset + override `--bubble-bg` trong `MessageContent` |
@@ -50,13 +50,13 @@ FE đã chuẩn bị sẵn:
 
 ## Việc còn lại (FE là chính) — khi quay lại làm tiếp
 
-### Đợt 2a — Media tabs redesign (✅ CODE XONG 2026-07-11 — chờ verify E2E)
+### Đợt 2a — Media tabs redesign (✅ HOÀN THÀNH — user đã nghiệm thu app thật 2026-07-11)
 
-**Đã implement đủ 6 bước bảng dưới.** Trạng thái verify: `tsc` các file mới sạch, `npm run build` OK, Vite dev transform 5 module mới/sửa OK (FE :5000, BE :4000 đang chạy). CHƯA chạy Playwright E2E (môi trường session không có Playwright MCP) — checklist verify ở cuối mục này vẫn cần chạy tay/Playwright khi có.
+**Đã implement đủ 6 bước bảng dưới.** Verify: `tsc` sạch, `npm run build` OK, Vite dev transform OK; **user đã nghiệm thu trực tiếp trên app thật (2026-07-11)** — bao gồm cả fix thumbnail Links bên dưới. Mục này giữ lại làm tham chiếu, không còn việc tồn đọng.
 
 Files đã đổi: `context/ChatDetailTogglesContext.tsx` (thêm `attachmentTab` + `openAttachment`), `hooks/useConversationLinks.ts` (mới), `components/conversation/MediaItems.tsx` (mới: `FileRow`/`LinkRow`/`VideoThumb`/`formatBytes`), `Attachment.tsx` (4 tab), `InformationAttachments.tsx` (4 section).
 
-**Known issue (2026-07-11, chưa fix):** thumbnail trong section/tab Links hiện icon ảnh vỡ (link CELLPHONES) — `imageUrl` có giá trị nhưng ảnh tải lỗi (khả năng site chặn hotlink/referrer hoặc URL ảnh hết hạn). Fix dự kiến: thêm `onError` trên `<img>` trong `LinkRow` (`MediaItems.tsx`) để fallback về icon `fa-link` như case thiếu `imageUrl`; cân nhắc thêm `referrerPolicy="no-referrer"` trên `<img>`.
+**Known issue (2026-07-11) — ĐÃ FIX (2026-07-11):** thumbnail trong section/tab Links hiện icon ảnh vỡ (link CELLPHONES) dù bubble tin nhắn hiện ảnh bình thường. **Root cause:** `imageUrl` từ BE là path proxy tương đối (`/api/v1/link-preview/image?...`) — `LinkPreviewCard` có logic prefix `VITE_ASPNETCORE_CHAT_URL`, còn `LinkRow` dùng raw nên browser resolve về origin FE (:5000) → 404. **Fix:** tách helper `resolveLinkPreviewImageSrc` (`utils/linkPreview.ts`, mới) dùng chung cho `LinkPreviewCard.tsx` + `LinkRow` (`MediaItems.tsx`); kèm `onError` → fallback icon `fa-link` + `referrerPolicy="no-referrer"` phòng ảnh proxy vẫn lỗi. Đã nghiệm thu cùng đợt 2a trên app thật (2026-07-11).
 
 **Yêu cầu chốt:**
 
@@ -81,7 +81,7 @@ Files đã đổi: `context/ChatDetailTogglesContext.tsx` (thêm `attachmentTab`
 - Attachments filter **client-side** trên cache `useAttachment` sẵn có (BE trả tất cả, type `image/file/video` đã tag từ `Upload.cs`) — không cần sửa BE. Riêng **Links** dùng endpoint phân trang riêng `getConversationLinks` (service + types đã có sẵn, hiện CHƯA được consume ở đâu).
 - `limit` nằm trong queryKey nên cache preview (limit=8) và cache panel (limit=20) không đụng nhau.
 
-**Verify (MODE FRONTEND):** build sạch; hội thoại đủ 4 loại media → 4 section đúng loại ≤8 item; từng View all mở đúng tab; đóng/mở lại từ header icon default Images; đang ở tab Videos/Links gửi attachment mới → tab KHÔNG nhảy về Images; đổi hội thoại khi panel mở → không request links thừa; Load more hoạt động; light/dark + width hẹp (4 nút fit); console/network sạch.
+**Verify (MODE FRONTEND — ✅ đã nghiệm thu 2026-07-11):** build sạch; hội thoại đủ 4 loại media → 4 section đúng loại ≤8 item; từng View all mở đúng tab; đóng/mở lại từ header icon default Images; đang ở tab Videos/Links gửi attachment mới → tab KHÔNG nhảy về Images; đổi hội thoại khi panel mở → không request links thừa; Load more hoạt động; light/dark + width hẹp (4 nút fit); console/network sạch.
 
 ### Đợt 2b — Biệt danh
 

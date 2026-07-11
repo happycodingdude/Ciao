@@ -1,7 +1,7 @@
 # Phase 3 — Đợt 1: Ghim cuộc trò chuyện & Bookmark (Tin nhắn đã lưu)
 
-> **Cập nhật:** 2026-07-09 · Thuộc [`KE_HOACH_PHASE_3_CA_NHAN_HOA.md`](./KE_HOACH_PHASE_3_CA_NHAN_HOA.md)
-> Trạng thái: **Code hoàn tất (BE + FE)** — chờ restart backend + kiểm thử E2E.
+> **Cập nhật:** 2026-07-11 · Thuộc [`KE_HOACH_PHASE_3_CA_NHAN_HOA.md`](./KE_HOACH_PHASE_3_CA_NHAN_HOA.md)
+> Trạng thái: ✅ **Hoàn thành — đã nghiệm thu trên app thật (2026-07-11).**
 
 ## 1. Mục đích
 
