@@ -227,6 +227,19 @@ public class NotifyMessageRecalledModel : KafkaBaseModel
     public string RecalledByContactId { get; set; } = null!;
 }
 
+// ===== Tùy chỉnh đoạn chat (theme) =====
+// Message = dòng hệ thống "{user} changed the chat theme..." đã build sẵn ở endpoint
+// (id thật — FE actor đã append từ response, consumer chỉ persist + fanout đúng id đó).
+public class ConversationAppearanceChangedModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
+    public Message Message { get; set; } = null!;
+}
+
+public class NotifyConversationAppearanceChangedModel : ConversationAppearanceChangedModel { }
+
 // ===== Bình chọn (poll) =====
 
 public class PollVoteModel : KafkaBaseModel

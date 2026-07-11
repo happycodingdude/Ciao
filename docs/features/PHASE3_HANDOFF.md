@@ -11,8 +11,8 @@
 | 1 | Bookmark (tin đã lưu) | ✅ Xong | ✅ Xong | Trang `/saved` + menu tin nhắn + panel trong hội thoại; **đã nghiệm thu app thật (2026-07-11)** |
 | 2 | Media tabs (Ảnh/Video/File/Link) | ✅ Xong (endpoint links) | ✅ Xong — **đã nghiệm thu app thật (2026-07-11)** | 4 section Information + 4 tab `Attachment.tsx` + preselect tab — xem [`MEDIA_TABS_REDESIGN.md`](./MEDIA_TABS_REDESIGN.md) |
 | 2 | Đặt biệt danh | ✅ Xong | ⬜ Chưa làm | FE: UI sửa trong `InformationMembers.tsx` + hiển thị nickname + case realtime |
-| 3 | Đổi hình nền chat | ✅ Xong | ⬜ Chưa làm | FE: preset + override CSS var trên `ChatboxContainer` |
-| 3 | Theme chat (màu bong bóng) | ✅ Xong | ⬜ Chưa làm | FE: preset + override `--bubble-bg` trong `MessageContent` |
+| 3 | Đổi hình nền chat | ✅ Xong (rev 2: conversation-level) | ✅ Code xong rev 2 — **chưa verify E2E (BE chưa chạy)** | Theme CHUNG cả hội thoại + sync realtime — xem [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md) |
+| 3 | Theme chat (màu bong bóng) | ✅ Xong (rev 2: conversation-level) | ✅ Code xong rev 2 — **chưa verify E2E (BE chưa chạy)** | 5 preset AA-contrast + override chữ màu trong bubble — xem [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md) |
 | 4 | Lần hoạt động cuối (Last Seen) | ✅ Xong | ⬜ Chưa làm | FE: hiển thị "hoạt động x trước" khi offline |
 
 **Backend đã build 0 lỗi (`dotnet build MyConnect.sln`), client build OK (`npm run build`).**
@@ -89,12 +89,29 @@ Files đã đổi: `context/ChatDetailTogglesContext.tsx` (thêm `attachmentTab`
 2. Hiển thị: ưu tiên `member.nickname` thay `contact.name` trong tin nhắn nhóm (`MessageContent.tsx`), danh sách member, mention… (chỉ trong hội thoại đó).
 3. Realtime: thêm case `MemberNicknameChanged` vào `utils/notificationHandlers.ts` (payload: conversationId, contactId, nickname, changedBy) → patch member trong cache `["conversation"]`.
 
-### Đợt 3 — Hình nền + màu bong bóng
+### Đợt 3 — Hình nền + màu bong bóng (rev 2 ĐÃ CODE 2026-07-11 — **CHƯA VERIFY E2E, BE cần restart**)
 
-1. Định nghĩa preset FE (key → giá trị): wallpaper (vd. gradient/màu/pattern) và bubbleColor (bộ màu đạt tương phản, hoạt động cả light/dark).
-2. UI chọn trong panel `Information.tsx` (mục "Tùy chỉnh đoạn chat"), gọi `updateConversationAppearance`, patch cache member của mình.
-3. Áp dụng: đọc `selfMember.wallpaper/bubbleColor` → inline CSS var trên root `ChatboxContainer.tsx` (`--chat-bg-from/to` hoặc backgroundImage; `--bubble-bg` cho tin của mình trong `MessageContent.tsx` line ~279). Luôn có "Mặc định" để reset (gửi null).
-4. Ảnh nền quá sáng/tối → lớp phủ giữ khả năng đọc (theo kế hoạch).
+Doc nghiệp vụ: [`TUY_CHINH_DOAN_CHAT.md`](./TUY_CHINH_DOAN_CHAT.md).
+
+**Rev 2 (2026-07-11, theo yêu cầu user):** theme chuyển từ per-user (Member) sang **CHUNG cả hội thoại (Conversation-level)** + tăng contrast chữ màu trong bubble.
+
+BE (build 0 lỗi):
+
+- `Conversation.cs`: thêm `Wallpaper`/`BubbleColor` (Member đã BỎ 2 field này — doc cũ ignore nhờ IgnoreExtraElementsConvention, không migration; data rev 1 per-user không chuyển).
+- DTO `ConversationWithTotalUnseenWithContactInfo(-AndNoMessage)` + `ConversationCacheModel`: thêm 2 field; `MemberWithContactInfo` bỏ 2 field.
+- Aggregation `GetConversationsWithUnseenMesages`: `$group` `$first` + `$project` 2 field conversation-level (thiếu là mất theme khi warmup re-login), bỏ khỏi Members push.
+- `UpdateConversationAppearance.cs`: set trên Conversation root (không arrayFilter), patch Redis conversation-info cache (`GetConversationInfo`→`SetConversation`), **fanout `ConversationAppearanceChanged`** (data-only) cho member khác — pattern UpdateNickname.
+- `ChatEventNames.ConversationAppearanceChanged` + `EventConversationAppearanceChanged {ConversationId, Wallpaper, BubbleColor, ChangedBy}`.
+
+FE (build sạch; 4 lỗi tsc pre-existing không liên quan):
+
+- `types/conv.types.ts`: `wallpaper/bubbleColor` chuyển từ member → `ConversationModel`.
+- `useConversationAppearance`: đọc từ conversation, patch `updateConversationInCache` (vẫn optimistic + rollback; **BE set CẢ 2 field mỗi call → luôn gửi kèm field không đổi**).
+- `notificationHandlers.ts`: case `ConversationAppearanceChanged` → patch conversation trong cache (payload null = mặc định).
+- Contrast: `getBubbleClass` trả `chat-bubble-custom chat-bubble-{key}`; `.chat-bubble-custom` trong `chatAppearance.css` ép trắng các text màu trong bubble (`.text-light-blue-500/600` mention + reply/forward header, `.text-green-500` View more + underline, `[class*="border-l-light-blue"]` vạch quote) — selector 2 class thắng utility, không cần `!important`. Màu preset chỉnh đậm hơn đạt AA với chữ trắng: teal `#0f766e`, amber `#b45309`, rose `#be123c`.
+- UI: subtitle "Áp dụng cho mọi thành viên trong đoạn chat" dưới heading Customize chat.
+
+**Việc còn lại để đóng đợt 3:** restart BE (Docker daemon đang tắt — cần user mở Docker/approve quyền) → verify E2E: 2 account 2 browser context, A đổi theme → B thấy ngay không reload; reload giữ theme; contrast reply/mention/View more trong bubble màu; regression harness Playwright cũ (scratchpad session 2026-07-11: login `/auth`, click `.anticon-info-circle` mở panel).
 
 ### Đợt 4 — Last Seen
 

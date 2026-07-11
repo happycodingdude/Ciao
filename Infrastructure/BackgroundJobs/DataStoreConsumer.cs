@@ -54,6 +54,9 @@ public class DataStoreConsumer : IGenericConsumer
                 case Topic.MessageRecalled:
                     await HandleMessageRecalled(JsonConvert.DeserializeObject<MessageRecalledModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.ConversationAppearanceChanged:
+                    await HandleConversationAppearanceChanged(JsonConvert.DeserializeObject<ConversationAppearanceChangedModel>(param.cr.Message.Value)!);
+                    break;
                 case Topic.PollVote:
                     await HandlePollVote(JsonConvert.DeserializeObject<PollVoteModel>(param.cr.Message.Value)!);
                     break;
@@ -209,6 +212,30 @@ public class DataStoreConsumer : IGenericConsumer
             MessageId = param.MessageId,
             RecalledTime = param.RecalledTime,
             RecalledByContactId = param.RecalledByContactId
+        });
+    }
+
+    // Đổi theme hội thoại — endpoint đã validate quyền + patch Redis + trả response;
+    // đây là persist Mongo (source of truth): set theme trên Conversation root + push
+    // dòng hệ thống (id đã sinh sẵn ở endpoint, khớp với tin actor đang thấy).
+    // NoTrackingTime: đổi theme không đẩy hội thoại lên đầu danh sách.
+    async Task HandleConversationAppearanceChanged(ConversationAppearanceChangedModel param)
+    {
+        var filter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
+        var updates = Builders<Conversation>.Update
+            .Set(c => c.Wallpaper, param.Wallpaper)
+            .Set(c => c.BubbleColor, param.BubbleColor)
+            .Push(c => c.Messages, param.Message);
+        _conversationRepository.UpdateNoTrackingTime(filter, updates);
+        await _uow.SaveAsync();
+
+        await _kafkaProducer.ProduceAsync(Topic.NotifyConversationAppearanceChanged, new NotifyConversationAppearanceChangedModel
+        {
+            UserId = param.UserId,
+            ConversationId = param.ConversationId,
+            Wallpaper = param.Wallpaper,
+            BubbleColor = param.BubbleColor,
+            Message = param.Message
         });
     }
 

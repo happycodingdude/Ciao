@@ -12,6 +12,8 @@ import { Route } from "../../routes/_layout.conversations.$conversationId";
 import "../../styles/messagecontent.css";
 import "../../styles/messagemenu_slide.css";
 import { MessageContentProps } from "../../types/message.types";
+import "../../styles/chatAppearance.css";
+import { getBubbleClass } from "../../utils/chatAppearance";
 import {
   canEditMessage,
   isMessageDeliveredToMember,
@@ -97,6 +99,13 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
           (q) => q.contact?.id === message.contactId,
         )
       : null;
+
+    // Phase 3 — Đợt 3: màu bong bóng CHUNG của hội thoại (mọi thành viên đều thấy),
+    // áp cho MỌI bong bóng text (cả 2 phía — phân biệt bên gửi/nhận bằng alignment
+    // + avatar/tên; không đụng recalled — placeholder italic giữ nền mặc định cho dễ đọc).
+    const bubbleClass = !isRecalled
+      ? getBubbleClass(conversation?.bubbleColor)
+      : "";
 
     const SentIcon = () => (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -276,7 +285,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                   className={`flex! overflow-visible! relative w-fit max-w-full cursor-pointer
                   flex-col gap-2 whitespace-pre-line break-all rounded-xl
                   ${message.pending ? "opacity-50" : ""}
-                  ${!isSticker && !isGif && !isContact && !isPoll && (isRecalled || message.content || message.isForwarded || message.replyId) ? "laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)]" : ""}
+                  ${!isSticker && !isGif && !isContact && !isPoll && (isRecalled || message.content || message.isForwarded || message.replyId) ? `laptop-lg:py-2 laptop:py-2 laptop:px-4 laptop-lg:px-4 bg-(--bubble-bg) shadow-[0_2px_10px_rgba(0,0,0,0.1)] ${bubbleClass}` : ""}
                 `}
                 >
                   {/* Recalled: placeholder italic, ẩn nội dung/attachment/reply gốc */}

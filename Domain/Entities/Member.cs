@@ -13,9 +13,8 @@ public class Member : MongoBaseModel
     public DateTime? PinnedTime { get; set; }
     // Nickname: biệt danh của THÀNH VIÊN NÀY trong hội thoại, mọi thành viên đều thấy (kiểu Messenger).
     public string? Nickname { get; set; }
-    // Wallpaper/BubbleColor: tùy chỉnh giao diện chat của RIÊNG user này (key preset, FE diễn giải).
-    public string? Wallpaper { get; set; }
-    public string? BubbleColor { get; set; }
+    // Wallpaper/BubbleColor từng nằm ở đây (per-user) — đã CHUYỂN lên Conversation (theme chung
+    // cho cả hội thoại). Doc Mongo cũ còn field trên Member sẽ bị bỏ qua nhờ IgnoreExtraElementsConvention.
     public string? LastDeliveredMessageId { get; set; }
     public DateTime? LastDeliveredTime { get; set; }
 }

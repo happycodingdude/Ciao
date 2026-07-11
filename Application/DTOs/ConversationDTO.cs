@@ -34,6 +34,9 @@ public class ConversationWithTotalUnseenWithContactInfo : MongoBaseModel
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
+    // Phase 3 — theme chat chung cho cả hội thoại (key preset, null = mặc định).
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
     // public DateTime? DeletedTime { get; set; }
     public List<MemberWithContactInfo> Members { get; set; } = null!;
     // public int UnSeenMessages { get; set; }
@@ -52,6 +55,9 @@ public class ConversationWithTotalUnseenWithContactInfoAndNoMessage : MongoBaseM
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
+    // Phase 3 — theme chat chung cho cả hội thoại (key preset, null = mặc định).
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
     // public DateTime? DeletedTime { get; set; }
     public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
     // public int UnSeenMessages { get; set; }

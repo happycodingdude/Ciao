@@ -5,6 +5,9 @@ public class ConversationCacheModel : MongoBaseModel
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
+    // Phase 3 — theme chat chung cho cả hội thoại (key preset, null = mặc định).
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
     // public DateTime? DeletedTime { get; set; }
     // public List<ParticipantWithFriendRequestAndContactInfo> Participants { get; set; } = null!;
     // public int UnSeenMessages { get; set; }

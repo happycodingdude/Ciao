@@ -32,6 +32,7 @@ public class KafkaBackground : BackgroundService
                     Topic.MessageRead,
                     Topic.MessageEdited,
                     Topic.MessageRecalled,
+                    Topic.ConversationAppearanceChanged,
                     Topic.PollVote,
                     Topic.PollClose
                     ])
@@ -68,6 +69,7 @@ public class KafkaBackground : BackgroundService
                     Topic.NotifyMessageRead,
                     Topic.NotifyMessageEdited,
                     Topic.NotifyMessageRecalled,
+                    Topic.NotifyConversationAppearanceChanged,
                     Topic.NotifyPoll,
                     Topic.NotifyLinkPreview
                     ])

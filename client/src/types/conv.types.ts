@@ -27,8 +27,7 @@ export type ConversationModel_Member = BaseModel & {
   // Phase 3 — cá nhân hóa (per-user trên member):
   pinnedTime?: string | null; // ghim hội thoại (member của chính mình)
   nickname?: string | null; // biệt danh member này trong hội thoại (mọi người thấy)
-  wallpaper?: string | null; // key preset hình nền (member của chính mình)
-  bubbleColor?: string | null; // key preset màu bong bóng (member của chính mình)
+  // wallpaper/bubbleColor đã chuyển lên ConversationModel (theme chung cả hội thoại).
 };
 
 export type ConversationModel = BaseModel & {
@@ -44,6 +43,10 @@ export type ConversationModel = BaseModel & {
   isNotifying?: boolean;
   unSeen?: boolean;
   hasAttachment?: boolean;
+  // Phase 3 — theme chat CHUNG cho cả hội thoại (key preset, null = mặc định);
+  // mọi thành viên đều thấy, sync realtime qua event ConversationAppearanceChanged.
+  wallpaper?: string | null;
+  bubbleColor?: string | null;
 };
 
 export type ConversationCache = {

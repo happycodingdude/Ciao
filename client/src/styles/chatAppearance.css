@@ -1,0 +1,139 @@
+/* Phase 3 — Đợt 3: preset hình nền chat + màu bong bóng.
+   Key preset lưu ở BE (Member.Wallpaper/BubbleColor), map sang class ở đây.
+
+   Wallpaper: class chỉ override --chat-bg-from/--chat-bg-to (element scope) —
+   ChatboxContainer vẫn render `bg-linear-to-br from-(--chat-bg-from) to-(--chat-bg-to)`
+   nên không class nào = gradient mặc định của theme. Mỗi preset có biến thể
+   light/dark cùng hue: light pastel sáng, dark tông trầm — giữ khả năng đọc
+   của text/date-divider mà không cần lớp phủ.
+
+   Bubble: class override --bubble-bg + color NGAY TRÊN element bong bóng tin nhắn
+   (MessageContent, mọi tin trong hội thoại) — không ảnh hưởng --bubble-bg global
+   (ChatInput, picker, translation card... vẫn theo theme). */
+
+/* ===== Wallpaper presets — light ===== */
+.chat-wp-mint {
+  --chat-bg-from: #ecfdf5;
+  --chat-bg-to: #d1fae5;
+}
+.chat-wp-sunset {
+  --chat-bg-from: #fff7ed;
+  --chat-bg-to: #ffe3c2;
+}
+.chat-wp-lavender {
+  --chat-bg-from: #f5f3ff;
+  --chat-bg-to: #e6e0fb;
+}
+.chat-wp-rose {
+  --chat-bg-from: #fff1f2;
+  --chat-bg-to: #ffdfe3;
+}
+.chat-wp-graphite {
+  --chat-bg-from: #f1f5f9;
+  --chat-bg-to: #dbe3ec;
+}
+
+/* ===== Theme sự kiện — wallpaper (light). Cùng key dùng cho cả bubble bên dưới:
+   chọn theme = đổi đồng bộ nền + bong bóng. Noel: xanh thông→đỏ nhạt; Halloween:
+   cam bí ngô→tím; Valentine: hồng phấn. ===== */
+.chat-wp-noel {
+  --chat-bg-from: #e8f8ee;
+  --chat-bg-to: #fde3e3;
+}
+.chat-wp-halloween {
+  --chat-bg-from: #ffe8cc;
+  --chat-bg-to: #eadcfb;
+}
+.chat-wp-valentine {
+  --chat-bg-from: #fdf2f8;
+  --chat-bg-to: #ffd9e8;
+}
+
+/* ===== Wallpaper presets — dark (cùng hue, tông trầm) ===== */
+[data-theme="dark"] .chat-wp-mint {
+  --chat-bg-from: #0e2a22;
+  --chat-bg-to: #081c16;
+}
+[data-theme="dark"] .chat-wp-sunset {
+  --chat-bg-from: #2c1b0e;
+  --chat-bg-to: #1d1109;
+}
+[data-theme="dark"] .chat-wp-lavender {
+  --chat-bg-from: #211a36;
+  --chat-bg-to: #151026;
+}
+[data-theme="dark"] .chat-wp-rose {
+  --chat-bg-from: #2c141c;
+  --chat-bg-to: #1d0d12;
+}
+[data-theme="dark"] .chat-wp-graphite {
+  --chat-bg-from: #1b2430;
+  --chat-bg-to: #10161f;
+}
+
+/* Theme sự kiện — wallpaper dark */
+[data-theme="dark"] .chat-wp-noel {
+  --chat-bg-from: #0b2818;
+  --chat-bg-to: #2a0f12;
+}
+[data-theme="dark"] .chat-wp-halloween {
+  --chat-bg-from: #2b1206;
+  --chat-bg-to: #1a1024;
+}
+[data-theme="dark"] .chat-wp-valentine {
+  --chat-bg-from: #2c1220;
+  --chat-bg-to: #1d0a14;
+}
+
+/* ===== Bubble presets (MỌI tin nhắn trong hội thoại) — màu bão hòa + chữ trắng, ổn cả 2 theme.
+   Mỗi màu đạt tương phản ≥4.5:1 với chữ trắng (WCAG AA text nhỏ). ===== */
+.chat-bubble-blue {
+  --bubble-bg: #2563eb;
+}
+.chat-bubble-teal {
+  --bubble-bg: #0f766e;
+}
+.chat-bubble-violet {
+  --bubble-bg: #7c3aed;
+}
+.chat-bubble-amber {
+  --bubble-bg: #b45309;
+}
+.chat-bubble-rose {
+  --bubble-bg: #be123c;
+}
+
+/* Theme sự kiện — bubble (cùng key với wallpaper ở trên). Đều ≥4.5:1 với chữ trắng:
+   noel đỏ Giáng sinh, halloween cam bí ngô đậm, valentine hồng đậm. */
+.chat-bubble-noel {
+  --bubble-bg: #b91c1c;
+}
+.chat-bubble-halloween {
+  --bubble-bg: #9a3412;
+}
+.chat-bubble-valentine {
+  --bubble-bg: #be185d;
+}
+
+/* Override contrast dùng chung cho mọi preset (class đi kèm từ getBubbleClass).
+   Các text bên trong bong bóng vốn có màu riêng (mention xanh, header Reply/Forward
+   xanh, View more xanh lá) sẽ chìm/khó đọc trên nền bão hòa → ép về trắng
+   (đậm/nhạt theo vai trò). Selector 2 class thắng utility 1 class của Tailwind,
+   không cần !important. */
+.chat-bubble-custom {
+  color: #ffffff;
+}
+/* Mention (@tên) + header "Reply to ..." / "... have forwarded ..." */
+.chat-bubble-custom .text-light-blue-500,
+.chat-bubble-custom .text-light-blue-600 {
+  color: rgba(255, 255, 255, 0.85);
+}
+/* Nút View more/View less của tin dài */
+.chat-bubble-custom .text-green-500 {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: underline;
+}
+/* Vạch dọc bên trái của khối quote reply (border-l-light-blue-500/50) */
+.chat-bubble-custom [class*="border-l-light-blue"] {
+  border-left-color: rgba(255, 255, 255, 0.6);
+}

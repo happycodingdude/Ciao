@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
 import { commitPanelConversation } from "../../context/ChatDetailTogglesContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import useConversation from "../../hooks/useConversation";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
+import "../../styles/chatAppearance.css";
+import { getWallpaperClass } from "../../utils/chatAppearance";
 import Attachment from "../conversation/Attachment";
 import Chatbox from "../conversation/Chatbox";
 import ChatboxHeader from "../conversation/ChatboxHeader";
@@ -19,6 +22,15 @@ const ChatboxContainer = () => {
   const refChatboxContainer = useRef<HTMLDivElement>(null);
 
   const { conversationId } = Route.useParams();
+
+  // Phase 3 — Đợt 3: hình nền chat CHUNG của hội thoại (mọi thành viên đều thấy).
+  // Class preset chỉ override CSS var --chat-bg-from/to trên wrapper;
+  // không có preset → gradient mặc định theme.
+  const { data: conversations } = useConversation();
+  const conversation = conversations?.conversations?.find(
+    (c) => c.id === conversationId,
+  );
+  const wallpaperClass = getWallpaperClass(conversation?.wallpaper);
 
   // Khi user chuyển conversation: default về panel Information bất kể đang ở panel nào.
   // KHÔNG chạy ở mount đầu của tab — giữ nguyên activeDetail vừa restore từ localStorage
@@ -48,7 +60,9 @@ const ChatboxContainer = () => {
 
   return (
     <div className="flex h-full">
-      <div className="bg-linear-to-br flex w-full grow flex-col from-(--chat-bg-from) to-(--chat-bg-to)">
+      <div
+        className={`bg-linear-to-br flex w-full grow flex-col from-(--chat-bg-from) to-(--chat-bg-to) ${wallpaperClass}`}
+      >
         <ChatboxHeader />
         <div className="laptop:h-[88dvh] laptop-lg:h-[90dvh] flex w-full">
           <div

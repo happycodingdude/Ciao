@@ -89,6 +89,10 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "Title", new BsonDocument("$first", "$Title") },
                 { "Avatar", new BsonDocument("$first", "$Avatar") },
                 { "IsGroup", new BsonDocument("$first", "$IsGroup") },
+                // Phase 3 — theme chat chung (conversation-level): thiếu 2 field này thì
+                // warmup cache sau re-login sẽ MẤT hình nền / màu bong bóng.
+                { "Wallpaper", new BsonDocument("$first", "$Wallpaper") },
+                { "BubbleColor", new BsonDocument("$first", "$BubbleColor") },
                 { "UpdatedTime", new BsonDocument("$first", "$UpdatedTime") },
                 { "Messages", new BsonDocument("$first", "$Messages") },
                 { "Members", new BsonDocument("$push", new BsonDocument
@@ -100,11 +104,10 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                         { "ContactId", "$Members.ContactId" },
                         { "LastSeenTime", "$Members.LastSeenTime" },
                         // Phase 3 — cá nhân hóa: thiếu các field này thì cache warmup sau re-login
-                        // sẽ MẤT ghim hội thoại / biệt danh / hình nền / màu bong bóng.
+                        // sẽ MẤT ghim hội thoại / biệt danh. (Wallpaper/BubbleColor đã chuyển
+                        // lên conversation-level — xem $group phía trên.)
                         { "PinnedTime", "$Members.PinnedTime" },
                         { "Nickname", "$Members.Nickname" },
-                        { "Wallpaper", "$Members.Wallpaper" },
-                        { "BubbleColor", "$Members.BubbleColor" },
                         { "Contact", new BsonDocument("$first", "$MatchingContact")},
                         // { "FriendId", new BsonDocument("$first", "$MatchingFriends._id") },
                         // { "FriendStatus", new BsonDocument("$cond", new BsonArray
@@ -134,6 +137,8 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                 { "Title", 1 },
                 { "Avatar", 1 },
                 { "IsGroup", 1 },
+                { "Wallpaper", 1 },
+                { "BubbleColor", 1 },
                 { "UpdatedTime", 1 },
                 { "Members", 1 },
                 { "Messages", new BsonDocument("$map", new BsonDocument

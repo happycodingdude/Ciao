@@ -72,12 +72,23 @@ export const pinConversation = async (id: string, pinned: boolean) => {
   ).data;
 };
 
-// Phase 3 — hình nền + màu bong bóng riêng của user cho một hội thoại (key preset, null = mặc định).
+// Phase 3 — hình nền + màu bong bóng CHUNG của hội thoại (key preset, null = mặc định).
+// BE trả kèm tin hệ thống "{user} changed the chat theme" đã persist để FE append.
+export type UpdateAppearanceResult = {
+  systemMessage?: {
+    id: string;
+    type: string;
+    content: string;
+    contactId: string;
+    createdTime: string;
+  } | null;
+};
+
 export const updateConversationAppearance = async (
   id: string,
   wallpaper: string | null,
   bubbleColor: string | null,
-) => {
+): Promise<UpdateAppearanceResult | undefined> => {
   return (
     await HttpRequest({
       method: "put",

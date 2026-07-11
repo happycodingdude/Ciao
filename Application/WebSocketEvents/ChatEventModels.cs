@@ -127,6 +127,29 @@ public class EventMemberNicknameChanged
     public string ChangedBy { get; set; } = null!;
 }
 
+// Phase 3 — theme chat chung: sync-event (data-only, không banner) → FE patch
+// wallpaper/bubbleColor của conversation trong cache ["conversation"]. Null = về mặc định.
+public class EventConversationAppearanceChanged
+{
+    public string ConversationId { get; set; } = null!;
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
+    public string ChangedBy { get; set; } = null!;
+    // Dòng hệ thống "{user} changed the chat theme" đã persist kèm lần đổi này —
+    // FE append thẳng vào message cache (id thật, khớp reload, dedupe được).
+    public EventSystemMessage? SystemMessage { get; set; }
+}
+
+// Payload tin hệ thống gọn cho sync-event (đủ để FE render + dedupe, không kéo cả entity).
+public class EventSystemMessage
+{
+    public string Id { get; set; } = null!;
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public string ContactId { get; set; } = null!;
+    public DateTime CreatedTime { get; set; }
+}
+
 // Payload realtime khi 1 contact đổi profile (name/avatar/bio). Sync-event (data-only,
 // không banner) → FE patch trực tiếp cache ["friend"] + members trong ["conversation"].
 public class EventContactUpdated

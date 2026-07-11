@@ -60,6 +60,9 @@ public class NotificationConsumer : IGenericConsumer
                 case Topic.NotifyMessageRecalled:
                     await HandleNotifyMessageRecalled(JsonConvert.DeserializeObject<NotifyMessageRecalledModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.NotifyConversationAppearanceChanged:
+                    await HandleNotifyConversationAppearanceChanged(JsonConvert.DeserializeObject<NotifyConversationAppearanceChangedModel>(param.cr.Message.Value)!);
+                    break;
                 case Topic.NotifyPoll:
                     await HandleNotifyPoll(JsonConvert.DeserializeObject<NotifyPollModel>(param.cr.Message.Value)!);
                     break;
@@ -152,6 +155,40 @@ public class NotificationConsumer : IGenericConsumer
             ChatEventNames.MessageRecalled,
             recipients,
             param);
+    }
+
+    // Đổi theme hội thoại: fanout data-only event tới member khác actor (actor đã có theme mới
+    // qua optimistic FE + system message từ response endpoint). Payload kèm EventSystemMessage
+    // (id thật) để FE member khác append dòng hệ thống, dedupe theo id.
+    async Task HandleNotifyConversationAppearanceChanged(NotifyConversationAppearanceChangedModel param)
+    {
+        var members = await _memberCache.GetMembers(param.ConversationId);
+        if (members is null) return;
+
+        var recipients = members
+            .Where(q => q.Contact.Id != param.UserId)
+            .Select(q => q.Contact.Id)
+            .ToArray();
+        if (recipients.Length == 0) return;
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.ConversationAppearanceChanged,
+            recipients,
+            new EventConversationAppearanceChanged
+            {
+                ConversationId = param.ConversationId,
+                Wallpaper = param.Wallpaper,
+                BubbleColor = param.BubbleColor,
+                ChangedBy = param.UserId,
+                SystemMessage = new EventSystemMessage
+                {
+                    Id = param.Message.Id,
+                    Type = param.Message.Type,
+                    Content = param.Message.Content,
+                    ContactId = param.Message.ContactId,
+                    CreatedTime = param.Message.CreatedTime
+                }
+            });
     }
 
     // Bình chọn: fanout state authoritative tới TẤT CẢ member để đồng bộ voterIds/đóng realtime.

@@ -74,8 +74,8 @@
 |   2 | Bookmark             | Lưu tin nhắn cho riêng mình         | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (nghiệm thu 2026-07-11) — menu lưu tin + trang `/saved` + panel trong hội thoại |
 |   3 | Ghim cuộc trò chuyện | Pin/Favorite conversation           | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (nghiệm thu 2026-07-11) |
 |   4 | Media                | Phân loại Ảnh / Video / File / Link | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (nghiệm thu 2026-07-11) — 4 section preview + 4 tab ([chi tiết](./MEDIA_TABS_REDESIGN.md)) |
-|   5 | Đổi hình nền chat    | Wallpaper theo cuộc trò chuyện      | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
-|   6 | Theme chat           | Đổi màu bong bóng chat              | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
+|   5 | Đổi hình nền chat    | Wallpaper theo cuộc trò chuyện      | ⭐⭐⭐⭐☆  | 🟡 Rev 2 đã code (2026-07-11): theme CHUNG cả hội thoại + sync realtime — chưa verify E2E, chờ restart BE ([chi tiết](./TUY_CHINH_DOAN_CHAT.md)) |
+|   6 | Theme chat           | Đổi màu bong bóng chat              | ⭐⭐⭐⭐☆  | 🟡 Rev 2 đã code (2026-07-11): 5 preset AA-contrast, chung cả hội thoại — chưa verify E2E, chờ restart BE ([chi tiết](./TUY_CHINH_DOAN_CHAT.md)) |
 |   7 | Đặt biệt danh        | Nickname trong nhóm                 | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   8 | Trạng thái hoạt động | Online / Offline / Idle / Invisible | ⭐⭐⭐⭐☆  | ⏸️ Bỏ khỏi phạm vi Phase 3 (2026-07-09, theo yêu cầu) — giữ Online/Offline hiện có |
 |   9 | Lần hoạt động cuối   | Last Seen                           |  ⭐⭐⭐☆☆  | 🟡 Một phần (có setting + thời điểm đã đọc; chưa hiển thị "online lần cuối") |

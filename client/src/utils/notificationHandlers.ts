@@ -11,6 +11,7 @@ import {
   MessageReadEvent,
   MessageRecalledEvent,
   ContactUpdatedEvent,
+  ConversationAppearanceChangedEvent,
   LinkPreviewReadyEvent,
   NewConversation,
   NewMessage,
@@ -18,6 +19,7 @@ import {
   NewReaction,
   PollUpdatedEvent,
 } from "../types/notification.types";
+import { updateConversationInCache } from "./conversationCache";
 import {
   createNewConversation,
   toPendingMessage,
@@ -66,6 +68,34 @@ export const classifyNotification = (
       return onFriendRemoved(queryClient, data);
     // 1 contact đổi profile → patch tên/avatar/bio ở friend list + members.
     case "ContactUpdated":    return onContactUpdated(queryClient, data);
+    // Phase 3 — theme chat chung của hội thoại thay đổi (người khác đổi) → patch ngay.
+    case "ConversationAppearanceChanged":
+      return onConversationAppearanceChanged(queryClient, data);
+  }
+};
+
+// Theme chat (wallpaper + bubbleColor) là thuộc tính chung của conversation —
+// patch trực tiếp, không refetch. Sự kiện chỉ fanout cho member KHÁC người đổi
+// (người đổi đã optimistic-update trong useConversationAppearance).
+const onConversationAppearanceChanged = (
+  queryClient: QueryClient,
+  data: ConversationAppearanceChangedEvent,
+) => {
+  const { conversationId, wallpaper, bubbleColor, systemMessage } = data ?? {};
+  if (!conversationId) return;
+  queryClient.setQueryData<ConversationCache>(["conversation"], (old) =>
+    old
+      ? updateConversationInCache(old, conversationId, (c) => ({
+          ...c,
+          wallpaper: wallpaper ?? null,
+          bubbleColor: bubbleColor ?? null,
+        }))
+      : old,
+  );
+  // Dòng hệ thống "{user} changed the chat theme" — append nếu đang giữ cache tin
+  // của hội thoại này (chưa từng mở chat → no-op, GetMessages lần đầu sẽ có sẵn).
+  if (systemMessage) {
+    upsertRealtimeMessage(queryClient, conversationId, systemMessage);
   }
 };
 

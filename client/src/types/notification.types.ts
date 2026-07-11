@@ -170,6 +170,24 @@ export type LinkPreviewReadyEvent = {
   linkPreviews?: LinkPreviewPayload[] | null;
 };
 
+// Phase 3 — theme chat chung của hội thoại thay đổi → patch wallpaper/bubbleColor
+// của conversation trong cache ["conversation"]. Null = về mặc định.
+export type ConversationAppearanceChangedEvent = {
+  conversationId: string;
+  wallpaper?: string | null;
+  bubbleColor?: string | null;
+  changedBy: string;
+  // Dòng hệ thống "{user} changed the chat theme" đã persist kèm lần đổi →
+  // append vào message cache (id thật, khớp dữ liệu khi reload).
+  systemMessage?: {
+    id: string;
+    type: string;
+    content: string;
+    contactId: string;
+    createdTime: string;
+  } | null;
+};
+
 // 1 contact đổi profile → patch tên/avatar/bio ở mọi nơi denormalize tên người đó.
 export type ContactUpdatedEvent = {
   contactId: string;

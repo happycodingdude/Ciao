@@ -38,7 +38,12 @@ const groupMessagesByDate = (
       if (!groups[date]) groups[date] = [];
       const dateGroups = groups[date];
       const lastGroup = dateGroups[dateGroups.length - 1];
-      if (lastGroup && lastGroup.contactId === msg.contactId) {
+      // Tin hệ thống KHÔNG gom block: block system chỉ render content của tin đầu,
+      // 2 tin hệ thống liên tiếp (vd. đổi theme 2 lần) mà gom chung sẽ mất dòng sau.
+      const isSystem =
+        msg.type === "system" ||
+        lastGroup?.messages[lastGroup.messages.length - 1]?.type === "system";
+      if (lastGroup && lastGroup.contactId === msg.contactId && !isSystem) {
         // Cùng người gửi liên tiếp → gom vào block hiện tại (hiển thị avatar/tên một lần)
         lastGroup.messages.push(msg);
       } else {

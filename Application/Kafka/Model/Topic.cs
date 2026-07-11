@@ -32,6 +32,13 @@ public static class Topic
     // Fanout realtime state bình chọn (voterIds/đóng) tới member (NotificationConsumer → FCM).
     public const string NotifyPoll = "poll.notify";
 
+    // ===== Tùy chỉnh đoạn chat (theme) =====
+    // Endpoint chỉ validate + patch Redis + trả response ngay (latency thấp);
+    // Mongo persist (theme + system message) ở DataStoreConsumer.
+    public const string ConversationAppearanceChanged = "conversation.appearance.changed";
+    // Sau khi persist Mongo → fanout FCM tới member khác (NotificationConsumer).
+    public const string NotifyConversationAppearanceChanged = "conversation.appearance.notify";
+
     // ===== Preview Link =====
     // Enqueue khi tin text có URL (DataStoreConsumer). Consumer group RIÊNG (linkpreview-consumer)
     // fetch OG metadata — external I/O chậm, phải cô lập để không chặn pipeline tin nhắn.

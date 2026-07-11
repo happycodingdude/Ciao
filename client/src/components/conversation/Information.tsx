@@ -15,6 +15,7 @@ import BackgroundPortal from "../common/BackgroundPortal";
 import CustomLabel from "../common/CustomLabel";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import AddMembers, { AddMembersProps } from "./AddMembers";
+import InformationAppearance from "./InformationAppearance";
 import InformationAttachments from "./InformationAttachments";
 import InformationMembers from "./InformationMembers";
 import UpdateConversation from "./UpdateConversation";
@@ -141,6 +142,8 @@ const Information = () => {
             panelRef={refInformation}
           />
         )}
+
+        <InformationAppearance conversationId={conversationId} />
 
         <InformationAttachments conversationId={conversationId} />
       </div>

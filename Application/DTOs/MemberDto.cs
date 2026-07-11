@@ -31,10 +31,9 @@ public class MemberWithContactInfo : MongoBaseModel
     public bool IsSelected { get; set; }
 
     // Phase 3 — cá nhân hóa hội thoại (per-user trên Member, xem Domain.Entities.Member).
+    // Wallpaper/BubbleColor đã chuyển lên conversation-level (theme chung).
     public DateTime? PinnedTime { get; set; }
     public string? Nickname { get; set; }
-    public string? Wallpaper { get; set; }
-    public string? BubbleColor { get; set; }
 }
 
 [BsonIgnoreExtraElements]

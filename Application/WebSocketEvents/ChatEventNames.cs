@@ -21,4 +21,6 @@ public static class ChatEventNames
     public const string LinkPreviewReady = "LinkPreviewReady";
     // Phase 3: biệt danh thành viên trong hội thoại thay đổi (mọi thành viên đều thấy).
     public const string MemberNicknameChanged = "MemberNicknameChanged";
+    // Phase 3: theme chat (hình nền + màu bong bóng) của hội thoại thay đổi — chung cho mọi thành viên.
+    public const string ConversationAppearanceChanged = "ConversationAppearanceChanged";
 }
