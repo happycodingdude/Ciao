@@ -170,6 +170,21 @@ export type LinkPreviewReadyEvent = {
   linkPreviews?: LinkPreviewPayload[] | null;
 };
 
+// Phase 5 — Đợt 2b: 1 thành viên rời nhóm. Gửi cho member còn lại (cập nhật danh sách +
+// dòng hệ thống) và chính người rời (thiết bị khác ẩn hội thoại khỏi danh sách).
+export type MemberLeftEvent = {
+  conversationId: string;
+  contactId: string;
+  contactName?: string;
+  systemMessage?: {
+    id: string;
+    type: string;
+    content: string;
+    contactId: string;
+    createdTime: string;
+  } | null;
+};
+
 // Phase 3 — theme chat chung của hội thoại thay đổi → patch wallpaper/bubbleColor
 // của conversation trong cache ["conversation"]. Null = về mặc định.
 export type ConversationAppearanceChangedEvent = {

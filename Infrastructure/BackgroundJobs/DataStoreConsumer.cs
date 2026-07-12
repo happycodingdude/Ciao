@@ -324,8 +324,12 @@ public class DataStoreConsumer : IGenericConsumer
         }
         conversation.Messages.Add(message);
 
-        foreach (var member in conversation.Members.Where(q => q.IsDeleted))
-            member.IsDeleted = false;
+        // Auto-reopen member IsDeleted khi có tin mới: CHỈ chat 1-1 (xóa hội thoại rồi có tin
+        // mới → hội thoại mở lại). Phase 5 — Đợt 2b: nhóm KHÔNG reopen — rời nhóm là rời thật,
+        // quay lại chỉ qua được-thêm-lại / link mời (pipeline member.new ViaInvite).
+        if (!conversation.IsGroup)
+            foreach (var member in conversation.Members.Where(q => q.IsDeleted))
+                member.IsDeleted = false;
 
         _conversationRepository.Replace(filter, conversation);
         await _uow.SaveAsync();
@@ -454,7 +458,19 @@ public class DataStoreConsumer : IGenericConsumer
 
         var existingMemberIds = conversation.Members.Select(q => q.ContactId).ToHashSet();
         var newMemberIds = param.Members.Where(id => !existingMemberIds.Contains(id)).ToList();
-        if (!newMemberIds.Any()) return;
+
+        // Phase 5 — Đợt 2 (ViaInvite): member cũ đã rời nhóm (IsDeleted) vào lại bằng link
+        // → reopen thay vì thêm document Member mới (giữ nickname/lịch sử delivered cũ).
+        var reopenedIds = new List<string>();
+        if (param.ViaInvite)
+            foreach (var existing in conversation.Members.Where(m => m.IsDeleted && param.Members.Contains(m.ContactId)))
+            {
+                existing.IsDeleted = false;
+                existing.IsNotifying = true;
+                reopenedIds.Add(existing.ContactId);
+            }
+
+        if (!newMemberIds.Any() && !reopenedIds.Any()) return;
 
         var membersToAdd = newMemberIds.Select(id => new Member
         {
@@ -465,14 +481,18 @@ public class DataStoreConsumer : IGenericConsumer
         }).ToList();
 
         var membersToUpdate = conversation.Members.Concat(membersToAdd);
+        var addedIds = newMemberIds.Concat(reopenedIds).ToList();
 
         var contactFilter = Builders<Contact>.Filter.Where(q =>
-            membersToAdd.Select(m => m.ContactId).Contains(q.Id) || q.Id == param.UserId);
+            addedIds.Contains(q.Id) || q.Id == param.UserId);
         var contacts = await _contactRepository.GetAllAsync(contactFilter);
         var contactMap = contacts.ToDictionary(c => c.Id);
 
-        var systemMessage = new SystemMessage(
-            AppConstants.SystemMessage_AddedMembers
+        // ViaInvite: người vào qua link (tự vào hoặc được duyệt) → "{user} joined via invite link".
+        var systemMessage = new SystemMessage(param.ViaInvite
+            ? AppConstants.SystemMessage_JoinedByLink
+                .Replace("{user}", string.Join(", ", addedIds.Select(id => contactMap.GetValueOrDefault(id)?.Name)))
+            : AppConstants.SystemMessage_AddedMembers
                 .Replace("{user}", contactMap.GetValueOrDefault(param.UserId)?.Name)
                 .Replace("{members}", string.Join(", ", membersToAdd.Select(m => contactMap.GetValueOrDefault(m.ContactId)?.Name)))
         );
@@ -482,10 +502,14 @@ public class DataStoreConsumer : IGenericConsumer
         var updates = Builders<Conversation>.Update
             .Set(q => q.Members, membersToUpdate)
             .Set(q => q.Messages, conversation.Messages);
+        // ViaInvite: dọn yêu cầu tham gia còn sót của người vừa vào (duyệt đã pull sync,
+        // đây là lưới an toàn cho race duyệt đồng thời / join thẳng khi đang có request cũ).
+        if (param.ViaInvite)
+            updates = updates.PullFilter(q => q.JoinRequests, r => addedIds.Contains(r.ContactId));
         _conversationRepository.UpdateNoTrackingTime(filter, updates);
         await _uow.SaveAsync();
 
-        var storedMembers = newMemberIds.Select(id => new NewGroupConversationModel_Member
+        var storedMembers = addedIds.Select(id => new NewGroupConversationModel_Member
         {
             ContactId = id,
             IsNew = true

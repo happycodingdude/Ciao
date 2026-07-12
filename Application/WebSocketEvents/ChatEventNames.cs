@@ -23,4 +23,10 @@ public static class ChatEventNames
     public const string MemberNicknameChanged = "MemberNicknameChanged";
     // Phase 3: theme chat (hình nền + màu bong bóng) của hội thoại thay đổi — chung cho mọi thành viên.
     public const string ConversationAppearanceChanged = "ConversationAppearanceChanged";
+    // Phase 5 — Đợt 2: có yêu cầu tham gia mới / yêu cầu được duyệt-từ chối-rút
+    // → FE invalidate hàng chờ join-requests + danh sách notification.
+    public const string JoinRequestUpdated = "JoinRequestUpdated";
+    // Phase 5 — Đợt 2b: thành viên rời nhóm — member còn lại cập nhật danh sách + system message;
+    // thiết bị khác của người rời ẩn hội thoại khỏi danh sách.
+    public const string MemberLeft = "MemberLeft";
 }

@@ -15,4 +15,6 @@ public partial class AppConstants
     public const string ApiGroup_Presence = $"/api/{ApiVersion}/presence";
     public const string ApiGroup_LinkPreview = $"/api/{ApiVersion}/link-preview";
     public const string ApiGroup_Bookmark = $"/api/{ApiVersion}/bookmarks";
+    // Phase 5 — Đợt 2: link mời nhóm (lookup theo code, không lộ conversationId trên URL).
+    public const string ApiGroup_Invite = $"/api/{ApiVersion}/invites";
 }

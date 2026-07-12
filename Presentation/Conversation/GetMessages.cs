@@ -49,7 +49,15 @@ public static class GetMessages
 
             var userId = _contactRepository.GetUserId();
 
+            // Nguồn đọc chính là Redis message cache. Fallback Mongo khi cache LẠNH (null/rỗng):
+            // cache chỉ được build đầy đủ lúc user.login (offline→online) — reload trang không re-signin,
+            // và luồng rejoin nhóm chỉ append 1 dòng hệ thống chứ không nạp lại lịch sử. Nếu không fallback,
+            // thành viên vừa vào lại (hoặc bất kỳ hội thoại nào có cache bị evict) sẽ thấy TRỐNG tin nhắn
+            // dù Mongo vẫn còn đủ. Fallback đồng thời warm lại cache để các lần đọc sau (và reaction/pin) đúng.
             var message = await _messageCache.GetMessages(request.id);
+            if (message is null || message.Count == 0)
+                message = await LoadFromStoreAndWarmCache(request.id);
+
             var paging = new PagingParam(request.page, request.limit);
             var pagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.Skip).Take(paging.Limit).ToList();
             var nextPagedMessages = message.OrderByDescending(q => q.CreatedTime).Skip(paging.NextSkip).Take(paging.Limit).ToList();
@@ -62,6 +70,30 @@ public static class GetMessages
                 Messages = result.OrderBy(q => q.CreatedTime).ToList(),
                 HasMore = nextPagedMessages.Any()
             };
+        }
+
+        // Đọc lịch sử từ Mongo (source-of-truth) rồi warm lại cache. Tính sẵn reaction count để
+        // khớp shape cache warm lúc login. Recall đã clear Content/Attachments ở Mongo (HandleMessageRecalled)
+        // nên không lộ nội dung đã thu hồi. Cache trống thật (hội thoại chưa có tin) → trả list rỗng.
+        async Task<List<MessageWithReactions>> LoadFromStoreAndWarmCache(string conversationId)
+        {
+            var conversation = await _conversationRepository.GetItemAsync(MongoQuery<Conversation>.IdFilter(conversationId));
+            if (conversation?.Messages is null || conversation.Messages.Count == 0)
+                return new List<MessageWithReactions>();
+
+            var messages = _mapper.Map<List<MessageWithReactions>>(conversation.Messages);
+            foreach (var m in messages)
+            {
+                m.LikeCount = m.Reactions.Count(r => r.Type == AppConstants.MessageReactionType_Like);
+                m.LoveCount = m.Reactions.Count(r => r.Type == AppConstants.MessageReactionType_Love);
+                m.CareCount = m.Reactions.Count(r => r.Type == AppConstants.MessageReactionType_Care);
+                m.WowCount = m.Reactions.Count(r => r.Type == AppConstants.MessageReactionType_Wow);
+                m.SadCount = m.Reactions.Count(r => r.Type == AppConstants.MessageReactionType_Sad);
+                m.AngryCount = m.Reactions.Count(r => r.Type == AppConstants.MessageReactionType_Angry);
+            }
+
+            await _messageCache.SetMessages(conversationId, messages);
+            return messages;
         }
     }
 }

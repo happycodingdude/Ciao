@@ -132,6 +132,9 @@ public class NewMemberModel : KafkaBaseModel
 {
     public string ConversationId { get; set; } = null!;
     public string[] Members { get; set; } = null!;
+    // Phase 5 — Đợt 2: true khi member vào nhóm qua link mời (vào thẳng hoặc được duyệt)
+    // → system message "joined via invite link" + pull JoinRequests. Default false = backward-compat.
+    public bool ViaInvite { get; set; }
 }
 
 public class NewReactionModel : KafkaBaseModel

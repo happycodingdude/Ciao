@@ -21,10 +21,11 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
   const refMembers = useRef<HTMLDivElement>(null);
 
   // Admin luôn hiển thị trước — dùng chung cho cả danh sách đầy đủ lẫn dải
-  // avatar xếp chồng khi thu gọn.
-  const members = [...(conversation.members ?? [])].sort(
-    (a, b) => Number(b.isModerator) - Number(a.isModerator),
-  );
+  // avatar xếp chồng khi thu gọn. Đợt 2b: chỉ thành viên ACTIVE — người đã
+  // rời nhóm không hiển thị và không tính vào sĩ số.
+  const members = (conversation.members ?? [])
+    .filter((m) => !m.isDeleted)
+    .sort((a, b) => Number(b.isModerator) - Number(a.isModerator));
 
   // Thu gọn: tối đa 5 avatar xếp chồng, từ người thứ 6 trở đi gộp thành vòng "+N"
   const MAX_STACK = 5;
@@ -37,7 +38,7 @@ const InformationMembers = ({ conversation, selfId, panelRef }: Props) => {
           ở cả 2 trạng thái, toggle không bị xô lệch layout */}
       <div className="min-h-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <p className="font-medium">Members ({(conversation.members ?? []).length})</p>
+          <p className="font-medium">Members ({members.length})</p>
           {/* Thu gọn: dải avatar tròn xếp chồng NGANG HÀNG cạnh tiêu đề (vòng sau
               nằm DƯỚI vòng trước, chỉ lộ 1/2) — bấm vào để mở lại danh sách đầy đủ.
               Viền ring màu nền panel để tách các vòng chồng nhau. */}

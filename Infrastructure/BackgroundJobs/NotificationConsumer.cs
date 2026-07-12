@@ -254,8 +254,10 @@ public class NotificationConsumer : IGenericConsumer
         // (chỉ hiện đúng sau khi reload vì lúc đó đọc từ cache có đủ Content).
         notify.Content = notify.Type == AppConstants.MessageType_Media ? null : notify.Content;
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
+        // Phase 5 — Đợt 2b: lọc thêm member IsDeleted — người đã rời nhóm không nhận tin mới.
+        // (Chat 1-1 không ảnh hưởng: DataStore đã reopen IsDeleted trước khi produce StoredMessage.)
         notify.Members = _mapper.Map<EventNewConversation_Member[]>(
-            param.Members.Where(q => q.ContactId != param.UserId).ToArray());
+            param.Members.Where(q => q.ContactId != param.UserId && !q.IsDeleted).ToArray());
 
         var memberIds = notify.Members.Select(m => m.Contact.Id).ToArray();
         var contacts = await _contactRepository.GetAllAsync(
@@ -286,7 +288,8 @@ public class NotificationConsumer : IGenericConsumer
         var mentions = param.Message.Mentions;
         if (!param.Conversation.IsGroup || mentions is null || mentions.Count == 0) return;
 
-        var memberIds = param.Members.Select(m => m.ContactId).ToHashSet();
+        // Đợt 2b: loại member đã rời — mention không tạo notification cho người ngoài nhóm.
+        var memberIds = param.Members.Where(m => !m.IsDeleted).Select(m => m.ContactId).ToHashSet();
         var isAll = mentions.Contains("all");
         var recipients = (isAll ? memberIds.AsEnumerable() : mentions.Where(memberIds.Contains))
             .Where(id => id != param.UserId)

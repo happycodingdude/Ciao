@@ -128,7 +128,7 @@ public class CacheConsumer : IGenericConsumer
     {
         var conversationToCache = _mapper.Map<ConversationCacheModel>(param.Conversation);
         var message = _mapper.Map<MessageWithReactions>(param.Message);
-        await _messageCache.AddMessages(param.UserId, conversationToCache.Id, conversationToCache.UpdatedTime!.Value, message);
+        await _messageCache.AddMessages(param.UserId, conversationToCache.Id, conversationToCache.UpdatedTime!.Value, message, param.Conversation.IsGroup);
     }
 
     async Task HandleNewGroupConversation(NewStoredGroupConversationModel param)
@@ -196,7 +196,8 @@ public class CacheConsumer : IGenericConsumer
         }
         else if (param.Message is not null)
         {
-            await _messageCache.AddMessages(param.UserId, param.Conversation.Id, param.Conversation.UpdatedTime!.Value, _mapper.Map<MessageWithReactions>(param.Message));
+            // Nhánh direct conversation cũ (IsNewConversation=false) — luôn là chat 1-1.
+            await _messageCache.AddMessages(param.UserId, param.Conversation.Id, param.Conversation.UpdatedTime!.Value, _mapper.Map<MessageWithReactions>(param.Message), isGroup: false);
         }
     }
 

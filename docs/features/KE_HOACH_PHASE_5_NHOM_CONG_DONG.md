@@ -11,8 +11,9 @@
 | --- | --- | --- |
 | Thông báo nhóm | ⬜ | Bảng thông báo nổi bật cho nhóm |
 | Sự kiện (Event & RSVP) | ⬜ | Tạo sự kiện + xác nhận tham dự |
-| Link mời & QR | ⬜ | Mời vào nhóm qua liên kết/QR |
-| Yêu cầu tham gia | ⬜ | Duyệt yêu cầu vào nhóm |
+| Link mời & QR | 🟡 Đã code (2026-07-12), chờ nghiệm thu | Mời vào nhóm qua liên kết/QR |
+| Yêu cầu tham gia | 🟡 Đã code (2026-07-12), chờ nghiệm thu | Duyệt yêu cầu vào nhóm |
+| Rời nhóm | 🟡 Đã code (2026-07-12), chờ nghiệm thu — [`ROI_NHOM.md`](./ROI_NHOM.md) | Thành viên chủ động rời nhóm |
 | Phân quyền quản trị | ⏸️ | **Dời lại, chưa làm ở Phase 5** (2026-07-12, theo yêu cầu) — giao diện bổ nhiệm/thu hồi quyền |
 | Bình chọn ẩn danh | ⬜ | Bỏ phiếu không lộ danh tính |
 | Thread | ⬜ | Thảo luận theo nhánh |
@@ -24,7 +25,8 @@
 | Đợt | Mục tiêu | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- |
 | **Đợt 1** | Thông báo nhóm (Phân quyền quản trị dời lại 2026-07-12, không còn trong đợt này) | Lạm quyền đăng/gỡ thông báo | Vai trò quản trị hiện có | Ẩn bảng thông báo |
-| **Đợt 2** | Link mời & QR + Yêu cầu tham gia | Vào nhóm trái phép, spam yêu cầu | Cơ chế thành viên nhóm | Vô hiệu liên kết / tắt duyệt |
+| **Đợt 2** | Link mời & QR + Yêu cầu tham gia — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu · [`LINK_MOI_VA_YEU_CAU_THAM_GIA.md`](./LINK_MOI_VA_YEU_CAU_THAM_GIA.md) | Vào nhóm trái phép, spam yêu cầu | Cơ chế thành viên nhóm | Vô hiệu liên kết / tắt duyệt |
+| **Đợt 2b** | Rời nhóm (bổ sung 2026-07-12) — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu · [`ROI_NHOM.md`](./ROI_NHOM.md) | Đổi nhầm hành vi mở-lại của chat 1-1; người rời vẫn nhận tin | Cơ chế thành viên + Link mời (Đợt 2) cho luồng quay lại | Ẩn nút rời nhóm |
 | **Đợt 3** | Sự kiện & RSVP | Lệch múi giờ, nhắc nhở | Không | Ẩn tạo sự kiện |
 | **Đợt 4** | Bình chọn ẩn danh + Thread | Bảo toàn ẩn danh, phức tạp hiển thị | Bình chọn (Phase 2) | Về bình chọn thường / tắt thread |
 
@@ -51,7 +53,7 @@
 - **Hạn chế:** phạm vi ban đầu là thông báo văn bản.
 - **Phân định với Ghim tin nhắn (Phase 3, đã có kèm panel xem lại):** hai tính năng cùng "đánh dấu nội dung cho cả nhóm thấy" nhưng khác bản chất — ghim đánh dấu **tin nhắn có sẵn** trong luồng chat, ai cũng ghim được, không đẩy thông báo; thông báo nhóm là **nội dung soạn riêng**, chỉ quản trị đăng/gỡ, hiển thị nổi bật và chủ động báo tới mọi thành viên. Khi triển khai nên tái dùng hạ tầng ghim (đánh dấu + danh sách xem lại) và chỉ bổ sung phần khác biệt: quyền quản trị, vị trí hiển thị nổi bật, đẩy thông báo. Phân tích chi tiết: 2026-07-12.
 
-### 3.3 Link mời & QR
+### 3.3 Link mời & QR — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu
 
 - **Mục đích:** mời người vào nhóm nhanh, không cần thêm thủ công từng người.
 - **Hành vi:** tạo liên kết mời (kèm mã QR); người có liên kết có thể xin vào/được vào nhóm theo cấu hình; quản trị có thể thu hồi hoặc đặt thời hạn liên kết.
@@ -60,7 +62,7 @@
 - **Trường hợp đặc biệt:** liên kết hết hạn/bị thu hồi → từ chối vào nhóm; nhóm đầy → chặn.
 - **Hạn chế:** cần đi kèm cơ chế chống lạm dụng (spam liên kết).
 
-### 3.4 Yêu cầu tham gia (Join Request)
+### 3.4 Yêu cầu tham gia (Join Request) — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu
 
 - **Mục đích:** kiểm soát người vào nhóm khi cần duyệt.
 - **Hành vi:** người dùng gửi yêu cầu vào nhóm; quản trị thấy hàng chờ và duyệt/từ chối; người dùng được thông báo kết quả.
@@ -68,6 +70,14 @@
 - **Quy tắc:** cấu hình nhóm quyết định cần duyệt hay vào thẳng; tránh yêu cầu trùng lặp.
 - **Trường hợp đặc biệt:** rút yêu cầu trước khi duyệt; bị từ chối rồi gửi lại theo chính sách.
 - **Hạn chế:** đi cùng Link mời để tạo luồng vào nhóm hoàn chỉnh.
+
+### 3.4b Rời nhóm (Leave Group) — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu
+
+- **Mục đích:** thành viên chủ động rời nhóm; nhóm được thông báo minh bạch; người rời không nhận nội dung nữa.
+- **Hành vi:** nút rời trong panel thông tin nhóm (icon có sẵn) → xác nhận → rời; dòng hệ thống "{user} left the group"; hội thoại biến khỏi danh sách người rời (mọi thiết bị); quay lại chỉ qua được-thêm-lại hoặc link mời.
+- **Quy tắc:** chỉ nhóm; quản trị duy nhất không được rời khi nhóm còn thành viên (chờ Phân quyền quản trị để trao quyền trước); idempotent.
+- **Điểm phải sửa nền:** tin nhắn mới đang tự mở lại member đã rời (đúng cho chat 1-1, sai cho nhóm) + check tư cách thành viên chưa xét trạng thái đã rời.
+- **Chi tiết đầy đủ (3 đợt 2b-1 → 2b-3):** [`KE_HOACH_ROI_NHOM.md`](./KE_HOACH_ROI_NHOM.md)
 
 ### 3.5 Sự kiện & RSVP
 

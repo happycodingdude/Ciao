@@ -13,6 +13,7 @@ import {
   ContactUpdatedEvent,
   ConversationAppearanceChangedEvent,
   LinkPreviewReadyEvent,
+  MemberLeftEvent,
   NewConversation,
   NewMessage,
   NewMessagePinned,
@@ -71,7 +72,54 @@ export const classifyNotification = (
     // Phase 3 — theme chat chung của hội thoại thay đổi (người khác đổi) → patch ngay.
     case "ConversationAppearanceChanged":
       return onConversationAppearanceChanged(queryClient, data);
+    // Phase 5 — Đợt 2: yêu cầu tham gia mới / được duyệt / từ chối / rút.
+    // Payload chỉ có conversationId → refetch hàng chờ (quản trị) + badge notification.
+    case "JoinRequestUpdated":
+      return onJoinRequestUpdated(queryClient, data);
+    // Phase 5 — Đợt 2b: thành viên rời nhóm.
+    case "MemberLeft":
+      return onMemberLeft(queryClient, data, userInfo);
   }
+};
+
+// Rời nhóm: đánh dấu member đã rời trong cache ["conversation"] — một code path cho cả 2 phía:
+//  - Chính người rời (thiết bị khác): member của MÌNH isDeleted → list filter ẩn hội thoại.
+//  - Member còn lại: member NGƯỜI RỜI isDeleted → danh sách thành viên/sĩ số cập nhật ngay,
+//    kèm dòng hệ thống "{user} left the group" (id thật, khớp dữ liệu khi reload).
+const onMemberLeft = (
+  queryClient: QueryClient,
+  data: MemberLeftEvent,
+  userInfo: UserProfile,
+) => {
+  const { conversationId, contactId, systemMessage } = data ?? {};
+  if (!conversationId || !contactId) return;
+  queryClient.setQueryData<ConversationCache>(["conversation"], (old) =>
+    old
+      ? updateConversationInCache(old, conversationId, (c) => ({
+          ...c,
+          members: (c.members ?? []).map((m) =>
+            m.contact?.id !== contactId ? m : { ...m, isDeleted: true },
+          ),
+        }))
+      : old,
+  );
+  if (contactId !== userInfo.id && systemMessage) {
+    upsertRealtimeMessage(queryClient, conversationId, systemMessage);
+  }
+};
+
+// Hàng chờ join-request là query theo conversation — invalidate để panel quản trị đang mở
+// refetch; kèm notification (BE tạo bản ghi bền cho quản trị/người xin ở cùng transaction).
+const onJoinRequestUpdated = (
+  queryClient: QueryClient,
+  data: { conversationId?: string },
+) => {
+  if (data?.conversationId) {
+    queryClient.invalidateQueries({
+      queryKey: ["joinRequests", data.conversationId],
+    });
+  }
+  invalidateNotifications(queryClient);
 };
 
 // Theme chat (wallpaper + bubbleColor) là thuộc tính chung của conversation —
@@ -295,16 +343,32 @@ const onNewMembers = (
       (c) => c.id === conversation.conversation.id,
     );
     if (exists) {
-      // Group đã có → chỉ append thành viên mới (filter isNew để tránh duplicate)
+      // Group đã có → chỉ append thành viên mới (filter isNew để tránh duplicate).
+      // Đợt 2b: member RỜI NHÓM rồi quay lại (được thêm/link mời) đã có entry cũ
+      // (isDeleted) trong cache → loại entry cũ theo contact.id trước khi append,
+      // tránh hiển thị trùng trong danh sách thành viên.
       return updateConversationCache(old, conversation.conversation as ConversationModel, {
-        membersUpdater: (members) => [
-          ...members,
-          ...conversation.members.filter((m) => m.isNew),
-        ],
+        membersUpdater: (members) => {
+          const incoming = conversation.members.filter((m) => m.isNew);
+          const incomingIds = new Set(incoming.map((m) => m.contact?.id));
+          return [
+            ...members.filter((m) => !incomingIds.has(m.contact?.id)),
+            ...incoming,
+          ];
+        },
       });
     }
-    // Group chưa có trong list → user vừa được thêm vào group → thêm mới
-    return createNewConversation(old, conversation.conversation as ConversationModel);
+    // Group chưa có trong list → user vừa được thêm vào group / vừa vào lại bằng link → thêm mới.
+    // PHẢI kèm members (chính self, isNew, !isDeleted) — nếu thiếu, list lọc theo self-member active
+    // sẽ ẩn hội thoại vừa vào → "rejoin không hiện hội thoại".
+    return createNewConversation(
+      old,
+      conversation.conversation as ConversationModel,
+      undefined,
+      undefined,
+      undefined,
+      conversation.members,
+    );
   });
 };
 

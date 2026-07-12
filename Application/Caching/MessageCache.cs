@@ -15,6 +15,15 @@ public class MessageCache
         return messageCache;
     }
 
+    // Warm lại toàn bộ message cache của 1 hội thoại (dùng cho fallback đọc từ Mongo khi cache lạnh).
+    // Cùng triết lý cache-là-nguồn-đọc: ghi thẳng danh sách đã tính sẵn reaction count. An toàn với
+    // known-issue read-modify-write của cache này vì chỉ warm khi cache đang null/rỗng (không có gì để clobber),
+    // và Mongo vẫn là source-of-truth nên sai lệch tạm thời (nếu có) sẽ tự lành.
+    public async Task SetMessages(string conversationId, List<MessageWithReactions> messages)
+    {
+        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messages);
+    }
+
     public async Task AddSystemMessage(string conversationId, MessageWithReactions message)
     {
         var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? new();
@@ -22,7 +31,9 @@ public class MessageCache
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
     }
 
-    public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message)
+    // isGroup: Phase 5 — Đợt 2b — auto-reopen member IsDeleted (task 4) CHỈ áp dụng chat 1-1;
+    // nhóm không reopen (rời nhóm là rời thật). Mirror đúng guard ở DataStoreConsumer.HandleNewMessage.
+    public async Task AddMessages(string userId, string conversationId, DateTime updatedTime, MessageWithReactions message, bool isGroup)
     {
         // ⚠️ RACE CONDITION KNOWN-ISSUE:
         // Cả 4 task dưới đều theo pattern Get → mutate → Set trên Redis (read-modify-write KHÔNG nguyên tử).
@@ -77,13 +88,16 @@ public class MessageCache
         //    đánh dấu seen khi nhận message mới (dựa vào IsSelected) là implicit side-effect
         //    không đáng tin: IsSelected có thể stale, và FE Chatbox đã có debounced markRead
         //    đảm bảo seen khi user thực sự ở cuối conversation.
-        var memberCacheTask = Task.Run(async () =>
+        if (!isGroup)
         {
-            var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
-            members.ForEach(m => m.IsDeleted = false);
-            await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), members);
-        });
-        tasks.Add(memberCacheTask);
+            var memberCacheTask = Task.Run(async () =>
+            {
+                var members = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? new();
+                members.ForEach(m => m.IsDeleted = false);
+                await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), members);
+            });
+            tasks.Add(memberCacheTask);
+        }
 
         // 🏁 Chờ tất cả task hoàn tất song song
         await Task.WhenAll(tasks);

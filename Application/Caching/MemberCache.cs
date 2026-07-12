@@ -42,7 +42,19 @@ public class MemberCache
 
     public async Task AddMembers(string conversationId, List<MemberWithContactInfo> membersToAdd)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId));
+        // Null-safe: cache chưa build / đã evict → no-op, để relogin nạp lại từ Mongo
+        // (tránh ghi list thiếu member). Cùng triết lý null-safe với MemberDelete.
+        if (memberCacheData is null) return;
+
+        // Upsert theo Contact.Id thay vì AddRange mù. Hai nguồn gây trùng entry nếu append thẳng:
+        //  1) Member cũ đã rời nhóm vào lại bằng link mời (ViaInvite): Mongo reopen member CŨ in-place
+        //     (DataStoreConsumer.HandleNewMember) nên cache vẫn còn entry cũ → append = 2 entry cùng user
+        //     → SingleOrDefault ở MemberDelete/MemberSeenAll… ném "more than one matching element".
+        //  2) Consumer at-least-once redelivery StoredMember → append lặp.
+        // Remove-then-add giữ cache nhất quán với Mongo và idempotent (chạy lại không đổi kết quả).
+        var incomingIds = membersToAdd.Select(m => m.Contact.Id).ToHashSet();
+        memberCacheData.RemoveAll(m => incomingIds.Contains(m.Contact.Id));
         memberCacheData.AddRange(membersToAdd);
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
     }
@@ -120,9 +132,20 @@ public class MemberCache
 
     public async Task MemberDelete(string conversationId, string userId)
     {
-        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId)) ?? default;
-        var selected = memberCacheData.SingleOrDefault(q => q.Contact.Id == userId);
-        selected.IsDeleted = true;
+        // Null-safe (Đợt 2b): cache vắng (chưa build/đã evict) → no-op thay vì NRE làm fail
+        // cả request rời nhóm — Mongo là source of truth, cache tự rebuild khi login lại.
+        var memberCacheData = await _redisCaching.GetAsync<List<MemberWithContactInfo>>(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId));
+        if (memberCacheData is null) return;
+
+        // Robust + self-heal với entry trùng: cache lịch sử có thể còn 2 entry cùng user (bug append
+        // khi vào lại bằng link, đã fix ở AddMembers) → dùng Where thay SingleOrDefault để KHÔNG ném
+        // "more than one matching element" làm fail rời nhóm. Đánh dấu entry đầu là đã rời + xoá các
+        // bản trùng còn lại (giữ đúng vị trí entry gốc) để cache tự lành ngay trong lần rời này.
+        var matches = memberCacheData.Where(q => q.Contact.Id == userId).ToList();
+        if (matches.Count == 0) return;
+        matches[0].IsDeleted = true;
+        if (matches.Count > 1)
+            memberCacheData.RemoveAll(q => q.Contact.Id == userId && !ReferenceEquals(q, matches[0]));
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
     }
 

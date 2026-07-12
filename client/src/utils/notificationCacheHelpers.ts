@@ -18,6 +18,10 @@ export const createNewConversation = (
   lastMessage?: string,
   lastMessageContact?: string,
   lastMessageTime?: string,
+  // Danh sách thành viên đi kèm. BẮT BUỘC truyền khi biết (vd. sự kiện NewMembers): danh sách
+  // hội thoại ở ListChatContainer lọc theo self-member `!isDeleted` — thiếu members thì hội thoại
+  // vừa thêm/vừa vào lại nhóm sẽ bị ẩn hoàn toàn.
+  members?: ConversationModel_Member[],
 ): ConversationCache => {
   const newConversation = {
     id: conversation.id,
@@ -29,12 +33,14 @@ export const createNewConversation = (
     lastMessage: lastMessage ?? conversation.lastMessage,
     lastMessageContact: lastMessageContact ?? conversation.lastMessageContact,
     lastMessageTime: lastMessageTime ?? conversation.lastMessageTime,
+    members: members ?? conversation.members,
   };
   return {
     ...oldData,
     // Prepend lên đầu để conversation mới xuất hiện ở trên cùng danh sách
     conversations: [newConversation, ...(oldData.conversations ?? [])],
-    filterConversations: [newConversation, ...(oldData.conversations ?? [])],
+    // Mirror từ filterConversations (không phải conversations) để không reset bộ lọc/search đang active.
+    filterConversations: [newConversation, ...(oldData.filterConversations ?? [])],
   };
 };
 

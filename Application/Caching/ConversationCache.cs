@@ -22,8 +22,11 @@ public class ConversationCache
         if (conversationCacheData is null)
             return default;
 
+        // Distinct: self-heal danh sách đã lỡ trùng convId (bug vào lại nhóm Insert không dedup)
+        // — hiển thị đúng 1 lần ngay, không cần chờ relogin rebuild. Danh sách đúng thì vô hại.
         // Paginate
         conversationCacheData = conversationCacheData
+            .Distinct()
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToList();
@@ -113,6 +116,7 @@ public class ConversationCache
     {
         // Update list conversation cache
         var conversationIds = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId)) ?? default;
+        conversationIds.RemoveAll(id => id == conversation.Id); // dedup: tránh trùng khi convId đã có sẵn (vào lại nhóm / redelivery)
         conversationIds.Insert(0, conversation.Id);
         await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversationIds);
 
@@ -130,6 +134,7 @@ public class ConversationCache
     {
         // Update list conversation cache
         var conversationIds = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId)) ?? default;
+        conversationIds.RemoveAll(id => id == conversation.Id); // dedup: tránh trùng khi convId đã có sẵn (vào lại nhóm / redelivery)
         conversationIds.Insert(0, conversation.Id);
         await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversationIds);
 
@@ -152,6 +157,7 @@ public class ConversationCache
     {
         // Update list conversation cache
         var conversationIds = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId)) ?? default;
+        conversationIds.RemoveAll(id => id == conversationId); // dedup: tránh trùng khi convId đã có sẵn (vào lại nhóm / redelivery)
         conversationIds.Insert(0, conversationId);
         await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversationIds);
     }
@@ -162,6 +168,7 @@ public class ConversationCache
         {
             // Update list conversation cache
             var conversationIds = await _redisCaching.GetAsync<List<string>>(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId)) ?? default;
+            conversationIds.RemoveAll(id => id == conversationId); // dedup: tránh trùng khi convId đã có sẵn (vào lại nhóm / redelivery)
             conversationIds.Insert(0, conversationId);
             await _redisCaching.SetAsync(AppConstants.RedisKey_UserConversations.Replace("{userId}", userId), conversationIds);
         });
