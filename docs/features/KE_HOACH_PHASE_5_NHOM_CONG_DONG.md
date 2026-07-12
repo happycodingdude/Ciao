@@ -13,7 +13,7 @@
 | Sự kiện (Event & RSVP) | ⬜ | Tạo sự kiện + xác nhận tham dự |
 | Link mời & QR | ⬜ | Mời vào nhóm qua liên kết/QR |
 | Yêu cầu tham gia | ⬜ | Duyệt yêu cầu vào nhóm |
-| Phân quyền quản trị | 🟡 | Giao diện bổ nhiệm/thu hồi quyền |
+| Phân quyền quản trị | ⏸️ | **Dời lại, chưa làm ở Phase 5** (2026-07-12, theo yêu cầu) — giao diện bổ nhiệm/thu hồi quyền |
 | Bình chọn ẩn danh | ⬜ | Bỏ phiếu không lộ danh tính |
 | Thread | ⬜ | Thảo luận theo nhánh |
 
@@ -23,7 +23,7 @@
 
 | Đợt | Mục tiêu | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- |
-| **Đợt 1** | Phân quyền quản trị (UI) + Thông báo nhóm | Lạm quyền, thao tác sai người | Vai trò quản trị hiện có | Ẩn thao tác phân quyền / bảng thông báo |
+| **Đợt 1** | Thông báo nhóm (Phân quyền quản trị dời lại 2026-07-12, không còn trong đợt này) | Lạm quyền đăng/gỡ thông báo | Vai trò quản trị hiện có | Ẩn bảng thông báo |
 | **Đợt 2** | Link mời & QR + Yêu cầu tham gia | Vào nhóm trái phép, spam yêu cầu | Cơ chế thành viên nhóm | Vô hiệu liên kết / tắt duyệt |
 | **Đợt 3** | Sự kiện & RSVP | Lệch múi giờ, nhắc nhở | Không | Ẩn tạo sự kiện |
 | **Đợt 4** | Bình chọn ẩn danh + Thread | Bảo toàn ẩn danh, phức tạp hiển thị | Bình chọn (Phase 2) | Về bình chọn thường / tắt thread |
@@ -32,7 +32,7 @@
 
 ## 3. Chi tiết nghiệp vụ
 
-### 3.1 Phân quyền quản trị (hoàn thiện)
+### 3.1 Phân quyền quản trị (hoàn thiện) — ⏸️ DỜI LẠI, chưa làm ở Phase 5 (2026-07-12)
 
 - **Mục đích:** quản trị viên có thể trao/thu quyền cho thành viên khác.
 - **Hành vi:** trong danh sách thành viên, quản trị viên có thao tác bổ nhiệm quản trị / thu hồi quyền; các hành động quản trị (thêm/xóa thành viên, đổi thông tin nhóm, thu hồi tin của người khác) tuân theo quyền.
@@ -49,6 +49,7 @@
 - **Quy tắc:** chỉ quản trị được đăng/gỡ; thông báo tách biệt với tin nhắn thường.
 - **Trường hợp đặc biệt:** nhiều thông báo → sắp theo mới nhất/ghim; gỡ thông báo → không còn nổi bật.
 - **Hạn chế:** phạm vi ban đầu là thông báo văn bản.
+- **Phân định với Ghim tin nhắn (Phase 3, đã có kèm panel xem lại):** hai tính năng cùng "đánh dấu nội dung cho cả nhóm thấy" nhưng khác bản chất — ghim đánh dấu **tin nhắn có sẵn** trong luồng chat, ai cũng ghim được, không đẩy thông báo; thông báo nhóm là **nội dung soạn riêng**, chỉ quản trị đăng/gỡ, hiển thị nổi bật và chủ động báo tới mọi thành viên. Khi triển khai nên tái dùng hạ tầng ghim (đánh dấu + danh sách xem lại) và chỉ bổ sung phần khác biệt: quyền quản trị, vị trí hiển thị nổi bật, đẩy thông báo. Phân tích chi tiết: 2026-07-12.
 
 ### 3.3 Link mời & QR
 

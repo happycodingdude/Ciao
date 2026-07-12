@@ -1,6 +1,7 @@
 import {
   BookOutlined,
   InfoCircleOutlined,
+  PushpinOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
@@ -16,6 +17,7 @@ const ChatboxHeaderMenu = () => {
     showInformation,
     showAttachment,
     showBookmark,
+    showPin,
     toggleDetail,
   } = useChatDetailToggles();
 
@@ -35,6 +37,18 @@ const ChatboxHeaderMenu = () => {
       >
         <SearchOutlined
           onClick={() => toggleDetail("search")}
+          className="base-icon transition-all duration-200"
+        />
+      </div>
+      {/* Xem lại tin đã ghim trong hội thoại — icon Pushpin đồng bộ với action "Pin message"
+          (cùng rotate 316 với icon pin ở MessageMenu). */}
+      <div
+        className={`flex justify-end gap-4 rounded-full
+            ${showPin ? "text-light-blue-500" : "hover:text-light-blue-500"}`}
+      >
+        <PushpinOutlined
+          rotate={316}
+          onClick={() => toggleDetail("pin")}
           className="base-icon transition-all duration-200"
         />
       </div>

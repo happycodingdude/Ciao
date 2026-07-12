@@ -10,7 +10,12 @@ import {
 // Sidebar phải chỉ hiển thị 1 panel tại 1 thời điểm (Search / Information / Attachment).
 // State source: 1 string `activeDetail` — mutually exclusive ngay tại nguồn, không cần
 // derive bằng priority. Persist nguyên string vào localStorage để refresh giữ panel.
-export type ChatDetailKind = "search" | "information" | "attachment" | "bookmark";
+export type ChatDetailKind =
+  | "search"
+  | "information"
+  | "attachment"
+  | "bookmark"
+  | "pin";
 
 // Tab đang chọn trong panel Attachment. Nằm ở context (không phải state local của
 // Attachment.tsx) vì Information cần preselect tab khi bấm "View all" của từng section —
@@ -28,6 +33,7 @@ export type ChatDetailTogglesContextValue = {
   showInformation: boolean;
   showAttachment: boolean;
   showBookmark: boolean;
+  showPin: boolean;
   attachmentTab: AttachmentTabKind;
   setAttachmentTab: (tab: AttachmentTabKind) => void;
   // "View all" của từng section Information: chọn tab rồi mở panel Attachment.
@@ -43,7 +49,11 @@ const STORAGE_KEY = "toggleChatDetail";
 // Validate value đọc từ localStorage — chỉ chấp nhận đúng 3 string hợp lệ,
 // ngoài ra (null/format cũ/user sửa tay) đều fallback null.
 const isValidKind = (v: unknown): v is ChatDetailKind =>
-  v === "search" || v === "information" || v === "attachment" || v === "bookmark";
+  v === "search" ||
+  v === "information" ||
+  v === "attachment" ||
+  v === "bookmark" ||
+  v === "pin";
 
 const readActive = (): ChatDetailKind | null => {
   try {
@@ -104,6 +114,7 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
       showInformation: activeDetail === "information",
       showAttachment: activeDetail === "attachment",
       showBookmark: activeDetail === "bookmark",
+      showPin: activeDetail === "pin",
       attachmentTab,
       setAttachmentTab,
       openAttachment,

@@ -23,6 +23,10 @@ export const usePinMessage = (conversationId: string | undefined) => {
       isPinned: !currentlyPinned,
       pinnedBy: info?.id,
     }));
+    // Panel "Tin đã ghim" (nếu đang mở) refetch để list khớp thao tác vừa làm.
+    queryClient.invalidateQueries({
+      queryKey: ["pinnedMessages", conversationId],
+    });
     setPinning(false);
   };
 

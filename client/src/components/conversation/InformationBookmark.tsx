@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { willResetPanelOnConversation } from "../../context/ChatDetailTogglesContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import { useServerSearchFallback } from "../../hooks/useServerSearchFallback";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { getConversationBookmarks } from "../../services/bookmark.service";
 import { BookmarkItemModel } from "../../types/bookmark.types";
@@ -22,18 +23,13 @@ import ModalSearchInput from "../common/ModalSearchInput";
 // 3. Clear ô search → hiển thị lại list đã load ở bước 1.
 const InformationBookmark = () => {
   const { conversationId } = Route.useParams();
+  // Đang có jump-to-message chạy dở (?messageId chưa clear) → khoá click item mới.
+  const { messageId: pendingJumpId } = Route.useSearch();
   const { showBookmark } = useChatDetailToggles();
   const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState("");
-  // Kết quả API search theo keyword — chỉ dùng khi local filter không match.
-  const [serverResults, setServerResults] = useState<BookmarkItemModel[]>([]);
-  const [searching, setSearching] = useState(false);
-
   const refInput = useRef<HTMLInputElement>(null);
-  // Đánh dấu request search mới nhất — response cũ về muộn sẽ bị bỏ qua (stale guard).
-  const refSearchSeq = useRef(0);
-  const refDebounce = useRef<ReturnType<typeof setTimeout>>();
 
   // Load danh sách qua react-query thay vì fetch thủ công trong effect:
   // - StrictMode (dev) mount effect 2 lần → fetch thủ công bắn 2 request; react-query
@@ -55,7 +51,6 @@ const InformationBookmark = () => {
   useEffect(() => {
     if (!showBookmark || willResetPanelOnConversation(conversationId)) return;
     setKeyword("");
-    setServerResults([]);
     if (refInput.current) refInput.current.value = "";
     refInput.current?.focus({ preventScroll: true });
   }, [showBookmark, conversationId]);
@@ -69,36 +64,21 @@ const InformationBookmark = () => {
     return items.filter((m) => m.content?.toLowerCase().includes(kw));
   }, [items, trimmedKeyword]);
 
-  // Local không match → fallback gọi API search theo keyword (debounce 400ms).
-  const needServerSearch = !!trimmedKeyword && localMatches.length === 0;
-  useEffect(() => {
-    clearTimeout(refDebounce.current);
-    if (!needServerSearch) {
-      setServerResults([]);
-      setSearching(false);
-      return;
-    }
-    const seq = ++refSearchSeq.current;
-    setSearching(true);
-    refDebounce.current = setTimeout(() => {
-      getConversationBookmarks(conversationId, trimmedKeyword)
-        .then((data) => {
-          if (seq === refSearchSeq.current) setServerResults(data ?? []);
-        })
-        .finally(() => {
-          if (seq === refSearchSeq.current) setSearching(false);
-        });
-    }, 400);
-    return () => clearTimeout(refDebounce.current);
-  }, [needServerSearch, trimmedKeyword, conversationId]);
+  // Local không match → fallback API search theo keyword (debounce + stale guard) —
+  // cùng logic với InformationPin qua hook dùng chung.
+  const { needServerSearch, serverResults, searching } =
+    useServerSearchFallback(trimmedKeyword, localMatches.length, (kw) =>
+      getConversationBookmarks(conversationId, kw),
+    );
 
   const displayed = needServerSearch ? serverResults : localMatches;
   const busy = loading || (needServerSearch && searching);
 
   // Click 1 tin đã lưu → set ?messageId, Chatbox tự kéo trang cũ tới khi tin xuất hiện
   // rồi scroll + highlight (cùng cơ chế với search tin nhắn). Giữ panel mở.
+  // Đang có jump chạy dở → bỏ qua click (data lớn kéo trang lâu, click dồn gây loạn).
   const handleItemClick = (m: BookmarkItemModel) => {
-    if (!m.messageId || m.isUnavailable) return;
+    if (!m.messageId || m.isUnavailable || pendingJumpId) return;
     navigate({
       to: "/conversations/$conversationId",
       params: { conversationId },
@@ -143,7 +123,7 @@ const InformationBookmark = () => {
               key={m.id}
               onClick={() => handleItemClick(m)}
               className={`border-b-(--border-color) flex items-start gap-3 border-b-[.1rem] px-4 py-3
-                ${m.isUnavailable ? "opacity-60" : "hover:bg-(--bg-color-extrathin) cursor-pointer"}`}
+                ${m.isUnavailable ? "opacity-60" : `hover:bg-(--bg-color-extrathin) ${pendingJumpId ? "cursor-wait" : "cursor-pointer"}`}`}
             >
               {/* Avatar người gửi bên trái */}
               <ImageWithLightBoxAndNoLazy

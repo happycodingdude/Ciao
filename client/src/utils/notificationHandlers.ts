@@ -408,6 +408,10 @@ const onNewMessagePinned = (
     isPinned: pinned.isPinned,
     pinnedBy: pinned.pinnedBy,
   }));
+  // Panel "Tin đã ghim" đang mở (nếu có) refetch để list khớp trạng thái mới.
+  queryClient.invalidateQueries({
+    queryKey: ["pinnedMessages", pinned.conversationId],
+  });
 };
 
 // Receipt events từ FCM — cập nhật horizon của member tương ứng trong conversation cache.

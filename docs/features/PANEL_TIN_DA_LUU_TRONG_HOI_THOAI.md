@@ -54,6 +54,7 @@ Danh sách tin đã lưu chỉ được tải khi panel thực sự cần hiển
 
 - Bấm vào một mục: khung chat cuộn đến đúng tin nhắn đó và làm nổi bật, kể cả khi tin nằm ở trang cũ chưa tải (cùng cơ chế với tìm kiếm tin nhắn).
 - Panel vẫn mở sau khi bấm, để tiếp tục chọn mục khác.
+- **Trong lúc đang nhảy tới tin** (tin cũ phải tải thêm nhiều trang): mọi click tiếp theo vào các mục trong danh sách bị bỏ qua cho tới khi thao tác nhảy hoàn tất — con trỏ chuyển dạng chờ. Quy tắc áp dụng chung cho cả 3 danh sách: Tìm kiếm / Tin đã ghim / Tin đã lưu.
 
 ## Input / Output
 

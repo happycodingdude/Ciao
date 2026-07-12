@@ -7,6 +7,9 @@ import {
 
 // Phase 3 — Bookmark: trạng thái "đã lưu" của các tin trong 1 hội thoại + toggle.
 // Cache ["bookmarkIds", conversationId] = string[] messageId đã lưu (riêng tư per-user).
+// Fetch EAGER ngay khi vào hội thoại (đã thử lazy theo hover: gây chớp icon bookmark
+// ở lần hover đầu → user chốt quay lại eager); react-query dedupe nên cả hội thoại
+// chỉ tốn 1 request dù hook mount theo từng message menu.
 export const useBookmark = (conversationId: string | undefined) => {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);

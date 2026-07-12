@@ -5,6 +5,7 @@ import {
   MessageCache,
   MessageSearchResult,
   PinMessageRequest,
+  PinnedMessageModel,
   ReactMessageRequest,
   SendMessageRequest,
   SendMessageResponse,
@@ -119,6 +120,23 @@ export const searchMessages = async (
     await HttpRequest<undefined, MessageSearchResult[]>({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_MESSAGE_SEARCH.replace(
+        "{id}",
+        conversationId,
+      ).replace("{keyword}", encodeURIComponent(keyword)),
+    })
+  ).data ?? [];
+};
+
+// keyword optional: server lọc theo nội dung khi FE không match trong list đã tải sẵn
+// (đồng bộ hành vi với getConversationBookmarks).
+export const getPinnedMessages = async (
+  conversationId: string,
+  keyword: string = "",
+) => {
+  return (
+    await HttpRequest<undefined, PinnedMessageModel[]>({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_MESSAGE_PINNED.replace(
         "{id}",
         conversationId,
       ).replace("{keyword}", encodeURIComponent(keyword)),

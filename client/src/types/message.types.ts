@@ -195,3 +195,9 @@ export type MessageSearchResult = BaseModel & {
   content: string;
   contactId: string;
 };
+
+// Item trong panel "Tin đã ghim" — content server đã build thành chuỗi preview
+// theo loại tin (media/sticker/poll...), FE render trực tiếp không cần attachment.
+export type PinnedMessageModel = MessageSearchResult & {
+  pinnedBy?: string | null;
+};

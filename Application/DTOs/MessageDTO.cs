@@ -100,6 +100,13 @@ public class MessageSearchResult : MongoBaseModel
     public string ContactId { get; set; } = null!;
 }
 
+// Kết quả liệt kê tin đã ghim của hội thoại. Content đã được build thành chuỗi preview
+// theo loại tin (BuildLastMessagePreview) để FE render trực tiếp, không cần biết attachment.
+public class PinnedMessageResult : MessageSearchResult
+{
+    public string? PinnedBy { get; set; }
+}
+
 public class SystemMessage
 {
     public string Type { get; set; } = null!;

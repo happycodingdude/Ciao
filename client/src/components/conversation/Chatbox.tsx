@@ -201,14 +201,28 @@ const Chatbox = () => {
   //   getMessages/around đều đọc cùng Redis cache full-history nên mọi tin search đều tới được.
   //   (Page size nhỏ → tin rất cũ tốn nhiều round-trip; tối ưu thực sự là server-side page-jump.)
   // Khi đã load: tin có thể chưa kịp gắn DOM (render async) → retry vài nhịp rồi scroll + highlight.
-  // Clear param sau khi nhảy để không lặp lại; tin không tồn tại (đã xoá/recall) → no-op graceful.
+  // Clear param ở MỌI terminal state (nhảy xong / hết trang cũ mà không thấy tin / hết lượt retry
+  // DOM) — các panel (Search/Pin/Bookmark) dùng ?messageId làm cờ khoá click trong lúc jump đang
+  // chạy, param kẹt lại = khoá vĩnh viễn. Tin không tồn tại (đã xoá/recall) → clear + no-op graceful.
   useEffect(() => {
     if (!targetMessageId) return;
+    // Chưa có page đầu (đổi hội thoại / mở URL trực tiếp) → chờ dữ liệu, chưa kết luận gì.
+    if (!data) return;
+
+    const clearTarget = () =>
+      navigate({
+        to: "/conversations/$conversationId",
+        params: { conversationId },
+        search: {},
+        replace: true,
+      });
 
     const loaded = messages.some((m) => m.id === targetMessageId);
     if (!loaded) {
       // Chưa thấy tin trong tập đã load → kéo trang cũ hơn (nếu còn) rồi chờ effect re-run.
       if (hasPreviousPage && !isFetchingPreviousPage) fetchPreviousPage();
+      // Hết trang cũ mà vẫn không thấy (tin đã xoá/không thuộc hội thoại) → clear để mở khoá.
+      else if (!hasPreviousPage && !isFetchingPreviousPage) clearTarget();
       return;
     }
 
@@ -221,15 +235,13 @@ const Chatbox = () => {
         el.scrollIntoView({ block: "center", behavior: "smooth" });
         el.classList.add("message-highlight");
         setTimeout(() => el.classList.remove("message-highlight"), 2200);
-        navigate({
-          to: "/conversations/$conversationId",
-          params: { conversationId },
-          search: {},
-          replace: true,
-        });
+        clearTarget();
         return;
       }
       if (attempts++ < 10) setTimeout(tryScroll, 250);
+      // Tin đã load nhưng DOM không xuất hiện sau 10 nhịp (bị ẩn sau divider tin mới...) →
+      // clear để không kẹt khoá click.
+      else clearTarget();
     };
 
     const t = setTimeout(tryScroll, 150);
@@ -239,6 +251,7 @@ const Chatbox = () => {
     };
   }, [
     targetMessageId,
+    data,
     messages,
     hasPreviousPage,
     isFetchingPreviousPage,

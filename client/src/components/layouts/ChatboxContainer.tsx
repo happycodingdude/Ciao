@@ -11,6 +11,7 @@ import ChatboxHeader from "../conversation/ChatboxHeader";
 import ChatInput from "../conversation/ChatInput";
 import Information from "../conversation/Information";
 import InformationBookmark from "../conversation/InformationBookmark";
+import InformationPin from "../conversation/InformationPin";
 import InformationSearch from "../conversation/InformationSearch";
 
 const ChatboxContainer = () => {
@@ -83,6 +84,7 @@ const ChatboxContainer = () => {
         <Attachment />
         <InformationSearch />
         <InformationBookmark />
+        <InformationPin />
       </div>
     </div>
   );

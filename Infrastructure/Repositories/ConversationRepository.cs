@@ -256,4 +256,43 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
 
         return results;
     }
+
+    public async Task<List<Message>> GetPinnedMessages(string conversationId, string? keyword = null, CancellationToken cancellationToken = default)
+    {
+        // Liệt kê tin đã ghim của 1 conversation — cùng chiến thuật với SearchMessages:
+        // $unwind Messages rồi $match tại DB để không kéo toàn bộ history về app.
+        // Khác biệt:
+        //  - Match theo cờ IsPinned thay vì regex content → mọi loại tin (text/media/sticker...)
+        //    đều liệt kê được; handler build chuỗi preview theo loại tin.
+        //  - Không paging: số tin ghim của 1 hội thoại nhỏ (user chủ động ghim từng tin).
+        //  - Deserialize thẳng về Domain.Message (replaceRoot trả về đúng shape subdocument)
+        //    để handler có đủ Type/Content/Attachments/PinnedBy mà không cần $project thủ công.
+        // Loại tin đã thu hồi: content đã clear, giữ trong list ghim chỉ gây item rỗng.
+        // keyword (optional): FE fallback khi filter client-side không match — lọc thêm theo
+        // Content regex /keyword/i (escape chống regex injection, cùng chiến thuật SearchMessages).
+        var matchStage = new BsonDocument
+        {
+            { "Messages.IsPinned", true },
+            { "Messages.RecalledTime", BsonNull.Value }
+        };
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var escaped = System.Text.RegularExpressions.Regex.Escape(keyword.Trim());
+            matchStage.Add("Messages.Content", new BsonRegularExpression(escaped, "i"));
+        }
+        var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", conversationId)),
+            new BsonDocument("$unwind", "$Messages"),
+            new BsonDocument("$match", matchStage),
+            new BsonDocument("$sort", new BsonDocument("Messages.CreatedTime", -1)),
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$Messages"))
+        };
+
+        return (await _collection
+            .Aggregate<BsonDocument>(pipeline, cancellationToken: cancellationToken)
+            .ToListAsync(cancellationToken))
+            .Select(bson => BsonSerializer.Deserialize<Message>(bson))
+            .ToList();
+    }
 }

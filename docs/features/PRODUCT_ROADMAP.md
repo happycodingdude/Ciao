@@ -70,7 +70,7 @@
 
 | STT | Tính năng            | Mô tả                               |  Ưu tiên   | Trạng thái |
 | --: | -------------------- | ----------------------------------- | :--------: | ---------- |
-|   1 | Ghim nhiều tin nhắn  | Multiple pinned messages            | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (pin/unpin nhiều tin + badge) |
+|   1 | Ghim nhiều tin nhắn  | Multiple pinned messages            | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (pin/unpin nhiều tin + badge; panel xem lại tin đã ghim nghiệm thu 2026-07-12 — [chi tiết](./XEM_LAI_TIN_DA_GHIM.md)) |
 |   2 | Bookmark             | Lưu tin nhắn cho riêng mình         | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (nghiệm thu 2026-07-11) — menu lưu tin + trang `/saved` + panel trong hội thoại |
 |   3 | Ghim cuộc trò chuyện | Pin/Favorite conversation           | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (nghiệm thu 2026-07-11) |
 |   4 | Media                | Phân loại Ảnh / Video / File / Link | ⭐⭐⭐⭐⭐ | ✅ Hoàn thành (nghiệm thu 2026-07-11) — 4 section preview + 4 tab ([chi tiết](./MEDIA_TABS_REDESIGN.md)) |
@@ -111,7 +111,7 @@
 |   2 | Sự kiện             | Event & RSVP          | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   3 | Link mời            | Invite Link & QR Code | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
 |   4 | Yêu cầu tham gia    | Join Request          | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
-|   5 | Phân quyền quản trị | Admin Permission      |  ⭐⭐⭐☆☆  | 🟡 Một phần (có vai trò moderator/Admin + recall theo quyền; chưa có UI bổ nhiệm/thu hồi) |
+|   5 | Phân quyền quản trị | Admin Permission      |  ⭐⭐⭐☆☆  | ⏸️ Dời lại, chưa làm ở Phase 5 (2026-07-12, theo yêu cầu) — hiện có một phần: vai trò moderator/Admin + recall theo quyền; chưa có UI bổ nhiệm/thu hồi |
 |   6 | Bình chọn ẩn danh   | Anonymous Poll        |  ⭐⭐⭐☆☆  | ⬜ Chưa làm |
 |   7 | Thread              | Thảo luận theo nhánh  |  ⭐⭐☆☆☆   | ⬜ Chưa làm |
 

@@ -26,6 +26,7 @@
 ### 3.2 Bookmark (Lưu tin nhắn)
 
 - Menu "…" của một tin nhắn → "Lưu tin nhắn" / "Bỏ lưu tin nhắn". Tin đã lưu hiển thị biểu tượng màu cam trong menu.
+- Trạng thái "đã lưu" của các tin được tải **một lần ngay khi vào hội thoại** (dùng chung cho mọi tin) để biểu tượng bookmark trong menu thao tác có màu đúng tức thì khi rê chuột — đã thử phương án chỉ tải khi rê chuột lần đầu nhưng gây chớp biểu tượng nên giữ cách tải ngay từ đầu.
 - Trang **"Tin nhắn đã lưu"** (biểu tượng bookmark ở sidebar, đường dẫn `/saved`):
   - Liệt kê tin đã lưu, mới lưu trước, tải thêm theo trang.
   - Mỗi mục hiển thị: người gửi, hội thoại, thời điểm gửi, nội dung xem trước (tin media/poll/danh bạ có nhãn riêng).
