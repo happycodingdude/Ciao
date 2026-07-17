@@ -18,6 +18,10 @@ import ImageWithLightBoxAndNoLazy from "./ImageWithLightBoxAndNoLazy";
 // hiện đè lên trang user đang thao tác thay vì thay cả trang bằng nền trắng.
 // Trạng thái: invalid/expired (không lộ thông tin nhóm) · member (mở chat) ·
 // pending (chờ duyệt, có thể rút) · active (bấm Join → vào thẳng hoặc chuyển pending).
+// Thời gian tối đa chờ event NewMembers sau khi join thành công; quá hạn (miss FCM)
+// → fallback dựng card optimistic self-only rồi vào hội thoại luôn.
+const JOIN_EVENT_TIMEOUT_MS = 5000;
+
 const InviteJoinModal = () => {
   // Param nằm ngoài schema của route hiện hành → đọc non-strict (mọi trang dưới _layout).
   const { invite: code } = useSearch({ strict: false }) as { invite?: string };
@@ -27,10 +31,19 @@ const InviteJoinModal = () => {
   const [working, setWorking] = useState(false);
   // Ghi đè trạng thái pending cục bộ sau khi Join/Withdraw (không refetch preview).
   const [pendingOverride, setPendingOverride] = useState<boolean | null>(null);
+  // Đã join xong ("joined"), đang GIỮ modal chờ event NewMembers hoàn thiện card trong cache
+  // (members/theme/system message đầy đủ) rồi mới đóng modal + mở hội thoại — tránh hiện
+  // card "nửa vời" rồi giật cập nhật, và không refetch /conversations.
+  const [waitingConv, setWaitingConv] = useState<{
+    id: string;
+    title?: string;
+  } | null>(null);
 
   // Mount thường trực ở layout → reset state cục bộ khi đổi sang link mời khác.
   useEffect(() => {
     setPendingOverride(null);
+    setWaitingConv(null);
+    setWorking(false);
   }, [code]);
 
   const { data: preview, isLoading } = useQuery({
@@ -42,7 +55,13 @@ const InviteJoinModal = () => {
   const isPending = pendingOverride ?? preview?.hasPendingRequest ?? false;
 
   // Đóng modal = gỡ ?invite khỏi URL, GIỮ NGUYÊN trang + các search param còn lại.
-  const close = () =>
+  // Đóng khi đang chờ event = hủy auto-mở hội thoại (join ĐÃ thành công — card sẽ
+  // tới qua event NewMembers, user tự mở từ danh sách).
+  const close = () => {
+    if (waitingConv) {
+      setWaitingConv(null);
+      setWorking(false);
+    }
     navigate({
       to: ".",
       search: (prev: Record<string, unknown>) => ({
@@ -51,6 +70,100 @@ const InviteJoinModal = () => {
       }),
       replace: true,
     });
+  };
+
+  // Fallback khi MISS event NewMembers (timeout): chèn card optimistic self-only như cũ
+  // để list không trống hội thoại vừa join; event/refetch tự nhiên sau sẽ hoàn thiện.
+  const insertOptimisticCard = (convId: string, title?: string) => {
+    if (!info?.id) return;
+    queryClient.setQueryData<ConversationCache>(["conversation"], (old) => {
+      if (!old) return old;
+      // Loại entry cũ (nếu từng ở nhóm rồi rời — self-member isDeleted) trước khi chèn
+      // bản mới, tránh 2 entry cùng id trong cache.
+      const withoutOld = {
+        ...old,
+        conversations: (old.conversations ?? []).filter((c) => c.id !== convId),
+        filterConversations: (old.filterConversations ?? []).filter((c) => c.id !== convId),
+      };
+      return createNewConversation(
+        withoutOld,
+        {
+          id: convId,
+          title: title ?? preview?.title,
+          avatar: preview?.avatar ?? undefined,
+          isGroup: true,
+        } as ConversationModel,
+        undefined,
+        undefined,
+        undefined,
+        // Self-member active — bắt buộc, list lọc theo self-member !isDeleted.
+        // lastSeenTime = now: vừa join coi như đã bắt kịp lịch sử → Chatbox mở ở ĐÁY,
+        // không hiện chip "n tin nhắn mới" (khớp BE: HandleNewMember set LastSeenTime = join time).
+        [
+          {
+            contact: { id: info.id, name: info.name, avatar: info.avatar },
+            isDeleted: false,
+            isNotifying: true,
+            isModerator: false,
+            lastSeenTime: new Date().toISOString(),
+          },
+        ],
+      );
+    });
+  };
+
+  // Chờ event NewMembers hoàn thiện card rồi mới đóng modal + mở hội thoại.
+  // Card "đầy đủ" = có trong cache với self-member active — chỉ onNewMembers tạo/mở lại
+  // được trạng thái này (rejoin: entry cũ self isDeleted=true nên không match sớm).
+  useEffect(() => {
+    if (!waitingConv || !info?.id) return;
+    const { id: convId, title } = waitingConv;
+    const selfId = info.id;
+    let done = false;
+
+    const hasFullCard = () => {
+      const cache = queryClient.getQueryData<ConversationCache>(["conversation"]);
+      const conv = (cache?.conversations ?? []).find((c) => c.id === convId);
+      return !!conv?.members?.some(
+        (m) => m.contact?.id === selfId && !m.isDeleted,
+      );
+    };
+
+    // Guard done: subscribe có thể bắn thêm lần nữa trước khi cleanup chạy.
+    const finish = () => {
+      if (done) return;
+      done = true;
+      setWaitingConv(null);
+      setWorking(false);
+      toast.success(`Welcome to ${title ?? "the group"}!`);
+      // Điều hướng sang route không còn ?invite → modal tự đóng.
+      navigate({
+        to: "/conversations/$conversationId",
+        params: { conversationId: convId },
+      });
+    };
+
+    // Event có thể đã về TRƯỚC khi response join trả (Kafka nhanh) → check ngay.
+    if (hasFullCard()) {
+      finish();
+      return;
+    }
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event.query?.queryKey?.[0] === "conversation" && hasFullCard())
+        finish();
+    });
+    const timer = setTimeout(() => {
+      insertOptimisticCard(convId, title);
+      finish();
+    }, JOIN_EVENT_TIMEOUT_MS);
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
+    // insertOptimisticCard cố tình không nằm trong deps: chỉ đọc info/preview qua closure,
+    // effect chỉ cần chạy lại khi waitingConv/self đổi.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waitingConv, info?.id, queryClient, navigate]);
 
   const join = async () => {
     if (working || !code) return;
@@ -61,76 +174,42 @@ const InviteJoinModal = () => {
       if (result.status === "pending") {
         setPendingOverride(true);
         toast.success("Request sent — waiting for admin approval");
-      } else {
-        // joined / member — về danh sách hội thoại.
-        toast.success(`Welcome to ${result.title ?? "the group"}!`);
-        // "joined" persist BẤT ĐỒNG BỘ qua Kafka. Chèn OPTIMISTIC card nhóm vào cache từ
-        // dữ liệu ĐÃ CÓ (preview + response) — hiện ngay không cần chờ server (conversation
-        // query staleTime 1h nên mount không refetch đè); rồi reconcile đúng MỘT lần sau khi
-        // consumer kịp persist. Event FCM NewMembers vẫn là lưới realtime thứ hai.
-        if (result.conversationId && info?.id) {
-          const convId = result.conversationId;
-          queryClient.setQueryData<ConversationCache>(["conversation"], (old) => {
-            if (!old) return old;
-            // Loại entry cũ (nếu từng ở nhóm rồi rời — self-member isDeleted) trước khi chèn
-            // bản mới, tránh 2 entry cùng id trong cache.
-            const withoutOld = {
-              ...old,
-              conversations: (old.conversations ?? []).filter((c) => c.id !== convId),
-              filterConversations: (old.filterConversations ?? []).filter((c) => c.id !== convId),
-            };
-            return createNewConversation(
-              withoutOld,
-              {
-                id: convId,
-                title: result.title ?? preview?.title,
-                avatar: preview?.avatar ?? undefined,
-                isGroup: true,
-              } as ConversationModel,
-              undefined,
-              undefined,
-              undefined,
-              // Self-member active — bắt buộc, list lọc theo self-member !isDeleted.
-              // lastSeenTime = now: vừa join coi như đã bắt kịp lịch sử → Chatbox mở ở ĐÁY,
-              // không hiện chip "n tin nhắn mới" (khớp BE: HandleNewMember set LastSeenTime
-              // = join time; đây là bản optimistic trước khi reconcile 2.5s).
-              [
-                {
-                  contact: { id: info.id, name: info.name, avatar: info.avatar },
-                  isDeleted: false,
-                  isNotifying: true,
-                  isModerator: false,
-                  lastSeenTime: new Date().toISOString(),
-                },
-              ],
-            );
-          });
-          setTimeout(
-            () => queryClient.invalidateQueries({ queryKey: ["conversation"] }),
-            2500,
-          );
-          // Cache tin nhắn của hội thoại vừa rejoin có thể đang giữ trang RỖNG/cũ (từ trước
-          // khi rời nhóm hoặc lúc BE cache còn lạnh) và staleTime 120s sẽ khiến lần mở đầu
-          // đọc thẳng cache đó → khung chat trống. Invalidate để lần mở tới refetch fresh.
-          queryClient.invalidateQueries({ queryKey: ["message", convId] });
-        } else {
-          // Không đủ dữ liệu dựng optimistic card (thiếu conversationId/info) → fallback
-          // một lần invalidate; card sẽ tới qua event NewMembers hoặc lần refetch này.
-          queryClient.invalidateQueries({ queryKey: ["conversation"] });
-        }
-        // Điều hướng sang route không còn ?invite → modal tự đóng.
-        if (result.status === "member" && result.conversationId) {
-          navigate({
-            to: "/conversations/$conversationId",
-            params: { conversationId: result.conversationId },
-          });
-        } else {
-          navigate({ to: "/conversations", search: {} });
-        }
+        setWorking(false);
+        return;
       }
+      if (result.status === "member" && result.conversationId) {
+        // Đã là member từ trước → mở thẳng hội thoại, không cần chờ gì.
+        setWorking(false);
+        navigate({
+          to: "/conversations/$conversationId",
+          params: { conversationId: result.conversationId },
+        });
+        return;
+      }
+      if (result.conversationId) {
+        // "joined" persist BẤT ĐỒNG BỘ qua Kafka → GIỮ modal ở trạng thái Joining…,
+        // chờ event NewMembers (snapshot đầy đủ members/theme/system message) hoàn thiện
+        // card trong cache rồi mới đóng + mở hội thoại (effect phía trên). KHÔNG refetch
+        // /conversations, KHÔNG hiện card nửa vời. working giữ true trong lúc chờ.
+        // Cache tin nhắn của hội thoại vừa rejoin có thể đang giữ trang RỖNG/cũ (từ trước
+        // khi rời nhóm hoặc lúc BE cache còn lạnh) → invalidate để lần mở tới refetch fresh.
+        queryClient.invalidateQueries({
+          queryKey: ["message", result.conversationId],
+        });
+        setWaitingConv({
+          id: result.conversationId,
+          title: result.title ?? preview?.title,
+        });
+        return;
+      }
+      // joined nhưng thiếu conversationId — không thể chờ/điều hướng cụ thể → fallback
+      // một lần invalidate; card sẽ tới qua event NewMembers hoặc lần refetch này.
+      toast.success(`Welcome to ${result.title ?? "the group"}!`);
+      queryClient.invalidateQueries({ queryKey: ["conversation"] });
+      setWorking(false);
+      navigate({ to: "/conversations", search: {} });
     } catch {
       toast.error("Could not join with this link");
-    } finally {
       setWorking(false);
     }
   };
@@ -242,7 +321,11 @@ const InviteJoinModal = () => {
                   disabled={working}
                   onClick={join}
                 >
-                  {preview.requireApproval ? "Request to join" : "Join group"}
+                  {working
+                    ? "Joining…"
+                    : preview.requireApproval
+                      ? "Request to join"
+                      : "Join group"}
                 </button>
               </>
             )}

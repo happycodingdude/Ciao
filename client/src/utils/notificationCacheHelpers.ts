@@ -34,6 +34,9 @@ export const createNewConversation = (
     lastMessageContact: lastMessageContact ?? conversation.lastMessageContact,
     lastMessageTime: lastMessageTime ?? conversation.lastMessageTime,
     members: members ?? conversation.members,
+    // Theme chung hội thoại — event NewMembers mang theo (nguồn khác không có → undefined).
+    wallpaper: conversation.wallpaper,
+    bubbleColor: conversation.bubbleColor,
   };
   return {
     ...oldData,
@@ -54,6 +57,9 @@ export const updateConversationCache = (
     lastMessageTime: string;
     unSeen: boolean;
     membersUpdater: (m: ConversationModel_Member[]) => ConversationModel_Member[];
+    // Theme chung hội thoại (null = mặc định). undefined = event không mang → giữ nguyên.
+    wallpaper: string | null;
+    bubbleColor: string | null;
   }>,
 ): ConversationCache => {
   const updated = (oldData.conversations ?? []).map((conv) =>
@@ -71,6 +77,9 @@ export const updateConversationCache = (
           ...(patch.unSeen !== undefined && { unSeen: patch.unSeen }),
           // membersUpdater là function transform → gọi với members hiện tại
           ...(patch.membersUpdater && { members: patch.membersUpdater(conv.members ?? []) }),
+          // Theme: null là giá trị hợp lệ (về mặc định) → guard bằng !== undefined
+          ...(patch.wallpaper !== undefined && { wallpaper: patch.wallpaper }),
+          ...(patch.bubbleColor !== undefined && { bubbleColor: patch.bubbleColor }),
         },
   );
   return { ...oldData, conversations: updated, filterConversations: updated };

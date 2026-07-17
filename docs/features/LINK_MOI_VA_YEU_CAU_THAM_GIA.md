@@ -87,6 +87,26 @@ Hai lỗi cùng gốc "vào lại nhóm bằng link thêm bản trùng vào cach
 - **Lỗi 1 — rời lại báo 500:** rời nhóm → vào lại bằng link → rời lại lần nữa lỗi 500 (rời thất bại). Nguyên nhân: cache **danh sách thành viên** bị thêm bản trùng của chính người vào → thao tác rời sau đó gặp hai bản ghi cùng một người nên hỏng. Khắc phục: vào lại nhóm cập nhật cache theo kiểu thay-thế đúng người (không thêm trùng, an toàn cả khi xử lý lặp lại); thao tác rời cũng tự dọn bản trùng còn sót — tài khoản đang kẹt tự lành ngay ở lần rời kế tiếp, không cần đăng nhập lại.
 - **Lỗi 2 — card nhóm hiện 2 lần:** sau khi vào lại, nhóm xuất hiện **hai dòng trùng nhau** trong danh sách hội thoại. Nguyên nhân: cache **danh sách hội thoại của người dùng** thêm lại id nhóm dù id đó vẫn còn (rời nhóm không gỡ id khỏi danh sách). Khắc phục: thêm hội thoại vào danh sách nay chống trùng (id chỉ xuất hiện một lần); phần đọc danh sách cũng lọc trùng để tài khoản đang bị đúp hiển thị đúng ngay, không cần đăng nhập lại.
 
+### Sửa lỗi (2026-07-17) — loading thừa + request thừa sau khi tham gia bằng link
+
+- **Hiện tượng:** bấm Join thành công → hội thoại đã nằm trên đầu danh sách, nhưng ~2–3 giây sau
+  ứng dụng tải lại danh sách hội thoại một lần nữa, làm cả danh sách bị thay bằng màn hình
+  loading một nhịp rồi mới hiện lại.
+- **Nguyên nhân:** thẻ hội thoại hiện ngay sau Join là bản dựng tạm (chỉ có chính mình trong
+  danh sách thành viên, chưa có giao diện tùy chỉnh của nhóm), nên ứng dụng phải gọi lại máy chủ
+  một lần để lấy bản đầy đủ — chính lượt gọi đó gây màn loading thừa.
+- **Khắc phục:** bỏ hẳn lượt gọi lại. Sự kiện realtime "có thành viên mới" nay mang **đầy đủ
+  dữ liệu** (toàn bộ danh sách thành viên kèm vai trò quản trị, giao diện tùy chỉnh của nhóm,
+  dòng hệ thống "đã tham gia") để ứng dụng tự hoàn thiện thẻ tạm — không request thừa, không
+  loading thừa. Khi ghép dữ liệu sự kiện vào, các trạng thái cá nhân (mốc đã-đọc, tắt thông báo,
+  ghim yêu thích) của người đang xem được giữ nguyên, không bị sự kiện ghi đè lùi.
+- **Hiệu ứng kèm theo (chủ đích):** dòng xem trước của hội thoại trong danh sách nay cập nhật
+  ngay thành "… joined the group via invite link" cho mọi thành viên khi có người mới vào —
+  khớp với dữ liệu máy chủ, trước đây phải đợi tải lại mới thấy.
+- **Hạn chế chấp nhận:** nếu thiết bị bỏ lỡ sự kiện realtime (rất hiếm khi đang thao tác trực
+  tiếp), thẻ tạm vẫn hiển thị và dùng được; dữ liệu thành viên đầy đủ sẽ về theo lần tải tự
+  nhiên sau.
+
 ## 6. Hạn chế hiện tại
 
 - Chưa có rate-limit riêng cho tạo yêu cầu/lượt join (đồng bộ hiện trạng các endpoint khác).
@@ -108,7 +128,7 @@ Hai lỗi cùng gốc "vào lại nhóm bằng link thêm bản trùng vào cach
 | GET | `/api/v1/conversations/{id}/join-requests` | Quản trị nhóm | `[{ contactId, name, avatar, requestedTime }]` |
 | PUT | `/api/v1/conversations/{id}/join-requests/{contactId}?approved=` | Quản trị nhóm | Duyệt/từ chối; 400 nếu yêu cầu không tồn tại |
 
-Realtime: event mới `JoinRequestUpdated` (payload `{ conversationId }`) gửi cho quản trị/người xin để refresh hàng chờ + notification. Thành viên mới vào nhóm đi qua event `NewMembers` sẵn có. Từ 2026-07-13: luồng vào thẳng bằng link gửi thêm event `MemberJoinedByLink` (payload `{ conversationId, title, actorName, actorAvatar }`) cho quản trị — FE hiện banner + refresh badge notification/hàng chờ. Refactor 2026-07-13: với luồng "bấm Join" (cả pending lẫn vào thẳng), notification bền + FCM cho quản trị chuyển sang xử lý bất đồng bộ ở consumer — event name/payload không đổi (xem `TACH_THONG_BAO_LINK_MOI.md`).
+Realtime: event mới `JoinRequestUpdated` (payload `{ conversationId }`) gửi cho quản trị/người xin để refresh hàng chờ + notification. Thành viên mới vào nhóm đi qua event `NewMembers` sẵn có — từ 2026-07-17 payload mang **snapshot đầy đủ member active** (vai trò quản trị, mốc đã-đọc, biệt danh) + theme hội thoại + system message, để client người vừa join dựng thẻ hội thoại hoàn chỉnh không cần gọi lại danh sách hội thoại (payload cũ in-flight chỉ có member mới → client tự fallback hành vi cũ). Từ 2026-07-13: luồng vào thẳng bằng link gửi thêm event `MemberJoinedByLink` (payload `{ conversationId, title, actorName, actorAvatar }`) cho quản trị — FE hiện banner + refresh badge notification/hàng chờ. Refactor 2026-07-13: với luồng "bấm Join" (cả pending lẫn vào thẳng), notification bền + FCM cho quản trị chuyển sang xử lý bất đồng bộ ở consumer — event name/payload không đổi (xem `TACH_THONG_BAO_LINK_MOI.md`).
 
 ## 8. Dữ liệu (mức khái niệm)
 

@@ -526,6 +526,25 @@ public class DataStoreConsumer : IGenericConsumer
             LastSeenTime = joinTime
         }).ToArray();
 
+        // Snapshot đầy đủ member active SAU update — event NewMembers tự chứa danh sách
+        // thành viên để FE joiner dựng card hoàn chỉnh, KHÔNG refetch /conversations.
+        // Snapshot tại đây (không đọc lại Mongo/cache ở NotificationConsumer) — cùng lý do
+        // chống race với RecipientIds.
+        var addedIdSet = addedIds.ToHashSet();
+        var allMembers = membersToUpdate
+            .Where(m => !m.IsDeleted)
+            .DistinctBy(m => m.ContactId)
+            .Select(m => new NewStoredGroupConversationModel_Member
+            {
+                ContactId = m.ContactId,
+                IsModerator = m.IsModerator,
+                IsNotifying = m.IsNotifying,
+                LastSeenTime = m.LastSeenTime,
+                Nickname = m.Nickname,
+                IsNew = addedIdSet.Contains(m.ContactId)
+            })
+            .ToArray();
+
         await _kafkaProducer.ProduceAsync(Topic.StoredMember, new NewStoredGroupConversationModel
         {
             UserId = param.UserId,
@@ -535,11 +554,8 @@ public class DataStoreConsumer : IGenericConsumer
             // Member hiện hữu cũng phải nhận event (system message "joined" + sĩ số realtime).
             // membersToUpdate = danh sách SAU update (reopened đã IsDeleted=false in-place,
             // member mới nằm trong membersToAdd) → lọc active là đủ mọi người cần báo.
-            RecipientIds = membersToUpdate
-                .Where(m => !m.IsDeleted)
-                .Select(m => m.ContactId)
-                .Distinct()
-                .ToArray()
+            RecipientIds = allMembers.Select(m => m.ContactId).ToArray(),
+            AllMembers = allMembers
         });
     }
 

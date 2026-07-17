@@ -86,6 +86,11 @@ public class NewStoredGroupConversationModel : KafkaBaseModel
     // "joined" + sĩ số cập nhật realtime), không phải re-read Mongo/cache (tránh race với
     // CacheConsumer cùng topic). Null = message cũ in-flight → fallback chỉ gửi member mới.
     public string[]? RecipientIds { get; set; }
+    // Snapshot đầy đủ member active (đủ field FE cần dựng danh sách thành viên) để event
+    // NewMembers tự chứa dữ liệu — joiner qua link KHÔNG phải refetch /conversations.
+    // Chỉ NotificationConsumer đọc (CacheConsumer vẫn dùng Members new-only).
+    // Null = message cũ in-flight → fallback event chỉ mang member mới như trước.
+    public NewStoredGroupConversationModel_Member[]? AllMembers { get; set; }
 }
 
 public class NewStoredGroupConversationModel_Conversation : MongoBaseModel
@@ -93,18 +98,20 @@ public class NewStoredGroupConversationModel_Conversation : MongoBaseModel
     public string Title { get; set; } = null!;
     public string Avatar { get; set; } = null!;
     public bool IsGroup { get; set; }
+    // Theme chung của hội thoại — kèm theo event để card joiner có theme ngay không cần refetch.
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
 }
 
-// public class NewStoredGroupConversationModel_Member
-// {
-//     public string Id { get; set; } = null!;
-//     public bool IsDeleted { get; set; }
-//     public bool IsModerator { get; set; }
-//     public bool IsNotifying { get; set; }
-//     public string ContactId { get; set; } = null!;
-//     public DateTime? LastSeenTime { get; set; }
-//     public bool IsAdded { get; set; }
-// }
+public class NewStoredGroupConversationModel_Member
+{
+    public string ContactId { get; set; } = null!;
+    public bool IsModerator { get; set; }
+    public bool IsNotifying { get; set; }
+    public DateTime? LastSeenTime { get; set; }
+    public string? Nickname { get; set; }
+    public bool IsNew { get; set; }
+}
 
 public class NewDirectConversationModel : KafkaBaseModel
 {

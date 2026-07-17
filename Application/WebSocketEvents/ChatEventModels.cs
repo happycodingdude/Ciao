@@ -29,6 +29,10 @@ public class EventNewMessage_Conversation
     public string LastMessage { get; set; } = null!;
     public string LastMessageContact { get; set; } = null!;
     public DateTime? LastMessageTime { get; set; }
+    // Theme chung hội thoại — event NewMembers cần để card joiner có theme không cần refetch;
+    // các event khác map từ nguồn không có field này thì để null, FE bỏ qua.
+    public string? Wallpaper { get; set; }
+    public string? BubbleColor { get; set; }
     // public List<MemberWithContactInfoAndFriendRequest> Members { get; set; } = null!;
 }
 
@@ -56,6 +60,7 @@ public class EventNewConversation_Member
     public DateTime? LastSeenTime { get; set; }
     public bool IsSelected { get; set; }
     public bool IsNew { get; set; }
+    public string? Nickname { get; set; }
 }
 
 public class EventNewFriendRequest

@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { isConversationActive } from "../hooks/useActiveConversation";
 import { UserProfile } from "../types/base.types";
 import { ConversationCache, ConversationModel } from "../types/conv.types";
@@ -338,7 +339,7 @@ const buildConvFromMessage = (
 
 const onNewMembers = (
   queryClient: QueryClient,
-  _userInfo: UserProfile,
+  userInfo: UserProfile,
   conversation: NewConversation,
 ) => {
   queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
@@ -347,31 +348,68 @@ const onNewMembers = (
     const exists = (old.conversations ?? []).find(
       (c) => c.id === conversation.conversation.id,
     );
+    // Event mang system message "X joined ..." → cập nhật preview lastMessage của card
+    // (khớp server truth, joiner không cần refetch /conversations).
+    const message = conversation.message;
     if (exists) {
-      // Group đã có → chỉ append thành viên mới (filter isNew để tránh duplicate).
-      // Đợt 2b: member RỜI NHÓM rồi quay lại (được thêm/link mời) đã có entry cũ
-      // (isDeleted) trong cache → loại entry cũ theo contact.id trước khi append,
-      // tránh hiển thị trùng trong danh sách thành viên.
+      // Event giờ mang snapshot ĐẦY ĐỦ member active (BE AllMembers; payload cũ in-flight
+      // chỉ có member mới — merge dưới chạy đúng cho cả hai). Nguyên tắc:
+      // - Field server-authoritative (isModerator, isDeleted, nickname) lấy từ event.
+      // - Mốc per-user của CHÍNH MÌNH (lastSeenTime/isNotifying/pinnedTime/delivered)
+      //   giữ theo cache — FE cập nhật realtime, snapshot có thể cũ hơn; ghi đè lùi làm
+      //   sai divider "n tin nhắn mới" / trạng thái mute / Favorites.
+      // - Member khác: nhận theo event nhưng lastSeenTime chỉ tiến không lùi (read receipt).
+      // - Member chưa có trong cache → append: joiner (card optimistic chỉ có self) nhận
+      //   đủ danh sách; member hiện hữu nhận member mới/rejoin.
       return updateConversationCache(old, conversation.conversation as ConversationModel, {
         membersUpdater: (members) => {
-          const incoming = conversation.members.filter((m) => m.isNew);
-          const incomingIds = new Set(incoming.map((m) => m.contact?.id));
-          return [
-            ...members.filter((m) => !incomingIds.has(m.contact?.id)),
-            ...incoming,
-          ];
+          const byId = new Map(
+            conversation.members
+              .filter((m) => m.contact?.id)
+              .map((m) => [m.contact!.id, m]),
+          );
+          const merged = members.map((m) => {
+            const inc = m.contact?.id ? byId.get(m.contact.id) : undefined;
+            if (!inc) return m;
+            byId.delete(m.contact!.id);
+            if (m.contact?.id === userInfo?.id)
+              return {
+                ...m,
+                isModerator: inc.isModerator,
+                isDeleted: inc.isDeleted ?? false,
+              };
+            const keepSeen =
+              m.lastSeenTime &&
+              (!inc.lastSeenTime ||
+                dayjs(inc.lastSeenTime).valueOf() <
+                  dayjs(m.lastSeenTime).valueOf());
+            return {
+              ...m,
+              ...inc,
+              ...(keepSeen && { lastSeenTime: m.lastSeenTime }),
+            };
+          });
+          return [...merged, ...byId.values()];
         },
+        ...(message && {
+          lastMessageId: message.id,
+          lastMessage: getMessagePreviewText(message.type, message.content),
+          lastMessageContact: message.contactId,
+          lastMessageTime: message.createdTime,
+        }),
+        wallpaper: conversation.conversation.wallpaper,
+        bubbleColor: conversation.conversation.bubbleColor,
       });
     }
     // Group chưa có trong list → user vừa được thêm vào group / vừa vào lại bằng link → thêm mới.
-    // PHẢI kèm members (chính self, isNew, !isDeleted) — nếu thiếu, list lọc theo self-member active
-    // sẽ ẩn hội thoại vừa vào → "rejoin không hiện hội thoại".
+    // PHẢI kèm members (event mang đủ danh sách; tối thiểu self, isNew, !isDeleted) — nếu thiếu,
+    // list lọc theo self-member active sẽ ẩn hội thoại vừa vào → "rejoin không hiện hội thoại".
     return createNewConversation(
       old,
       conversation.conversation as ConversationModel,
-      undefined,
-      undefined,
-      undefined,
+      message ? getMessagePreviewText(message.type, message.content) : undefined,
+      message?.contactId,
+      message?.createdTime,
       conversation.members,
     );
   });

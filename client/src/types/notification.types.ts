@@ -41,6 +41,10 @@ type NewMessage_Conversation = {
   lastMessage: string | null;
   lastMessageContact: string | null;
   lastMessageTime: string | null;
+  // Theme chung hội thoại — event NewMembers mang theo để card joiner có theme ngay
+  // không cần refetch; event khác không có thì null/undefined, handler bỏ qua.
+  wallpaper?: string | null;
+  bubbleColor?: string | null;
   // members: NewMessage_Message_Conversation_Member[];
 };
 

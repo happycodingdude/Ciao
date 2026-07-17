@@ -454,7 +454,13 @@ public class NotificationConsumer : IGenericConsumer
     {
         var notify = _mapper.Map<EventNewConversation>(param);
         notify.Conversation = _mapper.Map<EventNewMessage_Conversation>(param.Conversation);
-        notify.Members = _mapper.Map<EventNewConversation_Member[]>(param.Members);
+        // AllMembers = snapshot ĐẦY ĐỦ member active (kèm IsModerator/LastSeenTime/Nickname
+        // thật) → event tự chứa dữ liệu, FE joiner dựng card không cần refetch /conversations.
+        // Null = message cũ in-flight → fallback hành vi cũ (chỉ member mới, IsNotifying=true).
+        var fromSnapshot = param.AllMembers is { Length: > 0 };
+        notify.Members = fromSnapshot
+            ? _mapper.Map<EventNewConversation_Member[]>(param.AllMembers)
+            : _mapper.Map<EventNewConversation_Member[]>(param.Members);
 
         var memberIds = notify.Members.Select(m => m.Contact.Id).ToArray();
         var contacts = await _contactRepository.GetAllAsync(
@@ -470,7 +476,9 @@ public class NotificationConsumer : IGenericConsumer
                 member.Contact.Bio = contact.Bio;
                 member.Contact.IsOnline = contact.IsOnline;
             }
-            member.IsNotifying = true;
+            // Snapshot mang IsNotifying thật của từng member (mute phải giữ) — chỉ ép true
+            // ở fallback cũ, nơi danh sách toàn member mới (mặc định nhận thông báo).
+            if (!fromSnapshot) member.IsNotifying = true;
         }
 
         // Fanout cho TOÀN BỘ member active (snapshot RecipientIds từ DataStoreConsumer):

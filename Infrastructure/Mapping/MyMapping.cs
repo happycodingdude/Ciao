@@ -45,9 +45,9 @@ public class MyMapping : Profile
         CreateMap<MemberWithContactInfo, NewGroupConversationModel_Member>()
             .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
             .ReverseMap();
-        // CreateMap<MemberWithContactInfo, NewStoredGroupConversationModel_Member>()
-        //     .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
-        //     .ReverseMap();
+        CreateMap<EventNewConversation_Member, NewStoredGroupConversationModel_Member>()
+            .ForMember(q => q.ContactId, s => s.MapFrom(w => w.Contact.Id))
+            .ReverseMap();
         CreateMap<MemberWithContactInfo, Member>().ReverseMap();
         CreateMap<MemberWithContactInfo, MemberWithContactInfoAndFriendRequest>().ReverseMap();
         CreateMap<EventNewConversation_Member, Member>()
