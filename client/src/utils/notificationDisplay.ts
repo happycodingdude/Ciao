@@ -14,6 +14,9 @@ export const notificationVisual = (n: NotificationModel): NotificationVisual => 
       return { icon: "fa-comment-dots", tone: "text-(--main-color)" };
     case "reaction":
       return { icon: "fa-heart", tone: "text-red-500" };
+    // Thành viên vào nhóm qua link mời (BE báo cho quản trị).
+    case "member_joined":
+      return { icon: "fa-user-plus", tone: "text-light-blue-500" };
     case "mention":
       // @All (mention everyone) → icon nhóm; tag cá nhân → @. Option B không kèm cờ
       // is-all nên suy ra từ content do BE sinh ("...mentioned everyone in...").

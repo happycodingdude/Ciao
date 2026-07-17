@@ -47,4 +47,12 @@ public static class Topic
     public const string StoredLinkPreview = "linkpreview.stored";
     // Fanout realtime thẻ preview tới member (NotificationConsumer → FCM "LinkPreviewReady").
     public const string NotifyLinkPreview = "linkpreview.notify";
+
+    // ===== Link mời (Phase 5 — Đợt 2) =====
+    // Thông báo cho quản trị tách khỏi request path JoinByInvite: handler chỉ produce,
+    // NotificationConsumer persist Notification bền + fanout FCM.
+    // Có yêu cầu tham gia mới (nhóm bật duyệt) → FCM "JoinRequestUpdated".
+    public const string NotifyJoinRequest = "invite.join-request.notify";
+    // Có người vào thẳng qua link (không duyệt) → FCM "MemberJoinedByLink" (banner + actor info).
+    public const string NotifyMemberJoinedByLink = "invite.member-joined.notify";
 }

@@ -1,37 +1,59 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import ImageWithLightBoxAndNoLazy from "../components/common/ImageWithLightBoxAndNoLazy";
-import { Route } from "../routes/_layout.invite.$code";
+import useInfo from "../../hooks/useInfo";
 import {
   getInvitePreview,
   joinByInvite,
   withdrawJoinRequest,
-} from "../services/invite.service";
+} from "../../services/invite.service";
+import { ConversationCache, ConversationModel } from "../../types/conv.types";
+import { createNewConversation } from "../../utils/notificationCacheHelpers";
+import BackgroundPortal from "./BackgroundPortal";
+import ImageWithLightBoxAndNoLazy from "./ImageWithLightBoxAndNoLazy";
 
-// Phase 5 — Đợt 2: trang /invite/{code} — người có link xem preview nhóm và tham gia.
+// Phase 5 — Đợt 2: tham gia nhóm qua link mời. Route /invite/{code} REDIRECT về trang
+// hiện hành kèm ?invite={code} → modal này (mount ở _layout, portal như mọi modal khác)
+// hiện đè lên trang user đang thao tác thay vì thay cả trang bằng nền trắng.
 // Trạng thái: invalid/expired (không lộ thông tin nhóm) · member (mở chat) ·
 // pending (chờ duyệt, có thể rút) · active (bấm Join → vào thẳng hoặc chuyển pending).
-// "Vào thẳng" persist async qua Kafka → điều hướng về danh sách hội thoại, card nhóm
-// tới qua event realtime NewMembers.
-const Invite = () => {
-  const { code } = Route.useParams();
+const InviteJoinModal = () => {
+  // Param nằm ngoài schema của route hiện hành → đọc non-strict (mọi trang dưới _layout).
+  const { invite: code } = useSearch({ strict: false }) as { invite?: string };
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: info } = useInfo();
   const [working, setWorking] = useState(false);
   // Ghi đè trạng thái pending cục bộ sau khi Join/Withdraw (không refetch preview).
   const [pendingOverride, setPendingOverride] = useState<boolean | null>(null);
 
+  // Mount thường trực ở layout → reset state cục bộ khi đổi sang link mời khác.
+  useEffect(() => {
+    setPendingOverride(null);
+  }, [code]);
+
   const { data: preview, isLoading } = useQuery({
     queryKey: ["invitePreview", code],
-    queryFn: () => getInvitePreview(code),
+    queryFn: () => getInvitePreview(code!),
+    enabled: !!code,
   });
 
   const isPending = pendingOverride ?? preview?.hasPendingRequest ?? false;
 
+  // Đóng modal = gỡ ?invite khỏi URL, GIỮ NGUYÊN trang + các search param còn lại.
+  const close = () =>
+    navigate({
+      to: ".",
+      search: (prev: Record<string, unknown>) => ({
+        ...prev,
+        invite: undefined,
+      }),
+      replace: true,
+    });
+
   const join = async () => {
-    if (working) return;
+    if (working || !code) return;
     setWorking(true);
     try {
       const result = await joinByInvite(code);
@@ -40,29 +62,70 @@ const Invite = () => {
         setPendingOverride(true);
         toast.success("Request sent — waiting for admin approval");
       } else {
-        // joined / member — card nhóm tới qua realtime; về danh sách hội thoại.
+        // joined / member — về danh sách hội thoại.
         toast.success(`Welcome to ${result.title ?? "the group"}!`);
-        // "joined" persist BẤT ĐỒNG BỘ qua Kafka (reopen member + system message). Một lần invalidate
-        // ngay lập tức thường refetch TRÚNG cache CŨ (member self vẫn isDeleted → list lọc ẩn hội thoại)
-        // và event realtime NewMembers là FCM-only nên dễ miss khi đang điều hướng. Vì vậy lặp lại
-        // invalidate trễ vài nhịp để chắc chắn kéo được trạng thái đã reopen từ server → hội thoại hiện ra.
-        for (const delay of [0, 800, 2000, 4000]) {
-          if (delay === 0)
-            queryClient.invalidateQueries({ queryKey: ["conversation"] });
-          else
-            setTimeout(
-              () =>
-                queryClient.invalidateQueries({ queryKey: ["conversation"] }),
-              delay,
+        // "joined" persist BẤT ĐỒNG BỘ qua Kafka. Chèn OPTIMISTIC card nhóm vào cache từ
+        // dữ liệu ĐÃ CÓ (preview + response) — hiện ngay không cần chờ server (conversation
+        // query staleTime 1h nên mount không refetch đè); rồi reconcile đúng MỘT lần sau khi
+        // consumer kịp persist. Event FCM NewMembers vẫn là lưới realtime thứ hai.
+        if (result.conversationId && info?.id) {
+          const convId = result.conversationId;
+          queryClient.setQueryData<ConversationCache>(["conversation"], (old) => {
+            if (!old) return old;
+            // Loại entry cũ (nếu từng ở nhóm rồi rời — self-member isDeleted) trước khi chèn
+            // bản mới, tránh 2 entry cùng id trong cache.
+            const withoutOld = {
+              ...old,
+              conversations: (old.conversations ?? []).filter((c) => c.id !== convId),
+              filterConversations: (old.filterConversations ?? []).filter((c) => c.id !== convId),
+            };
+            return createNewConversation(
+              withoutOld,
+              {
+                id: convId,
+                title: result.title ?? preview?.title,
+                avatar: preview?.avatar ?? undefined,
+                isGroup: true,
+              } as ConversationModel,
+              undefined,
+              undefined,
+              undefined,
+              // Self-member active — bắt buộc, list lọc theo self-member !isDeleted.
+              // lastSeenTime = now: vừa join coi như đã bắt kịp lịch sử → Chatbox mở ở ĐÁY,
+              // không hiện chip "n tin nhắn mới" (khớp BE: HandleNewMember set LastSeenTime
+              // = join time; đây là bản optimistic trước khi reconcile 2.5s).
+              [
+                {
+                  contact: { id: info.id, name: info.name, avatar: info.avatar },
+                  isDeleted: false,
+                  isNotifying: true,
+                  isModerator: false,
+                  lastSeenTime: new Date().toISOString(),
+                },
+              ],
             );
+          });
+          setTimeout(
+            () => queryClient.invalidateQueries({ queryKey: ["conversation"] }),
+            2500,
+          );
+          // Cache tin nhắn của hội thoại vừa rejoin có thể đang giữ trang RỖNG/cũ (từ trước
+          // khi rời nhóm hoặc lúc BE cache còn lạnh) và staleTime 120s sẽ khiến lần mở đầu
+          // đọc thẳng cache đó → khung chat trống. Invalidate để lần mở tới refetch fresh.
+          queryClient.invalidateQueries({ queryKey: ["message", convId] });
+        } else {
+          // Không đủ dữ liệu dựng optimistic card (thiếu conversationId/info) → fallback
+          // một lần invalidate; card sẽ tới qua event NewMembers hoặc lần refetch này.
+          queryClient.invalidateQueries({ queryKey: ["conversation"] });
         }
+        // Điều hướng sang route không còn ?invite → modal tự đóng.
         if (result.status === "member" && result.conversationId) {
           navigate({
             to: "/conversations/$conversationId",
             params: { conversationId: result.conversationId },
           });
         } else {
-          navigate({ to: "/conversations" });
+          navigate({ to: "/conversations", search: {} });
         }
       }
     } catch {
@@ -73,7 +136,7 @@ const Invite = () => {
   };
 
   const withdraw = async () => {
-    if (working) return;
+    if (working || !code) return;
     setWorking(true);
     try {
       await withdrawJoinRequest(code);
@@ -86,12 +149,16 @@ const Invite = () => {
     }
   };
 
+  if (!code) return null;
+
   return (
-    <div className="bg-(--bg-color) flex h-dvh w-full items-center justify-center">
-      <div
-        className="border-(--border-color) bg-(--bg-color) flex w-[26rem] max-w-[90vw] flex-col items-center gap-4
-          rounded-2xl border-[.1rem] p-8 shadow-[0_2px_20px_rgba(0,0,0,0.08)]"
-      >
+    <BackgroundPortal
+      show
+      noHeader
+      className="w-[26rem] max-w-[90vw]"
+      onClose={close}
+    >
+      <div className="flex flex-col items-center gap-4 p-8">
         {isLoading ? (
           <p className="text-sm opacity-60">Loading invite…</p>
         ) : !preview || preview.status !== "active" ? (
@@ -107,9 +174,9 @@ const Invite = () => {
             </p>
             <button
               className="bg-(--bg-color-extrathin) hover:text-light-blue-500 cursor-pointer rounded-lg px-6 py-2 text-sm font-medium"
-              onClick={() => navigate({ to: "/conversations" })}
+              onClick={close}
             >
-              Back to chats
+              Close
             </button>
           </>
         ) : (
@@ -182,8 +249,8 @@ const Invite = () => {
           </>
         )}
       </div>
-    </div>
+    </BackgroundPortal>
   );
 };
 
-export default Invite;
+export default InviteJoinModal;

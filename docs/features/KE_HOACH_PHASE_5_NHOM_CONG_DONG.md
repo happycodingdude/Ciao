@@ -11,8 +11,8 @@
 | --- | --- | --- |
 | Thông báo nhóm | ⬜ | Bảng thông báo nổi bật cho nhóm |
 | Sự kiện (Event & RSVP) | ⬜ | Tạo sự kiện + xác nhận tham dự |
-| Link mời & QR | 🟡 Đã code (2026-07-12), chờ nghiệm thu | Mời vào nhóm qua liên kết/QR |
-| Yêu cầu tham gia | 🟡 Đã code (2026-07-12), chờ nghiệm thu | Duyệt yêu cầu vào nhóm |
+| Link mời & QR | ✅ NGHIỆM THU 2026-07-17 (gồm đợt fix + modal hoá preview — [`FIX_REJOIN_LINK_TIN_NHAN.md`](./FIX_REJOIN_LINK_TIN_NHAN.md)) | Mời vào nhóm qua liên kết/QR |
+| Yêu cầu tham gia | ✅ NGHIỆM THU 2026-07-17 | Duyệt yêu cầu vào nhóm |
 | Rời nhóm | 🟡 Đã code (2026-07-12), chờ nghiệm thu — [`ROI_NHOM.md`](./ROI_NHOM.md) | Thành viên chủ động rời nhóm |
 | Phân quyền quản trị | ⏸️ | **Dời lại, chưa làm ở Phase 5** (2026-07-12, theo yêu cầu) — giao diện bổ nhiệm/thu hồi quyền |
 | Bình chọn ẩn danh | ⬜ | Bỏ phiếu không lộ danh tính |
@@ -25,7 +25,7 @@
 | Đợt | Mục tiêu | Rủi ro chính | Phụ thuộc | Rollback |
 | --- | --- | --- | --- | --- |
 | **Đợt 1** | Thông báo nhóm (Phân quyền quản trị dời lại 2026-07-12, không còn trong đợt này) | Lạm quyền đăng/gỡ thông báo | Vai trò quản trị hiện có | Ẩn bảng thông báo |
-| **Đợt 2** | Link mời & QR + Yêu cầu tham gia — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu · [`LINK_MOI_VA_YEU_CAU_THAM_GIA.md`](./LINK_MOI_VA_YEU_CAU_THAM_GIA.md) | Vào nhóm trái phép, spam yêu cầu | Cơ chế thành viên nhóm | Vô hiệu liên kết / tắt duyệt |
+| **Đợt 2** | Link mời & QR + Yêu cầu tham gia — ✅ NGHIỆM THU 2026-07-17 · [`LINK_MOI_VA_YEU_CAU_THAM_GIA.md`](./LINK_MOI_VA_YEU_CAU_THAM_GIA.md) | Vào nhóm trái phép, spam yêu cầu | Cơ chế thành viên nhóm | Vô hiệu liên kết / tắt duyệt |
 | **Đợt 2b** | Rời nhóm (bổ sung 2026-07-12) — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu · [`ROI_NHOM.md`](./ROI_NHOM.md) | Đổi nhầm hành vi mở-lại của chat 1-1; người rời vẫn nhận tin | Cơ chế thành viên + Link mời (Đợt 2) cho luồng quay lại | Ẩn nút rời nhóm |
 | **Đợt 3** | Sự kiện & RSVP | Lệch múi giờ, nhắc nhở | Không | Ẩn tạo sự kiện |
 | **Đợt 4** | Bình chọn ẩn danh + Thread | Bảo toàn ẩn danh, phức tạp hiển thị | Bình chọn (Phase 2) | Về bình chọn thường / tắt thread |
@@ -53,7 +53,7 @@
 - **Hạn chế:** phạm vi ban đầu là thông báo văn bản.
 - **Phân định với Ghim tin nhắn (Phase 3, đã có kèm panel xem lại):** hai tính năng cùng "đánh dấu nội dung cho cả nhóm thấy" nhưng khác bản chất — ghim đánh dấu **tin nhắn có sẵn** trong luồng chat, ai cũng ghim được, không đẩy thông báo; thông báo nhóm là **nội dung soạn riêng**, chỉ quản trị đăng/gỡ, hiển thị nổi bật và chủ động báo tới mọi thành viên. Khi triển khai nên tái dùng hạ tầng ghim (đánh dấu + danh sách xem lại) và chỉ bổ sung phần khác biệt: quyền quản trị, vị trí hiển thị nổi bật, đẩy thông báo. Phân tích chi tiết: 2026-07-12.
 
-### 3.3 Link mời & QR — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu
+### 3.3 Link mời & QR — ✅ NGHIỆM THU 2026-07-17
 
 - **Mục đích:** mời người vào nhóm nhanh, không cần thêm thủ công từng người.
 - **Hành vi:** tạo liên kết mời (kèm mã QR); người có liên kết có thể xin vào/được vào nhóm theo cấu hình; quản trị có thể thu hồi hoặc đặt thời hạn liên kết.
@@ -62,7 +62,7 @@
 - **Trường hợp đặc biệt:** liên kết hết hạn/bị thu hồi → từ chối vào nhóm; nhóm đầy → chặn.
 - **Hạn chế:** cần đi kèm cơ chế chống lạm dụng (spam liên kết).
 
-### 3.4 Yêu cầu tham gia (Join Request) — 🟡 ĐÃ CODE (2026-07-12), chờ nghiệm thu
+### 3.4 Yêu cầu tham gia (Join Request) — ✅ NGHIỆM THU 2026-07-17
 
 - **Mục đích:** kiểm soát người vào nhóm khi cần duyệt.
 - **Hành vi:** người dùng gửi yêu cầu vào nhóm; quản trị thấy hàng chờ và duyệt/từ chối; người dùng được thông báo kết quả.

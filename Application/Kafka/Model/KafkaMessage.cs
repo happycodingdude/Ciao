@@ -70,6 +70,10 @@ public class NewGroupConversationModel_Member
     public string Id { get; set; } = null!;
     public string ContactId { get; set; } = null!;
     public bool IsNew { get; set; }
+    // Mốc đã-đọc của member. HandleNewMember set = THỜI ĐIỂM JOIN: người vào nhóm (link mời /
+    // được duyệt / được thêm) coi như đã bắt kịp lịch sử → FE mở hội thoại ở đáy, không hiện
+    // "n tin nhắn mới". Null = producer cũ/luồng tạo nhóm — backward-compat, cache giữ giá trị sẵn có.
+    public DateTime? LastSeenTime { get; set; }
 }
 
 public class NewStoredGroupConversationModel : KafkaBaseModel
@@ -77,6 +81,11 @@ public class NewStoredGroupConversationModel : KafkaBaseModel
     public NewStoredGroupConversationModel_Conversation Conversation { get; set; } = null!;
     public NewGroupConversationModel_Member[] Members { get; set; } = null!;
     public Message Message { get; set; } = null!;
+    // TOÀN BỘ member active của nhóm (gồm cả member mới) — snapshot tại thời điểm persist,
+    // để NotificationConsumer fanout event NewMembers cho member HIỆN HỮU (system message
+    // "joined" + sĩ số cập nhật realtime), không phải re-read Mongo/cache (tránh race với
+    // CacheConsumer cùng topic). Null = message cũ in-flight → fallback chỉ gửi member mới.
+    public string[]? RecipientIds { get; set; }
 }
 
 public class NewStoredGroupConversationModel_Conversation : MongoBaseModel
@@ -135,6 +144,17 @@ public class NewMemberModel : KafkaBaseModel
     // Phase 5 — Đợt 2: true khi member vào nhóm qua link mời (vào thẳng hoặc được duyệt)
     // → system message "joined via invite link" + pull JoinRequests. Default false = backward-compat.
     public bool ViaInvite { get; set; }
+}
+
+// Phase 5 — Đợt 2: thông báo quản trị khi có yêu cầu tham gia / có người vào thẳng qua link.
+// Dùng chung cho 2 topic NotifyJoinRequest / NotifyMemberJoinedByLink — semantics theo topic.
+// ModeratorIds tính sẵn tại request time (từ snapshot conversation handler đã đọc) để consumer
+// không phải re-read; UserId (base) = người xin / người vào.
+public class NotifyInviteModel : KafkaBaseModel
+{
+    public string ConversationId { get; set; } = null!;
+    public string Title { get; set; } = null!;
+    public string[] ModeratorIds { get; set; } = null!;
 }
 
 public class NewReactionModel : KafkaBaseModel

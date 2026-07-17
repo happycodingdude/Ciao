@@ -1,6 +1,8 @@
 import { toast } from "react-toastify";
+import { isConversationActive } from "../hooks/useActiveConversation";
 import { ContactSettings, UserProfile } from "../types/base.types";
 import {
+  MemberJoinedByLinkEvent,
   NewFriendRequest,
   NewMessage,
   NewReaction,
@@ -66,6 +68,10 @@ export const passesNotificationGate = (
     }
     case "NewFriendRequest":
       return s?.notifyOnFriendRequest !== false;
+    // Có người vào nhóm qua link (event chỉ gửi cho quản trị) — không có setting riêng,
+    // chỉ gate theo master pushEnabled (đã check ở trên).
+    case "MemberJoinedByLink":
+      return true;
     case "NewReaction": {
       if (s?.notifyOnReaction === false) return false;
       const r = data as NewReaction;
@@ -86,7 +92,10 @@ export const buildBanner = (
   info: UserProfile,
 ): BannerSpec | null => {
   if (!passesNotificationGate(event, data, info)) return null;
-  if (isOnConversationsPage()) return null;
+  // Suppress-trên-trang-conversations chỉ áp cho event có nội dung tự hiển thị ở list
+  // (tin nhắn/reaction đẩy hội thoại lên đầu). "Có người vào nhóm qua link" KHÔNG tự hiện
+  // ở đâu trên trang này → vẫn banner; chỉ bỏ khi đang mở ĐÚNG hội thoại đó (case bên dưới).
+  if (event !== "MemberJoinedByLink" && isOnConversationsPage()) return null;
 
   switch (event) {
     case "NewMessage": {
@@ -113,6 +122,19 @@ export const buildBanner = (
         title: sender,
         body: "đã gửi cho bạn lời mời kết bạn",
         nav: { kind: "friendRequests" },
+      };
+    }
+
+    case "MemberJoinedByLink": {
+      const j = data as MemberJoinedByLinkEvent;
+      if (!j.conversationId) return null;
+      // Đang mở đúng hội thoại đó → dòng hệ thống "joined via invite link" đã thấy tại chỗ.
+      if (isConversationActive(j.conversationId)) return null;
+      return {
+        avatar: j.actorAvatar,
+        title: j.actorName?.trim() || "Ai đó",
+        body: `đã tham gia ${j.title?.trim() || "nhóm"} qua link mời`,
+        nav: { kind: "conversation", conversationId: j.conversationId },
       };
     }
 

@@ -71,7 +71,9 @@ public class KafkaBackground : BackgroundService
                     Topic.NotifyMessageRecalled,
                     Topic.NotifyConversationAppearanceChanged,
                     Topic.NotifyPoll,
-                    Topic.NotifyLinkPreview
+                    Topic.NotifyLinkPreview,
+                    Topic.NotifyJoinRequest,
+                    Topic.NotifyMemberJoinedByLink
                     ])
                 .Build(),
             cancellationToken));

@@ -130,9 +130,13 @@ const Chatbox = () => {
     const seenMs = seenRaw ? dayjs(seenRaw).valueOf() : 0;
 
     // Tin chưa đọc = tin của NGƯỜI KHÁC, đã confirmed (có id), tạo sau mốc đã đọc.
+    // Loại system message (joined/left…): dòng hệ thống không phải "tin nhắn mới" — nếu tính,
+    // hội thoại vừa join qua link sẽ hiện chip "n tin nhắn mới" đếm toàn dòng join/leave
+    // (system message của CHÍNH lượt join tạo sau mốc LastSeenTime=join time vài ms).
     const firstUnread = messages.find(
       (m) =>
         m.contactId !== info.id &&
+        m.type !== "system" &&
         !!m.id &&
         !m.pending &&
         dayjs(m.createdTime ?? "").valueOf() > seenMs,
@@ -140,6 +144,12 @@ const Chatbox = () => {
 
     dividerComputedRef.current = true;
     setFirstUnreadId(firstUnread?.id ?? null);
+    // Guard "khung chat trống": nếu tin chưa đọc đầu tiên là TIN ĐẦU của danh sách đã load
+    // (mốc đã-đọc null/quá cũ — vd vừa vào lại nhóm bằng link) thì ẩn-chờ-reveal sẽ giấu
+    // TOÀN BỘ tin nhắn → chat trống dù API có data. Trường hợp này auto-reveal ngay: hiện đủ
+    // lịch sử + vạch "Tin nhắn mới" ở đầu. Set tại đây (một lần, cùng lúc freeze divider) để
+    // load-more prepend trang cũ về sau không làm phần tin sau vạch bị ẩn lại đột ngột.
+    if (firstUnread && firstUnread.id === messages[0]?.id) setNewRevealed(true);
   }, [messages, conversation, info?.id]);
 
   // Khôi phục tin GỬI LỖI đã lưu (localStorage) vào danh sách sau khi trang tải lại — tin lỗi
@@ -279,12 +289,12 @@ const Chatbox = () => {
   );
   // Còn tin mới đang ẩn (chưa reveal)?
   const hasHiddenNew = !newRevealed && firstUnreadIndex >= 0;
-  // Số tin mới (của người khác) đang ẩn — cập nhật khi có tin mới đến.
+  // Số tin mới (của người khác, không tính dòng hệ thống) đang ẩn — cập nhật khi có tin mới đến.
   const hiddenNewCount = useMemo(() => {
     if (firstUnreadIndex < 0) return 0;
     return messages
       .slice(firstUnreadIndex)
-      .filter((m) => m.contactId !== info?.id).length;
+      .filter((m) => m.contactId !== info?.id && m.type !== "system").length;
   }, [messages, firstUnreadIndex, info?.id]);
   // Danh sách render: ẩn phần tin mới khi chưa reveal.
   const renderedMessages = hasHiddenNew

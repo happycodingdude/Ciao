@@ -69,6 +69,12 @@ public class NotificationConsumer : IGenericConsumer
                 case Topic.NotifyLinkPreview:
                     await HandleNotifyLinkPreview(JsonConvert.DeserializeObject<StoredLinkPreviewModel>(param.cr.Message.Value)!);
                     break;
+                case Topic.NotifyJoinRequest:
+                    await HandleNotifyJoinRequest(JsonConvert.DeserializeObject<NotifyInviteModel>(param.cr.Message.Value)!);
+                    break;
+                case Topic.NotifyMemberJoinedByLink:
+                    await HandleNotifyMemberJoinedByLink(JsonConvert.DeserializeObject<NotifyInviteModel>(param.cr.Message.Value)!);
+                    break;
             }
         }
         catch (Exception ex)
@@ -241,6 +247,69 @@ public class NotificationConsumer : IGenericConsumer
             notify);
     }
 
+    // Phase 5 — Đợt 2 (tách từ JoinByInvite): yêu cầu tham gia mới → Notification bền cho từng
+    // quản trị (đọc lại ở trang thông báo) + FCM JoinRequestUpdated (invalidate hàng chờ).
+    // ModeratorIds đã lọc sẵn ở producer (IsModerator, !IsDeleted, ≠ requester).
+    async Task HandleNotifyJoinRequest(NotifyInviteModel param)
+    {
+        if (param.ModeratorIds is not { Length: > 0 }) return;
+
+        var requester = await _userCache.GetInfo(param.UserId);
+        foreach (var moderatorId in param.ModeratorIds)
+            _notificationRepository.Add(new Notification
+            {
+                SourceId = param.ConversationId,
+                SourceType = AppConstants.NotificationSourceType_JoinRequest,
+                Content = $"{requester?.Name} requested to join {param.Title}",
+                ContactId = moderatorId,
+                ActorName = requester?.Name ?? "",
+                ActorAvatar = requester?.Avatar ?? "",
+                Action = "requested to join the group",
+                Preview = param.Title
+            });
+        await _uow.SaveAsync();
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.JoinRequestUpdated,
+            param.ModeratorIds,
+            new { ConversationId = param.ConversationId });
+    }
+
+    // Phase 5 — Đợt 2 (tách từ JoinByInvite): vào thẳng qua link không có ai duyệt → không ai
+    // được báo, nên tạo Notification bền cho từng quản trị + FCM MemberJoinedByLink kèm actor
+    // info để FE hiện BANNER (JoinRequestUpdated chỉ invalidate cache âm thầm).
+    // (Luồng duyệt KHÔNG đi qua đây: quản trị đã biết qua join_request/kết quả duyệt.)
+    async Task HandleNotifyMemberJoinedByLink(NotifyInviteModel param)
+    {
+        if (param.ModeratorIds is not { Length: > 0 }) return;
+
+        var joiner = await _userCache.GetInfo(param.UserId);
+        foreach (var moderatorId in param.ModeratorIds)
+            _notificationRepository.Add(new Notification
+            {
+                SourceId = param.ConversationId,
+                SourceType = AppConstants.NotificationSourceType_MemberJoined,
+                Content = $"{joiner?.Name} joined {param.Title} via invite link",
+                ContactId = moderatorId,
+                ActorName = joiner?.Name ?? "",
+                ActorAvatar = joiner?.Avatar ?? "",
+                Action = "joined the group via invite link",
+                Preview = param.Title
+            });
+        await _uow.SaveAsync();
+
+        await _firebaseFunction.Notify(
+            ChatEventNames.MemberJoinedByLink,
+            param.ModeratorIds,
+            new
+            {
+                ConversationId = param.ConversationId,
+                Title = param.Title,
+                ActorName = joiner?.Name,
+                ActorAvatar = joiner?.Avatar
+            });
+    }
+
     async Task HandleNewMessage(NewStoredMessageModel param)
     {
         // Lọc bỏ chính sender khỏi danh sách Members nhận notify — sender không cần nhận push notification
@@ -404,9 +473,16 @@ public class NotificationConsumer : IGenericConsumer
             member.IsNotifying = true;
         }
 
+        // Fanout cho TOÀN BỘ member active (snapshot RecipientIds từ DataStoreConsumer):
+        // member mới → thêm hội thoại vào danh sách; member hiện hữu → system message "joined"
+        // + sĩ số cập nhật realtime. Message cũ in-flight không có RecipientIds → fallback
+        // hành vi cũ (chỉ member mới).
+        var recipients = param.RecipientIds is { Length: > 0 }
+            ? param.RecipientIds
+            : param.Members.Select(q => q.ContactId).ToArray();
         await _firebaseFunction.Notify(
             ChatEventNames.NewMembers,
-            param.Members.Select(q => q.ContactId).ToArray(),
+            recipients,
             notify);
     }
 

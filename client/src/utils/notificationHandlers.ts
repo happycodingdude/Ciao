@@ -76,6 +76,11 @@ export const classifyNotification = (
     // Payload chỉ có conversationId → refetch hàng chờ (quản trị) + badge notification.
     case "JoinRequestUpdated":
       return onJoinRequestUpdated(queryClient, data);
+    // Phase 5 — fix tồn đọng: có người VÀO THẲNG nhóm qua link (gửi quản trị). Cache cần
+    // refresh y hệt JoinRequestUpdated (badge notification + hàng chờ — request sót của
+    // người vừa vào được BE dọn); banner hiển thị do SignalContext/buildBanner đảm nhiệm.
+    case "MemberJoinedByLink":
+      return onJoinRequestUpdated(queryClient, data);
     // Phase 5 — Đợt 2b: thành viên rời nhóm.
     case "MemberLeft":
       return onMemberLeft(queryClient, data, userInfo);
@@ -370,6 +375,16 @@ const onNewMembers = (
       conversation.members,
     );
   });
+  // System message "X joined ..." cho member đang mở hội thoại — cùng pattern MemberLeft.
+  // upsert no-op khi message cache của hội thoại chưa load (member khác/joiner chưa mở chat),
+  // dedupe theo id (FCM gửi lại / reload đã fetch bản Mongo).
+  if (conversation.message) {
+    upsertRealtimeMessage(
+      queryClient,
+      conversation.conversation.id,
+      conversation.message,
+    );
+  }
 };
 
 const onNewConversation = (

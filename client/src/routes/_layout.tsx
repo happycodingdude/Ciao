@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { ToastContainer } from "react-toastify";
+import InviteJoinModal from "../components/common/InviteJoinModal";
 import SideBar from "../components/layouts/SideBar";
 import LoadingProvider from "../context/LoadingContext";
 import { SignalProvider } from "../context/SignalContext";
@@ -34,6 +35,8 @@ function AppLayout() {
           <LoadingProvider>
             <SignalProvider>
               <Outlet />
+              {/* Modal tham gia nhóm qua link (?invite={code}) — portal đè lên trang hiện hành. */}
+              <InviteJoinModal />
             </SignalProvider>
           </LoadingProvider>
         </div>

@@ -29,4 +29,8 @@ public static class ChatEventNames
     // Phase 5 — Đợt 2b: thành viên rời nhóm — member còn lại cập nhật danh sách + system message;
     // thiết bị khác của người rời ẩn hội thoại khỏi danh sách.
     public const string MemberLeft = "MemberLeft";
+    // Phase 5 — fix tồn đọng: có người vào nhóm qua link (vào thẳng, không duyệt) — gửi quản trị.
+    // Payload kèm actor (tên/avatar/tên nhóm) để FE hiện banner + refresh badge notification.
+    // (Khác JoinRequestUpdated: sự kiện này là "đã vào", không phải thay đổi hàng chờ.)
+    public const string MemberJoinedByLink = "MemberJoinedByLink";
 }

@@ -69,6 +69,15 @@ export type NewMessage = {
 export type NewConversation = {
   conversation: NewMessage_Conversation;
   members: ConversationModel_Member[];
+  // System message "X joined ..." (BE gửi kèm event NewMembers cho MỌI member active) —
+  // member hiện hữu đang mở hội thoại append realtime, không cần refetch.
+  message?: {
+    id: string;
+    type: string;
+    content: string;
+    contactId: string;
+    createdTime: string;
+  } | null;
 };
 
 export type NewReaction = {
@@ -183,6 +192,15 @@ export type MemberLeftEvent = {
     contactId: string;
     createdTime: string;
   } | null;
+};
+
+// Phase 5 — fix tồn đọng: có người vào nhóm qua link (vào thẳng, không duyệt).
+// Gửi cho quản trị nhóm — kèm actor để hiện banner, không cần lookup thêm.
+export type MemberJoinedByLinkEvent = {
+  conversationId?: string;
+  title?: string | null;
+  actorName?: string | null;
+  actorAvatar?: string | null;
 };
 
 // Phase 3 — theme chat chung của hội thoại thay đổi → patch wallpaper/bubbleColor

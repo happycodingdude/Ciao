@@ -52,10 +52,29 @@ public class MemberCache
         //     (DataStoreConsumer.HandleNewMember) nên cache vẫn còn entry cũ → append = 2 entry cùng user
         //     → SingleOrDefault ở MemberDelete/MemberSeenAll… ném "more than one matching element".
         //  2) Consumer at-least-once redelivery StoredMember → append lặp.
-        // Remove-then-add giữ cache nhất quán với Mongo và idempotent (chạy lại không đổi kết quả).
-        var incomingIds = membersToAdd.Select(m => m.Contact.Id).ToHashSet();
-        memberCacheData.RemoveAll(m => incomingIds.Contains(m.Contact.Id));
-        memberCacheData.AddRange(membersToAdd);
+        // MERGE in-place thay vì remove-then-add: entry cũ đang giữ per-user state
+        // (LastDelivered*/Nickname/PinnedTime/IsModerator) mà Kafka model
+        // NewGroupConversationModel_Member KHÔNG mang theo — replace sẽ reset về null,
+        // làm GetConversations trả self-member thiếu state (khung chat trống sau rejoin qua link).
+        // Reopen tại chỗ + refresh contact info; member mới thật sự thì append. Idempotent.
+        foreach (var incoming in membersToAdd)
+        {
+            var existing = memberCacheData.FirstOrDefault(m => m.Contact.Id == incoming.Contact.Id);
+            if (existing is null)
+            {
+                memberCacheData.Add(incoming);
+                continue;
+            }
+            existing.IsDeleted = false;
+            existing.IsNotifying = incoming.IsNotifying;
+            existing.Contact = incoming.Contact;
+            // LastSeenTime giờ ĐƯỢC mang theo khi member (re)join (= join time — mở hội thoại
+            // ở đáy, không chip "n tin nhắn mới"). Chỉ nâng TIẾN như MemberSeenAll: không lùi
+            // mốc khi redelivery/out-of-order; null (luồng tạo nhóm cũ) → giữ giá trị sẵn có.
+            if (incoming.LastSeenTime is not null &&
+                (existing.LastSeenTime is null || existing.LastSeenTime < incoming.LastSeenTime))
+                existing.LastSeenTime = incoming.LastSeenTime;
+        }
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMembers.Replace("{conversationId}", conversationId), memberCacheData);
     }
 

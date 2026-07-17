@@ -1,6 +1,6 @@
 # Link mời & QR + Yêu cầu tham gia (Phase 5 — Đợt 2)
 
-> **Trạng thái:** 🟡 Đã code (2026-07-12), chờ nghiệm thu trên app thật
+> **Trạng thái:** ✅ ĐÃ NGHIỆM THU trên app thật 2026-07-17 (đủ checklist mục 1, gồm cả modal hoá preview case 16; các fix liên quan: [`FIX_REJOIN_LINK_TIN_NHAN.md`](./FIX_REJOIN_LINK_TIN_NHAN.md))
 > **Nguồn kế hoạch:** [`KE_HOACH_PHASE_5_NHOM_CONG_DONG.md`](./KE_HOACH_PHASE_5_NHOM_CONG_DONG.md)
 
 ---
@@ -13,7 +13,7 @@
 | 2 | Tạo link (chọn "Require admin approval" tắt, Expiry tùy ý) | Hiện QR + link `…/invite/{code}`, dòng mô tả đúng cấu hình |
 | 3 | Bấm vào ô link | Copy vào clipboard, toast "Invite link copied" |
 | 4 | Tài khoản B (chưa ở nhóm) mở link | Trang preview: avatar + tên nhóm + số thành viên + nút **Join group** |
-| 5 | B bấm Join group | Toast chào mừng, về danh sách hội thoại, card nhóm xuất hiện (realtime); trong nhóm có dòng hệ thống "B joined the group via invite link" |
+| 5 | B bấm Join group | Toast chào mừng, về danh sách hội thoại, card nhóm xuất hiện (realtime); trong nhóm có dòng hệ thống "B joined the group via invite link"; **quản trị nhận notification "B joined … via invite link"** (bổ sung 2026-07-13) |
 | 6 | Quản trị bấm **New link** | Link/QR đổi code; mở link CŨ → "invalid or has been revoked" |
 | 7 | Quản trị bấm **Revoke** | Section quay về form tạo link; mở link cũ → invalid |
 | 8 | Tạo link có bật **Require admin approval**; C mở link | Nút thành **Request to join**; bấm → "pending admin approval" + nút Withdraw |
@@ -24,6 +24,7 @@
 | 13 | Link đặt Expiry 1 day (giả lập hết hạn: sửa ExpireTime trong DB về quá khứ) | Mở link → "expired"; panel quản trị hiện "Link has expired" đỏ |
 | 14 | Thành viên đã ở nhóm mở link | "You are already a member" + nút Open chat |
 | 15 | Người RỜI nhóm mở link vào lại **rồi rời lại lần nữa** | Mỗi bước đều chạy đúng: vào lại mở lại member cũ (không tạo bản trùng ở cả dữ liệu gốc lẫn cache); card nhóm chỉ xuất hiện **một lần** trong danh sách hội thoại (không bị đúp); rời lại thành công, KHÔNG lỗi 500 |
+| 16 | Mở link mời (mọi trạng thái: Join/Request/member/invalid) — cập nhật 2026-07-17 | Card mời hiện dạng **modal nổi** đè lên app (URL thành `/conversations?invite={code}`), trang bên dưới vẫn thấy (backdrop mờ như các modal khác, KHÔNG phải trang trắng); đóng bằng Esc / bấm backdrop / nút trong card → về đúng trang, param `invite` biến mất; reload khi modal đang mở → modal mở lại |
 
 Điểm chú ý khi verify: Console không có error liên quan; Network không có request lỗi (ngoài 400 chủ đích khi mở link invalid).
 
@@ -44,11 +45,19 @@
 - **Thu hồi:** mọi lượt mở/tham gia theo link cũ bị từ chối ngay; yêu cầu đang chờ KHÔNG bị xóa — quản trị vẫn xử lý được.
 
 ### Tham gia bằng link (người có link)
-- Mở link (đã đăng nhập) → xem trước: tên nhóm, avatar, số thành viên.
+- Mở link (đã đăng nhập) → xem trước: tên nhóm, avatar, số thành viên. Phần xem trước hiện
+  dưới dạng **hộp thoại nổi đè lên trang đang mở** (cùng kiểu với các hộp thoại khác của ứng
+  dụng — cập nhật 2026-07-17; trước đây thay cả trang bằng một trang trắng riêng): trang bên
+  dưới giữ nguyên hiện trạng, đóng bằng nút, phím Esc hoặc bấm ra ngoài. Tải lại trang khi
+  hộp thoại đang mở → hộp thoại mở lại đúng link mời đó.
 - Link sai/thu hồi/hết hạn → báo lỗi, **không lộ thông tin nhóm**.
 - Nhóm vào thẳng → bấm Join là thành thành viên; nhóm bật duyệt → gửi yêu cầu, chờ quản trị.
-- Đã là thành viên → mở thẳng hội thoại. Người từng rời nhóm → vào lại được như thành viên cũ.
+- Đã là thành viên → mở thẳng hội thoại. Người từng rời nhóm → vào lại được như thành viên cũ
+  (giữ nguyên mốc đã-đọc/biệt danh cũ — fix 2026-07-13, chi tiết ở [FIX_REJOIN_LINK_TIN_NHAN.md](./FIX_REJOIN_LINK_TIN_NHAN.md)).
 - Vào nhóm thành công (mọi đường) → dòng hệ thống "{tên} joined the group via invite link".
+- Nhóm **vào thẳng** (không bật duyệt): quản trị nhận **thông báo bền** "{tên} joined {nhóm} via invite link"
+  (bổ sung 2026-07-13) — vì không có bước duyệt nên đây là kênh duy nhất để quản trị biết có người mới.
+  Luồng có duyệt không gửi loại thông báo này (quản trị đã biết qua yêu cầu tham gia).
 
 ### Yêu cầu tham gia
 - Người xin thấy trạng thái "đang chờ duyệt" và có thể **rút yêu cầu**.
@@ -99,13 +108,14 @@ Hai lỗi cùng gốc "vào lại nhóm bằng link thêm bản trùng vào cach
 | GET | `/api/v1/conversations/{id}/join-requests` | Quản trị nhóm | `[{ contactId, name, avatar, requestedTime }]` |
 | PUT | `/api/v1/conversations/{id}/join-requests/{contactId}?approved=` | Quản trị nhóm | Duyệt/từ chối; 400 nếu yêu cầu không tồn tại |
 
-Realtime: event mới `JoinRequestUpdated` (payload `{ conversationId }`) gửi cho quản trị/người xin để refresh hàng chờ + notification. Thành viên mới vào nhóm đi qua event `NewMembers` sẵn có.
+Realtime: event mới `JoinRequestUpdated` (payload `{ conversationId }`) gửi cho quản trị/người xin để refresh hàng chờ + notification. Thành viên mới vào nhóm đi qua event `NewMembers` sẵn có. Từ 2026-07-13: luồng vào thẳng bằng link gửi thêm event `MemberJoinedByLink` (payload `{ conversationId, title, actorName, actorAvatar }`) cho quản trị — FE hiện banner + refresh badge notification/hàng chờ. Refactor 2026-07-13: với luồng "bấm Join" (cả pending lẫn vào thẳng), notification bền + FCM cho quản trị chuyển sang xử lý bất đồng bộ ở consumer — event name/payload không đổi (xem `TACH_THONG_BAO_LINK_MOI.md`).
 
 ## 8. Dữ liệu (mức khái niệm)
 
 - Hội thoại nhóm có thêm: **link mời hiện tại** (mã, cấu hình duyệt, thời hạn, người tạo) và **danh sách yêu cầu tham gia đang chờ** (người xin + thời điểm).
 - Bản ghi cũ thiếu field → mặc định không có link/không có yêu cầu, **không cần migration**.
-- Thông báo (notification) dùng loại nguồn mới `join_request`.
+- Thông báo (notification) dùng loại nguồn mới `join_request`; từ 2026-07-13 thêm loại `member_joined`
+  (người vào thẳng bằng link → báo quản trị). Bản ghi cũ không ảnh hưởng, không cần migration.
 
 ## 9. Deployment notes
 

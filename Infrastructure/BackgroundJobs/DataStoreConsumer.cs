@@ -459,6 +459,12 @@ public class DataStoreConsumer : IGenericConsumer
         var existingMemberIds = conversation.Members.Select(q => q.ContactId).ToHashSet();
         var newMemberIds = param.Members.Where(id => !existingMemberIds.Contains(id)).ToList();
 
+        // Mốc đã-đọc = thời điểm join: người vào nhóm coi như đã bắt kịp toàn bộ lịch sử trước đó
+        // → FE mở hội thoại ở ĐÁY, không hiện "n tin nhắn mới" cho tin cũ; tin đến SAU join vẫn
+        // tính unread bình thường. Dùng chung 1 mốc cho Mongo + StoredMember (cache/event) để
+        // 3 tầng nhất quán.
+        var joinTime = DateTime.UtcNow;
+
         // Phase 5 — Đợt 2 (ViaInvite): member cũ đã rời nhóm (IsDeleted) vào lại bằng link
         // → reopen thay vì thêm document Member mới (giữ nickname/lịch sử delivered cũ).
         var reopenedIds = new List<string>();
@@ -467,6 +473,9 @@ public class DataStoreConsumer : IGenericConsumer
             {
                 existing.IsDeleted = false;
                 existing.IsNotifying = true;
+                // Nâng mốc đã-đọc lên join time — mốc cũ (trước khi rời) làm mọi tin trong lúc
+                // vắng mặt thành "chưa đọc" → FE hiện chip "n tin nhắn mới" thay vì mở ở đáy.
+                existing.LastSeenTime = joinTime;
                 reopenedIds.Add(existing.ContactId);
             }
 
@@ -477,7 +486,8 @@ public class DataStoreConsumer : IGenericConsumer
             IsModerator = false,
             IsDeleted = false,
             IsNotifying = true,
-            ContactId = id
+            ContactId = id,
+            LastSeenTime = joinTime
         }).ToList();
 
         var membersToUpdate = conversation.Members.Concat(membersToAdd);
@@ -512,7 +522,8 @@ public class DataStoreConsumer : IGenericConsumer
         var storedMembers = addedIds.Select(id => new NewGroupConversationModel_Member
         {
             ContactId = id,
-            IsNew = true
+            IsNew = true,
+            LastSeenTime = joinTime
         }).ToArray();
 
         await _kafkaProducer.ProduceAsync(Topic.StoredMember, new NewStoredGroupConversationModel
@@ -520,7 +531,15 @@ public class DataStoreConsumer : IGenericConsumer
             UserId = param.UserId,
             Conversation = _mapper.Map<NewStoredGroupConversationModel_Conversation>(conversation),
             Members = storedMembers,
-            Message = messageToAdd
+            Message = messageToAdd,
+            // Member hiện hữu cũng phải nhận event (system message "joined" + sĩ số realtime).
+            // membersToUpdate = danh sách SAU update (reopened đã IsDeleted=false in-place,
+            // member mới nằm trong membersToAdd) → lọc active là đủ mọi người cần báo.
+            RecipientIds = membersToUpdate
+                .Where(m => !m.IsDeleted)
+                .Select(m => m.ContactId)
+                .Distinct()
+                .ToArray()
         });
     }
 

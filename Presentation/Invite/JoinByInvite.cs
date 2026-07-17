@@ -4,9 +4,11 @@ namespace Presentation.Invites;
 /// Phase 5 — Đợt 2: người có link bấm "Tham gia nhóm".
 ///  - Link không match/thu hồi/hết hạn → BadRequest (thông điệp an toàn, không lộ nhóm).
 ///  - Đã là thành viên → trả "member" (idempotent, không side-effect).
-///  - Nhóm bật duyệt → push JoinRequest (guarded, chống trùng) + notify quản trị → "pending".
+///  - Nhóm bật duyệt → push JoinRequest (guarded, chống trùng) + produce NotifyJoinRequest → "pending".
 ///  - Nhóm vào thẳng → produce Kafka NewMember (ViaInvite) — member persist + system message
-///    + fanout realtime đi theo pipeline member.new sẵn có → "joined".
+///    + fanout realtime đi theo pipeline member.new sẵn có; produce NotifyMemberJoinedByLink → "joined".
+/// Thông báo cho quản trị (Notification bền + FCM) tách sang NotificationConsumer — handler chỉ
+/// produce, request path không chờ persist notification / gọi Firebase.
 /// FE sau "joined" chờ event NewMembers đẩy hội thoại vào danh sách (persist là async).
 /// </summary>
 public static class JoinByInvite
@@ -29,22 +31,17 @@ public static class JoinByInvite
         readonly IValidator<Request> _validator;
         readonly IContactRepository _contactRepository;
         readonly IConversationRepository _conversationRepository;
-        readonly INotificationRepository _notificationRepository;
         readonly IUnitOfWork _uow;
         readonly IKafkaProducer _kafkaProducer;
-        readonly IFirebaseFunction _firebase;
 
         public Handler(IValidator<Request> validator, IContactRepository contactRepository,
-            IConversationRepository conversationRepository, INotificationRepository notificationRepository,
-            IUnitOfWork uow, IKafkaProducer kafkaProducer, IFirebaseFunction firebase)
+            IConversationRepository conversationRepository, IUnitOfWork uow, IKafkaProducer kafkaProducer)
         {
             _validator = validator;
             _contactRepository = contactRepository;
             _conversationRepository = conversationRepository;
-            _notificationRepository = notificationRepository;
             _uow = uow;
             _kafkaProducer = kafkaProducer;
-            _firebase = firebase;
         }
 
         public async Task<Response> Handle(Request request, CancellationToken cancellationToken)
@@ -67,6 +64,11 @@ public static class JoinByInvite
             if (member is not null && !member.IsDeleted)
                 return new Response("member", conversation.Id, conversation.Title);
 
+            // Quản trị cần được báo — snapshot tại request time, consumer không phải re-read.
+            var moderatorIds = conversation.Members
+                .Where(m => m.IsModerator && !m.IsDeleted && m.ContactId != userId)
+                .Select(m => m.ContactId).ToArray();
+
             if (conversation.Invite.RequireApproval)
             {
                 // Đã có yêu cầu chờ → idempotent, không push/notify lại (chống spam quản trị).
@@ -81,30 +83,17 @@ public static class JoinByInvite
                         Builders<Conversation>.Filter.ElemMatch(c => c.JoinRequests, r => r.ContactId == userId)));
                 _conversationRepository.UpdateNoTrackingTime(pushFilter,
                     Builders<Conversation>.Update.Push(c => c.JoinRequests, new JoinRequest { ContactId = userId }));
-
-                // Notification bền cho từng quản trị (đọc lại ở trang thông báo).
-                var requester = await _contactRepository.GetInfoAsync(userId);
-                var moderatorIds = conversation.Members
-                    .Where(m => m.IsModerator && !m.IsDeleted && m.ContactId != userId)
-                    .Select(m => m.ContactId).ToArray();
-                foreach (var moderatorId in moderatorIds)
-                    _notificationRepository.Add(new Notification
-                    {
-                        SourceId = conversation.Id,
-                        SourceType = AppConstants.NotificationSourceType_JoinRequest,
-                        Content = $"{requester?.Name} requested to join {conversation.Title}",
-                        ContactId = moderatorId,
-                        ActorName = requester?.Name ?? "",
-                        ActorAvatar = requester?.Avatar ?? "",
-                        Action = "requested to join the group",
-                        Preview = conversation.Title
-                    });
                 await _uow.SaveAsync();
 
-                // Realtime — fire-and-forget: fail thì quản trị vẫn thấy khi mở panel/notification.
+                // Notification bền + FCM cho quản trị xử lý ở NotificationConsumer.
                 if (moderatorIds.Length > 0)
-                    _ = _firebase.Notify(ChatEventNames.JoinRequestUpdated, moderatorIds,
-                        new { ConversationId = conversation.Id });
+                    await _kafkaProducer.ProduceAsync(Topic.NotifyJoinRequest, new NotifyInviteModel
+                    {
+                        UserId = userId,
+                        ConversationId = conversation.Id,
+                        Title = conversation.Title,
+                        ModeratorIds = moderatorIds
+                    });
 
                 return new Response("pending", null, conversation.Title);
             }
@@ -118,6 +107,18 @@ public static class JoinByInvite
                 Members = new[] { userId },
                 ViaInvite = true
             });
+
+            // Vào thẳng không có ai duyệt → không ai được báo. Notification bền + FCM banner cho
+            // quản trị xử lý ở NotificationConsumer — produce SAU NewMember để join là việc chắc
+            // chắn xảy ra trước; notify lỗi thì join vẫn thành công.
+            if (moderatorIds.Length > 0)
+                await _kafkaProducer.ProduceAsync(Topic.NotifyMemberJoinedByLink, new NotifyInviteModel
+                {
+                    UserId = userId,
+                    ConversationId = conversation.Id,
+                    Title = conversation.Title,
+                    ModeratorIds = moderatorIds
+                });
 
             return new Response("joined", conversation.Id, conversation.Title);
         }

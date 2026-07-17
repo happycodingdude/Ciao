@@ -68,6 +68,11 @@ export const useChatboxScroll = (
   const firstMessageIdRef = useRef(firstMessageId);
   firstMessageIdRef.current = firstMessageId;
 
+  // FILL-VIEWPORT guard: mỗi "hình dạng danh sách" (định danh bằng firstMessageId) chỉ thử
+  // kéo thêm 1 lần — fetch lỗi thì firstMessageId không đổi → không retry-loop; fetch thành
+  // công thì firstMessageId đổi → vòng kế tiếp được phép chạy.
+  const fillAttemptedRef = useRef<string | null>(null);
+
   // Đổi hội thoại: huỷ prepend đang chờ của hội thoại trước (nếu không, restore sẽ áp lên
   // convo mới → nhảy vị trí sai). Reset atBottom vì convo mới sẽ jump xuống đáy.
   useLayoutEffect(() => {
@@ -76,6 +81,7 @@ export const useChatboxScroll = (
     atBottomRef.current = true;
     lastScrollTopRef.current = 0;
     expectedScrollTopRef.current = null;
+    fillAttemptedRef.current = null;
   }, [conversationId]);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior) => {
@@ -263,6 +269,30 @@ export const useChatboxScroll = (
       pendingPrepend.current = null;
     }
   }, [isFetchingPreviousPage]);
+
+  // FILL-VIEWPORT: trang mới nhất quá ngắn (vd 10 tin gần nhất toàn system message join/leave)
+  // → nội dung KHÔNG tràn container → không bao giờ có scroll event → prefetch trong
+  // handleScroll không bao giờ chạy → user kẹt vĩnh viễn ở page 1, "không scroll được".
+  // Chủ động kéo thêm trang cũ tới khi nội dung tràn viewport (scrollbar xuất hiện) hoặc hết
+  // trang; từ đó prefetch-theo-scroll tiếp quản. Đặt SAU effect restore + effect dọn pending:
+  // trong cùng một commit, prepend của vòng trước được tiêu thụ xong rồi mới quyết định vòng kế.
+  // Dùng pendingPrepend như prefetch thường để anchor-restore giữ nguyên khung nhìn (nội dung
+  // chưa tràn thì scrollTop bị clamp về đáy — đúng vị trí user đang đứng khi mới mở hội thoại).
+  useLayoutEffect(() => {
+    const el = refChatContent.current;
+    if (!el || !firstMessageId) return;
+    if (!hasPreviousPage || isFetchingPreviousPage || pendingPrepend.current) return;
+    // Đã cuộn được rồi → không phải việc của fill; nhường cho prefetch theo scroll.
+    if (el.scrollHeight > el.clientHeight) return;
+    if (fillAttemptedRef.current === firstMessageId) return;
+    fillAttemptedRef.current = firstMessageId;
+    pendingPrepend.current = {
+      anchorId: firstMessageId,
+      anchorOffset: measureAnchorOffset(el, firstMessageId),
+      prevBottomOffset: el.scrollHeight - el.scrollTop,
+    };
+    fetchPreviousPage();
+  }, [firstMessageId, hasPreviousPage, isFetchingPreviousPage, fetchPreviousPage]);
 
   return {
     refChatContent,
