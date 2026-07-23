@@ -227,7 +227,7 @@ public class MessageCache
         message.RecalledTime = recalledTime;
         message.RecalledByContactId = recalledByContactId;
         // Clear nội dung/attachment để API fetch (cache) không trả về nội dung đã thu hồi.
-        // Gỡ ghim (nếu có) do DataStoreConsumer xoá bản ghi PinnedMessage tương ứng khi recall.
+        // Gỡ ghim (nếu có) do DataStoreConsumer xoá bản ghi Pin tương ứng khi recall.
         message.Content = string.Empty;
         message.Attachments = new();
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);

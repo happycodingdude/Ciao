@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-// Tin nhắn đã ghim của MỘT hội thoại — collection top-level thay vì cờ IsPinned/PinnedBy
+// Tin nhắn đã ghim của MỘT hội thoại — collection top-level `Pin` thay vì cờ IsPinned/PinnedBy
 // nhúng trên từng Message sub-doc trong Conversation. Lý do:
 //  - Message là phần tử của mảng KHÔNG giới hạn trong Conversation → liệt kê tin ghim phải
 //    $unwind toàn bộ history (full scan, không phân trang được).
@@ -10,7 +10,7 @@ namespace Domain.Entities;
 //    LIVE từ message cache lúc đọc (phản ánh edit/recall mới nhất).
 // Pin là dữ liệu DÙNG CHUNG (mọi thành viên thấy) — khác Bookmark (riêng tư per-user).
 // Một tin chỉ có tối đa 1 bản ghi (idempotent add) → PinnedBy = người ghim gần nhất (audit + tooltip).
-public class PinnedMessage : MongoBaseModel
+public class Pin : MongoBaseModel
 {
     public string ConversationId { get; set; } = null!;
     public string MessageId { get; set; } = null!;

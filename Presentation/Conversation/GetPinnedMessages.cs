@@ -3,7 +3,7 @@ namespace Presentation.Conversations;
 /// <summary>
 /// Panel "Tin đã ghim" của hội thoại — phân trang (mới ghim trước). Nội dung resolve LIVE từ
 /// message cache (Redis) → phản ánh edit/recall mới nhất; tin recall/mất → IsUnavailable.
-/// Luồng đồng nhất với "Tin đã lưu" (Bookmark): đọc từ collection PinnedMessage rồi làm giàu nội dung.
+/// Luồng đồng nhất với "Tin đã lưu" (Bookmark): đọc từ collection Pin rồi làm giàu nội dung.
 /// - keyword rỗng: phân trang theo page/limit (dùng cho load-more).
 /// - keyword có: chế độ search — resolve toàn bộ, lọc theo nội dung (FE fallback khi filter
 ///   client-side không match), trả toàn bộ match (HasMore=false).
@@ -29,13 +29,13 @@ public static class GetPinnedMessages
     internal sealed class Handler : IRequestHandler<Request, GetPinnedMessagesResponse>
     {
         readonly IValidator<Request> _validator;
-        readonly IPinnedMessageRepository _pinnedMessageRepository;
+        readonly IPinRepository _pinRepository;
         readonly MessageCache _messageCache;
 
-        public Handler(IValidator<Request> validator, IPinnedMessageRepository pinnedMessageRepository, MessageCache messageCache)
+        public Handler(IValidator<Request> validator, IPinRepository pinRepository, MessageCache messageCache)
         {
             _validator = validator;
-            _pinnedMessageRepository = pinnedMessageRepository;
+            _pinRepository = pinRepository;
             _messageCache = messageCache;
         }
 
@@ -45,24 +45,24 @@ public static class GetPinnedMessages
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = Builders<PinnedMessage>.Filter.Eq(q => q.ConversationId, request.id);
+            var filter = Builders<Pin>.Filter.Eq(q => q.ConversationId, request.id);
             var keyword = request.keyword?.Trim();
             var searchMode = !string.IsNullOrEmpty(keyword);
 
             // Search mode: nạp toàn bộ để lọc theo nội dung (số tin ghim của 1 hội thoại nhỏ).
             // Browse mode: phân trang, lấy dư 1 bản ghi để tính HasMore không cần count riêng.
             var paging = new PagingParam(request.page, request.limit);
-            List<PinnedMessage> pins;
+            List<Pin> pins;
             bool hasMore = false;
             if (searchMode)
             {
-                pins = (await _pinnedMessageRepository.GetAllAsync(filter))
+                pins = (await _pinRepository.GetAllAsync(filter))
                     .OrderByDescending(q => q.CreatedTime)
                     .ToList();
             }
             else
             {
-                pins = (await _pinnedMessageRepository.GetPagedAsync(filter,
+                pins = (await _pinRepository.GetPagedAsync(filter,
                     new PagingParam(request.page, request.limit + 1))).ToList();
                 hasMore = pins.Count > paging.Limit;
                 if (hasMore) pins = pins.Take(paging.Limit).ToList();

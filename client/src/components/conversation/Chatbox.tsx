@@ -2,11 +2,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useBookmark } from "../../hooks/useBookmark";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { useChatboxScroll } from "../../hooks/useChatboxScroll";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import useMessage from "../../hooks/useMessage";
+import { usePinMessage } from "../../hooks/usePinMessage";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { markRead } from "../../services/message.service";
 import { ConversationCache } from "../../types/conv.types";
@@ -74,8 +76,24 @@ const Chatbox = () => {
   const conversation = conversations?.conversations?.find(
     (c) => c.id === conversationId,
   );
+  // Latest-ref: giữ conversation mới nhất để effect markRead đọc read horizon của self
+  // mà KHÔNG cần thêm `conversation` vào deps → giữ tối ưu "effect chỉ chạy lại khi tin
+  // cuối đổi", không re-run mỗi lần cache mutate (reaction/seen/confirm).
+  const conversationRef = useRef(conversation);
+  conversationRef.current = conversation;
 
   const { data: info } = useInfo();
+
+  // Eager-fetch trạng thái ghim / đã lưu Ở CẤP HỘI THOẠI (KHÔNG phụ thuộc việc render tin nhắn).
+  // LÝ DO: 2 query này (["pinnedIds"|"bookmarkIds", conversationId]) trước đây CHỈ được mount gián
+  // tiếp qua MessageContent/MessageMenu_Slide — mà 2 component đó KHÔNG render cho tin hệ thống
+  // (tạo nhóm, vào/rời nhóm qua link...). Hội thoại mà toàn bộ tin đang hiển thị là tin hệ thống
+  // (nhóm mới, chỉ có join/leave), hoặc rỗng, hoặc tin thật đang bị ẩn sau divider "tin nhắn mới"
+  // → KHÔNG component nào mount hook → /pins và /bookmarks không được gọi cho những hội thoại đó.
+  // Mount tại Chatbox (luôn tồn tại khi mở hội thoại) đảm bảo fetch đúng 1 lần khi vào hội thoại;
+  // react-query dedupe theo queryKey nên hook ở tầng message chỉ đọc lại cache (không request thừa).
+  usePinMessage(conversationId);
+  useBookmark(conversationId);
 
   const { data, hasPreviousPage, isFetchingPreviousPage, fetchPreviousPage } =
     useMessage(conversationId);
@@ -355,38 +373,43 @@ const Chatbox = () => {
     // Nếu không hiện nút cuộn xuống nghĩa là đã ở cuối cùng
     if (!showScrollToBottom) {
       const currentLastMsg = messages[messages.length - 1];
+      // Không có gì để đánh dấu đọc nếu tin cuối là của chính mình / chưa confirmed.
+      if (!currentLastMsg?.id || currentLastMsg.contactId === info?.id) return;
+      // Capture id đã narrow ra biến const — TS không giữ narrowing của property qua closure setTimeout.
+      const lastMsgId = currentLastMsg.id;
+
+      // Bỏ qua /read nếu hội thoại ĐÃ ĐỌC tới tin cuối: read horizon của self đã phủ tin
+      // cuối → request thừa mỗi lần mở lại hội thoại đã đọc. Dùng cùng nguồn mốc với New
+      // Message Divider (member.lastSeenTime, fallback conversation.lastSeenTime) để nhất
+      // quán. Đọc qua ref → không cần thêm `conversation` vào deps.
+      const conv = conversationRef.current;
+      const selfMember = (conv?.members ?? []).find(
+        (m) => m.contact?.id === info?.id,
+      );
+      const horizonRaw = selfMember?.lastSeenTime ?? conv?.lastSeenTime ?? null;
+      const horizonMs = horizonRaw ? dayjs(horizonRaw).valueOf() : 0;
+      if (dayjs(currentLastMsg.createdTime ?? "").valueOf() <= horizonMs) return;
+
       const timer = setTimeout(() => {
-        // Không cần markRead nếu tin cuối là của chính mình (tránh request thừa)
-        if (
-          currentLastMsg &&
-          currentLastMsg.id &&
-          currentLastMsg.contactId !== info?.id
-        ) {
-          const readTime = dayjs().toISOString();
-          markRead(conversationId, currentLastMsg.id, readTime).catch(
-            console.error,
+        const readTime = dayjs().toISOString();
+        markRead(conversationId, lastMsgId, readTime).catch(console.error);
+        // Clear unSeen + NÂNG read horizon của CHÍNH MÌNH ngay tại thời điểm đọc tin cuối.
+        // - markConversationSeen: badge khớp list, tự sửa race "tin đến lúc đang xem nhưng
+        //   isConversationActive=false → unSeen=true".
+        // - updateMemberReadHorizon: đẩy selfMember.lastSeenTime tiến lên. Bắt buộc, nếu không
+        //   khi rời rồi quay lại hội thoại (conversation cache staleTime=1h, không refetch),
+        //   divider tính lại từ lastSeenTime CŨ → banner "n tin nhắn mới" hiện lại dù đã đọc.
+        queryClient.setQueryData(["conversation"], (old: ConversationCache) => {
+          if (!old || !info?.id) return old;
+          const seen = markConversationSeen(old, conversationId);
+          return updateMemberReadHorizon(
+            seen,
+            conversationId,
+            info.id,
+            lastMsgId,
+            readTime,
           );
-          // Clear unSeen + NÂNG read horizon của CHÍNH MÌNH ngay tại thời điểm đọc tin cuối.
-          // - markConversationSeen: badge khớp list, tự sửa race "tin đến lúc đang xem nhưng
-          //   isConversationActive=false → unSeen=true".
-          // - updateMemberReadHorizon: đẩy selfMember.lastSeenTime tiến lên. Bắt buộc, nếu không
-          //   khi rời rồi quay lại hội thoại (conversation cache staleTime=1h, không refetch),
-          //   divider tính lại từ lastSeenTime CŨ → banner "n tin nhắn mới" hiện lại dù đã đọc.
-          queryClient.setQueryData(
-            ["conversation"],
-            (old: ConversationCache) => {
-              if (!old || !info?.id) return old;
-              const seen = markConversationSeen(old, conversationId);
-              return updateMemberReadHorizon(
-                seen,
-                conversationId,
-                info.id,
-                currentLastMsg.id!,
-                readTime,
-              );
-            },
-          );
-        }
+        });
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -556,7 +579,13 @@ const Chatbox = () => {
                       )}
                     <MessageContent
                       message={message}
-                      id={conversation?.id ?? ""}
+                      // conversationId LẤY TỪ ROUTE PARAM (nguồn tin cậy, luôn có), KHÔNG lấy
+                      // từ `conversation?.id` — conversation là lookup trong list cache, có thể
+                      // undefined khi hội thoại chưa nằm trong trang list đã tải (deep-link, phân
+                      // trang, hội thoại mới, race list↔messages). Khi đó `?? ""` → id rỗng, làm
+                      // usePinMessage/useBookmark trong menu bị disable (enabled:!!id) → /pins,
+                      // /bookmarks không được gọi cho những hội thoại đó (và vỡ poll/retry).
+                      id={conversationId}
                       // Avatar và tên chỉ hiển thị ở tin đầu của block
                       showName={message === firstMessage}
                       showAvatar={message === firstMessage}

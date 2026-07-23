@@ -25,12 +25,12 @@ public static class GetConversationPinnedIds
     internal sealed class Handler : IRequestHandler<Request, List<PinnedIdItem>>
     {
         readonly IValidator<Request> _validator;
-        readonly IPinnedMessageRepository _pinnedMessageRepository;
+        readonly IPinRepository _pinRepository;
 
-        public Handler(IValidator<Request> validator, IPinnedMessageRepository pinnedMessageRepository)
+        public Handler(IValidator<Request> validator, IPinRepository pinRepository)
         {
             _validator = validator;
-            _pinnedMessageRepository = pinnedMessageRepository;
+            _pinRepository = pinRepository;
         }
 
         public async Task<List<PinnedIdItem>> Handle(Request request, CancellationToken cancellationToken)
@@ -39,8 +39,8 @@ public static class GetConversationPinnedIds
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var filter = Builders<PinnedMessage>.Filter.Eq(q => q.ConversationId, request.conversationId);
-            var pins = await _pinnedMessageRepository.GetAllAsync(filter);
+            var filter = Builders<Pin>.Filter.Eq(q => q.ConversationId, request.conversationId);
+            var pins = await _pinRepository.GetAllAsync(filter);
             return pins.Select(q => new PinnedIdItem { MessageId = q.MessageId, PinnedBy = q.PinnedBy }).ToList();
         }
     }
@@ -50,8 +50,8 @@ public class GetConversationPinnedIdsEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // GET /api/v1/conversations/{conversationId}/messages/pinned/ids
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/messages/pinned/ids",
+        // GET /api/v1/conversations/{conversationId}/pins
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/pins",
         async (ISender sender, string conversationId) =>
         {
             var result = await sender.Send(new GetConversationPinnedIds.Request(conversationId));

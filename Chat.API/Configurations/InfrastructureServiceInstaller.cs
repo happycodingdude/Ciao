@@ -124,7 +124,7 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         services.AddScoped<IScheduleContactRepository, ScheduleContactRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
-        services.AddScoped<IPinnedMessageRepository, PinnedMessageRepository>();
+        services.AddScoped<IPinRepository, PinRepository>();
 
         // External services
         services.AddSingleton<IFirebaseFunction, FirebaseFunction>();

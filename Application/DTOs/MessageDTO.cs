@@ -54,8 +54,8 @@ public class MessageReactionSummary : MongoBaseModel
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public string ContactId { get; set; } = null!;
-    // Pin đã tách sang collection PinnedMessage (dùng chung, per-conversation) — không còn nhúng
-    // trên message. FE lấy trạng thái ghim của tin qua endpoint pinned/ids riêng.
+    // Pin đã tách sang collection Pin (dùng chung, per-conversation) — không còn nhúng
+    // trên message. FE lấy trạng thái ghim của tin qua endpoint /pins riêng.
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }

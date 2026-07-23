@@ -4,7 +4,7 @@ namespace Presentation.Messages;
 /// Ghim / bỏ ghim tin nhắn (DÙNG CHUNG cho hội thoại — mọi thành viên thấy). Idempotent:
 /// - pinned=true khi đã ghim → giữ nguyên (không tạo trùng).
 /// - pinned=false khi chưa ghim → no-op.
-/// Lưu ở collection PinnedMessage (top-level, per-conversation) thay vì cờ nhúng trên message.
+/// Lưu ở collection Pin (top-level, per-conversation) thay vì cờ nhúng trên message.
 /// Fanout realtime để mọi thành viên khác cập nhật trạng thái ghim của tin (badge + panel).
 /// </summary>
 public static class PinMessage
@@ -29,14 +29,14 @@ public static class PinMessage
         readonly IValidator<Request> _validator;
         readonly IFirebaseFunction _firebaseFunction;
         readonly IContactRepository _contactRepository;
-        readonly IPinnedMessageRepository _pinnedMessageRepository;
+        readonly IPinRepository _pinRepository;
         readonly MemberCache _memberCache;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IPinnedMessageRepository pinnedMessageRepository, IFirebaseFunction firebaseFunction, MemberCache memberCache)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IPinRepository pinRepository, IFirebaseFunction firebaseFunction, MemberCache memberCache)
         {
             _validator = validator;
             _contactRepository = contactRepository;
-            _pinnedMessageRepository = pinnedMessageRepository;
+            _pinRepository = pinRepository;
             _firebaseFunction = firebaseFunction;
             _memberCache = memberCache;
         }
@@ -48,16 +48,16 @@ public static class PinMessage
                 throw new BadRequestException(validationResult.ToString());
 
             var userId = _contactRepository.GetUserId();
-            var filter = Builders<PinnedMessage>.Filter.And(
-                Builders<PinnedMessage>.Filter.Eq(q => q.ConversationId, request.conversationId),
-                Builders<PinnedMessage>.Filter.Eq(q => q.MessageId, request.id));
+            var filter = Builders<Pin>.Filter.And(
+                Builders<Pin>.Filter.Eq(q => q.ConversationId, request.conversationId),
+                Builders<Pin>.Filter.Eq(q => q.MessageId, request.id));
 
             if (request.pinned)
             {
-                var existing = await _pinnedMessageRepository.GetItemAsync(filter);
+                var existing = await _pinRepository.GetItemAsync(filter);
                 if (existing is null)
                 {
-                    _pinnedMessageRepository.Add(new PinnedMessage
+                    _pinRepository.Add(new Pin
                     {
                         ConversationId = request.conversationId,
                         MessageId = request.id,
@@ -67,7 +67,7 @@ public static class PinMessage
             }
             else
             {
-                _pinnedMessageRepository.DeleteOne(filter);
+                _pinRepository.DeleteOne(filter);
             }
 
             // Fanout realtime cho các thành viên khác → FE cập nhật cache pinned ids + panel.
