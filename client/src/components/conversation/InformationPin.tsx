@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { willResetPanelOnConversation } from "../../context/ChatDetailTogglesContext";
@@ -13,34 +12,49 @@ import { formatMessageTime, renderContent } from "../../utils/searchHighlight";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ModalSearchInput from "../common/ModalSearchInput";
 
-// Panel "Tin đã ghim" của hội thoại — UI đồng bộ với InformationSearch/InformationBookmark.
+// Số tin ghim tải mỗi trang (load-more). Đủ lớn để 1 trang lấp đầy panel, nhỏ để cuộn mượt.
+const PAGE_LIMIT = 20;
+
+// Panel "Tin đã ghim" của hội thoại — UI đồng bộ với InformationBookmark (luồng thống nhất).
 // Luồng dữ liệu:
-// 1. Mở panel → load danh sách tin đã ghim (server build sẵn preview theo loại tin).
-// 2. Gõ keyword → filter client-side trong list đã load; nếu không match →
-//    gọi API search theo keyword (debounce) — đồng bộ logic với InformationBookmark.
-// 3. Click 1 tin → nhảy tới tin trong khung chat (cùng cơ chế ?messageId với search).
+// 1. Mở panel → load trang đầu tin đã ghim (phân trang), cuộn tới cuối tự load trang kế (load-more).
+// 2. Gõ keyword → filter client-side trong list đã load; không match → API search theo keyword.
+// 3. Click 1 tin → nhảy tới tin trong khung chat (jump target in-memory, KHÔNG đổi URL, giữ panel mở).
 const InformationPin = () => {
   const { conversationId } = Route.useParams();
-  // Đang có jump-to-message chạy dở (?messageId chưa clear) → khoá click item mới.
-  const { messageId: pendingJumpId } = Route.useSearch();
-  const { showPin } = useChatDetailToggles();
-  const navigate = useNavigate();
+  const { showPin, jumpTarget, requestJump } = useChatDetailToggles();
+  // Đang có jump-to-message chạy dở (Chatbox chưa clearJump) → khoá click item mới.
+  const pendingJumpId = jumpTarget?.messageId;
 
   const [keyword, setKeyword] = useState("");
   const refInput = useRef<HTMLInputElement>(null);
 
-  // Load qua react-query: dedupe StrictMode, refetch mỗi lần mở lại panel (staleTime 0),
-  // và onNewMessagePinned (realtime) chỉ cần invalidate key này để list tự cập nhật.
+  // Infinite query: dedupe StrictMode, refetch mỗi lần mở lại panel (staleTime 0),
+  // onNewMessagePinned/recall (realtime) chỉ cần invalidate key này để list tự cập nhật.
   const enabled = showPin && !willResetPanelOnConversation(conversationId);
-  const { data: items = [], isLoading: loading } = useQuery({
+  const {
+    data,
+    isLoading: loading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["pinnedMessages", conversationId],
-    queryFn: () => getPinnedMessages(conversationId),
+    queryFn: ({ pageParam }) =>
+      getPinnedMessages(conversationId, pageParam, PAGE_LIMIT),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage?.hasMore ? allPages.length + 1 : undefined,
     enabled,
   });
 
+  const items = useMemo(
+    () => data?.pages.flatMap((p) => p.items) ?? [],
+    [data],
+  );
+
   // Component always-mounted (sibling trong ChatboxContainer). Mỗi lần MỞ panel:
-  // reset keyword + auto-focus (preventScroll: tránh xê dịch layout khi sidebar
-  // đang transition width — cùng lý do với InformationSearch).
+  // reset keyword + auto-focus (preventScroll: tránh xê dịch layout khi sidebar transition width).
   useEffect(() => {
     if (!showPin || willResetPanelOnConversation(conversationId)) return;
     setKeyword("");
@@ -64,34 +78,47 @@ const InformationPin = () => {
 
   const trimmedKeyword = keyword.trim();
 
-  // Filter client-side theo nội dung preview — list ghim của 1 hội thoại nhỏ.
+  // Filter client-side theo nội dung preview đã tải.
   const localMatches = useMemo(() => {
     if (!trimmedKeyword) return items;
     const kw = trimmedKeyword.toLowerCase();
     return items.filter((m) => m.content?.toLowerCase().includes(kw));
   }, [items, trimmedKeyword]);
 
-  // Local không match → fallback API search theo keyword (debounce + stale guard) —
-  // cùng logic với InformationBookmark qua hook dùng chung.
+  // Local không match → fallback API search theo keyword (debounce + stale guard).
   const { needServerSearch, serverResults, searching } =
     useServerSearchFallback(trimmedKeyword, localMatches.length, (kw) =>
-      getPinnedMessages(conversationId, kw),
+      getPinnedMessages(conversationId, 1, PAGE_LIMIT, kw).then((r) => r.items),
     );
 
   const displayed = needServerSearch ? serverResults : localMatches;
   const busy = loading || (needServerSearch && searching);
 
-  // Click 1 tin đã ghim → set ?messageId, Chatbox tự kéo trang cũ tới khi tin xuất hiện
-  // rồi scroll + highlight (cùng cơ chế với search tin nhắn). Giữ panel mở.
-  // Đang có jump chạy dở → bỏ qua click (data lớn kéo trang lâu, click dồn gây loạn).
-  const handleItemClick = (messageId?: string) => {
-    if (!messageId || pendingJumpId) return;
-    navigate({
-      to: "/conversations/$conversationId",
-      params: { conversationId },
-      search: { messageId },
-      replace: true,
-    });
+  // Load-more: quan sát sentinel cuối list trong chính container cuộn. Chỉ ở chế độ browse
+  // (không keyword) — search fallback trả toàn bộ match nên không phân trang.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (needServerSearch) return;
+    const el = sentinelRef.current;
+    const root = scrollRef.current;
+    if (!el || !root) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage)
+          fetchNextPage();
+      },
+      { root, rootMargin: "160px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [needServerSearch, hasNextPage, isFetchingNextPage, fetchNextPage, displayed.length]);
+
+  // Click 1 tin đã ghim → set jump target in-memory (không đổi URL); Chatbox tự kéo trang cũ tới
+  // khi tin xuất hiện rồi scroll + highlight. Đang có jump chạy dở → bỏ qua (data lớn kéo trang lâu).
+  const handleItemClick = (messageId?: string, isUnavailable?: boolean) => {
+    if (!messageId || isUnavailable || pendingJumpId) return;
+    requestJump(conversationId, messageId);
   };
 
   return (
@@ -112,8 +139,11 @@ const InformationPin = () => {
         />
       </div>
 
-      {/* Danh sách tin đã ghim (tin mới trước) */}
-      <div className="hide-scrollbar flex grow flex-col overflow-y-auto">
+      {/* Danh sách tin đã ghim (mới ghim trước) */}
+      <div
+        ref={scrollRef}
+        className="hide-scrollbar flex grow flex-col overflow-y-auto"
+      >
         {busy && (
           <p className="text-(--text-main-color-blur) p-4 text-center">
             {loading ? "Loading..." : "Searching..."}
@@ -132,9 +162,9 @@ const InformationPin = () => {
             return (
               <div
                 key={m.id}
-                onClick={() => handleItemClick(m.id)}
-                className={`border-b-(--border-color) hover:bg-(--bg-color-extrathin) flex items-start gap-3 border-b-[.1rem] px-4 py-3
-                  ${pendingJumpId ? "cursor-wait" : "cursor-pointer"}`}
+                onClick={() => handleItemClick(m.messageId, m.isUnavailable)}
+                className={`border-b-(--border-color) flex items-start gap-3 border-b-[.1rem] px-4 py-3
+                  ${m.isUnavailable ? "opacity-60" : `hover:bg-(--bg-color-extrathin) ${pendingJumpId ? "cursor-wait" : "cursor-pointer"}`}`}
               >
                 {/* Avatar người gửi bên trái */}
                 <ImageWithLightBoxAndNoLazy
@@ -151,18 +181,32 @@ const InformationPin = () => {
                       {sender?.name ?? "Unknown"}
                     </p>
                     <p className="text-3xs text-(--text-main-color-blur) shrink-0">
-                      {m.createdTime
-                        ? formatMessageTime(dayjs(m.createdTime))
+                      {m.messageCreatedTime
+                        ? formatMessageTime(dayjs(m.messageCreatedTime))
                         : ""}
                     </p>
                   </div>
-                  <p className="text-2xs wrap-break-word">
-                    {renderContent(m.content, trimmedKeyword)}
+                  <p className="text-2xs wrap-break-word line-clamp-3">
+                    {m.isUnavailable ? (
+                      <span className="italic">Message unavailable</span>
+                    ) : (
+                      renderContent(m.content, trimmedKeyword)
+                    )}
                   </p>
                 </div>
               </div>
             );
           })}
+
+        {/* Sentinel load-more + chỉ báo đang tải trang kế (chỉ chế độ browse). */}
+        {!busy && !needServerSearch && (
+          <div ref={sentinelRef} className="h-px w-full shrink-0" />
+        )}
+        {isFetchingNextPage && (
+          <p className="text-(--text-main-color-blur) p-3 text-center">
+            Loading more...
+          </p>
+        )}
       </div>
     </div>
   );

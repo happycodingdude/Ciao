@@ -1,4 +1,3 @@
-import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
@@ -26,23 +25,17 @@ const InformationSearch = () => {
   // Component tự túc: đọc conversationId từ route. Việc đóng panel do user toggle icon Search
   // ở ChatboxHeaderMenu (không có nút back trong panel này).
   const { conversationId } = Route.useParams();
-  // Đang có jump-to-message chạy dở (?messageId chưa clear) → khoá click kết quả mới.
-  const { messageId: pendingJumpId } = Route.useSearch();
-  const { showSearch } = useChatDetailToggles();
-  const navigate = useNavigate();
+  const { showSearch, jumpTarget, requestJump } = useChatDetailToggles();
+  // Đang có jump-to-message chạy dở (Chatbox chưa clearJump) → khoá click kết quả mới.
+  const pendingJumpId = jumpTarget?.messageId;
 
-  // Click 1 kết quả → set ?messageId, Chatbox tự kéo trang cũ (nếu cần) tới khi tin xuất hiện
-  // rồi scroll + highlight. GIỮ panel search mở (không đóng) để user click tiếp kết quả khác —
-  // panel chỉ phủ sidebar phải, khung chat vẫn hiển thị nên vẫn thấy tin nhảy tới.
+  // Click 1 kết quả → set jump target in-memory (KHÔNG đổi URL); Chatbox tự kéo trang cũ (nếu cần)
+  // tới khi tin xuất hiện rồi scroll + highlight. GIỮ panel search mở (không đóng) để user click
+  // tiếp kết quả khác — panel chỉ phủ sidebar phải, khung chat vẫn hiển thị nên vẫn thấy tin nhảy tới.
   // Đang có jump chạy dở → bỏ qua click (data lớn kéo trang lâu, click dồn gây loạn).
   const handleResultClick = (messageId?: string) => {
     if (!messageId || pendingJumpId) return;
-    navigate({
-      to: "/conversations/$conversationId",
-      params: { conversationId },
-      search: { messageId },
-      replace: true,
-    });
+    requestJump(conversationId, messageId);
   };
 
   const [keyword, setKeyword] = useState("");

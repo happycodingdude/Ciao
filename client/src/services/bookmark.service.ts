@@ -1,6 +1,6 @@
 import HttpRequest from "../lib/fetch";
 import {
-  BookmarkItemModel,
+  GetConversationBookmarksResponse,
   GetConversationLinksResponse,
 } from "../types/bookmark.types";
 
@@ -36,21 +36,26 @@ export const getConversationBookmarkIds = async (conversationId: string) => {
   ).data;
 };
 
-// Danh sách tin đã lưu TRONG một hội thoại (panel Bookmark ở khung chat).
+// Danh sách tin đã lưu TRONG một hội thoại (panel Bookmark ở khung chat) — phân trang cho load-more.
 // keyword optional: server lọc theo nội dung khi FE không match trong list đã tải.
 export const getConversationBookmarks = async (
   conversationId: string,
+  page: number = 1,
+  limit: number = 20,
   keyword: string = "",
 ) => {
   return (
-    await HttpRequest<undefined, BookmarkItemModel[]>({
+    await HttpRequest<undefined, GetConversationBookmarksResponse>({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_CONVERSATION_BOOKMARK_MESSAGES.replace(
         "{id}",
         conversationId,
-      ).replace("{keyword}", encodeURIComponent(keyword)),
+      )
+        .replace("{page}", String(page))
+        .replace("{limit}", String(limit))
+        .replace("{keyword}", encodeURIComponent(keyword)),
     })
-  ).data;
+  ).data ?? { hasMore: false, bookmarks: [] };
 };
 
 // Danh sách liên kết trong hội thoại (tab "Liên kết" của Media).

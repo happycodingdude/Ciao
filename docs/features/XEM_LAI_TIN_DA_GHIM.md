@@ -1,6 +1,7 @@
 # Xem lại tin nhắn đã ghim trong hội thoại
 
-> **Cập nhật:** 2026-07-12 · **Trạng thái:** ✅ **HOÀN THÀNH — user đã nghiệm thu trên app thật 2026-07-12** (gồm cả khoá click khi đang nhảy tới tin + search fallback máy chủ)
+> **Cập nhật:** 2026-07-23 · **Trạng thái:** ✅ **HOÀN THÀNH — user đã nghiệm thu trên app thật 2026-07-12** (gồm cả khoá click khi đang nhảy tới tin + search fallback máy chủ)
+> **Bổ sung nghiệm thu 2026-07-23:** nội dung xem trước giới hạn tối đa 3 dòng (dài hơn cắt bằng dấu `…`); nhảy tới tin gốc không làm thay đổi địa chỉ trang (URL).
 > Thuộc nhóm tính năng "Ghim nhiều tin nhắn" (Phase 3) — xem [`PRODUCT_ROADMAP.md`](./PRODUCT_ROADMAP.md)
 
 ---
@@ -17,6 +18,8 @@
 | Tìm kiếm: lọc local trước, không thấy mới tìm phía máy chủ (đồng bộ với panel Tin đã lưu) | ✅ Đã code, build pass |
 | Khóa click lặp khi đang nhảy tới tin (tin cũ tải lâu) | ✅ Đã code |
 | Verify UI trên app thật | ✅ User đã nghiệm thu 2026-07-12 |
+| Nội dung xem trước giới hạn tối đa 3 dòng (cắt bằng dấu …) | ✅ User đã nghiệm thu 2026-07-23 |
+| Nhảy tới tin gốc không thay đổi địa chỉ trang (URL) | ✅ User đã nghiệm thu 2026-07-23 |
 
 ---
 
@@ -29,9 +32,10 @@ Người dùng đã ghim được nhiều tin nhắn trong hội thoại (mọi 
 - Thanh tiêu đề khung chat có thêm **icon ghim** bên cạnh các icon Tìm kiếm / Tin đã lưu / Thông tin — cùng luồng thao tác với tính năng tìm kiếm tin nhắn.
 - Click icon → mở **panel "Pinned messages"** ở sidebar phải (mỗi thời điểm chỉ 1 panel mở; click lại icon để đóng). Icon đổi màu khi panel đang mở.
 - Panel hiển thị danh sách tin đã ghim của hội thoại, **tin mới nhất trước**, mỗi item gồm: avatar + tên người gửi, thời gian gửi, nội dung xem trước.
+- Nội dung xem trước của mỗi item hiển thị **tối đa 3 dòng**; phần dài hơn được cắt bớt bằng dấu `…` — **không** có nút "xem thêm" để mở rộng.
 - Tin không phải văn bản hiển thị nhãn xem trước theo loại (tệp đính kèm hiện tên tệp; nhãn dán/GIF/bình chọn/danh bạ hiện nhãn tương ứng) — nhất quán với dòng xem trước ở danh sách hội thoại.
 - Ô lọc ở đầu panel — **đồng bộ logic với panel Tin đã lưu**: gõ từ khóa thì lọc ngay trong danh sách đã tải; nếu danh sách đã tải **không có** kết quả khớp thì tự động tìm phía máy chủ theo từ khóa (có độ trễ ngắn khi đang gõ); xóa trắng thì hiện lại toàn bộ.
-- **Click 1 item → khung chat tự cuộn tới tin gốc và làm nổi bật tin đó** (kể cả tin cũ chưa tải — tự tải thêm trang cũ), panel vẫn mở để xem tiếp item khác.
+- **Click 1 item → khung chat tự cuộn tới tin gốc và làm nổi bật tin đó** (kể cả tin cũ chưa tải — tự tải thêm trang cũ), panel vẫn mở để xem tiếp item khác. Thao tác nhảy **không làm thay đổi địa chỉ trang (URL)**.
 - **Trong lúc đang nhảy tới tin** (tin cũ phải tải thêm nhiều trang): mọi click tiếp theo vào các item trong danh sách bị bỏ qua cho tới khi thao tác nhảy hoàn tất — con trỏ chuyển dạng chờ. Quy tắc này áp dụng chung cho cả 3 danh sách: Tìm kiếm / Tin đã ghim / Tin đã lưu.
 - Có người ghim/bỏ ghim (kể cả từ thiết bị khác) → danh sách trong panel tự cập nhật; thao tác ghim/bỏ ghim của chính mình cũng phản ánh ngay.
 - Đổi sang hội thoại khác → panel về mặc định (Thông tin), như các panel khác.

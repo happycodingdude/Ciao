@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { isConversationActive } from "../hooks/useActiveConversation";
 import { UserProfile } from "../types/base.types";
 import { ConversationCache, ConversationModel } from "../types/conv.types";
-import { AttachmentCache } from "../types/message.types";
+import { AttachmentCache, PinnedIdItem } from "../types/message.types";
 import { FriendCache } from "../types/friend.types";
 import { getMessagePreviewText } from "./messagePreview";
 import {
@@ -519,12 +519,18 @@ const onNewMessagePinned = (
   queryClient: QueryClient,
   pinned: NewMessagePinned,
 ) => {
-  // Đồng bộ trạng thái pin và người ghim từ server
-  updateMessageById(queryClient, pinned.conversationId, pinned.messageId, (m) => ({
-    ...m,
-    isPinned: pinned.isPinned,
-    pinnedBy: pinned.pinnedBy,
-  }));
+  // Pin đã tách khỏi message: cập nhật cache pinned ids (nguồn badge inline), không sửa message.
+  queryClient.setQueryData<PinnedIdItem[]>(
+    ["pinnedIds", pinned.conversationId],
+    (old) => {
+      const without = (old ?? []).filter(
+        (p) => p.messageId !== pinned.messageId,
+      );
+      return pinned.isPinned
+        ? [...without, { messageId: pinned.messageId, pinnedBy: pinned.pinnedBy }]
+        : without;
+    },
+  );
   // Panel "Tin đã ghim" đang mở (nếu có) refetch để list khớp trạng thái mới.
   queryClient.invalidateQueries({
     queryKey: ["pinnedMessages", pinned.conversationId],
@@ -596,4 +602,12 @@ const onMessageRecalled = (
       ev.recalledByContactId,
     ),
   );
+  // Recall gỡ ghim ở server (xoá PinnedMessage) → đồng bộ FE: bỏ khỏi pinned ids + refetch panel.
+  queryClient.setQueryData<PinnedIdItem[]>(
+    ["pinnedIds", ev.conversationId],
+    (old) => (old ?? []).filter((p) => p.messageId !== ev.messageId),
+  );
+  queryClient.invalidateQueries({
+    queryKey: ["pinnedMessages", ev.conversationId],
+  });
 };

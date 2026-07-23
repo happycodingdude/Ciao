@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import { useChatboxScroll } from "../../hooks/useChatboxScroll";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
@@ -57,7 +58,16 @@ const groupMessagesByDate = (
 
 const Chatbox = () => {
   const { conversationId } = Route.useParams();
-  const { messageId: targetMessageId } = Route.useSearch();
+  // `?messageId` chỉ còn dùng cho banner notification (SignalContext ở tầng trên context jump)
+  // giao target qua URL khi điều hướng (có thể cross-conversation). Panel Pin/Bookmark/Search
+  // KHÔNG còn set param này — chúng đi qua jump target in-memory bên dưới.
+  const { messageId: urlMessageId } = Route.useSearch();
+  const { jumpTarget, requestJump, clearJump } = useChatDetailToggles();
+  // Chỉ nhận jump khi target thuộc đúng hội thoại đang mở (chống rò target giữa lúc đổi hội thoại).
+  const jumpMessageId =
+    jumpTarget?.conversationId === conversationId
+      ? jumpTarget.messageId
+      : undefined;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: conversations } = useConversation();
@@ -202,37 +212,51 @@ const Chatbox = () => {
     oldLastMsgRef.current = currentLastMsg;
   }, [messages, info?.id, showScrollToBottom, scrollToBottom]);
 
-  // Nhảy tới + highlight 1 tin cụ thể khi có ?messageId (click banner reaction hoặc kết quả Search).
+  // Bridge banner → jump target in-memory. Banner notification (SignalContext) nằm TRÊN context
+  // jump nên chỉ có thể giao target qua URL `?messageId` khi điều hướng (có thể cross-conversation).
+  // Ở đây nhận param đó, đẩy vào jump target in-memory rồi XÓA param ngay → address bar sạch và
+  // Chatbox chỉ có DUY NHẤT một luồng jump (đọc jumpMessageId), không cần xử lý 2 nguồn song song.
+  useEffect(() => {
+    if (!urlMessageId) return;
+    requestJump(conversationId, urlMessageId);
+    navigate({
+      to: "/conversations/$conversationId",
+      params: { conversationId },
+      search: {},
+      replace: true,
+    });
+  }, [urlMessageId, conversationId, requestJump, navigate]);
+
+  // Đổi hội thoại giữa lúc jump còn dở (chưa tìm thấy tin, đang kéo dần trang cũ) → bỏ target cũ
+  // để không kích hoạt jump nhầm khi user quay lại. Chỉ xóa target KHÁC hội thoại hiện tại nên
+  // không đụng target vừa set cho hội thoại đang mở (an toàn bất kể thứ tự effect với bridge).
+  useEffect(() => {
+    if (jumpTarget && jumpTarget.conversationId !== conversationId) clearJump();
+  }, [conversationId, jumpTarget, clearJump]);
+
+  // Nhảy tới + highlight 1 tin cụ thể khi có jump target (Pin/Bookmark/Search, hoặc banner đã bridge).
   // Mỗi message render với id={message.id} (MessageContent) → getElementById tìm DOM.
   //
-  // Tin search/banner có thể nằm SÂU trong lịch sử, chưa có trong các page mới-nhất đã load.
+  // Tin có thể nằm SÂU trong lịch sử, chưa có trong các page mới-nhất đã load.
   // → Nếu tin chưa nằm trong tập đã load: kéo thêm trang CŨ (fetchPreviousPage) rồi để effect
   //   chạy lại (deps có `messages`) — lặp tới khi tin xuất hiện hoặc hết trang cũ.
   //   getMessages/around đều đọc cùng Redis cache full-history nên mọi tin search đều tới được.
   //   (Page size nhỏ → tin rất cũ tốn nhiều round-trip; tối ưu thực sự là server-side page-jump.)
   // Khi đã load: tin có thể chưa kịp gắn DOM (render async) → retry vài nhịp rồi scroll + highlight.
-  // Clear param ở MỌI terminal state (nhảy xong / hết trang cũ mà không thấy tin / hết lượt retry
-  // DOM) — các panel (Search/Pin/Bookmark) dùng ?messageId làm cờ khoá click trong lúc jump đang
-  // chạy, param kẹt lại = khoá vĩnh viễn. Tin không tồn tại (đã xoá/recall) → clear + no-op graceful.
+  // clearJump() ở MỌI terminal state (nhảy xong / hết trang cũ mà không thấy tin / hết lượt retry
+  // DOM) — các panel dùng jumpTarget làm cờ khoá click trong lúc jump đang chạy, target kẹt lại =
+  // khoá vĩnh viễn. Tin không tồn tại (đã xoá/recall) → clear + no-op graceful.
   useEffect(() => {
-    if (!targetMessageId) return;
+    if (!jumpMessageId) return;
     // Chưa có page đầu (đổi hội thoại / mở URL trực tiếp) → chờ dữ liệu, chưa kết luận gì.
     if (!data) return;
 
-    const clearTarget = () =>
-      navigate({
-        to: "/conversations/$conversationId",
-        params: { conversationId },
-        search: {},
-        replace: true,
-      });
-
-    const loaded = messages.some((m) => m.id === targetMessageId);
+    const loaded = messages.some((m) => m.id === jumpMessageId);
     if (!loaded) {
       // Chưa thấy tin trong tập đã load → kéo trang cũ hơn (nếu còn) rồi chờ effect re-run.
       if (hasPreviousPage && !isFetchingPreviousPage) fetchPreviousPage();
       // Hết trang cũ mà vẫn không thấy (tin đã xoá/không thuộc hội thoại) → clear để mở khoá.
-      else if (!hasPreviousPage && !isFetchingPreviousPage) clearTarget();
+      else if (!hasPreviousPage && !isFetchingPreviousPage) clearJump();
       return;
     }
 
@@ -240,18 +264,18 @@ const Chatbox = () => {
     let attempts = 0;
     const tryScroll = () => {
       if (cancelled) return;
-      const el = document.getElementById(targetMessageId);
+      const el = document.getElementById(jumpMessageId);
       if (el) {
         el.scrollIntoView({ block: "center", behavior: "smooth" });
         el.classList.add("message-highlight");
         setTimeout(() => el.classList.remove("message-highlight"), 2200);
-        clearTarget();
+        clearJump();
         return;
       }
       if (attempts++ < 10) setTimeout(tryScroll, 250);
       // Tin đã load nhưng DOM không xuất hiện sau 10 nhịp (bị ẩn sau divider tin mới...) →
       // clear để không kẹt khoá click.
-      else clearTarget();
+      else clearJump();
     };
 
     const t = setTimeout(tryScroll, 150);
@@ -260,25 +284,24 @@ const Chatbox = () => {
       clearTimeout(t);
     };
   }, [
-    targetMessageId,
+    jumpMessageId,
     data,
     messages,
     hasPreviousPage,
     isFetchingPreviousPage,
     fetchPreviousPage,
-    conversationId,
-    navigate,
+    clearJump,
   ]);
 
-  // Đang trong quá trình "jump tới tin search" mà tin chưa load (effect trên đang kéo dần trang cũ).
+  // Đang trong quá trình "jump tới tin" mà tin chưa load (effect trên đang kéo dần trang cũ).
   // Giá trị này GIỮ NGUYÊN true LIÊN TỤC suốt vòng lặp — kể cả khoảng nghỉ giữa 2 lần fetch khi
   // `isFetchingPreviousPage` thoáng về false — nhờ điều kiện `hasPreviousPage`. Dùng nó để giữ
   // overlay "loading older" SÁNG STEADY thay vì nháy on/off mỗi page (fix nháy khi click tin ở xa).
   const isJumpingToTarget = useMemo(() => {
-    if (!targetMessageId) return false;
-    const loaded = messages.some((m) => m.id === targetMessageId);
+    if (!jumpMessageId) return false;
+    const loaded = messages.some((m) => m.id === jumpMessageId);
     return !loaded && (hasPreviousPage || isFetchingPreviousPage);
-  }, [targetMessageId, messages, hasPreviousPage, isFetchingPreviousPage]);
+  }, [jumpMessageId, messages, hasPreviousPage, isFetchingPreviousPage]);
 
   // --- Divider 2 bước: ẩn phần tin mới cho tới khi người dùng bấm "n tin nhắn mới" ---
   // Khai báo TRƯỚC effect markRead vì effect đó phụ thuộc `hasHiddenNew` (tránh TDZ).

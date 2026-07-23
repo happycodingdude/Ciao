@@ -195,17 +195,6 @@ public class MessageCache
         }
     }
 
-    public async Task UpdatePin(string conversationId, string messageId, string userId, bool pinned)
-    {
-        // Update message cache
-        var messageCache = await _redisCaching.GetAsync<List<MessageWithReactions>>(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId)) ?? default;
-        var message = messageCache.SingleOrDefault(q => q.Id == messageId);
-        message.IsPinned = pinned;
-        message.PinnedBy = userId;
-
-        await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
-    }
-
     // ===== Tính năng 2: edit / recall / delete-for-me =====
     // Tất cả đều idempotent ở app layer (chỉ apply forward / no-op khi duplicate/out-of-order).
     // Kế thừa known-issue read-modify-write không nguyên tử của cache này; Mongo (DataStoreConsumer)
@@ -238,9 +227,9 @@ public class MessageCache
         message.RecalledTime = recalledTime;
         message.RecalledByContactId = recalledByContactId;
         // Clear nội dung/attachment để API fetch (cache) không trả về nội dung đã thu hồi.
+        // Gỡ ghim (nếu có) do DataStoreConsumer xoá bản ghi PinnedMessage tương ứng khi recall.
         message.Content = string.Empty;
         message.Attachments = new();
-        message.IsPinned = false;
         await _redisCaching.SetAsync(AppConstants.RedisKey_ConversationMessages.Replace("{conversationId}", conversationId), messageCache);
 
         // Recall tin cuối → set LastMessage về placeholder, giữ nguyên LastMessageTime

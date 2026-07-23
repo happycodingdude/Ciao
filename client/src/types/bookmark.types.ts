@@ -16,6 +16,12 @@ export type BookmarkItemModel = {
   isUnavailable: boolean; // tin gốc đã thu hồi hoặc không còn
 };
 
+// Response phân trang panel "Tin đã lưu" của hội thoại (hasMore + list).
+export type GetConversationBookmarksResponse = {
+  hasMore: boolean;
+  bookmarks: BookmarkItemModel[];
+};
+
 export type ConversationLinkItem = {
   messageId: string;
   contactId: string;

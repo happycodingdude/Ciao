@@ -2,10 +2,11 @@ import HttpRequest from "../lib/fetch";
 import {
   AttachmentCache,
   AttachmentCache_Attachment,
+  GetPinnedMessagesResponse,
   MessageCache,
   MessageSearchResult,
   PinMessageRequest,
-  PinnedMessageModel,
+  PinnedIdItem,
   ReactMessageRequest,
   SendMessageRequest,
   SendMessageResponse,
@@ -127,19 +128,38 @@ export const searchMessages = async (
   ).data ?? [];
 };
 
-// keyword optional: server lọc theo nội dung khi FE không match trong list đã tải sẵn
-// (đồng bộ hành vi với getConversationBookmarks).
+// Panel "Tin đã ghim" — phân trang (page/limit) cho load-more; keyword optional: server lọc
+// theo nội dung khi FE không match trong list đã tải sẵn (đồng bộ hành vi với getConversationBookmarks).
 export const getPinnedMessages = async (
   conversationId: string,
+  page: number = 1,
+  limit: number = 20,
   keyword: string = "",
 ) => {
   return (
-    await HttpRequest<undefined, PinnedMessageModel[]>({
+    await HttpRequest<undefined, GetPinnedMessagesResponse>({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_MESSAGE_PINNED.replace(
         "{id}",
         conversationId,
-      ).replace("{keyword}", encodeURIComponent(keyword)),
+      )
+        .replace("{page}", String(page))
+        .replace("{limit}", String(limit))
+        .replace("{keyword}", encodeURIComponent(keyword)),
+    })
+  ).data ?? { hasMore: false, items: [] };
+};
+
+// messageId + người ghim của tin đã ghim trong hội thoại — FE hiển thị badge/tooltip inline
+// trên từng tin (đối xứng getConversationBookmarkIds).
+export const getConversationPinnedIds = async (conversationId: string) => {
+  return (
+    await HttpRequest<undefined, PinnedIdItem[]>({
+      method: "get",
+      url: import.meta.env.VITE_ENDPOINT_CONVERSATION_PINNED_IDS.replace(
+        "{id}",
+        conversationId,
+      ),
     })
   ).data ?? [];
 };

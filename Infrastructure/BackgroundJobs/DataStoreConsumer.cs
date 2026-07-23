@@ -7,15 +7,17 @@ public class DataStoreConsumer : IGenericConsumer
     readonly IMapper _mapper;
     readonly IConversationRepository _conversationRepository;
     readonly IContactRepository _contactRepository;
+    readonly IPinnedMessageRepository _pinnedMessageRepository;
     readonly IKafkaProducer _kafkaProducer;
 
-    public DataStoreConsumer(ILogger logger, IUnitOfWork uow, IMapper mapper, IConversationRepository conversationRepository, IContactRepository contactRepository, IKafkaProducer kafkaProducer)
+    public DataStoreConsumer(ILogger logger, IUnitOfWork uow, IMapper mapper, IConversationRepository conversationRepository, IContactRepository contactRepository, IPinnedMessageRepository pinnedMessageRepository, IKafkaProducer kafkaProducer)
     {
         _logger = logger;
         _uow = uow;
         _mapper = mapper;
         _conversationRepository = conversationRepository;
         _contactRepository = contactRepository;
+        _pinnedMessageRepository = pinnedMessageRepository;
         _kafkaProducer = kafkaProducer;
     }
 
@@ -179,8 +181,9 @@ public class DataStoreConsumer : IGenericConsumer
     async Task HandleMessageRecalled(MessageRecalledModel param)
     {
         // Trong cùng 1 transaction (UnitOfWork batch → 1 Mongo session):
-        //  Op1: set recalled fields + clear Content/Attachments + unpin (idempotent: chỉ khi RecalledTime==null).
+        //  Op1: set recalled fields + clear Content/Attachments (idempotent: chỉ khi RecalledTime==null).
         //  Op2: overwrite ReplyContent của MỌI reply trỏ tới message này về placeholder (chống leak privacy).
+        //  Op3: gỡ ghim — xoá bản ghi PinnedMessage của tin bị thu hồi (pin đã tách sang collection riêng).
         // Eager (không lazy ở FE) vì tin gốc có thể nằm ngoài cửa sổ paginated của FE.
         var conversationFilter = MongoQuery<Conversation>.IdFilter(param.ConversationId);
 
@@ -193,8 +196,7 @@ public class DataStoreConsumer : IGenericConsumer
             .Set("Messages.$.RecalledTime", param.RecalledTime)
             .Set("Messages.$.RecalledByContactId", param.RecalledByContactId)
             .Set("Messages.$.Content", string.Empty)
-            .Set("Messages.$.Attachments", new List<Attachment>())
-            .Set("Messages.$.IsPinned", false);
+            .Set("Messages.$.Attachments", new List<Attachment>());
         _conversationRepository.UpdateNoTrackingTime(recallFilter, recallUpdates);
 
         var replyArrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
@@ -202,6 +204,11 @@ public class DataStoreConsumer : IGenericConsumer
         var replyUpdates = Builders<Conversation>.Update
             .Set("Messages.$[reply].ReplyContent", AppConstants.Message_Recalled);
         _conversationRepository.UpdateNoTrackingTime(conversationFilter, replyUpdates, replyArrayFilter);
+
+        // Gỡ ghim tin bị thu hồi (idempotent: no-op nếu tin chưa ghim). Cùng session transaction.
+        _pinnedMessageRepository.DeleteOne(Builders<PinnedMessage>.Filter.And(
+            Builders<PinnedMessage>.Filter.Eq(q => q.ConversationId, param.ConversationId),
+            Builders<PinnedMessage>.Filter.Eq(q => q.MessageId, param.MessageId)));
 
         await _uow.SaveAsync();
 

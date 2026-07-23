@@ -6,6 +6,7 @@ import { Tooltip } from "react-tooltip";
 import useConversation from "../../hooks/useConversation";
 import useInfo from "../../hooks/useInfo";
 import { useMessageEdit } from "../../hooks/useMessageActions";
+import { usePinMessage } from "../../hooks/usePinMessage";
 import { useRetryMessage } from "../../hooks/useSendMessage";
 import { useTranslation } from "../../hooks/useTranslation";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
@@ -46,10 +47,15 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
     const conversation = conversations?.conversations?.find(
       (c) => c.id === conversationId,
     );
+    // Trạng thái ghim inline lấy từ cache pinned/ids (pin đã tách khỏi message sub-doc).
+    const { isPinned: isPinnedFn, pinnedBy: pinnedByFn } =
+      usePinMessage(conversationId);
 
     // Tin nhắn chưa load xong hoặc bị lỗi → không render
     if (!message) return null;
 
+    const isPinned = isPinnedFn(message.id);
+    const pinnedById = pinnedByFn(message.id);
     const isSelf = message.contactId === info?.id;
     const isRecalled = !!message.recalledTime;
     // Sticker render nổi bật, không bọc bong bóng.
@@ -339,7 +345,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                             )?.contact?.name ?? "")
                       }
                       mine={isSelf}
-                      isPinned={message.isPinned}
+                      isPinned={isPinned}
                       attachments={message.attachments}
                     />
                   ) : message.replyId && message.replyContent ? (
@@ -354,7 +360,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                         )?.contact?.name ?? ""
                       }
                       mine={isSelf}
-                      isPinned={message.isPinned}
+                      isPinned={isPinned}
                       attachments={message.attachments}
                     />
                   ) : (
@@ -364,11 +370,11 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                       contact={
                         // pinnedBy: tên người ghim (dùng để hiển thị tooltip "pinned by ...")
                         (conversation?.members ?? []).find(
-                          (q) => q.contact?.id === message.pinnedBy,
+                          (q) => q.contact?.id === pinnedById,
                         )?.contact?.name ?? ""
                       }
                       mine={isSelf}
-                      isPinned={message.isPinned}
+                      isPinned={isPinned}
                       attachments={message.attachments}
                     />
                   )}
@@ -438,7 +444,7 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
             )}
 
             {/* Badge ghim: vị trí lệch theo bên trái/phải tùy là tin của mình hay người khác */}
-            {message.isPinned && !isRecalled && (
+            {isPinned && !isRecalled && (
               <div
                 className={`laptop:h-5.5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-light-blue-500 shadow-md
                   ${isSelf ? "-right-3" : "-left-[.8rem]"}`}
@@ -456,10 +462,10 @@ const MessageContent = forwardRef<HTMLDivElement, MessageContentProps>(
                 className={`laptop:h-5.5 laptop:rounded-md laptop-lg:h-6 laptop-lg:rounded-lg absolute -top-2 flex aspect-square items-center justify-center bg-gray-400 shadow-md
                   ${
                     isSelf
-                      ? message.isPinned
+                      ? isPinned
                         ? "right-[1.15rem]"
                         : "-right-3"
-                      : message.isPinned
+                      : isPinned
                         ? "left-[1.15rem]"
                         : "-left-[.8rem]"
                   }`}

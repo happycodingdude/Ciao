@@ -133,7 +133,8 @@ export type MessageModel = BaseModel & {
   type?: string;
   content?: string | null;
   contactId?: string;
-  isPinned?: boolean;
+  // Ghim tin đã tách khỏi message: trạng thái ghim inline lấy từ hook usePinMessage
+  // (query pinned/ids), không còn nhúng isPinned/pinnedBy trên từng message.
   isForwarded?: boolean;
   replyId?: string;
   replyContent?: string;
@@ -147,7 +148,6 @@ export type MessageModel = BaseModel & {
   sadCount?: number;
   angryCount?: number;
   currentReaction?: string | null;
-  pinnedBy?: string | null;
   // Tính năng 2: edit / recall
   editedTime?: string | null;
   recalledTime?: string | null;
@@ -196,8 +196,28 @@ export type MessageSearchResult = BaseModel & {
   contactId: string;
 };
 
-// Item trong panel "Tin đã ghim" — content server đã build thành chuỗi preview
-// theo loại tin (media/sticker/poll...), FE render trực tiếp không cần attachment.
-export type PinnedMessageModel = MessageSearchResult & {
+// Một mục trong panel "Tin đã ghim" — content server đã build thành chuỗi preview theo loại tin
+// (media/sticker/poll...), FE render trực tiếp; nội dung resolve LIVE lúc đọc (edit/recall mới nhất).
+export type PinnedMessageItem = {
+  id: string; // pinnedMessage id
+  messageId: string;
+  type: string;
+  content: string;
+  contactId: string; // người gửi tin (FE resolve tên/avatar từ members)
+  pinnedBy?: string | null; // người ghim (tooltip)
+  messageCreatedTime?: string | null;
+  pinnedTime: string;
+  isUnavailable: boolean; // tin gốc đã recall / không còn
+};
+
+// Response phân trang panel "Tin đã ghim" (đồng nhất với bookmark: hasMore + list).
+export type GetPinnedMessagesResponse = {
+  hasMore: boolean;
+  items: PinnedMessageItem[];
+};
+
+// messageId + người ghim của tin đã ghim trong hội thoại — FE hiển thị badge + tooltip inline.
+export type PinnedIdItem = {
+  messageId: string;
   pinnedBy?: string | null;
 };

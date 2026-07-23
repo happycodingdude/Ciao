@@ -5,8 +5,9 @@ public class Message : MongoBaseModel
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public string ContactId { get; set; } = null!;
-    public bool IsPinned { get; set; }
-    public string PinnedBy { get; set; } = null!;
+    // Ghim tin: đã tách sang collection PinnedMessage (top-level, per-conversation) thay vì cờ nhúng
+    // trên message. Doc Mongo cũ còn field IsPinned/PinnedBy → bị bỏ qua khi deserialize (không migration
+    // bắt buộc cho đọc; script migration nạp dữ liệu ghim cũ sang collection mới — xem tài liệu).
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }

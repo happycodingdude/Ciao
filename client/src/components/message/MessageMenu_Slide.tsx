@@ -44,7 +44,7 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
 
   const { data: conversations } = useConversation();
   const { data: info } = useInfo();
-  const { pin, pinning } = usePinMessage(conversationId);
+  const { isPinned, pin, pinning } = usePinMessage(conversationId);
   const { isBookmarked, toggle: toggleBookmark, saving } = useBookmark(conversationId);
   const { setReply } = useReply();
   const { setEdit } = useMessageEdit();
@@ -148,10 +148,10 @@ const MessageMenu_Slide = (props: MessageMenuProps) => {
         </MessageMenuItem>
       )}
       <MessageMenuItem
-        className={`${pinning ? "pointer-events-none" : ""} ${message.isPinned && !pinning ? "text-light-blue-500" : ""}`}
-        onClick={() => pin(message.id ?? "", message.isPinned ?? false)}
+        className={`${pinning ? "pointer-events-none" : ""} ${isPinned(message.id) && !pinning ? "text-light-blue-500" : ""}`}
+        onClick={() => pin(message.id ?? "", isPinned(message.id))}
         closeOnClick={false}
-        tooltip={message.isPinned ? "Unpin message" : "Pin message"}
+        tooltip={isPinned(message.id) ? "Unpin message" : "Pin message"}
       >
         {pinning ? <SyncOutlined spin /> : <PushpinOutlined rotate={316} />}
       </MessageMenuItem>

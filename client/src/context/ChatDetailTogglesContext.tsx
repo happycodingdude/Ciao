@@ -23,6 +23,11 @@ export type ChatDetailKind =
 // KHÔNG persist localStorage: mỗi lần mở panel từ đầu luôn default "image".
 export type AttachmentTabKind = "image" | "file" | "video" | "link";
 
+// Jump-to-message signal IN-MEMORY (không nhét vào URL) — Pin/Bookmark/Search click 1 tin thì
+// Chatbox nhảy tới + highlight mà KHÔNG làm bẩn address bar. Bind theo conversationId để target
+// không "rò" sang hội thoại khác khi user đổi hội thoại giữa lúc jump còn dở.
+export type JumpTarget = { conversationId: string; messageId: string };
+
 export type ChatDetailTogglesContextValue = {
   activeDetail: ChatDetailKind | null;
   setActiveDetail: (kind: ChatDetailKind | null) => void;
@@ -38,6 +43,12 @@ export type ChatDetailTogglesContextValue = {
   setAttachmentTab: (tab: AttachmentTabKind) => void;
   // "View all" của từng section Information: chọn tab rồi mở panel Attachment.
   openAttachment: (tab: AttachmentTabKind) => void;
+  // Jump-to-message in-memory: null = không có jump nào đang chờ.
+  jumpTarget: JumpTarget | null;
+  // Panel yêu cầu nhảy tới 1 tin của hội thoại hiện tại (không đổi URL).
+  requestJump: (conversationId: string, messageId: string) => void;
+  // Chatbox gọi khi jump kết thúc (nhảy xong / hết trang / không tồn tại) để mở lại khoá click.
+  clearJump: () => void;
 };
 
 export const ChatDetailTogglesContext = createContext<
@@ -89,6 +100,7 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
     initial,
   );
   const [attachmentTab, setAttachmentTab] = useState<AttachmentTabKind>("image");
+  const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
 
   // Persist: có panel active → ghi string; không → xóa key cho sạch.
   useEffect(() => {
@@ -105,6 +117,13 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
     setActiveDetail("attachment");
   }, []);
 
+  const requestJump = useCallback(
+    (conversationId: string, messageId: string) =>
+      setJumpTarget({ conversationId, messageId }),
+    [],
+  );
+  const clearJump = useCallback(() => setJumpTarget(null), []);
+
   const value = useMemo<ChatDetailTogglesContextValue>(
     () => ({
       activeDetail,
@@ -118,8 +137,19 @@ const ChatDetailTogglesProvider = ({ children }: { children: ReactNode }) => {
       attachmentTab,
       setAttachmentTab,
       openAttachment,
+      jumpTarget,
+      requestJump,
+      clearJump,
     }),
-    [activeDetail, toggleDetail, attachmentTab, openAttachment],
+    [
+      activeDetail,
+      toggleDetail,
+      attachmentTab,
+      openAttachment,
+      jumpTarget,
+      requestJump,
+      clearJump,
+    ],
   );
 
   return (

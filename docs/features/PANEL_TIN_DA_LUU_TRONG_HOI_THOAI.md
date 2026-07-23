@@ -1,5 +1,7 @@
 # Panel "Tin nhắn đã lưu" trong hội thoại
 
+> **Cập nhật 2026-07-23:** nhảy tới tin gốc khi bấm một mục **không làm thay đổi địa chỉ trang (URL)** — user đã nghiệm thu.
+
 ## Mục đích
 
 Cho phép người dùng xem lại danh sách tin nhắn đã lưu (bookmark) ngay trong khung chat của một hội thoại, tìm kiếm trong danh sách đó và nhảy nhanh đến tin nhắn gốc — tương tự trải nghiệm tìm kiếm tin nhắn hiện có.
@@ -53,6 +55,7 @@ Danh sách tin đã lưu chỉ được tải khi panel thực sự cần hiển
 ### Nhảy đến tin nhắn
 
 - Bấm vào một mục: khung chat cuộn đến đúng tin nhắn đó và làm nổi bật, kể cả khi tin nằm ở trang cũ chưa tải (cùng cơ chế với tìm kiếm tin nhắn).
+- Thao tác nhảy **không làm thay đổi địa chỉ trang (URL)**.
 - Panel vẫn mở sau khi bấm, để tiếp tục chọn mục khác.
 - **Trong lúc đang nhảy tới tin** (tin cũ phải tải thêm nhiều trang): mọi click tiếp theo vào các mục trong danh sách bị bỏ qua cho tới khi thao tác nhảy hoàn tất — con trỏ chuyển dạng chờ. Quy tắc áp dụng chung cho cả 3 danh sách: Tìm kiếm / Tin đã ghim / Tin đã lưu.
 

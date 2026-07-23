@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { willResetPanelOnConversation } from "../../context/ChatDetailTogglesContext";
@@ -8,46 +7,53 @@ import { useServerSearchFallback } from "../../hooks/useServerSearchFallback";
 import { Route } from "../../routes/_layout.conversations.$conversationId";
 import { getConversationBookmarks } from "../../services/bookmark.service";
 import { BookmarkItemModel } from "../../types/bookmark.types";
-import {
-  formatMessageTime,
-  renderContent,
-} from "../../utils/searchHighlight";
+import { formatMessageTime, renderContent } from "../../utils/searchHighlight";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import ModalSearchInput from "../common/ModalSearchInput";
 
-// Panel "Tin nhắn đã lưu" của hội thoại — UI đồng bộ với InformationSearch.
+// Số tin lưu tải mỗi trang (load-more).
+const PAGE_LIMIT = 20;
+
+// Panel "Tin nhắn đã lưu" của hội thoại — UI đồng bộ với InformationPin (luồng thống nhất).
 // Luồng dữ liệu:
-// 1. Mở panel → load toàn bộ tin đã lưu của hội thoại (không keyword).
-// 2. Gõ keyword → filter client-side trong list đã load; nếu không match →
-//    gọi API search theo keyword (debounce) để tìm phía server.
-// 3. Clear ô search → hiển thị lại list đã load ở bước 1.
+// 1. Mở panel → load trang đầu tin đã lưu (phân trang), cuộn tới cuối tự load trang kế (load-more).
+// 2. Gõ keyword → filter client-side trong list đã load; không match → API search theo keyword.
+// 3. Click 1 tin → nhảy tới tin trong khung chat (jump target in-memory, KHÔNG đổi URL, giữ panel mở).
 const InformationBookmark = () => {
   const { conversationId } = Route.useParams();
-  // Đang có jump-to-message chạy dở (?messageId chưa clear) → khoá click item mới.
-  const { messageId: pendingJumpId } = Route.useSearch();
-  const { showBookmark } = useChatDetailToggles();
-  const navigate = useNavigate();
+  const { showBookmark, jumpTarget, requestJump } = useChatDetailToggles();
+  // Đang có jump-to-message chạy dở (Chatbox chưa clearJump) → khoá click item mới.
+  const pendingJumpId = jumpTarget?.messageId;
 
   const [keyword, setKeyword] = useState("");
   const refInput = useRef<HTMLInputElement>(null);
 
-  // Load danh sách qua react-query thay vì fetch thủ công trong effect:
-  // - StrictMode (dev) mount effect 2 lần → fetch thủ công bắn 2 request; react-query
-  //   dedupe request đang in-flight nên mạng chỉ có 1 call.
-  // - enabled gate 2 điều kiện: panel đang mở, và KHÔNG trong khoảnh khắc vừa đổi
-  //   conversation (ChatboxContainer sắp reset panel về Information — fetch lúc đó là thừa).
-  // - staleTime mặc định 0 → mỗi lần enabled flip false→true (user mở panel) đều refetch
-  //   cho dữ liệu mới; khi có cache cũ thì hiển thị ngay rồi refresh ngầm.
+  // Infinite query: dedupe StrictMode, refetch mỗi lần mở lại panel (staleTime 0),
+  // thao tác lưu/bỏ lưu chỉ cần invalidate key này để list tự cập nhật.
   const enabled = showBookmark && !willResetPanelOnConversation(conversationId);
-  const { data: items = [], isLoading: loading } = useQuery({
+  const {
+    data,
+    isLoading: loading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["conversationBookmarks", conversationId],
-    queryFn: () => getConversationBookmarks(conversationId),
+    queryFn: ({ pageParam }) =>
+      getConversationBookmarks(conversationId, pageParam, PAGE_LIMIT),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage?.hasMore ? allPages.length + 1 : undefined,
     enabled,
   });
 
+  const items = useMemo(
+    () => data?.pages.flatMap((p) => p.bookmarks) ?? [],
+    [data],
+  );
+
   // Component always-mounted (sibling trong ChatboxContainer). Mỗi lần MỞ panel:
-  // reset keyword + auto-focus (preventScroll: tránh xê dịch layout khi sidebar
-  // đang transition width — cùng lý do với InformationSearch).
+  // reset keyword + auto-focus (preventScroll: tránh xê dịch layout khi sidebar transition width).
   useEffect(() => {
     if (!showBookmark || willResetPanelOnConversation(conversationId)) return;
     setKeyword("");
@@ -64,27 +70,41 @@ const InformationBookmark = () => {
     return items.filter((m) => m.content?.toLowerCase().includes(kw));
   }, [items, trimmedKeyword]);
 
-  // Local không match → fallback API search theo keyword (debounce + stale guard) —
-  // cùng logic với InformationPin qua hook dùng chung.
+  // Local không match → fallback API search theo keyword (debounce + stale guard).
   const { needServerSearch, serverResults, searching } =
     useServerSearchFallback(trimmedKeyword, localMatches.length, (kw) =>
-      getConversationBookmarks(conversationId, kw),
+      getConversationBookmarks(conversationId, 1, PAGE_LIMIT, kw).then(
+        (r) => r.bookmarks,
+      ),
     );
 
   const displayed = needServerSearch ? serverResults : localMatches;
   const busy = loading || (needServerSearch && searching);
 
-  // Click 1 tin đã lưu → set ?messageId, Chatbox tự kéo trang cũ tới khi tin xuất hiện
-  // rồi scroll + highlight (cùng cơ chế với search tin nhắn). Giữ panel mở.
-  // Đang có jump chạy dở → bỏ qua click (data lớn kéo trang lâu, click dồn gây loạn).
+  // Load-more: quan sát sentinel cuối list trong chính container cuộn (chỉ chế độ browse).
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (needServerSearch) return;
+    const el = sentinelRef.current;
+    const root = scrollRef.current;
+    if (!el || !root) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage)
+          fetchNextPage();
+      },
+      { root, rootMargin: "160px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [needServerSearch, hasNextPage, isFetchingNextPage, fetchNextPage, displayed.length]);
+
+  // Click 1 tin đã lưu → set jump target in-memory (không đổi URL); Chatbox tự kéo trang cũ tới
+  // khi tin xuất hiện rồi scroll + highlight. Tin unavailable / đang jump dở → bỏ qua.
   const handleItemClick = (m: BookmarkItemModel) => {
     if (!m.messageId || m.isUnavailable || pendingJumpId) return;
-    navigate({
-      to: "/conversations/$conversationId",
-      params: { conversationId },
-      search: { messageId: m.messageId },
-      replace: true,
-    });
+    requestJump(conversationId, m.messageId);
   };
 
   return (
@@ -106,7 +126,10 @@ const InformationBookmark = () => {
       </div>
 
       {/* Danh sách tin đã lưu (mới lưu trước) */}
-      <div className="hide-scrollbar flex grow flex-col overflow-y-auto">
+      <div
+        ref={scrollRef}
+        className="hide-scrollbar flex grow flex-col overflow-y-auto"
+      >
         {busy && (
           <p className="text-(--text-main-color-blur) p-4 text-center">
             {loading ? "Loading..." : "Searching..."}
@@ -155,6 +178,16 @@ const InformationBookmark = () => {
               </div>
             </div>
           ))}
+
+        {/* Sentinel load-more + chỉ báo đang tải trang kế (chỉ chế độ browse). */}
+        {!busy && !needServerSearch && (
+          <div ref={sentinelRef} className="h-px w-full shrink-0" />
+        )}
+        {isFetchingNextPage && (
+          <p className="text-(--text-main-color-blur) p-3 text-center">
+            Loading more...
+          </p>
+        )}
       </div>
     </div>
   );

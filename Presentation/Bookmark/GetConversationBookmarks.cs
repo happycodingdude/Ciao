@@ -1,16 +1,17 @@
 namespace Presentation.Bookmarks;
 
 /// <summary>
-/// Danh sách "Tin nhắn đã lưu" của user TRONG một hội thoại (panel Bookmark ở khung chat).
-/// Nội dung tin resolve LIVE từ message cache → phản ánh edit/recall mới nhất.
-/// keyword (optional): lọc theo nội dung tin (case-insensitive) — dùng khi FE không tìm thấy
-/// trong danh sách đã tải sẵn; tin unavailable bị loại khi có keyword vì không còn nội dung để khớp.
+/// Panel "Tin nhắn đã lưu" của user TRONG một hội thoại — phân trang (mới lưu trước).
+/// Nội dung resolve LIVE từ message cache → phản ánh edit/recall mới nhất; tin recall/mất → IsUnavailable.
+/// - keyword rỗng: phân trang theo page/limit (dùng cho load-more).
+/// - keyword có: chế độ search — resolve toàn bộ, lọc theo nội dung (FE fallback khi filter
+///   client-side không match), trả toàn bộ match (HasMore=false); tin unavailable bị loại.
 /// </summary>
 public static class GetConversationBookmarks
 {
-    public record Request(string conversationId, string? keyword) : IRequest<List<BookmarkItemResponse>>;
+    public record Request(string conversationId, int page, int limit, string? keyword) : IRequest<GetBookmarksResponse>;
 
-    internal sealed class Handler : IRequestHandler<Request, List<BookmarkItemResponse>>
+    internal sealed class Handler : IRequestHandler<Request, GetBookmarksResponse>
     {
         readonly IContactRepository _contactRepository;
         readonly IBookmarkRepository _bookmarkRepository;
@@ -27,16 +28,37 @@ public static class GetConversationBookmarks
             _conversationCache = conversationCache;
         }
 
-        public async Task<List<BookmarkItemResponse>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<GetBookmarksResponse> Handle(Request request, CancellationToken cancellationToken)
         {
             var userId = _contactRepository.GetUserId();
             var filter = Builders<Bookmark>.Filter.And(
                 Builders<Bookmark>.Filter.Eq(q => q.ContactId, userId),
                 Builders<Bookmark>.Filter.Eq(q => q.ConversationId, request.conversationId));
-            var bookmarks = (await _bookmarkRepository.GetAllAsync(filter))
-                .OrderByDescending(q => q.CreatedTime)
-                .ToList();
-            if (!bookmarks.Any()) return new List<BookmarkItemResponse>();
+
+            var keyword = request.keyword?.Trim();
+            var searchMode = !string.IsNullOrEmpty(keyword);
+
+            // Search mode: nạp toàn bộ để lọc theo nội dung. Browse mode: phân trang + lấy dư 1
+            // bản ghi để tính HasMore không cần count riêng.
+            var paging = new PagingParam(request.page, request.limit);
+            List<Bookmark> bookmarks;
+            bool hasMore = false;
+            if (searchMode)
+            {
+                bookmarks = (await _bookmarkRepository.GetAllAsync(filter))
+                    .OrderByDescending(q => q.CreatedTime)
+                    .ToList();
+            }
+            else
+            {
+                bookmarks = (await _bookmarkRepository.GetPagedAsync(filter,
+                    new PagingParam(request.page, request.limit + 1))).ToList();
+                hasMore = bookmarks.Count > paging.Limit;
+                if (hasMore) bookmarks = bookmarks.Take(paging.Limit).ToList();
+            }
+
+            var result = new GetBookmarksResponse { HasMore = hasMore };
+            if (bookmarks.Count == 0) return result;
 
             var conversationInfo = await _conversationCache.GetConversationInfo(request.conversationId);
             var members = await _memberCache.GetMembers(request.conversationId);
@@ -47,8 +69,6 @@ public static class GetConversationBookmarks
             if (string.IsNullOrEmpty(title) && conversationInfo is { IsGroup: false } && members is not null)
                 title = members.FirstOrDefault(q => q.Contact.Id != userId)?.Contact.Name;
 
-            var result = new List<BookmarkItemResponse>();
-            var keyword = request.keyword?.Trim();
             foreach (var bookmark in bookmarks)
             {
                 var message = messages?.SingleOrDefault(q => q.Id == bookmark.MessageId);
@@ -56,11 +76,11 @@ public static class GetConversationBookmarks
                 var isUnavailable = message is null || message.RecalledTime is not null;
                 var content = isUnavailable ? string.Empty : message!.Content;
 
-                if (!string.IsNullOrEmpty(keyword)
-                    && (isUnavailable || !content.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                if (searchMode
+                    && (isUnavailable || !content.Contains(keyword!, StringComparison.OrdinalIgnoreCase)))
                     continue;
 
-                result.Add(new BookmarkItemResponse
+                result.Bookmarks.Add(new BookmarkItemResponse
                 {
                     Id = bookmark.Id,
                     ConversationId = bookmark.ConversationId,
@@ -86,11 +106,11 @@ public class GetConversationBookmarksEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // GET /api/v1/conversations/{conversationId}/bookmarks/messages?keyword=...
+        // GET /api/v1/conversations/{conversationId}/bookmarks/messages?page=&limit=&keyword=
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/bookmarks/messages",
-        async (ISender sender, string conversationId, string? keyword = null) =>
+        async (ISender sender, string conversationId, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit, string? keyword = null) =>
         {
-            var result = await sender.Send(new GetConversationBookmarks.Request(conversationId, keyword));
+            var result = await sender.Send(new GetConversationBookmarks.Request(conversationId, page, limit, keyword));
             return Results.Ok(result);
         }).RequireAuthorization();
     }

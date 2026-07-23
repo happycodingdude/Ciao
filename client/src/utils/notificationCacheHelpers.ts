@@ -262,7 +262,6 @@ export const updateMessageRecalled = (
       recalledByContactId,
       content: "",
       attachments: [],
-      isPinned: false,
     };
   });
 

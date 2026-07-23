@@ -1,10 +1,16 @@
 namespace Presentation.Conversations;
 
+/// <summary>
+/// Panel "Tin đã ghim" của hội thoại — phân trang (mới ghim trước). Nội dung resolve LIVE từ
+/// message cache (Redis) → phản ánh edit/recall mới nhất; tin recall/mất → IsUnavailable.
+/// Luồng đồng nhất với "Tin đã lưu" (Bookmark): đọc từ collection PinnedMessage rồi làm giàu nội dung.
+/// - keyword rỗng: phân trang theo page/limit (dùng cho load-more).
+/// - keyword có: chế độ search — resolve toàn bộ, lọc theo nội dung (FE fallback khi filter
+///   client-side không match), trả toàn bộ match (HasMore=false).
+/// </summary>
 public static class GetPinnedMessages
 {
-    // keyword optional: server lọc theo nội dung tin khi FE không match trong list đã tải sẵn
-    // (đồng bộ hành vi với GetConversationBookmarks).
-    public record Request(string id, string? keyword) : IRequest<List<PinnedMessageResult>>;
+    public record Request(string id, int page, int limit, string? keyword) : IRequest<GetPinnedMessagesResponse>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -20,36 +26,82 @@ public static class GetPinnedMessages
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Request, List<PinnedMessageResult>>
+    internal sealed class Handler : IRequestHandler<Request, GetPinnedMessagesResponse>
     {
         readonly IValidator<Request> _validator;
-        readonly IConversationRepository _conversationRepository;
+        readonly IPinnedMessageRepository _pinnedMessageRepository;
+        readonly MessageCache _messageCache;
 
-        public Handler(IValidator<Request> validator, IConversationRepository conversationRepository)
+        public Handler(IValidator<Request> validator, IPinnedMessageRepository pinnedMessageRepository, MessageCache messageCache)
         {
             _validator = validator;
-            _conversationRepository = conversationRepository;
+            _pinnedMessageRepository = pinnedMessageRepository;
+            _messageCache = messageCache;
         }
 
-        public async Task<List<PinnedMessageResult>> Handle(Request request, CancellationToken cancellationToken)
+        public async Task<GetPinnedMessagesResponse> Handle(Request request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var messages = await _conversationRepository.GetPinnedMessages(request.id, request.keyword, cancellationToken);
+            var filter = Builders<PinnedMessage>.Filter.Eq(q => q.ConversationId, request.id);
+            var keyword = request.keyword?.Trim();
+            var searchMode = !string.IsNullOrEmpty(keyword);
 
-            // Content build thành chuỗi preview theo loại tin (media/sticker/poll...) —
-            // cùng helper với lastMessage của danh sách hội thoại để nhất quán.
-            return messages.Select(m => new PinnedMessageResult
+            // Search mode: nạp toàn bộ để lọc theo nội dung (số tin ghim của 1 hội thoại nhỏ).
+            // Browse mode: phân trang, lấy dư 1 bản ghi để tính HasMore không cần count riêng.
+            var paging = new PagingParam(request.page, request.limit);
+            List<PinnedMessage> pins;
+            bool hasMore = false;
+            if (searchMode)
             {
-                Id = m.Id,
-                CreatedTime = m.CreatedTime,
-                Type = m.Type,
-                Content = AppConstants.BuildLastMessagePreview(m.Type, m.Content, m.Attachments.Select(a => a.MediaName)),
-                ContactId = m.ContactId,
-                PinnedBy = m.PinnedBy
-            }).ToList();
+                pins = (await _pinnedMessageRepository.GetAllAsync(filter))
+                    .OrderByDescending(q => q.CreatedTime)
+                    .ToList();
+            }
+            else
+            {
+                pins = (await _pinnedMessageRepository.GetPagedAsync(filter,
+                    new PagingParam(request.page, request.limit + 1))).ToList();
+                hasMore = pins.Count > paging.Limit;
+                if (hasMore) pins = pins.Take(paging.Limit).ToList();
+            }
+
+            var result = new GetPinnedMessagesResponse { HasMore = hasMore };
+            if (pins.Count == 0) return result;
+
+            // Resolve nội dung LIVE từ message cache (1 lần đọc cache cho cả hội thoại).
+            var messages = await _messageCache.GetMessages(request.id);
+
+            foreach (var pin in pins)
+            {
+                var message = messages?.SingleOrDefault(q => q.Id == pin.MessageId);
+                var isUnavailable = message is null || message.RecalledTime is not null;
+                var content = isUnavailable
+                    ? string.Empty
+                    : AppConstants.BuildLastMessagePreview(message!.Type, message.Content, message.Attachments.Select(a => a.MediaName));
+
+                // Search mode: bỏ tin unavailable (không còn nội dung để khớp) + lọc theo keyword.
+                if (searchMode
+                    && (isUnavailable || !content.Contains(keyword!, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                result.Items.Add(new PinnedMessageItem
+                {
+                    Id = pin.Id,
+                    MessageId = pin.MessageId,
+                    Type = message?.Type ?? string.Empty,
+                    Content = content,
+                    ContactId = message?.ContactId ?? string.Empty,
+                    PinnedBy = pin.PinnedBy,
+                    MessageCreatedTime = message?.CreatedTime,
+                    PinnedTime = pin.CreatedTime,
+                    IsUnavailable = isUnavailable
+                });
+            }
+
+            return result;
         }
     }
 }
@@ -58,12 +110,11 @@ public class GetPinnedMessagesEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // GET /api/v1/conversations/{id}/messages/pinned?keyword=...
+        // GET /api/v1/conversations/{id}/messages/pinned?page=&limit=&keyword=
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}/messages/pinned",
-        async (ISender sender, string id, string? keyword = null) =>
+        async (ISender sender, string id, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit, string? keyword = null) =>
         {
-            var query = new GetPinnedMessages.Request(id, keyword);
-            var result = await sender.Send(query);
+            var result = await sender.Send(new GetPinnedMessages.Request(id, page, limit, keyword));
             return Results.Ok(result);
         }).RequireAuthorization();
     }

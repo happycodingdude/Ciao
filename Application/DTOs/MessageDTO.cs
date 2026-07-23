@@ -54,8 +54,8 @@ public class MessageReactionSummary : MongoBaseModel
     public string Type { get; set; } = null!;
     public string Content { get; set; } = null!;
     public string ContactId { get; set; } = null!;
-    public bool IsPinned { get; set; }
-    public string PinnedBy { get; set; } = null!;
+    // Pin đã tách sang collection PinnedMessage (dùng chung, per-conversation) — không còn nhúng
+    // trên message. FE lấy trạng thái ghim của tin qua endpoint pinned/ids riêng.
     public bool IsForwarded { get; set; }
     public string? ReplyId { get; set; }
     public string? ReplyContent { get; set; }
@@ -100,10 +100,34 @@ public class MessageSearchResult : MongoBaseModel
     public string ContactId { get; set; } = null!;
 }
 
-// Kết quả liệt kê tin đã ghim của hội thoại. Content đã được build thành chuỗi preview
-// theo loại tin (BuildLastMessagePreview) để FE render trực tiếp, không cần biết attachment.
-public class PinnedMessageResult : MessageSearchResult
+// Một mục trong panel "Tin đã ghim" của hội thoại. Nội dung resolve LIVE từ message cache lúc đọc
+// (không snapshot) để phản ánh edit/recall mới nhất; Content đã build thành chuỗi preview theo loại
+// tin (BuildLastMessagePreview) để FE render trực tiếp. Đồng nhất với BookmarkItemResponse.
+public class PinnedMessageItem
 {
+    public string Id { get; set; } = null!;              // pinnedMessage id
+    public string MessageId { get; set; } = null!;
+    public string Type { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public string ContactId { get; set; } = null!;       // người gửi tin (FE resolve tên/avatar)
+    public string? PinnedBy { get; set; }                // người ghim (tooltip)
+    public DateTime? MessageCreatedTime { get; set; }
+    public DateTime PinnedTime { get; set; }
+    public bool IsUnavailable { get; set; }              // tin gốc đã recall hoặc không còn trong cache
+}
+
+// Response phân trang panel "Tin đã ghim" — cùng shape với GetBookmarksResponse (HasMore + list).
+public class GetPinnedMessagesResponse
+{
+    public bool HasMore { get; set; }
+    public List<PinnedMessageItem> Items { get; set; } = new();
+}
+
+// messageId + người ghim của các tin đã ghim trong 1 hội thoại — FE dùng để hiển thị badge
+// "đã ghim" + tooltip trên từng tin mà không cần tải toàn bộ danh sách. Đối xứng bookmark ids.
+public class PinnedIdItem
+{
+    public string MessageId { get; set; } = null!;
     public string? PinnedBy { get; set; }
 }
 

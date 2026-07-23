@@ -1,5 +1,12 @@
 namespace Presentation.Messages;
 
+/// <summary>
+/// Ghim / bỏ ghim tin nhắn (DÙNG CHUNG cho hội thoại — mọi thành viên thấy). Idempotent:
+/// - pinned=true khi đã ghim → giữ nguyên (không tạo trùng).
+/// - pinned=false khi chưa ghim → no-op.
+/// Lưu ở collection PinnedMessage (top-level, per-conversation) thay vì cờ nhúng trên message.
+/// Fanout realtime để mọi thành viên khác cập nhật trạng thái ghim của tin (badge + panel).
+/// </summary>
 public static class PinMessage
 {
     public record Request(string conversationId, string id, bool pinned) : IRequest<Unit>;
@@ -22,38 +29,48 @@ public static class PinMessage
         readonly IValidator<Request> _validator;
         readonly IFirebaseFunction _firebaseFunction;
         readonly IContactRepository _contactRepository;
-        readonly IConversationRepository _conversationRepository;
-        readonly MessageCache _messageCache;
+        readonly IPinnedMessageRepository _pinnedMessageRepository;
         readonly MemberCache _memberCache;
 
-        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IConversationRepository conversationRepository, MessageCache messageCache, IFirebaseFunction firebaseFunction, MemberCache memberCache)
+        public Handler(IValidator<Request> validator, IContactRepository contactRepository, IPinnedMessageRepository pinnedMessageRepository, IFirebaseFunction firebaseFunction, MemberCache memberCache)
         {
             _validator = validator;
             _contactRepository = contactRepository;
-            _conversationRepository = conversationRepository;
-            _messageCache = messageCache;
+            _pinnedMessageRepository = pinnedMessageRepository;
             _firebaseFunction = firebaseFunction;
             _memberCache = memberCache;
         }
 
         public async Task<Unit> Handle(Request request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request);
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
             var userId = _contactRepository.GetUserId();
+            var filter = Builders<PinnedMessage>.Filter.And(
+                Builders<PinnedMessage>.Filter.Eq(q => q.ConversationId, request.conversationId),
+                Builders<PinnedMessage>.Filter.Eq(q => q.MessageId, request.id));
 
-            var filter = Builders<Conversation>.Filter.Eq(c => c.Id, request.conversationId);
-            var updates = Builders<Conversation>.Update
-                .Set("Messages.$[elem].IsPinned", request.pinned)
-                .Set("Messages.$[elem].PinnedBy", userId);
-            var arrayFilter = new BsonDocumentArrayFilterDefinition<Conversation>(
-                new BsonDocument("elem._id", request.id));
-            _conversationRepository.UpdateNoTrackingTime(filter, updates, arrayFilter);
+            if (request.pinned)
+            {
+                var existing = await _pinnedMessageRepository.GetItemAsync(filter);
+                if (existing is null)
+                {
+                    _pinnedMessageRepository.Add(new PinnedMessage
+                    {
+                        ConversationId = request.conversationId,
+                        MessageId = request.id,
+                        PinnedBy = userId
+                    });
+                }
+            }
+            else
+            {
+                _pinnedMessageRepository.DeleteOne(filter);
+            }
 
-            await _messageCache.UpdatePin(request.conversationId, request.id, userId, request.pinned);
-
+            // Fanout realtime cho các thành viên khác → FE cập nhật cache pinned ids + panel.
             var members = await _memberCache.GetMembers(request.conversationId);
             await _firebaseFunction.Notify(
                 ChatEventNames.NewMessagePinned,
