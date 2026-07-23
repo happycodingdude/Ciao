@@ -1,6 +1,6 @@
 # Kế hoạch — Rời nhóm (Leave Group) · Phase 5 (bổ sung 2026-07-12)
 
-> **Trạng thái:** 🟡 ĐÃ CODE đủ 3 đợt 2b-1 → 2b-3 (2026-07-12), chờ nghiệm thu — checklist ở [`ROI_NHOM.md`](./ROI_NHOM.md) · **Thuộc:** [`KE_HOACH_PHASE_5_NHOM_CONG_DONG.md`](./KE_HOACH_PHASE_5_NHOM_CONG_DONG.md) (Đợt 2b)
+> **Trạng thái:** ✅ ĐÃ NGHIỆM THU trên app thật 2026-07-23 — đủ 3 đợt 2b-1 → 2b-3 (code 2026-07-12), checklist ở [`ROI_NHOM.md`](./ROI_NHOM.md) · **Thuộc:** [`KE_HOACH_PHASE_5_NHOM_CONG_DONG.md`](./KE_HOACH_PHASE_5_NHOM_CONG_DONG.md) (Đợt 2b)
 > Lối vào đã có sẵn: nút "rời nhóm" trong panel thông tin hội thoại (hiện chưa gắn hành động).
 
 ---

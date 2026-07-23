@@ -1,6 +1,6 @@
 # Link mời & QR + Yêu cầu tham gia (Phase 5 — Đợt 2)
 
-> **Trạng thái:** ✅ ĐÃ NGHIỆM THU trên app thật 2026-07-17 (đủ checklist mục 1, gồm cả modal hoá preview case 16; các fix liên quan: [`FIX_REJOIN_LINK_TIN_NHAN.md`](./FIX_REJOIN_LINK_TIN_NHAN.md))
+> **Trạng thái:** ✅ ĐÃ NGHIỆM THU trên app thật — luồng lõi 2026-07-17 (đủ checklist mục 1, gồm cả modal hoá preview case 16); **cải tiến giao diện link mời (case 17) nghiệm thu bổ sung 2026-07-23**. Các fix liên quan: [`FIX_REJOIN_LINK_TIN_NHAN.md`](./FIX_REJOIN_LINK_TIN_NHAN.md)
 > **Nguồn kế hoạch:** [`KE_HOACH_PHASE_5_NHOM_CONG_DONG.md`](./KE_HOACH_PHASE_5_NHOM_CONG_DONG.md)
 
 ---
@@ -25,6 +25,7 @@
 | 14 | Thành viên đã ở nhóm mở link | "You are already a member" + nút Open chat |
 | 15 | Người RỜI nhóm mở link vào lại **rồi rời lại lần nữa** | Mỗi bước đều chạy đúng: vào lại mở lại member cũ (không tạo bản trùng ở cả dữ liệu gốc lẫn cache); card nhóm chỉ xuất hiện **một lần** trong danh sách hội thoại (không bị đúp); rời lại thành công, KHÔNG lỗi 500 |
 | 16 | Mở link mời (mọi trạng thái: Join/Request/member/invalid) — cập nhật 2026-07-17 | Card mời hiện dạng **modal nổi** đè lên app (URL thành `/conversations?invite={code}`), trang bên dưới vẫn thấy (backdrop mờ như các modal khác, KHÔNG phải trang trắng); đóng bằng Esc / bấm backdrop / nút trong card → về đúng trang, param `invite` biến mất; reload khi modal đang mở → modal mở lại |
+| 17 | Quản trị **thu gọn** section Invite link (nhóm đã có link) — cải tiến 2026-07-22 | Thay cho khoảng trắng, hiện **dòng tóm tắt gọn**: link + chỉ báo hạn dùng (thời gian còn lại "2d 5h" / "No expiry" / "Expired") + nút copy; bấm dòng để mở rộng lại, bấm copy chỉ sao chép (không mở rộng). Khi mở rộng, hạn dùng hiển thị dạng **nhãn trạng thái** rõ ràng: còn hạn kèm ngày–giờ cố định `dd/MM/yyyy HH:mm`, vĩnh viễn, hoặc đã hết hạn |
 
 Điểm chú ý khi verify: Console không có error liên quan; Network không có request lỗi (ngoài 400 chủ đích khi mở link invalid).
 
@@ -106,6 +107,19 @@ Hai lỗi cùng gốc "vào lại nhóm bằng link thêm bản trùng vào cach
 - **Hạn chế chấp nhận:** nếu thiết bị bỏ lỡ sự kiện realtime (rất hiếm khi đang thao tác trực
   tiếp), thẻ tạm vẫn hiển thị và dùng được; dữ liệu thành viên đầy đủ sẽ về theo lần tải tự
   nhiên sau.
+
+### Cải tiến giao diện link mời (2026-07-22, nghiệm thu 2026-07-23)
+
+Thuần hiển thị cho quản trị, **không đổi hành vi** tạo/thu hồi/tham gia:
+
+- **Khi thu gọn** section Invite link (nhóm đã có link): thay cho khoảng trắng, hiện một **dòng
+  tóm tắt** gồm link, chỉ báo hạn dùng và nút sao chép nhanh — quản trị nắm được trạng thái link
+  mà không cần mở rộng. Bấm vào dòng để mở rộng lại; bấm nút sao chép chỉ sao chép link (không mở
+  rộng section).
+- **Chỉ báo hạn dùng** rõ theo ba trạng thái: còn hạn (kèm **thời gian còn lại** rút gọn ở dòng
+  tóm tắt, ví dụ "2d 5h"/"45m"; và ngày–giờ hết hạn đầy đủ khi mở rộng), vĩnh viễn, hoặc đã hết
+  hạn. Thời điểm hết hạn hiển thị theo **định dạng cố định `dd/MM/yyyy HH:mm`**, không phụ thuộc
+  thiết lập vùng của trình duyệt để mọi quản trị thấy giống nhau.
 
 ## 6. Hạn chế hiện tại
 

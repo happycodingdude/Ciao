@@ -1,6 +1,6 @@
 # Rời nhóm (Leave Group) — Phase 5 · Đợt 2b
 
-> **Trạng thái:** 🟡 Đã code (2026-07-12), chờ nghiệm thu trên app thật
+> **Trạng thái:** ✅ ĐÃ NGHIỆM THU trên app thật 2026-07-23 (đủ checklist mục 1)
 > **Kế hoạch gốc:** [`KE_HOACH_ROI_NHOM.md`](./KE_HOACH_ROI_NHOM.md)
 
 ---

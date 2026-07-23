@@ -109,12 +109,12 @@
 | --: | ------------------- | --------------------- | :--------: | ---------- |
 |   1 | Thông báo nhóm      | Group Announcement    | ⭐⭐⭐⭐⭐ | ⬜ Chưa làm |
 |   2 | Sự kiện             | Event & RSVP          | ⭐⭐⭐⭐☆  | ⬜ Chưa làm |
-|   3 | Link mời            | Invite Link & QR Code | ⭐⭐⭐⭐☆  | ✅ Hoàn thành — nghiệm thu 2026-07-17 (gồm đợt fix + modal hoá preview) — [`LINK_MOI_VA_YEU_CAU_THAM_GIA.md`](./LINK_MOI_VA_YEU_CAU_THAM_GIA.md) |
+|   3 | Link mời            | Invite Link & QR Code | ⭐⭐⭐⭐☆  | ✅ Hoàn thành — nghiệm thu 2026-07-17 (gồm đợt fix + modal hoá preview); cải tiến giao diện link mời nghiệm thu bổ sung 2026-07-23 — [`LINK_MOI_VA_YEU_CAU_THAM_GIA.md`](./LINK_MOI_VA_YEU_CAU_THAM_GIA.md) |
 |   4 | Yêu cầu tham gia    | Join Request          | ⭐⭐⭐⭐☆  | ✅ Hoàn thành — nghiệm thu 2026-07-17 — [`LINK_MOI_VA_YEU_CAU_THAM_GIA.md`](./LINK_MOI_VA_YEU_CAU_THAM_GIA.md) |
 |   5 | Phân quyền quản trị | Admin Permission      |  ⭐⭐⭐☆☆  | ⏸️ Dời lại, chưa làm ở Phase 5 (2026-07-12, theo yêu cầu) — hiện có một phần: vai trò moderator/Admin + recall theo quyền; chưa có UI bổ nhiệm/thu hồi |
 |   6 | Bình chọn ẩn danh   | Anonymous Poll        |  ⭐⭐⭐☆☆  | ⬜ Chưa làm |
 |   7 | Thread              | Thảo luận theo nhánh  |  ⭐⭐☆☆☆   | ⬜ Chưa làm |
-|   8 | Rời nhóm            | Leave Group           | ⭐⭐⭐⭐☆  | 🟡 Đã code (2026-07-12), chờ nghiệm thu — [`ROI_NHOM.md`](./ROI_NHOM.md) |
+|   8 | Rời nhóm            | Leave Group           | ⭐⭐⭐⭐☆  | ✅ Hoàn thành — nghiệm thu 2026-07-23 — [`ROI_NHOM.md`](./ROI_NHOM.md) |
 
 > 📄 **Kế hoạch triển khai các tính năng chưa xong:** [`KE_HOACH_PHASE_5_NHOM_CONG_DONG.md`](./KE_HOACH_PHASE_5_NHOM_CONG_DONG.md)
 
