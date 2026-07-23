@@ -40,6 +40,6 @@ public class ConversationLinkItem
 
 public class GetConversationLinksResponse
 {
-    public bool HasMore { get; set; }
+    // KHÔNG phân trang: luôn trả tất cả link của hội thoại (xem GetConversationLinks).
     public List<ConversationLinkItem> Links { get; set; } = new();
 }

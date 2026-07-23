@@ -30,8 +30,6 @@ const EMPTY_TEXT: Record<AttachmentTabKind, string> = {
   link: "Links will appear here",
 };
 
-const LINKS_PAGE_SIZE = 20;
-
 const Attachment = () => {
   // Tab state nằm ở context để Information preselect được tab qua "View all"
   // (component này luôn mounted, ẩn bằng z-index — xem ChatDetailTogglesContext).
@@ -39,7 +37,13 @@ const Attachment = () => {
     useChatDetailToggles();
 
   const { conversationId } = Route.useParams();
-  const { data: attachmentCache } = useAttachment(conversationId);
+  // Chỉ fetch khi panel "View all" đang mở (và không trong lúc vừa đổi conversation — panel
+  // sắp reset về Information). Dùng chung query key với InformationAttachments nên nếu bên kia
+  // đã warm cache thì mở panel này là có ngay.
+  const { data: attachmentCache } = useAttachment(
+    conversationId,
+    showAttachment && !willResetPanelOnConversation(conversationId),
+  );
 
   // Đóng panel → reset về tab mặc định cho lần mở sau. Chỉ phụ thuộc showAttachment:
   // KHÔNG reset theo attachmentCache (refetch nền sẽ kéo user đang xem Videos/Links
@@ -63,23 +67,22 @@ const Attachment = () => {
       .filter((date) => date.attachments.length > 0);
   }, [attachmentCache?.attachments, attachmentTab]);
 
-  // Links: endpoint phân trang riêng, chỉ fetch khi panel mở đúng tab và không trong
-  // khoảnh khắc vừa đổi conversation (panel sắp bị reset về Information — fetch là thừa).
+  // Links: endpoint riêng (không phân trang, trả hết), chỉ fetch khi panel mở đúng tab và không
+  // trong khoảnh khắc vừa đổi conversation (panel sắp bị reset về Information — fetch là thừa).
+  // Dùng chung query key với InformationAttachments nên nếu preview đã warm cache thì mở panel
+  // này là có ngay.
   const linksEnabled =
     showAttachment &&
     attachmentTab === "link" &&
     !willResetPanelOnConversation(conversationId);
-  const {
-    data: linksData,
-    isLoading: linksLoading,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  } = useConversationLinks(conversationId, LINKS_PAGE_SIZE, linksEnabled);
+  const { data: linksData, isLoading: linksLoading } = useConversationLinks(
+    conversationId,
+    linksEnabled,
+  );
 
   // Nhóm links theo ngày, giữ thứ tự server trả (mới → cũ).
   const linkGroups = useMemo(() => {
-    const flat = linksData?.pages.flatMap((p) => p?.links ?? []) ?? [];
+    const flat = linksData?.links ?? [];
     const groups: { date: string; links: ConversationLinkItem[] }[] = [];
     for (const link of flat) {
       const date = dayjs(link.createdTime).format("DD/MM/YYYY");
@@ -147,16 +150,6 @@ const Attachment = () => {
               </div>
             </div>
           ))}
-          {hasNextPage && (
-            <div
-              className="text-light-blue-500 hover:text-light-blue-400 cursor-pointer text-center"
-              onClick={() => {
-                if (!isFetchingNextPage) fetchNextPage();
-              }}
-            >
-              {isFetchingNextPage ? "Loading..." : "Load more"}
-            </div>
-          )}
         </div>
       ) : (
         <div

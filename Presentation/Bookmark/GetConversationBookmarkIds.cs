@@ -35,7 +35,8 @@ public class GetConversationBookmarkIdsEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/bookmarks",
+        // GET /api/v1/conversations/{conversationId}/bookmarks/ids
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/bookmarks/ids",
         async (ISender sender, string conversationId) =>
         {
             var result = await sender.Send(new GetConversationBookmarkIds.Request(conversationId));

@@ -6,6 +6,7 @@ import {
 import useAttachment from "../../hooks/useAttachment";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
 import useConversationLinks from "../../hooks/useConversationLinks";
+import useInView from "../../hooks/useInView";
 import ImageWithLightBoxAndNoLazy from "../common/ImageWithLightBoxAndNoLazy";
 import { FileRow, LinkRow, VideoThumb } from "./MediaItems";
 import ShareImage from "./ShareImage";
@@ -46,7 +47,23 @@ const EmptyLine = ({ text }: { text: string }) => (
 
 const InformationAttachments = ({ conversationId }: Props) => {
   const { openAttachment, showInformation } = useChatDetailToggles();
-  const { data: attachmentCache, isLoading } = useAttachment(conversationId);
+  const active =
+    showInformation && !willResetPanelOnConversation(conversationId);
+
+  // Lazy-load THEO TỪNG endpoint. Khối media (Ảnh/Video/File) dùng CHUNG 1 endpoint /attachments,
+  // còn Links là endpoint /links RIÊNG → mỗi cái một mốc IntersectionObserver riêng:
+  //  - mediaRef ở đầu khối (header Images): media chỉ fetch khi khối media lọt vào panel.
+  //  - linksRef ở CHÍNH section Links (nằm cuối, thường tít dưới fold): links chỉ fetch khi cuộn
+  //    tới Links — trước đây links bị gán chung mốc với Images nên bị gọi sớm dù ở tận đáy.
+  // KHÔNG dùng early-return spinner: phải giữ 2 mốc luôn nằm trong DOM để observer không bám nhầm
+  // node cũ (bị detach khi remount) → mốc Links dưới fold mới kích đúng lúc cuộn tới.
+  const [mediaRef, mediaInView] = useInView<HTMLDivElement>(conversationId);
+  const [linksRef, linksInView] = useInView<HTMLDivElement>(conversationId);
+
+  const { data: attachmentCache, isLoading } = useAttachment(
+    conversationId,
+    active && mediaInView,
+  );
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Flatten 1 lần rồi partition theo type — không cần effect + setState.
@@ -61,32 +78,23 @@ const InformationAttachments = ({ conversationId }: Props) => {
     };
   }, [attachmentCache?.attachments]);
 
-  // Links preview: page 1 (limit=8) của endpoint riêng — queryKey khác limit nên
-  // không đụng cache panel Attachment (limit=20). Skip fetch khi panel Information
-  // đang đóng hoặc vừa đổi conversation (panel sắp bị reset).
-  const linksEnabled =
-    showInformation && !willResetPanelOnConversation(conversationId);
+  // Links preview: LẤY TẤT CẢ link của hội thoại (endpoint /links, không phân trang) rồi cắt tối
+  // đa MAX_PREVIEW ở client — đồng bộ cách Images/Videos/Files lấy từ getAttachments. Có mốc lazy
+  // RIÊNG (linksRef); dùng chung query key với panel "View all" nên warm cache lẫn nhau.
   const { data: linksData, isLoading: linksLoading } = useConversationLinks(
     conversationId,
-    MAX_PREVIEW,
-    linksEnabled,
+    active && linksInView,
   );
-  const links = linksData?.pages[0]?.links ?? [];
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center">
-        <div className="fa fa-spinner fa-spin my-8 text-xl"></div>
-      </div>
-    );
-  }
+  const links = (linksData?.links ?? []).slice(0, MAX_PREVIEW);
 
   return (
     <>
-      {/* Images */}
-      <div className="flex flex-col gap-2">
+      {/* Images — div này là mốc IntersectionObserver cho khối media (Ảnh/Video/File) */}
+      <div ref={mediaRef} className="flex flex-col gap-2">
         <SectionHeader title="Images" tab="image" onViewAll={openAttachment} />
-        {images.length > 0 ? (
+        {isLoading ? (
+          <EmptyLine text="Loading…" />
+        ) : images.length > 0 ? (
           <div className="display-attachment-container laptop:grid-cols-4 grid w-full gap-4">
             {images.map((item, index) => (
               <div className="relative" key={item.id ?? index}>
@@ -115,7 +123,9 @@ const InformationAttachments = ({ conversationId }: Props) => {
       {/* Videos */}
       <div className="flex flex-col gap-2">
         <SectionHeader title="Videos" tab="video" onViewAll={openAttachment} />
-        {videos.length > 0 ? (
+        {isLoading ? (
+          <EmptyLine text="Loading…" />
+        ) : videos.length > 0 ? (
           <div className="hide-scrollbar laptop:grid-cols-4 grid max-h-40 w-full gap-4 overflow-y-auto">
             {videos.map((item, index) => (
               <VideoThumb key={item.id ?? index} item={item} />
@@ -129,7 +139,9 @@ const InformationAttachments = ({ conversationId }: Props) => {
       {/* Files */}
       <div className="flex flex-col gap-2">
         <SectionHeader title="Files" tab="file" onViewAll={openAttachment} />
-        {files.length > 0 ? (
+        {isLoading ? (
+          <EmptyLine text="Loading…" />
+        ) : files.length > 0 ? (
           <div className="hide-scrollbar flex max-h-40 flex-col overflow-y-auto">
             {files.map((item, index) => (
               <FileRow key={item.id ?? index} item={item} />
@@ -140,8 +152,8 @@ const InformationAttachments = ({ conversationId }: Props) => {
         )}
       </div>
 
-      {/* Links */}
-      <div className="flex flex-col gap-2">
+      {/* Links — mốc IntersectionObserver RIÊNG (endpoint /links tách khỏi media) */}
+      <div ref={linksRef} className="flex flex-col gap-2">
         <SectionHeader title="Links" tab="link" onViewAll={openAttachment} />
         {linksLoading ? (
           <EmptyLine text="Loading..." />

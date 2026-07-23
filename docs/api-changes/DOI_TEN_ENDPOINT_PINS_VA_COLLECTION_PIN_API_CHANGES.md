@@ -1,5 +1,9 @@
 # Đổi tên endpoint `/pins` + collection `Pin`
 
+> ⚠️ **ĐÃ CẬP NHẬT (2026-07-23):** route trong doc này là trạng thái tại thời điểm đó. Từ 2026-07-23,
+> `/pins` là route **danh sách phân trang**, còn id inline chuyển sang `/pins/ids` (tương tự
+> `/bookmarks` + `/bookmarks/ids`). Xem `DOI_ENDPOINT_PINS_BOOKMARKS_VA_LAZY_LOAD_INFORMATION.md`.
+
 Chuẩn hóa cách đặt tên của tính năng Ghim (Pin) theo đúng convention của Bookmark:
 endpoint ngắn gọn ở cấp hội thoại + collection đặt tên theo danh từ đơn (`Bookmark` → `Pin`).
 

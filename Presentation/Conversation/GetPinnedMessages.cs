@@ -110,8 +110,8 @@ public class GetPinnedMessagesEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // GET /api/v1/conversations/{id}/messages/pinned?page=&limit=&keyword=
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("/{id}/messages/pinned",
+        // GET /api/v1/conversations/{id}/pins?page=&limit=&keyword=
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{id}/pins",
         async (ISender sender, string id, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit, string? keyword = null) =>
         {
             var result = await sender.Send(new GetPinnedMessages.Request(id, page, limit, keyword));

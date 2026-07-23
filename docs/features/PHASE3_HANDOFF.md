@@ -27,7 +27,7 @@ Tất cả endpoint dưới đây đã code xong, build sạch, theo pattern Pin
 | `PUT /conversations/{cid}/messages/{id}/bookmark?bookmarked=` | `Presentation/Bookmark/BookmarkMessage.cs` | idempotent |
 | `GET /bookmarks?page&limit` | `Presentation/Bookmark/GetBookmarks.cs` | resolve nội dung live, `IsUnavailable` khi recall |
 | `GET /conversations/{id}/bookmarks` | `Presentation/Bookmark/GetConversationBookmarkIds.cs` | list messageId đã lưu |
-| `GET /conversations/{id}/links?page&limit` | `Presentation/Conversation/GetConversationLinks.cs` | cho tab Liên kết (gom LinkPreviews, bỏ tin recall) |
+| `GET /conversations/{id}/links` | `Presentation/Conversation/GetConversationLinks.cs` | cho tab Liên kết (gom LinkPreviews, bỏ tin recall). ⚠️ Cập nhật 2026-07-23: **bỏ `page`/`limit`**, luôn trả toàn bộ (xem note cuối mục) |
 | `PUT /conversations/{cid}/members/{contactId}/nickname` | `Presentation/Member/UpdateNickname.cs` | body `{nickname}`; rỗng = xóa; fanout event `MemberNicknameChanged` |
 | `PUT /conversations/{id}/appearance` | `Presentation/Conversation/UpdateConversationAppearance.cs` | body `{wallpaper, bubbleColor}` (key preset, null = mặc định) |
 
@@ -82,6 +82,8 @@ Files đã đổi: `context/ChatDetailTogglesContext.tsx` (thêm `attachmentTab`
 - `limit` nằm trong queryKey nên cache preview (limit=8) và cache panel (limit=20) không đụng nhau.
 
 **Verify (MODE FRONTEND — ✅ đã nghiệm thu 2026-07-11):** build sạch; hội thoại đủ 4 loại media → 4 section đúng loại ≤8 item; từng View all mở đúng tab; đóng/mở lại từ header icon default Images; đang ở tab Videos/Links gửi attachment mới → tab KHÔNG nhảy về Images; đổi hội thoại khi panel mở → không request links thừa; Load more hoạt động; light/dark + width hẹp (4 nút fit); console/network sạch.
+
+> **⚠️ Cập nhật 2026-07-23 (✅ đã nghiệm thu) — mô tả Links ở trên đã LỖI THỜI:** endpoint `/links` **bỏ hẳn `page`/`limit`**, luôn trả toàn bộ; FE gộp còn **1 hook** `useConversationLinks(id, enabled)` (query đơn, key `["conversationLinks", id]` dùng chung cho preview + panel — không còn `limit` trong key, không còn `useInfiniteQuery`/`useConversationLinksAll`/"Load more"). Panel "View all" render hết trong scroll như Ảnh/Video/File. Chi tiết: [`../api-changes/DOI_ENDPOINT_PINS_BOOKMARKS_VA_LAZY_LOAD_INFORMATION.md`](../api-changes/DOI_ENDPOINT_PINS_BOOKMARKS_VA_LAZY_LOAD_INFORMATION.md) §2a-2 + [`MEDIA_TABS_REDESIGN.md`](./MEDIA_TABS_REDESIGN.md). Kèm bugfix warmup projection (thẻ link mất sau login lại) — [`PREVIEW_LINK_HANDOFF.md`](./PREVIEW_LINK_HANDOFF.md) §11.
 
 ### Đợt 2b — Biệt danh
 

@@ -161,7 +161,19 @@ public class ConversationRepository : MongoBaseRepository<Conversation>, IConver
                                 // Loại tin giàu nội dung: BẮT BUỘC giữ ở warmup re-login, nếu không
                                 // bình chọn (kèm phiếu) và thẻ danh bạ sẽ MẤT khỏi message cache.
                                 { "Poll", "$$message.Poll" },
-                                { "SharedContact", "$$message.SharedContact" }
+                                { "SharedContact", "$$message.SharedContact" },
+                                // CÙNG NHÓM "phải giữ ở warmup re-login" (projection này là whitelist —
+                                // field không liệt kê = MẤT khỏi cache sau login lại):
+                                //  - LinkPreview/LinkPreviews: thiếu → thẻ xem trước link biến mất (tab
+                                //    Liên kết rỗng, tin text mất card) dù đã persist Mongo.
+                                //  - EditedTime: thiếu → mất dấu "đã chỉnh sửa".
+                                //  - RecalledTime/RecalledByContactId: thiếu → tin thu hồi hiện bong bóng
+                                //    RỖNG (Content đã bị clear ở Mongo) thay vì placeholder "đã thu hồi".
+                                { "LinkPreview", "$$message.LinkPreview" },
+                                { "LinkPreviews", "$$message.LinkPreviews" },
+                                { "EditedTime", "$$message.EditedTime" },
+                                { "RecalledTime", "$$message.RecalledTime" },
+                                { "RecalledByContactId", "$$message.RecalledByContactId" }
                             }
                         }
                     })

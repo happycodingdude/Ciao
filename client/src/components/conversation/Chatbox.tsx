@@ -85,15 +85,15 @@ const Chatbox = () => {
   const { data: info } = useInfo();
 
   // Eager-fetch trạng thái ghim / đã lưu Ở CẤP HỘI THOẠI (KHÔNG phụ thuộc việc render tin nhắn).
-  // LÝ DO: 2 query này (["pinnedIds"|"bookmarkIds", conversationId]) trước đây CHỈ được mount gián
-  // tiếp qua MessageContent/MessageMenu_Slide — mà 2 component đó KHÔNG render cho tin hệ thống
-  // (tạo nhóm, vào/rời nhóm qua link...). Hội thoại mà toàn bộ tin đang hiển thị là tin hệ thống
-  // (nhóm mới, chỉ có join/leave), hoặc rỗng, hoặc tin thật đang bị ẩn sau divider "tin nhắn mới"
-  // → KHÔNG component nào mount hook → /pins và /bookmarks không được gọi cho những hội thoại đó.
-  // Mount tại Chatbox (luôn tồn tại khi mở hội thoại) đảm bảo fetch đúng 1 lần khi vào hội thoại;
-  // react-query dedupe theo queryKey nên hook ở tầng message chỉ đọc lại cache (không request thừa).
-  usePinMessage(conversationId);
-  useBookmark(conversationId);
+  // LÝ DO: 2 query này (["pinnedIds"|"bookmarkIds", conversationId]) nếu CHỈ mount gián tiếp qua
+  // MessageContent/MessageMenu_Slide sẽ không chạy cho hội thoại toàn tin hệ thống / rỗng / tin ẩn
+  // sau divider → /pins/ids, /bookmarks/ids không được gọi. Mount tại Chatbox (luôn tồn tại khi mở
+  // hội thoại) đảm bảo fetch đúng 1 lần.
+  //
+  // eager=true: đây là nơi DUY NHẤT được fetch. Observer ở tầng message dùng eager=false (mặc
+  // định) → chỉ đọc cache này, không tự bắn thêm request kể cả khi query lỗi/stale.
+  usePinMessage(conversationId, true);
+  useBookmark(conversationId, true);
 
   const { data, hasPreviousPage, isFetchingPreviousPage, fetchPreviousPage } =
     useMessage(conversationId);

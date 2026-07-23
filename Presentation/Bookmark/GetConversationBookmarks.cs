@@ -106,8 +106,8 @@ public class GetConversationBookmarksEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // GET /api/v1/conversations/{conversationId}/bookmarks/messages?page=&limit=&keyword=
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/bookmarks/messages",
+        // GET /api/v1/conversations/{conversationId}/bookmarks?page=&limit=&keyword=
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/bookmarks",
         async (ISender sender, string conversationId, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit, string? keyword = null) =>
         {
             var result = await sender.Send(new GetConversationBookmarks.Request(conversationId, page, limit, keyword));

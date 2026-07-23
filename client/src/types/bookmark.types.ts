@@ -34,6 +34,5 @@ export type ConversationLinkItem = {
 };
 
 export type GetConversationLinksResponse = {
-  hasMore: boolean;
   links: ConversationLinkItem[];
 };

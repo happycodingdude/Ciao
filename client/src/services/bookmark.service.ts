@@ -58,21 +58,16 @@ export const getConversationBookmarks = async (
   ).data ?? { hasMore: false, bookmarks: [] };
 };
 
-// Danh sách liên kết trong hội thoại (tab "Liên kết" của Media).
-export const getConversationLinks = async (
-  conversationId: string,
-  page: number,
-  limit: number = 20,
-) => {
+// Danh sách liên kết trong hội thoại (tab "Liên kết" của Media). KHÔNG phân trang —
+// BE trả tất cả link 1 lần (đồng bộ Images/Videos/Files), client tự cắt/scroll.
+export const getConversationLinks = async (conversationId: string) => {
   return (
     await HttpRequest<undefined, GetConversationLinksResponse>({
       method: "get",
       url: import.meta.env.VITE_ENDPOINT_CONVERSATION_LINKS.replace(
         "{id}",
         conversationId,
-      )
-        .replace("{page}", String(page))
-        .replace("{limit}", String(limit)),
+      ),
     })
   ).data;
 };

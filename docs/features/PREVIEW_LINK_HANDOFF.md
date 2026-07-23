@@ -198,3 +198,25 @@ Xử lý 2 rủi ro phát hiện khi rà soát: fetch trùng lặp (scale) và l
 **Verify:** harness chạy trên DLL đã build — 22/22 pass: round-trip ký/giải mã (gồm URL unicode, ký tự đặc biệt, URL dài), chặn chữ ký sai/rỗng/rác, **chặn tấn công đổi URL giữ chữ ký cũ** (chống trỏ vào địa chỉ nội bộ), chặn cross-key. BE build 0 error, FE typecheck sạch.
 
 **Hạn chế còn lại:** chống lạm dụng theo tần suất (rate-limit số link/người) vẫn chưa làm — nằm ngoài phạm vi đợt này.
+
+## 11. Bugfix — thẻ xem trước biến mất sau khi ĐĂNG NHẬP LẠI (2026-07-23, ✅ đã nghiệm thu)
+
+**Triệu chứng (user báo):** sau khi login lại, tab "Liên kết" trong kho media rỗng và thẻ xem trước trong khung chat biến mất, dù trước đó vẫn hiện và dữ liệu vẫn còn trong DB.
+
+**Root cause (đã xác minh, không đoán):** bước warm lại message cache lúc đăng nhập (`HandleUserLogin → GetConversationsWithUnseenMesages → ConversationCache.SetConversations`) dùng một **projection Mongo dạng whitelist** (`$project`→`$map` trên `Messages` trong `Infrastructure/Repositories/ConversationRepository.cs`). Projection này liệt kê tường minh từng field message được giữ — **field nào không liệt kê sẽ bị loại khỏi cache**. `LinkPreview`/`LinkPreviews` không nằm trong danh sách → mất khỏi cache sau mỗi lần login (Mongo vẫn nguyên; chỉ cache warmup rớt). Realtime (tin mới trong session) không dính vì đi đường khác.
+
+**Fix:** bổ sung các field còn thiếu vào `$map`. Cùng lúc phát hiện & vá 3 field khác cùng bản chất data-loss (whitelist bỏ sót):
+
+| Field bổ sung | Hệ quả nếu thiếu (đã từng xảy ra) |
+| --- | --- |
+| `LinkPreview` / `LinkPreviews` | Thẻ xem trước link biến mất sau login (**bug được báo**) |
+| `RecalledTime` / `RecalledByContactId` | Tin đã thu hồi hiện **bong bóng rỗng** thay vì placeholder "đã thu hồi" |
+| `EditedTime` | Mất dấu "đã chỉnh sửa" |
+
+> `Mentions` KHÔNG thêm — không có trên read-DTO `MessageReactionSummary` (đúng thiết kế: chỉ dùng khi gửi để tạo thông báo).
+
+**Bài học / phòng ngừa:** projection này là **landmine** — mỗi khi thêm field mới vào read-DTO message về sau đều PHẢI thêm dòng tương ứng vào `$map`, nếu không sẽ lại mất dữ liệu sau login lại. Bẫy này từng cắn `Poll`/`SharedContact` (đã thêm trước đây), nay tới `LinkPreview` + nhóm edit/recall.
+
+**File thay đổi:** `Infrastructure/Repositories/ConversationRepository.cs` (thêm 5 field vào `$map`).
+
+**Verify:** BE `dotnet build Infrastructure` 0 error. **Remediation khi deploy:** restart BE + user đang đăng nhập phải **login lại** để re-warm cache (tự lành từ Mongo — nguồn dữ liệu vẫn nguyên vẹn).

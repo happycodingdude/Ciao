@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { willResetPanelOnConversation } from "../../context/ChatDetailTogglesContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import useInView from "../../hooks/useInView";
 import {
   getJoinRequests,
   reviewJoinRequest,
@@ -22,16 +23,31 @@ const InformationJoinRequests = ({ conversationId }: Props) => {
   // contactId đang xử lý — khoá đúp nút khi chờ API.
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  // Panel Information luôn mounted (toggle bằng z-index) → chỉ fetch khi panel mở
-  // (cùng guard các section khác). Event JoinRequestUpdated invalidate khi panel mở.
+  // Panel Information luôn mounted (toggle bằng z-index) → chỉ fetch khi panel mở, không
+  // đang đổi conversation, VÀ section đã cuộn tới (lazy). Event JoinRequestUpdated invalidate
+  // khi panel mở. Section này ẩn hẳn khi rỗng nên cần "mốc vô hình" (bên dưới) để observer bắt.
   const { showInformation } = useChatDetailToggles();
+  const [sectionRef, inView] = useInView<HTMLDivElement>(conversationId);
   const { data: requests = [] } = useQuery({
     queryKey: ["joinRequests", conversationId],
     queryFn: () => getJoinRequests(conversationId),
-    enabled: showInformation && !willResetPanelOnConversation(conversationId),
+    enabled:
+      showInformation &&
+      !willResetPanelOnConversation(conversationId) &&
+      inView,
   });
 
-  if (requests.length === 0) return null;
+  // Chưa có yêu cầu (hoặc chưa fetch): render mốc 0-kích-thước giữ chỗ để IntersectionObserver
+  // biết section này ở đâu trong luồng cuộn → cuộn tới mới gọi API. Inline style ghi đè
+  // border/padding mà panel cha áp cho mọi con trực tiếp (tránh vạch/khoảng trống thừa).
+  if (requests.length === 0)
+    return (
+      <div
+        ref={sectionRef}
+        style={{ height: 0, padding: 0, borderWidth: 0 }}
+        aria-hidden
+      />
+    );
 
   const review = async (contactId: string, approved: boolean) => {
     if (processingId) return;
@@ -52,7 +68,7 @@ const InformationJoinRequests = ({ conversationId }: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={sectionRef} className="flex flex-col gap-4">
       <div className="flex min-h-8 items-center">
         <p className="font-medium">Join requests ({requests.length})</p>
       </div>

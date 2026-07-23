@@ -2,6 +2,10 @@
 
 > Cập nhật: 2026-07-23 — chuẩn hóa "Đã lưu" & "Đã ghim" về luồng thống nhất (tách lưu trữ, phân trang, load-more).
 
+> ⚠️ **Route trong doc này đã đổi (2026-07-23):** `messages/pinned` → `pins`, `bookmarks/messages`
+> → `bookmarks`, và id inline chuyển xuống `pins/ids` / `bookmarks/ids`. Nguồn chuẩn hiện tại:
+> `DOI_ENDPOINT_PINS_BOOKMARKS_VA_LAZY_LOAD_INFORMATION.md`.
+
 ## 0. Trạng thái triển khai & checklist khi quay lại (handoff)
 
 **Đã xong (code):**
@@ -134,7 +138,7 @@ VITE_ENDPOINT_MESSAGE_PINNED = '/conversations/{id}/messages/pinned?page={page}&
 VITE_ENDPOINT_CONVERSATION_BOOKMARK_IDS = '/conversations/{id}/bookmarks'
 VITE_ENDPOINT_CONVERSATION_BOOKMARK_MESSAGES = '/conversations/{id}/bookmarks/messages?page={page}&limit={limit}&keyword={keyword}'
 VITE_ENDPOINT_CONVERSATION_PINNED_IDS = '/conversations/{id}/messages/pinned/ids'
-VITE_ENDPOINT_CONVERSATION_LINKS = '/conversations/{id}/links?page={page}&limit={limit}'
+VITE_ENDPOINT_CONVERSATION_LINKS = '/conversations/{id}/links'   # 2026-07-23: bỏ ?page&limit (không phân trang)
 ```
 
 ## 6. Di trú dữ liệu (Phase 1 — bắt buộc)

@@ -7,18 +7,25 @@ import {
 
 // Phase 3 — Bookmark: trạng thái "đã lưu" của các tin trong 1 hội thoại + toggle.
 // Cache ["bookmarkIds", conversationId] = string[] messageId đã lưu (riêng tư per-user).
-// Fetch EAGER ngay khi vào hội thoại (đã thử lazy theo hover: gây chớp icon bookmark
-// ở lần hover đầu → user chốt quay lại eager); react-query dedupe nên cả hội thoại
-// chỉ tốn 1 request dù hook mount theo từng message menu.
-export const useBookmark = (conversationId: string | undefined) => {
+//
+// eager: giống usePinMessage — hook mount ở NHIỀU nơi (Chatbox + mỗi MessageMenu). Chỉ Chatbox
+// (eager=true) fetch /bookmarks/ids đúng 1 lần; observer theo từng message để eager=false → CHỈ
+// ĐỌC cache (enabled:false), không tự bắn thêm request kể cả khi query lỗi/stale (fix double-call).
+// (Đã thử lazy theo hover: gây chớp icon bookmark lần hover đầu → user chốt eager ở cấp hội thoại.)
+export const useBookmark = (
+  conversationId: string | undefined,
+  eager: boolean = false,
+) => {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
 
   const { data: bookmarkIds } = useQuery({
     queryKey: ["bookmarkIds", conversationId],
     queryFn: () => getConversationBookmarkIds(conversationId!),
-    enabled: !!conversationId,
+    enabled: eager && !!conversationId,
     staleTime: 5 * 60 * 1000,
+    // Đồng bộ qua realtime + optimistic setQueryData → không refetch khi focus lại cửa sổ.
+    refetchOnWindowFocus: false,
   });
 
   const isBookmarked = (messageId: string | undefined) =>

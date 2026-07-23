@@ -4,6 +4,7 @@ import QRCode from "react-qr-code";
 import { toast } from "react-toastify";
 import { willResetPanelOnConversation } from "../../context/ChatDetailTogglesContext";
 import useChatDetailToggles from "../../hooks/useChatDetailToggles";
+import useInView from "../../hooks/useInView";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import {
   createGroupInvite,
@@ -99,13 +100,17 @@ const InformationInvite = ({ conversationId }: Props) => {
   const [expiresInHours, setExpiresInHours] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Panel Information luôn mounted (toggle bằng z-index) → chỉ fetch khi panel
-  // đang mở và không sắp bị reset do đổi conversation (cùng guard các section khác).
+  // Panel Information luôn mounted (toggle bằng z-index) → chỉ fetch khi panel đang mở,
+  // không sắp bị reset do đổi conversation, VÀ section đã được cuộn tới (lazy theo viewport).
   const { showInformation } = useChatDetailToggles();
+  const [sectionRef, inView] = useInView<HTMLDivElement>(conversationId);
   const { data, isLoading } = useQuery({
     queryKey: ["groupInvite", conversationId],
     queryFn: () => getGroupInvite(conversationId),
-    enabled: showInformation && !willResetPanelOnConversation(conversationId),
+    enabled:
+      showInformation &&
+      !willResetPanelOnConversation(conversationId) &&
+      inView,
   });
   const invite = data?.invite ?? null;
 
@@ -161,7 +166,7 @@ const InformationInvite = ({ conversationId }: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={sectionRef} className="flex flex-col gap-4">
       <div className="flex min-h-8 items-center justify-between">
         <p className="font-medium">Invite link</p>
         <i

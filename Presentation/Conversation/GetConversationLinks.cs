@@ -2,11 +2,14 @@ namespace Presentation.Conversations;
 
 /// <summary>
 /// Danh sách liên kết đã gửi trong hội thoại (cho tab "Liên kết" của phần Media).
-/// Gom từ LinkPreviews của các tin text còn hiệu lực (bỏ tin đã thu hồi), mới trước, phân trang.
+/// Gom từ LinkPreviews của các tin text còn hiệu lực (bỏ tin đã thu hồi), mới trước.
+/// Trả TẤT CẢ link 1 lần — KHÔNG phân trang (đồng bộ cách Images/Videos/Files lấy từ
+/// getAttachments): nguồn là MessageCache in-memory nên đằng nào cũng materialize hết,
+/// paging chỉ là Skip/Take thừa. Client tự cắt (preview) hoặc render hết trong scroll (panel).
 /// </summary>
 public static class GetConversationLinks
 {
-    public record Request(string conversationId, int page, int limit) : IRequest<GetConversationLinksResponse>;
+    public record Request(string conversationId) : IRequest<GetConversationLinksResponse>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -38,10 +41,9 @@ public static class GetConversationLinks
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult.ToString());
 
-            var paging = new PagingParam(request.page, request.limit);
             var messages = await _messageCache.GetMessages(request.conversationId);
 
-            var allLinks = messages
+            var links = messages
                 .Where(m => m.RecalledTime is null)
                 .OrderByDescending(m => m.CreatedTime)
                 .SelectMany(m =>
@@ -64,12 +66,7 @@ public static class GetConversationLinks
                 })
                 .ToList();
 
-            var pageItems = allLinks.Skip(paging.Skip).Take(paging.Limit).ToList();
-            return new GetConversationLinksResponse
-            {
-                HasMore = allLinks.Count > paging.Skip + paging.Limit,
-                Links = pageItems
-            };
+            return new GetConversationLinksResponse { Links = links };
         }
     }
 }
@@ -79,9 +76,9 @@ public class GetConversationLinksEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/links",
-        async (ISender sender, string conversationId, int page = AppConstants.DefaultPage, int limit = AppConstants.DefaultLimit) =>
+        async (ISender sender, string conversationId) =>
         {
-            var result = await sender.Send(new GetConversationLinks.Request(conversationId, page, limit));
+            var result = await sender.Send(new GetConversationLinks.Request(conversationId));
             return Results.Ok(result);
         }).RequireAuthorization();
     }

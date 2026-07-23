@@ -50,8 +50,8 @@ public class GetConversationPinnedIdsEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // GET /api/v1/conversations/{conversationId}/pins
-        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/pins",
+        // GET /api/v1/conversations/{conversationId}/pins/ids
+        app.MapGroup(AppConstants.ApiGroup_Conversation).MapGet("{conversationId}/pins/ids",
         async (ISender sender, string conversationId) =>
         {
             var result = await sender.Send(new GetConversationPinnedIds.Request(conversationId));
